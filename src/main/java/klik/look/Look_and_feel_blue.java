@@ -20,6 +20,12 @@ public class Look_and_feel_blue extends Look_and_feel
         return "/images/blue_trash.png";
     }
 
+    @Override
+    protected String get_broken_icon_file_name()
+    {
+        return "images/broken.png";
+    }
+
 
     @Override
     protected String get_folder_icon_file_name()
@@ -31,6 +37,12 @@ public class Look_and_feel_blue extends Look_and_feel
     {
         return "/images/blue_up.png";
     }
+
+    @Override
+    protected String get_default_image_file_name()    {
+        return "images/wooden_camera.png";
+    }
+
 
     @Override
     public void set_directory_style(Button button) {

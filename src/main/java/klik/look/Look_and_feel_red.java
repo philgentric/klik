@@ -22,6 +22,23 @@ public class Look_and_feel_red extends Look_and_feel
         return "/images/wooden_trash.png";
     }
 
+    @Override
+    protected String get_broken_icon_file_name()
+    {
+        return "images/broken.png";
+    }
+
+    @Override
+    protected String get_up_icon_file_name()    {
+        return "images/wooden_up_arrow2.png";
+    }
+
+    @Override
+    protected String get_default_image_file_name()    {
+        return "images/wooden_camera.png";
+    }
+
+
 
     @Override
     protected String get_folder_icon_file_name()

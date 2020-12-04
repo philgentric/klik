@@ -1,4 +1,4 @@
-package klik.images;
+package klik.video;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;

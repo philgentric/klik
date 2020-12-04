@@ -21,6 +21,12 @@ public class Look_and_feel_plain extends Look_and_feel
     }
 
     @Override
+    protected String get_broken_icon_file_name()
+    {
+        return "images/broken.png";
+    }
+
+    @Override
     protected String get_up_icon_file_name()
     {
         return "/images/black_up.png";

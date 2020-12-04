@@ -1,10 +1,8 @@
 package klik.browser;
 
-import com.drew.metadata.Face;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
@@ -12,15 +10,12 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import klik.change.Change_gang;
-import klik.deduplicate.Deduplication;
 import klik.images.Multiple_image_stage;
-import klik.images.Video_stage;
-import klik.look.Look_and_feel;
+//implement_video
+//import klik.video.Video_stage;
 import klik.images.Exif_metadata_extractor;
 import klik.images.Image_stage;
 import klik.look.Look_and_feel_manager;
@@ -30,7 +25,6 @@ import klik.util.Stack_trace_getter;
 import klik.util.Tool_box;
 
 import java.awt.*;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -95,16 +89,16 @@ public class Item_image extends Item
                 return;
             }
             {
-                logger.log("\n\nItem_image OnMouseClicked "+get_Path());
-                if (Guess_file_type_from_extension.is_this_path_a_video(get_Path()))
-                {
-                    open_a_video(from_stage, logger);
-                }
-                else
-                {
+                logger.log("\n\nItem_image OnMouseClicked " + get_Path());
+                //implement_video
+               // if (Guess_file_type_from_extension.is_this_path_a_video(get_Path())) {
+               //     open_a_video(from_stage, logger);
+               // } else
+                    {
                     open_an_image(from_stage, logger);
                 }
             }
+
         });
         imageview.setManaged(false);
 
@@ -125,6 +119,8 @@ public class Item_image extends Item
             Change_gang.report_anomaly(get_Path());
         }
     }
+
+    /*
 
     //**********************************************************
     private void open_a_video(Stage from_stage, Logger logger)
@@ -157,7 +153,7 @@ public class Item_image extends Item
             }
         }
     }
-
+*/
     //**********************************************************
     public ContextMenu define_a_menu_to_the_imageview()
     //**********************************************************
