@@ -297,7 +297,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         the_scene.setOnDragDropped(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
-                Tool_box.accept_drag_dropped_as_a_move_in(event, dir, the_scene, "scene of browser", logger);
+                Tool_box.accept_drag_dropped_as_a_move_in(event, dir,the_pane, "scene of browser", logger);
             }
         });
 

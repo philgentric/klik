@@ -222,7 +222,7 @@ public class Item_non_image extends Item
                 Tool_box.accept_drag_dropped_as_a_move_in(
                         event,
                         path,
-                        null,
+                        button,
                         "button",
                         logger);
                 /*
@@ -232,7 +232,7 @@ public class Item_non_image extends Item
                 List<File> l = db.getFiles();
                 List<Old_and_new_Path> loan = new ArrayList<Old_and_new_Path>();
                 for (File fff : l) {
-                    if ( dbg) logger.log("drag ACCEPTED for: " + fff.getAbsolutePath());
+                    if ( dbg) logger.log(" 1 drag ACCEPTED for: " + fff.getAbsolutePath());
 
                     Path new_fff = Paths.get(path.toAbsolutePath().toString(), fff.getName());
 

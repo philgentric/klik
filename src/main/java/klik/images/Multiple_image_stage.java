@@ -654,7 +654,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
                 Dragboard db = event.getDragboard();
                 List<File> l = db.getFiles();
                 for (File fff : l) {
-                    logger.log("drag ACCEPTED for: " + fff.getAbsolutePath());
+                    logger.log(" 3 drag ACCEPTED for: " + fff.getAbsolutePath());
 
                     show_wait_cursor();
                     ic = Image_context.get_Image_context(fff.toPath(), logger);

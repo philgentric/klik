@@ -56,6 +56,8 @@ public class Look_and_feel_manager
         registered.add(shiny_black);
         Look_and_feel red = new Look_and_feel_red(logger_);
         registered.add(red);
+        Look_and_feel blue = new Look_and_feel_blue(logger_);
+        registered.add(blue);
         instance = Properties.get_style(logger_);
 
     }

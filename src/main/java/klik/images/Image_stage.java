@@ -781,7 +781,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
                 Dragboard db = event.getDragboard();
                 List<File> l = db.getFiles();
                 for (File fff : l) {
-                    logger.log("drag ACCEPTED for: " + fff.getAbsolutePath());
+                    logger.log(" 2 drag ACCEPTED for: " + fff.getAbsolutePath());
 
                     show_wait_cursor();
                     image_context = Image_context.get_Image_context(fff.toPath(), logger);

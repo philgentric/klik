@@ -2,11 +2,13 @@ package klik.util;
 
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
+import klik.browser.Item;
 import klik.change.Command_old_and_new_Path;
 import klik.change.Old_and_new_Path;
 import klik.change.Status_old_and_new_Path;
@@ -172,7 +174,7 @@ public class Tool_box {
             // MAGIC: try up to 2000 new names
             for (int i = 0; i < 2000; i++) {
                 if (Files.exists(oandn.get_new_Path()) == false) {
-                    Old_and_new_Path oandn2 = do_the_rename(logger, oandn);
+                    Old_and_new_Path oandn2 = do_the_move(logger, oandn);
                     the_list2.add(oandn2);
                     break;
                 }
@@ -208,7 +210,7 @@ public class Tool_box {
 
 
     //**********************************************************
-    private static Old_and_new_Path do_the_rename(Logger logger, Old_and_new_Path oandn)
+    private static Old_and_new_Path do_the_move(Logger logger, Old_and_new_Path oandn)
     //**********************************************************
     {
         if ( oandn.get_old_Path().toAbsolutePath().toString().equals( oandn.get_new_Path().toAbsolutePath().toString()))
@@ -357,43 +359,52 @@ public class Tool_box {
     public static void accept_drag_dropped_as_a_move_in(
             DragEvent event,
             Path destination_dir,
-            Scene excluded,
+            Node excluded,
             String origin,
             Logger logger)
     //**********************************************************
     {
-        /*
+
         Object source = event.getGestureSource();
         if (source == null) {
             logger.log("source class is null for" + event.toString());
         } else {
+            if ( source == excluded)
+            {
+                logger.log("source is excluded: cannot drop onto itself");
+                event.consume();
+                return;
+
+            }
+            logger.log(Stack_trace_getter.get_stack_trace("source class is:" + source.getClass().getName()));
+            logger.log("excluded class is:" + excluded.getClass().getName());
             if ( source instanceof Item)
             {
-                //logger.log("source class is:" + source.getClass().getName());
                 Item item = (Item) source;
-                Scene scene_of_source = item.getScene();
+                Node node_of_source = item.get_Node();
+                logger.log("excluded:" + excluded);
 
                 // data is dragged over the target
                 // accept it only if it is not dragged from the same node
-                if (scene_of_source == excluded) {
+                if (node_of_source == excluded) {
                     logger.log("drag reception for stage: same scene, giving up<<");
                     event.consume();
                     return;
                 }
             }
 
-        }*/
+        }
 
         Dragboard db = event.getDragboard();
 
 
         String s = db.getString();
         if (s != null) {
-            logger.log(origin + " drag ACCEPTED for STRING: " + s);
+            logger.log(origin + " 4 drag ACCEPTED for STRING: " + s);
             List<File> list = new ArrayList<>();
             for (String ss : s.split("\\r?\\n")) {
                 if (ss.isBlank()) continue;
-                logger.log(origin + " drag ACCEPTED for additional file: " + ss);
+                logger.log(origin + " 5 drag ACCEPTED for additional file: " + ss);
                 list.add(new File(ss));
             }
             Tool_box.safe_move_files_or_dirs(destination_dir, logger, list);
@@ -402,7 +413,7 @@ public class Tool_box {
         } else {
             List<File> l = db.getFiles();
             for (File fff : l) {
-                logger.log(origin + " drag ACCEPTED for: " + fff.getAbsolutePath());
+                logger.log(origin + " 6 drag ACCEPTED for: " + fff.getAbsolutePath());
                 Tool_box.safe_move_a_file_or_dir(destination_dir, logger, fff);
             }
         }

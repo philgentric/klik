@@ -1,0 +1,440 @@
+package klik.util;
+
+import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
+
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+
+
+
+
+
+/*
+ * 
+ * WARNING: the date tag is NOT the time of calling log(...), but the time when the log is processed
+ * which can be quite different when the system is under heavy load
+ * 
+ * this is a FULLY ASYNCHRONOUS FAST STATIC FREE logger: 
+ * it uses:
+ * - a (not so large) private ring buffer (Disruptor)
+ * - a constantly open private file descriptor
+ * - it defers system.out console printing to the thread (incurring a delay)
+ * which is why it is as fast as can be...
+ * BUT it IS resource-expensive
+ * 
+ * NOTE WELL: the file descriptor will only be closed by calling close()
+ * 
+ * So, if you use too many instances or if you forget to call close()...
+ * you will run out of file descriptors...(which may not be that easy to figure out BTW)
+ * 
+ * If you want to trace using many different Logger(s)
+ * because you want each trace to go to a different files 
+ * consider using another logger
+ * 
+ * NOTE WELL: dont call flush(), call close() when you are finished, it will flush
+ */
+
+
+
+
+//*******************************************************
+class Message_event 
+//*******************************************************
+{
+	//Stored_message value;
+	boolean also_system_out;
+	boolean date_tag;
+	String message;
+
+	public void set(String m, boolean aso, boolean date_tag_)
+	{
+		this.message = m;
+		this.also_system_out = aso;
+		date_tag = date_tag_;
+	}
+};
+
+
+//*******************************************************
+class Message_event_factory implements EventFactory<Message_event>
+//*******************************************************
+{
+	public Message_event newInstance()
+	{
+		return new Message_event();
+	}
+}
+
+//*******************************************************
+public class Disruptor_logger implements Logger, EventHandler<Message_event>
+//*******************************************************
+{
+	private static final int FILESIZE = 1000000;
+
+	//public final static String 	FINAL =	"Logger closing: sending this message to unlock flushing thread, please ignore";
+	private static final int RING_BUFFER_SIZE = 4096;
+
+	private static final boolean MEMORY_MAPPED_FILE = false; // last bench on macos: improves from ~5 Mlog/s to ~10
+	private static final String EOL = "\n";
+
+	private static final boolean use_sb = true;
+
+	private static final boolean dbg = false;
+	StringBuilder sb = new StringBuilder(500);
+
+	AtomicInteger water_level = new AtomicInteger(0);
+
+	BufferedWriter bw;
+	ByteBuffer buf_EOL;
+	FileChannel file_channel;
+	MappedByteBuffer memory_mapped;
+	RandomAccessFile raf;
+	long absolute_position_in_file = 0;
+	
+	RingBuffer<Message_event> ring_buffer;
+
+	private String closing_trace = "not opeened yet ? no closing trace?";
+
+	private int current_size; 
+
+	static ThreadPoolExecutor executor;
+
+	//*******************************************************
+	public Disruptor_logger(String filename)
+	//*******************************************************
+	{
+		this(filename,false);
+	}
+	// this will open the file AND keep it open
+	// if you choose the static way, the file will be opened every time in append mode (less efficient, but by how much?)
+	// also this flavor will flush the file every 10 seconds
+	// so that you can open it in an editor and get SOME updates...
+	//*******************************************************
+	public Disruptor_logger(String filename, boolean local)
+	//*******************************************************
+	{
+		Message_event_factory factory = new Message_event_factory();
+
+		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
+		int num_proc = Runtime.getRuntime().availableProcessors();
+		//ExecutorService executor = Executors.newCachedThreadPool();
+		executor = new ThreadPoolExecutor(num_proc, num_proc, 10, TimeUnit.SECONDS, workQueue );
+		//Disruptor<Message_event> disruptor = new Disruptor<>(factory , FAST_REPORTER_QUEUE_SIZE, DaemonThreadFactory.INSTANCE);
+		//Disruptor<Message_event> disruptor = new Disruptor<>(factory, RING_BUFFER_SIZE, executor, ProducerType.SINGLE, new BlockingWaitStrategy());
+		Disruptor<Message_event> disruptor = new Disruptor<>(factory , RING_BUFFER_SIZE, executor.getThreadFactory());
+
+		disruptor.handleEventsWith(this);
+
+		ring_buffer =  disruptor.getRingBuffer();
+
+		filename = Logger.make_absolute_file_path(local,filename);
+		if ( MEMORY_MAPPED_FILE)
+		{
+			try 
+			{
+				File f = new File(filename);
+				f.delete();
+				raf = new RandomAccessFile(filename,"rw");
+				file_channel = raf.getChannel();
+				memory_mapped = file_channel.map(FileChannel.MapMode.READ_WRITE, 0, FILESIZE);
+				memory_mapped.clear();
+				current_size = FILESIZE;
+				absolute_position_in_file = 0;
+
+			} 
+			catch (FileNotFoundException e) 
+			{
+				e.printStackTrace();
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			
+
+		}
+		else
+		{
+			bw = open(filename, false);			
+		}
+		closing_trace = "file open!";
+
+		Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(this);
+
+		disruptor.start();
+	}
+
+
+
+	//*******************************************************
+	private static BufferedWriter open (String filename,boolean append)
+	//*******************************************************
+	{
+		File out = new File(filename);
+		BufferedWriter local;
+		try 
+		{
+			local = new BufferedWriter(new FileWriter(out,append), 32768);
+		}
+		catch (IOException e)
+		{
+			System.out.println("FATAL: Logger: open failed for:"+out.getAbsolutePath());
+			return null;
+		}
+		if ( dbg) System.out.println("logger: open OK for:"+out.getAbsolutePath());
+		return local;
+	}
+
+
+
+	//*******************************************************
+	@Override
+	public void log(boolean show_date_tag, boolean also_System_out_println, String s)
+	//*******************************************************
+	{
+		water_level.incrementAndGet();
+		long sequence = ring_buffer.next();  // Grab the next sequence
+		try
+		{
+			Message_event event = ring_buffer.get(sequence); // Get the entry in the Disruptor
+			// for the sequence
+			//Stored_message sm = new Stored_message(also_System_out_println, s);
+			//event.set(sm );  // Fill with data
+			event.set(s, also_System_out_println, show_date_tag);
+		}
+		finally
+		{
+			ring_buffer.publish(sequence);
+		}
+	}
+
+	//*******************************************************
+	private boolean process_string(String m, boolean also_system_out, boolean date_tag)
+	//*******************************************************
+	{
+		if ( use_sb)
+		{
+			if ( date_tag)
+			{
+				sb.setLength(0); // reset!
+				//sb.append(ZonedDateTime.now().toString());
+				//sb.append(Instant.now().toString());
+				sb.append(Nano_time.get_ISO8601_string_Zulu_of_now());
+				sb.append(" ");
+				sb.append(m);
+				//sb.append("\n");
+				m = sb.toString();
+			}
+		}
+		else
+		{
+			if (date_tag) m = Logger.add_time_stamp(m);
+		}
+		if ( also_system_out) Logger.system_out( m);
+
+
+		if ( MEMORY_MAPPED_FILE)
+		{
+			if ( file_channel == null)
+			{
+				sorry_guys(m);
+				return false;
+			}
+			byte[] bytes =  m.getBytes();
+
+			int position = memory_mapped.position();
+			//System.out.println("Limit= "+memory_mapped.limit()+" Capacity= "+memory_mapped.capacity()+" Position= "+position);
+			if (bytes.length > memory_mapped.limit()-position)
+			{
+				//System.out.println("going to re-map the buffer because: bytes.length= "+bytes.length+" > limit-position= "+(memory_mapped.limit()-position));
+
+				// increase the file size
+				try {
+					memory_mapped = file_channel.map(FileChannel.MapMode.READ_WRITE, absolute_position_in_file,FILESIZE );
+					memory_mapped.clear();
+					current_size += FILESIZE;
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			memory_mapped.put(bytes);
+			absolute_position_in_file += bytes.length;
+			memory_mapped.put(EOL.getBytes());
+			absolute_position_in_file += EOL.getBytes().length;
+			
+		}
+		else
+		{
+			if ( bw == null)
+			{
+				sorry_guys(m);
+				return false;
+			}
+			try 
+			{
+				bw.write(m);
+				bw.write("\n");
+			} 
+			catch (IOException e)
+			{
+				// this occurs when closing a logger before a thread using it dies
+				// there is a race condition when the "if (local_bw == null)" does not catch
+				// that the stream has been closed outside of the flushing thread
+				System.out.println(e);
+				sorry_guys(m);
+				return false;
+			}
+			catch (NullPointerException e)
+			{
+				// this occurs when closing a logger before a thread using it dies
+				// there is a race condition when the "if (local_bw == null)" does not catch
+				// that the stream has been closed outside of the flushing thread
+				System.out.println(e);
+				sorry_guys(m);
+				return false;
+			}
+
+		}
+		return true; // "normal" output
+	}
+
+
+
+	//*******************************************************
+	private void sorry_guys(String m) 
+	//*******************************************************
+	{
+		System.out.println("Disruptor_logger ERROR (file has been CLOSED??)... s=->"+m+"<-");
+		System.out.println("Disruptor_logger CLOSING occured here:\n"+closing_trace);
+	}
+
+
+
+	/*
+	 * termination
+	 * can be gracefull i.e.e slow_but_clean
+	 * or brutal
+	 * in ALL cases we MUST make sure the descriptor BW is CLOSED
+	 * so we perform the close from within the flushing thread just before it exits
+	 * 
+	 * so in case of clean exit this means that we need to reopen if the message queue is not empty
+	 */
+
+	//*******************************************************
+	@Override
+	public void close()
+	//*******************************************************
+	{
+		close(true);
+	}
+
+
+	//*******************************************************
+	@Override
+	public void close(boolean slow_but_clean)
+	//*******************************************************
+	{
+		/*
+		 * wait for the threaded data pump to empty its queue
+		 */
+		for(int k = 0 ; k < 1000;  k *= 2)
+		{
+			if (water_level.get() == 0) break;
+			try 
+			{
+				Thread.sleep(k);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if ( MEMORY_MAPPED_FILE)
+		{
+			try 
+			{
+				//System.out.println("Disruptor NIO fileChannel.close()");
+								
+				while ( memory_mapped.hasRemaining())
+				{
+					memory_mapped.put((byte) 0);
+				}
+				
+				FileChannel local = file_channel;
+				file_channel = null;
+				local.close();
+				raf.close();
+				closing_trace = Stack_trace_getter.get_stack_trace("Disruptor file closed from here:");
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			
+		}
+		else
+		{
+			try 
+			{
+				BufferedWriter local = bw;
+				bw = null;
+				local .close();
+				closing_trace = Stack_trace_getter.get_stack_trace("Disruptor file closed from here:");
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			bw = null;
+
+		}
+	}
+
+
+
+
+	@Override
+	public void onEvent(Message_event event, long sequence, boolean endOfBatch) throws Exception 
+	{
+		process_string(event.message,event.also_system_out, event.date_tag);
+		water_level.decrementAndGet();
+		if ( endOfBatch) flush();
+	}
+
+
+
+	@Override
+	public void flush() 
+	{
+		//System.out.println("flush");
+		try 
+		{
+			if ( MEMORY_MAPPED_FILE)
+			{
+				// no, dont do this, it makes the thing significanlty slower
+				//if ( file_channel != null) file_channel.force(false);
+			}
+			else
+			{
+				// because this is probably doing nothing
+				if ( bw != null) bw.flush();
+			}
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+
+
+}

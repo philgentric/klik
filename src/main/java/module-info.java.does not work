@@ -1,0 +1,8 @@
+module klik {
+    requires javafx.base;
+    requires javafx.controls;
+    requires javafx.swing;
+    requires javafx.graphics;
+    requires com.lmax.disruptor;
+    //requires com.drew.metadata;
+}

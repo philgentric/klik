@@ -31,7 +31,7 @@ public class Look_and_feel_shiny_black extends Look_and_feel
     @Override
     public void set_hovered_directory_style(Button button) {
         button.setStyle(HOVERED_SHINY_DARK);
-        button.toFront();
+        //button.toFront();
     }
 
     @Override
@@ -64,18 +64,18 @@ public class Look_and_feel_shiny_black extends Look_and_feel
             "linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), " +
             "linear-gradient(#020b02, #3a3a3a), " +
             "linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%); " +
-            "-fx-background-insets: 0,1,4; " +
-            "-fx-background-radius: 9,8,5;";
+            "-fx-background-insets: 0,1,4,4; " +
+            "-fx-background-radius: 9,8,5,3;";
     public static final String HOVERED_SHINY_DARK = "-fx-text-fill:darkgrey; " +
-            "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);" +
+            //"-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);" +
             //"-fx-padding: 15 30 15 30; " +
             "-fx-font-family: \"Helvetica\"; " +
             "-fx-font-size: 16px; " +
             "-fx-font-weight: bold; " +
-            "-fx-background-color: " +
-            "linear-gradient(#686868 0%, #222222 25%, #444444 75%, #666666 100%), " +
-            "linear-gradient(#020b02, #3a3a3a), " +
-            "linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%); " +
+            "-fx-background-color: white;" +
+            //"linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), " +
+            //"linear-gradient(#020b02, #3a3a3a), " +
+            //"linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%); " +
             "-fx-background-insets: 0,1,4; " +
             "-fx-background-radius: 9,8,5;";
 
