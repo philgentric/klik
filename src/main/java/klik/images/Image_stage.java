@@ -24,6 +24,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import klik.I18N.I18n;
 import klik.change.*;
 import klik.find.Finder_in_a_thread;
 import klik.browser.Browser;
@@ -326,7 +327,11 @@ public class Image_stage implements After_move_handler, Slide_show_slave
 
         final ContextMenu contextMenu = new ContextMenu();
         contextMenu.setStyle("-fx-foreground-color: white;-fx-background-color: darkgrey;");
-        MenuItem info = new MenuItem("Path=" + image_context.path.toAbsolutePath() + " (i)");
+
+        ;
+
+        MenuItem info = new MenuItem(I18n.get_I18n_string("Info_about",logger)
+                + image_context.path.toAbsolutePath() + I18n.get_I18n_string("Info_about_file_shortcut",logger));
         contextMenu.getItems().add(info);
         info.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -334,7 +339,8 @@ public class Image_stage implements After_move_handler, Slide_show_slave
                 show_exif_stage(logger, image_context);
             }
         });
-        MenuItem edit = new MenuItem("Edit: open file in system-defined Editor for this file type (e)");
+
+        MenuItem edit = new MenuItem(I18n.get_I18n_string("Edit",logger));
         contextMenu.getItems().add(edit);
         edit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -342,7 +348,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
                 edit();
             }
         });
-        MenuItem open = new MenuItem("Open: open file in system-defined reader for this file type (o)");
+        MenuItem open = new MenuItem(I18n.get_I18n_string("Open",logger));
         contextMenu.getItems().add(open);
         open.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -352,7 +358,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
         });
 
 
-        MenuItem browse = new MenuItem("Browse the dir this image is in, in a new browsing window (b)");
+        MenuItem browse = new MenuItem(I18n.get_I18n_string("Browse",logger));
         contextMenu.getItems().add(browse);
         browse.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -363,7 +369,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
             }
         });
 
-        MenuItem rename = new MenuItem("Rename (r)");
+        MenuItem rename = new MenuItem(I18n.get_I18n_string("Rename_with_shortcut",logger));
         contextMenu.getItems().add(rename);
         rename.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -371,7 +377,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
                 ask_user_for_new_name();
             }
         });
-        MenuItem copy = new MenuItem("Copy (c)");
+        MenuItem copy = new MenuItem(I18n.get_I18n_string("Copy",logger));
         contextMenu.getItems().add(copy);
         copy.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -380,7 +386,8 @@ public class Image_stage implements After_move_handler, Slide_show_slave
             }
         });
 
-        MenuItem search_k = new MenuItem("Search images with same keywords (k)");
+
+        MenuItem search_k = new MenuItem(I18n.get_I18n_string("Search_images_by_keywords_from_this_ones_name",logger));
         contextMenu.getItems().add(search_k);
         search_k.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -389,7 +396,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
             }
         });
 
-        MenuItem search_y = new MenuItem("Choose keywords and search (f)");
+        MenuItem search_y = new MenuItem(I18n.get_I18n_string("Choose_keywords",logger));
         contextMenu.getItems().add(search_y);
         search_k.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -398,7 +405,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
             }
         });
 
-        MenuItem click_to_zoom = new MenuItem("Set click-to-zoom mode (z): use the mouse to select a zoom area");
+        MenuItem click_to_zoom = new MenuItem(I18n.get_I18n_string("Click_to_zoom",logger));
         contextMenu.getItems().add(click_to_zoom);
         click_to_zoom.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -407,7 +414,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
             }
         });
 
-        MenuItem drag_and_drop = new MenuItem("Set drag-and-drop mode (m): drag-and-drop images to another directory");
+        MenuItem drag_and_drop = new MenuItem(I18n.get_I18n_string("Drag_and_drop",logger));
         contextMenu.getItems().add(drag_and_drop);
         drag_and_drop.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -416,7 +423,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
             }
         });
 
-        MenuItem pix_for_pix = new MenuItem("Set pix-for-pix mode (=): use mouse to change the visible part of a large image");
+        MenuItem pix_for_pix = new MenuItem(I18n.get_I18n_string("Pix_for_pix",logger));
         contextMenu.getItems().add(pix_for_pix);
         pix_for_pix.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -428,7 +435,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
         if ( Guess_file_type_from_extension.is_gif_extension(image_context.path))
         {
             //MenuItem repair1 = new MenuItem("REPAIR step 1: Extract frames in temporary folder");
-            MenuItem repair1 = new MenuItem("REPAIR this gif");
+            MenuItem repair1 = new MenuItem(I18n.get_I18n_string("Repair_animated_gif",logger));
             contextMenu.getItems().add(repair1);
             repair1.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -451,7 +458,7 @@ public class Image_stage implements After_move_handler, Slide_show_slave
                 }
             });*/
         }
-        MenuItem undo_move = new MenuItem("UNDO last Move");
+        MenuItem undo_move = new MenuItem(I18n.get_I18n_string("Undo_LAST_move_or_delete",logger));
         contextMenu.getItems().add(undo_move);
         undo_move.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -1217,10 +1224,20 @@ public class Image_stage implements After_move_handler, Slide_show_slave
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog(image_context.path.getFileName().toString());
-        dialog.setTitle("Rename");
-        dialog.setHeaderText("To rename this image, enter the new name:");
-        dialog.setContentText("New name:");
 
+        {
+            String text = I18n.get_I18n_string("Rename",logger);// to: " + parent.toAbsolutePath().toString();
+            dialog.setTitle(text);
+        }
+        {
+            String text = I18n.get_I18n_string("Rename_explained",logger);// to: " + parent.toAbsolutePath().toString();
+            dialog.setHeaderText(text);
+
+        }
+        {
+            String text = I18n.get_I18n_string("New_name",logger);// to: " + parent.toAbsolutePath().toString();
+            dialog.setContentText(text);
+        }
         // The Java 8 way to get the response value (with lambda expression).
         //result.ifPresent(name -> logger.log("Your name: " + name));
         // Traditional way to get the response value.
@@ -1235,7 +1252,8 @@ public class Image_stage implements After_move_handler, Slide_show_slave
     private void copy()
     //**********************************************************
     {
-        if ( Tool_box.popup_ask_for_confirmation("Warning:","You requested that a COPY of this file should be made. Are you sure?") == false) return;
+        if ( Tool_box.popup_ask_for_confirmation(I18n.get_I18n_string("Warning",logger),
+                I18n.get_I18n_string("Copy_are_you_sure",logger),logger) == false) return;
 
         Path new_path = null;
         for (int i = 0; i < 2056; i++) {

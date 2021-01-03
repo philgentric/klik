@@ -3,6 +3,7 @@ package klik;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import klik.I18N.Local_manager;
 import klik.browser.Browser;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -37,6 +38,7 @@ public class Klik_application extends Application
         setUserAgentStylesheet(STYLESHEET_MODENA);
 
         Look_and_feel_manager.init_Look_and_feel(logger);
+        Local_manager.init_Locals(logger);
         Image icon = Look_and_feel_manager.get_default_icon(300);
         if ( icon != null) primary_stage.getIcons().add(icon);
 

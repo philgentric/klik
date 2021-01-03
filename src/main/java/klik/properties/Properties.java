@@ -29,6 +29,7 @@ public class Properties
     public static final String EXCLUDED_KEYWORD_PREFIX = "excluded_keyword_";
     public static final String ICON_SIZE_KEYWORD = "ICON_SIZE";
     public static final String STYLE_KEYWORD = "STYLE";
+    public static final String LANGUAGE_KEYWORD = "LANGUAGE";
 
 
     //**********************************************************
@@ -250,5 +251,26 @@ public class Properties
             logger.log(" ERROR setting max = 100" + e);
         }
         return max;
+    }
+
+    //**********************************************************
+    public static String get_language(Logger logger)
+    //**********************************************************
+    {
+        String s = get_properties_manager().get(LANGUAGE_KEYWORD);
+        if (s == null)
+        {
+            s = "english-US";
+        }
+        get_properties_manager().save_unico(LANGUAGE_KEYWORD, "" + s);
+        return s;
+    }
+
+    //**********************************************************
+    public static void set_language(String s)
+    //**********************************************************
+    {
+        get_properties_manager().save_unico(LANGUAGE_KEYWORD, "" + s);
+
     }
 }

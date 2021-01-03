@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
+import klik.I18N.I18n;
 import klik.browser.Item;
 import klik.change.Command_old_and_new_Path;
 import klik.change.Old_and_new_Path;
@@ -510,11 +511,11 @@ public class Tool_box {
     }
 
     //**********************************************************
-    public static boolean popup_ask_for_confirmation(String header, String content)
+    public static boolean popup_ask_for_confirmation(String header, String content, Logger logger)
     //**********************************************************
     {
         Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Please confirm!");
+        alert.setTitle(I18n.get_I18n_string("Please_confirm",logger));
         alert.setHeaderText(header);
         alert.setContentText(content);
 
@@ -664,7 +665,9 @@ public class Tool_box {
 
         long size =  get_size_on_disk(trash,logger);
 
-        if (false == popup_ask_for_confirmation("Warning: no recovery after delete", size/1000000+"MB of files will be truly deleted")) return;
+        String s1 = I18n.get_I18n_string("Warning_delete",logger);
+        String s2 = size/1000000+I18n.get_I18n_string("MB_deleted",logger);//"MB of files will be truly deleted";
+        if (false == popup_ask_for_confirmation(s1, s2,logger)) return;
 
         delete_all_files_in(trash, logger);
     }
@@ -721,8 +724,9 @@ public class Tool_box {
 
         long size = Tool_box.get_size_on_disk(icons,logger);
 
-        if (false == popup_ask_for_confirmation("Warning: \nDeleting icons will slow display the next time the directory is re-visited,\nsize on disk to be reclaimed :",size/1000000L+" MB of files "))
-            return;
+        String s1 = I18n.get_I18n_string("Warning_deleting_icon",logger);
+        String s2 = size/1000000L+I18n.get_I18n_string("MB_deleted",logger);
+        if (false == popup_ask_for_confirmation(s1,s2,logger)) return;
 
 
         delete_all_files_in(icons, logger);

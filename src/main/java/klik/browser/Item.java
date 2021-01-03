@@ -1,16 +1,20 @@
 package klik.browser;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import klik.I18N.I18n;
 import klik.util.Logger;
+import klik.util.Tool_box;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -87,6 +91,8 @@ public abstract class Item
     public abstract void set_MinHeight(double height);
     public abstract double get_Height();
     public abstract void set_Image(Image i, boolean real);
+    public abstract String get_string();
+
 
     //**********************************************************
     public void init_drag_and_drop()
@@ -145,7 +151,23 @@ public abstract class Item
         });
     }
 
+    public static MenuItem create_show_file_size_menu_item(Path path, boolean dbg, Logger logger)
+    {
+        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Show_file_size",logger));
+        menu_item.setOnAction(new EventHandler<ActionEvent>()
+        {
+            @Override
+            public void handle(ActionEvent event)
+            {
+                if (dbg) logger.log("File size");
 
-    public abstract String get_string();
+                String file_size = Tool_box.get_2_line_string_with_size(path);
+
+
+                Tool_box.popup_text(I18n.get_I18n_string("File_size_for",logger)+path.getFileName().toString(), file_size);
+            }
+        });
+        return menu_item;
+    }
 
 }

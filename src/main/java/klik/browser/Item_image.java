@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
+import klik.I18N.I18n;
 import klik.change.Change_gang;
 import klik.images.Multiple_image_stage;
 //implement_video
@@ -192,8 +193,8 @@ implement video
         ContextMenu context_menu = new ContextMenu();
 
         {
-            javafx.scene.control.MenuItem item2 = new javafx.scene.control.MenuItem("Rename");
-            item2.setOnAction(new EventHandler<ActionEvent>() {
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Rename",logger));
+            menu_item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event)
                 {
@@ -201,11 +202,11 @@ implement video
                     ask_user_for_new_name();
                 }
             });
-            context_menu.getItems().add(item2);
+            context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem item2 = new javafx.scene.control.MenuItem("Delete");
-            item2.setOnAction(new EventHandler<ActionEvent>()
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Delete",logger));
+            menu_item.setOnAction(new EventHandler<ActionEvent>()
             {
                 @Override
                 public void handle(ActionEvent event)
@@ -214,38 +215,18 @@ implement video
                     Tool_box.safe_delete_one(path, logger);
                 }
             });
-            context_menu.getItems().add(item2);
+            context_menu.getItems().add(menu_item);
 
         }
         {
-            javafx.scene.control.MenuItem item2 = new MenuItem("Show file size");
-            item2.setOnAction(new EventHandler<ActionEvent>()
-            {
-                @Override
-                public void handle(ActionEvent event)
-                {
-                    if (dbg) logger.log("File size");
-
-                    String file_size = Tool_box.get_2_line_string_with_size(path);
-
-
-                    Tool_box.popup_text("File size for:"+path.getFileName().toString(), file_size);
-                }
-            });
-            context_menu.getItems().add(item2);
+            MenuItem menu_item = Item.create_show_file_size_menu_item(path, dbg,logger);
+            context_menu.getItems().add(menu_item);
 
         }
         return context_menu;
-        /*
-        imageview.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>()
-        {
-            @Override
-            public void handle(ContextMenuEvent event)
-            {
-                context_menu.show(imageview, event.getScreenX(), event.getScreenY());
-            }
-        });*/
+
     }
+
 
 
     //**********************************************************

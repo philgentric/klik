@@ -22,6 +22,7 @@ import javafx.scene.text.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.I18N.I18n;
+import klik.I18N.Local_manager;
 import klik.change.After_move_handler;
 import klik.change.Change_gang;
 import klik.change.Old_and_new_Path;
@@ -41,7 +42,7 @@ import java.nio.file.*;
 import java.util.*;
 
 //**********************************************************
-public class Browser implements After_move_handler, Y_max_listener, Exception_recorder
+public class Browser implements After_move_handler, Y_max_listener, Exception_recorder, Scan_show_slave
 //**********************************************************
 {
     public static final boolean dbg = true;
@@ -55,6 +56,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     public final Stage the_stage;
     final Scene the_scene;
     final Pane the_pane;
+    final Top_pane top_pane;
     final Icon_manager icon_manager;
     final Logger logger;
     final Path dir;
@@ -88,6 +90,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         double height = 1080 - y;
         if (old_browser != null) {
             Change_gang.deregister(old_browser);
+            old_browser.stop_scan();
             old_browser.the_pane.getChildren().clear();
             offset = old_browser.icon_manager.get_y_offset();
             width = old_browser.the_stage.getWidth();
@@ -160,14 +163,14 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         }
 
         the_pane.getChildren().clear();
-        Top_pane tp = new Top_pane(
+        top_pane = new Top_pane(
                 this,
                 the_stage,
                 the_scene,
                 dir,
                 Look_and_feel_manager.get_instance().get_top_height(),
                 logger);
-        mandatory.add(tp.hBox);
+        mandatory.add(top_pane.hBox);
 
         //Button up_button = create_up_button();
         //mandatory.add(up_button);
@@ -225,19 +228,40 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                     }
                 });
 
+
         the_scene.setOnKeyTyped(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-
 
                 logger.log("" + keyEvent+ "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
                 if (keyEvent.isShiftDown()) logger.log("isShiftDown:" + keyEvent.isShiftDown());
                 if (keyEvent.isAltDown()) logger.log("isAltDown:" + keyEvent.isAltDown());
                 if ( keyEvent.isMetaDown()) logger.log("isMetaDown:" + keyEvent.isMetaDown());
 
+                if (keyEvent.getCharacter().equals("s"))
+                {
+                    logger.log("character is s");
+                    toggle_scan();
+                }
+                if (keyEvent.getCharacter().equals("w"))
+                {
+                    logger.log("character is w = slow down scan");
+                    slow_down_scan();
+                }
+                if (keyEvent.getCharacter().equals("x"))
+                {
+                    logger.log("character is w = speed up scan");
+                    speed_up_scan();
+                }
+
                 if (keyEvent.isMetaDown()) {
                     if (keyEvent.getCharacter().equals("a")) {
                         set_select_all(true);
+                    }
+                    if (keyEvent.getCharacter().equals("s"))
+                    {
+                        logger.log("character is s");
+                        toggle_scan();
                     }
                     if (keyEvent.getCharacter().equals("+")) {
                         zoom_plus();
@@ -331,52 +355,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             {
                 //double dx = event.getDeltaX();
                 double dy = event.getDeltaY();
-
-                boolean inverted = Tool_box.get_vertical_scroll();
-                if (inverted)
-                {
-                    //logger.log("scroll is inverted");
-                    dy = -dy;
-                }
-                else
-                {
-                    //logger.log("scroll is not inverted");
-                }
-
-                if (dbg) logger.log("scroll dy=" + dy);
-                //up_button.toFront();
-                tp.hBox.toFront();
-                double updated_dy = dy;
-                if (slider_mover == false)
-                {
-                    // scroll is in control of the ACTUAL move
-                    // which will change the dy value
-                    updated_dy = icon_manager.move_relative_master(the_stage, the_scene, the_pane, "scroll", dy, Look_and_feel_manager.get_instance().get_dir_height());
-                }
-                if (slider_indicator)
-                {
-                    double new_val = vertical_slider.getValue() - updated_dy;
-                    //double h = the_scene.getHeight();
-                    //new_val = icon_manager.compute_offset_absolute(new_val,h,dir_button_width);
-                    // this will only update the slider
-                    //logger.log("OnScroll vertical_slider.getValue()="+vertical_slider.getValue()+" dy=" + dy+"  new slider value = "+new_val);
-                    vertical_slider.setValue(new_val);
-                }
-
-
-
-                if (slider_mover )
-                {
-                    double new_val = vertical_slider.getValue() - dy;
-                    //double new_y = slider_to_scene(icon_manager, new_val);
-
-                    //double h = the_scene.getHeight();
-                    //new_y = icon_manager.compute_offset_absolute(new_y,h,dir_button_width);
-                    // move is delegated to the slider;, because with will cause "valueChanged"
-                    //logger.log("OnScroll vertical_slider.getValue()="+vertical_slider.getValue()+" dy=" + dy+"  new slider value = "+new_val);
-                    vertical_slider.setValue(new_val);
-                }
-
+                scroll(dy);
             }
         });
 
@@ -387,6 +366,54 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
             }
         });
+    }
+
+    private void scroll(double dy)
+    {
+        boolean inverted = Tool_box.get_vertical_scroll();
+        if (inverted)
+        {
+            //logger.log("scroll is inverted");
+            dy = -dy;
+        }
+        else
+        {
+            //logger.log("scroll is not inverted");
+        }
+
+        if (dbg) logger.log("scroll dy=" + dy);
+        top_pane.hBox.toFront();
+        double updated_dy = dy;
+        if (slider_mover == false)
+        {
+            // scroll is in control of the ACTUAL move
+            // which will change the dy value
+            updated_dy = icon_manager.move_relative_master(the_stage, the_scene, the_pane, "scroll", dy, Look_and_feel_manager.get_instance().get_dir_height());
+        }
+        if (slider_indicator)
+        {
+            double new_val = vertical_slider.getValue() - updated_dy;
+            //double h = the_scene.getHeight();
+            //new_val = icon_manager.compute_offset_absolute(new_val,h,dir_button_width);
+            // this will only update the slider
+            //logger.log("OnScroll vertical_slider.getValue()="+vertical_slider.getValue()+" dy=" + dy+"  new slider value = "+new_val);
+            vertical_slider.setValue(new_val);
+        }
+
+
+
+        if (slider_mover )
+        {
+            double new_val = vertical_slider.getValue() - dy;
+            //double new_y = slider_to_scene(icon_manager, new_val);
+
+            //double h = the_scene.getHeight();
+            //new_y = icon_manager.compute_offset_absolute(new_y,h,dir_button_width);
+            // move is delegated to the slider;, because with will cause "valueChanged"
+            //logger.log("OnScroll vertical_slider.getValue()="+vertical_slider.getValue()+" dy=" + dy+"  new slider value = "+new_val);
+            vertical_slider.setValue(new_val);
+        }
+
     }
 
     private List<Path> videos_for_which_giffing_failed = new ArrayList<>();
@@ -808,6 +835,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         }
         create_menu_item_for_icon_size(context_menu);
         create_menu_item_for_style(context_menu);
+        create_menu_item_for_language(context_menu);
 
 
 
@@ -819,6 +847,17 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 @Override
                 public void handle(ActionEvent event) {
                     Tool_box.clear_icon_cache(logger);
+                }
+            });
+            context_menu.getItems().add(item);
+        }
+        {
+            String text = I18n.get_I18n_string("Start_stop_slow_scan",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text);
+            item.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                   toggle_scan();
                 }
             });
             context_menu.getItems().add(item);
@@ -846,6 +885,51 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         }
 
         context_menu.show(the_pane, x, y);
+    }
+
+
+    @Override
+    public void scroll_a_bit(double dy)
+    {
+        scroll(dy);
+    }
+
+    Scan_show the_scan_show;
+
+    private void start_scan()
+    {
+        the_scan_show = new Scan_show(this,logger);
+
+    }
+    private void stop_scan()
+    {
+        if (the_scan_show == null) return;
+        the_scan_show.stop_the_show();
+        the_scan_show = null;
+
+    }
+    private void toggle_scan()
+    {
+        if (the_scan_show == null) start_scan();
+        else stop_scan();
+    }
+    private void slow_down_scan()
+    {
+        if (the_scan_show == null)
+        {
+            start_scan();
+            return;
+        }
+        the_scan_show.slow_down();
+    }
+    private void speed_up_scan()
+    {
+        if (the_scan_show == null)
+        {
+            start_scan();
+            return;
+        }
+        the_scan_show.hurry_up();
     }
 
     private void create_history_menu(Menu history_menu)
@@ -927,6 +1011,48 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         menu.getItems().add(item);
 
     }
+
+    //**********************************************************
+    private void create_menu_item_for_language(ContextMenu context_menu)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Language",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Menu menu = new Menu(text);
+        context_menu.getItems().add(menu);
+        for( String s : Local_manager.get_registered_locals())
+        {
+            create_check_menu_item_for_language(menu, s);
+        }
+    }
+    //**********************************************************
+    private void create_check_menu_item_for_language(Menu menu, String s)
+    //**********************************************************
+    {
+        CheckMenuItem item = new CheckMenuItem("" + s);
+        String current = Properties.get_language(logger);
+        if (current.equals(s) )
+        {
+            item.setSelected(true);
+        } else {
+            item.setSelected(false);
+        }
+        Browser this_browser = this;
+        item.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                if (((CheckMenuItem) actionEvent.getSource()).isSelected())
+                {
+                    Local_manager.set_instance(s);
+                    I18n.reset();
+                    Browser.create_browser(this_browser,true, dir,true,logger);
+                }
+            }
+        });
+        menu.getItems().add(item);
+
+    }
+
     //**********************************************************
     private void create_menu_item_for_icon_size(ContextMenu context_menu)
     //**********************************************************
@@ -961,8 +1087,6 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             the_pane.setBackground(new Background(new BackgroundFill(Look_and_feel_manager.get_instance().get_background_color(), CornerRadii.EMPTY, Insets.EMPTY)));
         }
     }
-
-    //List<Old_and_new_Path> last_moves = new ArrayList<>();
 
     //**********************************************************
     private void search_images_by_keyworks()

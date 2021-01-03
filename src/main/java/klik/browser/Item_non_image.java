@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import klik.I18N.I18n;
 import klik.deduplicate.Deduplication;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -290,8 +291,8 @@ public class Item_non_image extends Item
 
         if ( is_trash == false)
         {
-            javafx.scene.control.MenuItem item2 = new javafx.scene.control.MenuItem("Rename");
-            item2.setOnAction(new EventHandler<ActionEvent>() {
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Rename",logger));
+            menu_item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event)
                 {
@@ -326,13 +327,13 @@ public class Item_non_image extends Item
                     });
                 }
             });
-            context_menu.getItems().add(item2);
+            context_menu.getItems().add(menu_item);
 
         }
         if ( is_trash)
         {
-            javafx.scene.control.MenuItem item2 = new javafx.scene.control.MenuItem("Clear trash folder");
-            item2.setOnAction(new EventHandler<ActionEvent>()
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Clear_Trash_Folder",logger));
+            menu_item.setOnAction(new EventHandler<ActionEvent>()
             {
                 @Override
                 public void handle(ActionEvent event)
@@ -341,12 +342,12 @@ public class Item_non_image extends Item
                     Tool_box.clear_trash(logger);
                 }
             });
-            context_menu.getItems().add(item2);
+            context_menu.getItems().add(menu_item);
         }
         else
         {
-            javafx.scene.control.MenuItem item2 = new javafx.scene.control.MenuItem("Delete");
-            item2.setOnAction(new EventHandler<ActionEvent>()
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Delete",logger));
+            menu_item.setOnAction(new EventHandler<ActionEvent>()
             {
                 @Override
                 public void handle(ActionEvent event)
@@ -355,12 +356,12 @@ public class Item_non_image extends Item
                     Tool_box.safe_delete_one(path, logger);
                 }
             });
-            context_menu.getItems().add(item2);
+            context_menu.getItems().add(menu_item);
 
         }
         if (Files.isDirectory(path))
         {
-            MenuItem size = new javafx.scene.control.MenuItem("Info: total data size on disk");
+            MenuItem size = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Get_folder_size",logger));
             context_menu.getItems().add(size);
             size.setOnAction(new EventHandler<ActionEvent>()
             {
@@ -400,7 +401,8 @@ public class Item_non_image extends Item
                                         //text = path.toAbsolutePath()+"\n size on disk: "+Tool_box.get_1_line_string_with_size(size);
                                         text = "size on disk: "+Tool_box.get_1_line_string_with_size(size);
                                     }
-                                    alert.setHeaderText("number of folders/files/images:"+d+"/"+f+"/"+i);
+                                    String s = I18n.get_I18n_string("Number_of_folders_files_images",logger);
+                                    alert.setHeaderText(s+d+"/"+f+"/"+i);
 
                                     Label label = new Label(text);
                                     label.setWrapText(true);
@@ -486,35 +488,23 @@ public class Item_non_image extends Item
             sub.getItems().add(item1);
             //item1.setDisable(true);
             */
-                javafx.scene.control.MenuItem item2 = new javafx.scene.control.MenuItem("De-duplicate ALL (see help!)");
-                item2.setOnAction(new EventHandler<ActionEvent>() {
+                javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("De-duplicate ALL (see help!)");
+                menu_item.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
                         trick.deduplication = new Deduplication(path.toFile(), logger);
                         trick.deduplication.look_for_all_files(true);
                     }
                 });
-                sub.getItems().add(item2);
-                //item2.setDisable(true);
+                sub.getItems().add(menu_item);
+                //menu_item.setDisable(true);
 
             }
         }
         else
         {
             // is a file
-            javafx.scene.control.MenuItem item2 = new MenuItem("Show file size");
-            item2.setOnAction(new EventHandler<ActionEvent>()
-            {
-                @Override
-                public void handle(ActionEvent event)
-                {
-                    if (dbg) logger.log("File size");
-                    String file_size = Tool_box.get_2_line_string_with_size(path);
-                    Tool_box.popup_text("File size", file_size);
-                }
-            });
-            context_menu.getItems().add(item2);
-
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(path, dbg,logger));
         }
         button.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>()
         {
@@ -525,7 +515,6 @@ public class Item_non_image extends Item
             }
         });
     }
-
 
 
     @Override

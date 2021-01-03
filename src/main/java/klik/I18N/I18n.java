@@ -2,33 +2,22 @@ package klik.I18N;
 
 import klik.util.Logger;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class I18n
 {
-    private static I18n instance = null;
 
     private ResourceBundle the_resource_bundle;
 
-    private I18n(Logger logger)
+    private I18n(String language, String country, Logger logger)
     {
-        String language = new String("fr");
-        String country = new String("FR");
-        Locale the_locale = new Locale(language, country);
-
-        /*Class klass = the_locale.getClass();
-        ClassLoader loader = klass.getClassLoader();
-        s = loader.
-         */
-
-            the_resource_bundle = ResourceBundle.getBundle("MessagesBundle", the_locale);
+        Locale the_locale = new Locale(language,country);
+        Locale.setDefault(the_locale);
+        the_resource_bundle = ResourceBundle.getBundle("MessagesBundle", the_locale);
         String classpath  = System.getProperty("java.class.path");
-            logger.log(" I18n found in classpath = "+classpath);
+        logger.log(" I18n found in classpath = "+classpath);
    }
+
 
     private String get_I18n_string_internal(String key, Logger logger)
     {
@@ -51,14 +40,28 @@ public class I18n
         }
     }
 
+
+    // cached instance
+
+    private static I18n cache = null;
+
     public static String get_I18n_string(String key, Logger logger)
     {
-        if (instance == null) instance = new I18n(logger);
-        if ( instance.the_resource_bundle == null)
+        if (cache == null)
+        {
+            Language language = Local_manager.get_instance();
+            cache = new I18n(language.language, language.country, logger);
+        }
+        if ( cache.the_resource_bundle == null)
         {
             return key;
         }
-        return instance.get_I18n_string_internal(key,logger);
+        return cache.get_I18n_string_internal(key,logger);
+    }
+
+    public static void reset()
+    {
+        cache = null;
     }
 
 }
