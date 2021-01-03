@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -23,6 +24,7 @@ public abstract class Look_and_feel
         Look_and_feel_manager.reset();
     }
 
+    public abstract Color get_background_color();
     protected abstract String get_trash_icon_file_name();
     protected abstract String get_broken_icon_file_name();
     protected String get_denied_icon_file_name()
@@ -35,24 +37,15 @@ public abstract class Look_and_feel
 
     protected abstract String get_default_image_file_name();
 
-
-    public static double get_top_button_height()
-    {
-        return Look_and_feel_manager.get_instance().get_top_height();
-    }
-
-    protected double get_top_height() {
+    public double get_top_height() {
         return 30;
     }
-
     public double get_dir_height() {
         return 30;
     }
-
     public double get_file_height() {
         return 30;
     }
-
 
     protected String get_folder_icon_file_name()
     {

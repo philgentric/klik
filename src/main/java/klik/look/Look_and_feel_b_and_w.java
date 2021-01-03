@@ -2,6 +2,7 @@ package klik.look;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.paint.Color;
 import klik.util.Logger;
 
 //**********************************************************
@@ -17,6 +18,11 @@ public class Look_and_feel_b_and_w extends Look_and_feel
     protected String get_broken_icon_file_name()
     {
         return "images/black_and_white/broken.png";
+    }
+
+    @Override
+    public Color get_background_color() {
+        return Color.BLACK;
     }
 
     @Override

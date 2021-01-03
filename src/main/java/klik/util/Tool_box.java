@@ -376,8 +376,8 @@ public class Tool_box {
                 return;
 
             }
-            logger.log(Stack_trace_getter.get_stack_trace("source class is:" + source.getClass().getName()));
-            logger.log("excluded class is:" + excluded.getClass().getName());
+            //logger.log(Stack_trace_getter.get_stack_trace("source class is:" + source.getClass().getName()));
+            //logger.log("excluded class is:" + excluded.getClass().getName());
             if ( source instanceof Item)
             {
                 Item item = (Item) source;

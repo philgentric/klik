@@ -38,7 +38,8 @@ public class Icon_factory
         //executor = new ThreadPoolExecutor(n_threads,n_threads,1, TimeUnit.SECONDS,new LinkedBlockingQueue<>());
         writer = Icon_writer_actor.launch_icon_writer(icon_cache_dir, logger);
         // start n_threads worker threads
-        for (int i = 0; i < n_threads; i++) {
+        for (int i = 0; i < n_threads; i++)
+        {
             start_one_LIFO_factory_thread_single();
         }
 
@@ -59,18 +60,24 @@ public class Icon_factory
     private void start_one_LIFO_factory_thread_single()
     //**********************************************************
     {
-        Runnable r = new Runnable() {
+        Runnable r = new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 if (dbg) logger.log("one Icon_factory_thread starting");
-                for (; ; ) {
-                    try {
+                for (; ; )
+                {
+                    try
+                    {
                         //if (dbg) logger.log(" Icon_factory_thread going to wait");
 
                         Icon_factory_request ifr = input_queue_single.pollFirst(1, TimeUnit.SECONDS);
-                        if (ifr == null) {
+                        if (ifr == null)
+                        {
                             // opportunity here to exit the thread
-                            if (die) {
+                            if (die)
+                            {
                                 logger.log("icon factory thread exiting");
                                 return;
                             }
@@ -79,15 +86,18 @@ public class Icon_factory
 
                         //Icon_factory_request ifr = input_queue_single.take();
                         process(ifr);
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException e)
+                    {
                         e.printStackTrace();
                     }
                 }
             }
         };
-        try {
+        try
+        {
             Tool_box.execute(r, logger);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
 
@@ -113,7 +123,8 @@ public class Icon_factory
         if (dbg) logger.log("icon request processing starts ");
 
         Item_image item_image = icon_factory_request.destination;
-        if (item_image == null) {
+        if (item_image == null)
+        {
             logger.log("icon factory : cancel!");
             input_queue_single.clear();
             return;
@@ -122,18 +133,18 @@ public class Icon_factory
         Image image = null;
         if (Guess_file_type_from_extension.is_this_path_a_video(item_image.get_Path()))
         {
-            image = process_video(icon_factory_request,item_image);
+            image = process_video(icon_factory_request, item_image);
         }
         else
-            {
-                image = process_image(icon_factory_request,item_image);
+        {
+            image = process_image(icon_factory_request, item_image);
         }
         if (dbg) logger.log("Icon_factory icon ready");
 
-        if ( image == null)
+        if (image == null)
         {
             // must treat as non_image
-            logger.log("RECORDING");
+            logger.log("RECORDING that making an icon failed for : "+item_image.get_Path());
             icon_factory_request.exception_recorder.record(item_image.get_Path());
             return;
         }
@@ -150,25 +161,30 @@ public class Icon_factory
         Image image = From_disk.load_icon_from_disk_cache_fx(item_image.get_Path(), icon_cache_dir, icon_factory_request.icon_size, logger);
 
 
-        if (image == null) {
+        if (image == null)
+        {
             if (dbg)
                 logger.log("Icon_factory thread:  load from cache FAILED for " + item_image.get_Path().getFileName());
 
             image = From_disk.load_icon_fx_from_disk(item_image.get_Path(), icon_factory_request.icon_size, logger);
-            if (image == null) {
+            if (image == null)
+            {
                 logger.log("Icon_factory thread: load from file FAILED for " + item_image.get_Path().getFileName());
                 return null;
             }
 
             // dont try to disk-cache for gifs, they are either small or animated
 
-            if (Guess_file_type_from_extension.is_gif_extension(item_image.get_Path()) == false) {
+            if (Guess_file_type_from_extension.is_gif_extension(item_image.get_Path()) == false)
+            {
                 if (dbg)
                     logger.log("Icon_factory thread: sending icon write to file in cache dir for " + item_image.get_Path().getFileName());
                 Icon_write_message iwm = new Icon_write_message(image, icon_factory_request.icon_size, item_image.get_Path());
                 writer.push(iwm);
             }
-        } else {
+        }
+        else
+        {
             if (dbg) logger.log("Icon_factory thread: found in cache: " + item_image.get_Path().getFileName());
         }
         return image;
@@ -183,13 +199,14 @@ public class Icon_factory
         // we are going to create the gif using ffmpeg!
         // ... unless it is already in the video-specific GIF cache !?
 
-        String resulting_gif_name = tmp_dir.toString() +File.separator+ Tool_box.CLEAN_NAME(item_image.get_Path().toAbsolutePath().toString()) + ".gif";
+        String resulting_gif_name = tmp_dir.toString() + File.separator + Tool_box.CLEAN_NAME(item_image.get_Path().toAbsolutePath().toString()) + ".gif";
         Path resulting_gif_path = Paths.get(resulting_gif_name);
         Image image = From_disk.load_icon_from_disk_cache_fx(resulting_gif_path, tmp_dir, icon_factory_request.icon_size, logger);
 
-        if (image == null) {
+        if (image == null)
+        {
             //if (dbg)
-                logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + resulting_gif_path.getFileName());
+            logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + resulting_gif_path.getFileName());
 
             // ffmpeg -i movie.mp4 -r 10  -t 00:00:2.000 output.gif
 
@@ -208,12 +225,15 @@ public class Icon_factory
 
 
             image = From_disk.load_icon_fx_from_disk(resulting_gif_path, icon_factory_request.icon_size, logger);
-            if (image == null) {
+            if (image == null)
+            {
                 logger.log("Icon_factory thread: load from file FAILED for " + item_image.get_Path().getFileName());
                 return null;
             }
 
-        } else {
+        }
+        else
+        {
             if (dbg) logger.log("Icon_factory thread: found in cache: " + resulting_gif_path.getFileName());
         }
 

@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import klik.util.Logger;
 
 //**********************************************************
@@ -14,6 +15,12 @@ public class Look_and_feel_plain extends Look_and_feel
     public Look_and_feel_plain(Logger logger_) {
         super("plain",logger_);
     }
+
+    @Override
+    public Color get_background_color() {
+        return Color.WHITE;
+    }
+
     @Override
     protected String get_trash_icon_file_name()
     {

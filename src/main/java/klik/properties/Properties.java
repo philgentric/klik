@@ -4,6 +4,7 @@ import javafx.geometry.Rectangle2D;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_plain;
 import klik.look.Look_and_feel_manager;
+import klik.look.Look_and_feel_shiny_black;
 import klik.util.Constants;
 import klik.util.Logger;
 
@@ -19,6 +20,8 @@ public class Properties
 //**********************************************************
 {
 
+    public static final String SHOW_GIFS_FIRST = "show_gifs_first";
+    public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
     private static Properties_manager the_properties_manager;
     private static boolean dbg = false;
     private static int icon_size = -1;
@@ -45,9 +48,9 @@ public class Properties
     public static boolean get_show_hidden_files()
     //**********************************************************
     {
-        String s = get_properties_manager().get("show_hidden_files");
+        String s = get_properties_manager().get(SHOW_HIDDEN_FILES);
         if (s == null) {
-            get_properties_manager().save_unico("show_hidden_files", "false");
+            get_properties_manager().save_unico(SHOW_HIDDEN_FILES, "false");
             return false;
         } else {
             return Boolean.valueOf(s);
@@ -58,16 +61,16 @@ public class Properties
     public static void set_show_hidden_files(boolean b)
     //**********************************************************
     {
-        get_properties_manager().save_unico("show_hidden_files", "" + b);
+        get_properties_manager().save_unico(SHOW_HIDDEN_FILES, "" + b);
     }
 
     //**********************************************************
-    public static boolean get_show_only_gifs()
+    public static boolean get_show_gifs_first()
     //**********************************************************
     {
-        String s = get_properties_manager().get("show_only_gifs");
+        String s = get_properties_manager().get(SHOW_GIFS_FIRST);
         if (s == null) {
-            get_properties_manager().save_unico("show_only_gifs", "false");
+            get_properties_manager().save_unico(SHOW_GIFS_FIRST, "false");
             return false;
         } else {
             return Boolean.valueOf(s);
@@ -75,10 +78,10 @@ public class Properties
     }
 
     //**********************************************************
-    public static void set_show_only_gifs(boolean b)
+    public static void set_show_gifs_first(boolean b)
     //**********************************************************
     {
-        get_properties_manager().save_unico("show_only_gifs", "" + b);
+        get_properties_manager().save_unico(SHOW_GIFS_FIRST, "" + b);
     }
 
     //**********************************************************
@@ -206,7 +209,7 @@ public class Properties
         String style_s = get_properties_manager().get(STYLE_KEYWORD);
         if (style_s == null)
         {
-            s = new Look_and_feel_plain(logger);
+            s = new Look_and_feel_shiny_black(logger);
         }
         else
             {

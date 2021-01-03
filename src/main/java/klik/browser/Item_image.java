@@ -78,7 +78,8 @@ public class Item_image extends Item
                 context_menu.show(imageview, event.getScreenX(), event.getScreenY());
                 return;
             }
-            if ( event.isMetaDown() ) {
+            if ( event.isMetaDown() )
+            {
                 Multiple_image_stage s = Multiple_image_stage.get_Multiple_image_stage(from_stage, get_Path(), false, logger);
                 logger.log("\n\nMULTI");
                 if (s == null) {
@@ -91,9 +92,9 @@ public class Item_image extends Item
             {
                 logger.log("\n\nItem_image OnMouseClicked " + get_Path());
                 //implement_video
-               // if (Guess_file_type_from_extension.is_this_path_a_video(get_Path())) {
-               //     open_a_video(from_stage, logger);
-               // } else
+               if (Guess_file_type_from_extension.is_this_path_a_video(get_Path())) {
+                    open_a_video_with_system(from_stage, logger);
+                } else
                     {
                     open_an_image(from_stage, logger);
                 }
@@ -120,13 +121,43 @@ public class Item_image extends Item
         }
     }
 
+
+
+    //**********************************************************
+    private void open_a_video_with_system(Stage from_stage, Logger logger)
+    //**********************************************************
+    {
+        logger.log("\n\nVideo_stage opening for path:"+get_Path().toString());
+        // try to open it with the system
+        try
+        {
+            Desktop.getDesktop().open(path.toAbsolutePath().toFile());
+        }
+        catch (Exception e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("open failed :" + e));
+
+            if (e.toString().contains("doesn't exist."))
+            {
+                Tool_box.popup_text("Failed?", "Your OS/GUI could not open this file, the error is:\n" + e);
+            }
+            else
+            {
+                Tool_box.popup_text("Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?");
+            }
+        }
+    }
+
+
     /*
+
+implement video
 
     //**********************************************************
     private void open_a_video(Stage from_stage, Logger logger)
     //**********************************************************
     {
-        // this is a video! need to open it with the system !
+        // this is a video! wwe try to decode it with javafx-media
 
         Video_stage s = Video_stage.get_Video_stage(from_stage, get_Path(), false, logger);
         logger.log("\n\nVideo_stage opening for path:"+get_Path().toString());
@@ -287,7 +318,7 @@ public class Item_image extends Item
 
        if ( visible_in_scene == false)
         {
-            if ( dbg) g(0);
+            //if ( dbg) g(0);
             imageview.setImage(null);
             icon_status = Icon_status.no_icon;
             return;

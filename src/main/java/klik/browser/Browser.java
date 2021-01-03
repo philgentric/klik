@@ -21,12 +21,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import klik.I18N.I18n;
 import klik.change.After_move_handler;
 import klik.change.Change_gang;
 import klik.change.Old_and_new_Path;
 
 import klik.change.Static_change_utilities;
-import klik.images.Image_context;
 import klik.images.Image_stage;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -44,13 +44,9 @@ import java.util.*;
 public class Browser implements After_move_handler, Y_max_listener, Exception_recorder
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public static double MIN_DIR_BUTTON_WIDTH = 350;
     private double dir_button_width = MIN_DIR_BUTTON_WIDTH;
-    //public static double top_button_height = 50;
-    //private double dir_button_height = 40;
-    //private double file_button_height = 30;
-
 
     static int ID_generator = 0;
     int ID;
@@ -62,8 +58,6 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     final Icon_manager icon_manager;
     final Logger logger;
     final Path dir;
-    //final private Button up_button;
-    //private Button new_dir_button;
     List<Node> mandatory = new ArrayList<>();
 
 
@@ -154,7 +148,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         the_pane = new Pane();
         the_scene = new Scene(the_pane);//, W, H);
-
+        set_select_all(false);
 
         icon_manager = new Icon_manager(this,logger);
         String ret = icon_manager.scan_dir(dir,videos_for_which_giffing_failed);
@@ -171,7 +165,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 the_stage,
                 the_scene,
                 dir,
-                Look_and_feel.get_top_button_height(),
+                Look_and_feel_manager.get_instance().get_top_height(),
                 logger);
         mandatory.add(tp.hBox);
 
@@ -186,7 +180,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 the_scene,
                 the_pane,
                 mandatory,
-                Look_and_feel.get_top_button_height(),
+                Look_and_feel_manager.get_instance().get_top_height(),
                 dir_button_width,
                 Look_and_feel_manager.get_instance().get_dir_height(),
                 Look_and_feel_manager.get_instance().get_file_height(),
@@ -408,7 +402,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             videos_for_which_giffing_failed.add(path);
             Platform.runLater(new Runnable() {
                 @Override
-                public void run() {
+                public void run()
+                {
                     scene_geometry_changed("icon fabrication failed");
                 }
             });
@@ -483,7 +478,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         return slider;
     }
 
+    //**********************************************************
     public static double slider_to_scene(Icon_manager icon_manager,double slider)
+    //**********************************************************
     {
         return icon_manager.y_max-slider;
     }
@@ -547,7 +544,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         }
         icon_manager.geometry_changed(
                 this, the_stage, the_scene, the_pane, mandatory,
-                Look_and_feel.get_top_button_height(),
+                Look_and_feel_manager.get_instance().get_top_height(),
                 dir_button_width,
                 Look_and_feel_manager.get_instance().get_dir_height(),
                 Look_and_feel_manager.get_instance().get_file_height(),
@@ -652,13 +649,14 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         return "Browser_scene:" + dir.toAbsolutePath() + " " + ID;
     }
 
-    public boolean select_all = false;
+    private boolean select_all = false;
+    public boolean get_select_all(){return select_all;};
 
-    List<File> get_image_file_list() {
-        return icon_manager.get_image_file_list();
-    }
 
-    List<File> get_file_list() {
+    //**********************************************************
+    List<File> get_file_list()
+    //**********************************************************
+    {
         return icon_manager.get_file_list();
     }
 
@@ -669,13 +667,17 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         ContextMenu context_menu;
         context_menu = new ContextMenu();
         {
-            Menu history_menu = new Menu("History");
+            String text = I18n.get_I18n_string("History",logger);// to: " + parent.toAbsolutePath().toString();
+
+            Menu history_menu = new Menu(text);
             create_history_menu(history_menu);
             context_menu.getItems().add(history_menu);
 
         }
         {
-            CheckMenuItem item = new CheckMenuItem("Select all files (not dirs) for drag and drop");
+            String text = I18n.get_I18n_string("Select_all_files_for_drag_and_drop",logger);// to: " + parent.toAbsolutePath().toString();
+
+            CheckMenuItem item = new CheckMenuItem(text);
             item.setSelected(select_all);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -689,7 +691,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
 
         {
-            MenuItem item = new MenuItem("Refresh");
+            String text = I18n.get_I18n_string("Refresh",logger);// to: " + parent.toAbsolutePath().toString();
+
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -700,7 +704,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         }
         {
-            MenuItem item = new MenuItem("Create new empty directory");
+            String text = I18n.get_I18n_string("Create_new_empty_directory",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -711,7 +716,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         }
         {
-            MenuItem item = new MenuItem("Search images by keywords");
+            String text = I18n.get_I18n_string("Search_images_by_keywords",logger);// to: " + parent.toAbsolutePath().toString();
+
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -721,7 +728,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             context_menu.getItems().add(item);
         }
         {
-            MenuItem item = new MenuItem("Undo LAST move or delete");
+            String text = I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);// to: " + parent.toAbsolutePath().toString();
+
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -731,7 +740,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             context_menu.getItems().add(item);
         }
         {
-            CheckMenuItem item = new CheckMenuItem("Invert vertical scroll direction");
+            String text = I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);// to: " + parent.toAbsolutePath().toString();
+
+            CheckMenuItem item = new CheckMenuItem(text);
             item.setSelected(Tool_box.get_vertical_scroll());
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -743,7 +754,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         }
 
         {
-            CheckMenuItem item = new CheckMenuItem("Show hidden files");
+            String text = I18n.get_I18n_string("Show_hidden_file",logger);// to: " + parent.toAbsolutePath().toString();
+
+            CheckMenuItem item = new CheckMenuItem(text);
             item.setSelected(Properties.get_show_hidden_files());
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -755,19 +768,21 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             context_menu.getItems().add(item);
         }
         {
-            CheckMenuItem item = new CheckMenuItem("Show only gif");
-            item.setSelected(Properties.get_show_only_gifs());
+            String text = I18n.get_I18n_string("Show_gifs_first",logger);// to: " + parent.toAbsolutePath().toString();
+            CheckMenuItem item = new CheckMenuItem(text);
+            item.setSelected(Properties.get_show_gifs_first());
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    Properties.set_show_only_gifs(((CheckMenuItem) actionEvent.getSource()).isSelected());
+                    Properties.set_show_gifs_first(((CheckMenuItem) actionEvent.getSource()).isSelected());
                     scene_geometry_changed("show onmy gif boolean changed");
                 }
             });
             context_menu.getItems().add(item);
         }
         {
-            CheckMenuItem item = new CheckMenuItem("Sort files by name (vs decreasing size)");
+            String text = I18n.get_I18n_string("Sort_files_by_name_vs_decreasing_size",logger);// to: " + parent.toAbsolutePath().toString();
+            CheckMenuItem item = new CheckMenuItem(text);
             item.setSelected(Tool_box.get_sort_files_by_name());
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -779,7 +794,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             context_menu.getItems().add(item);
         }
         {
-            CheckMenuItem item = new CheckMenuItem("Show icons for images and videos");
+            String text = I18n.get_I18n_string("Show_icons_for_images_and_videos",logger);// to: " + parent.toAbsolutePath().toString();
+            CheckMenuItem item = new CheckMenuItem(text);
             item.setSelected(Tool_box.get_show_icons());
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -796,7 +812,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
 
         {
-            MenuItem item = new MenuItem("Clear icon cache folder");
+            String text = I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);// to: " + parent.toAbsolutePath().toString();
+
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -806,7 +824,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             context_menu.getItems().add(item);
         }
         {
-            MenuItem item = new MenuItem("Clear trash folder");
+            String text = I18n.get_I18n_string("Clear_Trash_Folder",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -832,7 +851,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     private void create_history_menu(Menu history_menu)
     {
         {
-            MenuItem item = new MenuItem("Clear history");
+            String text = I18n.get_I18n_string("Clear_History",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -871,7 +891,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     private void create_menu_item_for_style(ContextMenu context_menu)
     //**********************************************************
     {
-        Menu menu = new Menu("Style");
+        String text = I18n.get_I18n_string("Style",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Menu menu = new Menu(text);
         context_menu.getItems().add(menu);
         for( Look_and_feel s : Look_and_feel_manager.registered)
         {
@@ -909,7 +931,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     private void create_menu_item_for_icon_size(ContextMenu context_menu)
     //**********************************************************
     {
-        Menu item = new Menu("Icon size");
+        String text = I18n.get_I18n_string("Icon_Size",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Menu item = new Menu(text);
 
         context_menu.getItems().add(item);
 
@@ -925,7 +949,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
 
     //**********************************************************
-    private void set_select_all(Boolean b)
+    public void set_select_all(Boolean b)
     //**********************************************************
     {
         select_all = b;
@@ -934,7 +958,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             the_pane.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
 
         } else {
-            the_pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+            the_pane.setBackground(new Background(new BackgroundFill(Look_and_feel_manager.get_instance().get_background_color(), CornerRadii.EMPTY, Insets.EMPTY)));
         }
     }
 

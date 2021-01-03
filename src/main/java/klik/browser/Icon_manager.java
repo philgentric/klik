@@ -22,9 +22,10 @@ import java.util.*;
 public class Icon_manager
 //**********************************************************
 {
-    public static final boolean show_video_as_gif = true;
     public static final boolean dbg = false;
+    private static final boolean show_video_as_gif = true;
     public static final boolean add_and_remove = true;
+
     public static final String ACCESS_DENIED_EXCEPTION = "AccessDeniedException";
     public static final String GONE_DIR_EXCEPTION = "GONE_DIR_EXCEPTION";
     public static final String OK = "OK";
@@ -34,9 +35,12 @@ public class Icon_manager
     private List<Item> all_items = new ArrayList<>();
     private Map<Path, Item> map = new HashMap<Path, Item>();
 
-    private List<Path> paths_list_dirs = new ArrayList<>();
-    private List<Path> paths_list_non_image_files = new ArrayList<>();
-    private List<Path> paths_list_images = new ArrayList<>();
+    private List<Path> folders = new ArrayList<>();
+    private List<Path> non_iconized = new ArrayList<>();
+    private List<Path> iconized = new ArrayList<>();
+
+    private List<Path> tmp = new ArrayList<>();
+
     private double x_min = Double.MAX_VALUE;
     private double x_max = -Double.MAX_VALUE;
     private double y_min = Double.MAX_VALUE;
@@ -48,6 +52,11 @@ public class Icon_manager
     private boolean denied = false;
     public Comparator<? super Path> file_comparator;
     public double max_dir_text_length;
+
+    private boolean show_icons_not_text;
+    private boolean show_hidden_files;
+    private boolean show_gifs_first;
+
 
     Y_max_listener y_max_listener;
     Exception_recorder exception_recorder;
@@ -66,119 +75,222 @@ public class Icon_manager
     //**********************************************************
     {
 
-        if (Tool_box.get_sort_files_by_name()) {
+        if (Tool_box.get_sort_files_by_name())
+        {
             file_comparator = alphabetical_file_name_comparator;
-        } else {
+        }
+        else
+        {
             file_comparator = decreasing_file_size_comparator;
         }
 
-        boolean show_hidden_files = Properties.get_show_hidden_files();
-        boolean show_only_gifs = Properties.get_show_only_gifs();
-        paths_list_dirs.clear();
+        show_icons_not_text = Tool_box.get_show_icons();
+        show_hidden_files = Properties.get_show_hidden_files();
+        show_gifs_first = Properties.get_show_gifs_first();
+        logger.log("show_gifs_first=" + show_gifs_first);
         max_dir_text_length = 0;
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
+
+
+        String x = scan_folders(dir);
+        if (x != null) return x;
+
+
+        if (scan_non_iconized(dir, videos_for_which_giffing_failed)) return IOEXCEPTION;
+
+        iconized.clear();
+        if (show_gifs_first)
         {
-            for (Path f : stream) {
-                if (show_hidden_files == false) if (f.getFileName().toString().startsWith(".")) continue;
-                if (Files.isDirectory(f) == false) continue;
-                // directory
-                paths_list_dirs.add(f);
-                Text t = new Text(f.getFileName().toString());
-                double l = t.getLayoutBounds().getWidth();
-                if (l > max_dir_text_length) max_dir_text_length = l;
-            }
-            Collections.sort(paths_list_dirs, file_comparator);
-        } catch (AccessDeniedException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(ACCESS_DENIED_EXCEPTION + e));
-            denied = true;
-            return ACCESS_DENIED_EXCEPTION;
-        } catch (NoSuchFileException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("NoSuchFileException" + e));
-            // the DIR is gone !!
-            denied = true;
-            return GONE_DIR_EXCEPTION;
-        } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            return IOEXCEPTION;
+            if (scan_images(dir, videos_for_which_giffing_failed, true)) return IOEXCEPTION;
+            if (scan_images(dir, videos_for_which_giffing_failed, false)) return IOEXCEPTION;
         }
-
-        paths_list_non_image_files.clear();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
+        else
         {
-            for (Path f : stream) {
-                if (show_hidden_files == false) if (f.getFileName().toString().startsWith(".")) continue;
-                if (Files.isDirectory(f)) continue;
-                if (show_video_as_gif)
-                {
-                    if ( Guess_file_type_from_extension.is_this_path_a_video(f))
-                    {
-                        if (videos_for_which_giffing_failed.contains(f))
-                        {
-                            paths_list_non_image_files.add(f);
-                        }
-                        continue;
-                    }
-                }
-                if (Guess_file_type_from_extension.is_this_path_an_image(f)) continue;
-                // non-image, non-directory
-                paths_list_non_image_files.add(f);
-            }
-            Collections.sort(paths_list_non_image_files, file_comparator);
-        } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            return IOEXCEPTION;
+            if (scan_images(dir, videos_for_which_giffing_failed, true /*ignored*/)) return IOEXCEPTION;
         }
-
-        paths_list_images.clear();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
-        {
-            for (Path path : stream) {
-                if (show_hidden_files == false) if (path.getFileName().toString().startsWith(".")) continue;
-                if (Files.isDirectory(path)) continue;
-                if (show_video_as_gif)
-                {
-                    if ( Guess_file_type_from_extension.is_this_path_a_video(path))
-                    {
-                        if (videos_for_which_giffing_failed.contains(path))
-                        {
-                            // is not to be considered as an image
-                            continue;
-                        }
-                        else
-                        {
-                            paths_list_images.add(path);
-                            continue;
-                        }
-                    }
-                }
-
-                if (Guess_file_type_from_extension.is_this_path_an_image(path) == false) continue;
-                if (show_only_gifs) if (Guess_file_type_from_extension.is_gif_extension(path) == false) continue;
-                paths_list_images.add(path);
-                //logger.log(f.toString()+" is image OR video");
-
-            }
-            Collections.sort(paths_list_images, file_comparator);
-        } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            return IOEXCEPTION;
-        }
+        if (scan_videos(dir, videos_for_which_giffing_failed)) return IOEXCEPTION;
 
         return OK;
     }
 
 
     //**********************************************************
-    public final static Comparator<Path> alphabetical_file_name_comparator = new Comparator<Path>() {
+    private String scan_folders(Path dir)
+    //**********************************************************
+    {
+        folders.clear();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
+        {
+            for (Path f : stream)
+            {
+                if (show_hidden_files == false) if (f.getFileName().toString().startsWith(".")) continue;
+                if (Files.isDirectory(f) == false) continue;
+                // directory
+                folders.add(f);
+                Text t = new Text(f.getFileName().toString());
+                double l = t.getLayoutBounds().getWidth();
+                if (l > max_dir_text_length) max_dir_text_length = l;
+            }
+            Collections.sort(folders, file_comparator);
+        } catch (AccessDeniedException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(ACCESS_DENIED_EXCEPTION + e));
+            denied = true;
+            return ACCESS_DENIED_EXCEPTION;
+        } catch (NoSuchFileException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("NoSuchFileException" + e));
+            // the DIR is gone !!
+            denied = true;
+            return GONE_DIR_EXCEPTION;
+        } catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            return IOEXCEPTION;
+        }
+        return null;
+    }
+
+    //**********************************************************
+    private boolean scan_non_iconized(Path dir, List<Path> videos_for_which_giffing_failed)
+    //**********************************************************
+    {
+        non_iconized.clear();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
+        {
+            for (Path f : stream)
+            {
+                if (show_hidden_files == false) if (f.getFileName().toString().startsWith(".")) continue;
+                if (Files.isDirectory(f)) continue;
+                if (show_video_as_gif)
+                {
+                    if (Guess_file_type_from_extension.is_this_path_a_video(f))
+                    {
+                        if (videos_for_which_giffing_failed.contains(f))
+                        {
+                            // if the giffing process failed a video becomes non-iconized
+                            non_iconized.add(f);
+                        }
+                        continue;
+                    }
+                }
+                if (Guess_file_type_from_extension.is_this_path_an_image(f)) continue;
+                // non-image, non-directory
+                non_iconized.add(f);
+            }
+            Collections.sort(non_iconized, file_comparator);
+        } catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            return true;
+        }
+        return false;
+    }
+
+    //**********************************************************
+    private boolean scan_videos(Path dir, List<Path> videos_for_which_giffing_failed)
+    //**********************************************************
+    {
+        tmp.clear();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
+        {
+            for (Path f : stream)
+            {
+                if (show_hidden_files == false) if (f.getFileName().toString().startsWith(".")) continue;
+                if (Files.isDirectory(f)) continue;
+                if (Guess_file_type_from_extension.is_this_path_an_image(f)) continue;
+
+                if (Guess_file_type_from_extension.is_this_path_a_video(f))
+                {
+                    if (show_video_as_gif)
+                    {
+                        if (videos_for_which_giffing_failed.contains(f) == false)
+                        {
+                            tmp.add(f);
+                        }
+                    }
+                }
+            }
+            Collections.sort(tmp, file_comparator);
+            iconized.addAll(tmp);
+        } catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            return true;
+        }
+        return false;
+    }
+
+
+    //**********************************************************
+    private boolean scan_images(Path dir, List<Path> videos_for_which_giffing_failed, boolean gifs_turn)
+    //**********************************************************
+    {
+        tmp.clear();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
+        {
+            for (Path path : stream)
+            {
+                if (show_hidden_files == false) if (path.getFileName().toString().startsWith(".")) continue;
+                if (Files.isDirectory(path)) continue;
+                if (Guess_file_type_from_extension.is_this_path_a_video(path)) continue;
+                if (Guess_file_type_from_extension.is_this_path_an_image(path) == false) continue;
+                if (show_gifs_first)
+                {
+                    /*
+                    when (show_gifs_first==true) this routine is called twice
+                    in order to display images in 2 areas, first gifs, then non-gifs
+                    depending if (gifs_turn==true) or not
+                     */
+                    if (Guess_file_type_from_extension.is_gif_extension(path))
+                    {
+                        // is a gif
+                        if (gifs_turn == false)
+                        {
+                            //logger.log(path.toString() + " is gif, not its turn");
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        // is not a gif;
+                        if (gifs_turn)
+                        {
+                            //logger.log(path.toString() + " is NOT gif, not its turn");
+                            continue;
+                        }
+                    }
+                }
+                //logger.log(path.toString() + " it's its turn");
+
+                tmp.add(path);
+            }
+            Collections.sort(tmp, file_comparator);
+            iconized.addAll(tmp);
+        }
+        catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            return true;
+        }
+        return false;
+    }
+
+
+    //**********************************************************
+    public final static Comparator<Path> alphabetical_file_name_comparator = new Comparator<Path>()
+    {
         @Override
-        public int compare(Path f1, Path f2) {
+        public int compare(Path f1, Path f2)
+        {
             return f1.getFileName().toString().compareTo(f2.getFileName().toString());
         }
     };
 
-    public final static Comparator<Path> decreasing_file_size_comparator = new Comparator<Path>() {
+    public final static Comparator<Path> decreasing_file_size_comparator = new Comparator<Path>()
+    {
         @Override
-        public int compare(Path f1, Path f2) {
+        public int compare(Path f1, Path f2)
+        {
             return (Long.valueOf(f2.toFile().length())).compareTo(Long.valueOf(f1.toFile().length()));
         }
     };
@@ -205,7 +317,8 @@ public class Icon_manager
         //logger.log("\n\nGET scene_widh="+scene_width);
         pane.getChildren().clear();
         pane.getChildren().addAll(mandatory);
-        if (denied) {
+        if (denied)
+        {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
             iv_denied.setPreserveRatio(true);
             iv_denied.setSmooth(true);
@@ -217,7 +330,8 @@ public class Icon_manager
         }
         all_items.clear();
         Point2D p = new Point2D(0, top_button_height);
-        for (Path f : paths_list_dirs) {
+        for (Path f : folders)
+        {
             Item item = new Item_non_image(browser, the_stage, pane, f, f.getFileName().toString(), scene,
                     dir_button_height, file_button_height, logger);
             map.put(f, item);
@@ -228,7 +342,8 @@ public class Icon_manager
 
         if (p.getX() != 0) p = new Point2D(0, p.getY() + dir_button_height);
 
-        for (Path f : paths_list_non_image_files) {
+        for (Path f : non_iconized)
+        {
 
             String text = f.getFileName().toString();
             long size = f.toFile().length() / 1000000L;
@@ -243,23 +358,23 @@ public class Icon_manager
 
         if (p.getX() != 0) p = new Point2D(0, p.getY() + dir_button_height);
 
+
         double max_h = 0;
         double item_width = icon_size;
-        for (Path f : paths_list_images) {
+        for (Path f : iconized)
+        {
             Item item = null;
-
-            if (Tool_box.get_show_icons() == false)
+            if (show_icons_not_text)
+            {
+                item = new Item_image(browser, f, scene, icon_size, logger);
+            }
+            else
             {
                 item = new Item_non_image(browser, the_stage, pane, f,
                         f.getFileName().toString() + "\n" + f.toFile().length() + " Bytes",
                         scene,
                         dir_button_height,
                         file_button_height, logger);
-            }
-            else
-            {
-                //logger.log(f.toString()+" is image (not a video)");
-                item = new Item_image(browser, f, scene, icon_size, logger);
             }
             map.put(f, item);
             all_items.add(item);
@@ -269,21 +384,21 @@ public class Icon_manager
             double dh = max_h;
             if (dh == 0) dh = icon_size; // safety?
 
-            if (Tool_box.get_show_icons() == false) {
-                p = new_Point(p, item, dir_button_width, file_button_height, scene_width, dir_button_width);
-            }
-            else
+            if (show_icons_not_text)
             {
                 p = new_Point(p, item, icon_size, dh, scene_width, item_width);
-                if (p.getY() != last_y) {
+                if (p.getY() != last_y)
+                {
                     // changed row
                     max_h = 0;
                 }
             }
+            else
+            {
+                p = new_Point(p, item, dir_button_width, file_button_height, scene_width, dir_button_width);
+            }
 
         }
-        //set_geometry(pane, icon_size, dir_button_height, file_button_height, scene);
-        //request_async_icon_load(icon_size);
 
         compute_bounding_rectangle();
 
@@ -306,16 +421,20 @@ public class Icon_manager
         //logger.log("item with = "+w2);
         double new_x = p.getX();
         double new_y = p.getY();
-        if (p.getX() > 0) {
-            if (p.getX() + item_width > scene_width) {
+        if (p.getX() > 0)
+        {
+            if (p.getX() + item_width > scene_width)
+            {
                 // new ROW
                 new_x = 0;
                 double delta_h = dh;
-                if (item.get_Node() != null) {
+                if (item.get_Node() != null)
+                {
                     delta_h = item.get_Node().getBoundsInLocal().getHeight();
                 }
                 //logger.log("new row, delta_h = " + delta_h);
-                if (delta_h == 0) {
+                if (delta_h == 0)
+                {
                     delta_h = dh;
                     //logger.log("CHANGED delta_h = " + delta_h);
                 }
@@ -339,7 +458,8 @@ public class Icon_manager
         x_max = 0;
         y_min = Double.MAX_VALUE;
         y_max = 0;
-        for (Item c : all_items) {
+        for (Item c : all_items)
+        {
             if (c.get_x() < x_min) x_min = c.get_x();
             if (c.get_x() + c.get_Width() > x_max) x_max = c.get_x() + c.get_Width();
             if (c.get_y() < y_min) y_min = c.get_y();
@@ -380,14 +500,14 @@ public class Icon_manager
         if (Browser.slider_mover)
         {
             double y = 0;
-            if ( vertical_slider !=null)
+            if (vertical_slider != null)
             {
-                y = Browser.slider_to_scene( this,vertical_slider.getValue());
+                y = Browser.slider_to_scene(this, vertical_slider.getValue());
             }
-            move_absolute(stage, scene, pane,y, dir_button_height, "geometry changed");
+            move_absolute(stage, scene, pane, y, dir_button_height, "geometry changed");
         }
         else
-            {
+        {
             move_relative(stage, scene, pane, 0, dir_button_height, "geometry changed");
         }
 
@@ -411,7 +531,8 @@ public class Icon_manager
         double fac = 0.9;
         long target = 2;
         double actual_vertical_move = 0;
-        for (; ; ) {
+        for (; ; )
+        {
             if (Exceptions_in_threads_catcher.oops) return actual_vertical_move;
             actual_vertical_move += dy;
             move_relative(stage, scene, pane, dy, dir_button_height, tag);
@@ -420,14 +541,16 @@ public class Icon_manager
             fac *= 0.6;
 
             if ((Math.abs(dx) < 0.1) && (Math.abs(dy) < 0.1)) break;
-            try {
+            try
+            {
                 long now = System.nanoTime();
                 long ms = target - (now - before) / 1000000L;
                 before = now;
                 if (dbg) logger.log("        milliseconds=" + ms + " dx=" + dx + " dy=" + dy);
                 if (ms >= 1) Thread.sleep(ms);
 
-            } catch (InterruptedException e) {
+            } catch (InterruptedException e)
+            {
                 e.printStackTrace();
             }
         }
@@ -440,17 +563,21 @@ public class Icon_manager
     //**********************************************************
     {
         double candidate_y_offset = y_offset + dy;
-        if (dy > 0) {
+        if (dy > 0)
+        {
             // going down
-            if (candidate_y_offset + h > y_max) {
+            if (candidate_y_offset + h > y_max)
+            {
                 // too far down
                 candidate_y_offset = y_max - h + dir_button_height;
                 if (dbg) logger.log("too far downward");
             }
         }
-        if (dy < 0) {
+        if (dy < 0)
+        {
             // going up
-            if (candidate_y_offset < 0) {
+            if (candidate_y_offset < 0)
+            {
                 // too far up
                 candidate_y_offset = 0;
                 if (dbg) logger.log("too far upward");
@@ -465,7 +592,8 @@ public class Icon_manager
     public double compute_offset_absolute(double candidate_y_offset, double h, double dir_button_height)
     //**********************************************************
     {
-        if (candidate_y_offset + h > y_max) {
+        if (candidate_y_offset + h > y_max)
+        {
             // too far down
             candidate_y_offset = y_max - h + dir_button_height;
             if (dbg) logger.log("too far downward");
@@ -497,7 +625,7 @@ public class Icon_manager
         if (dbg) logger.log("move_all dy=" + dy + " reason:" + reason);
 
         compute_offset_relative(dy, h, dir_button_height);
-        check_visibility(stage,pane,h);
+        check_visibility(stage, pane, h);
     }
 
     //**********************************************************
@@ -513,7 +641,7 @@ public class Icon_manager
         double h = scene.getHeight();
         if (dbg) logger.log("move_absolute new_y=" + new_y + " reason:" + reason);
         compute_offset_absolute(new_y, h, dir_button_height);
-        check_visibility(stage,pane,h);
+        check_visibility(stage, pane, h);
     }
 
     //**********************************************************
@@ -522,12 +650,15 @@ public class Icon_manager
     {
         double icon_size = Properties.get_icon_size();
         int visible = 0;
-        for (Item item : all_items) {
-            if (item.get_y() + item.get_Height() - y_offset < 0) {
+        for (Item item : all_items)
+        {
+            if (item.get_y() + item.get_Height() - y_offset < 0)
+            {
                 process_is_invisible(pane, icon_size, item);
                 continue;
             }
-            if (item.get_y() - y_offset > h) {
+            if (item.get_y() - y_offset > h)
+            {
                 process_is_invisible(pane, icon_size, item);
                 continue;
             }
@@ -543,20 +674,20 @@ public class Icon_manager
     private void process_is_visible(Stage stage, Pane pane, Item item, double icon_size)
     //**********************************************************
     {
-        // if (item.visible_in_scene)
-        {
-            // normally we did it all before
-        }
-        //  else
+        if (show_icons_not_text == false) return;
+
         {
             item.visible_in_scene = true;
-            if (item instanceof Item_image) {
+            if (item instanceof Item_image)
+            {
                 Item_image ii = (Item_image) item;
 
-                switch (ii.icon_status) {
+                switch (ii.icon_status)
+                {
                     case no_icon:
                         ii.load_default_icon(stage, logger);
-                    case default_icon: {
+                    case default_icon:
+                    {
                         Icon_factory_request ifr = new Icon_factory_request(ii, icon_size, exception_recorder);
                         Tool_box.get_icon_factory(logger).make_icon(ifr);
                         ii.icon_status = Icon_status.true_icon_requested;
@@ -568,7 +699,8 @@ public class Icon_manager
                         break;
                 }
             }
-            if (pane.getChildren().contains(item.get_Node()) == false) {
+            if (pane.getChildren().contains(item.get_Node()) == false)
+            {
                 if (dbg) logger.log("adding item: " + item.get_string());
                 pane.getChildren().add(item.get_Node());
             }
@@ -584,15 +716,18 @@ public class Icon_manager
     private void process_is_invisible(Pane pane, double icon_size, Item item)
     //**********************************************************
     {
-        if (item.visible_in_scene) {
+        if (item.visible_in_scene)
+        {
             item.visible_in_scene = false;
             if (item.get_Node() == null) return;
             item.get_Node().setVisible(false);
-            if (add_and_remove) {
+            if (add_and_remove)
+            {
                 if (dbg) logger.log("removing invisible icon of: " + item.get_string());
                 pane.getChildren().remove(item.get_Node());
             }
-            if (item instanceof Item_image) {
+            if (item instanceof Item_image)
+            {
                 // let us hope the GC might save us !
                 // i.e. in directories with very large number of images
                 // the icon manager can cause an OutOfMemor if we would keep invisible images in memory
@@ -697,8 +832,10 @@ public class Icon_manager
     public void modify_button_fonts(double v)
     //**********************************************************
     {
-        for (Item i : all_items) {
-            if (i instanceof Item_non_image) {
+        for (Item i : all_items)
+        {
+            if (i instanceof Item_non_image)
+            {
                 Item_non_image ini = (Item_non_image) i;
                 double s = ini.button.getFont().getSize();
                 Font f = new Font(s * v);
@@ -712,45 +849,40 @@ public class Icon_manager
     public void icon_size_is_now(double icon_size)
     //**********************************************************
     {
-        for (Item i : all_items) {
-            if (i instanceof Item_image) {
+        for (Item i : all_items)
+        {
+            if (i instanceof Item_image)
+            {
                 Item_image ii = (Item_image) i;
                 ii.icon_status = Icon_status.no_icon;
             }
         }
     }
 
-    public double get_y_offset() {
+    public double get_y_offset()
+    {
         return y_offset;
     }
 
-    public void set_y_offset(double offset) {
+    public void set_y_offset(double offset)
+    {
         y_offset = offset;
     }
 
-    //**********************************************************
-    public List<File> get_image_file_list()
-    //**********************************************************
-    {
-        List<File> returned = new ArrayList<>();
-        for (Path p : paths_list_images) {
-            returned.add(p.toFile());
-        }
-        return returned;
-    }
 
     //**********************************************************
     public List<File> get_file_list()
     //**********************************************************
     {
         List<File> returned = new ArrayList<>();
-        for (Path p : paths_list_images) {
+        for (Path p : iconized)
+        {
             returned.add(p.toFile());
         }
-        for (Path p : paths_list_non_image_files) {
+        for (Path p : non_iconized)
+        {
             returned.add(p.toFile());
         }
-
 
         return returned;
     }

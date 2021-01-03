@@ -48,16 +48,13 @@ public class Look_and_feel_manager
     {
         logger = logger_;
         if (registered.isEmpty() == false) return;
-        Look_and_feel plain = new Look_and_feel_plain(logger_);
-        registered.add(plain);
-        Look_and_feel baw = new Look_and_feel_b_and_w(logger_);
-        registered.add(baw);
-        Look_and_feel shiny_black = new Look_and_feel_shiny_black(logger_);
-        registered.add(shiny_black);
-        Look_and_feel red = new Look_and_feel_red(logger_);
-        registered.add(red);
-        Look_and_feel blue = new Look_and_feel_blue(logger_);
-        registered.add(blue);
+        registered.add(new Look_and_feel_shiny_black(logger_));
+        registered.add(new Look_and_feel_orange(logger_));
+        registered.add(new Look_and_feel_grey(logger_));
+        registered.add(new Look_and_feel_plain(logger_));
+        registered.add(new Look_and_feel_b_and_w(logger_));
+        registered.add(new Look_and_feel_red(logger_));
+        registered.add(new Look_and_feel_blue(logger_));
         instance = Properties.get_style(logger_);
 
     }

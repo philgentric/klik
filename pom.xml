@@ -63,8 +63,6 @@
                     <include>
                         **/images/black_and_white/*.png
                     </include>
-
-
                 </includes>
             </resource>
         </resources>
@@ -87,7 +85,7 @@
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>client-maven-plugin</artifactId>
-                <version>0.1.34</version>
+                <version>0.1.35</version>
                 <configuration>
                     <target>${client.target}</target>
                     <mainClass>${main.class}</mainClass>

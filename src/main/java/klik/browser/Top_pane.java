@@ -10,6 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import klik.I18N.I18n;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Properties;
@@ -58,7 +59,9 @@ public class Top_pane
     private double make_tools_button(Browser the_browser, double top_button_height)
     //**********************************************************
     {
-        Button tools_button =  new Button("Tools");
+        String text = I18n.get_I18n_string("Tools",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Button tools_button =  new Button(text);
         Look_and_feel_manager.get_instance().set_directory_style(tools_button);
         double tools_button_width = 120;
 
@@ -84,8 +87,9 @@ public class Top_pane
 
         Path parent = dir.getParent();
         String text = "";
-        if (parent != null) {
-            text = "Parent folder";// to: " + parent.toAbsolutePath().toString();
+        if (parent != null)
+        {
+            text = I18n.get_I18n_string("Parent_Folder",logger);// to: " + parent.toAbsolutePath().toString();
         }
 
 
@@ -109,12 +113,11 @@ public class Top_pane
     private double make_new_window_button(Path dir, double top_button_height)
     //**********************************************************
     {
-    /*
-    new Window button
-     */
-        Button new_window =  new Button("New window");
+       String text = I18n.get_I18n_string("New_window",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Button new_window =  new Button(text);
         Look_and_feel_manager.get_instance().set_directory_style(new_window);
-        double new_window_width = 120;
+        double new_window_width = 200;
         new_window.setTextAlignment(TextAlignment.CENTER);
 
         new_window.setPrefSize(new_window_width,top_button_height);
@@ -132,9 +135,7 @@ public class Top_pane
     private double make_trash_button(Browser the_browser, Stage the_stage, double top_button_height)
     //**********************************************************
     {
-        /*
-        trash button... is just a folder button... browsing the trash is a recovery mechanism
-         */
+        String text = I18n.get_I18n_string("Trash",logger);// to: " + parent.toAbsolutePath().toString();
 
 
         Button trash = make_folder_button(
@@ -142,7 +143,7 @@ public class Top_pane
                 the_stage,
                 hBox,
                 Properties.get_trash_dir(logger),
-                "Trash",
+                text,
                 top_button_height,
                 logger);
 

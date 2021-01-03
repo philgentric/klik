@@ -103,7 +103,7 @@ public abstract class Item
                 List<File> l = new ArrayList<>();
                 l.add(path.toFile());
                 content.putFiles(l);
-                if ( the_browser.select_all)
+                if ( the_browser.get_select_all())
                 {
 
                     String s = "";
@@ -117,11 +117,7 @@ public abstract class Item
                     // this crashes the VM !!
                     //content.putFiles(the_browser.get_file_list());
 
-
-
-                    the_browser.select_all = false;
-                    the_browser.the_pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
+                    the_browser.set_select_all(false);
                 }
                 db.setContent(content);
                 event.consume();

@@ -16,7 +16,7 @@ public class Image_play {
         current_image = local_ic;
         image_file_source = Image_file_source.get_Image_file_source(current_image.path.getParent(),logger);
     }
-
+/*
     void set_background()
     {
         if ((current_image.path.getFileName().toString().endsWith(".png")) || (current_image.path.getFileName().toString().endsWith(".PNG"))) {
@@ -28,7 +28,7 @@ public class Image_play {
         }
 
     }
-/*
+
     //**********************************************************
     private void handle_mouse_clicked_secondary(Logger logger, Stage stage, Pane pane, MouseEvent e)
     //**********************************************************

@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import klik.util.Logger;
 
 //**********************************************************
@@ -13,6 +14,11 @@ public class Look_and_feel_shiny_black extends Look_and_feel
 
     public Look_and_feel_shiny_black(Logger logger_) {
         super("shiny black", logger_);
+    }
+
+    @Override
+    public Color get_background_color() {
+        return Color.WHITE;
     }
 
     @Override
@@ -42,13 +48,9 @@ public class Look_and_feel_shiny_black extends Look_and_feel
 
 
     @Override
-    protected double get_top_height() {
-        return 50;
-    }
-
+    public double get_top_height() { return 50; }
     @Override
     public double get_dir_height() { return 40; }
-
     @Override
     public double get_file_height() {
         return 30;

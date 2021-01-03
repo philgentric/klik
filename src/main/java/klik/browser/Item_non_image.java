@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
@@ -367,7 +368,7 @@ public class Item_non_image extends Item
                 public void handle(ActionEvent event)
                 {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Size on disk for folder:"+ path.toAbsolutePath().toString());
+                    alert.setTitle(path.toAbsolutePath().toString());
                     //alert.setResizable(true);
                    // alert.onShownProperty().addListener(e->{Platform.runLater(()->alert.setResizable(false));});
                     alert.getDialogPane().setMinWidth(1000);
@@ -396,10 +397,16 @@ public class Item_non_image extends Item
                                         text = "An error occurred, probably Access Denied, check the logs";
                                     }
                                     else {
-                                        text = path.toAbsolutePath()+" size on disk: "+Tool_box.get_1_line_string_with_size(size);
+                                        //text = path.toAbsolutePath()+"\n size on disk: "+Tool_box.get_1_line_string_with_size(size);
+                                        text = "size on disk: "+Tool_box.get_1_line_string_with_size(size);
                                     }
                                     alert.setHeaderText("number of folders/files/images:"+d+"/"+f+"/"+i);
-                                    alert.setContentText(text);
+
+                                    Label label = new Label(text);
+                                    label.setWrapText(true);
+                                    alert.getDialogPane().setContent(label);
+
+                                    //alert.setContentText(text);
                                     if (dbg) logger.log(text);
                                 }
                             });
