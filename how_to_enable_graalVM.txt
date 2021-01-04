@@ -1,2 +1,6 @@
 export GRAALVM_HOME=/Users/philippegentric/AAKODE/graalvm-ce-java11-20.2.0/Contents/Home/
 export JAVA_HOME=$GRAALVM_HOME
+
+mvn client:compile
+mvn client:link
+mvn client:run

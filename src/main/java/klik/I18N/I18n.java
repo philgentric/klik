@@ -13,7 +13,16 @@ public class I18n
     {
         Locale the_locale = new Locale(language,country);
         Locale.setDefault(the_locale);
-        the_resource_bundle = ResourceBundle.getBundle("MessagesBundle", the_locale);
+        try
+        {
+            the_resource_bundle = ResourceBundle.getBundle("MessagesBundle", the_locale);
+        }
+        catch(Exception e)
+        {
+            the_resource_bundle = null;
+            logger.log("managed exception : "+e);
+            return;
+        }
         String classpath  = System.getProperty("java.class.path");
         logger.log(" I18n found in classpath = "+classpath);
    }
