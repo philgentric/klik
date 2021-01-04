@@ -59,7 +59,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     final Top_pane top_pane;
     final Icon_manager icon_manager;
     final Logger logger;
-    final Path dir;
+    final Path displayed_folder_path;
     List<Node> mandatory = new ArrayList<>();
 
 
@@ -139,7 +139,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             Logger logger_)
     //**********************************************************
     {
-        dir = dir_;
+        displayed_folder_path = dir_;
         logger = logger_;
         ID = ID_generator;
         ID_generator++;
@@ -154,7 +154,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         set_select_all(false);
 
         icon_manager = new Icon_manager(this,logger);
-        String ret = icon_manager.scan_dir(dir,videos_for_which_giffing_failed);
+        String ret = icon_manager.scan_dir(displayed_folder_path,videos_for_which_giffing_failed);
         if (ret.equals(Icon_manager.ACCESS_DENIED_EXCEPTION)) {
             logger.log("access denied");
         }
@@ -167,7 +167,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 this,
                 the_stage,
                 the_scene,
-                dir,
+                displayed_folder_path,
                 Look_and_feel_manager.get_instance().get_top_height(),
                 logger);
         mandatory.add(top_pane.hBox);
@@ -276,7 +276,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 }
 
                 if (keyEvent.getCharacter().equals("n")) {
-                    Browser.create_browser(null, false, dir, false, logger);
+                    Browser.create_browser(null, false, displayed_folder_path, false, logger);
                 }
 
 
@@ -315,7 +315,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         the_scene.setOnDragDropped(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
-                Tool_box.accept_drag_dropped_as_a_move_in(event, dir,the_pane, "scene of browser", logger);
+                Tool_box.accept_drag_dropped_as_a_move_in(event, displayed_folder_path,the_pane, "scene of browser", logger);
             }
         });
 
@@ -516,11 +516,11 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     private void set_title()
     //**********************************************************
     {
-        if ( dir == null) return;
-        if ( dir.toFile() == null) return;
-        if ( dir.toFile().listFiles() == null) return;
-        long how_many_files = dir.toFile().listFiles().length;
-        the_stage.setTitle(dir.toAbsolutePath().toString()+" :     "+how_many_files+" files & folders"   );
+        if ( displayed_folder_path == null) return;
+        if ( displayed_folder_path.toFile() == null) return;
+        if ( displayed_folder_path.toFile().listFiles() == null) return;
+        long how_many_files = displayed_folder_path.toFile().listFiles().length;
+        the_stage.setTitle(displayed_folder_path.toAbsolutePath().toString()+" :     "+how_many_files+" files & folders"   );
     }
     //**********************************************************
     private void zoom_plus() {
@@ -563,7 +563,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         if (dbg) logger.log(true, true, "scene_geometry_changed()" + from);
 
-        if (icon_manager.scan_dir(dir,videos_for_which_giffing_failed).equals(icon_manager.OK) == false)
+        if (icon_manager.scan_dir(displayed_folder_path,videos_for_which_giffing_failed).equals(icon_manager.OK) == false)
         {
             logger.log(true, true, "scene_geometry_changed() scan dir failed");
 
@@ -594,17 +594,19 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     public void create_new_directory()
     //**********************************************************
     {
-        TextInputDialog dialog = new TextInputDialog(dir.toAbsolutePath().toString());
+        TextInputDialog dialog = new TextInputDialog(I18n.get_I18n_string("New_directory",logger));
         dialog.setWidth(the_stage.getWidth());
-        dialog.setTitle("New directory");
-        dialog.setHeaderText("             Enter the name of the new directory                 ");
-        dialog.setContentText("New directory name:");
+        dialog.setTitle(I18n.get_I18n_string("New_directory",logger));
+        dialog.setHeaderText(I18n.get_I18n_string("Enter_name_of_new_directory",logger));
+        dialog.setContentText(I18n.get_I18n_string("New_directory_name",logger));
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String new_name = result.get();
 
-            Path new_dir = dir.resolve(new_name);
+            Path new_dir = displayed_folder_path.resolve(new_name);
+            //logger.log("CREATE DIR = "+new_dir.toAbsolutePath().toString());
+
             try {
                 Files.createDirectory(new_dir);
                 scene_geometry_changed("created new empty dir");
@@ -624,7 +626,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         Browser this_Browser_scene = this;
 
 
-        CheckMenuItem item = new CheckMenuItem("Icon size = " + target_size);
+        CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string("Icon_size_",logger) + target_size);
         int actual_size = Properties.get_icon_size();
         if (actual_size == target_size) {
             item.setSelected(true);
@@ -657,7 +659,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     {
         Browser this_local = this;
 
-        if (Change_gang.is_my_directory_impacted(dir, l, logger)) {
+        if (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger)) {
             // can be called from a thread which is NOT the FX event thread
             Platform.runLater(new Runnable() {
                 @Override
@@ -673,7 +675,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
     @Override
     public String get_string() {
-        return "Browser_scene:" + dir.toAbsolutePath() + " " + ID;
+        return "Browser_scene:" + displayed_folder_path.toAbsolutePath() + " " + ID;
     }
 
     private boolean select_all = false;
@@ -743,6 +745,17 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         }
         {
+            String text = I18n.get_I18n_string("Start_stop_slow_scan",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text);
+            item.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    toggle_scan();
+                }
+            });
+            context_menu.getItems().add(item);
+        }
+        {
             String text = I18n.get_I18n_string("Search_images_by_keywords",logger);// to: " + parent.toAbsolutePath().toString();
 
             MenuItem item = new MenuItem(text);
@@ -762,19 +775,6 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 @Override
                 public void handle(ActionEvent event) {
                     Static_change_utilities.undo_last_move(logger);
-                }
-            });
-            context_menu.getItems().add(item);
-        }
-        {
-            String text = I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);// to: " + parent.toAbsolutePath().toString();
-
-            CheckMenuItem item = new CheckMenuItem(text);
-            item.setSelected(Tool_box.get_vertical_scroll());
-            item.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    Tool_box.set_vertical_scroll(((CheckMenuItem) actionEvent.getSource()).isSelected());
                 }
             });
             context_menu.getItems().add(item);
@@ -837,6 +837,19 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         create_menu_item_for_style(context_menu);
         create_menu_item_for_language(context_menu);
 
+        {
+            String text = I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);// to: " + parent.toAbsolutePath().toString();
+
+            CheckMenuItem item = new CheckMenuItem(text);
+            item.setSelected(Tool_box.get_vertical_scroll());
+            item.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    Tool_box.set_vertical_scroll(((CheckMenuItem) actionEvent.getSource()).isSelected());
+                }
+            });
+            context_menu.getItems().add(item);
+        }
 
 
         {
@@ -851,18 +864,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             });
             context_menu.getItems().add(item);
         }
-        {
-            String text = I18n.get_I18n_string("Start_stop_slow_scan",logger);// to: " + parent.toAbsolutePath().toString();
-            MenuItem item = new MenuItem(text);
-            item.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                   toggle_scan();
-                }
-            });
-            context_menu.getItems().add(item);
-        }
-        {
+       {
             String text = I18n.get_I18n_string("Clear_Trash_Folder",logger);// to: " + parent.toAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
             item.setOnAction(new EventHandler<ActionEvent>() {
@@ -949,11 +951,16 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         Browser this_browser = this;
         for (History_item hi : get_history_of_dirs().history)
         {
-            MenuItem item = new MenuItem(hi.path);
+            if ( hi.string.equals(displayed_folder_path.toAbsolutePath().toString()))
+            {
+                // no interrest in showing the one we are in !
+                continue;
+            }
+            MenuItem item = new MenuItem(hi.string);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    create_browser(this_browser,false,Path.of(hi.path),false,logger);
+                    create_browser(this_browser,false,Path.of(hi.string),false,logger);
                 }
             });
             history_menu.getItems().add(item);
@@ -1004,7 +1011,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 if (((CheckMenuItem) actionEvent.getSource()).isSelected()) {
                     Look_and_feel_manager.set_look_and_feel(style);
 
-                    Browser.create_browser(this_browser,true, dir,true,logger);
+                    Browser.create_browser(this_browser,true, displayed_folder_path,true,logger);
                 }
             }
         });
@@ -1045,7 +1052,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
                 {
                     Local_manager.set_instance(s);
                     I18n.reset();
-                    Browser.create_browser(this_browser,true, dir,true,logger);
+                    Browser.create_browser(this_browser,true, displayed_folder_path,true,logger);
                 }
             }
         });
@@ -1096,7 +1103,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         //List<String> exclusion_list = Tool_box.load_keyword_exclusion_list(logger);
         Set<String> given = new HashSet<>();
         Image_stage.ask_user_and_find(
-                dir,
+                displayed_folder_path,
                 the_stage,
                 the_pane,
                 given,

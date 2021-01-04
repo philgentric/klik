@@ -11,7 +11,6 @@ import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import klik.I18N.I18n;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Properties;
 import klik.util.*;

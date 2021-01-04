@@ -15,7 +15,7 @@ public class History_item
         }
     };
 
-    public final String path;
+    public final String string;
     public final LocalDateTime time_stamp;
 
     // when reading from file:
@@ -23,7 +23,7 @@ public class History_item
     public History_item(String path_, String time_stamp_)
     //**********************************************************
     {
-        path = path_;
+        string = path_;
         time_stamp = LocalDateTime.parse(time_stamp_);
 
     }
@@ -32,7 +32,7 @@ public class History_item
     public History_item(String path_)
     //**********************************************************
     {
-        path = path_;
+        string = path_;
         time_stamp = LocalDateTime.now();
 
     }

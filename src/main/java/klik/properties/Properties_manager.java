@@ -20,7 +20,7 @@ public class Properties_manager
 {
 	private static final boolean dbg = false;
 	private static final String AGE = "_age";
-	public static final int max = 50;
+	public static final int max = 30 ;
 
 	private static Properties the_Properties = new Properties();
 	Path f;
