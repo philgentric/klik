@@ -20,7 +20,7 @@ import java.util.List;
 public class Look_and_feel_manager
 {
 
-    public static final boolean icon_load_dbg = false;
+    public static final boolean icon_load_dbg = true;
     public static final boolean look_dbg = false;
     public static Logger logger;
 
@@ -148,33 +148,56 @@ public class Look_and_feel_manager
     //**********************************************************
     {
 
-        String s = image_file_path;
-        if ( icon_load_dbg) logger.log("Partial path for the icon->" + s +"<-");
+        if ( icon_load_dbg) logger.log("Partial path for the icon->" + image_file_path +"<-");
         ClassLoader l = Thread.currentThread().getContextClassLoader();
         if ( icon_load_dbg) logger.log("ClassLoader=" + l.toString() );
 
         {
-            URL r = Klik_application.class.getResource("");
-            if (r == null)
+            URL url1 = Klik_application.class.getResource("");
+            if (url1 == null)
             {
-                logger.log("WARNING :Klik_application.class.getResource(\"\");  failed"  );
-
-            }
-            r = Klik_application.class.getResource(".");
-            if (r == null)
-            {
-                logger.log("WARNING :Klik_application.class.getResource(\".\");  failed"  );
+                logger.log("Method1 fails: Klik_application.class.getResource(\"\");  failed");
             }
             else
             {
-                if ( icon_load_dbg) logger.log("Klik_application.class.getResource().getPath(\".\")=" + r.getPath());
+                logger.log("Method1 works: Klik_application.class.getResource(\"\");"+url1.getPath());
             }
         }
-        URL url = Klik_application.class.getResource("../images");
-        if( url == null)
         {
-            logger.log("WARNING :Klik_application.class.getResource(\"../images\");  failed"  );
+            URL url2 = Klik_application.class.getResource(".");
+            if (url2 == null)
+            {
+                logger.log("Method2 fails: Klik_application.class.getResource(\".\");  failed"  );
+            }
+            else
+            {
+                logger.log("Method2 works: Klik_application.class.getResource().getPath(\".\")=" + url2.getPath());
+            }
         }
+        {
+            URL url3 = Klik_application.class.getResource("../images");
+            if (url3 == null)
+            {
+                logger.log("Method3 fails: Klik_application.class.getResource(\"../images\");  failed");
+            }
+            else
+            {
+                logger.log("Method3 works: Klik_application.class.getResource(\"../images\"); " + url3.getPath());
+            }
+        }
+        {
+            String classpath  = System.getProperty("java.class.path");
+            URL url5 = Klik_application.class.getResource(classpath);
+            if (url5 == null)
+            {
+                logger.log("Method5 failed: classpath->"+classpath+"<-");
+            }
+            else
+            {
+                logger.log("Method5 works: classpath " + url5.getPath());
+            }
+        }
+
         /*
         this gives the original source path: not the one being deployed
         URL url_loader = Klik_application.class.getProtectionDomain().getCodeSource().getLocation();
@@ -182,22 +205,29 @@ public class Look_and_feel_manager
         logger.log("===getProtectionDomain().getCodeSource().getLocation().getPath()====" + url_loader.getPath() );
         */
 
-        URL url2 = Klik_application.class.getResource("../"+image_file_path);
-        if( url2 == null)
+        URL url4 = Klik_application.class.getResource("../"+image_file_path);
+        if( url4 == null)
         {
-            logger.log("ERROR :Klik_application.class.getResource(\"../\""+image_file_path+");  failed"  );
+            logger.log("Method4 fails :Klik_application.class.getResource(\"../\"+image_file_path+);  failed"  );
             return null;
         }
-        if ( icon_load_dbg) logger.log("path for icon=" + url2.getPath() );
+        logger.log("Method4 works :Klik_application.class.getResource(\"../\"+image_file_path+)" +url4.getPath() );
+
+        if ( icon_load_dbg) logger.log("path for icon=" + url4.getPath() );
+
+
+
+
+
 
         String decoded_path = null;
         try
         {
-            decoded_path = URLDecoder.decode(url2.getPath(),"UTF-8");
+            decoded_path = URLDecoder.decode(url4.getPath(),"UTF-8");
         }
         catch ( UnsupportedEncodingException e)
         {
-            logger.log("path for icon decoded failed" + url2.getPath()+ " " + e.toString());
+            logger.log("path for icon decoded failed" + url4.getPath()+ " " + e.toString());
 
             return null;
         }

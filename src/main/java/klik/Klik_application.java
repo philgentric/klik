@@ -31,7 +31,7 @@ public class Klik_application extends Application
     public void start(Stage primary_stage) throws Exception
     //**********************************************************
     {
-
+        // there is something in the disruptor lib that gluon does not like ?
         //Logger logger = new Disruptor_logger("klik.log");
         Logger logger = new System_out_logger();
 

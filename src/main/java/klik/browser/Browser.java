@@ -41,11 +41,14 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.nio.file.StandardWatchEventKinds.*;
+
 //**********************************************************
 public class Browser implements After_move_handler, Y_max_listener, Exception_recorder, Scan_show_slave
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public static double MIN_DIR_BUTTON_WIDTH = 350;
     private double dir_button_width = MIN_DIR_BUTTON_WIDTH;
 
@@ -60,6 +63,9 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     final Icon_manager icon_manager;
     final Logger logger;
     final Path displayed_folder_path;
+    private WatchService watcher;
+    private final Map<WatchKey,Path> keys;
+
     List<Node> mandatory = new ArrayList<>();
 
 
@@ -68,8 +74,6 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     public double slider_width = 400;
     public static final boolean slider_indicator = false;
     public static final boolean slider_mover = true;
-
-    // state
 
 
     //**********************************************************
@@ -81,6 +85,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             Logger logger)
     //**********************************************************
     {
+
+
         get_history_of_dirs().add(dir);
         double x = 0;
         double y = 0;
@@ -132,6 +138,26 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         return bs;
     }
 
+
+    private void register(Path dir) throws IOException {
+        WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE);//, ENTRY_MODIFY);
+        {
+            Path prev = keys.get(key);
+            if (prev == null) {
+                logger.log("register:"+ dir);
+            } else {
+                if (!dir.equals(prev)) {
+                    logger.log("update: "+ prev+" => "+dir);
+                }
+            }
+        }
+        keys.put(key, dir);
+    }
+    @SuppressWarnings("unchecked")
+    static <T> WatchEvent<T> cast(WatchEvent<?> event) {
+        return (WatchEvent<T>)event;
+    }
+
     //**********************************************************
     private Browser(
             Stage the_stage_,
@@ -141,6 +167,82 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
     {
         displayed_folder_path = dir_;
         logger = logger_;
+        
+        /* file system watch service */
+        
+        try
+        {
+            watcher = FileSystems.getDefault().newWatchService();
+        } catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+
+        keys = new HashMap<WatchKey,Path>();
+        try
+        {
+            register(displayed_folder_path);
+        } catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                for (;;)
+                {
+
+                    // wait for key to be signalled
+                    WatchKey key;
+                    try {
+                        key = watcher.take();
+                    } catch (InterruptedException x) {
+                        return;
+                    }
+
+                    Path dir = keys.get(key);
+                    if (dir == null) {
+                        logger.log("WatchKey not recognized!!");
+                        continue;
+                    }
+
+                    for (WatchEvent<?> event: key.pollEvents()) {
+                        WatchEvent.Kind kind = event.kind();
+
+                        // TBD - provide example of how OVERFLOW event is handled
+                        if (kind == OVERFLOW) {
+                            continue;
+                        }
+
+                        // Context for directory entry event is the file name of entry
+                        WatchEvent<Path> ev = cast(event);
+                        Path name = ev.context();
+                        Path child = dir.resolve(name);
+
+                        // print out event
+                        logger.log("event name = "+ event.kind().name()+" child="+ child);
+
+
+                    }
+
+                    // reset key and remove from set if directory no longer accessible
+                    boolean valid = key.reset();
+                    if (!valid) {
+                        keys.remove(key);
+
+                        // all directories are inaccessible
+                        if (keys.isEmpty()) {
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+        Tool_box.execute(r,logger);
+
+
         ID = ID_generator;
         ID_generator++;
         Change_gang.register(this);
@@ -1070,14 +1172,12 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
 
         context_menu.getItems().add(item);
 
-        create_menu_item_for_one_icon_size(item, 32);
         create_menu_item_for_one_icon_size(item, 64);
-        create_menu_item_for_one_icon_size(item, 96);
         create_menu_item_for_one_icon_size(item, 128);
-        create_menu_item_for_one_icon_size(item, 256);
-        create_menu_item_for_one_icon_size(item, 300);
+        create_menu_item_for_one_icon_size(item, Properties.DEFAULT_ICON_SIZE);
         create_menu_item_for_one_icon_size(item, 400);
-        create_menu_item_for_one_icon_size(item, 500);
+        create_menu_item_for_one_icon_size(item, 512);
+        create_menu_item_for_one_icon_size(item, 1024);
     }
 
 

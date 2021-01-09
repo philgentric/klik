@@ -200,13 +200,13 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
             public void handle(ScrollEvent event) {
                 double dy = -event.getDeltaY();
                 if (dy == 0) return;
-                logger.log("SCROLL dy=" + dy);
+                //logger.log("SCROLL dy=" + dy);
                 int yy = (int) (dy / 10.0);
                 if (yy == 0) {
                     if (dy < 0) yy = -1;
                     else yy = 1;
                 }
-                logger.log("SCROLL after round up=" + yy);
+                //logger.log("SCROLL after round up=" + yy);
 
                 change_image_relative(yy, false);
             }

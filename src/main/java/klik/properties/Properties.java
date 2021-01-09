@@ -22,6 +22,7 @@ public class Properties
 
     public static final String SHOW_GIFS_FIRST = "show_gifs_first";
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
+    public static final int DEFAULT_ICON_SIZE = 256;
     private static Properties_manager the_properties_manager;
     private static boolean dbg = false;
     private static int icon_size = -1;
@@ -182,9 +183,12 @@ public class Properties
         if (icon_size > 0) return icon_size;
         // first time, we look it up on disk
         String icon_size_s = get_properties_manager().get(ICON_SIZE_KEYWORD);
-        if (icon_size_s == null) {
-            icon_size = 256;
-        } else {
+        if (icon_size_s == null)
+        {
+            icon_size = DEFAULT_ICON_SIZE;
+        }
+        else
+            {
             double d_icon_size = Double.valueOf(icon_size_s);
             icon_size = (int) d_icon_size;
         }
