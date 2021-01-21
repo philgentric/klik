@@ -186,6 +186,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
         if (smaller == false) set_stage_size_to_fullscreen(the_stage);
 
         set_ImageView();
+        //set_ImageView_compare_1000();
 
         Multiple_image_stage image_stage = this;
         the_stage.setOnCloseRequest(new EventHandler<WindowEvent>() {

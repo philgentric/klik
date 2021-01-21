@@ -38,8 +38,7 @@ targetCompatibility = 11
 //group = 'groupe'
 
 application {
-    //mainClassName = 'klik.Klik_application'
-    mainClassName = 'klik.images.Image_scaler'
+    mainClassName = 'klik.Klik_application'
     applicationDefaultJvmArgs = ["-Xms6G", "-Xmx12G"]
     //applicationDefaultJvmArgs = ["-Xms6G", "-Xmx12G","--module-path=/Users/philippegentric/javafx/javafx-sdk-14.0.2.1/lib", "--add-modules=javafx.controls"]
 
