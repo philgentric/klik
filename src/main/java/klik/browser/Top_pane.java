@@ -7,13 +7,13 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import klik.I18N.I18n;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Properties;
-import klik.util.*;
+import klik.util.Logger;
 
 import java.nio.file.Path;
 

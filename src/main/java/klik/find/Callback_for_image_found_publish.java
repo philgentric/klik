@@ -1,8 +1,6 @@
 package klik.find;
 
 
-import klik.find.Search_result;
-
 public interface Callback_for_image_found_publish
 {
 	/*

@@ -1,16 +1,7 @@
 package klik.deduplicate;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.SwingUtilities;
-
-import javafx.embed.swing.JFXPanel;
 import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -18,14 +9,23 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import klik.change.Status_old_and_new_Path;
 import klik.change.Command_old_and_new_Path;
 import klik.change.Old_and_new_Path;
-//import klik.util.Disruptor_logger;
-import klik.util.System_out_logger;
+import klik.change.Status_old_and_new_Path;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.System_out_logger;
 import klik.util.Tool_box;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
+//import klik.util.Disruptor_logger;
 
 //**********************************************************
 public class Deduplicate_popup

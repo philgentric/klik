@@ -1,6 +1,7 @@
 package klik.deduplicate;
 
-import klik.util.*;
+import klik.util.Guess_file_type_from_extension;
+import klik.util.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;

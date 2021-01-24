@@ -2,7 +2,6 @@ package klik.find;
 
 import klik.util.Logger;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;

@@ -34,21 +34,18 @@ https://github.com/oracle/graal/issues/2842
  */
 
 
-        import java.awt.AlphaComposite;
-        import java.awt.Graphics2D;
-        import java.awt.image.BufferedImage;
-        import java.awt.image.DataBufferInt;
-        import java.awt.image.SampleModel;
-        import java.awt.image.SinglePixelPackedSampleModel;
- //       import java.nio.IntBuffer;
-        import javafx.scene.image.Image;
-        import javafx.scene.image.PixelFormat;
-        import javafx.scene.image.PixelReader;
-        import javafx.scene.image.PixelWriter;
-        import javafx.scene.image.WritableImage;
-        import javafx.scene.image.WritablePixelFormat;
-        import javafx.scene.paint.Color;
-        import klik.util.Logger;
+import javafx.scene.image.Image;
+import javafx.scene.image.*;
+import javafx.scene.paint.Color;
+import klik.util.Logger;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.awt.image.SampleModel;
+import java.awt.image.SinglePixelPackedSampleModel;
+
+//       import java.nio.IntBuffer;
 
 /**
  * This class provides utility methods for converting data types between

@@ -1,6 +1,9 @@
 package klik.images;
 
-import klik.util.*;
+import klik.util.Constants;
+import klik.util.Guess_file_type_from_extension;
+import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

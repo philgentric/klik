@@ -3,30 +3,29 @@ package klik.browser;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import klik.I18N.I18n;
 import klik.deduplicate.Deduplication;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.util.*;
+import klik.util.Logger;
+import klik.util.Stack_trace_getter;
+import klik.util.Tool_box;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //**********************************************************
 public class Item_non_image extends Item

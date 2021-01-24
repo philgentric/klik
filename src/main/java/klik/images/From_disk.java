@@ -1,7 +1,6 @@
 package klik.images;
 
 import javafx.scene.image.Image;
-import klik.Klik_application;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 
 public class From_disk

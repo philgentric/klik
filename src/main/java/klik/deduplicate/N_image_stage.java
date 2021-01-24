@@ -1,12 +1,5 @@
 package klik.deduplicate;
 
-import java.io.File;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,24 +8,26 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import klik.change.Status_old_and_new_Path;
 import klik.change.Command_old_and_new_Path;
 import klik.change.Old_and_new_Path;
+import klik.change.Status_old_and_new_Path;
 import klik.images.From_disk;
 import klik.images.Image_stage;
-import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
-import klik.look.Look_and_feel;
 import klik.util.Tool_box;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 
 //**********************************************************

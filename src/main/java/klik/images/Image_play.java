@@ -1,8 +1,6 @@
 package klik.images;
 
-import javafx.geometry.Insets;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.BorderPane;
 import klik.util.Logger;
 
 public class Image_play {

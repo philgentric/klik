@@ -10,7 +10,6 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.Background;
@@ -26,7 +25,6 @@ import klik.I18N.Local_manager;
 import klik.change.After_move_handler;
 import klik.change.Change_gang;
 import klik.change.Old_and_new_Path;
-
 import klik.change.Static_change_utilities;
 import klik.images.Image_stage;
 import klik.look.Look_and_feel;
@@ -34,14 +32,15 @@ import klik.look.Look_and_feel_manager;
 import klik.properties.History;
 import klik.properties.History_item;
 import klik.properties.Properties;
-import klik.util.*;
+import klik.util.Logger;
+import klik.util.Stack_trace_getter;
+import klik.util.Tool_box;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 //**********************************************************

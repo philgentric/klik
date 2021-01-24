@@ -1,10 +1,12 @@
 package klik.deduplicate;
 
 import javafx.application.Platform;
-import klik.change.Status_old_and_new_Path;
 import klik.change.Command_old_and_new_Path;
 import klik.change.Old_and_new_Path;
-import klik.util.*;
+import klik.change.Status_old_and_new_Path;
+import klik.util.Constants;
+import klik.util.Logger;
+import klik.util.Tool_box;
 
 import java.io.File;
 import java.util.ArrayList;

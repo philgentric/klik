@@ -1,11 +1,7 @@
 package klik.images;
 
-import klik.util.Logger;
-
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class Image_decode_request {
     public int index;

@@ -2,8 +2,8 @@ package klik.properties;
 
 import javafx.geometry.Rectangle2D;
 import klik.look.Look_and_feel;
-import klik.look.Look_and_feel_plain;
 import klik.look.Look_and_feel_manager;
+import klik.look.Look_and_feel_plain;
 import klik.look.Look_and_feel_shiny_black;
 import klik.util.Constants;
 import klik.util.Logger;

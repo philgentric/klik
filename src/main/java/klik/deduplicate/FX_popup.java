@@ -1,15 +1,5 @@
 package klik.deduplicate;
 
-import java.awt.Button;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.SwingUtilities;
-
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -17,9 +7,12 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-//import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import klik.util.Logger;
+
+import java.io.File;
+
+//import javafx.scene.web.WebView;
 
 //**********************************************************
 public class FX_popup 

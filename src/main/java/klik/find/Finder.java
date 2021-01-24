@@ -1,6 +1,5 @@
 package klik.find;
 
-import klik.images.Image_context;
 import klik.properties.Properties;
 import klik.properties.Properties_manager;
 import klik.util.Guess_file_type_from_extension;

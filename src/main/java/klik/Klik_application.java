@@ -5,12 +5,11 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import klik.I18N.Local_manager;
 import klik.browser.Browser;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Properties;
-import klik.util.*;
+import klik.util.Constants;
+import klik.util.Logger;
+import klik.util.System_out_logger;
 
-import javax.swing.*;
 import java.io.File;
 import java.nio.file.Path;
 

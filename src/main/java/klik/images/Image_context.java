@@ -3,7 +3,9 @@ package klik.images;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import klik.look.Look_and_feel_manager;
-import klik.util.*;
+import klik.util.Logger;
+import klik.util.Stack_trace_getter;
+import klik.util.Static_image_utilities;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

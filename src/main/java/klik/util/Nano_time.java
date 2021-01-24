@@ -1,7 +1,5 @@
 package klik.util;
 
-import klik.util.Logger;
-
 import java.time.Clock;
 import java.time.Instant;
 

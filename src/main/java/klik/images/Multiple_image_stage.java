@@ -23,11 +23,11 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import klik.browser.Browser;
 import klik.change.After_move_handler;
 import klik.change.Change_gang;
 import klik.change.Old_and_new_Path;
 import klik.find.Finder_in_a_thread;
-import klik.browser.Browser;
 import klik.look.Look_and_feel_manager;
 import klik.util.*;
 
@@ -185,8 +185,8 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
         the_stage.show();
         if (smaller == false) set_stage_size_to_fullscreen(the_stage);
 
-        set_ImageView();
-        //set_ImageView_compare_1000();
+        //set_ImageView();
+        set_ImageView_compare_1000();
 
         Multiple_image_stage image_stage = this;
         the_stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -1325,6 +1325,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
     }
 
 
+    private static int method = 0;
     //**********************************************************
     private void set_ImageView_compare_1000()
     //**********************************************************
@@ -1341,27 +1342,44 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
 
                 tile_pane.getChildren().clear();
                 //ic.imageView.fitWidthProperty().unbind();
-                ic.imageView.setFitWidth(size);
-                //ic.imageView.fitHeightProperty().unbind();
-                ic.imageView.setPreserveRatio(true);
-                tile_pane.getChildren().add(ic.imageView);
-                set_stage_title(ic);
-                for (int i = 1; i < 2; ) {
-                    ic = get_alternate((int) size);
-                    //ic = get_next_GIF();
-                    if (ic == null) break;
-                    i++;
-                    ic.imageView.setFitWidth(size);
-                    ic.imageView.setPreserveRatio(true);
-                    tile_pane.getChildren().add(ic.imageView);
-                    logger.log("added:" + ic.path.getFileName());
+                System.out.println("method="+method);
+                if ( method%2 == 0 )
+                {
+                    method_1(size);
+                    method_2(size);
                 }
+                else
+                {
+                    method_2(size);
+                    method_1(size);
+                }
+                method++;
 
 
                 if (mouse_mode == Mouse_mode.pix_for_pix) pix_for_pix();
                 //restore_cursor();
             }
         });
+    }
+
+    private void method_1(double size)
+    {
+        ic.imageView.setFitWidth(size);
+        //ic.imageView.fitHeightProperty().unbind();
+        ic.imageView.setPreserveRatio(true);
+        tile_pane.getChildren().add(ic.imageView);
+        set_stage_title(ic);
+    }
+
+    private void method_2(double size)
+    {
+        Image_context ic2 = get_alternate((int) size);
+        //ic = get_next_GIF();
+        if (ic2 == null) return;
+        ic2.imageView.setFitWidth(size);
+        ic2.imageView.setPreserveRatio(true);
+        tile_pane.getChildren().add(ic2.imageView);
+        logger.log("added:" + ic2.path.getFileName());
     }
 
     private Image_context get_next_GIF() {

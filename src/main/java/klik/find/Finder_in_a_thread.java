@@ -8,11 +8,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import klik.images.Image_context;
 import klik.images.Image_stage;
-import klik.properties.Properties;
 import klik.util.Logger;
-import klik.util.Tool_box;
 
 import java.nio.file.Path;
 import java.util.*;

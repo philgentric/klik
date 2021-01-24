@@ -2,7 +2,10 @@ package klik.I18N;
 
 import klik.util.Logger;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 public class I18n
 {

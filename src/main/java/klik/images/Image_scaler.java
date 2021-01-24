@@ -1,12 +1,15 @@
 package klik.images;
 
-import javafx.application.*;
+import javafx.application.Application;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
-import javafx.scene.*;
-import javafx.scene.control.*;
+import javafx.scene.CacheHint;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import klik.util.Stack_trace_getter;
 
@@ -14,7 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class Image_scaler extends Application {
     //private static final String IMAGE_LOC =
@@ -74,11 +76,11 @@ public class Image_scaler extends Application {
         imageView1.setFitWidth(scaledImageSize);
         imageView1.setPreserveRatio(true);
 
+
+
+
+        //image_s - Static_image_utilities.
         ImageView imageView2 = new ImageView(image);
-        imageView2.setSmooth(false);
-        imageView2.setCache(true);
-        imageView2.setCacheHint(CacheHint.SPEED);
-        imageView2.setFitWidth(scaledImageSize);
         /*
         ImageView imageView2 = new ImageView(
                 resample(
@@ -87,6 +89,10 @@ public class Image_scaler extends Application {
                 )
         );
         */
+        imageView2.setSmooth(false);
+        imageView2.setCache(true);
+        imageView2.setCacheHint(CacheHint.SPEED);
+        imageView2.setFitWidth(scaledImageSize);
         imageView2.setPreserveRatio(true);
 
         layout.addRow(

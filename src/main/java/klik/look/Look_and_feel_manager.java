@@ -7,13 +7,13 @@ import klik.Klik_application;
 import klik.properties.Properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.util.Tool_box;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 

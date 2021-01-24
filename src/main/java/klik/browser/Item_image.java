@@ -14,11 +14,9 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import klik.I18N.I18n;
 import klik.change.Change_gang;
-import klik.images.Multiple_image_stage;
-//implement_video
-//import klik.video.Video_stage;
 import klik.images.Exif_metadata_extractor;
 import klik.images.Image_stage;
+import klik.images.Multiple_image_stage;
 import klik.look.Look_and_feel_manager;
 import klik.util.Guess_file_type_from_extension;
 import klik.util.Logger;
@@ -29,6 +27,9 @@ import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+
+//implement_video
+//import klik.video.Video_stage;
 
 //**********************************************************
 public class Item_image extends Item
