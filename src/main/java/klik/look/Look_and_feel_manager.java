@@ -190,7 +190,8 @@ public class Look_and_feel_manager
             URL url5 = Klik_application.class.getResource(classpath);
             if (url5 == null)
             {
-                logger.log("Method5 failed: classpath->"+classpath+"<-");
+                logger.log("Method5 failed");// this is a long string to print
+                // : classpath->"+classpath+"<-");
             }
             else
             {

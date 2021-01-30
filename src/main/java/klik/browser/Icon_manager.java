@@ -53,7 +53,7 @@ public class Icon_manager
     public Comparator<? super Path> file_comparator;
     public double max_dir_text_length;
 
-    private boolean show_icons_not_text;
+    private boolean show_icons_instead_of_text;
     private boolean show_hidden_files;
     private boolean show_gifs_first;
 
@@ -84,7 +84,7 @@ public class Icon_manager
             file_comparator = decreasing_file_size_comparator;
         }
 
-        show_icons_not_text = Tool_box.get_show_icons();
+        show_icons_instead_of_text = Tool_box.get_show_icons();
         show_hidden_files = Properties.get_show_hidden_files();
         show_gifs_first = Properties.get_show_gifs_first();
         logger.log("show_gifs_first=" + show_gifs_first);
@@ -173,7 +173,17 @@ public class Icon_manager
                         continue;
                     }
                 }
-                if (Guess_file_type_from_extension.is_this_path_an_image(f)) continue;
+                if (Guess_file_type_from_extension.is_this_path_an_image(f))
+                {
+                    if ( show_icons_instead_of_text)
+                    {
+                        continue;
+                    }
+                    else
+                        {
+                            // then a image falls into "non-iconized"
+                    }
+                }
                 // non-image, non-directory
                 non_iconized.add(f);
             }
@@ -364,7 +374,7 @@ public class Icon_manager
         for (Path f : iconized)
         {
             Item item = null;
-            if (show_icons_not_text)
+            if (show_icons_instead_of_text)
             {
                 item = new Item_image(browser, f, scene, icon_size, logger);
             }
@@ -384,7 +394,7 @@ public class Icon_manager
             double dh = max_h;
             if (dh == 0) dh = icon_size; // safety?
 
-            if (show_icons_not_text)
+            if (show_icons_instead_of_text)
             {
                 p = new_Point(p, item, icon_size, dh, scene_width, item_width);
                 if (p.getY() != last_y)
@@ -674,7 +684,7 @@ public class Icon_manager
     private void process_is_visible(Stage stage, Pane pane, Item item, double icon_size)
     //**********************************************************
     {
-        if (show_icons_not_text == false) return;
+        //if (show_icons_instead_of_text == false) return;
 
         {
             item.visible_in_scene = true;

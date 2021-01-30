@@ -330,6 +330,7 @@ public class Tool_box {
     {
         if (executor == null) create_executor();
         executor.execute(r);
+        //logger.log("execution requested");
         if (lbq.size() >= pool_max) {
             logger.log("WARNING: thread pool too small, pool max =" + pool_max);
             if (dbg) list_runnables(logger);
