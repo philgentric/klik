@@ -22,25 +22,25 @@ public class Look_and_feel_shiny_black extends Look_and_feel
     @Override
     protected String get_trash_icon_file_name()
     {
-        return "images/wooden_trash.png";
+        return "wooden_trash.png";
     }
 
     @Override
     protected String get_broken_icon_file_name()
     {
-        return "images/broken.png";
+        return "broken.png";
     }
 
     @Override
     protected String get_up_icon_file_name()
     {
-        return "images/wooden_up_arrow2.png";
+        return "wooden_up_arrow2.png";
     }
 
     @Override
     protected String get_default_image_file_name()
     {
-        return "images/wooden_camera.png";
+        return "wooden_camera.png";
     }
 
 

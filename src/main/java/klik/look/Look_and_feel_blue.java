@@ -24,13 +24,13 @@ public class Look_and_feel_blue extends Look_and_feel
     @Override
     protected String get_trash_icon_file_name()
     {
-        return "/images/blue_trash.png";
+        return "blue_trash.png";
     }
 
     @Override
     protected String get_broken_icon_file_name()
     {
-        return "images/broken.png";
+        return "broken.png";
     }
 
     @Override
@@ -52,17 +52,17 @@ public class Look_and_feel_blue extends Look_and_feel
     @Override
     protected String get_folder_icon_file_name()
     {
-        return "/images/blue_folder_icon.png";
+        return "blue_folder_icon.png";
     }
     @Override
     protected String get_up_icon_file_name()
     {
-        return "/images/blue_up.png";
+        return "blue_up.png";
     }
 
     @Override
     protected String get_default_image_file_name()    {
-        return "images/wooden_camera.png";
+        return "wooden_camera.png";
     }
 
 

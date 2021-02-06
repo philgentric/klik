@@ -8,10 +8,7 @@ import klik.properties.Properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -61,13 +58,14 @@ public class Look_and_feel_manager
 
     public static void set_look_and_feel(Look_and_feel style)
     {
-        logger.log(Stack_trace_getter.get_stack_trace("setting style = "+style.name));
+        logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         instance = style;
         Properties.set_style(style);
         reset();
     }
 
-    public static void reset() {
+    public static void reset()
+    {
         default_icon = null;
         broken_icon = null;
         denied_icon = null;
@@ -92,11 +90,13 @@ public class Look_and_feel_manager
     public static Image get_default_icon(double icon_size)
     //**********************************************************
     {
-        if (default_icon == null) {
+        if (default_icon == null)
+        {
             load_default_icon(icon_size);
         }
         if (default_icon == null) return null;
-        if (default_icon.getHeight() != icon_size) {
+        if (default_icon.getHeight() != icon_size)
+        {
             load_default_icon(icon_size);
         }
         return default_icon;
@@ -139,7 +139,7 @@ public class Look_and_feel_manager
     private static void load_broken_icon(double icon_size)
     //**********************************************************
     {
-        broken_icon = load_icon_fx_from_jar(Look_and_feel_manager.get_instance().get_broken_icon_file_name(), icon_size     );
+        broken_icon = load_icon_fx_from_jar(Look_and_feel_manager.get_instance().get_broken_icon_file_name(), icon_size);
     }
 
 
@@ -148,45 +148,48 @@ public class Look_and_feel_manager
     //**********************************************************
     {
 
-        if ( icon_load_dbg) logger.log("Partial path for the icon->" + image_file_path +"<-");
+        if (icon_load_dbg) logger.log("Partial path for the icon->" + image_file_path + "<-");
         ClassLoader l = Thread.currentThread().getContextClassLoader();
-        if ( icon_load_dbg) logger.log("ClassLoader=" + l.toString() );
+        if (icon_load_dbg) logger.log("ClassLoader=" + l.toString());
 
         {
-            URL url1 = Klik_application.class.getResource("");
+            String path = "";
+            URL url1 = Klik_application.class.getResource(path);
             if (url1 == null)
             {
-                logger.log("Method1 fails: Klik_application.class.getResource(\"\");  failed");
+                logger.log("Method1 fails: Klik_application.class.getResource("+path+");  failed");
             }
             else
             {
-                logger.log("Method1 works: Klik_application.class.getResource(\"\");"+url1.getPath());
+                logger.log("Method1 works: Klik_application.class.getResource("+path+");" + url1.getPath());
             }
         }
         {
-            URL url2 = Klik_application.class.getResource(".");
+            String path = ".";
+            URL url2 = Klik_application.class.getResource(path);
             if (url2 == null)
             {
-                logger.log("Method2 fails: Klik_application.class.getResource(\".\");  failed"  );
+                logger.log("Method2 fails: Klik_application.class.getResource("+path+");  failed");
             }
             else
             {
-                logger.log("Method2 works: Klik_application.class.getResource().getPath(\".\")=" + url2.getPath());
+                logger.log("Method2 works: Klik_application.class.getResource("+path+")" + url2.getPath());
             }
         }
         {
-            URL url3 = Klik_application.class.getResource("../images");
+            String path = "../";
+            URL url3 = Klik_application.class.getResource(path);
             if (url3 == null)
             {
-                logger.log("Method3 fails: Klik_application.class.getResource(\"../images\");  failed");
+                logger.log("Method3 fails: Klik_application.class.getResource("+path+");  failed");
             }
             else
             {
-                logger.log("Method3 works: Klik_application.class.getResource(\"../images\"); " + url3.getPath());
+                logger.log("Method3 works: Klik_application.class.getResource("+path+"); " + url3.getPath());
             }
         }
         {
-            String classpath  = System.getProperty("java.class.path");
+            String classpath = System.getProperty("java.class.path");
             URL url5 = Klik_application.class.getResource(classpath);
             if (url5 == null)
             {
@@ -206,51 +209,69 @@ public class Look_and_feel_manager
         logger.log("===getProtectionDomain().getCodeSource().getLocation().getPath()====" + url_loader.getPath() );
         */
 
-        URL url4 = Klik_application.class.getResource("../"+image_file_path);
-        if( url4 == null)
+        //URL url4 = Klik_application.class.getResource("../"+image_file_path);
+        //String path = "../klik/" + image_file_path;
+        String path = "../" + image_file_path;
+        URL url4 = Klik_application.class.getResource(path);
+        if (url4 == null)
         {
-            logger.log("Method4 fails :Klik_application.class.getResource(\"../\"+image_file_path+);  failed"  );
-            return null;
-        }
-        logger.log("Method4 works :Klik_application.class.getResource(\"../\"+image_file_path+)" +url4.getPath() );
-
-        if ( icon_load_dbg) logger.log("path for icon=" + url4.getPath() );
-
-
-
-
-
-
-        String decoded_path = null;
-        try
-        {
-            decoded_path = URLDecoder.decode(url4.getPath(),"UTF-8");
-        }
-        catch ( UnsupportedEncodingException e)
-        {
-            logger.log("path for icon decoded failed" + url4.getPath()+ " " + e.toString());
-
-            return null;
-        }
-      try (FileInputStream input_stream = new FileInputStream(decoded_path))
-      //  try (InputStream input_stream = Klik_application.class.getResourceAsStream(url2.getPath()))
-        {
-
+            logger.log("Method4 failed :Klik_application.class.getResource(" + path + ");  failed");
+            InputStream input_stream = Klik_application.class.getResourceAsStream(image_file_path);
+            if (input_stream == null)
+            {
+                logger.log("Method4 bis failed");
+                return null;
+            }
+            logger.log("Method4 bis worked");
 
             Image image = new Image(input_stream, icon_size, icon_size, true, true);
 
-            if ( image.isError())
+            if (image.isError())
             {
                 //return null;
-                logger.log("WARNING: an error occurred when reading: "+image_file_path);
+                logger.log("WARNING: an error occurred when reading: " + image_file_path);
 
 
                 return get_broken_icon(icon_size);
             }
             return image;
-        } catch (FileNotFoundException e) {
+        }
+        logger.log("Method4 works :Klik_application.class.getResource(" + path + ")" + url4.getPath());
+
+        if (icon_load_dbg) logger.log("path for icon=" + url4.getPath());
+
+
+        String decoded_path = null;
+        try
+        {
+            decoded_path = URLDecoder.decode(url4.getPath(), "UTF-8");
+        } catch (UnsupportedEncodingException e)
+        {
+            logger.log("path for icon decoded failed" + url4.getPath() + " " + e.toString());
+
+            return null;
+        }
+        try (FileInputStream input_stream = new FileInputStream(decoded_path))
+        //  try (InputStream input_stream = Klik_application.class.getResourceAsStream(url2.getPath()))
+        {
+
+
+            Image image = new Image(input_stream, icon_size, icon_size, true, true);
+
+            if (image.isError())
+            {
+                //return null;
+                logger.log("WARNING: an error occurred when reading: " + image_file_path);
+
+
+                return get_broken_icon(icon_size);
+            }
+            return image;
+        } catch (FileNotFoundException e)
+        {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
 
@@ -259,15 +280,13 @@ public class Look_and_feel_manager
     }
 
 
-
-
     //**********************************************************
     public static Image get_up_icon(double icon_size)
     //**********************************************************
     {
         if (up_icon == null)
         {
-            up_icon = load_icon_fx_from_jar(Look_and_feel_manager.get_instance().get_up_icon_file_name(),icon_size);
+            up_icon = load_icon_fx_from_jar(Look_and_feel_manager.get_instance().get_up_icon_file_name(), icon_size);
         }
         return up_icon;
     }
@@ -279,7 +298,7 @@ public class Look_and_feel_manager
     {
         if (trash_icon == null)
         {
-            trash_icon = load_icon_fx_from_jar(Look_and_feel_manager.get_instance().get_trash_icon_file_name(),icon_size);
+            trash_icon = load_icon_fx_from_jar(Look_and_feel_manager.get_instance().get_trash_icon_file_name(), icon_size);
         }
         return trash_icon;
     }
@@ -317,8 +336,8 @@ public class Look_and_feel_manager
         image_view.setFitHeight(button_height / 2);
         button.setGraphic(image_view);
 
-        if ( look_dbg)logger.log(Stack_trace_getter.get_stack_trace("set_button_look"));
-        if ( is_dir)
+        if (look_dbg) logger.log(Stack_trace_getter.get_stack_trace("set_button_look"));
+        if (is_dir)
         {
             Look_and_feel_manager.get_instance().set_directory_style(button);
 
@@ -329,7 +348,6 @@ public class Look_and_feel_manager
 
         }
     }
-
 
 
 }

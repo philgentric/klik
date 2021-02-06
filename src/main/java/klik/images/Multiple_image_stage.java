@@ -1157,6 +1157,9 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
             image_file_source = Image_file_source.get_Image_file_source(ic.path.getParent(), logger);
         }
 
+        if ( ic == null) return;
+        if ( ic.path == null) return;
+
         int current_index = image_file_source.get_index_of(ic.path);
         int target = current_index + i;
         target = image_file_source.check_index(target, ultimate);
@@ -1173,7 +1176,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
                 logger.log("\n FOUND in CACHE: " + skey);
                 set_ImageView();
 
-                image_cache.preload(iai.index, ultimate, forward, image_file_source);
+                image_cache.preload(iai.index, ultimate, forward, false, -1, image_file_source);
                 return;
 
             }
@@ -1181,7 +1184,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
         }
 
 
-        Image_and_index iai = image_file_source.get_Image_and_index(target);
+        Image_and_index iai = image_file_source.get_Image_and_index(target, false, -1);
         if (iai == null) {
             clear_image_cache("null image (1) in change_image_relative");
             Change_gang.report_anomaly(ic.path.getParent());
@@ -1204,7 +1207,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
 
         set_ImageView();
 
-        image_cache.preload(target, ultimate, forward, image_file_source);
+        image_cache.preload(target, ultimate, forward, false, -1, image_file_source);
 
     }
 
@@ -1240,7 +1243,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
                     image_file_source = Image_file_source.get_Image_file_source(ic.path.getParent(), logger);
 
                 int target = image_file_source.check_index(new_index, false);
-                Image_and_index iai = image_file_source.get_Image_and_index(target);
+                Image_and_index iai = image_file_source.get_Image_and_index(target, false,-1);
 
                 if (iai == null) {
                     set_ImageView_null(ic.path.getParent());
@@ -1340,16 +1343,19 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
                 //ic = get_next_GIF();
                 if (ic == null) return;
 
+                // if ( ic.image_is_damaged == false)
+
                 tile_pane.getChildren().clear();
                 //ic.imageView.fitWidthProperty().unbind();
-                System.out.println("method="+method);
                 if ( method%2 == 0 )
                 {
+                    System.out.println("method="+method+" left side is method1");
                     method_1(size);
                     method_2(size);
                 }
                 else
                 {
+                    System.out.println("method="+method+" left side is method2");
                     method_2(size);
                     method_1(size);
                 }
@@ -1364,7 +1370,14 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
 
     private void method_1(double size)
     {
-        ic.imageView.setFitWidth(size);
+        {
+            //if ((ic.image.getWidth() > 200) && (ic.image.getHeight() > 200))
+            {
+                ic.imageView.fitWidthProperty().bind(scene.widthProperty().divide(2));
+                ic.imageView.fitHeightProperty().bind(scene.heightProperty());
+            }
+        }
+        //ic.imageView.setFitWidth(size);
         //ic.imageView.fitHeightProperty().unbind();
         ic.imageView.setPreserveRatio(true);
         tile_pane.getChildren().add(ic.imageView);
@@ -1374,9 +1387,17 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
     private void method_2(double size)
     {
         Image_context ic2 = get_alternate((int) size);
-        //ic = get_next_GIF();
         if (ic2 == null) return;
-        ic2.imageView.setFitWidth(size);
+
+        {
+            //if ((ic.image.getWidth() > 200) && (ic.image.getHeight() > 200))
+            {
+                ic2.imageView.fitWidthProperty().bind(scene.widthProperty().divide(2));
+                ic2.imageView.fitHeightProperty().bind(scene.heightProperty());
+            }
+        }
+
+        //ic2.imageView.setFitWidth(size);
         ic2.imageView.setPreserveRatio(true);
         tile_pane.getChildren().add(ic2.imageView);
         logger.log("added:" + ic2.path.getFileName());
@@ -1391,7 +1412,7 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
             index = image_file_source.check_index(index, false);
             if (index == 0) return null;
 
-            Image_and_index iai = image_file_source.get_Image_and_index(index);
+            Image_and_index iai = image_file_source.get_Image_and_index(index, false, -1);
             if (Guess_file_type_from_extension.is_gif_extension(iai.ic.path) == false) continue;
 
             return iai.ic;
@@ -1399,14 +1420,14 @@ public class Multiple_image_stage implements After_move_handler, Slide_show_slav
         }
 
     }
-    private Image_context get_alternate(int size)
+    private Image_context get_alternate(int width)
     {
         if (image_file_source == null)
         {
             image_file_source = Image_file_source.get_Image_file_source(ic.path.getParent(),logger);
         }
         int index = ic.get_index(image_file_source);
-        Image_and_index iai = image_file_source.get_Image_and_index2(index,size);
+        Image_and_index iai = image_file_source.get_Image_and_index(index,true,width);
         return iai.ic;
     }
 

@@ -1,4 +1,4 @@
-package klik.browser;
+package klik.util;
 
 /*
 sorry I had to copy the source code of this because gluon was not able to properly import it!?

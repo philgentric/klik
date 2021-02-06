@@ -1,6 +1,6 @@
 package klik.util;
 
-import javafx.embed.swing.SwingFXUtils;
+//import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import klik.images.Image_context;
 
@@ -40,6 +40,7 @@ public class Static_image_utilities {
 
         String quality = null;
         if (quality_bool) {
+            System.out.println("QUALITY is on");
             quality = "Quality ";
             g_for_returned_image.setRenderingHint(RenderingHints.KEY_RENDERING,
                     RenderingHints.VALUE_RENDER_QUALITY);
@@ -57,9 +58,9 @@ public class Static_image_utilities {
                     RenderingHints.VALUE_COLOR_RENDER_SPEED);
         }
 
-        BufferedImage source_bi = SwingFXUtils.fromFXImage(in, null);
+        BufferedImage source_bi = JavaFX_to_Swing.fromFXImage(in, null,logger);
         g_for_returned_image.drawRenderedImage(source_bi, trans);
-        Image out = SwingFXUtils.toFXImage(sink_bi,null);
+        Image out = JavaFX_to_Swing.toFXImage(sink_bi,null);
         return out;
     }
 

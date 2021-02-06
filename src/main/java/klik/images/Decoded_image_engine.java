@@ -39,7 +39,7 @@ public class Decoded_image_engine
                             }
 
                             // this is the expensive operation:
-                            Image_and_index local = r.image_file_source.get_Image_and_index(r.index);
+                            Image_and_index local = r.image_file_source.get_Image_and_index(r.index, r.high_quality, r.target_width);
                             if (local != null)
                             {
                                 // OutOfMemory can manisfest either as an exception, and then we get a null

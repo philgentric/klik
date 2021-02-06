@@ -30,7 +30,7 @@ public class Image_cache
         cache.clear();
     }
 
-    public void preload(int k, boolean ultimate, boolean forward, Image_file_source image_file_source)
+    public void preload(int k, boolean ultimate, boolean forward, boolean high_quality, int target_width, Image_file_source image_file_source)
     {
         int increment = -1;
         if ( forward) increment = 1;
@@ -46,7 +46,7 @@ public class Image_cache
         }
         for (int i : kk)
         {
-            Image_decode_request idr = new Image_decode_request(i, image_file_source, cache);
+            Image_decode_request idr = new Image_decode_request(i, high_quality, target_width, image_file_source, cache);
             if ( ultradbg) logger.log("preloading request: "+idr.get_string());
             String skey = idr.make_key();
             if ( requested.contains(skey)) continue;

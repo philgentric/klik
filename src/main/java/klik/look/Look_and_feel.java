@@ -24,7 +24,7 @@ public abstract class Look_and_feel
     protected abstract String get_broken_icon_file_name();
     protected String get_denied_icon_file_name()
     {
-        return "images/denied.png";
+        return "denied.png";
     }
 
 
@@ -44,7 +44,7 @@ public abstract class Look_and_feel
 
     protected String get_folder_icon_file_name()
     {
-        return "images/wooden_folder3.png";
+        return "wooden_folder3.png";
     }
     public abstract void set_hovered_directory_style(Button button);
     public abstract void set_hovered_file_style(Button button);

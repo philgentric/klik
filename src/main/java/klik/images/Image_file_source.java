@@ -72,12 +72,12 @@ public class Image_file_source
 
 
     //**********************************************************
-    private synchronized Image_and_index get_image_for_index(int index, boolean ultimate)
+    private synchronized Image_and_index get_image_for_index(int index, boolean ultimate, boolean high_quality, int size)
     //**********************************************************
     {
         if (path_list.size() == 0) return null;
         int index2 = check_index(index, ultimate);
-        return get_Image_and_index(index2);
+        return get_Image_and_index(index2, ultimate,size);
     }
 
 
@@ -130,7 +130,15 @@ public class Image_file_source
         return index;
     }
 
-    public Image_and_index get_Image_and_index(int index)
+    public Image_and_index get_Image_and_index(int index, boolean high_quality, int width)
+    {
+        if ( high_quality) return get_Image_and_index2(index,width);
+
+        return get_Image_and_index1(index);
+
+    }
+
+    private Image_and_index get_Image_and_index1(int index)
     {
 
         if ( path_list.size() <= index) return null;
@@ -147,12 +155,12 @@ public class Image_file_source
 
     }
 
-    public Image_and_index get_Image_and_index2(int index, int size)
+    private Image_and_index get_Image_and_index2(int index, int width)
     {
 
         if ( path_list.size() <= index) return null;
 
-        Image_context local_ic = Image_context.get_Image_context2(path_list.get(index), size, logger);
+        Image_context local_ic = Image_context.get_Image_context2(path_list.get(index), width, logger);
         if (local_ic == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Image_file_source PANIC: cannot load image " + path_list.get(index).toAbsolutePath()));

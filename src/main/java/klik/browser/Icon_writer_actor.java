@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritablePixelFormat;
+import klik.util.JavaFX_to_Swing;
 import klik.util.Logger;
 import klik.util.Tool_box;
 

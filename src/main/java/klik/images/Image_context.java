@@ -51,7 +51,7 @@ public class Image_context
     }
 
     //**********************************************************
-    public static Image_context get_Image_context2(Path f_, int size, Logger logger_)
+    public static Image_context get_Image_context2(Path f_, int width, Logger logger_)
     //**********************************************************
     {
         if ( Files.exists(f_) == false) return null;
@@ -64,7 +64,7 @@ public class Image_context
             new Image_context(f_,broken,false,-1,logger_);
         }
 
-        Image resized_image = Static_image_utilities.transform_2(local_image,size,true,logger_);
+        Image resized_image = Static_image_utilities.transform_2(local_image,width,true,logger_);
         return new Image_context(f_,resized_image,true,-1,logger_);
     }
 

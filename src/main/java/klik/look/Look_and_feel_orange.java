@@ -51,7 +51,7 @@ public class Look_and_feel_orange extends Look_and_feel
     @Override
     protected String get_broken_icon_file_name()
     {
-        return "images/black_and_white/broken.png";
+        return "black_and_white/broken.png";
     }
 
     @Override
@@ -62,25 +62,25 @@ public class Look_and_feel_orange extends Look_and_feel
     @Override
     protected String get_trash_icon_file_name()
     {
-        return "images/black_and_white/trash.png";
+        return "black_and_white/trash.png";
     }
 
     @Override
     protected String get_up_icon_file_name()
     {
-        return "images/black_and_white/up.png";
+        return "black_and_white/up.png";
     }
 
     @Override
     protected String get_default_image_file_name()
     {
-        return "images/black_and_white/image.png";
+        return "black_and_white/image.png";
     }
 
     @Override
     protected String get_folder_icon_file_name()
     {
-        return "images/black_and_white/folder.png";
+        return "black_and_white/folder.png";
     }
 
     @Override

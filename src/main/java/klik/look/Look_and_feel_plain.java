@@ -22,26 +22,26 @@ public class Look_and_feel_plain extends Look_and_feel
     @Override
     protected String get_trash_icon_file_name()
     {
-        return "/images/alu_trash.png";
+        return "alu_trash.png";
     }
 
     @Override
     protected String get_broken_icon_file_name()
     {
-        return "images/broken.png";
+        return "broken.png";
     }
 
     @Override
     protected String get_up_icon_file_name()
     {
-        return "/images/black_up.png";
+        return "black_up.png";
     }
 
 
     @Override
     protected String get_folder_icon_file_name()
     {
-        return "/images/black_and_white_folder.jpg";
+        return "black_and_white_folder.jpg";
     }
 
 
@@ -75,7 +75,7 @@ public class Look_and_feel_plain extends Look_and_feel
     @Override
     protected String get_default_image_file_name()
     {
-        return "/images/black_and_white_camera.jpg";
+        return "black_and_white_camera.jpg";
     }
 
 

@@ -18,12 +18,22 @@
     </properties>
 
     <dependencies>
-         <dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-		<!-- https://mvnrepository.com/artifact/com.lmax/disruptor -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.lmax/disruptor -->
 		<dependency>
 		    <groupId>com.lmax</groupId>
 		    <artifactId>disruptor</artifactId>
@@ -67,16 +77,16 @@
                 </directory>
                 <includes>
                     <include>
-                        **/images/*.jpg
+                        **/*.jpg
                     </include>
                     <include>
-                        **/images/*.png
+                        **/*.png
                     </include>
                     <include>
-                        **/images/black_and_white/*.jpg
+                        **/black_and_white/*.jpg
                     </include>
                     <include>
-                        **/images/black_and_white/*.png
+                        **/black_and_white/*.png
                     </include>
                 </includes>
             </resource>

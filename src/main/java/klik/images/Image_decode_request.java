@@ -6,13 +6,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Image_decode_request {
     public int index;
     public Image_file_source image_file_source;
+    public final boolean high_quality;
+    public final int target_width;
 
     //public LinkedBlockingQueue<Image_decode_request> to_be_removed;
     public ConcurrentHashMap<String, Image_and_index> cache;
 
-    public Image_decode_request(int index_, Image_file_source image_file_source_,
+    public Image_decode_request(int index_, boolean high_quality_, int target_width_, Image_file_source image_file_source_,
                                 ConcurrentHashMap<String, Image_and_index> preloaded_) {
         index = index_;
+        high_quality = high_quality_;
+        target_width = target_width_;
         image_file_source = image_file_source_;
         cache = preloaded_;
         //to_be_removed = to_be_removed_;
