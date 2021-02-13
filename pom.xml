@@ -3,6 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gluonhq.samples</groupId>
+
+
     <artifactId>klik</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
@@ -12,8 +14,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
-        <javafx.version>15</javafx.version>
-        <client.maven.plugin.version>3.8.1</client.maven.plugin.version>
+        <javafx.version>15.0.1</javafx.version>
+        <!--<client.maven.plugin.version>3.8.1</client.maven.plugin.version>-->
         <main.class>klik.Klik_application</main.class>
     </properties>
 
@@ -23,14 +25,10 @@
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <!-- needed only for Deduplicate_popup ... todo: re-implent with javafx-->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.lmax/disruptor -->
@@ -53,45 +51,10 @@
             <version>4.2</version>
         </dependency>
 
-
-        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
-        <!--<dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>11-ea+24</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>12.0.2</version>
-        </dependency>
-        -->
-
    </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>
-                    src/main/resources/klik
-                </directory>
-                <includes>
-                    <include>
-                        **/*.jpg
-                    </include>
-                    <include>
-                        **/*.png
-                    </include>
-                    <include>
-                        **/black_and_white/*.jpg
-                    </include>
-                    <include>
-                        **/black_and_white/*.png
-                    </include>
-                </includes>
-            </resource>
-        </resources>
-        <plugins>
+       <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -110,10 +73,12 @@
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>client-maven-plugin</artifactId>
-                <version>0.1.35</version>
+                <version>0.1.36</version>
                 <configuration>
                     <target>${client.target}</target>
                     <mainClass>${main.class}</mainClass>
+                    <bundlesList>klik/MessagesBundle</bundlesList>
+
                     <reflectionList>java.awt.Desktop,java.awt.Toolkit,com.drew.metadata.exif.ExifThumbnailDirectory,com.drew.metadata.exif.ExifInteropDirectory,com.drew.metadata.exif.makernotes.AppleMakernoteDirectory,com.drew.metadata.exif.GpsDirectory,javafx.scene.input.Dragboard,com.drew.metadata.exif.ExifSubIFDDirectory,com.drew.metadata.exif.ExifIFD0Directory,com.drew.metadata.exif.makernotes.SamsungType2MakernoteDirectory,com.drew.metadata.exif.makernotes.SonyType1MakernoteDirectory</reflectionList>
                 </configuration>
             </plugin>

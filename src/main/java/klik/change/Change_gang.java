@@ -91,7 +91,7 @@ public class Change_gang
     {
         After_move_handler_message dr = new After_move_handler_message(wtdam, After_move_handler_message_type.register);
         future_change_gang.add(dr);
-        list_future("after register");
+        if ( dbg) list_future("after register");
 
     }
 
@@ -118,7 +118,9 @@ public class Change_gang
         }
     }
 
+    //**********************************************************
     void list_future(String reason)
+    //**********************************************************
     {
         StringBuilder sb = new StringBuilder();
         sb.append("*********FUTURE: " + reason + "****\n");
@@ -167,7 +169,10 @@ public class Change_gang
         }
     }
 
-    private void house_keeping() {
+    //**********************************************************
+    private void house_keeping()
+    //**********************************************************
+    {
         for (; ; ) {
             After_move_handler_message amhm = null;
             try {
@@ -188,7 +193,10 @@ public class Change_gang
 
     }
 
-    public static List<Old_and_new_Path> is_my_directory_impacted_by_a_gone_file(Path dir, List<Old_and_new_Path> l) {
+    //**********************************************************
+    public static List<Old_and_new_Path> is_my_directory_impacted_by_a_gone_file(Path dir, List<Old_and_new_Path> l)
+    //**********************************************************
+    {
         List<Old_and_new_Path> returned = new ArrayList<>();
         for (Old_and_new_Path oan : l) {
             // are you the origin directory?
@@ -218,7 +226,10 @@ public class Change_gang
         return returned;
     }
 
-    public static List<Old_and_new_Path> is_my_directory_impacted_by_a_renamed_file(Path dir, List<Old_and_new_Path> l) {
+    //**********************************************************
+    public static List<Old_and_new_Path> is_my_directory_impacted_by_a_renamed_file(Path dir, List<Old_and_new_Path> l)
+    //**********************************************************
+    {
         List<Old_and_new_Path> returned = new ArrayList<>();
         for (Old_and_new_Path oan : l) {
             // are you the origin directory?
@@ -249,7 +260,10 @@ public class Change_gang
         return returned;
     }
 
-    public static List<Old_and_new_Path> is_my_directory_impacted_by_a_new_file(Path dir, List<Old_and_new_Path> l, Logger logger) {
+    //**********************************************************
+    public static List<Old_and_new_Path> is_my_directory_impacted_by_a_new_file(Path dir, List<Old_and_new_Path> l, Logger logger)
+    //**********************************************************
+    {
         List<Old_and_new_Path> returned = new ArrayList<>();
         for (Old_and_new_Path oan : l) {
             if (dir == null) {

@@ -234,7 +234,9 @@ public class Image_file_source
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}")) {
 
-            for (Path entry : stream) {
+            for (Path entry : stream)
+            {
+                if (Files.isDirectory(entry)) continue;
                 path_list.add(entry);
             }
         } catch (IOException e) {

@@ -17,7 +17,7 @@ import java.util.List;
 public class Look_and_feel_manager
 {
 
-    public static final boolean icon_load_dbg = true;
+    public static final boolean icon_load_dbg = false;
     public static final boolean look_dbg = false;
     public static Logger logger;
 
@@ -152,7 +152,7 @@ public class Look_and_feel_manager
         ClassLoader l = Thread.currentThread().getContextClassLoader();
         if (icon_load_dbg) logger.log("ClassLoader=" + l.toString());
 
-        {
+        if (icon_load_dbg){
             String path = "";
             URL url1 = Klik_application.class.getResource(path);
             if (url1 == null)
@@ -164,7 +164,7 @@ public class Look_and_feel_manager
                 logger.log("Method1 works: Klik_application.class.getResource("+path+");" + url1.getPath());
             }
         }
-        {
+        if (icon_load_dbg){
             String path = ".";
             URL url2 = Klik_application.class.getResource(path);
             if (url2 == null)
@@ -176,7 +176,7 @@ public class Look_and_feel_manager
                 logger.log("Method2 works: Klik_application.class.getResource("+path+")" + url2.getPath());
             }
         }
-        {
+        if (icon_load_dbg){
             String path = "../";
             URL url3 = Klik_application.class.getResource(path);
             if (url3 == null)
@@ -188,7 +188,7 @@ public class Look_and_feel_manager
                 logger.log("Method3 works: Klik_application.class.getResource("+path+"); " + url3.getPath());
             }
         }
-        {
+        if (icon_load_dbg){
             String classpath = System.getProperty("java.class.path");
             URL url5 = Klik_application.class.getResource(classpath);
             if (url5 == null)
@@ -211,7 +211,8 @@ public class Look_and_feel_manager
 
         //URL url4 = Klik_application.class.getResource("../"+image_file_path);
         //String path = "../klik/" + image_file_path;
-        String path = "../" + image_file_path;
+        //String path = "../" + image_file_path;
+        String path = image_file_path;
         URL url4 = Klik_application.class.getResource(path);
         if (url4 == null)
         {
@@ -236,7 +237,7 @@ public class Look_and_feel_manager
             }
             return image;
         }
-        logger.log("Method4 works :Klik_application.class.getResource(" + path + ")" + url4.getPath());
+        if (icon_load_dbg) logger.log("Method4 works :Klik_application.class.getResource(" + path + ") path:" + url4.getPath());
 
         if (icon_load_dbg) logger.log("path for icon=" + url4.getPath());
 
@@ -251,8 +252,9 @@ public class Look_and_feel_manager
 
             return null;
         }
-        try (FileInputStream input_stream = new FileInputStream(decoded_path))
-        //  try (InputStream input_stream = Klik_application.class.getResourceAsStream(url2.getPath()))
+        //try (FileInputStream input_stream = new FileInputStream(decoded_path))
+        //try (InputStream input_stream = Klik_application.class.getResourceAsStream(url4.getPath()))
+        try (InputStream input_stream = Klik_application.class.getResourceAsStream(path))
         {
 
 

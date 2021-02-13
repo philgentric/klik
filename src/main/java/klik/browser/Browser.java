@@ -185,6 +185,8 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
+        /*
+        this works but thread must be recovered !!
         Runnable r = new Runnable()
         {
             @Override
@@ -240,7 +242,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
             }
         };
         Tool_box.execute(r,logger);
-
+        */
 
         ID = ID_generator;
         ID_generator++;
@@ -1236,7 +1238,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         one_line("    Contrarily to a number of other products, Klik does not hide your images",textFlow);
         one_line("    Klik does not use hidden folders or whatever \"Libraries\"!",textFlow);
         one_line("    Klik only uses 100% transparent file system operations",textFlow);
-        one_line("    Klik never modifies a file, it only creates folders at our will",textFlow);
+        one_line("    Klik never modifies a file, it only creates folders at your will",textFlow);
         one_line("    and enables you to move files from folder to folder",textFlow);
         one_line_bold("Safety",textFlow);
         one_line("    Klik never deletes a file without asking you for confirmation",textFlow);
@@ -1251,6 +1253,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         one_line("         Clicking on an icon will popup a new \"Image\" window displaying that image ",textFlow);
         one_line("         Clicking on an file-button will open that file (with the default application) ",textFlow);
         one_line("         Clicking on an folder-button will open that folder, replacing the current one ",textFlow);
+        one_line("         Has a slideshow mode ",textFlow);
         one_line("    \"Image\" window = displays one image at a time",textFlow);
         one_line("         Can load images one after the other very fast to explore a folder",textFlow);
         one_line("         Has a slideshow mode",textFlow);

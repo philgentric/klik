@@ -87,7 +87,7 @@ public class Icon_manager
         show_icons_instead_of_text = Tool_box.get_show_icons();
         show_hidden_files = Properties.get_show_hidden_files();
         show_gifs_first = Properties.get_show_gifs_first();
-        logger.log("show_gifs_first=" + show_gifs_first);
+        //logger.log("show_gifs_first=" + show_gifs_first);
         max_dir_text_length = 0;
 
 

@@ -48,7 +48,7 @@ public class Tool_box {
     static Decoded_image_engine decoded_image_cache = null;
 
 
-    private final static int pool_max = 200;
+    private final static int pool_max = 500;
 
 
 

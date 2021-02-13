@@ -1,7 +1,9 @@
 package klik.I18N;
 
+import klik.Klik_application;
 import klik.util.Logger;
 
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -18,16 +20,36 @@ public class I18n
         Locale.setDefault(the_locale);
         try
         {
-            the_resource_bundle = ResourceBundle.getBundle("MessagesBundle", the_locale);
+           //ClassLoader class_loader = Klik_application.class.getClassLoader();
+            //ResourceBundle.Control control = ResourceBundle.Control.getControl(FORMAT_PROPERTIES);
+            the_resource_bundle = ResourceBundle.getBundle("klik/MessagesBundle", the_locale);// class_loader, control);
         }
         catch(Exception e)
         {
             the_resource_bundle = null;
-            logger.log("managed exception : "+e);
+            logger.log("BADBADBAD1 failed to load language resource  : "+e);
+            String classpath  = System.getProperty("java.class.path");
+            logger.log("classpath  : "+classpath);
+            logger.log("the_locale = "+the_locale);
+            {
+                String test_path = "MessagesBundle_fr_FR.properties";
+                InputStream x = Klik_application.class.getResourceAsStream(test_path);
+                logger.log("InputStream = Klik_application.class.getResourceAsStream(" + test_path + ")=" + x);
+            }
+            {
+                String test_path = "klik/MessagesBundle_fr_FR.properties";
+                InputStream x = Klik_application.class.getResourceAsStream(test_path);
+                logger.log("InputStream = Klik_application.class.getResourceAsStream(" + test_path + ")=" + x);
+            }
+
             return;
         }
-        String classpath  = System.getProperty("java.class.path");
-        logger.log(" I18n found in classpath = "+classpath);
+        if ( the_resource_bundle == null)
+        {
+            logger.log("BADBADBAD2 failed to load language resource; ResourceBundle.getBundle() returns null");
+            return;
+        }
+        logger.log(" OK, language resource found !");
    }
 
 
