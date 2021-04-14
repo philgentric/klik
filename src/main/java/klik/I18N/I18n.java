@@ -49,7 +49,14 @@ public class I18n
             logger.log("BADBADBAD2 failed to load language resource; ResourceBundle.getBundle() returns null");
             return;
         }
-        logger.log(" OK, language resource found !");
+        logger.log(" OK, language resource found for "+the_locale+ "\n"+the_resource_bundle.toString());
+        Enumeration<String> x = the_resource_bundle.getKeys();
+        while ( x.hasMoreElements())
+        {
+            String k = x.nextElement();
+            logger.log(k + " ==> " + the_resource_bundle.getString(k));
+
+        }
    }
 
 

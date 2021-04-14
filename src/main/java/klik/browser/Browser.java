@@ -1274,7 +1274,7 @@ public class Browser implements After_move_handler, Y_max_listener, Exception_re
         one_line("          Browser window: the file will be moved into the corresponding folder",textFlow);
         one_line("          Folder buttons: the file will be moved into the corresponding folder",textFlow);
         one_line("          Trash button: the file will be moved into the trash folder",textFlow);
-        one_line("          Up button: the file will be moved into the trash folder",textFlow);
+        one_line("          Up button: the file will be moved into the parent folder",textFlow);
         one_line_bold("The little features that make Klik great",textFlow);
         one_line("     You can easily rename things (folders and files)",textFlow);
         one_line("     Klik tells you how many pictures a folder contains",textFlow);

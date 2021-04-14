@@ -4,5 +4,5 @@
   "bundles":[
     {"name":"klik/MessagesBundle_en_US.properties"},
     {"name":"klik/MessagesBundle_fr_FR.properties"}
-],
+]
 }

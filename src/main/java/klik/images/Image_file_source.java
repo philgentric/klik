@@ -15,7 +15,7 @@ import java.util.*;
 public class Image_file_source
 //**********************************************************
 {
-
+    public final static boolean dbg = false;
     private final List<Path> path_list;
     private final Map<Path, Integer> indexes;
     public final Path dir;
@@ -64,7 +64,11 @@ public class Image_file_source
         }
         Integer ii = indexes.get(from);
         if (ii == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("PANIC file NOT in Image_file_source:" + from.toAbsolutePath()));
+            if ( dbg)
+            {
+                // this happens after a rename
+                logger.log(Stack_trace_getter.get_stack_trace("PANIC file NOT in Image_file_source:" + from.toAbsolutePath()));
+            }
             return -1;
         }
         return ii;

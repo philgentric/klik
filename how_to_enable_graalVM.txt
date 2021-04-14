@@ -1,4 +1,4 @@
-export GRAALVM_HOME=/Users/philippegentric/graalVM/graalvm-ce-java11-21.0.0/Contents/Home/
+export GRAALVM_HOME=/Users/philippegentric/graalVM/graalvm-ce-java11-21.0.0.2/Contents/Home/
 export JAVA_HOME=$GRAALVM_HOME
 
 mvn client:compile
