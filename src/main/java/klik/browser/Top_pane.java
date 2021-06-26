@@ -49,7 +49,8 @@ public class Top_pane
                         newValue.doubleValue()
                                 -trash_button_width
                                 -tools_button_width
-                                -new_window_button_width);
+                                -new_window_button_width
+                                -100);
             }
         });
     }
@@ -103,7 +104,7 @@ public class Top_pane
         Look_and_feel_manager.set_button_look_as_up(up,top_button_height);
 
 
-        up.setPrefSize(200,top_button_height);
+        up.setPrefSize(100,top_button_height);
         hBox.getChildren().add(up);
         return up;
     }
