@@ -1,4 +1,4 @@
-#Compile & run klik as a java application, using gradle
+# Compile & run klik as a java application, using gradle
 
 0. clone this git tree
 1. cd klik
@@ -8,7 +8,7 @@
 5. gradle build
 6. gradle run
 
-#Compile & run klik as a java application, using maven
+# Compile & run klik as a java application, using maven
 
 0. clone this git tree
 1. cd klik
@@ -16,7 +16,7 @@
 3. install maven
 4. mvn clean javafx:run
 
-#Compile klik as a NATIVE application using graalvm using maven
+# Compile klik as a NATIVE application using graalvm using maven
 
 0. clone this git tree
 1. cd klik
