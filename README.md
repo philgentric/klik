@@ -1,4 +1,3 @@
-
 #Compile & run klik as a java application, using gradle
 
 0. clone this git tree
