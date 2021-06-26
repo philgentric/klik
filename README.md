@@ -4,9 +4,8 @@
 1. cd klik
 2. install JDK version 11
 3. install gradle (tested with gradle 6.7.1, not tested for Gradle 7)
-4. gradle clean (optional)
-5. gradle build
-6. gradle run
+4. gradle build
+5. gradle run
 
 # Compile & run klik as a java application, using maven
 
