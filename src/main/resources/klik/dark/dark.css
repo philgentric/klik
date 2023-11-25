@@ -1,0 +1,39 @@
+
+
+.look_and_feel_general {
+    -fx-text-fill: #fefcff;
+    -fx-font:20 Helvetica;
+    -fx-font-weight: bold;
+    -fx-alignment: top-left;
+    -fx-background-color: #121212	;
+    -fx-padding: -1 -1 -1 -1;
+}
+
+.menu_buttons {
+    -fx-text-fill: #fefcff;
+    -fx-font:20 Helvetica;
+    -fx-font-weight: bold;
+    -fx-alignment: top-left;
+    -fx-background-color: #121212	;
+    -fx-padding: -1 -1 -1 -1;
+}
+
+.menu_buttons:hover {
+  -fx-background-color: #606060;
+}
+
+
+.look_and_feel_drag {
+    -fx-background-color: #88ffff;
+}
+
+
+
+.look_and_feel_all_files {
+    -fx-background-color: red;
+}
+
+
+.look_and_feel_all_dirs {
+    -fx-background-color: blue;
+}

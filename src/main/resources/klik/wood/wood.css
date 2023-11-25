@@ -1,0 +1,52 @@
+
+.look_and_feel_general {
+    -fx-text-fill:white;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+    -fx-font-family: Helvetica;
+    -fx-font:20 Helvetica; 
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), linear-gradient(#020b02, #3a3a3a), linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%);
+    -fx-background-insets: 0,1,4,4;
+    -fx-background-radius: 9,8,5,3;
+    -fx-alignment: top-left;
+    -fx-padding: -1 -1 -1 -1;
+//    -fx-padding: 15 30 15 30;
+}
+
+.menu_buttons {
+    -fx-text-fill:white;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+    -fx-font-family: Helvetica;
+    -fx-font:20 Helvetica; 
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), linear-gradient(#020b02, #3a3a3a), linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%);
+    -fx-background-insets: 0,1,4,4;
+    -fx-background-radius: 9,8,5,3;
+    -fx-padding: -1 -1 -1 -1;
+    -fx-alignment: top-left;
+}
+
+.menu_buttons:hover {
+    -fx-text-fill:white;
+    -fx-font-family: Helvetica;
+    -fx-font-weight: bold;
+    -fx-text-fill:black;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+    -fx-background-color: darkgrey;
+    -fx-background-insets: 0,1,4;
+    -fx-background-radius: 9,8,5;
+}
+
+.look_and_feel_drag {
+    -fx-background-color: orange;
+}
+
+
+.look_and_feel_all_files {
+    -fx-background-color: red;
+}
+
+
+.look_and_feel_all_dirs {
+    -fx-background-color: blue;
+}

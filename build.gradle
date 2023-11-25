@@ -1,0 +1,52 @@
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+compileJava {
+    // this is needed to enable the virtual threads preview feature in java20
+    options.compilerArgs += ['--enable-preview']
+}
+
+
+
+def main_class_name = 'klik.Klik_application'
+
+application {
+    mainClassName = main_class_name
+    applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "--enable-preview"]
+}
+
+javafx {
+    version = "20"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media' ]
+}
+
+def currentOS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
+def platform
+if (currentOS.isWindows()) {
+    platform = 'win'
+} else if (currentOS.isLinux()) {
+    platform = 'linux'
+} else if (currentOS.isMacOsX()) {
+    platform = 'mac'
+}
+
+dependencies {
+    // EXIF reader
+    implementation 'com.drewnoakes:metadata-extractor:2.18.0'
+    // Cache
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
+    // files etc
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    // PDF icons
+    implementation 'org.apache.pdfbox:pdfbox:3.0.0-RC1'
+
+}
