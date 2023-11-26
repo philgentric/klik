@@ -1,0 +1,185 @@
+= Klik
+
+Author: Philippe Gentric, 2020
+
+
+Klik original purpose was to browse and organize images, but it can also be used as a general-purpose "file explorer".
+
+Technically, Klik is a JavaFX application so it can run on any system that supports JavaFX, including Windows, MacOS and Linux.
+
+But why?
+--------
+
+There are so many image browsing tools already... Why a new one?
+
+1. Klik is really fast, significantly faster than all *free* tools I have tested
+2. Klik can support folders with > 10000 images. All the tools I know, including commercial ones, start to seriously hick-up on folders with that many images. Klik does not.
+3. Klik is free and opensource
+4. Klik is very intuitive, especially the folder=button and drag-and-drop features are top natural
+5. Klik is transparent: it does not move, "import" or fool around with your files: it just shows you where they are on your disk and enables you to organize your set in a folder-tree as you wish
+6. Klik is multi-platform since it is JavaFX based
+
+Browser and Image
+-----------------
+
+Klik has 2 main window types:
+
+* Browser: gives a view of one folder
+* Image: display one image
+
+There is no limit (but the RAM on your machine) to the number of windows.
+There is also full freedom to move and resize any window, browser as well as image.
+
+Browser
+~~~~~~~
+
+A browser window is a view of a folder. Sub-folders are buttons: intuitively when you click on a folder-button the window will change to display that sub-folder.
+
+On the top bar of a browser window are:
+
+* an "up" button to go to the parent folder.
+* a "tools" button to access a number of utilities (see the dedicated section below)
+* a "new window" button that can be used to create a new instance of browser
+* a "trash" button that represents the trash folder
+
+Under this top button bar are 3 areas:
+
+* the sub-folders area (if any) where each sub-folder is a button: clicking on it will cause the browser to display that folder.
+* the non-image files area (if any) where each file is a button: clicking on it will cause the browser to ask your system to open that file. So obviously the result depends on your system configuration
+* the image area (if any) where each image is displayed as a button-icon: clicking on it will pop-up a new Image window displaying that image.
+
+If you want to move images or folder from one place to another, you just drag-and-drop them, so often, you will want to have 2 windows, one origin, the other one for destination
+
+* When the 2 windows are Browsers, the behavior is totally intuitive: drag and drop something, it will appear in the destination
+* When the origin window is a Image window and the destination is a Browser, the image will appear in the destination AND the next image will be displayed in the origin
+* When the destination window is an Image window, the drop will cause this image to be DISPLAYED in the destination: the file will NOT move. This may be seen as a bit less intuitive when you read this, but if you play with it you will like it, and believe me, I tried the option where the file was moved (e.g. to the folder of the destination Image window) and it was actually confusing...
+
+
+Image
+~~~~~
+
+An image window displays one image at a time.
+
+Arrows, space bar and mouse scrolls will cause it to display the "next" or "previous" image in the same folder.
+
+By default the image is scaled to fit in the window. There are 2 additional modes:
+
+* "move" mode (shortcut "m") is the default: image is scaled to fit in the window. The mouse can be used to drag the image and drop it in a folder.
+* "zoom" mode (shortcut "z") allows to zoom on one part of an image. The mouse is used to define the zoom area.
+* "pix-for-pix" mode (shortcut "=") displays the image at the screen resolution. The mouse can be used to move the image since for large images, the image is larger than the window, even in full screen.
+
+Changing the mode can be done using the shortcuts or by right-clicking to get the menu.
+
+.Image menu
+
+The image menu contains the following:
+
+* Info: this first menu item displays the full path of the image, clicking on it will pop-up a window with file information:
+- file size, creation date, last accessed, last modified. Time stamps are UTC (Zulu).
+- EXIF data, if present (most jpeg images have an EXIF section, sometimes it contains a lot of information on the camera or the editing tool, including possibly the GPS position where the picture was shot etc)
+* Edit: this will call your system and ask it to open that image for editing, obviously this depends totally on your system configuration
+* Open: this will call your system and ask it to open that image for viewing, obviously this depends totally on your system configuration
+* Browse: this will pop-up a new Browser window showing the folder where that image is.
+* Rename: to rename this image
+* Search: will popup a dialog where you can enter search keywords (see the search section below)
+
+Folders
+-------
+
+Klik displays the exact file system layout. There is an option to show hidden files (files which name starts with ".")
+
+Klik does not "import" images. This is a big difference with other tools for which "import" means moving your images into a application-specific file tree or database, sometimes well hidden, which is something I positively hate.
+
+Klik allows to perform the following file & folder operations:
+
+.Moving/organizing files and images
+
+
+Klik allows fast and intuitive manipulation of files and image by drag-and-drop
+
+* move a file by dragging it into a folder-button
+* move a folder by dragging it into a folder-button
+* create a new empty sub-folder using the "tools" menu item
+* move several files (excluding folders) in a folder:
+    -press "CTRL" then clicking on each file
+    -dragging the last file/image will cause the whole set to follow
+* move ALL the files (excluding folders) in a folder:
+    -using the "tools" menu item to select all (the background becomes red)
+    -dragging one file/image will cause the whole set to follow
+
+.Renaming
+
+* rename a file
+    - in a Browser window: right-click on the folder-button to get the menu
+    - in an Image window: right-click to get the menu, shortcut "r"
+* rename a folder: right-click on the folder-button to get the menu
+
+.Deleting
+
+Deleting a file is performed by moving it into the trash using drag-and-drop.
+
+This DOES NOT delete the file: it is just moved into the trash folder.
+
+To explore the trash and possibly restore a file, click on the trash button.
+
+To "really" delete a file, first move it to the trash then empty the trash using the menu "tools".
+
+Slide show
+----------
+
+The Image window has a slide-show mode:
+
+* "s" to start/stop the show
+* "w" to slow it down (slowest: 1 image per minute)
+* "x" to make it run faster (fastest: 1O images per second but with large images your machine may not be able to cope)
+
+Escape
+------
+
+The window that has the focus will close if you press "escape" (ESC). On many keyboards this key is the top-left most one.
+
+You will have guessed that this is useful when browsing NSFW content and someone enters the room.
+
+Search
+------
+
+Klik has simple (but powerful ;-) disk search capabilities:
+
+* One can search images by file name using keywords. For example the keyword "island" will find a file named "long_island_1867.jpg"
+* Shortcut "k": One can search images by file name using keywords from the name. For example, if the current image is named "long_island_1867.jpg", it will find all images with "island" in their name.
+
+Icon cache folder: disk full error
+----------------------------------
+
+Klik uses an icon cache on disk. The reason is speed: when browsing a folder with large images generating icons on-the-fly is slower than reading the icons from file (especially if your disk is SSD)
+
+This cache can grow VERY LARGE, especially if you have a lot of images and browse all of them...
+
+To avoid a "disk full" problem, there is the option to clear this disk cache from the "tools" menu. Of course if you clear the cache, the first time you revisit a folder, icons will be a bt slower to show...
+
+
+
+Ultim
+-----
+
+This is an easter-egg feature of Klik, invisible in the UI.
+
+_ultim is a special keyword that can be appended to a file name: for example boat34.jpg would become boat34_ultim.jpg
+
+This is a simple very fast way to tag images. (I tend to tag good images, not bad ones; thus the name)
+
+In the Image window:
+
+* the shortcut is "v" (like Vote!) will rename the image by appending _ultim as in the above
+example
+* the shortcut "u" (like ultim) will cause the NEXT _ultim image to be displayed.
+
+This way one can browse a large set of images and:
+
+* rapidly tag the good ones: type "v" when displaying the image
+* easily review the tagged images: type "u" to load the next _ultim image
+
+Why not Swing?
+--------------
+
+Years ago when I started Klik, JavaFX was not even started... so there is an old version of Klik based on Swing (there is even an older version based on AWT!). Believe me: JavaFX is ten times better! It is faster+easier to develop, and runs faster too. And beauty too.

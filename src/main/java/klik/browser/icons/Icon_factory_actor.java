@@ -36,7 +36,7 @@ public class Icon_factory_actor implements Actor
 {
     private static final boolean verbose = false;
     private static final boolean dbg = false;
-    private static final boolean pdf_dbg = true;
+    private static final boolean pdf_dbg = false;
     private static final boolean dbg_aborting = false;
 
     Logger logger;

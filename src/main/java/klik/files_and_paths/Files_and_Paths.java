@@ -566,7 +566,7 @@ public class Files_and_Paths {
             logger.log("trying rename: " + path.getFileName() + " => " + new_name);
             Path new_path = Paths.get(path.getParent().toString(), new_name);
             //Files.move(path, new_path);
-            FileUtils.moveFile(path.toFile(),new_path.toFile());
+            FileUtils.moveDirectory(path.toFile(),new_path.toFile());
             logger.log("....done");
             return new_path;
         } catch (FileAlreadyExistsException e) {
