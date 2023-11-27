@@ -210,7 +210,7 @@ public class Menu_for_image_stage
         MenuItem undo_move = new MenuItem(I18n.get_I18n_string("Undo_LAST_move_or_delete", image_stage.logger));
         undo_move.setOnAction(e -> {
             image_stage.logger.log("undoing last move");
-            Undo_engine.undo(image_stage.the_Stage, image_stage.logger);
+            Undo_engine.perform_last_undo(image_stage.the_Stage, image_stage.logger);
         });
         return undo_move;
     }

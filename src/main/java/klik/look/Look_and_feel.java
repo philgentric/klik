@@ -151,9 +151,9 @@ public abstract class Look_and_feel
         {
             button.setFont(Font.font("Monaco", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
         }
-        else {
-            Font_size.set_preferred_font_style(node,logger);
-
+        else
+        {
+            Font_size.set_preferred_font_size(node,logger);
         }
         //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
     }

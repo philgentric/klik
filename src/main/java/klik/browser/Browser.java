@@ -488,9 +488,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             if (dbg) logger.log("new browser width =" + newValue.doubleValue());
             scene_geometry_changed("width changed by user", false, false);
         });
-        my_Stage.the_Stage.heightProperty().
-
-                addListener((observable, oldValue, newValue) -> scene_geometry_changed("height changed by user", false, false));
+        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> scene_geometry_changed("height changed by user", false, false));
 
         the_Scene.setOnScroll(event -> {
             double dy = event.getDeltaY();

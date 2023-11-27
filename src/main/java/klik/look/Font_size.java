@@ -1,6 +1,8 @@
 package klik.look;
 
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 
@@ -22,19 +24,16 @@ public class Font_size
     // brutally set the font size by setting the whole style
     // i.e. the font could be reverted to the default one
     //**********************************************************
-    public static void set_preferred_font_style(Node x, Logger logger)
+    public static void set_preferred_font_size(Node x, Logger logger)
     //**********************************************************
     {
-        set_font_size(x,  Static_application_properties.get_font_size(logger), logger);
+        set_font_size(x,Static_application_properties.get_font_size(logger),logger);
     }
     //**********************************************************
-    public static void set_font_size(Node x, double font_size, Logger logger)
+    public static void set_font_size(Node x, double size, Logger logger)
     //**********************************************************
     {
-        x.setStyle(FX_FONT_SIZE + font_size + PX);
-        //x.setStyle(FX_FONT_SIZE + Static_application_properties.get_font_size(logger) + PX+ "-fx-wrap-text:true;");
-        //System.out.println("WRAP1!");
-
+        x.setStyle(FX_FONT_SIZE + size + PX);
     }
 
 

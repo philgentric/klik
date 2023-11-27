@@ -312,10 +312,12 @@ public class Item_button extends Item implements Icon_destination
 
         //double w = estimate_text_width(size_string);
         //w += estimate_text_width(text);
-        button = new Button(size_string,new Label(text));
+        Label label = new Label(text);
+        Font_size.set_preferred_font_size(label,logger);
+        button = new Button(size_string,label);
         button.setMinWidth(width);
         button.setPrefWidth(width);
-        Font_size.set_preferred_font_style(button,logger);
+        Font_size.set_preferred_font_size(button,logger);
 
         Look_and_feel_manager.give_button_a_file_style(button);
         button.setTextAlignment(TextAlignment.RIGHT);
@@ -848,7 +850,9 @@ public class Item_button extends Item implements Icon_destination
                 {
                     String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
                     button.setText(size);
-                    button.setGraphic(new Label(new_dir_name));
+                    Label label = new Label(new_dir_name);
+                    Font_size.set_preferred_font_size(label,logger);
+                    button.setGraphic(label);
                 }
                 actionEvent.consume();
                 path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);

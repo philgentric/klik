@@ -33,12 +33,30 @@ public class Undo_item
     public String to_string()
     //**********************************************************
     {
-        StringBuilder returned = new StringBuilder("Undo_item ->" + index + " " + time_stamp);
+        StringBuilder returned = new StringBuilder();
+        returned.append("Undo_item ->");
+        returned.append(index);
+        returned.append(" ");
+        returned.append(time_stamp);
         for ( Old_and_new_Path oan : oans)
         {
             returned.append(" ").append(oan.old_Path.toAbsolutePath());
             if ( oan.new_Path != null) returned.append("=>").append(oan.new_Path.toAbsolutePath());
         }
         return returned.toString();
+    }
+
+    //**********************************************************
+    public String signature()
+    //**********************************************************
+    {
+        StringBuilder sb = new StringBuilder();
+        for ( Old_and_new_Path oan : oans)
+        {
+            sb.append(" ").append(oan.old_Path.toAbsolutePath());
+            if ( oan.new_Path != null) sb.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
+            else sb.append(" THIS ITEM CANNOT BE UNDONE: the file has been deleted forever?");
+        }
+        return sb.toString();
     }
 }

@@ -11,30 +11,38 @@ import klik.util.info_stage.Line_for_info_stage;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.util.*;
 
 //**********************************************************
-public class Undo_store
+public class Undo_storage_to_disk
 //**********************************************************
 {
     public static int max = 30;
     static final boolean dbg = true;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
     public static final String HOW_MANY = "_how_many";
-    private List<Undo_item> cache = new ArrayList<>();
     private final Properties_manager pm;
     private final Logger logger;
 
     //**********************************************************
-    public Undo_store(Logger logger_)
+    public Undo_storage_to_disk(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
         pm = Static_application_properties.get_properties_manager(logger);
-        read_undo_items(pm,key_base);
-        if (dbg) logger.log("undo store "+cache.size()+" items loaded");
+        List<Undo_item> l = read_all_undo_items_from_disk();
+        if (dbg) logger.log("undo store "+l.size()+" items loaded");
     }
+
+
+    //**********************************************************
+    public void add(Undo_item ui)
+    //**********************************************************
+    {
+        if ( dbg) logger.log("Undo_storage_to_disk add:"+ui.to_string());
+        write_one_undo_item_to_disk(ui);
+    }
+
 
     //**********************************************************
     private static String generate_key_for_old_path(UUID index, int j)
@@ -76,48 +84,64 @@ public class Undo_store
     }
 
     //**********************************************************
-    public static void remove_all_indo_items_from_property_file(Logger logger)
+    public void remove_all_undo_items_from_property_file()
     //**********************************************************
     {
-        Properties_manager local = Static_application_properties.get_properties_manager(logger);
-
-        Set<String> set = local.get_all_keys();
+        Set<String> set = pm.get_all_keys();
         for ( String k : set)
         {
             if ( !k.startsWith(key_base)) continue;
-            if (k.endsWith(HOW_MANY))
+            if (!k.endsWith(HOW_MANY)) continue;
+
+            UUID index = extract_index(k,logger);
+            int number_of_oan = Integer.parseInt(pm.get(k));
+            if ( dbg) logger.log("\nremove_all_undo_items_from_property_file index = "+index+" has "+number_of_oan+ " oans");
             {
-                UUID index = extract_index(k,logger);
-                int number_of_oan = Integer.parseInt(local.get(k));
-                if ( dbg) logger.log("      undo item, index = "+index+" has "+number_of_oan+ " oans");
+                String key = generate_key_for_datetime(index);
+                String new_path_string = pm.get(key);
+                if ( new_path_string != null)
                 {
-                    String key = generate_key_for_datetime(index);
-                    String new_path_string = local.get(key);
-                    if ( new_path_string != null) local.remove(key);
+                    logger.log("removed: "+key);
+                    pm.remove(key);
                 }
+            }
+            {
+                String key = generate_key_for_how_many_oans(index);
+                String new_path_string = pm.get(key);
+                if ( new_path_string != null)
                 {
-                    String key = generate_key_for_how_many_oans(index);
-                    String new_path_string = local.get(key);
-                    if ( new_path_string != null) local.remove(key);
+                    logger.log("removed: "+key);
+                    pm.remove(key);
                 }
-                for (int j = 0 ;j < number_of_oan; j++)
+            }
+            for (int j = 0 ;j < number_of_oan; j++)
+            {
                 {
+                    String key = generate_key_for_old_path(index, j);
+                    String old_path_string = pm.get(key);
+                    if (old_path_string != null)
                     {
-                        String key = generate_key_for_old_path(index, j);
-                        String old_path_string = local.get(key);
-                        if (old_path_string != null) local.remove(key);
+                        logger.log("removed: "+key);
+                        pm.remove(key);
                     }
+                }
+                {
+                    String key = generate_key_for_new_path(index, j);
+                    String new_path_string = pm.get(key);
+                    if ( new_path_string != null)
                     {
-                        String key = generate_key_for_new_path(index, j);
-                        String new_path_string = local.get(key);
-                        if ( new_path_string != null) local.remove(key);
+                        logger.log("removed: "+key);
+                        pm.remove(key);
                     }
                 }
             }
         }
+        pm.store_properties();
     }
 
+    //**********************************************************
     public static void show_all_events(Logger logger)
+    //**********************************************************
     {
         Properties_manager local = Static_application_properties.get_properties_manager(logger);
 
@@ -162,10 +186,10 @@ public class Undo_store
     }
 
     //**********************************************************
-    public List<Undo_item> read_undo_items(Properties_manager pm, String key_base)
+    public List<Undo_item> read_all_undo_items_from_disk()
     //**********************************************************
     {
-        if ( dbg) logger.log("Undo_store READ");
+        if ( dbg) logger.log("Undo_storage_to_disk READ");
         Command_old_and_new_Path cmd = Command_old_and_new_Path.command_move;
         Status_old_and_new_Path stt = Status_old_and_new_Path.move_done;
 
@@ -205,111 +229,59 @@ public class Undo_store
                     }
                 }
                 Undo_item undo_item = new Undo_item(l,LocalDateTime.parse(datetime_string),index);
-                if ( dbg) logger.log("  ![](../../../../../../../../Desktop/help/misc/Ultim/exhib/lacyspicets072111_p04_106.jpg)    undo item:"+undo_item.to_string());
+                if ( dbg) logger.log("undo item:"+undo_item.to_string());
                 returned.add(undo_item);
             }
         }
-        cache = returned;
-        cache.sort(Undo_item.comparator_by_date);
-        if ( dbg) show_cache();
+        returned.sort(Undo_item.comparator_by_date);
         return returned;
     }
 
+
+
     //**********************************************************
-    private void show_cache()
+    private void write_one_undo_item_to_disk(Undo_item undo_item)
     //**********************************************************
     {
-        logger.log("Undo_store cache:");
-        for ( Undo_item ui : cache)
         {
-            logger.log("        "+ui.to_string());
+            String k = generate_key_for_how_many_oans(undo_item.index);
+            String v = String.valueOf(undo_item.oans.size());
+            pm.raw_put(k, v);
+            if ( dbg) logger.log("       "+k+"="+v);
         }
-    }
-
-
-    //**********************************************************
-    public static Undo_store get_Undo_store_instance(Logger logger)
-    //**********************************************************
-    {
-        return new Undo_store(logger);
-    }
-
-
-
-
-    //**********************************************************
-    public void add(Undo_item ui)
-    //**********************************************************
-    {
-        if ( dbg) logger.log("Undo_store add:"+ui.to_string());
-
-        cache.add(ui);
-        cache.sort(Undo_item.comparator_by_date);
-
-        if ( cache.size() > max)
         {
-            Undo_item removed = cache.remove(cache.size()-1);
-            pm.remove(generate_key_for_datetime(removed.index));
-            pm.remove(generate_key_for_how_many_oans(removed.index));
-            int j = 0;
-            for (Old_and_new_Path oan : removed.oans)
-            {
-                pm.remove(generate_key_for_old_path(removed.index, j));
-                pm.remove(generate_key_for_new_path(removed.index, j));
-                j++;
-            }
+            String k = generate_key_for_datetime(undo_item.index);
+            String v = undo_item.time_stamp.toString();
+            pm.raw_put(k, v);
+            if ( dbg)  logger.log("       "+k+"="+v);
         }
-        write_undo_items();
-    }
-
-    //**********************************************************
-    private void write_undo_items()
-    //**********************************************************
-    {
-        if ( dbg) logger.log("Undo_store WRITE:");
-
-        for ( Undo_item undo_item : cache)
+        int j = 0;
+        for (Old_and_new_Path oan : undo_item.oans)
         {
             {
-                String k = generate_key_for_how_many_oans(undo_item.index);
-                String v = String.valueOf(undo_item.oans.size());
-                pm.raw_put(k, v);
-                if ( dbg) logger.log("       "+k+"="+v);
+                String key_for_old_path = generate_key_for_old_path(undo_item.index, j);
+                String string_for_old_path = oan.old_Path.toAbsolutePath().toString();
+                pm.raw_put(key_for_old_path, string_for_old_path);
+                if ( dbg) logger.log("       "+key_for_old_path+"="+string_for_old_path);
             }
+            if ( oan.new_Path != null)
             {
-                String k = generate_key_for_datetime(undo_item.index);
-                String v = undo_item.time_stamp.toString();
-                pm.raw_put(k, v);
-                if ( dbg)  logger.log("       "+k+"="+v);
+                String key_for_new_path = generate_key_for_new_path(undo_item.index, j);
+                String string_for_new_path = oan.new_Path.toAbsolutePath().toString();
+                pm.raw_put(key_for_new_path, string_for_new_path);
+                if ( dbg) logger.log("       "+key_for_new_path+"="+string_for_new_path);
             }
-            int j = 0;
-            for (Old_and_new_Path oan : undo_item.oans)
-            {
-                {
-                    String key_for_old_path = generate_key_for_old_path(undo_item.index, j);
-                    String string_for_old_path = oan.old_Path.toAbsolutePath().toString();
-                    pm.raw_put(key_for_old_path, string_for_old_path);
-                    if ( dbg) logger.log("       "+key_for_old_path+"="+string_for_old_path);
-                }
-                if ( oan.new_Path != null)
-                {
-                    String key_for_new_path = generate_key_for_new_path(undo_item.index, j);
-                    String string_for_new_path = oan.new_Path.toAbsolutePath().toString();
-                    pm.raw_put(key_for_new_path, string_for_new_path);
-                    if ( dbg) logger.log("       "+key_for_new_path+"="+string_for_new_path);
-                }
-                j++;
-            }
+            j++;
         }
         pm.store_properties();
+
     }
 
     //**********************************************************
     public void remove_after_undo_done(Undo_item undo_item)
     //**********************************************************
     {
-        if ( dbg) logger.log("Undo_store REMOVE:"+undo_item.to_string());
-        cache.remove(undo_item);
+        if ( dbg) logger.log("Undo_storage_to_disk REMOVE:"+undo_item.to_string());
         UUID index = undo_item.index;
         remove_file_stored_undo_item(undo_item, index);
     }
@@ -379,8 +351,10 @@ public class Undo_store
     public Undo_item get_most_recent()
     //**********************************************************
     {
-        if ( cache.isEmpty()) return  null;
-        cache.sort(Undo_item.comparator_by_date);
-        return cache.get(0);
+        List<Undo_item> l = read_all_undo_items_from_disk();
+        if ( l.isEmpty()) return  null;
+        l.sort(Undo_item.comparator_by_date);
+        return l.get(0);
     }
+
 }

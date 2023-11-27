@@ -4,12 +4,12 @@ import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import klik.actor.Aborter;
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
 import klik.change.Change_receiver;
 import klik.change.Undo_engine;
-import klik.change.Undo_store;
+import klik.change.Undo_item;
+import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -21,8 +21,9 @@ import klik.my_i18n.Language_manager;
 import klik.properties.*;
 import klik.util.Logger;
 import klik.util.Popups;
-import klik.util.active_list_stage.Active_list_stage;
-import klik.util.active_list_stage.Active_list_stage_action;
+import klik.util.Stack_trace_getter;
+import klik.change.active_list_stage.Active_list_stage;
+import klik.change.active_list_stage.Active_list_stage_action;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 
@@ -40,6 +41,10 @@ public class Browser_menus
     Selection_handler selection_handler;
     Browser browser;
     Change_receiver change_receiver;
+    CheckMenuItem select_all_files_menu_item;
+    CheckMenuItem select_all_folders_menu_item;
+    Map<LocalDateTime,String> the_whole_history;
+
     //**********************************************************
     Browser_menus(Browser b_, Selection_handler selection_handler_, Logger logger_)
     //**********************************************************
@@ -523,7 +528,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);// to: " + parent.toAbsolutePath().toString();
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Undo_engine.undo(browser.my_Stage.the_Stage,logger));
+        item.setOnAction(event -> Undo_engine.perform_last_undo(browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -603,7 +608,6 @@ public class Browser_menus
         return item;
     }
 
-    CheckMenuItem select_all_folders_menu_item;
     //**********************************************************
     public MenuItem make_select_all_folders_menu_item(Logger logger)
     //**********************************************************
@@ -628,7 +632,6 @@ public class Browser_menus
         return select_all_folders_menu_item;
     }
 
-    CheckMenuItem select_all_files_menu_item;
     //**********************************************************
     public MenuItem make_select_all_files_menu_item(Logger logger)
     //**********************************************************
@@ -652,7 +655,10 @@ public class Browser_menus
     }
 
 
-    public void reset_all_files_and_folders() {
+    //**********************************************************
+    public void reset_all_files_and_folders()
+    //**********************************************************
+    {
         if(select_all_files_menu_item != null) select_all_files_menu_item.setSelected(false);
         if(select_all_folders_menu_item != null) select_all_folders_menu_item.setSelected(false);
     }
@@ -813,7 +819,8 @@ public class Browser_menus
                 //logger.log(max_on_screen+" exceeded creating 1 more menu");
                 if ( more == null)
                 {
-                    more =  new MenuItem("The whole history ...");
+                    String text = I18n.get_I18n_string("Show_Whole_History",logger);// to: " + parent.toAbsolutePath().toString();
+                    more =  new MenuItem(text);
                     history_menu.getItems().add(more);
                     more.setOnAction(actionEvent -> pop_up_whole_history());
                 }
@@ -822,18 +829,12 @@ public class Browser_menus
         }
     }
 
-    //List<Pair<String,String>> the_whole_history;
-    Map<LocalDateTime,String> the_whole_history;
     //**********************************************************
     private void add_to_whole_history(History_item hi)
     //**********************************************************
     {
         if ( the_whole_history == null) the_whole_history = new HashMap<>();
-
-
-
         the_whole_history.put(hi.time_stamp,hi.path);
-
     }
 
 
@@ -841,8 +842,14 @@ public class Browser_menus
     private void pop_up_whole_history()
     //**********************************************************
     {
-        Active_list_stage_action aaa = text -> Browser_creation_context.replace_different_folder(Path.of(text),browser, null, logger);
-        Active_list_stage.show_active_list_stage("Show whole history: "+the_whole_history.size()+" items", the_whole_history, aaa);
+        Active_list_stage_action action = text -> Browser_creation_context.replace_different_folder(Path.of(text),browser, null, logger);
+        Datetime_to_signature_source source = new Datetime_to_signature_source() {
+            @Override
+            public Map<LocalDateTime, String> get() {
+                return the_whole_history;
+            }
+        };
+        Active_list_stage.show_active_list_stage("Whole history: "+the_whole_history.size()+" items", source, action, logger);
     }
 
     //**********************************************************
@@ -874,9 +881,8 @@ public class Browser_menus
             bookmarks_menu.getItems().add(item);
 
         }
-
-
     }
+
 
     //**********************************************************
     public void create_undos_menu(Browser browser, Menu undos_menu, Logger logger)
@@ -886,18 +892,50 @@ public class Browser_menus
             MenuItem item = make_undo_menu_item(logger);
             undos_menu.getItems().add(item);
         }
+
         {
             String text = I18n.get_I18n_string("Clear_Undos",logger);// to: " + parent.toAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_store.remove_all_indo_items_from_property_file(logger));
+            item.setOnAction(event -> Undo_engine.remove_all_undo_items());
             undos_menu.getItems().add(item);
         }
         {
             String text = I18n.get_I18n_string("Show_Undos",logger);// to: " + parent.toAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_store.show_all_events(logger));
+            item.setOnAction(event -> pop_up_whole_undo_history());
             undos_menu.getItems().add(item);
         }
+    }
+
+    //**********************************************************
+    private void pop_up_whole_undo_history()
+    //**********************************************************
+    {
+        Active_list_stage_action action = signature ->
+        {
+            Map<String,Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
+            Undo_item item = signature_to_undo_item.get(signature);
+            if ( item == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("item == null for signature="+signature));
+                return;
+            }
+
+            if ( !Undo_engine.check_validity(item, browser.my_Stage.the_Stage,logger))
+            {
+                Popups.popup_warning(browser.my_Stage.the_Stage,"Invalid undo item ignored","The file was probably moved since?",true,logger);
+                return;
+            }
+            logger.log("\n\n\n undo_item="+item.to_string());
+            String header = I18n.get_I18n_string("Going_To_Undo_This",logger);// to: " + parent.toAbsolutePath().toString();
+            if (Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage,header,signature,logger))
+            {
+                Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,logger);
+            }
+        };
+        String text2 = I18n.get_I18n_string("Whole_Undo_History",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage("Whole undo history:", Undo_engine.get_instance(logger), action, logger));
     }
 
 
