@@ -341,8 +341,8 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);// to: " + parent.toAbsolutePath().toString();
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_vertical_scroll_direction(logger));
-        item.setOnAction(actionEvent -> Static_application_properties.set_vertical_scroll(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        item.setSelected(Static_application_properties.get_vertical_scroll_inverted(logger));
+        item.setOnAction(actionEvent -> Static_application_properties.set_vertical_scroll_inverted(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
         return item;
     }
 
@@ -933,9 +933,8 @@ public class Browser_menus
                 Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,logger);
             }
         };
-        String text2 = I18n.get_I18n_string("Whole_Undo_History",logger);// to: " + parent.toAbsolutePath().toString();
-
-        Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage("Whole undo history:", Undo_engine.get_instance(logger), action, logger));
+        String title = I18n.get_I18n_string("Whole_Undo_History",logger);
+        Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_engine.get_instance(logger), action, logger));
     }
 
 

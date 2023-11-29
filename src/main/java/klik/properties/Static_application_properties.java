@@ -1,7 +1,6 @@
 package klik.properties;
 
 import javafx.application.Platform;
-import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Files_and_Paths;
@@ -41,7 +40,7 @@ public class Static_application_properties
     public static final String LANGUAGE_KEYWORD = "LANGUAGE";
     public static final String FONT_SIZE_KEYWORD = "FONT_SIZE_KEYWORD";
     public static final String BUTTON_WIDTH_KEYWORD = "BUTTON_WIDTH_KEYWORD";
-    public static final String VERTICAL_SCROLL = "vertical_scroll";
+    public static final String VERTICAL_SCROLL_INVERTED = "vertical_scroll_inverted";
     public static final String ESCAPE = "escape_fast_exit";
     public static final String SHOW_ICONS = "show_icons";
     public static final String CONF_DIR = ".klik";//+File.separator;
@@ -50,13 +49,15 @@ public class Static_application_properties
     public static final String ICON_CACHE_DIR = "klik_icon_cache";
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
     public static final String USER_HOME = "user.home";
-    public static final String SCREEN_TOP_LEFT_X = "screen_top_left_x";
-    public static final String SCREEN_TOP_LEFT_Y = "screen_top_left_y";
-    public static final String SCREEN_WIDTH = "screen_width";
-    public static final String SCREEN_HEIGHT = "screen_height";
     public static final String SINGLE_COLUMN = "single_column";
     public static final String ICONS_FOR_FOLDERS = "icons_for_folders";
     public static final String MONITOR_BROWSED_FOLDERS = "monitor_browsed_folders";
+
+   /*public static final String SCREEN_TOP_LEFT_X = "screen_top_left_x";
+    public static final String SCREEN_TOP_LEFT_Y = "screen_top_left_y";
+    public static final String SCREEN_WIDTH = "screen_width";
+    public static final String SCREEN_HEIGHT = "screen_height";
+    */
 
 
     //**********************************************************
@@ -195,7 +196,7 @@ public class Static_application_properties
     {
         get_properties_manager(logger).save_unico(SHOW_GIFS_FIRST, String.valueOf(b), false);
     }
-
+/*
     //**********************************************************
     public static Rectangle2D get_bounds(Logger logger)
     //**********************************************************
@@ -226,7 +227,7 @@ public class Static_application_properties
         pm.save_unico(SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
         pm.save_unico(SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
     }
-
+*/
     // returns a directory using that relative name
     //**********************************************************
     public static Path get_trash_dir(Logger logger)
@@ -493,19 +494,19 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static void set_vertical_scroll(boolean b, Logger logger)
+    public static void set_vertical_scroll_inverted(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_properties_manager(logger).save_unico(VERTICAL_SCROLL, String.valueOf(b), false);
+        Static_application_properties.get_properties_manager(logger).save_unico(VERTICAL_SCROLL_INVERTED, String.valueOf(b), false);
     }
 
     //**********************************************************
-    public static boolean get_vertical_scroll_direction(Logger logger)
+    public static boolean get_vertical_scroll_inverted(Logger logger)
     //**********************************************************
     {
-        String s = Static_application_properties.get_properties_manager(logger).get(VERTICAL_SCROLL);
+        String s = Static_application_properties.get_properties_manager(logger).get(VERTICAL_SCROLL_INVERTED);
         if (s == null) {
-            Static_application_properties.get_properties_manager(logger).save_unico(VERTICAL_SCROLL, "true", false);
+            Static_application_properties.get_properties_manager(logger).save_unico(VERTICAL_SCROLL_INVERTED, "true", false);
             return true;
         } else {
             return Boolean.parseBoolean(s);

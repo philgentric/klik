@@ -82,7 +82,7 @@ public class Vertical_slider implements Landscape_height_listener
     //**********************************************************
     {
         double tmp = slider_value/get_slider_max(); // normalize (0,1)
-        boolean inverted = Static_application_properties.get_vertical_scroll_direction(logger);
+        boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
         if (inverted)
         {
             tmp = 1.0 - tmp;
@@ -98,7 +98,7 @@ public class Vertical_slider implements Landscape_height_listener
     //**********************************************************
     {
         double tmp = pixels/pixel_height; // normalize (0,1)
-        boolean inverted = Static_application_properties.get_vertical_scroll_direction(logger);
+        boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
         if (inverted)
         {
             tmp = 1.0 - tmp;
@@ -124,7 +124,7 @@ public class Vertical_slider implements Landscape_height_listener
     public boolean scroll(double dy)
     //**********************************************************
     {
-        boolean inverted = Static_application_properties.get_vertical_scroll_direction(logger);
+        boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
         if (inverted)
         {
             if ( Icon_manager.dbg_scroll) logger.log("scroll is inverted="+dy+" ==> "+(-dy));

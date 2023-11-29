@@ -171,13 +171,14 @@ public class Image_window
         image_display_handler.change_image_relative(0,false);
         //set_image(image_context_owner.get_image_context(), white_background);
 
+        /*
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             Rectangle2D b = new Rectangle2D(the_Stage.getX(), the_Stage.getY(), the_Stage.getWidth(), the_Stage.getHeight());
             Static_application_properties.save_bounds(b,logger);
         };
         the_Stage.widthProperty().addListener(change_listener);
         the_Stage.heightProperty().addListener(change_listener);
-
+        */
 
         //Image_stage image_stage = this;
         the_Stage.setOnCloseRequest(we -> {
