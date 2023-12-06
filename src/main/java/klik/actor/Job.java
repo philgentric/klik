@@ -1,5 +1,7 @@
 package klik.actor;
 
+import klik.util.Logger;
+
 import java.util.Objects;
 
 //**********************************************************
@@ -12,11 +14,22 @@ public class Job
     public Thread thread = null; // depending on the engine, job don't get a thread, or late
 
     //**********************************************************
-    public Job(Actor actor, Message message, Job_termination_reporter termination_reporter_)
+    public Job(Actor actor, Message message, Job_termination_reporter termination_reporter_, Logger logger)
     //**********************************************************
     {
-        Objects.requireNonNull(actor,"FATAL actor cannot be null");
-        Objects.requireNonNull(message,"FATAL message cannot be null");
+        if ( actor==null)
+        {
+            logger.log_stack_trace("FATAL actor cannot be null");
+        }
+        if ( message==null)
+        {
+            logger.log_stack_trace("FATAL message cannot be null");
+        }
+        if ( message.get_aborter()==null)
+        {
+            logger.log_stack_trace("FATAL message.Aborter cannot be null");
+            System.exit(-1);
+        }
         this.actor = actor;
         this.message = message;
         termination_reporter = termination_reporter_;

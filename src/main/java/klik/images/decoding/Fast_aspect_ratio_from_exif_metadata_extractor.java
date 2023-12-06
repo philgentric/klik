@@ -16,13 +16,13 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 //**********************************************************
-public class Fast_rotation_from_exif_metadata_extractor
+public class Fast_aspect_ratio_from_exif_metadata_extractor
 //**********************************************************
 {
     public static final boolean dbg = false;
 
     //**********************************************************
-    public static Double get_rotation(Path path, Aborter aborter, Logger logger)
+    public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
 
@@ -30,63 +30,98 @@ public class Fast_rotation_from_exif_metadata_extractor
         InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
         if ( is == null)
         {
-            return null;
+            //logger.log(" get_aspect_ratio failed1");
+            return 1.0;
         }
+        Double w = null;
+        Double h = null;
 
         try
         {
             Metadata metadata = ImageMetadataReader.readMetadata(is);
+
+            boolean done = false;
             for (Directory directory : metadata.getDirectories())
             {
                 for (Tag tag : directory.getTags())
                 {
-                    if (tag.toString().contains("Orientation"))
+                    if (tag.toString().contains("Width"))
                     {
-                        if (!tag.toString().contains("Thumbnail"))
+                        //logger.log("==>"+ tag);
+                        if (tag.toString().contains("Image"))
                         {
-                            // Orientation - Right side, top (Rotate 90 CW)
-                            if (tag.toString().contains("90"))
+                            w = Double.valueOf(get_number(tag.toString()));
+                            if ( h !=null)
                             {
-                                if (tag.toString().contains("CW"))
-                                {
-                                    return 90.0;
-                                }
+                                done = true;
+                                break;
                             }
-                            else if (tag.toString().contains("180"))
+                        }
+                    }
+                    if (tag.toString().contains("Height"))
+                    {
+                        //logger.log("==>"+ tag);
+                        if (tag.toString().contains("Image"))
+                        {
+                            h = Double.valueOf(get_number(tag.toString()));
+                            if ( w !=null)
                             {
-                                return 180.0;
-                            }
-                            else if (tag.toString().contains("270"))
-                            {
-                                return 270.0;
-                            }
-                            else
-                            {
-                                return 0.0;
+                                done = true;
+                                break;
                             }
                         }
                     }
                 }
+                if ( done) break;
             }
             is.close();
         }
         catch (ImageProcessingException e)
         {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
-            if ( e.toString().contains("File format could not be determined"))  return null;
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
+            //logger.log(" get_aspect_ratio failed2");
+            if ( e.toString().contains("File format could not be determined"))  return 1.0;
         }
         catch (IOException e)
         {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return null;
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
+            //logger.log(" get_aspect_ratio failed3");
+            return 1.0;
         }
         catch (Exception e)
         {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return null;
+            //if ( dbg)
+                logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
+            //logger.log(" get_aspect_ratio failed4");
+            return 1.0;
         }
 
-        return 0.0;
+        if (( w != null) && ( h != null))
+        {
+            //logger.log("aspect ratio: "+w/h);
+            return w/h;
+        }
+        //logger.log(" get_aspect_ratio failed5");
+        return 1.0;
+    }
+
+    public static double get_number(String s)
+    {
+        String[] pieces = s.split(" ");
+        for ( int i = pieces.length-1; i>0;i--)
+        {
+            String p = pieces[i];
+            try
+            {
+                Double x = Double.valueOf(p);
+                return x;
+            }
+            catch(IllegalArgumentException e)
+            {
+                continue;
+            }
+        }
+        return 0;
     }
 
 }

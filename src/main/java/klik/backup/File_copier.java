@@ -50,7 +50,7 @@ public class File_copier
         }
         catch (Exception exc)
         {
-            logger.log(exc.toString());
+            logger.log_stack_trace(exc.toString());
         }
         finally
         {

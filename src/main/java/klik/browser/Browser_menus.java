@@ -412,7 +412,7 @@ public class Browser_menus
         dummy.button_for_a_directory(text, min_width, height);
         return dummy.button;
     }
-
+/*
     //**********************************************************
     public CheckMenuItem make_sort_files_by_name_vs_decreasing_size_check_menu_item()
     //**********************************************************
@@ -426,7 +426,7 @@ public class Browser_menus
         });
         return item;
     }
-
+*/
 
     //**********************************************************
     public CheckMenuItem make_show_folder_size_check_menu_item(Stage stage)
@@ -896,7 +896,7 @@ public class Browser_menus
         {
             String text = I18n.get_I18n_string("Clear_Undos",logger);// to: " + parent.toAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_engine.remove_all_undo_items());
+            item.setOnAction(event -> Undo_engine.remove_all_undo_items(logger));
             undos_menu.getItems().add(item);
         }
         {
@@ -1164,6 +1164,46 @@ public class Browser_menus
         return menu;
     }
     //**********************************************************
+    public Menu make_file_sort_method_menu()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("File_Sorting_Method",logger);// to: " + parent.toAbsolutePath().toString();
+
+        Menu menu = new Menu(text);
+
+        List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
+
+        for ( File_sorter sort_by : File_sorter.values())
+        {
+            create_menu_item_for_one_file_sort_method(browser, menu, sort_by, all_check_menu_items, logger);
+        }
+
+        return menu;
+    }
+
+    //**********************************************************
+    public void create_menu_item_for_one_file_sort_method(Browser browser, Menu menu, File_sorter sort_by, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    //**********************************************************
+    {
+        CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string(sort_by.name(),logger));
+        File_sorter actual = Static_application_properties.get_sort_files_by(logger);
+        item.setSelected(actual == sort_by);
+        item.setOnAction(actionEvent -> {
+            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
+            if (local.isSelected()) {
+                for ( CheckMenuItem cmi : all_check_menu_items)
+                {
+                    if ( cmi != local) cmi.setSelected(false);
+                }
+                Static_application_properties.set_sort_files_by(sort_by,logger);
+                browser.scene_geometry_changed("file sorting method changed",true,false);
+            }
+        });
+        menu.getItems().add(item);
+        all_check_menu_items.add(item);
+
+    }
+    //**********************************************************
     public Menu make_icon_size_menu()
     //**********************************************************
     {
@@ -1181,7 +1221,6 @@ public class Browser_menus
 
         return menu;
     }
-
     //**********************************************************
     public Menu make_font_size_menu_item()
     //**********************************************************

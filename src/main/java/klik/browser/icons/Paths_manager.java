@@ -1,23 +1,26 @@
 package klik.browser.icons;
 
+import com.sun.source.tree.SynchronizedTree;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import klik.actor.Aborter;
 import klik.browser.items.Item_folder_with_icon;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.Static_application_properties;
+import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.Threads;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 //**********************************************************
@@ -27,41 +30,63 @@ public class Paths_manager
     public static final boolean dbg = false;
     public static final String OK = "OK";
     public double max_dir_text_length;
-    private final Logger logger;
+    private static Logger logger;
 
     // these MUST be mutually exclusive:
     public List<Path> folders = new ArrayList<>();
-    //public List<Path> folders_without_icon = new ArrayList<>();
-    //public List<Path> folders_with_icon = new ArrayList<>();
     public List<Path> non_iconized = new ArrayList<>();
-    public List<Path> iconized = new ArrayList<>();
-
+    private List<Path> iconized = new ArrayList<>();
     public Comparator<? super Path> file_comparator;
-
     private static final boolean show_video_as_gif = true;
+    AtomicInteger ig_gen = new AtomicInteger(0);
+    public final int ID;
 
+    static Map<String, Double> aspect_ratios = new HashMap<>();
+
+    //**********************************************************
+    static Double get_aspect_ratio(Path p)
+    //**********************************************************
+    {
+        Double d = aspect_ratios.get(p.toAbsolutePath().toString());
+        if ( d == null)
+        {
+            d = From_disk.get_aspect_ratio(p, new Aborter(),logger);
+            aspect_ratios.put(p.toAbsolutePath().toString(),d);
+        }
+        return d;
+    }
 
    //**********************************************************
     public Paths_manager(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
+        ID = ig_gen.getAndIncrement();
 
-        if (Static_application_properties.get_sort_files_by_name(logger))
+        switch (Static_application_properties.get_sort_files_by(logger))
         {
-            file_comparator = alphabetical_file_name_comparator;
-        }
-        else
-        {
-            file_comparator = decreasing_file_size_comparator;
+            default:
+            case NAME:
+                file_comparator = alphabetical_file_name_comparator;
+                break;
+
+            case SIZE:
+                file_comparator = decreasing_file_size_comparator;
+                break;
+
+            case ASPECT_RATIO:
+                file_comparator = aspect_ratio_comparator;
+                break;
         }
     }
 
 
     //**********************************************************
-    public Error_type scan_dir(Path dir, Stage stage)
+    public Error_type scan_dir(Path folder_path, Stage stage)
     //**********************************************************
     {
+
+        //logger.log(Stack_trace_getter.get_stack_trace("scan dir "+folder_path));
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
@@ -118,7 +143,7 @@ public class Paths_manager
             }
             */
             try {
-                Stream<Path> stream = Files.list(dir);
+                Stream<Path> stream = Files.list(folder_path);
                 stream.forEach(path ->{
                     if (Files.isDirectory(path))
                     {
@@ -130,7 +155,7 @@ public class Paths_manager
 
                 });
             } catch (IOException e) {
-                Error_type denied = Files_and_Paths.explain_error(dir,logger);
+                Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
                 if (denied != null) return denied;
             }
 
@@ -164,10 +189,9 @@ public class Paths_manager
             others.sort(file_comparator);
             iconized.addAll(others);
         }
-        non_iconized.sort(file_comparator);
-        folders.sort(file_comparator);
-        //folders_with_icon.sort(file_comparator);
-        //folders_without_icon.sort(file_comparator);
+
+        non_iconized.sort(alphabetical_file_name_comparator);
+        folders.sort(alphabetical_file_name_comparator);
         return Error_type.OK;
     }
 
@@ -308,6 +332,22 @@ public class Paths_manager
         }
     };
 
+
+
+    //**********************************************************
+    public final static Comparator<Path> aspect_ratio_comparator = new Comparator<>()
+            //**********************************************************
+    {
+        @Override
+        public int compare(Path f1, Path f2)
+        {
+            Double a1 = get_aspect_ratio(f1);
+            Double a2 = get_aspect_ratio(f2);
+            //logger.log(a1+" vs "+ a2+ " for: "+f1.toAbsolutePath()+" vs "+f2.toAbsolutePath());
+            return a1.compareTo(a2);
+        }
+    };
+
     //**********************************************************
     public final static Comparator<Path> decreasing_file_size_comparator_gifs_fist = new Comparator<>()
             //**********************************************************
@@ -380,4 +420,7 @@ public class Paths_manager
         }*/
     }
 
+    public List<Path> get_iconized() {
+        return iconized;
+    }
 }

@@ -17,7 +17,7 @@ public class House_keeping_message implements Message
     {
         originator = amh;
         type = type_;
-        aborter = null;
+        aborter = new Aborter();
 
     }
 

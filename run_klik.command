@@ -1,2 +1,2 @@
-cd /Users/pgentric/misc/private_gentric/Java/klik
+cd /Users/philippegentric/AAKODE/java/klik
 gradle run

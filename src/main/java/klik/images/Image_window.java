@@ -82,14 +82,26 @@ public class Image_window
     {
         if (from_stage == null)
         {
-            return new Image_window(b, path,
-                    //smaller,
-                    800, 600, logger_);//, tpe_);
+            double x = 0;
+            double y = 0;
+            double w = 800;
+            double h = 600;
+            Rectangle2D bounds = Static_application_properties.get_bounds(logger_);
+            logger_.log("got bounds from properties="+bounds);
+            if (bounds != null)
+            {
+                x = bounds.getMinX();
+                y = bounds.getMinY();
+                w = bounds.getWidth();
+                h = bounds.getHeight();
+            }
+
+            return new Image_window(b, path, x,y, w,h, logger_);
         }
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
 
-        if (dbg)
+        //if (dbg)
         {
             ObservableList<Screen> screens = Screen.getScreens();
 
@@ -112,11 +124,17 @@ public class Image_window
         // often there is only one ...
         Screen current = intersecting_screens.get(0);
 
-        double x = current.getVisualBounds().getMinX();
-        double y = current.getVisualBounds().getMinY();
-        double w = current.getBounds().getWidth();
-        double h = current.getBounds().getHeight();
-        Image_window returned = new Image_window(b, path, w, h, logger_);
+        Rectangle2D bounds = Static_application_properties.get_bounds(logger_);
+        double x = bounds.getMinX();//current.getVisualBounds().getMinX();
+        double y = bounds.getMinY();//current.getVisualBounds().getMinY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
+        logger_.log("got x,y,w,h from Static_application_properties ="+x+","+y+","+w+","+h);
+        //double w = current.getBounds().getWidth();
+        //double h = current.getBounds().getHeight();
+        //logger_.log("got w,h from intersecting_screens ="+current.getBounds());
+
+        Image_window returned = new Image_window(b, path, x, y,w, h, logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -127,6 +145,7 @@ public class Image_window
     private Image_window(
             Browser the_browser,
             Path first_image_path,
+            double x, double y,
             double w, double h,
             Logger logger_)
     //**********************************************************
@@ -135,14 +154,20 @@ public class Image_window
         aborter = new Aborter();
         logger = logger_;
         the_Stage = new Stage();
-        the_Stage.setWidth(w);
-        the_Stage.setHeight(h);
+
         the_BorderPane = new BorderPane(); // makes it trivially easy to center the image!
         set_background(first_image_path.getFileName().toString(),true);
         the_Scene = new Scene(the_BorderPane);
         the_Stage.setScene(the_Scene);
+        the_Stage.setMinWidth(w);
+        the_Stage.setMinHeight(h);
+        logger_.log("Image_window constructor: w,h  ="+w+","+h);
         the_Stage.show();
-
+        logger_.log("Image_window constructor: REAL w,h  ="+the_Stage.getWidth()+","+the_Stage.getHeight());
+        the_Stage.setWidth(w);
+        the_Stage.setHeight(h);
+        the_Stage.setMinWidth(800);
+        the_Stage.setMinHeight(600);
         boolean high_quality = false;
         image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, logger);
         if ( image_display_handler == null)
@@ -171,14 +196,14 @@ public class Image_window
         image_display_handler.change_image_relative(0,false);
         //set_image(image_context_owner.get_image_context(), white_background);
 
-        /*
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
+            logger.log("image wondow size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
             Rectangle2D b = new Rectangle2D(the_Stage.getX(), the_Stage.getY(), the_Stage.getWidth(), the_Stage.getHeight());
             Static_application_properties.save_bounds(b,logger);
         };
         the_Stage.widthProperty().addListener(change_listener);
         the_Stage.heightProperty().addListener(change_listener);
-        */
+
 
         //Image_stage image_stage = this;
         the_Stage.setOnCloseRequest(we -> {

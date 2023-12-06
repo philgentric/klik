@@ -2,6 +2,7 @@ package klik.backup;
 
 import klik.actor.Aborter;
 import klik.actor.Message;
+import klik.util.Logger;
 
 import java.io.File;
 
@@ -16,11 +17,15 @@ public class Directory_backup_job_request implements Message
     public final boolean has_files;
     //**********************************************************
     public Directory_backup_job_request(File source_dir, File destination_dir,
-                                        Aborter aborter_, boolean has_files_)
+                                        Aborter aborter_, boolean has_files_, Logger logger)
     //**********************************************************
     {
         this.source_dir = source_dir;
         this.destination_dir = destination_dir;
+        if ( aborter_ == null)
+        {
+            logger.log_stack_trace("FATAL: aborter must not be null");
+        }
         aborter = aborter_;
         has_files = has_files_;
     }

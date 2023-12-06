@@ -126,7 +126,7 @@ public class Backup_actor_for_one_folder implements Actor
 
             Actor_engine.run(
                     new Backup_actor_for_one_file(stats, logger), // need on actor instance per task because the file comparator is not reentrant
-                    new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter),
+                    new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger),
                     null,
                     logger
             );
@@ -147,7 +147,7 @@ public class Backup_actor_for_one_folder implements Actor
             if (!sub_dir_to_be_copied.isDirectory()) continue;
 
             // create new job for this subfolder
-            Directory_backup_job_request directory_backup_job_request = new Directory_backup_job_request(sub_dir_to_be_copied, new File(request.destination_dir, sub_dir_to_be_copied.getName()), request.aborter, has_files);
+            Directory_backup_job_request directory_backup_job_request = new Directory_backup_job_request(sub_dir_to_be_copied, new File(request.destination_dir, sub_dir_to_be_copied.getName()), request.aborter, has_files,logger);
             // dont feed the beast too fast
             // as we open one virtual thread per file
             while (Backup_actor_for_one_file.ongoing.get() >= ONGOING_FILES) {
@@ -155,7 +155,7 @@ public class Backup_actor_for_one_folder implements Actor
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
-                    logger.log(e.toString());
+                    logger.log_stack_trace(e.toString());
                     return e.toString();
                 }
                 logger.log("ONGOING files = " + Backup_actor_for_one_file.ongoing.get());

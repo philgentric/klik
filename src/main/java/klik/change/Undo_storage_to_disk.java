@@ -19,6 +19,7 @@ public class Undo_storage_to_disk
 {
     public static int max = 30;
     static final boolean dbg = true;
+    static final boolean ultra_dbg = false;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
     public static final String HOW_MANY = "_how_many";
     private final Properties_manager pm;
@@ -73,13 +74,13 @@ public class Undo_storage_to_disk
     //**********************************************************
     {
         UUID returned;
-        if ( dbg) logger.log("extract_index from:->"+s+"<-");
+        if ( ultra_dbg) logger.log("extract_index from:->"+s+"<-");
         String ii = s.substring(s.indexOf(key_base)+key_base.length());
-        if ( dbg) logger.log("extract_index from:"+ii);
+        if ( ultra_dbg) logger.log("extract_index from:"+ii);
         ii = ii.substring(0,ii.indexOf(HOW_MANY));
-        if ( dbg) logger.log("extract_index from:"+ii);
+        if ( ultra_dbg) logger.log("extract_index from:"+ii);
         returned = UUID.fromString(ii);
-        if ( dbg) logger.log("extract_index :"+returned);
+        if ( ultra_dbg) logger.log("extract_index :"+returned);
         return returned;
     }
 

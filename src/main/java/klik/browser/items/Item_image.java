@@ -46,16 +46,17 @@ public class Item_image extends Item implements Icon_destination
     private static final boolean dbg_visibility = false;
     private boolean rotation_known = false;
     private Job job;
+    public double aspect_ratio = -1.0;
 
     //**********************************************************
     public Item_image(
             Browser b,
             Path p,
-            Logger logger)
+            double aspect_ratio, Logger logger)
     //**********************************************************
     {
         super(b,p, logger);
-
+        this.aspect_ratio = aspect_ratio;
     }
 
     //**********************************************************
@@ -309,6 +310,8 @@ public class Item_image extends Item implements Icon_destination
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
             return;
         }
+        //aspect_ratio = i.getWidth()/i.getHeight();
+        //logger.log("aspect ratio: "+aspect_ratio);
         Platform.runLater(() -> do_it_in_fx_thread(i, image_is_the_good_one));
     }
 

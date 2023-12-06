@@ -277,7 +277,13 @@ public class Mouse_handling_for_Image_stage
     void pix_for_pix()
     //**********************************************************
     {
-        Image_context local = Objects.requireNonNull(image_stage.image_display_handler).get_image_context();
+        Image_display_handler tmp = image_stage.image_display_handler;
+        if ( tmp == null)
+        {
+            logger.log("pix_for_pix weird = Image_display_handler is null?");
+            return;
+        }
+        Image_context local = tmp.get_image_context();
         local.the_image_view.fitWidthProperty().unbind();
         local.the_image_view.fitHeightProperty().unbind();
         local.the_image_view.setFitWidth(local.image.getWidth());

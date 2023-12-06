@@ -257,7 +257,7 @@ public class Image_context
             }
         } catch (IOException e)
         {
-            logger.log(e.toString());
+            logger.log_stack_trace(e.toString());
         }
     }
 

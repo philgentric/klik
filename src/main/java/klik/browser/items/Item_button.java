@@ -855,7 +855,12 @@ public class Item_button extends Item implements Icon_destination
                     button.setGraphic(label);
                 }
                 actionEvent.consume();
-                path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                if ( path.toFile().isDirectory() ) {
+                    path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                }
+                else {
+                    path = Files_and_Paths.change_file_name(path, logger, new_dir_name);
+                }
                 if (dbg) logger.log("rename done");
                 // button.setOnAction(the_button_event_handler);
             });

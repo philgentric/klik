@@ -63,54 +63,30 @@ public abstract class Look_and_feel
         name = name_;
         Look_and_feel_manager.reset();
 
+        background_fill = getBackgroundFill(LOOK_AND_FEEL_GENERAL);
+        all_dirs_fill = getBackgroundFill(LOOK_AND_FEEL_ALL_DIRS);
+        all_files_fill = getBackgroundFill(LOOK_AND_FEEL_ALL_FILES);
+        drag_fill = getBackgroundFill(LOOK_AND_FEEL_DRAG);
+
+    }
+
+    //**********************************************************
+    private BackgroundFill getBackgroundFill(String laf)
+    //**********************************************************
+    {
+        // uses a temporary scene to create and capture the CSS style ...
+        final BackgroundFill background_fill;
+        Pane tmp_pane = new Pane();
+        tmp_pane.getStyleClass().add(laf);
+        Scene tmp_scene = new Scene(tmp_pane);
+        tmp_scene.getStylesheets().add(style_sheet_url_string);
+        tmp_pane.applyCss();
+        if ( tmp_pane.getBackground() == null)
         {
-            Pane tmp_pane = new Pane();
-            tmp_pane.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_GENERAL);
-            Scene tmp_scene = new Scene(tmp_pane);
-            tmp_scene.getStylesheets().add(style_sheet_url_string);
-            tmp_pane.applyCss();
-            if ( tmp_pane.getBackground() == null)
-            {
-                logger.log("BADBADBAD cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+Look_and_feel.LOOK_AND_FEEL_GENERAL);
-            }
-            background_fill = tmp_pane.getBackground().getFills().get(0);
+            logger.log("BADBADBAD cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+laf);
         }
-        {
-            Pane tmp_pane = new Pane();
-            tmp_pane.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_ALL_DIRS);
-            Scene tmp_scene = new Scene(tmp_pane);
-            tmp_scene.getStylesheets().add(style_sheet_url_string);
-            tmp_pane.applyCss();
-            if ( tmp_pane.getBackground() == null)
-            {
-                logger.log("BADBADBAD cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+Look_and_feel.LOOK_AND_FEEL_ALL_DIRS);
-            }
-            all_dirs_fill = tmp_pane.getBackground().getFills().get(0);
-        }
-        {
-            Pane tmp_pane = new Pane();
-            tmp_pane.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_ALL_FILES);
-            Scene tmp_scene = new Scene(tmp_pane);
-            tmp_scene.getStylesheets().add(style_sheet_url_string);
-            tmp_pane.applyCss();
-            if ( tmp_pane.getBackground() == null)
-            {
-                logger.log("BADBADBAD cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+Look_and_feel.LOOK_AND_FEEL_ALL_FILES);
-            }
-            all_files_fill= tmp_pane.getBackground().getFills().get(0);
-        }
-        {
-            Pane tmp_pane = new Pane();
-            tmp_pane.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_DRAG);
-            Scene tmp_scene = new Scene(tmp_pane);
-            tmp_scene.getStylesheets().add(style_sheet_url_string);
-            tmp_pane.applyCss();
-            if ( tmp_pane.getBackground() == null)
-            {
-                logger.log("BADBADBAD cannot read BACKGROUND  color from CSS file, are you sure the syntax is correct? :"+Look_and_feel.LOOK_AND_FEEL_DRAG);
-            }
-            drag_fill= tmp_pane.getBackground().getFills().get(0);
-        }
+        background_fill = tmp_pane.getBackground().getFills().get(0);
+        return background_fill;
     }
 
     abstract public URL get_CSS_URL();
@@ -145,8 +121,9 @@ public abstract class Look_and_feel
     protected void set_directory_style(Node node){
         Font_size.apply_font_size(node,logger);
     }
-    protected void set_file_style(Node node){
 
+    protected void set_file_style(Node node)
+    {
         if (node instanceof Button button)
         {
             button.setFont(Font.font("Monaco", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));

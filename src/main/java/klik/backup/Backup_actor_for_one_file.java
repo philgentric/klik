@@ -3,17 +3,14 @@ package klik.backup;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
-import klik.actor.virtual_threads.Concurency_limiter;
 import klik.files_and_paths.My_File;
 import klik.util.Logger;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -32,7 +29,6 @@ public class Backup_actor_for_one_file implements Actor
     public Backup_actor_for_one_file(Backup_stats stats, Logger logger)
     //**********************************************************
     {
-        file_comparator = new File_comparator(logger);
         this.logger = logger;
         this.stats = stats;
     }
@@ -48,6 +44,9 @@ public class Backup_actor_for_one_file implements Actor
         ongoing.incrementAndGet();
         last = System.currentTimeMillis();
         File_backup_job_request fbjr = (File_backup_job_request) m;
+
+        if ( file_comparator==null) file_comparator = new File_comparator(fbjr.aborter,logger);
+
         /*if (Threads.use_fibers)
         {
             try {
@@ -86,12 +85,12 @@ public class Backup_actor_for_one_file implements Actor
         Dir_results local = duplicate_a_file(fbjr);
         if (!local.was_copied)
         {
-            if ( !fbjr.aborter.should_abort())
+            if ( fbjr.aborter.should_abort())
             {
                 logger.log("duplicate_a_file status is false, giving up");
+                stats.done_dir_count.incrementAndGet();
+                return;
             }
-            stats.done_dir_count.incrementAndGet();
-            return;
         }
         //fbjr.recently_done.add(fbjr.file_to_be_copied);
         stats.bytes_copied.addAndGet(local.bytes_copied);

@@ -2,6 +2,7 @@ package klik.util;
 
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_writer_actor;
+import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.fusk.Fusk_static_core;
@@ -58,6 +59,17 @@ public class From_disk
         }
 
     }
+
+    //**********************************************************
+    public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        return Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
+        //Image i = load_image_from_disk( original_image_file,  aborter,  logger);
+        //if ( i==null) return 1.0;
+        //return i.getWidth()/i.getHeight();
+    }
+
 
     //**********************************************************
     public static Image load_image_from_disk(Path original_image_file, Aborter aborter, Logger logger)

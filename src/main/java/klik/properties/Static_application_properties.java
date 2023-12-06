@@ -2,6 +2,8 @@ package klik.properties;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import javafx.geometry.Rectangle2D;
+
 import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Files_and_Paths;
 import klik.util.Logger;
@@ -14,11 +16,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+;
 //**********************************************************
 public class Static_application_properties
 //**********************************************************
 {
     private static final boolean dbg = false;
+    public static final String SORT_FILES_BY = "sort_files_by";
     public static Properties_manager the_properties_manager;
     private static int icon_size = -1;
     private static int video_length = -1;
@@ -52,12 +56,10 @@ public class Static_application_properties
     public static final String SINGLE_COLUMN = "single_column";
     public static final String ICONS_FOR_FOLDERS = "icons_for_folders";
     public static final String MONITOR_BROWSED_FOLDERS = "monitor_browsed_folders";
-
-   /*public static final String SCREEN_TOP_LEFT_X = "screen_top_left_x";
+    public static final String SCREEN_TOP_LEFT_X = "screen_top_left_x";
     public static final String SCREEN_TOP_LEFT_Y = "screen_top_left_y";
     public static final String SCREEN_WIDTH = "screen_width";
     public static final String SCREEN_HEIGHT = "screen_height";
-    */
 
 
     //**********************************************************
@@ -72,6 +74,29 @@ public class Static_application_properties
             the_properties_manager = new Properties_manager(p, logger);
         }
         return the_properties_manager;
+    }
+
+
+    //**********************************************************
+    public static File_sorter get_sort_files_by(Logger logger)
+    //**********************************************************
+    {
+        String s = Static_application_properties.get_properties_manager(logger).get(SORT_FILES_BY);
+        if (s == null) {
+            Static_application_properties.get_properties_manager(logger).save_unico(SORT_FILES_BY, File_sorter.NAME.name(), false);
+            return File_sorter.NAME;
+        }
+        else
+        {
+            return File_sorter.valueOf(s);
+        }
+    }
+
+    //**********************************************************
+    public static void set_sort_files_by(File_sorter b, Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_properties_manager(logger).save_unico(SORT_FILES_BY, b.name(), false);
     }
 
 
@@ -196,7 +221,7 @@ public class Static_application_properties
     {
         get_properties_manager(logger).save_unico(SHOW_GIFS_FIRST, String.valueOf(b), false);
     }
-/*
+
     //**********************************************************
     public static Rectangle2D get_bounds(Logger logger)
     //**********************************************************
@@ -221,13 +246,14 @@ public class Static_application_properties
     public static void save_bounds(Rectangle2D r, Logger logger)
     //**********************************************************
     {
+        logger.log("saving bounds="+r);
         Properties_manager pm = get_properties_manager(logger);
         pm.save_unico(SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
         pm.save_unico(SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
         pm.save_unico(SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
         pm.save_unico(SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
     }
-*/
+
     // returns a directory using that relative name
     //**********************************************************
     public static Path get_trash_dir(Logger logger)
@@ -263,7 +289,7 @@ public class Static_application_properties
                 // when browsing $home
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed";
-                logger.log(err);
+                logger.log_stack_trace(err);
                 Popups.popup_Exception(e,300,err,logger);
                 return null;
             }
@@ -276,7 +302,7 @@ public class Static_application_properties
                 Files.createDirectory(conf_dir2);
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
-                logger.log(err);
+                logger.log_stack_trace(err);
                 Popups.popup_Exception(e,300,err,logger);
                 return null;
             }
@@ -291,14 +317,14 @@ public class Static_application_properties
                 return returned;
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
-                logger.log(err);
+                logger.log_stack_trace(err);
                 Popups.popup_Exception(e, 300," Attempt to create dir named->" + returned.toAbsolutePath() + "<- failed",logger);
                 return null;
             }
         }
         if (dbg) {
             String err = "directory named->" + returned.toAbsolutePath() + "<- OK";
-            logger.log(err);
+            logger.log_stack_trace(err);
         }
         return returned;
     }
@@ -449,26 +475,6 @@ public class Static_application_properties
     {
         get_properties_manager(logger).save_unico(LANGUAGE_KEYWORD, s, false);
 
-    }
-
-    //**********************************************************
-    public static boolean get_sort_files_by_name(Logger logger)
-    //**********************************************************
-    {
-        String s = Static_application_properties.get_properties_manager(logger).get("sort_files_by_name");
-        if (s == null) {
-            Static_application_properties.get_properties_manager(logger).save_unico("sort_files_by_name", "true", false);
-            return false;
-        } else {
-            return Boolean.parseBoolean(s);
-        }
-    }
-
-    //**********************************************************
-    public static void set_sort_files_by_name(boolean b, Logger logger)
-    //**********************************************************
-    {
-        Static_application_properties.get_properties_manager(logger).save_unico("sort_files_by_name", String.valueOf(b), false);
     }
 
     //**********************************************************

@@ -24,7 +24,7 @@ public class Disk_scanner implements Runnable
     public final AtomicInteger folder_count_stop_counter;
     public final Aborter aborter;
     public final Logger logger;
-    private final static Concurency_limiter limiter = new Concurency_limiter("Disk scanner",0.5,new System_out_logger());
+    private final static Concurency_limiter limiter = new Concurency_limiter("Disk scanner",2,new System_out_logger());
 
 
     // this will BLOCK until the tree has been traversed
@@ -65,7 +65,7 @@ public class Disk_scanner implements Runnable
                 Thread.sleep(10);
                 //logger.log("how_many_folders="+how_many_folders);
             } catch (InterruptedException e) {
-                logger.log(e.toString());
+                logger.log_stack_trace(e.toString());
             }
             if ( folder_count_stop_counter.get() == 0) break;
 
@@ -103,8 +103,12 @@ public class Disk_scanner implements Runnable
         file_payload = file_payload_;
         dir_payload = dir_payload_;
         folder_count_stop_counter = folder_count_stop_counter_;
-        aborter = Objects.requireNonNull(aborter_);
         logger = logger_;
+        if ( aborter_ == null)
+        {
+            logger.log_stack_trace("FATAL: aborter must not be null");
+        }
+        aborter = aborter_;
     }
 
 

@@ -18,6 +18,8 @@ import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileExistsException;
+
 
 
 import java.io.File;
@@ -553,6 +555,30 @@ public class Files_and_Paths {
             logger.log(x.toString());
         }
 
+    }
+
+
+    //**********************************************************
+    public static Path change_file_name(Path path, Logger logger, String new_name)
+    //**********************************************************
+    {
+        if (dbg) logger.log("change_file_name, new name: " + new_name);
+
+        try {
+            logger.log("trying rename: " + path.getFileName() + " => " + new_name);
+            Path new_path = Paths.get(path.getParent().toString(), new_name);
+            //Files.move(path, new_path);
+            FileUtils.moveFile(path.toFile(),new_path.toFile());
+            logger.log("....done");
+            return new_path;
+        } catch (FileExistsException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            Popups.popup_Exception(e, 200, "File already exists", logger);
+        }
+        catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        }
+        return path;
     }
 
 

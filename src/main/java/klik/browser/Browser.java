@@ -17,6 +17,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.backup.Backup_singleton;
@@ -114,7 +115,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger = logger_;
         aborter = new Aborter();
         ID = ID_generator.getAndIncrement();
-        my_Stage = context.stage;//new My_Stage(context.stage,logger);
+        my_Stage = new My_Stage(new Stage(),logger);// context.stage;//new My_Stage(context.stage,logger);
 
         if (context.additional_window)
         {
@@ -720,8 +721,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void scene_geometry_changed(String from, boolean rebuild_all_items, boolean keep_scroll)
     //**********************************************************
     {
-        if (dbg)
-            logger.log("the_pane scene_geometry_changed " + the_Pane.getBoundsInLocal().toString() + " from:" + from);
+        //if (dbg)
+            logger.log("the_pane scene_geometry_changed " + the_Pane.getBoundsInLocal().toString() + " from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
         error_type = icon_manager.paths_manager.scan_dir(displayed_folder_path, my_Stage.the_Stage);
         if (error_type != Error_type.OK) {

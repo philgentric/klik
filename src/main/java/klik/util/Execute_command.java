@@ -68,7 +68,7 @@ public class Execute_command
             }
             else
             {
-                logger.log(e.toString());
+                logger.log_stack_trace(e.toString());
             }
             return false;
         }
@@ -81,11 +81,11 @@ public class Execute_command
             if ( to_be_returned != null)
             {
                 to_be_returned.append("could not wait for  process: ").append(e).append("\n");
-                logger.log(to_be_returned.toString());
+                logger.log_stack_trace(to_be_returned.toString());
             }
             else
             {
-                logger.log(e.toString());
+                logger.log_stack_trace(e.toString());
             }
             return false;
         }

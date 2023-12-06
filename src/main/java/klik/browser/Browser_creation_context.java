@@ -23,16 +23,17 @@ public class Browser_creation_context
     public final Path top_left_in_parent;
     public final Path scroll_to;
     public final Browser old_browser; // if null, there is no previous guy
-    public final My_Stage stage; // if null, there is no previous guy
+    //public final My_Stage stage; // if null, there is no previous guy
 
     //**********************************************************
-    Browser_creation_context(My_Stage stage, Path dir, Rectangle2D rectangle, boolean keepOffset, boolean additional_window, boolean samePlace, Path previousTopLeft, Path scrollTo, Browser oldBrowser)
+    Browser_creation_context(My_Stage previous_stage, Path dir, Rectangle2D rectangle, boolean keepOffset, boolean additional_window, boolean samePlace, Path previousTopLeft, Path scrollTo, Browser oldBrowser)
     //**********************************************************
     {
-        this.stage = stage;
+        //this.stage = stage;
         this.rectangle = rectangle;
         keep_offset = keepOffset;
         this.additional_window = additional_window;
+        if ( !additional_window) previous_stage.the_Stage.close();
         same_place = samePlace;
         top_left_in_parent = previousTopLeft;
         //System.out.println("top_left_in_parent="+top_left_in_parent);
@@ -43,7 +44,7 @@ public class Browser_creation_context
         if (dir.toAbsolutePath().equals(icon_cache_dir.toAbsolutePath()))
         {
             if ( Popups.popup_ask_for_confirmation(
-                    stage.the_Stage,
+                    previous_stage.the_Stage,
                     "Browsing klik icon cache is not such a good idea!",
                     "Because it causes an explosion of new icons or icons of icons....\n" +
                             "Remember to clean the icon cache ASAP after ",new System_out_logger()))

@@ -44,7 +44,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     public Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
     //**********************************************************
     {
-        Job j = new Job(actor,message,tr);
+        Job j = new Job(actor,message,tr,logger);
         run_job(j);
         return j;
     }

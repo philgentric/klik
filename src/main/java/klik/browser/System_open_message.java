@@ -18,7 +18,7 @@ public class System_open_message implements Message {
         the_Stage = owner;
         this.path = path;
         this.logger = logger;
-        aborter = null; // intended to get a crash
+        aborter = new Aborter();
     }
     @Override
     public String to_string() {

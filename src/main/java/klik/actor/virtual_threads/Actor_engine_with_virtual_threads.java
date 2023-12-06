@@ -26,7 +26,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     public Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
     //**********************************************************
     {
-        Job job = new Job(actor,message,tr);
+        Job job = new Job(actor,message,tr,logger);
         Runnable r = () -> {
             String msg = job.actor.run(job.message);
             if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);

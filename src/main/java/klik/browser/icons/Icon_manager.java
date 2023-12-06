@@ -19,6 +19,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
+import klik.properties.File_sorter;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -137,7 +138,8 @@ public class Icon_manager
         }
 
 
-        if ( rebuild_all_items) all_items_map.clear();
+        //if ( rebuild_all_items)
+            all_items_map.clear();
         how_many_rows = 0;
         Point2D p = new Point2D(0, 0);
         p = process_folders(the_browser, single_column, row_increment_for_dirs, column_increment, row_increment_for_dirs_with_picture, scene_width, p);
@@ -153,9 +155,10 @@ public class Icon_manager
         double file_button_height = 2 * Static_application_properties.get_font_size(logger);
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
-
+        boolean use_aspect_ratio = false;
+        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) use_aspect_ratio = true;
         // manage iconized items
-        for (Path path : paths_manager.iconized)
+        for (Path path : paths_manager.get_iconized())
         {
             Item item;
             if (show_icons_instead_of_text)
@@ -163,7 +166,9 @@ public class Icon_manager
                 item = all_items_map.get(path);
                 if ( item == null)
                 {
-                    item = new Item_image(the_browser,path, logger);
+                    double aspect_ratio = 1.0;
+                    if ( use_aspect_ratio) aspect_ratio = Paths_manager.get_aspect_ratio(path);
+                    item = new Item_image(the_browser,path, aspect_ratio, logger);
                     all_items_map.put(path,item);
                 }
             }
@@ -182,7 +187,9 @@ public class Icon_manager
 
             if (show_icons_instead_of_text)
             {
-                p = new_Point_for_icons(p, item, icon_size, icon_size, scene_width, single_column);
+                p = new_Point_for_icons(p, item,
+                        icon_size, icon_size,
+                        scene_width, single_column, use_aspect_ratio);
             }
             else
             {
@@ -332,17 +339,18 @@ public class Icon_manager
     private Point2D new_Point_for_icons(Point2D p,
                                         Item item,
                                         double column_increment,
-                                        double row_increment, // row increment, if needed
+                                        double row_increment,
                                         double scene_width,
-                                        boolean single_column)
+                                        boolean single_column,
+                                        boolean use_aspect_ratio)
     //**********************************************************
     {
-        //double icon_size = Static_application_properties.get_icon_size(logger);
         double old_x = p.getX();
         double old_y = p.getY();
+        // position the item at the requested position
         item.set_x(old_x);
         item.set_y(old_y);
-        /// compute next position
+        /// then compute position of NEXT item
         if ( single_column)
         {
             how_many_rows++;
@@ -351,16 +359,34 @@ public class Icon_manager
             //logger.log("new row "+row_increment);
             return new Point2D(new_x, new_y);
         }
-        {
-            if (old_x + 2*column_increment > scene_width)
-            {
-                // new ROW
-                how_many_rows++;
-                return new Point2D(0, old_y+row_increment);
 
+        double width_of_this = column_increment;
+        double height_of_this = row_increment;
+
+        if ( use_aspect_ratio)
+        {
+            //logger.log("aspect_ratio: "+((Item_image)item).aspect_ratio);
+            if (((Item_image)item).aspect_ratio < 1.0)
+            {
+                width_of_this = ((Item_image)item).aspect_ratio * column_increment;
+                //logger.log("width_of_this: "+width_of_this);
+            }
+            else
+            {
+                height_of_this = row_increment/((Item_image)item).aspect_ratio;
             }
         }
-        return new Point2D(old_x+column_increment, old_y);
+
+        double new_x = old_x+ width_of_this;
+        //logger.log("new_x: "+new_x);
+        if (new_x + column_increment > scene_width)
+        {
+            // new ROW
+            how_many_rows++;
+            return new Point2D(0, old_y+height_of_this);
+        }
+
+        return new Point2D(new_x, old_y);
     }
 
     //**********************************************************
@@ -429,7 +455,7 @@ public class Icon_manager
             if (item.get_y() + h > landscape_height) landscape_height = item.get_y() + h;
         }
 
-        if (paths_manager.iconized.isEmpty()) {
+        if (paths_manager.get_iconized().isEmpty()) {
             // when there is no iconized items in the folder
             // it may happen that the height of the last row of buttons at the bottom is underestimated
             landscape_height += 100;

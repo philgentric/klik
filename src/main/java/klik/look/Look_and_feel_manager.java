@@ -578,7 +578,7 @@ public class Look_and_feel_manager
     {
         if (node instanceof Button button)
         {
-            button.setAlignment(Pos.BASELINE_LEFT);
+           button.setAlignment(Pos.BASELINE_LEFT);
         }
         Objects.requireNonNull(get_instance()).set_file_style(node);
     }

@@ -204,7 +204,7 @@ public class Animated_gif_generator
     static File gif_saving_dir = null;
 
     //**********************************************************
-    public static void interactive(Path path, Logger logger)
+    public static void interactive(Path video_path, Logger logger)
     //**********************************************************
     {
         start_time_seconds = 0;
@@ -213,12 +213,13 @@ public class Animated_gif_generator
 
         Platform.runLater(() -> {
             the_stage = new Stage();
-            the_stage.setTitle("Animated gif maker for :"+path.getFileName().toString());
+            the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);
             the_imageview = new ImageView();
+            int duration_in_seconds = get_video_duration(the_stage, video_path, logger);
 
-            set_image(start_time_seconds,duration_seconds, path, logger, icon_cache_dir);
+            set_image(start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
             Pane vb = new VBox();
             vb.getChildren().add(the_imageview);
             Button save = new Button("Choose folder & save");
@@ -251,7 +252,7 @@ public class Animated_gif_generator
 
             {
                 HBox hb = new HBox();
-                Label label = new Label("Start");
+                Label label = new Label("Start time: ");
                 label.setPrefWidth(HUNDRED);
                 label.setMinWidth(HUNDRED);
                 label.setMaxWidth(HUNDRED);
@@ -263,29 +264,37 @@ public class Animated_gif_generator
                 EventHandler<ActionEvent> start_change = actionEvent -> {
                     start_time_seconds = Double.parseDouble(tf_start.getText());
                     logger.log(" START  ="+ start_time_seconds);
-                    set_image(start_time_seconds,duration_seconds,path, logger, icon_cache_dir);
+                    set_image(start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                 };
                 tf_start.setOnAction(start_change);
                 hb.getChildren().add(tf_start);
+                {
+                    Label label2 = new Label("Total time: "+duration_in_seconds);
+                    label2.setPrefWidth(HUNDRED);
+                    label2.setMinWidth(HUNDRED);
+                    label2.setMaxWidth(HUNDRED);
+                    hb.getChildren().add(label2);
+                }
+
                 vb.getChildren().add(hb);
 
                 HBox hbplus = new HBox();
-                add_plus_button(1,path, logger, icon_cache_dir, hbplus);
-                add_plus_button(5,path, logger, icon_cache_dir, hbplus);
-                add_plus_button(10,path, logger, icon_cache_dir, hbplus);
-                add_plus_button(30,path, logger, icon_cache_dir, hbplus);
-                add_plus_button(60,path, logger, icon_cache_dir, hbplus);
-                add_plus_button(180,path, logger, icon_cache_dir, hbplus);
+                add_plus_button(1,video_path, logger, icon_cache_dir, hbplus);
+                add_plus_button(5,video_path, logger, icon_cache_dir, hbplus);
+                add_plus_button(10,video_path, logger, icon_cache_dir, hbplus);
+                add_plus_button(30,video_path, logger, icon_cache_dir, hbplus);
+                add_plus_button(60,video_path, logger, icon_cache_dir, hbplus);
+                add_plus_button(180,video_path, logger, icon_cache_dir, hbplus);
                 vb.getChildren().add(hbplus);
 
                 HBox hbminus = new HBox();
-                add_minus_button(1, path, logger, icon_cache_dir, hbminus);
-                add_minus_button(5, path, logger, icon_cache_dir, hbminus);
-                add_minus_button(10, path, logger, icon_cache_dir, hbminus);
-                add_minus_button(30, path, logger, icon_cache_dir, hbminus);
-                add_minus_button(60, path, logger, icon_cache_dir, hbminus);
-                add_minus_button(180, path, logger, icon_cache_dir, hbminus);
+                add_minus_button(1, video_path, logger, icon_cache_dir, hbminus);
+                add_minus_button(5, video_path, logger, icon_cache_dir, hbminus);
+                add_minus_button(10, video_path, logger, icon_cache_dir, hbminus);
+                add_minus_button(30, video_path, logger, icon_cache_dir, hbminus);
+                add_minus_button(60, video_path, logger, icon_cache_dir, hbminus);
+                add_minus_button(180, video_path, logger, icon_cache_dir, hbminus);
                 vb.getChildren().add(hbminus);
             }
 
@@ -301,7 +310,7 @@ public class Animated_gif_generator
                 EventHandler<ActionEvent> duration_change = actionEvent -> {
                     duration_seconds = Double.parseDouble(tf_duration.getText());
                     logger.log(" DURATION  ="+duration_seconds);
-                    set_image(start_time_seconds,duration_seconds,path, logger, icon_cache_dir);
+                    set_image(start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                 };
                 tf_duration.setOnAction(duration_change);

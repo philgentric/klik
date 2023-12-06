@@ -63,19 +63,12 @@ public class Undo_engine implements Datetime_to_signature_source
 
     }
     //**********************************************************
-    public static void remove_all_undo_items()
+    public static void remove_all_undo_items(Logger logger)
     //**********************************************************
     {
+        if ( instance == null ) instance =  new Undo_engine(logger);
         instance.remove_all_undo_items_internal();
     }
-
-
-
-
-
-
-
-
 
     //**********************************************************
     private Undo_engine(Logger logger_)
@@ -83,14 +76,14 @@ public class Undo_engine implements Datetime_to_signature_source
     {
         logger  = logger_;
         store = new Undo_storage_to_disk(logger);
-
     }
 
     //**********************************************************
     public static boolean check_validity(Undo_item undo_item, Stage owner, Logger logger)
     //**********************************************************
     {
-        return Undo_engine.get_instance(logger).check_validity_internal(undo_item, owner);
+        if ( instance == null ) instance =  new Undo_engine(logger);
+        return instance.check_validity_internal(undo_item, owner);
     }
 
     //**********************************************************
