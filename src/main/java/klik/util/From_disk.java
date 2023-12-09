@@ -65,6 +65,7 @@ public class From_disk
     //**********************************************************
     {
         return Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
+        // the only other way is to load the image!
         //Image i = load_image_from_disk( original_image_file,  aborter,  logger);
         //if ( i==null) return 1.0;
         //return i.getWidth()/i.getHeight();

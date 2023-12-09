@@ -1,6 +1,7 @@
 package klik.browser.icons;
 
 import com.sun.source.tree.SynchronizedTree;
+import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -8,11 +9,10 @@ import klik.actor.Aborter;
 import klik.browser.items.Item_folder_with_icon;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
+import klik.properties.File_sorter;
+import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.From_disk;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
-import klik.util.Threads;
+import klik.util.*;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -56,7 +56,53 @@ public class Paths_manager
         return d;
     }
 
-   //**********************************************************
+    //**********************************************************
+    public static Path get_path_of_aspect_ratio_cache_file()
+    //**********************************************************
+    {
+        Path dir = Files_and_Paths.get_icon_cache_dir(logger);
+        return Path.of(dir.toAbsolutePath().toString(),"aspect_ratio_cache");
+    }
+
+    public static void erase_aspect_ratio_cache_file()
+    {
+        Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
+        pm.erase_all_and_save();
+        aspect_ratios.clear();
+        logger.log("aspect ratio cache file cleared");
+
+    }
+
+    //**********************************************************
+    private void reload_aspect_ratio_cache()
+    //**********************************************************
+    {
+        Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
+        for(String s : pm.get_all_keys())
+        {
+            String v = pm.get(s);
+            if (aspect_ratios.get(s) == null) {
+                aspect_ratios.put(s, Double.valueOf(v));
+            }
+        }
+        logger.log("aspect ratio cache reloaded from file");
+    }
+    //**********************************************************
+    private void save_aspect_ratio_cache()
+    //**********************************************************
+    {
+        Path dir = Files_and_Paths.get_icon_cache_dir(logger);
+        Properties_manager pm = new Properties_manager(Path.of(dir.toAbsolutePath().toString(),"aspect_ratio_cache"),logger);
+        for(Map.Entry e : aspect_ratios.entrySet())
+        {
+            pm.imperative_store((String) e.getKey(), ((Double) e.getValue()).toString(),false,false);
+        }
+        pm.store_properties();
+        logger.log("aspect ratio cache saved to file");
+
+    }
+
+    //**********************************************************
     public Paths_manager(Logger logger_)
     //**********************************************************
     {
@@ -85,6 +131,7 @@ public class Paths_manager
     public Error_type scan_dir(Path folder_path, Stage stage)
     //**********************************************************
     {
+        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) reload_aspect_ratio_cache();
 
         //logger.log(Stack_trace_getter.get_stack_trace("scan dir "+folder_path));
 
@@ -98,71 +145,40 @@ public class Paths_manager
         iconized.clear();
         non_iconized.clear();
         folders.clear();
-        //folders_with_icon.clear();
-        //folders_without_icon.clear();
-        
-        {
-            /*
-            File[] files = dir.toFile().listFiles();
-            if ( files == null)
-            {
-                logger.log(Stack_trace_getter.get_stack_trace("files[] == null"));
-                try
+
+        try {
+            Stream<Path> stream = Files.list(folder_path);
+            stream.forEach(path ->{
+                if (Files.isDirectory(path))
                 {
-                    BasicFileAttributes x = Files.readAttributes(dir, BasicFileAttributes.class);
-                    logger.log(dir.toAbsolutePath()+": "+x.);
-                }
-                catch (AccessDeniedException e)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace("ACCESS DENIED EXCEPTION" + e));
-                    return Error_type.denied;
-                }
-                catch (NoSuchFileException e)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace("NoSuchFileException" + e));
-                    // the DIR is gone !!
-                    return Error_type.not_found;
-                }
-                catch (IOException e)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-                    return Error_type.error;
-                }
-                return Error_type.error;
-            }
-            for (File f : files)
-            {
-                if (f.isDirectory() )
-                {
-                    do_folder(f.toPath(),show_hidden_directories,show_icons_for_folders);
+                    do_folder(path,show_hidden_directories,show_icons_for_folders);
                 }
                 else
                 {
-                    do_file(f.toPath(), show_hidden_files, show_icons_instead_of_text, stage);
+                    do_file(path, show_hidden_files, show_icons_instead_of_text, stage);
                 }
-            }
-            */
-            try {
-                Stream<Path> stream = Files.list(folder_path);
-                stream.forEach(path ->{
-                    if (Files.isDirectory(path))
-                    {
-                        do_folder(path,show_hidden_directories,show_icons_for_folders);
-                    }
-                    else {
-                        do_file(path, show_hidden_files, show_icons_instead_of_text, stage);
-                    }
 
-                });
-            } catch (IOException e) {
-                Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
-                if (denied != null) return denied;
-            }
-
+            });
+        } catch (IOException e) {
+            Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
+            if (denied != null) return denied;
         }
 
 
-        iconized.sort(file_comparator);
+        sort_iconized();
+
+        non_iconized.sort(alphabetical_file_name_comparator);
+        folders.sort(alphabetical_file_name_comparator);
+        return Error_type.OK;
+    }
+
+
+
+    //**********************************************************
+    private void sort_iconized()
+    //**********************************************************
+    {
+
         boolean show_gifs_first = Static_application_properties.get_show_gifs_first(logger);
         if ( show_gifs_first)
         {
@@ -189,10 +205,11 @@ public class Paths_manager
             others.sort(file_comparator);
             iconized.addAll(others);
         }
-
-        non_iconized.sort(alphabetical_file_name_comparator);
-        folders.sort(alphabetical_file_name_comparator);
-        return Error_type.OK;
+        else
+        {
+            iconized.sort(file_comparator);
+        }
+        save_aspect_ratio_cache();
     }
 
 

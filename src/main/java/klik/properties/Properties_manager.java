@@ -410,7 +410,14 @@ public class Properties_manager
         }
         return false;
     }
-
+    //**********************************************************
+    public void erase_all_and_save()
+    //**********************************************************
+    {
+        the_Properties.clear();
+        System.out.println("cleared");
+        store_properties();
+    }
 
     /*
      * unit test
@@ -447,6 +454,7 @@ public class Properties_manager
         pm.imperative_store(s, value, true, true);
         logger.log(s + " is now key for: " + value);
     }
+
 
 
 }
