@@ -12,7 +12,6 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.experimental.Static_image_utilities;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
@@ -42,10 +41,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     boolean alternate_rescaler = false;
 
     //**********************************************************
-    public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Aborter aborter, Logger logger_)
+    public static Image_display_handler get_Image_display_handler_instance(Path path, Image_window v_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_context image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
+        Image_context image_context_ = build_Image_context(path, aborter, logger_);
         if (image_context_ == null)
         {
             logger_.log(Stack_trace_getter.get_stack_trace("Image_stage PANIC: cannot load image " + path.toAbsolutePath()));
@@ -55,20 +54,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     }
 
     //**********************************************************
-    static Image_context build_Image_context(boolean use_alternate_rescaler, Path path, Aborter aborter, Logger logger_)
+    static Image_context build_Image_context(Path path, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_context image_context_;
-        if (use_alternate_rescaler)
-        {
-            System.out.println("high quality is ON");
-            image_context_ = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, 800, aborter, logger_);
-        }
-        else
-        {
-            image_context_ = Image_context.get_Image_context(path, aborter, logger_);
-        }
-        return image_context_;
+        return Image_context.get_Image_context(path, aborter, logger_);
     }
 
     //**********************************************************
@@ -101,16 +90,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     Image_context local_getImage_context(Path path, Aborter aborter)
     //**********************************************************
     {
-        Image_context iai;
-        if (alternate_rescaler)
-        {
-            iai = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_stage.the_Stage.getWidth(),image_stage.aborter,logger);
-        }
-        else
-        {
-            iai = Image_context.get_Image_context(path,aborter, logger);
-        }
-        return iai;
+        return Image_context.get_Image_context(path,aborter, logger);
     }
 
 

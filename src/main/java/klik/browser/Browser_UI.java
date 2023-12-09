@@ -349,8 +349,6 @@ public class Browser_UI
         }
         files_menu.getItems().add(browser_menus.make_backup_menu());
 
-        if (Static_application_properties.get_enable_fusk(logger))
-            files_menu.getItems().add(browser_menus.make_fusk_menu());
         return files_menu;
     }
 
@@ -379,7 +377,6 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_language_menu());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
-        pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
         pref.getItems().add(browser_menus.make_video_length_menu());
 
         return pref;
@@ -495,8 +492,6 @@ public class Browser_UI
         }
         files_menu.getItems().add(browser_menus.make_backup_menu());
 
-        if (Static_application_properties.get_enable_fusk(logger))
-            files_menu.getItems().add(browser_menus.make_fusk_menu());
         return files_menu;
     }
 
@@ -527,7 +522,6 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_language_menu());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
-        pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
         pref.getItems().add(browser_menus.make_video_length_menu());
 
         return pref;

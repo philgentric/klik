@@ -26,8 +26,7 @@ public class Fast_rotation_from_exif_metadata_extractor
     //**********************************************************
     {
 
-        boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, aborter, logger);
         if ( is == null)
         {
             return null;

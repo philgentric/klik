@@ -92,8 +92,7 @@ public class Menu_for_image_stage
             returned.getMenus().add(display);
             List<MenuItem> l = manage_full_screen(image_stage);
             for ( MenuItem mi : l) display.getItems().add(mi);
-            CheckMenuItem quality = get_quality_check_menu_item(image_stage, image_context_owner);
-            display.getItems().add(quality);
+
         }
         {
             Menu mode = new Menu("Mode");
@@ -136,8 +135,6 @@ public class Menu_for_image_stage
         MenuItem edit_menu_item = make_edit_menu_item(image_stage, image_context_owner);
         contextMenu.getItems().add(edit_menu_item);
 
-        CheckMenuItem quality = get_quality_check_menu_item(image_stage, image_context_owner);
-        contextMenu.getItems().add(quality);
 
         MenuItem open = get_open_menu_item(image_stage, image_context_owner);
         contextMenu.getItems().add(open);
@@ -376,23 +373,6 @@ public class Menu_for_image_stage
         MenuItem open = new MenuItem(I18n.get_I18n_string("Open", image_stage.logger));
         open.setOnAction(event -> image_context_owner.image_context.open());
         return open;
-    }
-
-    //**********************************************************
-    private static CheckMenuItem get_quality_check_menu_item(Image_window image_stage, Image_display_handler image_context_owner)
-    //**********************************************************
-    {
-        CheckMenuItem quality = new CheckMenuItem(I18n.get_I18n_string("Image_quality_high", image_stage.logger));
-        quality.setSelected(image_context_owner.alternate_rescaler);
-        quality.setOnAction(actionEvent -> {
-            boolean new_high_quality = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            if (new_high_quality != image_context_owner.alternate_rescaler) {
-                Image_context image_context = build_Image_context(new_high_quality, image_context_owner.image_context.path, image_stage.aborter, image_stage.logger);
-                image_stage.set_image(image_context, false);
-            }
-
-        });
-        return quality;
     }
 
     //**********************************************************

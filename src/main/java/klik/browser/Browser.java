@@ -25,13 +25,10 @@ import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.experimental.JavaFX_to_Swing;
-import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Filesystem_item_modification_watcher;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Old_and_new_Path;
-import klik.fusk.Fusk_singleton;
-import klik.fusk.Static_fusk_paths;
+import klik.images.JavaFX_to_Swing;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.my_i18n.I18n;
@@ -559,63 +556,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    public void abort_fusk()
-    //**********************************************************
-    {
-        logger.log("abort fusk");
-        Fusk_singleton.abort();
-    }
-
-    //**********************************************************
-    public void start_fusk()
-    //**********************************************************
-    {
-        logger.log("start fusk");
-        Path fusk_source = Static_fusk_paths.get_fusk_source();
-        if (fusk_source == null) {
-            logger.log("FATAL, no fusk_source");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot fusk!", "Reason: no fusk ORIGIN", false, logger);
-            return;
-        }
-        Path fusk_sink = Static_fusk_paths.get_fusk_sink();
-        if (fusk_sink == null) {
-            logger.log("FATAL, no fusk_sink");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot fusk!", "Reason: no fusk DESTINATION", false, logger);
-
-            return;
-        }
-        Fusk_singleton.set_source(fusk_source, logger);
-        Fusk_singleton.set_sink(fusk_sink, logger);
-        Fusk_singleton.start_fusk(my_Stage.the_Stage);
-
-    }
-
-    //**********************************************************
-    public void start_defusk()
-    //**********************************************************
-    {
-        logger.log("start defusk");
-        Path defusk_source = Static_fusk_paths.get_fusk_source();
-        if (defusk_source == null) {
-            logger.log("FATAL, no defusk_source");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk_source ORIGIN", false, logger);
-            return;
-        }
-        Path defusk_sink = Static_fusk_paths.get_fusk_sink();
-        if (defusk_sink == null) {
-            logger.log("FATAL, no defusk_sink");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk_sink DESTINATION", false, logger);
-
-            return;
-        }
-        Fusk_singleton.set_source(defusk_source, logger);
-        Fusk_singleton.set_sink(defusk_sink, logger);
-        Fusk_singleton.start_defusk(my_Stage.the_Stage);
-
-    }
-
-
-    //**********************************************************
     public void you_are_backup_sink()
     //**********************************************************
     {
@@ -634,28 +574,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger.log("backup source = " + displayed_folder_path.toAbsolutePath());
 
         set_text_background("BACKUP\nSOURCE");
-
-    }
-
-    //**********************************************************
-    public void you_are_fusk_sink()
-    //**********************************************************
-    {
-        Static_fusk_paths.set_fusk_sink(displayed_folder_path);
-        logger.log("fusk sink = " + displayed_folder_path.toAbsolutePath());
-
-        set_text_background("FUSK\nDESTINATION");
-
-    }
-
-    //**********************************************************
-    public void you_are_fusk_source()
-    //**********************************************************
-    {
-        Static_fusk_paths.set_fusk_source(displayed_folder_path);
-        logger.log("fusk source = " + displayed_folder_path.toAbsolutePath());
-
-        set_text_background("FUSK\nSOURCE");
 
     }
 

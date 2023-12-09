@@ -4,7 +4,6 @@ import klik.actor.Aborter;
 import klik.browser.icons.Icon_writer_actor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
 import java.io.*;
@@ -23,29 +22,9 @@ public class From_disk
 
 
     //**********************************************************
-    public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, Aborter aborter, Logger logger)
+    public static InputStream get_image_InputStream(Path original_image_file, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (try_fusked)
-        {
-            byte[] buf= Fusk_static_core.defusk_file_to_bytes(original_image_file, aborter, logger);
-            if ( buf == null)
-            {
-                // error
-                return null;
-            }
-            else if ( buf.length == 0)
-            {
-                // not fusked, fall back to standard
-            }
-            else
-            {
-                logger.log("fusked image detected "+original_image_file);
-                // was fusked !
-                return new ByteArrayInputStream(buf);
-            }
-        }
-        // "standard"
         try
         {
             return new FileInputStream(original_image_file.toFile());
@@ -67,8 +46,7 @@ public class From_disk
             logger.log("load_image_fx NOT DONE because running low on memory ! ");
             return null;
         }
-        boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, aborter, logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, aborter, logger);
         if ( input_stream == null) return null;
         Image image = new Image(input_stream);
         try {
@@ -98,8 +76,7 @@ public class From_disk
     public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size, Aborter aborter, boolean dbg, Logger logger)
     //**********************************************************
     {
-        boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, aborter,logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, aborter,logger);
         if (input_stream == null) return null;
         if ( aborter.should_abort()) return null;
         Image image = new Image(input_stream, icon_size, icon_size, true, true);

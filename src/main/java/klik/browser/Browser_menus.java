@@ -86,40 +86,7 @@ public class Browser_menus
         }
         return menu;
     }
-    //**********************************************************
-    public Menu make_fusk_menu()
-    //**********************************************************
-    {
-        String text = "Fusk (experimental!)"; //I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
-        Menu menu = new Menu(text);
-        {
-            MenuItem mi = make_set_as_fusk_source_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_set_as_fusk_sink_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_fusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_abort_fusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_defusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            String text2 = "Fusk help";//I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
-            MenuItem item = new MenuItem(text2);
-            item.setOnAction(event -> show_fusk_help(logger));
-            menu.getItems().add(item);
-        }
-        return menu;
-    }
+
 
     //**********************************************************
     private void show_backup_help(Logger logger)
@@ -150,53 +117,7 @@ public class Browser_menus
 
         Info_stage.show_info_stage("Help on fusk",l, null);
     }
-    //**********************************************************
-    public MenuItem make_set_as_fusk_source_menu_item()
-    //**********************************************************
-    {
-        String text = "Set this folder as fusk source";//I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_source());
-        return item;
-    }
 
-    //**********************************************************
-    public MenuItem make_set_as_fusk_sink_menu_item()
-    //**********************************************************
-    {
-        String text = "Set this folder as fusk sink";//I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_sink());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_start_fusk_menu_item()
-    //**********************************************************
-    {
-        String text = "start fusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_fusk());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_start_defusk_menu_item()
-    //**********************************************************
-    {
-        String text = "start defusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_defusk());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_abort_fusk_menu_item()
-    //**********************************************************
-    {
-        String text = "Abort fusk";//I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.abort_fusk());
-        return item;
-    }
 
     //**********************************************************
     public MenuItem make_set_as_backup_source_menu_item()
@@ -491,20 +412,6 @@ public class Browser_menus
         return item;
     }
 
-    //**********************************************************
-    public MenuItem make_enable_fusk_check_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Enable_fusk",logger);
-
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_enable_fusk(logger));
-        item.setOnAction(actionEvent -> {
-            Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("enable fusk boolean changed",true,false);
-        });
-        return item;
-    }
 
     //**********************************************************
     public MenuItem make_show_hidden_files_check_menu_item()

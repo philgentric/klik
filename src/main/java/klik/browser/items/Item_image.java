@@ -21,7 +21,6 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_status;
 import klik.change.Change_gang;
-import klik.experimental.Multiple_image_stage;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
@@ -90,16 +89,6 @@ public class Item_image extends Item implements Icon_destination
                 //logger.log("\n\nItem_image isSecondaryButtonDown");
                 ContextMenu context_menu = define_a_menu_to_the_imageview();
                 context_menu.show(the_image_view, event.getScreenX(), event.getScreenY());
-                return;
-            }
-            if (event.isMetaDown())
-            {
-                Multiple_image_stage s = Multiple_image_stage.get_Multiple_image_stage(browser.my_Stage.the_Stage, path, false, logger);
-                if (s == null)
-                {
-                    // let us a bit of checking about why this failed
-                    Change_gang.report_anomaly(path);
-                }
                 return;
             }
             if (event.isControlDown())

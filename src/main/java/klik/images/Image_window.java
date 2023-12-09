@@ -26,9 +26,6 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
-import klik.fusk.Fusk_static_core;
-import klik.fusk.Fusk_strings;
-import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Threads;
@@ -143,8 +140,7 @@ public class Image_window
         the_Stage.setScene(the_Scene);
         the_Stage.show();
 
-        boolean high_quality = false;
-        image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, logger);
+        image_display_handler = Image_display_handler.get_Image_display_handler_instance(first_image_path,this, the_browser.aborter, logger);
         if ( image_display_handler == null)
         {
             mouse_handling_for_image_stage = null;
@@ -400,22 +396,7 @@ public class Image_window
         }
         else
         {
-
-
-            String extension = FilenameUtils.getExtension(ic.path.getFileName().toString());
-            if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
-            {
-                String base = FilenameUtils.getBaseName(ic.path.toAbsolutePath().toString());
-                local_title = Fusk_strings.defusk_string(base, logger)+ "*";
-            }
-            else
-            {
-                local_title = ic.path.getFileName().toString();
-            }
-
-
-
-
+            local_title = ic.path.getFileName().toString();
             if (ic.path.toFile().length() == 0)
             {
                 logger.log("\n\n empty file ???? ic.path = "+ic.path);

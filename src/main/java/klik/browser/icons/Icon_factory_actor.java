@@ -6,8 +6,6 @@ import klik.actor.*;
 import klik.animated_gifs_from_videos.Animated_gif_generator;
 import klik.browser.items.Iconifiable_item_type;
 import klik.files_and_paths.Files_and_Paths;
-import klik.experimental.performance_monitoring.Sample_collector;
-import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.*;
 import org.apache.pdfbox.Loader;
@@ -47,7 +45,6 @@ public class Icon_factory_actor implements Actor
     public static final String png_extension = "png";
 
     static Icon_factory_actor icon_factory = null;
-    public final static Sample_collector sample_collector = new Sample_collector();
     ConcurrentLinkedQueue<Job> jobs;
     Job_termination_reporter termination_reporter;
 

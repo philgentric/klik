@@ -11,7 +11,7 @@ public class Actor_engine // is a singleton
 //**********************************************************
 {
     private static Actor_engine_interface instance;
-    public static final boolean use_virtual_threads = true;
+    public static final boolean use_virtual_threads = false;
 
     //**********************************************************
     public static Actor_engine_interface get(Logger logger)

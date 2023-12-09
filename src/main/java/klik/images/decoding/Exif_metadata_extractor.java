@@ -12,8 +12,6 @@ import klik.properties.Static_application_properties;
 import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.fusk.Fusk_static_core;
-import klik.fusk.Fusk_strings;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
@@ -77,18 +75,6 @@ public class Exif_metadata_extractor
 
         exif_metadata.add("File on disk is ->"+ path.toAbsolutePath()+"<-");
 
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
-        if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
-        {
-            if ( Static_application_properties.get_enable_fusk(logger)) {
-                if (Fusk_static_core.is_fusk(path, logger)) {
-                    String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
-                    exif_metadata.add("... which is a fusk of: ->" + Fusk_strings.defusk_string(base, logger) + "<-");
-                } else {
-                    exif_metadata.add("... which has a fusk extension BUT IS NOT!");
-                }
-            }
-        }
 
         String file_size = Files_and_Paths.get_2_line_string_with_size(path.toAbsolutePath(),logger);
         file_size = file_size.replace("\n","  -  ");
@@ -128,8 +114,7 @@ public class Exif_metadata_extractor
 
         image_is_damaged = false;
 
-        boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, aborter, logger);
         if ( is == null)
         {
             image_is_damaged = true;

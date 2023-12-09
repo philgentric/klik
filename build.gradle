@@ -21,7 +21,13 @@ def main_class_name = 'klik.Klik_application'
 
 application {
     mainClassName = main_class_name
-    applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "--enable-preview"]
+    applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "-Xlog:gc",
+            // options to change the garbage collector
+            // the Z garbage collector advantage is it is implemented in more VMs than Shenandoah
+            // typically I use Corretto VMs for Shenandoah
+                                    "-XX:+UseZGC",
+                                 //"-XX:+UseShenandoahGC",
+                                 "--enable-preview"]
 }
 
 javafx {

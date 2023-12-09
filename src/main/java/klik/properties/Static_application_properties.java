@@ -124,25 +124,6 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static boolean get_enable_fusk(Logger logger)
-    //**********************************************************
-    {
-        String s = get_properties_manager(logger).get(ENABLE_FUSK);
-        if (s == null) {
-            get_properties_manager(logger).save_unico(ENABLE_FUSK, "false", false);
-            return false;
-        } else {
-            return Boolean.parseBoolean(s);
-        }
-    }
-    //**********************************************************
-    public static void set_enable_fusk(boolean b, Logger logger)
-    //**********************************************************
-    {
-        get_properties_manager(logger).save_unico(ENABLE_FUSK, String.valueOf(b), false);
-    }
-
-    //**********************************************************
     public static void set_show_hidden_files(boolean b, Logger logger)
     //**********************************************************
     {

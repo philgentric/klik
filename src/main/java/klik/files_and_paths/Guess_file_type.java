@@ -6,8 +6,6 @@ import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Static_application_properties;
 import klik.util.Execute_command;
 import klik.util.Logger;
-import klik.util.Popups;
-import klik.fusk.Fusk_static_core;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -50,10 +48,6 @@ public class Guess_file_type
             sb.append(supported_image_formats[i]);
             if ( i != supported_image_formats.length-1) sb.append(",");
         }
-        sb.append(",");
-        sb.append(Fusk_static_core.FUSK_EXTENSION);
-        sb.append(",");
-        sb.append(Fusk_static_core.FUSK_EXTENSION.toUpperCase());
         return sb.toString();
     }
 
@@ -213,10 +207,6 @@ public class Guess_file_type
         {
             if (extension.toUpperCase().equals(e) )return true;
         }
-        if (extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
-        {
-            return true;
-        }
         return false;
     }
 
@@ -288,7 +278,6 @@ public class Guess_file_type
             {
                 if ( ! s.equalsIgnoreCase(GIF)) supported_non_gif_image_formats[i++] = s.toUpperCase();
             }
-            supported_non_gif_image_formats[i] = Fusk_static_core.FUSK_EXTENSION.toUpperCase();
         }
         for (String supportedNonGifImageFormat : supported_non_gif_image_formats) {
             if (extension.toUpperCase().equals(supportedNonGifImageFormat)) return true;

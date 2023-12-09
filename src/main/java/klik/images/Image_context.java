@@ -19,8 +19,6 @@ import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.find.Finder_actor;
-import klik.fusk.Fusk_static_core;
-import klik.fusk.Fusk_strings;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
@@ -199,23 +197,7 @@ public class Image_context
 
         Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
 
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
-        if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
-        {
-            if (Fusk_static_core.is_fusk(path,logger))
-            {
-                String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
-                local_stage.setTitle(Fusk_strings.defusk_string(base, logger));
-            }
-            else
-            {
-                local_stage.setTitle(path.toAbsolutePath()+"(has the extension but IS NOT a fusk!)");
-            }
-        }
-        else
-        {
-            local_stage.setTitle(path.toAbsolutePath().toString());
-        }
+        local_stage.setTitle(path.toAbsolutePath().toString());
         local_stage.setScene(scene);
         local_stage.show();
         local_stage.addEventHandler(KeyEvent.KEY_PRESSED,
