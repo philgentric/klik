@@ -80,7 +80,7 @@ public class Backup_actor_for_one_file implements Actor
     private void do_one_file(File_backup_job_request fbjr)
     //**********************************************************
     {
-        logger.log("           Doing the backup of file: "+fbjr.file_to_be_copied.getAbsolutePath());
+        if (verbose) logger.log("           Doing the backup of file: "+fbjr.file_to_be_copied.getAbsolutePath());
 
         Dir_results local = duplicate_a_file(fbjr);
         if (!local.was_copied)
@@ -108,7 +108,7 @@ public class Backup_actor_for_one_file implements Actor
         Dir_results returned = new Dir_results();
         returned.bytes_in_context = file_backup_job_request.file_to_be_copied.length();
 
-        if (verbose == true) logger.log("Dealing with file ->" + file_backup_job_request.file_to_be_copied.getName());
+        if (verbose ) logger.log("Dealing with file ->" + file_backup_job_request.file_to_be_copied.getName());
         String target_name = file_backup_job_request.file_to_be_copied.getName();
 
         /*

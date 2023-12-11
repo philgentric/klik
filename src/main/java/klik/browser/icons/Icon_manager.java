@@ -157,6 +157,29 @@ public class Icon_manager
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean use_aspect_ratio = false;
         if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) use_aspect_ratio = true;
+/*
+
+        if (use_aspect_ratio)
+        {
+            // if the first image aspect_ratio < 1 the x in the Point2D must be NEGATIVE
+            //so that the image left border is at screen_X=0
+            if ( !paths_manager.get_iconized().isEmpty())
+            {
+                Path path = paths_manager.get_iconized().get(0);
+                double aspect_ratio = Paths_manager.get_aspect_ratio(path);
+                if ( aspect_ratio < 1)
+                {
+                    double neg_x = (aspect_ratio-1)*icon_size/2.0;
+                    p = new Point2D(neg_x,p.getY());
+                }
+            }
+        }
+        */
+
+        double max_y_in_row[] = new double[1];
+        max_y_in_row[0] = -1;
+        boolean[] done_shift_up = new boolean[1];
+        done_shift_up[0] = false;
         // manage iconized items
         for (Path path : paths_manager.get_iconized())
         {
@@ -187,9 +210,10 @@ public class Icon_manager
 
             if (show_icons_instead_of_text)
             {
-                p = new_Point_for_icons(p, item,
+
+                p = compute_next_Point2D_for_icons(p, item,
                         icon_size, icon_size,
-                        scene_width, single_column, use_aspect_ratio);
+                        scene_width, single_column, use_aspect_ratio,max_y_in_row, done_shift_up);
             }
             else
             {
@@ -336,28 +360,108 @@ public class Icon_manager
     }
 
     //**********************************************************
-    private Point2D new_Point_for_icons(Point2D p,
-                                        Item item,
-                                        double column_increment,
-                                        double row_increment,
-                                        double scene_width,
-                                        boolean single_column,
-                                        boolean use_aspect_ratio)
+    private Point2D compute_next_Point2D_for_icons(Point2D p,
+                                                   Item item,
+                                                   double column_increment,
+                                                   double row_increment,
+                                                   double scene_width,
+                                                   boolean single_column,
+                                                   boolean use_aspect_ratio,
+                                                   double[] max_y_in_row,
+                                                   boolean[] done_shift_up)
     //**********************************************************
     {
-        double old_x = p.getX();
-        double old_y = p.getY();
+        double width_of_this = column_increment;
+        double height_of_this = row_increment;
+        double neg_x = 0;
+        double neg_y = 0;
+        if ( use_aspect_ratio)
+        {
+            //logger.log("aspect_ratio: "+((Item_image)item).aspect_ratio);
+            if (((Item_image)item).aspect_ratio < 1.0)
+            {
+                width_of_this = ((Item_image)item).aspect_ratio * column_increment;
+                //logger.log("width_of_this: "+width_of_this);
+                neg_x = (width_of_this-column_increment)/2.0;
+            }
+            else
+            {
+                height_of_this = row_increment/((Item_image)item).aspect_ratio;
+                neg_y = (height_of_this-row_increment)/2.0;
+            }
+        }
+
+        double current_x = p.getX();
+        double current_y = p.getY();
+        if ( current_x == 0)
+        {
+            current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
+            if ( neg_y < 0)
+            {
+                if ( !done_shift_up[0] )
+                {
+                    current_y += neg_y; // ONCE, first image in row shifted UP to stick to the previous row bottom
+                    done_shift_up[0] = true;
+                }
+            }
+        }
+        // position the ImageView at the requested position
+        item.set_x(current_x);
+        item.set_y(current_y);
+        if ( max_y_in_row[0] < current_y+height_of_this) max_y_in_row[0] = current_y+height_of_this;
+        /// then compute position of NEXT item
+        if ( single_column)
+        {
+            how_many_rows++;
+            double future_x = 0;
+            double future_y = current_y + row_increment;
+            //logger.log("new row "+row_increment);
+            return new Point2D(future_x, future_y);
+        }
+
+
+
+        double real_future_x = current_x+ width_of_this;
+        //logger.log("new_x: "+new_x);
+        if (real_future_x + column_increment > scene_width)
+        {
+            // new ROW
+            how_many_rows++;
+            Point2D returned =  new Point2D(0, max_y_in_row[0]);
+            max_y_in_row[0] = -1;
+            return returned;
+        }
+
+        // continued row
+        return new Point2D(current_x+width_of_this, current_y);
+    }
+
+    record Dual_point(Point2D external,Point2D internal){}
+
+    //**********************************************************
+    private Dual_point compute_next_Point2D_for_icons(Dual_point dr,
+                                                   Item item,
+                                                   double column_increment,
+                                                   double row_increment,
+                                                   double scene_width,
+                                                   boolean single_column,
+                                                   boolean use_aspect_ratio)
+    //**********************************************************
+    {
+        double current_x = dr.external.getX();
+        double current_y = dr.external.getY();
         // position the item at the requested position
-        item.set_x(old_x);
-        item.set_y(old_y);
+        item.set_x(current_x);
+        item.set_y(current_y);
         /// then compute position of NEXT item
         if ( single_column)
         {
             how_many_rows++;
             double new_x = 0;
-            double new_y = old_y + row_increment;
+            double new_y = current_y + row_increment;
             //logger.log("new row "+row_increment);
-            return new Point2D(new_x, new_y);
+            return new Dual_point(new Point2D(new_x,new_y),new Point2D(new_x,new_y));
+            //return new Point2D(new_x, new_y);
         }
 
         double width_of_this = column_increment;
@@ -377,16 +481,61 @@ public class Icon_manager
             }
         }
 
-        double new_x = old_x+ width_of_this;
+        double new_x = current_x+ width_of_this;
         //logger.log("new_x: "+new_x);
         if (new_x + column_increment > scene_width)
         {
             // new ROW
             how_many_rows++;
-            return new Point2D(0, old_y+height_of_this);
+            if ( use_aspect_ratio)
+            {
+                if (((Item_image)item).aspect_ratio < 1.0)
+                {
+                    // set the first X to a negative number to align the left border on screen_x = 0
+                    double neg_v = (width_of_this-column_increment)/2.0;
+                    //return new Point2D(neg_v, current_y+height_of_this);
+                    return new Dual_point(
+                            new Point2D(neg_v,current_y+height_of_this),
+                            new Point2D(0,(row_increment-height_of_this)/2.0));
+
+                }
+            }
+
+            return new Dual_point(
+                    new Point2D(0,current_y+height_of_this),
+                    new Point2D((column_increment-width_of_this)/2.0,(row_increment-height_of_this)/2.0));
+
+            //return new Point2D(0, current_y+height_of_this);
         }
 
-        return new Point2D(new_x, old_y);
+
+
+        // continued row
+        double new_y = current_y;
+        if ( use_aspect_ratio)
+        {
+            if (((Item_image) item).aspect_ratio >= 1.0)
+            {
+                logger.log("continued ap>= 1 ");
+                if ( new_x < width_of_this)
+                {
+                    new_x = width_of_this;
+                    double neg_h = (height_of_this-row_increment)/2.0;
+                    new_y -= neg_h;
+                    logger.log("happens 1 ");
+                }
+                else {
+                    logger.log("happens 2 ");
+
+                }
+            }
+        }
+
+        return new Dual_point(
+                new Point2D(new_x,new_y),
+                new Point2D((column_increment-width_of_this)/2.0,(row_increment-height_of_this)/2.0));
+
+        //return new Point2D(new_x, new_y);
     }
 
     //**********************************************************
