@@ -18,7 +18,7 @@ public class Undo_storage_to_disk
 //**********************************************************
 {
     public static int max = 30;
-    static final boolean dbg = true;
+    static final boolean dbg = false;
     static final boolean ultra_dbg = false;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
     public static final String HOW_MANY = "_how_many";

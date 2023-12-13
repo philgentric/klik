@@ -704,9 +704,12 @@ public class Look_and_feel_manager
             button.getStylesheets().clear();
             button.getStylesheets().add(laf.style_sheet_url_string);
             button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-            // the button has a Label... must set the right text color
             Node g = button.getGraphic();
-            g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            if ( g != null)
+            {
+                // the button has a Label... must set the right text color
+                g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            }
 
         }
     }

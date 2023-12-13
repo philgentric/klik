@@ -8,6 +8,7 @@ import klik.browser.My_Stage;
 import klik.look.Look_and_feel_manager;
 import klik.my_i18n.Language_manager;
 import klik.properties.Static_application_properties;
+import klik.util.Exceptions_in_threads_catcher;
 import klik.util.Logger;
 import klik.util.System_out_logger;
 
@@ -53,6 +54,7 @@ public class Klik_application extends Application
         }
         setUserAgentStylesheet(STYLESHEET_MODENA);
         Logger logger = new System_out_logger();
+        Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
         Language_manager.init_registered_languages(logger);
 

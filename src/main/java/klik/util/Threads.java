@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 public class Threads
 //**********************************************************
 {
-    public static final boolean use_fibers = true;
+    public static final boolean use_fibers = false;
     private static LinkedBlockingQueue<Runnable> lbq;
     private static ExecutorService executor;
     private final static int pool_max = 500;

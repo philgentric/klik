@@ -1,12 +1,11 @@
 package klik.browser.icons;
 
-import com.sun.source.tree.SynchronizedTree;
-import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import klik.actor.Aborter;
-import klik.browser.items.Item_folder_with_icon;
+import klik.actor.Actor_engine;
+import klik.actor.Message;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.File_sorter;
@@ -18,8 +17,8 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -27,8 +26,9 @@ import java.util.stream.Stream;
 public class Paths_manager
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public static final String OK = "OK";
+    public static final String ASPECT_RATIO_CACHE_FILE = "aspect_ratio_cache_file";
     public double max_dir_text_length;
     private static Logger logger;
 
@@ -41,19 +41,57 @@ public class Paths_manager
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
 
-    static Map<String, Double> aspect_ratios = new HashMap<>();
+    public record Aspect_ratio(double value, boolean truth){}
+
+    //static Map<String, Double> aspect_ratio_cache = new HashMap<>();
+    static Map<String, Aspect_ratio> aspect_ratio_cache = new ConcurrentHashMap<>();
+
+    /*
+    when we scan a dir 3 possible states are possible
+    1. the aspect ratios for all (or most) of the files are in the aspect_ratios_cache in RAM
+    2. the aspect ratios for all (or most) of the files are in the aspect_ratio_cache on FILE
+    3. none (or almost) of the files have their aspect ratio computed yet
+
+    assume that in terms of speed (1) is ideal, (2) is acceptable...
+    (3) is NOT acceptable for folders with a lot of images as scan_dir will take a long time and block the UI
+
+    therefore scan dir MUST NOT use the aspect_ratio file comparator YET
+    instead it must
+    a) use the alphabetical one
+    b) start the computing of all the aspect ratios in a thread ...when finished:
+    c) switch the file comparator
+    d) generate a scene_geometry_changed()
+
+    problem: how do we know we are in state (3)?
+    answer: we dont know
+    solution: assume we always are in state(3)
+    scan the dir, for each path, try the RAM cache
+    if null { put (1.0+tmp=true) put in queue for actor}
+
+     */
+
+    static Aspect_ratio_actor aspect_ratio_actor = new Aspect_ratio_actor();
 
     //**********************************************************
     static Double get_aspect_ratio(Path p)
     //**********************************************************
     {
-        Double d = aspect_ratios.get(p.toAbsolutePath().toString());
+        Aspect_ratio d = aspect_ratio_cache.get(p.toAbsolutePath().toString());
         if ( d == null)
         {
-            d = From_disk.get_aspect_ratio(p, new Aborter(),logger);
-            aspect_ratios.put(p.toAbsolutePath().toString(),d);
+            logger.log("not in RAM: "+p.toAbsolutePath());
+            aspect_ratio_cache.put(p.toAbsolutePath().toString(), new Aspect_ratio(1.0,false));
+            Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,logger),null,logger);
+            return 1.0;
         }
-        return d;
+        if ( ! d.truth ) {
+            logger.log("RAM is fake for: "+p.toAbsolutePath());
+
+            Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,logger),null,logger);
+            return 1.0;
+        }
+        logger.log("in RAM: "+p.toAbsolutePath());
+        return d.value;
     }
 
     //**********************************************************
@@ -61,15 +99,17 @@ public class Paths_manager
     //**********************************************************
     {
         Path dir = Files_and_Paths.get_icon_cache_dir(logger);
-        return Path.of(dir.toAbsolutePath().toString(),"aspect_ratio_cache");
+        return Path.of(dir.toAbsolutePath().toString(), ASPECT_RATIO_CACHE_FILE);
     }
 
+    //**********************************************************
     public static void erase_aspect_ratio_cache_file()
+    //**********************************************************
     {
         Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
         pm.erase_all_and_save();
-        aspect_ratios.clear();
-        logger.log("aspect ratio cache file cleared");
+        aspect_ratio_cache.clear();
+        if (dbg) logger.log("aspect ratio cache file cleared");
 
     }
 
@@ -81,25 +121,25 @@ public class Paths_manager
         for(String s : pm.get_all_keys())
         {
             String v = pm.get(s);
-            if (aspect_ratios.get(s) == null) {
-                aspect_ratios.put(s, Double.valueOf(v));
+            if (aspect_ratio_cache.get(s) == null) {
+                aspect_ratio_cache.put(s, new Aspect_ratio(Double.valueOf(v),true));
             }
         }
-        logger.log("aspect ratio cache reloaded from file");
+        if (dbg) logger.log("aspect ratio cache reloaded from file");
     }
     //**********************************************************
     private void save_aspect_ratio_cache()
     //**********************************************************
     {
         Path dir = Files_and_Paths.get_icon_cache_dir(logger);
-        Properties_manager pm = new Properties_manager(Path.of(dir.toAbsolutePath().toString(),"aspect_ratio_cache"),logger);
-        for(Map.Entry e : aspect_ratios.entrySet())
+        Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
+        for(Map.Entry e : aspect_ratio_cache.entrySet())
         {
-            pm.imperative_store((String) e.getKey(), ((Double) e.getValue()).toString(),false,false);
+            Aspect_ratio ar = (Aspect_ratio) e.getValue();
+            pm.imperative_store((String) e.getKey(), Double.toString(ar.value),false,false);
         }
         pm.store_properties();
-        logger.log("aspect ratio cache saved to file");
-
+        if (dbg) logger.log("aspect ratio cache saved to file");
     }
 
     //**********************************************************
@@ -164,6 +204,10 @@ public class Paths_manager
             if (denied != null) return denied;
         }
 
+        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO)
+        {
+
+        }
 
         sort_iconized();
 
