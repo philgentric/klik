@@ -23,11 +23,11 @@ import klik.actor.Aborter;
 import klik.backup.Backup_singleton;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
+import klik.browser.icons.Refresh_target;
 import klik.browser.items.Item;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.experimental.JavaFX_to_Swing;
-import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Filesystem_item_modification_watcher;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Old_and_new_Path;
@@ -59,7 +59,7 @@ import static java.awt.Taskbar.Feature.ICON_IMAGE;
 
 
 //**********************************************************
-public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter
+public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter, Refresh_target
 //**********************************************************
 {
 
@@ -98,6 +98,17 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     //static boolean was_escaped = false;
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
+
+    @Override
+    public void refresh() {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                scene_geometry_changed("aspect ratio engine",true, true);
+            }
+        };
+        Platform.runLater(r);
+    }
 
 
     enum Scan_state {
@@ -178,7 +189,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Pane = new Pane();
 
 
-        icon_manager = new Icon_manager(my_Stage.the_Stage, logger);
+        icon_manager = new Icon_manager(my_Stage.the_Stage, this,logger);
         selection_handler = new Selection_handler(the_Pane, icon_manager, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
         exit_on_escape_preference = Static_application_properties.get_escape(logger);

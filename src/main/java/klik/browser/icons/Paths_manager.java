@@ -3,9 +3,7 @@ package klik.browser.icons;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.actor.Message;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.File_sorter;
@@ -70,16 +68,49 @@ public class Paths_manager
 
      */
 
+    private static Refresh_target refresh_target;
     static Aspect_ratio_actor aspect_ratio_actor = new Aspect_ratio_actor();
 
+    static Runnable look_for_end = null;
     //**********************************************************
     static Double get_aspect_ratio(Path p)
     //**********************************************************
     {
+        if ( look_for_end == null)
+        {
+            look_for_end = new Runnable() {
+                @Override
+                public void run() {
+
+                    for(;;)
+                    {
+                        try {
+                            Thread.sleep(30);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if ( aspect_ratio_actor.in_flight.get() == 0)
+                        {
+                            logger.log("\n\n\n refresh");
+                            refresh_target.refresh();
+                            return;
+                        }
+                        else {
+                            logger.log("in_flight:"+ aspect_ratio_actor.in_flight.get());
+
+                        }
+
+                    }
+
+                }
+            };
+            Threads.execute(look_for_end,logger);
+        }
         Aspect_ratio d = aspect_ratio_cache.get(p.toAbsolutePath().toString());
         if ( d == null)
         {
-            logger.log("not in RAM: "+p.toAbsolutePath());
+            logger.log("not in RAM for: "+p.toAbsolutePath());
             aspect_ratio_cache.put(p.toAbsolutePath().toString(), new Aspect_ratio(1.0,false));
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,logger),null,logger);
             return 1.0;
@@ -90,7 +121,7 @@ public class Paths_manager
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,logger),null,logger);
             return 1.0;
         }
-        logger.log("in RAM: "+p.toAbsolutePath());
+        logger.log(d+" in RAM for: "+p.toAbsolutePath());
         return d.value;
     }
 
@@ -133,20 +164,26 @@ public class Paths_manager
     {
         Path dir = Files_and_Paths.get_icon_cache_dir(logger);
         Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
+
+        int saved = 0;
         for(Map.Entry e : aspect_ratio_cache.entrySet())
         {
             Aspect_ratio ar = (Aspect_ratio) e.getValue();
-            pm.imperative_store((String) e.getKey(), Double.toString(ar.value),false,false);
+            if (ar.truth) {
+                saved++;
+                pm.imperative_store((String) e.getKey(), Double.toString(ar.value), false, false);
+            }
         }
         pm.store_properties();
-        if (dbg) logger.log("aspect ratio cache saved to file");
+        if (dbg) logger.log(saved +"items of aspect ratio cache saved to file");
     }
 
     //**********************************************************
-    public Paths_manager(Logger logger_)
+    public Paths_manager(Refresh_target refreshTarget, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
+        refresh_target = refreshTarget;
         ID = ig_gen.getAndIncrement();
 
         switch (Static_application_properties.get_sort_files_by(logger))

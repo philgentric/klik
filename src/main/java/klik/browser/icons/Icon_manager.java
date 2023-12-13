@@ -58,13 +58,13 @@ public class Icon_manager
     public final double icon_height;
 
     //**********************************************************
-    public Icon_manager(Stage owner_, Logger logger_)
+    public Icon_manager(Stage owner_, Refresh_target refreshTarget, Logger logger_)
     //**********************************************************
     {
         owner = owner_;
         logger = logger_;
         //logger.log("WARNING Icon_manager::top_bar="+top_bar);
-        paths_manager = new Paths_manager(logger);
+        paths_manager = new Paths_manager(refreshTarget, logger);
         double font_size = Static_application_properties.get_font_size(logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
     }
