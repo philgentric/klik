@@ -14,12 +14,11 @@ public class Aspect_ratio_actor implements Actor {
     @Override
     public String run(Message m) {
 
-        in_flight.incrementAndGet();
         Aspect_ratio_message arm = (Aspect_ratio_message) m;
 
         double d = From_disk.get_aspect_ratio(arm.path, new Aborter(),arm.logger);
 
-        arm.aspect_ratio_cache.put(arm.path.toAbsolutePath().toString(),new Paths_manager.Aspect_ratio(d,true));
+        arm.aspect_ratio_cache.put(arm.path.toAbsolutePath().toString(),new Aspect_ratio_cache.Aspect_ratio(d,true));
         in_flight.decrementAndGet();
         return null;
     }

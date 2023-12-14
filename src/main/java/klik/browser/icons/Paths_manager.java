@@ -3,11 +3,9 @@ package klik.browser.icons;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import klik.actor.Actor_engine;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.File_sorter;
-import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.*;
 import org.apache.commons.io.FilenameUtils;
@@ -16,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -26,7 +23,6 @@ public class Paths_manager
 {
     public static final boolean dbg = true;
     public static final String OK = "OK";
-    public static final String ASPECT_RATIO_CACHE_FILE = "aspect_ratio_cache_file";
     public double max_dir_text_length;
     private static Logger logger;
 
@@ -39,144 +35,10 @@ public class Paths_manager
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
 
-    public record Aspect_ratio(double value, boolean truth){}
 
-    //static Map<String, Double> aspect_ratio_cache = new HashMap<>();
-    static Map<String, Aspect_ratio> aspect_ratio_cache = new ConcurrentHashMap<>();
 
-    /*
-    when we scan a dir 3 possible states are possible
-    1. the aspect ratios for all (or most) of the files are in the aspect_ratios_cache in RAM
-    2. the aspect ratios for all (or most) of the files are in the aspect_ratio_cache on FILE
-    3. none (or almost) of the files have their aspect ratio computed yet
-
-    assume that in terms of speed (1) is ideal, (2) is acceptable...
-    (3) is NOT acceptable for folders with a lot of images as scan_dir will take a long time and block the UI
-
-    therefore scan dir MUST NOT use the aspect_ratio file comparator YET
-    instead it must
-    a) use the alphabetical one
-    b) start the computing of all the aspect ratios in a thread ...when finished:
-    c) switch the file comparator
-    d) generate a scene_geometry_changed()
-
-    problem: how do we know we are in state (3)?
-    answer: we dont know
-    solution: assume we always are in state(3)
-    scan the dir, for each path, try the RAM cache
-    if null { put (1.0+tmp=true) put in queue for actor}
-
-     */
-
-    private static Refresh_target refresh_target;
-    static Aspect_ratio_actor aspect_ratio_actor = new Aspect_ratio_actor();
-
-    static Runnable look_for_end = null;
-    //**********************************************************
-    static Double get_aspect_ratio(Path p)
-    //**********************************************************
-    {
-        if ( look_for_end == null)
-        {
-            look_for_end = new Runnable() {
-                @Override
-                public void run() {
-
-                    for(;;)
-                    {
-                        try {
-                            Thread.sleep(30);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        if ( aspect_ratio_actor.in_flight.get() == 0)
-                        {
-                            logger.log("\n\n\n refresh");
-                            refresh_target.refresh();
-                            return;
-                        }
-                        else {
-                            logger.log("in_flight:"+ aspect_ratio_actor.in_flight.get());
-
-                        }
-
-                    }
-
-                }
-            };
-            Threads.execute(look_for_end,logger);
-        }
-        Aspect_ratio d = aspect_ratio_cache.get(p.toAbsolutePath().toString());
-        if ( d == null)
-        {
-            logger.log("not in RAM for: "+p.toAbsolutePath());
-            aspect_ratio_cache.put(p.toAbsolutePath().toString(), new Aspect_ratio(1.0,false));
-            Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,logger),null,logger);
-            return 1.0;
-        }
-        if ( ! d.truth ) {
-            logger.log("RAM is fake for: "+p.toAbsolutePath());
-
-            Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,logger),null,logger);
-            return 1.0;
-        }
-        logger.log(d+" in RAM for: "+p.toAbsolutePath());
-        return d.value;
-    }
-
-    //**********************************************************
-    public static Path get_path_of_aspect_ratio_cache_file()
-    //**********************************************************
-    {
-        Path dir = Files_and_Paths.get_icon_cache_dir(logger);
-        return Path.of(dir.toAbsolutePath().toString(), ASPECT_RATIO_CACHE_FILE);
-    }
-
-    //**********************************************************
-    public static void erase_aspect_ratio_cache_file()
-    //**********************************************************
-    {
-        Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
-        pm.erase_all_and_save();
-        aspect_ratio_cache.clear();
-        if (dbg) logger.log("aspect ratio cache file cleared");
-
-    }
-
-    //**********************************************************
-    private void reload_aspect_ratio_cache()
-    //**********************************************************
-    {
-        Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
-        for(String s : pm.get_all_keys())
-        {
-            String v = pm.get(s);
-            if (aspect_ratio_cache.get(s) == null) {
-                aspect_ratio_cache.put(s, new Aspect_ratio(Double.valueOf(v),true));
-            }
-        }
-        if (dbg) logger.log("aspect ratio cache reloaded from file");
-    }
-    //**********************************************************
-    private void save_aspect_ratio_cache()
-    //**********************************************************
-    {
-        Path dir = Files_and_Paths.get_icon_cache_dir(logger);
-        Properties_manager pm = new Properties_manager(get_path_of_aspect_ratio_cache_file(),logger);
-
-        int saved = 0;
-        for(Map.Entry e : aspect_ratio_cache.entrySet())
-        {
-            Aspect_ratio ar = (Aspect_ratio) e.getValue();
-            if (ar.truth) {
-                saved++;
-                pm.imperative_store((String) e.getKey(), Double.toString(ar.value), false, false);
-            }
-        }
-        pm.store_properties();
-        if (dbg) logger.log(saved +"items of aspect ratio cache saved to file");
-    }
+    Aspect_ratio_cache aspect_ratio_cache = null;
+    private Refresh_target refresh_target;
 
     //**********************************************************
     public Paths_manager(Refresh_target refreshTarget, Logger logger_)
@@ -198,17 +60,27 @@ public class Paths_manager
                 break;
 
             case ASPECT_RATIO:
-                file_comparator = aspect_ratio_comparator;
+                file_comparator = alphabetical_file_name_comparator;
+                aspect_ratio_cache = new Aspect_ratio_cache(logger);
                 break;
         }
+
     }
+
 
 
     //**********************************************************
     public Error_type scan_dir(Path folder_path, Stage stage)
     //**********************************************************
     {
-        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) reload_aspect_ratio_cache();
+        boolean use_aspect_ratio = false;
+        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO)
+        {
+            use_aspect_ratio = true;
+            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(logger);
+            aspect_ratio_cache.reload_aspect_ratio_cache();
+            aspect_ratio_cache.look_for_end(this,refresh_target);
+        }
 
         //logger.log(Stack_trace_getter.get_stack_trace("scan dir "+folder_path));
 
@@ -241,12 +113,8 @@ public class Paths_manager
             if (denied != null) return denied;
         }
 
-        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO)
-        {
 
-        }
-
-        sort_iconized();
+        sort_iconized(use_aspect_ratio);
 
         non_iconized.sort(alphabetical_file_name_comparator);
         folders.sort(alphabetical_file_name_comparator);
@@ -256,7 +124,7 @@ public class Paths_manager
 
 
     //**********************************************************
-    private void sort_iconized()
+    private void sort_iconized(boolean use_aspect_ratio)
     //**********************************************************
     {
 
@@ -290,7 +158,7 @@ public class Paths_manager
         {
             iconized.sort(file_comparator);
         }
-        save_aspect_ratio_cache();
+        if ( use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
     }
 
 
@@ -431,7 +299,7 @@ public class Paths_manager
     };
 
 
-
+/*
     //**********************************************************
     public final static Comparator<Path> aspect_ratio_comparator = new Comparator<>()
             //**********************************************************
@@ -445,6 +313,8 @@ public class Paths_manager
             return a1.compareTo(a2);
         }
     };
+*/
+
 
     //**********************************************************
     public final static Comparator<Path> decreasing_file_size_comparator_gifs_fist = new Comparator<>()

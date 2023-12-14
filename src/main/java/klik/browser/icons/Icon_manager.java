@@ -190,7 +190,7 @@ public class Icon_manager
                 if ( item == null)
                 {
                     double aspect_ratio = 1.0;
-                    if ( use_aspect_ratio) aspect_ratio = Paths_manager.get_aspect_ratio(path);
+                    if ( use_aspect_ratio) aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
                     item = new Item_image(the_browser,path, aspect_ratio, logger);
                     all_items_map.put(path,item);
                 }
@@ -434,6 +434,11 @@ public class Icon_manager
 
         // continued row
         return new Point2D(current_x+width_of_this, current_y);
+    }
+
+    public void clear_aspect_ratio_cache()
+    {
+        paths_manager.aspect_ratio_cache.erase_aspect_ratio_cache_file();
     }
 
     record Dual_point(Point2D external,Point2D internal){}

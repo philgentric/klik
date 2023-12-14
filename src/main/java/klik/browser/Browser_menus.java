@@ -316,7 +316,10 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);// to: " + parent.toAbsolutePath().toString();
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Files_and_Paths.clear_icon_cache_on_disk(browser.my_Stage.the_Stage,browser.aborter,logger));
+        item.setOnAction(event -> {
+            Files_and_Paths.clear_icon_cache_on_disk(browser.my_Stage.the_Stage,browser.aborter,logger);
+            browser.icon_manager.clear_aspect_ratio_cache();
+                });
         return item;
     }
 

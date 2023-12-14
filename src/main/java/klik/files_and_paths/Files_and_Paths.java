@@ -213,10 +213,6 @@ public class Files_and_Paths {
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
         delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
-
-
-        Paths_manager.erase_aspect_ratio_cache_file();
-
     }
 
     //**********************************************************
