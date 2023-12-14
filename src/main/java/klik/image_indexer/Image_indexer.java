@@ -6,6 +6,7 @@ import klik.util.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /*
@@ -54,24 +55,24 @@ public class Image_indexer
     private final State state;
 
     //**********************************************************
-    public static Image_indexer get_Image_indexer(Path dir_, Logger logger_)
+    public static Image_indexer get_Image_indexer(Path dir_, Comparator<? super Path> file_comparator, Logger logger_)
     //**********************************************************
     {
         if (dir_ == null) {
             logger_.log_stack_trace("PANIC dir_ == null ");
             return null;
         }
-        return new Image_indexer(dir_, logger_);
+        return new Image_indexer(dir_, file_comparator, logger_);
     }
 
 
     //**********************************************************
-    private Image_indexer(Path dir_, Logger l)
+    private Image_indexer(Path dir_, Comparator<? super Path> fileComparator,Logger l)
     //**********************************************************
     {
         logger = l;
         current_dir = dir_;
-        state = new State(current_dir,logger);
+        state = new State(current_dir,fileComparator, logger);
     }
 
 

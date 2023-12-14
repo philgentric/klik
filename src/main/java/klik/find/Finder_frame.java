@@ -19,6 +19,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
+import klik.browser.icons.Paths_manager;
 import klik.images.Image_window;
 import klik.util.Logger;
 

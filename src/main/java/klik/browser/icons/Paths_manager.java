@@ -3,8 +3,10 @@ package klik.browser.icons;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
+import klik.images.decoding.Fast_date_from_exif_metadata_extractor;
 import klik.properties.File_sorter;
 import klik.properties.Static_application_properties;
 import klik.util.*;
@@ -13,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -34,37 +37,35 @@ public class Paths_manager
     private static final boolean show_video_as_gif = true;
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
-
-
-
+    public final Aborter aborter;
     Aspect_ratio_cache aspect_ratio_cache = null;
     private Refresh_target refresh_target;
 
     //**********************************************************
-    public Paths_manager(Refresh_target refreshTarget, Logger logger_)
+    public Paths_manager(Refresh_target refresh_target_, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
-        refresh_target = refreshTarget;
+        refresh_target = refresh_target_;
         ID = ig_gen.getAndIncrement();
+        aborter = new Aborter();
 
+        //boolean gif_first = Static_application_properties.get_show_gifs_first(logger);
         switch (Static_application_properties.get_sort_files_by(logger))
         {
-            default:
-            case NAME:
+            case NAME, ASPECT_RATIO:
                 file_comparator = alphabetical_file_name_comparator;
                 break;
-
+            case DATE:
+                file_comparator = new Date_comparator();
+                break;
             case SIZE:
                 file_comparator = decreasing_file_size_comparator;
                 break;
-
-            case ASPECT_RATIO:
-                file_comparator = alphabetical_file_name_comparator;
-                aspect_ratio_cache = new Aspect_ratio_cache(logger);
+            case NAME_GIFS_FIRST:
+                file_comparator = alphabetical_file_name_comparator_gif_first;
                 break;
-        }
-
+       }
     }
 
 
@@ -77,7 +78,7 @@ public class Paths_manager
         if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO)
         {
             use_aspect_ratio = true;
-            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(logger);
+            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,logger);
             aspect_ratio_cache.reload_aspect_ratio_cache();
             aspect_ratio_cache.look_for_end(this,refresh_target);
         }
@@ -114,52 +115,14 @@ public class Paths_manager
         }
 
 
-        sort_iconized(use_aspect_ratio);
+        iconized.sort(file_comparator);
+        if ( use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
 
         non_iconized.sort(alphabetical_file_name_comparator);
         folders.sort(alphabetical_file_name_comparator);
         return Error_type.OK;
     }
 
-
-
-    //**********************************************************
-    private void sort_iconized(boolean use_aspect_ratio)
-    //**********************************************************
-    {
-
-        boolean show_gifs_first = Static_application_properties.get_show_gifs_first(logger);
-        if ( show_gifs_first)
-        {
-            List<Path> tmp = new ArrayList<>(iconized);
-            iconized.clear();
-            List<Path> gif_or_video = new ArrayList<>(iconized);
-            List<Path> others = new ArrayList<>(iconized);
-            for ( Path p : tmp)
-            {
-                if ( Guess_file_type.is_this_path_a_gif(p))
-                {
-                    gif_or_video.add(p);
-                    continue;
-                }
-                if ( Guess_file_type.is_this_path_a_video(p))
-                {
-                    gif_or_video.add(p);
-                    continue;
-                }
-                others.add(p);
-            }
-            gif_or_video.sort(file_comparator);
-            iconized.addAll(gif_or_video);
-            others.sort(file_comparator);
-            iconized.addAll(others);
-        }
-        else
-        {
-            iconized.sort(file_comparator);
-        }
-        if ( use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
-    }
 
 
     //**********************************************************
@@ -287,6 +250,57 @@ public class Paths_manager
         }
     };
 
+
+
+    //**********************************************************
+    class Date_comparator implements Comparator<Path>
+            //**********************************************************
+    {
+
+        @Override
+        public int compare(Path p1, Path p2) {
+            LocalDateTime ldt1 = Fast_date_from_exif_metadata_extractor.get_date(p1,aborter,logger);
+            LocalDateTime ldt2 = Fast_date_from_exif_metadata_extractor.get_date(p2,aborter,logger);
+            return ldt1.compareTo(ldt2);
+        }
+    };
+
+
+
+
+
+    //**********************************************************
+    public final static Comparator<Path> alphabetical_file_name_comparator_gif_first = new Comparator<>()
+            //**********************************************************
+    {
+        @Override
+        public int compare(Path f1, Path f2)
+        {
+
+
+            Boolean is_gif1 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f1.getFileName().toString()));
+            Boolean is_gif2 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f2.getFileName().toString()));
+
+            if ( is_gif1 && is_gif2)
+            {
+                return f1.getFileName().toString().compareToIgnoreCase(f2.getFileName().toString());
+            }
+            else if ( is_gif1 )
+            {
+                return -1;
+            }
+            else if ( is_gif2 )
+            {
+                return 1;
+            }
+            else
+            {
+                return f1.getFileName().toString().compareToIgnoreCase(f2.getFileName().toString());
+            }
+        }
+    };
+
+
     //**********************************************************
     public final static Comparator<Path> decreasing_file_size_comparator = new Comparator<>()
             //**********************************************************
@@ -299,21 +313,6 @@ public class Paths_manager
     };
 
 
-/*
-    //**********************************************************
-    public final static Comparator<Path> aspect_ratio_comparator = new Comparator<>()
-            //**********************************************************
-    {
-        @Override
-        public int compare(Path f1, Path f2)
-        {
-            Double a1 = get_aspect_ratio(f1);
-            Double a2 = get_aspect_ratio(f2);
-            //logger.log(a1+" vs "+ a2+ " for: "+f1.toAbsolutePath()+" vs "+f2.toAbsolutePath());
-            return a1.compareTo(a2);
-        }
-    };
-*/
 
 
     //**********************************************************

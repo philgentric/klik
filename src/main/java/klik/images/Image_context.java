@@ -16,6 +16,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.browser.icons.Paths_manager;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.find.Finder_actor;
@@ -492,7 +493,7 @@ public class Image_context
                 Command_old_and_new_Path.command_copy,
                 Status_old_and_new_Path.copy_done));
         Change_gang.report_changes(l);
-        Image_window orphan = Image_window.get_Image_stage(b,new_path,logger);
+        Image_window orphan = Image_window.get_Image_stage(b,new_path, logger);
         return true;
     }
 

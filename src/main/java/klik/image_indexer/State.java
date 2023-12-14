@@ -23,13 +23,15 @@ class State
     Logger logger;
     private final Path current_dir;
     static final String target = "*.{"+Guess_file_type.get_supported_image_formats_as_a_comma_separated_string()+"}";
+    private final Comparator<? super Path> file_comparator;
 
     //**********************************************************
-    public State(Path current_dir, Logger logger_)
+    public State(Path current_dir, Comparator<? super Path> fileComparator, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
         this.current_dir = current_dir;
+        file_comparator = fileComparator;
         path_to_index = new HashMap<>();
         index_to_path = new HashMap<>();
         rescan();
@@ -71,7 +73,7 @@ class State
             return;
         }
 
-        Collections.sort(path_list);
+        path_list.sort(file_comparator);
         int index = 0;
         for (Path p : path_list) {
             index_to_path.put(index,p);

@@ -35,12 +35,14 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         }
         Double w = null;
         Double h = null;
-
+        boolean invert_width_and_height = false;
         try
         {
             Metadata metadata = ImageMetadataReader.readMetadata(is);
 
-            boolean done = false;
+            boolean w_done = false;
+            boolean h_done = false;
+            boolean rot_done = false;
             for (Directory directory : metadata.getDirectories())
             {
                 for (Tag tag : directory.getTags())
@@ -51,11 +53,9 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                         if (tag.toString().contains("Image"))
                         {
                             w = Double.valueOf(get_number(tag.toString()));
-                            if ( h !=null)
-                            {
-                                done = true;
-                                break;
-                            }
+                            if (dbg)logger.log("w="+w);
+                            w_done = true;
+                            if (w_done && h_done && rot_done) break;
                         }
                     }
                     if (tag.toString().contains("Height"))
@@ -64,15 +64,51 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                         if (tag.toString().contains("Image"))
                         {
                             h = Double.valueOf(get_number(tag.toString()));
-                            if ( w !=null)
+                            if (dbg)logger.log("h="+h);
+                            h_done = true;
+                            if (w_done && h_done && rot_done) break;
+                        }
+                    }
+                    if (tag.toString().contains("Orientation"))
+                    {
+                        if (!tag.toString().contains("Thumbnail"))
+                        {
+                            // Orientation - Right side, top (Rotate 90 CW clockwise)
+                            if (tag.toString().contains("90"))
                             {
-                                done = true;
-                                break;
+                                if (tag.toString().contains("CW"))
+                                {
+                                    if (dbg)logger.log("90");
+
+                                    invert_width_and_height = true;
+                                    rot_done = true;
+                                    if (w_done && h_done && rot_done) break;
+                                }
+                            }
+                            else if (tag.toString().contains("180"))
+                            {
+                                if (dbg)logger.log("180");
+                                rot_done = true;
+                                if (w_done && h_done && rot_done) break;
+                            }
+                            else if (tag.toString().contains("270"))
+                            {
+                                if (dbg)logger.log("270");
+
+                                invert_width_and_height = true;
+                                rot_done = true;
+                                if (w_done && h_done && rot_done) break;
+                            }
+                            else
+                            {
+                                if (dbg)logger.log("0");
+                                rot_done = true;
+                                if (w_done && h_done && rot_done) break;
                             }
                         }
                     }
                 }
-                if ( done) break;
+                if (w_done && h_done && rot_done) break;
             }
             is.close();
         }
@@ -90,18 +126,21 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         }
         catch (Exception e)
         {
-            //if ( dbg)
+            if ( dbg)
                 logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
-            //logger.log(" get_aspect_ratio failed4");
             return 1.0;
         }
 
         if (( w != null) && ( h != null))
         {
-            //logger.log("aspect ratio: "+w/h);
+            if (invert_width_and_height)
+            {
+                if (dbg)logger.log(path.getFileName().toString()+" INVERTED aspect ratio: "+h/w);
+                return h/w;
+            }
+            if (dbg)logger.log(path.getFileName().toString()+" aspect ratio: "+w/h);
             return w/h;
         }
-        //logger.log(" get_aspect_ratio failed5");
         return 1.0;
     }
 

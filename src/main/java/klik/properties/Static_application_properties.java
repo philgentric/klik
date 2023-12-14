@@ -32,7 +32,6 @@ public class Static_application_properties
 
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
     public static final String SHOW_FOLDER_SIZE = "show_folder_size";
-    public static final String SHOW_GIFS_FIRST = "show_gifs_first";
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
     private static final String ENABLE_FUSK = "enable_fusk";
@@ -202,25 +201,6 @@ public class Static_application_properties
         get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, String.valueOf(b), false);
     }
 
-    //**********************************************************
-    public static boolean get_show_gifs_first(Logger logger)
-    //**********************************************************
-    {
-        String s = get_properties_manager(logger).get(SHOW_GIFS_FIRST);
-        if (s == null) {
-            get_properties_manager(logger).save_unico(SHOW_GIFS_FIRST, "true", false);
-            return false;
-        } else {
-            return Boolean.parseBoolean(s);
-        }
-    }
-
-    //**********************************************************
-    public static void set_show_gifs_first(boolean b, Logger logger)
-    //**********************************************************
-    {
-        get_properties_manager(logger).save_unico(SHOW_GIFS_FIRST, String.valueOf(b), false);
-    }
 
     //**********************************************************
     public static Rectangle2D get_bounds(Logger logger)

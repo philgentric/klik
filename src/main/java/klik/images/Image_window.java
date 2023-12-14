@@ -38,6 +38,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -169,7 +170,7 @@ public class Image_window
         the_Stage.setMinWidth(800);
         the_Stage.setMinHeight(600);
         boolean high_quality = false;
-        image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, logger);
+        image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, the_browser.get_file_comparator(), logger);
         if ( image_display_handler == null)
         {
             mouse_handling_for_image_stage = null;

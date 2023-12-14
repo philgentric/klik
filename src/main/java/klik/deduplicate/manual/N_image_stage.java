@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.browser.icons.Paths_manager;
 import klik.deduplicate.My_File_and_status;
 import klik.deduplicate.console.Deduplication_console_window;
 import klik.files_and_paths.Command_old_and_new_Path;
@@ -184,7 +185,7 @@ public class N_image_stage
 				public void handle(ActionEvent event)
 				{
 
-					Image_window is = Image_window.get_Image_stage(b,f.my_file.file.toPath(), logger);
+					Image_window is = Image_window.get_Image_stage(b,f.my_file.file.toPath(),logger);
 				}
 			});
 

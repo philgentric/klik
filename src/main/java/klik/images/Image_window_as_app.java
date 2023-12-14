@@ -5,6 +5,7 @@ import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.My_Stage;
+import klik.browser.icons.Paths_manager;
 import klik.look.Look_and_feel_manager;
 import klik.my_i18n.Language_manager;
 import klik.util.Logger;

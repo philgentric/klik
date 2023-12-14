@@ -415,21 +415,6 @@ public class Browser_menus
         dummy.button_for_a_directory(text, min_width, height);
         return dummy.button;
     }
-/*
-    //**********************************************************
-    public CheckMenuItem make_sort_files_by_name_vs_decreasing_size_check_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Sort_files_by_name_vs_decreasing_size",logger);// to: " + parent.toAbsolutePath().toString();
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_sort_files_by_name(logger));
-        item.setOnAction(actionEvent -> {
-            Static_application_properties.set_sort_files_by_name(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("sort file by name",true,false);
-        });
-        return item;
-    }
-*/
 
     //**********************************************************
     public CheckMenuItem make_show_folder_size_check_menu_item(Stage stage)
@@ -453,19 +438,8 @@ public class Browser_menus
         });
         return item;
     }
-    //**********************************************************
-    public CheckMenuItem make_show_gifs_first_check_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Show_gifs_first",logger);// to: " + parent.toAbsolutePath().toString();
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_gifs_first(logger));
-        item.setOnAction(actionEvent -> {
-            Static_application_properties.set_show_gifs_first(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show gif boolean changed",true,false);
-        });
-        return item;
-    }
+
+
 
     //**********************************************************
     public MenuItem make_show_hidden_directories_check_menu_item()

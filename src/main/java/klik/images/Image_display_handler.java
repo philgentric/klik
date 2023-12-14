@@ -21,6 +21,7 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,7 +43,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     boolean alternate_rescaler = false;
 
     //**********************************************************
-    public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Aborter aborter, Logger logger_)
+    public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Aborter aborter, Comparator<? super Path> file_comparator, Logger logger_)
     //**********************************************************
     {
         Image_context image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
@@ -51,7 +52,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             logger_.log(Stack_trace_getter.get_stack_trace("Image_stage PANIC: cannot load image " + path.toAbsolutePath()));
             return null;
         }
-        return new Image_display_handler(image_context_,v_,logger_);
+        return new Image_display_handler(image_context_,v_,file_comparator,logger_);
     }
 
     //**********************************************************
@@ -72,14 +73,14 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     }
 
     //**********************************************************
-    private Image_display_handler(Image_context image_context_, Image_window v_, Logger logger_)
+    private Image_display_handler(Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Logger logger_)
     //**********************************************************
     {
         image_context = image_context_;
         logger = logger_;
         image_stage = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context.path.toAbsolutePath().getParent());
-        image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),logger);
+        image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
 
         Change_gang.register(this,logger); // ic must be valid!
 

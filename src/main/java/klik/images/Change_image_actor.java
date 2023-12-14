@@ -31,23 +31,39 @@ public class Change_image_actor implements Actor
 
         Change_image_message change_image_message = (Change_image_message) m;
 
-        if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative delta=" + change_image_message.delta);
+        if ( dbg) change_image_message.logger.log("delta=" + change_image_message.delta);
 
-        if (Objects.requireNonNull(change_image_message.image_stage.image_display_handler).image_indexer == null)
+        if (change_image_message.image_stage == null)
         {
-            if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative image_file_source == null");
+            if ( dbg) change_image_message.logger.log("FATAL change_image_message.image_stage == null");
+            return "Failed change_image_message.image_stage == null";
+        }
+        if (change_image_message.image_stage.image_display_handler == null)
+        {
+            if ( dbg) change_image_message.logger.log("FATAL change_image_message.image_stage.image_display_handler == null");
+            return "Failed change_image_message.image_stage.image_display_handler == null";
+        }
+        if (change_image_message.image_stage.image_display_handler.image_indexer == null)
+        {
+            if ( dbg) change_image_message.logger.log("FATAL change_image_message.image_stage.image_display_handler.image_indexer  == null");
             if (change_image_message.input_image_context.path == null)
             {
-                if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative image_context.path == null");
+                if ( dbg) change_image_message.logger.log("change_image_message.input_image_context.path == null");
                 change_image_message.image_stage.set_nothing_to_display(null);
                 return "Failed change_image_message.image_stage.image_display_handler.image_indexer == null";
             }
         }
         if (change_image_message.input_image_context == null)
         {
-            if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative input_image_context == null");
+            if ( dbg) change_image_message.logger.log( "change_image_message.input_image_context == null");
             change_image_message.image_stage.set_nothing_to_display(null);
             return "Failed change_image_message.input_image_context == null";
+        }
+        if (change_image_message.input_image_context.previous_path == null)
+        {
+            if ( dbg) change_image_message.logger.log("change_image_message.input_image_context.previous_path == null");
+            change_image_message.image_stage.set_nothing_to_display(null);
+            return "Failed change_image_message.input_image_context.previous_path == null";
         }
 
         if ( m.get_aborter().should_abort()) return "aborted";
@@ -57,7 +73,8 @@ public class Change_image_actor implements Actor
 
         //cim.image_stage.show_wait_cursor();
        //if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current OLD path="+change_image_message.input_image_context.path);
-        Path target = Objects.requireNonNull(change_image_message.image_stage.image_display_handler.image_indexer).get_new_path_relative(Objects.requireNonNull(change_image_message.input_image_context.previous_path),change_image_message.delta,change_image_message.ultimate);
+        Path target = change_image_message.image_stage.image_display_handler.image_indexer.get_new_path_relative(
+                change_image_message.input_image_context.previous_path,change_image_message.delta,change_image_message.ultimate);
         if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current NEW path="+target);
         if ( target == null)
         {

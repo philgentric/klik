@@ -365,7 +365,7 @@ public class Browser_UI
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
         //pref.getItems().add(browser_menus.make_sort_files_by_name_vs_decreasing_size_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_gifs_first_check_menu_item());
+        //pref.getItems().add(browser_menus.make_show_gifs_first_check_menu_item());
         pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
 
         pref.getItems().add(browser_menus.make_icon_size_menu());

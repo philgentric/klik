@@ -1,8 +1,10 @@
 package klik.properties;
 
-// warning: these names are used as-is in the ressource bundles !!!
+// warning: these names are used as-is in the resource bundles !!!
 public enum File_sorter {
   NAME,
+  DATE,
   SIZE,
-  ASPECT_RATIO
+  ASPECT_RATIO,
+  NAME_GIFS_FIRST
 }

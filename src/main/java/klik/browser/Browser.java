@@ -49,10 +49,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.awt.Taskbar.Feature.ICON_IMAGE;
@@ -108,6 +106,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             }
         };
         Platform.runLater(r);
+    }
+
+    //**********************************************************
+    public Comparator<? super Path> get_file_comparator()
+    //**********************************************************
+    {
+        return icon_manager.paths_manager.file_comparator;
     }
 
 
