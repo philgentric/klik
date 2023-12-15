@@ -42,18 +42,18 @@ public class Paths_manager
     private Refresh_target refresh_target;
 
     //**********************************************************
-    public Paths_manager(Refresh_target refresh_target_, Logger logger_)
+    public Paths_manager(Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
         refresh_target = refresh_target_;
         ID = ig_gen.getAndIncrement();
-        aborter = new Aborter();
+        aborter = aborter_;
 
         //boolean gif_first = Static_application_properties.get_show_gifs_first(logger);
         switch (Static_application_properties.get_sort_files_by(logger))
         {
-            case NAME, ASPECT_RATIO:
+            case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO:
                 file_comparator = alphabetical_file_name_comparator;
                 break;
             case DATE:
@@ -61,6 +61,9 @@ public class Paths_manager
                 break;
             case SIZE:
                 file_comparator = decreasing_file_size_comparator;
+                break;
+            case RANDOM:
+                file_comparator = null;
                 break;
             case NAME_GIFS_FIRST:
                 file_comparator = alphabetical_file_name_comparator_gif_first;
@@ -75,12 +78,14 @@ public class Paths_manager
     //**********************************************************
     {
         boolean use_aspect_ratio = false;
-        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO)
+        if (
+                (Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) ||
+                (Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM_ASPECT_RATIO ))
         {
             use_aspect_ratio = true;
-            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,logger);
+            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
             aspect_ratio_cache.reload_aspect_ratio_cache();
-            aspect_ratio_cache.look_for_end(this,refresh_target);
+            aspect_ratio_cache.look_for_end(this, refresh_target,aborter);
         }
 
         //logger.log(Stack_trace_getter.get_stack_trace("scan dir "+folder_path));
@@ -115,7 +120,14 @@ public class Paths_manager
         }
 
 
-        iconized.sort(file_comparator);
+        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM)
+        {
+            Collections.shuffle(iconized);
+        }
+        else
+        {
+            iconized.sort(file_comparator);
+        }
         if ( use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
 
         non_iconized.sort(alphabetical_file_name_comparator);

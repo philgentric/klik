@@ -6,5 +6,7 @@ public enum File_sorter {
   DATE,
   SIZE,
   ASPECT_RATIO,
+  RANDOM,
+  RANDOM_ASPECT_RATIO,
   NAME_GIFS_FIRST
 }

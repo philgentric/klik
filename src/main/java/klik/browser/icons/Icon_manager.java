@@ -64,7 +64,7 @@ public class Icon_manager
         owner = owner_;
         logger = logger_;
         //logger.log("WARNING Icon_manager::top_bar="+top_bar);
-        paths_manager = new Paths_manager(refreshTarget, logger);
+        paths_manager = new Paths_manager(refreshTarget, aborter, logger);
         double font_size = Static_application_properties.get_font_size(logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
     }
@@ -156,7 +156,11 @@ public class Icon_manager
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean use_aspect_ratio = false;
-        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) use_aspect_ratio = true;
+        if ( (Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) ||
+            (Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM_ASPECT_RATIO))
+        {
+            use_aspect_ratio = true;
+        }
 /*
 
         if (use_aspect_ratio)
@@ -436,7 +440,9 @@ public class Icon_manager
         return new Point2D(current_x+width_of_this, current_y);
     }
 
+    //**********************************************************
     public void clear_aspect_ratio_cache()
+    //**********************************************************
     {
         if ( paths_manager.aspect_ratio_cache == null) return;
         paths_manager.aspect_ratio_cache.clear_aspect_ratio_RAM_cache();

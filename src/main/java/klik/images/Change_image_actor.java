@@ -45,13 +45,15 @@ public class Change_image_actor implements Actor
         }
         if (change_image_message.image_stage.image_display_handler.image_indexer == null)
         {
-            if ( dbg) change_image_message.logger.log("FATAL change_image_message.image_stage.image_display_handler.image_indexer  == null");
+            if ( dbg) change_image_message.logger.log("warning: change_image_message.image_stage.image_display_handler.image_indexer  == null (probably in the making)");
             if (change_image_message.input_image_context.path == null)
             {
                 if ( dbg) change_image_message.logger.log("change_image_message.input_image_context.path == null");
                 change_image_message.image_stage.set_nothing_to_display(null);
                 return "Failed change_image_message.image_stage.image_display_handler.image_indexer == null";
             }
+            return display_target_path(change_image_message.input_image_context.path, change_image_message);
+
         }
         if (change_image_message.input_image_context == null)
         {
@@ -61,32 +63,42 @@ public class Change_image_actor implements Actor
         }
         if (change_image_message.input_image_context.previous_path == null)
         {
-            if ( dbg) change_image_message.logger.log("change_image_message.input_image_context.previous_path == null");
+            //if ( dbg)
+                change_image_message.logger.log("change_image_message.input_image_context.previous_path == null");
             change_image_message.image_stage.set_nothing_to_display(null);
             return "Failed change_image_message.input_image_context.previous_path == null";
         }
 
-        if ( m.get_aborter().should_abort()) return "aborted";
+        if ( change_image_message.get_aborter().should_abort()) return "aborted";
         // the safe way is to get the index of the current image from its path
         // however, when renaming a sequence of image this is annoying
         // since when you press next, you are in the new name context...
 
         //cim.image_stage.show_wait_cursor();
        //if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current OLD path="+change_image_message.input_image_context.path);
-        Path target = change_image_message.image_stage.image_display_handler.image_indexer.get_new_path_relative(
+        Path target_path = change_image_message.image_stage.image_display_handler.image_indexer.get_new_path_relative(
                 change_image_message.input_image_context.previous_path,change_image_message.delta,change_image_message.ultimate);
-        if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current NEW path="+target);
-        if ( target == null)
+        if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current NEW path="+target_path);
+        if ( target_path == null)
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative something really bad happened, like the whole dir was deleted behind the scene");
             change_image_message.image_stage.set_nothing_to_display(null);
             //cim.image_stage.restore_cursor();
             return "BAD";
         }
-        if ( m.get_aborter().should_abort()) return "aborted";
+        if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
-        if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative target = "+target);
-        String skey = Image_context.get_full_path(target);
+        return display_target_path(target_path, change_image_message);
+
+
+    }
+
+    //**********************************************************
+    private static String display_target_path( Path target_image_path, Change_image_message change_image_message)
+    //**********************************************************
+    {
+        if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative target = "+ target_image_path);
+        String skey = Image_context.get_full_path(target_image_path);
         Image_context iai = change_image_message.image_stage.image_display_handler.image_cache.get(skey);
         boolean forward = true;
         if ( change_image_message.delta < 0) forward = false;
@@ -99,10 +111,10 @@ public class Change_image_actor implements Actor
             change_image_message.image_stage.image_display_handler.image_cache.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
             return "found in cache";
         }
-        if ( m.get_aborter().should_abort()) return "aborted";
+        if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
         if ( dbg) change_image_message.logger.log("\n Change_image_actorNOT found in cache: " + skey);
-        iai = change_image_message.image_stage.image_display_handler.local_getImage_context(target, change_image_message.aborter);
+        iai = change_image_message.image_stage.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
         if (iai == null)
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor null image (1) in change_image_relative");
@@ -121,7 +133,7 @@ public class Change_image_actor implements Actor
         }
         else
         {
-            if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative OK! index is:" + target + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
+            if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative OK! index is:" + target_image_path + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
         }
 
         change_image_message.image_stage.set_image(change_image_message.output_image_context[0],false);
@@ -130,7 +142,6 @@ public class Change_image_actor implements Actor
         change_image_message.image_stage.image_display_handler.image_cache.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
         return "OK";
     }
-
 
 
 }

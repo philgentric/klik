@@ -260,4 +260,8 @@ public class Image_indexer
         if ( i == null) return -1;
         return i;
     }
+
+    public void scan() {
+        state.rescan();
+    }
 }

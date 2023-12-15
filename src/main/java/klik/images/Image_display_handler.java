@@ -19,6 +19,7 @@ import klik.image_indexer.Image_indexer;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.Threads;
 
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -32,7 +33,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     private static final boolean dbg = false;
 
     public final Image_window image_stage;
-    public final Image_indexer image_indexer;
+    public Image_indexer image_indexer = null;
     final Logger logger;
     public final Cache_interface image_cache;
 
@@ -80,9 +81,17 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         logger = logger_;
         image_stage = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context.path.toAbsolutePath().getParent());
-        image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
 
-        Change_gang.register(this,logger); // ic must be valid!
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
+                image_indexer.scan();
+            }
+        };
+        Threads.execute(r,logger);
+
+        Change_gang.register(this,logger); // image_context must be valid!
 
         image_cache = new Image_cache_cafeine(logger);
         {
