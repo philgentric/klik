@@ -6,8 +6,7 @@ import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Static_application_properties;
 import klik.util.Execute_command;
 import klik.util.Logger;
-import klik.util.Popups;
-import klik.fusk.Fusk_static_core;
+import klik.level2.fusk.Fusk_static_core;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;

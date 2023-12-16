@@ -6,7 +6,7 @@ import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.My_Stage;
 import klik.look.Look_and_feel_manager;
-import klik.my_i18n.Language_manager;
+import klik.look.my_i18n.Language_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Exceptions_in_threads_catcher;
 import klik.util.Logger;

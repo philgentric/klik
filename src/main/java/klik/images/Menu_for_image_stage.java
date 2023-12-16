@@ -9,7 +9,8 @@ import klik.browser.Browser_creation_context;
 import klik.change.Undo_engine;
 import klik.files_and_paths.Guess_file_type;
 import klik.metadata.Tag_stage;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
+import klik.properties.Static_application_properties;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -54,9 +55,12 @@ public class Menu_for_image_stage
             file_menu.getItems().add(open);
             MenuItem browse = get_browse_menu_item(image_stage, image_context_owner);
             file_menu.getItems().add(browse);
-            if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
-                MenuItem gif_repair = get_gif_repair_menu_item(image_stage, image_context_owner);
-                file_menu.getItems().add(gif_repair);
+            if (Static_application_properties.get_level2(image_context_owner.logger))
+            {
+                if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
+                    MenuItem gif_repair = get_gif_repair_menu_item(image_stage, image_context_owner);
+                    file_menu.getItems().add(gif_repair);
+                }
             }
         }
         {
@@ -174,9 +178,12 @@ public class Menu_for_image_stage
         contextMenu.getItems().add(pix_for_pix);
 
 
-        if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
-            MenuItem gif_repair = get_gif_repair_menu_item(image_stage, image_context_owner);
-            contextMenu.getItems().add(gif_repair);
+        if ( Static_application_properties.get_level2(image_context_owner.logger))
+        {
+            if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
+                MenuItem gif_repair = get_gif_repair_menu_item(image_stage, image_context_owner);
+                contextMenu.getItems().add(gif_repair);
+            }
         }
 
         MenuItem undo_move = get_undo_menu_item(image_stage);

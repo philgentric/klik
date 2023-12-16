@@ -354,82 +354,6 @@ public class Icon_manager
         return p;
     }
 
-    //**********************************************************
-    private Point2D compute_next_Point2D_for_icons(Point2D p,
-                                                   Item item,
-                                                   double column_increment,
-                                                   double row_increment,
-                                                   double scene_width,
-                                                   boolean single_column,
-                                                   boolean use_aspect_ratio,
-                                                   double[] max_y_in_row,
-                                                   boolean[] done_shift_up)
-    //**********************************************************
-    {
-        double width_of_this = column_increment;
-        double height_of_this = row_increment;
-        double neg_x = 0;
-        double neg_y = 0;
-        if ( use_aspect_ratio)
-        {
-            //logger.log("aspect_ratio: "+((Item_image)item).aspect_ratio);
-            if (((Item_image)item).aspect_ratio < 1.0)
-            {
-                width_of_this = ((Item_image)item).aspect_ratio * column_increment;
-                //logger.log("width_of_this: "+width_of_this);
-                neg_x = (width_of_this-column_increment)/2.0;
-            }
-            else
-            {
-                height_of_this = row_increment/((Item_image)item).aspect_ratio;
-                neg_y = (height_of_this-row_increment)/2.0;
-            }
-        }
-
-        double current_x = p.getX();
-        double current_y = p.getY();
-        if ( current_x == 0)
-        {
-            current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
-            if ( neg_y < 0)
-            {
-                if ( !done_shift_up[0] )
-                {
-                    current_y += neg_y; // ONCE, first image in row shifted UP to stick to the previous row bottom
-                    done_shift_up[0] = true;
-                }
-            }
-        }
-        // position the ImageView at the requested position
-        item.set_x(current_x);
-        item.set_y(current_y);
-        if ( max_y_in_row[0] < current_y+height_of_this) max_y_in_row[0] = current_y+height_of_this;
-        /// then compute position of NEXT item
-        if ( single_column)
-        {
-            how_many_rows++;
-            double future_x = 0;
-            double future_y = current_y + row_increment;
-            //logger.log("new row "+row_increment);
-            return new Point2D(future_x, future_y);
-        }
-
-
-
-        double real_future_x = current_x+ width_of_this;
-        //logger.log("new_x: "+new_x);
-        if (real_future_x + column_increment > scene_width)
-        {
-            // new ROW
-            how_many_rows++;
-            Point2D returned =  new Point2D(0, max_y_in_row[0]);
-            max_y_in_row[0] = -1;
-            return returned;
-        }
-
-        // continued row
-        return new Point2D(current_x+width_of_this, current_y);
-    }
 
     //**********************************************************
     public void clear_aspect_ratio_cache()
@@ -437,86 +361,6 @@ public class Icon_manager
     {
         if ( paths_manager.aspect_ratio_cache == null) return;
         paths_manager.aspect_ratio_cache.clear_aspect_ratio_RAM_cache();
-    }
-
-
-    //**********************************************************
-    private Point2D new_Point_for_files_and_dirs(Point2D point,
-                                                 Item last_item,
-                                                 double column_increment,
-                                                 double row_increment,
-                                                 double scene_width,
-                                                 boolean single_column)
-    //**********************************************************
-    {
-        double old_x = point.getX();
-        double old_y = point.getY();
-        last_item.set_x(old_x);
-        last_item.set_y(old_y);
-
-        double delta_h = row_increment;
-        if ( single_column)
-        {
-            how_many_rows++;
-            double new_x = 0;
-            double new_y = old_y + delta_h;
-            if ( dbg) logger.log("single_column new row "+delta_h);
-            return new Point2D(new_x, new_y);
-        }
-        double future_x = old_x + column_increment;
-        double future_x_with_width = future_x + column_increment;
-        if (future_x_with_width > scene_width)
-        {
-            // too far right, need to create a new row for THIS item
-            how_many_rows++;
-            double new_x = 0;
-            double new_y = old_y + delta_h;
-            //logger.log("new row "+delta_h);
-            return new Point2D(new_x, new_y);
-        }
-        // future candidate point is same line, further on the right
-        return new Point2D(future_x, old_y);
-    }
-
-
-    //**********************************************************
-    private void compute_bounding_rectangle(String reason)
-    //**********************************************************
-    {
-        if ( dbg_scroll) logger.log("compute_bounding_rectangle() "+reason);
-        // compute bounding rectangle
-
-        double x_min = Double.MAX_VALUE;
-        double x_max = 0;
-        double y_min = Double.MAX_VALUE;
-        landscape_height = 0;
-        for (Item item : all_items_map.values()) {
-            if (item.get_x() < x_min) x_min = item.get_x();
-            if (item.get_x() + item.get_Width() > x_max)
-            {
-                x_max = item.get_x() + item.get_Width();
-            }
-            if (item.get_y() < y_min)
-            {
-                y_min = item.get_y();
-            }
-            double h = item.get_Height();
-            if ( dbg) logger.log("compute_bounding_rectangle, h="+h+" for "+item.get_string());
-
-            if (item.get_y() + h > landscape_height) landscape_height = item.get_y() + h;
-        }
-
-        if (paths_manager.get_iconized().isEmpty()) {
-            // when there is no iconized items in the folder
-            // it may happen that the height of the last row of buttons at the bottom is underestimated
-            landscape_height += 100;
-        }
-        if ( dbg_scroll)
-            logger.log("landscape_height="+landscape_height);
-        if ( landscape_height_listener != null)
-        {
-            landscape_height_listener.browsed_landscape_height_has_changed(landscape_height,current_vertical_offset);
-        }
     }
 
     //**********************************************************
@@ -761,6 +605,10 @@ public class Icon_manager
         return top_left;
     }
 
+
+
+
+
     //**********************************************************
     public double get_y_offset_of(Path target)
     //**********************************************************
@@ -781,4 +629,163 @@ public class Icon_manager
 
         return 0;
     }
+
+
+
+    //**********************************************************
+    private Point2D compute_next_Point2D_for_icons(Point2D p,
+                                                   Item item,
+                                                   double column_increment,
+                                                   double row_increment,
+                                                   double scene_width,
+                                                   boolean single_column,
+                                                   boolean use_aspect_ratio,
+                                                   double[] max_y_in_row,
+                                                   boolean[] done_shift_up)
+    //**********************************************************
+    {
+        double width_of_this = column_increment;
+        double height_of_this = row_increment;
+        double neg_x = 0;
+        double neg_y = 0;
+        if ( use_aspect_ratio)
+        {
+            //logger.log("aspect_ratio: "+((Item_image)item).aspect_ratio);
+            if (((Item_image)item).aspect_ratio < 1.0)
+            {
+                width_of_this = ((Item_image)item).aspect_ratio * column_increment;
+                //logger.log("width_of_this: "+width_of_this);
+                neg_x = (width_of_this-column_increment)/2.0;
+            }
+            else
+            {
+                height_of_this = row_increment/((Item_image)item).aspect_ratio;
+                neg_y = (height_of_this-row_increment)/2.0;
+            }
+        }
+
+        double current_x = p.getX();
+        double current_y = p.getY();
+        if ( current_x == 0)
+        {
+            current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
+            if ( neg_y < 0)
+            {
+                if ( !done_shift_up[0] )
+                {
+                    current_y += neg_y; // ONCE, first image in row shifted UP to stick to the previous row bottom
+                    done_shift_up[0] = true;
+                }
+            }
+        }
+        // position the ImageView at the requested position
+        item.set_x(current_x);
+        item.set_y(current_y);
+        if ( max_y_in_row[0] < current_y+height_of_this) max_y_in_row[0] = current_y+height_of_this;
+        /// then compute position of NEXT item
+        if ( single_column)
+        {
+            how_many_rows++;
+            double future_x = 0;
+            double future_y = current_y + row_increment;
+            //logger.log("new row "+row_increment);
+            return new Point2D(future_x, future_y);
+        }
+
+
+
+        double real_future_x = current_x+ width_of_this;
+        //logger.log("new_x: "+new_x);
+        if (real_future_x + column_increment > scene_width)
+        {
+            // new ROW
+            how_many_rows++;
+            Point2D returned =  new Point2D(0, max_y_in_row[0]);
+            max_y_in_row[0] = -1;
+            return returned;
+        }
+
+        // continued row
+        return new Point2D(current_x+width_of_this, current_y);
+    }
+
+    //**********************************************************
+    private Point2D new_Point_for_files_and_dirs(Point2D point,
+                                                 Item last_item,
+                                                 double column_increment,
+                                                 double row_increment,
+                                                 double scene_width,
+                                                 boolean single_column)
+    //**********************************************************
+    {
+        double old_x = point.getX();
+        double old_y = point.getY();
+        last_item.set_x(old_x);
+        last_item.set_y(old_y);
+
+        double delta_h = row_increment;
+        if ( single_column)
+        {
+            how_many_rows++;
+            double new_x = 0;
+            double new_y = old_y + delta_h;
+            if ( dbg) logger.log("single_column new row "+delta_h);
+            return new Point2D(new_x, new_y);
+        }
+        double future_x = old_x + column_increment;
+        double future_x_with_width = future_x + column_increment;
+        if (future_x_with_width > scene_width)
+        {
+            // too far right, need to create a new row for THIS item
+            how_many_rows++;
+            double new_x = 0;
+            double new_y = old_y + delta_h;
+            //logger.log("new row "+delta_h);
+            return new Point2D(new_x, new_y);
+        }
+        // future candidate point is same line, further on the right
+        return new Point2D(future_x, old_y);
+    }
+
+
+    //**********************************************************
+    private void compute_bounding_rectangle(String reason)
+    //**********************************************************
+    {
+        if ( dbg_scroll) logger.log("compute_bounding_rectangle() "+reason);
+        // compute bounding rectangle
+
+        double x_min = Double.MAX_VALUE;
+        double x_max = 0;
+        double y_min = Double.MAX_VALUE;
+        landscape_height = 0;
+        for (Item item : all_items_map.values()) {
+            if (item.get_x() < x_min) x_min = item.get_x();
+            if (item.get_x() + item.get_Width() > x_max)
+            {
+                x_max = item.get_x() + item.get_Width();
+            }
+            if (item.get_y() < y_min)
+            {
+                y_min = item.get_y();
+            }
+            double h = item.get_Height();
+            if ( dbg) logger.log("compute_bounding_rectangle, h="+h+" for "+item.get_string());
+
+            if (item.get_y() + h > landscape_height) landscape_height = item.get_y() + h;
+        }
+
+        if (paths_manager.get_iconized().isEmpty()) {
+            // when there is no iconized items in the folder
+            // it may happen that the height of the last row of buttons at the bottom is underestimated
+            landscape_height += 100;
+        }
+        if ( dbg_scroll)
+            logger.log("landscape_height="+landscape_height);
+        if ( landscape_height_listener != null)
+        {
+            landscape_height_listener.browsed_landscape_height_has_changed(landscape_height,current_vertical_offset);
+        }
+    }
+
 }

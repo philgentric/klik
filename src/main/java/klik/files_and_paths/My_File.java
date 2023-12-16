@@ -1,7 +1,7 @@
 package klik.files_and_paths;
 
 import klik.actor.Aborter;
-import klik.deduplicate.Runnable_for_finding_duplicate_file_pairs;
+import klik.level2.deduplicate.Runnable_for_finding_duplicate_file_pairs;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 

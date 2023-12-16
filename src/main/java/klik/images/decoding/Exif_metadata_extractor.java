@@ -7,13 +7,13 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.fusk.Fusk_static_core;
-import klik.fusk.Fusk_strings;
+import klik.level2.fusk.Fusk_static_core;
+import klik.level2.fusk.Fusk_strings;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;

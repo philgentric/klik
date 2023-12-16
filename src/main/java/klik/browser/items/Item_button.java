@@ -23,14 +23,14 @@ import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_manager;
-import klik.deduplicate.Deduplication_engine;
+import klik.level2.deduplicate.Deduplication_engine;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Sizes;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.music.Audio_player;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -548,6 +548,7 @@ public class Item_button extends Item implements Icon_destination
                 context_menu.getItems().add(create_rename_dir_menu_item());
                 context_menu.getItems().add(create_delete_dir_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
+                if ( Static_application_properties.get_level2(logger))
                 {
                     Menu sub = new Menu("File deduplication tool");
                     context_menu.getItems().add(sub);

@@ -21,12 +21,12 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_status;
 import klik.change.Change_gang;
-import klik.experimental.Multiple_image_stage;
+import klik.level2.experimental.Multiple_image_stage;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -35,7 +35,6 @@ import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 

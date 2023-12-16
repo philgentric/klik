@@ -11,7 +11,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import klik.Klik_application;
 import klik.look.styles.*;
-import klik.properties.Style;
+import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -73,7 +73,7 @@ public class Look_and_feel_manager
         registered.add(new Look_and_feel_light(logger_));
         registered.add(new Look_and_feel_dark(logger_));
         registered.add(new Look_and_feel_wood(logger_));
-        instance = Style.read_look_and_feel_from_properties_file(logger_);
+        instance = Static_application_properties.read_look_and_feel_from_properties_file(logger_);
     }
 
     //**********************************************************
@@ -83,7 +83,7 @@ public class Look_and_feel_manager
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         logger.log(("setting style = " + style.name));
         instance = style;
-        Style.set_style(style,logger);
+        Static_application_properties.set_style(style,logger);
         reset();
     }
 

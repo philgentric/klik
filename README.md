@@ -1,30 +1,8 @@
 # Klik: a file system explorer/manager with a strong focus on images
 
-The purpose of Klik is to enable to sort pictures into folders, as a consequence it is a pretty good general purpose "File Manager": you can visualize files and folders, and organize information into a file/folder tree.
-
-Klik has been designed to be intuitive and fast.
-
-Klik reproduces best-of drag-and-drop features found in good file managers, with a plus: it displays images as icons (adjustable size), and yet it remains _extremely fast and stable even with folders that contains ten of thousands of images._
-
-Time-consuming operations are performed asynchronously so that the UI remains fluid.
-
-Klik can display all standard image formats, up to huge images (tested up to 14000x10000 pixels).
-
-Klik User Interface is designed to be translated in any language. By the way, traductors wanted! 
-
-![Alt text](https://user-images.githubusercontent.com/4594245/152138959-18fe11c9-9fe3-4f19-8c82-9999f75fa071.png)
-
+Enables to sort pictures into folders, intuitive and fast, drag-and-drop anything.
 
 # Easiest way to try klik 
-
-install git (https://git-scm.com/)
-
-on a mac, install brew then git: 
-
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-brew install git
-
 Open a terminal and type:
 
 git clone https://github.com/philgentric/klik.git
@@ -33,10 +11,18 @@ cd klik
 
 ./gradlew run
 
+(if you do not have git, you need to install it first:see https://git-scm.com/
+or, on a mac, install brew then git:
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+brew install git
+
+
 # Intuitive
 
 Klik has been designed to be very intuitive.
-Play with Drag & Drop, you will see!
+Play with Drag & Drop!
 Moving files and folders around has never been easier.
 
 # Transparent
@@ -70,25 +56,12 @@ Klik has 2 types of windows: "Browser" and "Image".
 
 You can open has many windows as you want, the limit is your machine's RAM.
 
-Openning multiple Browser-windows is very handy to sort images from one folder to multiple destination folders: just open one browser-window per folder.
-If you have really many destination folders, the easiest way is to open a browser-window in the parent folder and then drag images into the buttons representing each destination folders.
 
 ## Browser Windows = displays the content of a folder
 
-Uses icons for images, PDFs and movies, and buttons for everything else.
-Icons size is your preference: from very small to very large
-Clicking on an icon will popup either a new "Image" window displaying that image, if it is an image, or use the System default application to open the file.
-Clicking on an file-button will open that file with the System default application.
-Clicking on an folder-button will open that folder, replacing the current one.
-The slideshow mode will scroll through the folder.
+Uses icons for images, PDFs and movies, and buttons for everything else. Has a slide show mode.
 
-## Image Windows = displays one image at a time
-
-Can load images one after the other very fast to explore a folder (using the space bar or the left/right arrows).
-Speed comes from a cache with pre-loading, play with it, you will see that preloading can be "forward" if you use the right arrow to scan one image after the other or "backward" if you use the left arrow.
-The slideshow mode has variable speed.
-
-## Top Buttons
+### Top Buttons
 
 Klik "Browser window" has top buttons/menus that are always present (even if the folder is empty).
 
@@ -104,7 +77,19 @@ Preferences menu for preferences
 
 Trash button: when you click on it, it will display the content of the "klik_trash" folder. If you drag a file over it, the file is moved to klik_trash.
 
-## Drag & drop (Drag&Drop)
+### mutiple browsers
+
+Openning multiple Browser-windows is very handy to sort images from one folder to multiple destination folders: just open one browser-window per folder, thanks to drag-and-drop.
+
+## Image Windows = displays one image at a time
+
+Can load images one after the other very fast to explore a folder (using the space bar or the left/right arrows).
+
+Speed comes from a cache with pre-loading, play with it, you will see that preloading can be "forward" if you use the right arrow to scan one image after the other or "backward" if you use the left arrow.
+The slideshow mode has variable speed.
+
+
+## Drag & drop
 
 In Klik, you can Drag-and-Drop (almost) everything!
 
@@ -114,9 +99,13 @@ Drag&Drop works for icons representing images in a folder
 
 Drag&Drop works for buttons representing non-image files in a folder
 
-Drag&Drop works for buttons folders
+Drag&Drop works for buttons that represent folders: you can drop a file (or folder!) on them.
 
-In an Image window:  Drag&Drop enables to move the image, for example droping an image from a Image window to a Browser window
+In an Image window:  
+
+Drag&Drop enables to move the image, for example dropping an image from a Image window to a Browser window
+
+### Summary:
 
 Drag&Drop drop areas (where you can drop something) include:
 
@@ -155,17 +144,22 @@ Klik uses system defaults to open files: you can play music, open sheets etc.
 
 Klik uses system defaults to edit files: you can start the system-configured default editor for anything, from Klik.
 
-You can find images by keywords (it assumes keywords compose file names).
+You can see the full EXIF metadata of the pictures (if any).
+
+You can close Klik windows with a single Escape key stroke.
+
 
 ## The experimental features that make Klik fun
 
-You can find duplicated files/images (even if they have different names). There is manual mode where you will be asked one picture at a time which copy you want to move to klik-trash, and an automatic mode: very fast but it does not always move to klik-trash the copy you would have preferred to delete!-)
+(to access experimental feature you will need to edit the properties file and change level2=false to true)
 
-You can see the full EXIF metadata of the pictures (if any).
+Backup: you can backup whole file trees (faster than an OS copy -r, never deletes a file, keep track of file content (independently of names)) 
+
+Deduplication: You can find duplicated files/images (even if they have different names). There is manual mode where you will be asked one picture at a time which copy you want to move to klik-trash, and an automatic mode: very fast but it does not always move to klik-trash the copy you would have preferred to delete!-)
+
+You can find images by keywords (it assumes keywords compose file names).
 
 You can repair animated gifs.
-
-You can close Klik windows with a single Escape key stroke.
 
 You can assign tags (text strings) to images that are saved in .properties files, one per image, and klik moves this metadata file with the image!
 

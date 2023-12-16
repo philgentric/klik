@@ -16,8 +16,8 @@ import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.metadata.Tag_items_management_stage;
-import klik.my_i18n.I18n;
-import klik.my_i18n.Language_manager;
+import klik.look.my_i18n.I18n;
+import klik.look.my_i18n.Language_manager;
 import klik.properties.*;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -713,7 +713,7 @@ public class Browser_menus
     //**********************************************************
     {
         CheckMenuItem check_menu_item = new CheckMenuItem(style.name);
-        Look_and_feel current_style = Style.read_look_and_feel_from_properties_file(logger);
+        Look_and_feel current_style = Static_application_properties.read_look_and_feel_from_properties_file(logger);
         check_menu_item.setSelected(current_style.name.equals(style.name));
 
         check_menu_item.setOnAction(actionEvent -> {

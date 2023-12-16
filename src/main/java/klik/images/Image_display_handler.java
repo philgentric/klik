@@ -12,7 +12,7 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.experimental.Static_image_utilities;
+import klik.level2.experimental.Static_image_utilities;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;

@@ -10,14 +10,12 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import klik.browser.icons.Icon_manager;
 import klik.look.Look_and_feel_manager;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static klik.look.Look_and_feel_manager.load_icon_fx_from_jar;
 
 
 //**********************************************************

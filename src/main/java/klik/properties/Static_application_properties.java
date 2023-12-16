@@ -6,6 +6,9 @@ import javafx.geometry.Rectangle2D;
 
 import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Files_and_Paths;
+import klik.look.Look_and_feel;
+import klik.look.Look_and_feel_manager;
+import klik.look.styles.Look_and_feel_light;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -30,6 +33,7 @@ public class Static_application_properties
     private static int button_width = -1;
     public static final int DEFAULT_ICON_SIZE = 256;
     public static final int DEFAULT_VIDEO_LENGTH = 1;
+    public static final String STYLE_KEYWORD = "STYLE";
 
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
     public static final String SHOW_FOLDER_SIZE = "show_folder_size";
@@ -76,6 +80,37 @@ public class Static_application_properties
         return the_properties_manager;
     }
 
+    //**********************************************************
+    public static Look_and_feel read_look_and_feel_from_properties_file(Logger logger)
+    //**********************************************************
+    {
+        Look_and_feel look_and_feel = null;
+        String style_s = Static_application_properties.get_properties_manager(logger).get(STYLE_KEYWORD);
+        if (style_s == null)
+        {
+            // DEFAULT STYLE, first time klik is launched on the platform
+            look_and_feel = new Look_and_feel_light(logger);
+        } else {
+            for (Look_and_feel laf : Look_and_feel_manager.registered) {
+                if (laf.name.equals(style_s)) {
+                    look_and_feel = laf;
+                    break;
+                }
+            }
+        }
+        if (look_and_feel == null) {
+            look_and_feel = new Look_and_feel_light(logger);
+        }
+        Static_application_properties.get_properties_manager(logger).save_unico(STYLE_KEYWORD, look_and_feel.name,false);
+        return look_and_feel;
+    }
+
+    //**********************************************************
+    public static void set_style(Look_and_feel style,Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_properties_manager(logger).save_unico(STYLE_KEYWORD, style.name,false);
+    }
 
     //**********************************************************
     public static File_sorter get_sort_files_by(Logger logger)

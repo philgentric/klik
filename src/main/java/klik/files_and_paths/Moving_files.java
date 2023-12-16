@@ -7,7 +7,7 @@ import klik.change.Change_gang;
 import klik.change.Undo_engine;
 import klik.images.Same_move_engine;
 import klik.metadata.Metadata_handler;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.*;
 import org.apache.commons.io.FileExistsException;

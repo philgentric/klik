@@ -8,7 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import klik.look.Look_and_feel_manager;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 
 import java.util.Optional;
 

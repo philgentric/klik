@@ -20,22 +20,22 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
-import klik.backup.Backup_singleton;
+import klik.browser.icons.JavaFX_to_Swing;
+import klik.level2.backup.Backup_singleton;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
 import klik.browser.icons.Refresh_target;
 import klik.browser.items.Item;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.experimental.JavaFX_to_Swing;
 import klik.files_and_paths.Filesystem_item_modification_watcher;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Old_and_new_Path;
-import klik.fusk.Fusk_singleton;
-import klik.fusk.Static_fusk_paths;
+import klik.level2.fusk.Fusk_singleton;
+import klik.level2.fusk.Static_fusk_paths;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.properties.History;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
@@ -221,7 +221,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         });
     }
 
-    private void set_icon() {
+    //**********************************************************
+    private void set_icon()
+    //**********************************************************
+    {
         my_Stage.the_Stage.getIcons().clear();
         Image taskbar_icon = null;
         int[] icon_sizes = {16, 32, 64, 128};

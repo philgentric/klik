@@ -3,7 +3,6 @@ package klik.browser.icons;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
-import klik.experimental.JavaFX_to_Swing;
 import klik.util.Logger;
 
 import javax.imageio.ImageIO;

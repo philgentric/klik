@@ -5,7 +5,7 @@ import klik.browser.icons.Icon_writer_actor;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.fusk.Fusk_static_core;
+import klik.level2.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
 import java.io.*;

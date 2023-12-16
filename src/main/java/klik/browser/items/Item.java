@@ -29,7 +29,7 @@ import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.metadata.Tag_stage;
-import klik.my_i18n.I18n;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;

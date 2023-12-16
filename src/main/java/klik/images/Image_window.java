@@ -26,8 +26,8 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
-import klik.fusk.Fusk_static_core;
-import klik.fusk.Fusk_strings;
+import klik.level2.fusk.Fusk_static_core;
+import klik.level2.fusk.Fusk_strings;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -38,7 +38,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 
