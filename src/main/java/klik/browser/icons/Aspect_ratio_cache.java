@@ -1,5 +1,6 @@
 package klik.browser.icons;
 
+import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Files_and_Paths;
@@ -7,7 +8,7 @@ import klik.properties.File_sorter;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.Popups;
 import klik.util.Threads;
 
 import java.nio.file.Path;
@@ -53,8 +54,11 @@ public class Aspect_ratio_cache
         @Override
         public int compare(Path p1, Path p2) {
             Double d1 = get_aspect_ratio(p1);
+            Double d1r= Double.valueOf(String.format("%.1f",d1));
             Double d2 = get_aspect_ratio(p2);
-            return d1.compareTo(d2);        }
+            Double d2r= Double.valueOf(String.format("%.1f",d2));
+            return d1r.compareTo(d2r);
+        }
     };
 
     //**********************************************************
@@ -71,8 +75,11 @@ public class Aspect_ratio_cache
         @Override
         public int compare(Path p1, Path p2) {
             Double d1 = get_aspect_ratio(p1);
+            Double d1r= Double.valueOf(String.format("%.1f",d1));
             Double d2 = get_aspect_ratio(p2);
-            int diff = d1.compareTo(d2);
+            Double d2r= Double.valueOf(String.format("%.1f",d2));
+
+            int diff = d1r.compareTo(d2r);
             if (diff != 0) return diff;
             // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
             long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
@@ -170,7 +177,7 @@ public class Aspect_ratio_cache
     private volatile boolean done = false;
     private Runnable look_for_end_runnable = null;
     //**********************************************************
-    public void look_for_end(Paths_manager paths_manager,Refresh_target refresh_target, Aborter aborter)
+    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Aborter aborter)
     //**********************************************************
     {
         if ( done) return;
@@ -178,6 +185,9 @@ public class Aspect_ratio_cache
         look_for_end_runnable = new Runnable() {
             @Override
             public void run() {
+
+
+
                 for(;;)
                 {
                     if ( aborter.should_abort()) return;

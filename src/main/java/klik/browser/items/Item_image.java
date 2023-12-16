@@ -441,6 +441,6 @@ public class Item_image extends Item implements Icon_destination
     @Override
     public String get_string()
     {
-        return "is image: " + path.toAbsolutePath();
+        return "is Item_image for : " + path.toAbsolutePath();
     }
 }

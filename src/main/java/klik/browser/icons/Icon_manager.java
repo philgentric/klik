@@ -501,7 +501,7 @@ public class Icon_manager
                 y_min = item.get_y();
             }
             double h = item.get_Height();
-            if ( dbg) logger.log("h="+h+" for "+item.get_string());
+            if ( dbg) logger.log("compute_bounding_rectangle, h="+h+" for "+item.get_string());
 
             if (item.get_y() + h > landscape_height) landscape_height = item.get_y() + h;
         }

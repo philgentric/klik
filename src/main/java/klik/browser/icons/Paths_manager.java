@@ -1,5 +1,6 @@
 package klik.browser.icons;
 
+import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -24,7 +25,7 @@ import java.util.stream.Stream;
 public class Paths_manager
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public static final String OK = "OK";
     public double max_dir_text_length;
     private static Logger logger;
@@ -89,16 +90,7 @@ public class Paths_manager
     public Error_type scan_dir(Path folder_path, Stage stage)
     //**********************************************************
     {
-        boolean use_aspect_ratio = false;
-        if (
-                (Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) ||
-                (Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM_ASPECT_RATIO ))
-        {
-            use_aspect_ratio = true;
-            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
-            aspect_ratio_cache.reload_aspect_ratio_cache();
-            aspect_ratio_cache.look_for_end(this, refresh_target,aborter);
-        }
+
 
         //logger.log(Stack_trace_getter.get_stack_trace("scan dir "+folder_path));
 
@@ -112,7 +104,7 @@ public class Paths_manager
         iconized.clear();
         non_iconized.clear();
         folders.clear();
-
+/*
         try {
             Stream<Path> stream = Files.list(folder_path);
             stream.forEach(path ->{
@@ -127,6 +119,52 @@ public class Paths_manager
 
             });
         } catch (IOException e) {
+            Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
+            if (denied != null) return denied;
+        }
+*/
+        boolean use_aspect_ratio = false;
+        if (
+                (Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) ||
+                        (Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM_ASPECT_RATIO )) {
+            use_aspect_ratio = true;
+            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
+            aspect_ratio_cache.reload_aspect_ratio_cache();
+            aspect_ratio_cache.look_for_end(this, refresh_target,aborter);
+        }
+        try
+        {
+            File files[] = folder_path.toFile().listFiles();
+            if ( use_aspect_ratio)
+            {
+                boolean warning = true;
+                if (files.length < 300) warning = false;
+                if (warning) {
+                    Runnable rr = new Runnable() {
+                        @Override
+                        public void run() {
+                            Popups.popup_warning(null, "This may take some time ... ", "...especially the first time", true, logger);
+                        }
+                    };
+                    Platform.runLater(rr);
+                }
+            }
+
+            for ( File f : files)
+            {
+                if ( aborter.should_abort()) return Error_type.OK;
+
+                Path path  = f.toPath();
+                if ( f.isDirectory())
+                {
+                    do_folder(path,show_hidden_directories,show_icons_for_folders);
+                }
+                else
+                {
+                    do_file(path, show_hidden_files, show_icons_instead_of_text, stage);
+                }
+            }
+        } catch (Exception e) {
             Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
             if (denied != null) return denied;
         }
