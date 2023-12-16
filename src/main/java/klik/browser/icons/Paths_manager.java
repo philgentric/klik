@@ -33,6 +33,8 @@ public class Paths_manager
     public List<Path> folders = new ArrayList<>();
     public List<Path> non_iconized = new ArrayList<>();
     private List<Path> iconized = new ArrayList<>();
+
+
     public Comparator<? super Path> file_comparator;
     private static final boolean show_video_as_gif = true;
     AtomicInteger ig_gen = new AtomicInteger(0);
@@ -71,6 +73,16 @@ public class Paths_manager
        }
     }
 
+
+    //**********************************************************
+    public boolean do_have_still_have(Path p)
+    //**********************************************************
+    {
+        if ( iconized.contains(p)) return true;
+        if ( non_iconized.contains(p)) return true;
+        if ( folders.contains(p)) return true;
+        return false;
+    }
 
 
     //**********************************************************
@@ -119,8 +131,13 @@ public class Paths_manager
             if (denied != null) return denied;
         }
 
+        if ( aborter.should_abort())
+        {
+            if ( use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
+            return Error_type.OK;
+        }
 
-        if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM)
+            if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM)
         {
             Collections.shuffle(iconized);
         }
@@ -148,7 +165,7 @@ public class Paths_manager
                 return; // invisible
             }
         }
-
+        if ( aborter.should_abort()) return;
 
         if (Guess_file_type.is_this_path_a_video(path))
         {
@@ -187,6 +204,7 @@ public class Paths_manager
                 return;
             }
         }
+        if ( aborter.should_abort()) return;
 
         if (Guess_file_type.is_this_path_a_pdf(path))
         {
@@ -201,6 +219,7 @@ public class Paths_manager
                 return;
             }
         }
+        if ( aborter.should_abort()) return;
 
         if (Guess_file_type.is_this_path_an_image(path))
         {
@@ -261,7 +280,6 @@ public class Paths_manager
             return f1.getFileName().toString().compareToIgnoreCase(f2.getFileName().toString());
         }
     };
-
 
 
     //**********************************************************

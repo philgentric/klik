@@ -31,6 +31,7 @@ public class Browser_UI
     MenuItem stop_full_screen_menu_item;
     MenuItem start_full_screen_menu_item;
     List<Button> top_buttons = new ArrayList<>();
+    private final boolean level2;
 
     //**********************************************************
     public Browser_UI(Browser b)
@@ -39,6 +40,7 @@ public class Browser_UI
         browser = b;
         logger = browser.logger;
         browser_menus = browser.browser_menus;
+        level2 = Static_application_properties.get_level2(logger);
 
     }
 
@@ -314,9 +316,9 @@ public class Browser_UI
 
             view_menu.getItems().add(scan);
         }
-        view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
+        if (level2) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
         view_menu.getItems().add(browser_menus.make_about_menu_item(logger));
-        view_menu.getItems().add(browser_menus.make_refresh_menu_item());
+        if (level2) view_menu.getItems().add(browser_menus.make_refresh_menu_item());
         return view_menu;
     }
 
@@ -329,23 +331,34 @@ public class Browser_UI
         files_menu.getItems().add(browser_menus.make_create_empty_directory_menu_item());
         files_menu.getItems().add(browser_menus.make_select_all_files_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
-        files_menu.getItems().add(browser_menus.make_search_by_keywords_menu_item());
+        if (level2)
+        {
+            files_menu.getItems().add(browser_menus.make_search_by_keywords_menu_item());
+        }
         {
             String cleanup = "Clean up";//I18n.get_I18n_string("Clean",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
-            clean.getItems().add(browser_menus.make_clean_names_menu_item());
-            clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
+            if (level2) clean.getItems().add(browser_menus.make_clean_names_menu_item());
+            if (level2) clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
+            if (level2) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             files_menu.getItems().add(clean);
         }
-        files_menu.getItems().add(browser_menus.make_backup_menu());
+        if (level2)
+        {
+            files_menu.getItems().add(browser_menus.make_backup_menu());
+        }
 
-        if (Static_application_properties.get_enable_fusk(logger))
-            files_menu.getItems().add(browser_menus.make_fusk_menu());
+        if (level2)
+        {
+            if (Static_application_properties.get_enable_fusk(logger))
+            {
+                files_menu.getItems().add(browser_menus.make_fusk_menu());
+            }
+        }
         return files_menu;
     }
 
@@ -360,13 +373,13 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_directories_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
-        pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_how_many_files_menu_item());
+        if (level2) pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
+        if (level2) pref.getItems().add(browser_menus.make_show_how_many_files_menu_item());
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
         //pref.getItems().add(browser_menus.make_sort_files_by_name_vs_decreasing_size_check_menu_item());
         //pref.getItems().add(browser_menus.make_show_gifs_first_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
+        if (level2) pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
         pref.getItems().add(browser_menus.make_button_width_menu());
@@ -375,8 +388,8 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_language_menu());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
-        pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
-        pref.getItems().add(browser_menus.make_video_length_menu());
+        if (level2) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
+        if (level2) pref.getItems().add(browser_menus.make_video_length_menu());
 
         return pref;
     }

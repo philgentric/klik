@@ -49,10 +49,19 @@ public class Change_gang
     // utility for a registered party to figure out if the changes in the call
     // impact a specific directory
 
+    public enum Possible_outcome
+    {
+        not_this_folder,
+        one_file_gone,
+        one_new_file,
+        more_changes
+    }
+
     //**********************************************************
-    public static boolean is_my_directory_impacted(Path dir, List<Old_and_new_Path> l, Logger logger)
+    public static Possible_outcome is_my_directory_impacted(Path dir, List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
     {
+        if (l.size() > 1 ) return Possible_outcome.more_changes;
         //String ref = dir.toAbsolutePath().toString();
         for (Old_and_new_Path oan : l)
         {
@@ -79,7 +88,12 @@ public class Change_gang
                     if (Files_and_Paths.is_same_path(oan.get_old_Path().getParent(),dir,logger))
                     {
                         if (dbg) logger.log("is_my_directory_impacted? YES! "+oan.get_old_Path().getParent().toAbsolutePath() +" OLD path matches "+ dir.toAbsolutePath());
-                        return true;
+
+                        if ( oan.cmd == Command_old_and_new_Path.command_move)
+                        {
+                            return Possible_outcome.one_file_gone;
+                        }
+                        return Possible_outcome.more_changes;
                     }
                     else
                     {
@@ -92,7 +106,11 @@ public class Change_gang
                 if (Files_and_Paths.is_same_path(oan.get_new_Path(), dir, logger))
                 {
                     if (dbg) logger.log("is_my_directory_impacted? YES! " + oan.get_new_Path().toAbsolutePath() + " NEW path matches " + dir.toAbsolutePath());
-                    return true;
+                    if ( oan.cmd == Command_old_and_new_Path.command_move)
+                    {
+                        return Possible_outcome.one_new_file;
+                    }
+                    return Possible_outcome.more_changes;
                 }
                 else
                 {
@@ -103,7 +121,11 @@ public class Change_gang
                     if (Files_and_Paths.is_same_path(oan.get_new_Path().getParent(), dir, logger))
                     {
                         if (dbg) logger.log("is_my_directory_impacted? YES! " + oan.get_new_Path().getParent().toAbsolutePath() + " NEW path matches " + dir.toAbsolutePath());
-                        return true;
+                        if ( oan.cmd == Command_old_and_new_Path.command_move)
+                        {
+                            return Possible_outcome.one_new_file;
+                        }
+                        return Possible_outcome.more_changes;
                     }
                     else
                     {
@@ -112,7 +134,7 @@ public class Change_gang
                 }
             }
         }
-        return false;
+        return Possible_outcome.not_this_folder;
     }
 
 

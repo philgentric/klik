@@ -738,7 +738,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         //if (dbg)
-            logger.log("the_pane scene_geometry_changed " + the_Pane.getBoundsInLocal().toString() + " from:" + from+ " rebuild_all_items="+ rebuild_all_items);
+            logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
         error_type = icon_manager.paths_manager.scan_dir(displayed_folder_path, my_Stage.the_Stage);
         if (error_type != Error_type.OK) {
@@ -746,7 +746,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
         icon_manager.geometry_changed(this, the_Pane, mandatory_in_pane,
                 "scene_geometry_changed from: " + from + " keep_scroll=" + keep_scroll,
-                //error_type,
                 rebuild_all_items);
 
         if (dbg) logger.log("the_pane scene_geometry_changed adapt_slider_to_scene");
@@ -812,24 +811,25 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
     {
-        if (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger)) {
-            if (dbg)
-                logger.log("Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-
-            // can be called from a thread which is NOT the FX event thread
-
-            Platform.runLater(() -> {
-                scene_geometry_changed("change gang for dir: " + displayed_folder_path, true, true);
-                //get_a_browser(this_local,the_stage,dir,true,logger);
-            });
-        } else {
-            if (dbg) {
-                logger.log("Browser of: " + displayed_folder_path + " IGNORED change gang notification: ");
-                for (Old_and_new_Path x : l) {
-                    logger.log(x.old_Path + " => " + x.new_Path);
-                }
+        switch (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger))
+        {
+            case more_changes:
+            {
+                if (dbg) logger.log("Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+                Platform.runLater(() -> {
+                    scene_geometry_changed("change gang for dir: " + displayed_folder_path, true, true);
+                });
+            };
+            break;
+            case one_new_file, one_file_gone:
+            {
+                Platform.runLater(() -> {
+                    scene_geometry_changed("change gang for dir: " + displayed_folder_path, false, true);
+                });
             }
-
+            break;
+            default:
+                break;
         }
     }
 

@@ -55,229 +55,7 @@ public class Browser_menus
         logger = logger_;
     }
 
-    //**********************************************************
-    public Menu make_backup_menu()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
-        Menu menu = new Menu(text);
-        {
-            MenuItem mi = make_set_as_backup_source_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_set_as_backup_sink_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_backup_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_abort_backup_menu_item();
-            menu.getItems().add(mi);
-        }
 
-        {
-            String text2 = I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
-            MenuItem item = new MenuItem(text2);
-            item.setOnAction(event -> show_backup_help(logger));
-            menu.getItems().add(item);
-        }
-        return menu;
-    }
-    //**********************************************************
-    public Menu make_fusk_menu()
-    //**********************************************************
-    {
-        String text = "Fusk (experimental!)"; //I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
-        Menu menu = new Menu(text);
-        {
-            MenuItem mi = make_set_as_fusk_source_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_set_as_fusk_sink_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_fusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_abort_fusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_defusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            String text2 = "Fusk help";//I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
-            MenuItem item = new MenuItem(text2);
-            item.setOnAction(event -> show_fusk_help(logger));
-            menu.getItems().add(item);
-        }
-        return menu;
-    }
-
-    //**********************************************************
-    private void show_backup_help(Logger logger)
-    //**********************************************************
-    {
-
-        List<Line_for_info_stage> l = new ArrayList<>();
-        l.add(new Line_for_info_stage(false,"The backup tool will copy recursively down the paths starting in the SOURCE folder"));
-        l.add(new Line_for_info_stage(false,"into the DESTINATION folder"));
-        l.add(new Line_for_info_stage(false,"It detects if identical names designate identical files in terms of file content"));
-        l.add(new Line_for_info_stage(false,"If names and content are the same, the file is not copied (it is not a brute force copy)"));
-        l.add(new Line_for_info_stage(false,"If names are matching but content is different, the source file is copied"));
-        l.add(new Line_for_info_stage(false,"and the previous file in the destination is renamed"));
-
-        Info_stage.show_info_stage("Help on backup",l, null);
-    }
-    //**********************************************************
-    private void show_fusk_help(Logger logger)
-    //**********************************************************
-    {
-
-        List<Line_for_info_stage> l = new ArrayList<>();
-        l.add(new Line_for_info_stage(false,"Fusk tool: create obsfuscated files that can only be decoded by Klik"));
-        l.add(new Line_for_info_stage(false,"The fusk tool will copy recursively down the paths starting in the SOURCE folder"));
-        l.add(new Line_for_info_stage(false,"into the DESTINATION folder"));
-        l.add(new Line_for_info_stage(false,"It obfuscates all files in the destination"));
-        l.add(new Line_for_info_stage(false,"WARNING: this is like encryption, but there is a single hardcoded password in Klik code"));
-
-        Info_stage.show_info_stage("Help on fusk",l, null);
-    }
-    //**********************************************************
-    public MenuItem make_set_as_fusk_source_menu_item()
-    //**********************************************************
-    {
-        String text = "Set this folder as fusk source";//I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_source());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_set_as_fusk_sink_menu_item()
-    //**********************************************************
-    {
-        String text = "Set this folder as fusk sink";//I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_sink());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_start_fusk_menu_item()
-    //**********************************************************
-    {
-        String text = "start fusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_fusk());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_start_defusk_menu_item()
-    //**********************************************************
-    {
-        String text = "start defusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_defusk());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_abort_fusk_menu_item()
-    //**********************************************************
-    {
-        String text = "Abort fusk";//I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.abort_fusk());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_set_as_backup_source_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_backup_source());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_set_as_backup_sink_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_backup_sink());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_start_backup_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_backup());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_abort_backup_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.abort_backup());
-        return item;
-    }
-
-    /*
-    // can be used instead of a menu bar
-    //**********************************************************
-    public void show_popup_menu(double x, double y)
-    //**********************************************************
-    {
-        logger.log("Browser_menus.show_popup_menu()");
-        ContextMenu context_menu;
-        context_menu = new ContextMenu();
-        context_menu.getItems().add(make_bookmarks_menu(browser, change_receiver, logger));
-        context_menu.getItems().add(make_history_menu(browser, change_receiver, logger));
-        context_menu.getItems().add(make_refresh_menu_item(browser, logger));
-        context_menu.getItems().add(make_start_fullscreen_menu_item(browser, logger));
-        context_menu.getItems().add(make_stop_fullscreen_menu_item(browser, logger));
-        context_menu.getItems().add(make_create_empty_directory_menu_item(browser, logger));
-        context_menu.getItems().add(make_new_window_menu_item(browser, change_receiver, logger));
-        context_menu.getItems().add(make_start_stop_slideshow_menu_item(browser, logger));
-        context_menu.getItems().add(make_select_all_files_menu_item(sh, logger));
-        context_menu.getItems().add(make_select_all_folders_menu_item(sh, logger));
-        context_menu.getItems().add(make_remove_empty_folders_menu_item(browser, logger));
-        context_menu.getItems().add(make_remove_recursively_empty_folders_menu_item(browser, logger));
-        context_menu.getItems().add(make_search_by_keywords_menu_item(browser, logger));
-        context_menu.getItems().add(make_undo_menu_item(logger));
-        context_menu.getItems().add(make_show_hidden_directories_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_show_hidden_files_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_show_gifs_first_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_sort_files_by_name_vs_decreasing_size_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_show_icons_for_images_and_videos_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_icon_size_menu(browser, logger));
-        context_menu.getItems().add(make_font_size_menu_item(browser, logger));
-        context_menu.getItems().add(make_style_menu_item(browser, change_receiver, logger));
-        context_menu.getItems().add(make_language_menu(browser, change_receiver, logger));
-        context_menu.getItems().add(make_invert_vertical_scroll_menu_item(logger));
-        context_menu.getItems().add(make_clear_icon_cache_menu_item(logger));
-        context_menu.getItems().add(make_clear_trash_menu_item(logger));
-        context_menu.getItems().add(make_about_menu_item(logger));
-
-
-        context_menu.show(browser.get_stage(), x, y);
-    }
-*/
     //**********************************************************
     public MenuItem make_about_menu_item(Logger logger)
     //**********************************************************
@@ -1283,7 +1061,6 @@ public class Browser_menus
     private void search_images_by_keyworks()
     //**********************************************************
     {
-
         List<String> given = new ArrayList<>();
         Image_context.ask_user_and_find(
                 browser,
@@ -1294,11 +1071,238 @@ public class Browser_menus
 
     }
 
+    //**********************************************************
     public MenuItem make_show_how_many_files_menu_item()
+    //**********************************************************
     {
         String text = "Show how many files are in each folder";//I18n.get_I18n_string("Create_new_empty_directory",logger);// to: " + parent.toAbsolutePath().toString();
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.show_how_many_files_in_each_folder());
         return item;
     }
+
+
+    //**********************************************************
+    public Menu make_backup_menu()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
+        Menu menu = new Menu(text);
+        {
+            MenuItem mi = make_set_as_backup_source_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_set_as_backup_sink_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_start_backup_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_abort_backup_menu_item();
+            menu.getItems().add(mi);
+        }
+
+        {
+            String text2 = I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text2);
+            item.setOnAction(event -> show_backup_help(logger));
+            menu.getItems().add(item);
+        }
+        return menu;
+    }
+    //**********************************************************
+    public Menu make_fusk_menu()
+    //**********************************************************
+    {
+        String text = "Fusk (experimental!)"; //I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
+        Menu menu = new Menu(text);
+        {
+            MenuItem mi = make_set_as_fusk_source_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_set_as_fusk_sink_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_start_fusk_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_abort_fusk_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_start_defusk_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            String text2 = "Fusk help";//I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
+            MenuItem item = new MenuItem(text2);
+            item.setOnAction(event -> show_fusk_help(logger));
+            menu.getItems().add(item);
+        }
+        return menu;
+    }
+
+    //**********************************************************
+    private void show_backup_help(Logger logger)
+    //**********************************************************
+    {
+
+        List<Line_for_info_stage> l = new ArrayList<>();
+        l.add(new Line_for_info_stage(false,"The backup tool will copy recursively down the paths starting in the SOURCE folder"));
+        l.add(new Line_for_info_stage(false,"into the DESTINATION folder"));
+        l.add(new Line_for_info_stage(false,"It detects if identical names designate identical files in terms of file content"));
+        l.add(new Line_for_info_stage(false,"If names and content are the same, the file is not copied (it is not a brute force copy)"));
+        l.add(new Line_for_info_stage(false,"If names are matching but content is different, the source file is copied"));
+        l.add(new Line_for_info_stage(false,"and the previous file in the destination is renamed"));
+
+        Info_stage.show_info_stage("Help on backup",l, null);
+    }
+    //**********************************************************
+    private void show_fusk_help(Logger logger)
+    //**********************************************************
+    {
+
+        List<Line_for_info_stage> l = new ArrayList<>();
+        l.add(new Line_for_info_stage(false,"Fusk tool: create obsfuscated files that can only be decoded by Klik"));
+        l.add(new Line_for_info_stage(false,"The fusk tool will copy recursively down the paths starting in the SOURCE folder"));
+        l.add(new Line_for_info_stage(false,"into the DESTINATION folder"));
+        l.add(new Line_for_info_stage(false,"It obfuscates all files in the destination"));
+        l.add(new Line_for_info_stage(false,"WARNING: this is like encryption, but there is a single hardcoded password in Klik code"));
+
+        Info_stage.show_info_stage("Help on fusk",l, null);
+    }
+    //**********************************************************
+    public MenuItem make_set_as_fusk_source_menu_item()
+    //**********************************************************
+    {
+        String text = "Set this folder as fusk source";//I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.you_are_fusk_source());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_set_as_fusk_sink_menu_item()
+    //**********************************************************
+    {
+        String text = "Set this folder as fusk sink";//I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.you_are_fusk_sink());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_start_fusk_menu_item()
+    //**********************************************************
+    {
+        String text = "start fusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.start_fusk());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_start_defusk_menu_item()
+    //**********************************************************
+    {
+        String text = "start defusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.start_defusk());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_abort_fusk_menu_item()
+    //**********************************************************
+    {
+        String text = "Abort fusk";//I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.abort_fusk());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_set_as_backup_source_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.you_are_backup_source());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_set_as_backup_sink_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.you_are_backup_sink());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_start_backup_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.start_backup());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_abort_backup_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.abort_backup());
+        return item;
+    }
+
+    /*
+    // can be used instead of a menu bar
+    //**********************************************************
+    public void show_popup_menu(double x, double y)
+    //**********************************************************
+    {
+        logger.log("Browser_menus.show_popup_menu()");
+        ContextMenu context_menu;
+        context_menu = new ContextMenu();
+        context_menu.getItems().add(make_bookmarks_menu(browser, change_receiver, logger));
+        context_menu.getItems().add(make_history_menu(browser, change_receiver, logger));
+        context_menu.getItems().add(make_refresh_menu_item(browser, logger));
+        context_menu.getItems().add(make_start_fullscreen_menu_item(browser, logger));
+        context_menu.getItems().add(make_stop_fullscreen_menu_item(browser, logger));
+        context_menu.getItems().add(make_create_empty_directory_menu_item(browser, logger));
+        context_menu.getItems().add(make_new_window_menu_item(browser, change_receiver, logger));
+        context_menu.getItems().add(make_start_stop_slideshow_menu_item(browser, logger));
+        context_menu.getItems().add(make_select_all_files_menu_item(sh, logger));
+        context_menu.getItems().add(make_select_all_folders_menu_item(sh, logger));
+        context_menu.getItems().add(make_remove_empty_folders_menu_item(browser, logger));
+        context_menu.getItems().add(make_remove_recursively_empty_folders_menu_item(browser, logger));
+        context_menu.getItems().add(make_search_by_keywords_menu_item(browser, logger));
+        context_menu.getItems().add(make_undo_menu_item(logger));
+        context_menu.getItems().add(make_show_hidden_directories_check_menu_item(browser, logger));
+        context_menu.getItems().add(make_show_hidden_files_check_menu_item(browser, logger));
+        context_menu.getItems().add(make_show_gifs_first_check_menu_item(browser, logger));
+        context_menu.getItems().add(make_sort_files_by_name_vs_decreasing_size_check_menu_item(browser, logger));
+        context_menu.getItems().add(make_show_icons_for_images_and_videos_check_menu_item(browser, logger));
+        context_menu.getItems().add(make_icon_size_menu(browser, logger));
+        context_menu.getItems().add(make_font_size_menu_item(browser, logger));
+        context_menu.getItems().add(make_style_menu_item(browser, change_receiver, logger));
+        context_menu.getItems().add(make_language_menu(browser, change_receiver, logger));
+        context_menu.getItems().add(make_invert_vertical_scroll_menu_item(logger));
+        context_menu.getItems().add(make_clear_icon_cache_menu_item(logger));
+        context_menu.getItems().add(make_clear_trash_menu_item(logger));
+        context_menu.getItems().add(make_about_menu_item(logger));
+
+
+        context_menu.show(browser.get_stage(), x, y);
+    }
+*/
 }

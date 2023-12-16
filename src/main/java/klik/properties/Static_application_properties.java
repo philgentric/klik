@@ -23,6 +23,7 @@ public class Static_application_properties
 {
     private static final boolean dbg = false;
     public static final String SORT_FILES_BY = "sort_files_by";
+    private static final String LEVEL2 = "LEVEL2";
     public static Properties_manager the_properties_manager;
     private static int icon_size = -1;
     private static int video_length = -1;
@@ -612,5 +613,24 @@ public class Static_application_properties
                 }
             });
         }
+    }
+
+    public static boolean get_level2(Logger logger) {
+        String s = Static_application_properties.get_properties_manager(logger).get(LEVEL2);
+        if (s == null) {
+            Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, "false", false);
+            return true;
+        }
+        else
+        {
+            return Boolean.parseBoolean(s);
+        }
+    }
+
+    //**********************************************************
+    public static void set_level2(boolean b, Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, String.valueOf(b), false);
     }
 }

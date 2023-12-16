@@ -93,7 +93,6 @@ public class Icon_manager
     private void map_buttons_and_icons(Browser the_browser,
                                        Pane pane,
                                        List<Node> mandatory,
-                                       //Error_type error_type,
                                        boolean single_column,
                                        boolean rebuild_all_items)
     //**********************************************************
@@ -138,8 +137,18 @@ public class Icon_manager
         }
 
 
-        //if ( rebuild_all_items)
-            all_items_map.clear();
+        if ( rebuild_all_items) all_items_map.clear();
+        else {
+            // check gones
+            List<Path> gones = new ArrayList<>();
+            for ( Path p : all_items_map.keySet())
+            {
+                if ( !paths_manager.do_have_still_have(p)){
+                    gones.add(p);
+                }
+            }
+            for ( Path p : gones) all_items_map.remove(p);
+        }
         how_many_rows = 0;
         Point2D p = new Point2D(0, 0);
         p = process_folders(the_browser, single_column, row_increment_for_dirs, column_increment, row_increment_for_dirs_with_picture, scene_width, p);
@@ -161,24 +170,6 @@ public class Icon_manager
         {
             use_aspect_ratio = true;
         }
-/*
-
-        if (use_aspect_ratio)
-        {
-            // if the first image aspect_ratio < 1 the x in the Point2D must be NEGATIVE
-            //so that the image left border is at screen_X=0
-            if ( !paths_manager.get_iconized().isEmpty())
-            {
-                Path path = paths_manager.get_iconized().get(0);
-                double aspect_ratio = Paths_manager.get_aspect_ratio(path);
-                if ( aspect_ratio < 1)
-                {
-                    double neg_x = (aspect_ratio-1)*icon_size/2.0;
-                    p = new Point2D(neg_x,p.getY());
-                }
-            }
-        }
-        */
 
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = -1;
@@ -533,7 +524,6 @@ public class Icon_manager
                                  Pane pane,
                                  List<Node> mandatory,
                                  String reason,
-                                 //Error_type error_type,
                                  boolean rebuild_all_items
     )
     //**********************************************************
@@ -542,9 +532,7 @@ public class Icon_manager
             logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" rebuild_all_items="+rebuild_all_items);
         boolean single_column = Static_application_properties.get_single_column(logger);
         if ( dbg_scroll) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
-        map_buttons_and_icons(b, pane, mandatory,
-                //error_type,
-                single_column, rebuild_all_items);
+        map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
     }
