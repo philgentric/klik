@@ -16,7 +16,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 //**********************************************************
@@ -50,12 +52,16 @@ public class Fast_date_from_exif_metadata_extractor
                         s = s.trim();
                         try {
                             LocalDateTime x = LocalDateTime.parse(s);
+                            logger.log(path+" date is :"+x.toString());
                             return x;
                         }
                         catch (DateTimeParseException e)
                         {
                             logger.log("WARNING cannot parse this date string? ->"+s+"<-");
-                            return LocalDateTime.now();
+
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy:MM:dd hh:mm:ss");
+                            LocalDateTime dateTime = LocalDateTime.parse(s, formatter);
+                            return dateTime;
                         }
                     }
                 }

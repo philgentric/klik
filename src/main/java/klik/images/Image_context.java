@@ -19,6 +19,7 @@ import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.find.Finder_actor;
+import klik.images.decoding.Fast_date_from_OS;
 import klik.level2.fusk.Fusk_static_core;
 import klik.level2.fusk.Fusk_strings;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -34,6 +35,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +58,7 @@ public class Image_context
     //double scroll_y;
     public boolean image_is_damaged;
     public String title="";
+    public final FileTime creation_time;
 
     //**********************************************************
     public static Image_context get_Image_context(Path f_, Aborter aborter,Logger logger_)
@@ -88,6 +91,7 @@ public class Image_context
         image = im_;
         the_image_view = new ImageView(image);
         the_image_view.setCacheHint(CacheHint.QUALITY);
+        creation_time = Fast_date_from_OS.get_date(current_path,logger);
         //if ( get_rotation) get_rotation();
         if ( dbg)
         {
@@ -110,6 +114,7 @@ public class Image_context
         image = im_;
         path = null;
         previous_path = null;
+        creation_time = null;
         the_image_view = new ImageView(image);
         the_image_view.setCacheHint(CacheHint.QUALITY);
     }

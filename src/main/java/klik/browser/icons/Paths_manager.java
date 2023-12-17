@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
+import klik.images.decoding.Fast_date_from_OS;
 import klik.images.decoding.Fast_date_from_exif_metadata_extractor;
 import klik.properties.File_sorter;
 import klik.properties.Static_application_properties;
@@ -16,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -327,8 +329,8 @@ public class Paths_manager
 
         @Override
         public int compare(Path p1, Path p2) {
-            LocalDateTime ldt1 = Fast_date_from_exif_metadata_extractor.get_date(p1,aborter,logger);
-            LocalDateTime ldt2 = Fast_date_from_exif_metadata_extractor.get_date(p2,aborter,logger);
+            FileTime ldt1 = Fast_date_from_OS.get_date(p1,logger);
+            FileTime ldt2 = Fast_date_from_OS.get_date(p2,logger);
             return ldt1.compareTo(ldt2);
         }
     };

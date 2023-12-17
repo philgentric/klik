@@ -418,10 +418,10 @@ public class Image_window
             return;
         }
 
-        String local_title;
+        StringBuilder local_title = new StringBuilder();
         if (ic.path == null)
         {
-            local_title = " no image ";
+            local_title.append(" no image ");
         }
         else
         {
@@ -431,11 +431,11 @@ public class Image_window
             if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
             {
                 String base = FilenameUtils.getBaseName(ic.path.toAbsolutePath().toString());
-                local_title = Fusk_strings.defusk_string(base, logger)+ "*";
+                local_title.append(Fusk_strings.defusk_string(base, logger)).append("*");
             }
             else
             {
-                local_title = ic.path.getFileName().toString();
+                local_title.append(ic.path.getFileName().toString());
             }
 
 
@@ -444,29 +444,29 @@ public class Image_window
             if (ic.path.toFile().length() == 0)
             {
                 logger.log("\n\n empty file ???? ic.path = "+ic.path);
-                local_title += " empty file";
+                local_title.append(" empty file");
             } else if (ic.image_is_damaged) {
-                local_title += " damaged or invalid (wrong extension?) file, size = "+Files_and_Paths.get_size_on_disk(ic.path,null, logger)+" Bytes";
+                local_title.append(" damaged or invalid (wrong extension?) file, size = ").append(Files_and_Paths.get_size_on_disk(ic.path,null, logger)).append(" Bytes");
             } else {
-                local_title += " " + ic.image.getWidth();
-                local_title += "x" + ic.image.getHeight();
+                local_title.append(" ").append(ic.image.getWidth()).append("x").append(ic.image.getHeight());
             }
 
-            local_title += ic.title;
+            local_title.append(" ").append(ic.creation_time);
+            local_title.append(" ").append(ic.title);
         }
         if (slide_show != null)
         {
-            local_title += "-- SLIDE-SHOW mode, delay=" + slide_show.inter_frame_ms + "(ms)";
+            local_title.append("-- SLIDE-SHOW mode, delay=").append(slide_show.inter_frame_ms).append("(ms)");
         }
         else
         {
             switch (mouse_handling_for_image_stage.mouse_mode) {
-                case drag_and_drop -> local_title += "-- drag-and-drop mode (use mouse to drag the image)";
-                case pix_for_pix -> local_title += "-- pix-for-pix mode (use mouse to explore large images)";
-                case click_to_zoom -> local_title += "-- zoom-with-mouse mode (use mouse to select zoom area)";
+                case drag_and_drop -> local_title.append("-- drag-and-drop mode (use mouse to drag the image)");
+                case pix_for_pix -> local_title.append("-- pix-for-pix mode (use mouse to explore large images)");
+                case click_to_zoom -> local_title.append("-- zoom-with-mouse mode (use mouse to select zoom area)");
             }
         }
-        the_Stage.setTitle(local_title);
+        the_Stage.setTitle(local_title.toString());
         //logger.log("Image_stage title = " + local_title);
     }
 
