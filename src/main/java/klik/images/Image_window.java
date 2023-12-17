@@ -101,7 +101,7 @@ public class Image_window
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
 
-        //if (dbg)
+        if (dbg)
         {
             ObservableList<Screen> screens = Screen.getScreens();
 
@@ -129,7 +129,7 @@ public class Image_window
         double y = bounds.getMinY();//current.getVisualBounds().getMinY();
         double w = bounds.getWidth();
         double h = bounds.getHeight();
-        logger_.log("got x,y,w,h from Static_application_properties ="+x+","+y+","+w+","+h);
+        //logger_.log("got x,y,w,h from Static_application_properties ="+x+","+y+","+w+","+h);
         //double w = current.getBounds().getWidth();
         //double h = current.getBounds().getHeight();
         //logger_.log("got w,h from intersecting_screens ="+current.getBounds());
@@ -161,9 +161,9 @@ public class Image_window
         the_Stage.setScene(the_Scene);
         the_Stage.setMinWidth(w);
         the_Stage.setMinHeight(h);
-        logger_.log("Image_window constructor: w,h  ="+w+","+h);
+        //logger_.log("Image_window constructor: w,h  ="+w+","+h);
         the_Stage.show();
-        logger_.log("Image_window constructor: REAL w,h  ="+the_Stage.getWidth()+","+the_Stage.getHeight());
+        //logger_.log("Image_window constructor: REAL w,h  ="+the_Stage.getWidth()+","+the_Stage.getHeight());
         the_Stage.setWidth(w);
         the_Stage.setHeight(h);
         the_Stage.setMinWidth(800);

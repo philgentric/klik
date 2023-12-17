@@ -295,7 +295,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 logger.log(Stack_trace_getter.get_stack_trace("Panic"));
                 return;
             }
-            index_reporter.report_index(image_indexer.get_index(image_context.path));
+            if ( image_indexer != null)
+            {
+                index_reporter.report_index(image_indexer.get_index(image_context.path));
+            }
         };
         Actor_engine.run(Change_image_actor.get_instance(), m, tr,logger);
         /*

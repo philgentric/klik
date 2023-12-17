@@ -278,10 +278,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         cleanup();
-        logger.log("close_window BEFORE close" + signature());
+        //logger.log("close_window BEFORE close" + signature());
         my_Stage.close();
         windows_count.decrementAndGet();
-        logger.log("close_window AFTER close" + signature());
+        //logger.log("close_window AFTER close" + signature());
     }
 
 
@@ -418,22 +418,23 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 speed_up_scan();
             }
 
-            if (keyEvent.isMetaDown()) {
+            if (keyEvent.isMetaDown())
+            {
                 if (keyEvent.getCharacter().equals("a")) {
                     logger.log("character is a + meta = select all");
                     selection_handler.select_all_files_in_folder(local);
                 }
 
                 if (keyEvent.getCharacter().equals("+")) {
-                    logger.log("character is + + meta = zoom +");
+                    logger.log("character is +meta = zoom +");
                     zoom_plus();
                 }
                 if (keyEvent.getCharacter().equals("=")) {
-                    logger.log("character is = + meta = zoom +");
+                    logger.log("character is  (meta & equal) +meta = zoom +");
                     zoom_plus();
                 }
                 if (keyEvent.getCharacter().equals("-")) {
-                    logger.log("character is - + meta = zoom -");
+                    logger.log("character is -meta = zoom -");
                     zoom_minus();
                 }
             }
@@ -715,24 +716,28 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    private void zoom_plus() {
-        zoom(1.1);
+    private void zoom_plus()
+    //**********************************************************
+    {
+        zoom(1.05);
     }
-//**********************************************************
 
     //**********************************************************
-    private void zoom_minus() {
-        zoom(0.9);
+    private void zoom_minus()
+    //**********************************************************
+    {
+        zoom(0.95);
     }
-//**********************************************************
 
     //**********************************************************
     private void zoom(double fac)
     //**********************************************************
     {
-        Static_application_properties.set_icon_size((int) (Static_application_properties.get_icon_size(logger) * fac), logger);
-        icon_manager.modify_button_fonts(fac);
-        scene_geometry_changed("zoom", false, true);
+        int new_icon_size = (int) (Static_application_properties.get_icon_size(logger) * fac);
+        logger.log("new icon size = "+new_icon_size);
+        Static_application_properties.set_icon_size(new_icon_size, logger);
+        //icon_manager.modify_button_fonts(fac);
+        scene_geometry_changed("zoom", true, true);
     }
 
 
@@ -740,7 +745,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void scene_geometry_changed(String from, boolean rebuild_all_items, boolean keep_scroll)
     //**********************************************************
     {
-        //if (dbg)
+        if (dbg)
             logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
         error_type = icon_manager.paths_manager.scan_dir(displayed_folder_path, my_Stage.the_Stage);

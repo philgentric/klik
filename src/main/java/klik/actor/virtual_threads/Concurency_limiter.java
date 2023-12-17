@@ -27,7 +27,7 @@ public class Concurency_limiter
     {
         int permits = (int)(max_number_of_threads_per_core*(double)(Runtime.getRuntime().availableProcessors()));
         if ( permits < 2) permits = 2;
-        logger.log(Stack_trace_getter.get_stack_trace("CREATING NEW Concurency_limiter for:"+origin+" has "+permits+" permits"));
+        //logger.log(Stack_trace_getter.get_stack_trace("CREATING NEW Concurency_limiter for:"+origin+" has "+permits+" permits"));
         concurrency_limiter = new Semaphore(permits);
     }
 

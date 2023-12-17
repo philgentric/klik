@@ -155,7 +155,7 @@ public class From_disk
 
     //**********************************************************
     public static Image load_icon_from_disk_cache(
-            Path original_image_file, // this NOT the icon path
+            Path original_image_file, // this NOT the icon path, this is the true full size image
             Path cache_dir,
             int icon_size,
             String tag,

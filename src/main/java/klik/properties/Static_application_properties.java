@@ -27,6 +27,8 @@ public class Static_application_properties
     private static final boolean dbg = false;
     public static final String SORT_FILES_BY = "sort_files_by";
     private static final String LEVEL2 = "LEVEL2";
+    public static final String DISK_CACHE_SIZE_WARNING_BYTES = "DISK_CACHE_SIZE_WARNING_BYTES";
+    private static final int DEFAULT_SIZE_WARNING_BYTES = 100_000_000;
     public static Properties_manager the_properties_manager;
     private static int icon_size = -1;
     private static int video_length = -1;
@@ -667,5 +669,19 @@ public class Static_application_properties
     //**********************************************************
     {
         Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, String.valueOf(b), false);
+    }
+
+    //**********************************************************
+    public static int get_size_warning_bytes(Logger logger)
+    //**********************************************************
+    {
+        int warning_bytes = DEFAULT_SIZE_WARNING_BYTES;
+        String warning_bytes_s = get_properties_manager(logger).get(DISK_CACHE_SIZE_WARNING_BYTES);
+        if (warning_bytes_s != null)
+        {
+            warning_bytes = (int)Double.parseDouble(warning_bytes_s);
+        }
+        get_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_BYTES, String.valueOf(warning_bytes), false);
+        return warning_bytes;
     }
 }

@@ -12,13 +12,13 @@ public class Icon_write_message implements Message
 {
 	public final Image image;
 	public final Path original_path;
-    public final double icon_size;
+    public final int icon_size;
     public final String extension;
 	public final Aborter aborter;
 
 
 	//**********************************************************
-    public Icon_write_message(Image smaller, double icon_size_, String extension_, Path p_)
+    public Icon_write_message(Image smaller, int icon_size_, String extension_, Path p_)
 	//**********************************************************
 	{
 		image = smaller;

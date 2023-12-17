@@ -401,7 +401,7 @@ public class Animated_gif_generator
                 logger);
 
 
-        Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, false, logger);
+        Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, From_disk.dbg, logger);
 
         if ( image == null) logger.log("shit image==null");
         else the_imageview.setImage(image);

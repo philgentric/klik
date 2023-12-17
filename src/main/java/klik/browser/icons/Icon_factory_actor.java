@@ -164,8 +164,8 @@ public class Icon_factory_actor implements Actor
         Path p = destination.get_path_for_display();
         if (p == null)
         {
-            //if (dbg)
-                logger.log("Icon_factory thread: returning large folder icon because icon path is null for item:" + destination.get_string() + "\ntypically happens when there is no image to use as a icon in that folder");
+            if (dbg)
+                logger.log("Icon_factory thread: returning null icon because icon path is null for item:" + destination.get_string() + "\ntypically happens when there is no image to use as a icon in that folder");
 
             return null;//Look_and_feel_manager.get_large_folder_icon(icon_factory_request.icon_size);
         }
@@ -190,7 +190,8 @@ public class Icon_factory_actor implements Actor
             return null;
         }
         if (image == null) {
-            if (dbg) logger.log("Icon_factory thread:  load from cache FAILED for " + p.getFileName());
+            if (dbg)
+                logger.log("Icon_factory thread:  load from cache FAILED for " + p.getFileName());
 
             image = From_disk.read_original_image_from_disk_and_return_icon(p, icon_factory_request.icon_size, icon_factory_request.aborter, dbg, logger);
             if (icon_factory_request.aborter.should_abort())

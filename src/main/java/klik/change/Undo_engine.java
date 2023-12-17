@@ -20,6 +20,7 @@ import java.util.*;
 public class Undo_engine implements Datetime_to_signature_source
 //**********************************************************
 {
+    private static boolean dbg = false;
     private static Undo_engine instance =  null;
     private final Logger logger;
     public static List<Active_list_stage> undo_stages = new ArrayList<>();
@@ -146,12 +147,12 @@ public class Undo_engine implements Datetime_to_signature_source
         {
             if ( oan.old_Path.toAbsolutePath().getParent().equals(trash.toAbsolutePath()))
             {
-                logger.log("not recording restore event: "+oan.get_string());
+                if ( dbg) logger.log("not recording restore event: "+oan.get_string());
                 return false;
             }
             else
             {
-                logger.log("Adding event: "+oan.get_string());
+                if ( dbg)  logger.log("Adding event: "+oan.get_string());
 
             }
         }

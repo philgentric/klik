@@ -62,6 +62,11 @@ public class Image_cache_cafeine implements Cache_interface
         //if (forward) increment = 1;
         int how_many_preload_to_request = Image_decoding_actor.FORWARD_PRELOAD_SIZE;
 
+        if ( image_display_handler.image_indexer == null)
+        {
+            // may happen when opening a folder in aspect ratio (slow) mode
+            return;
+        }
         //if (ultra_dbg) logger.log("preloading target: " + how_many_preload_to_request);
         final List<Path> kk = image_display_handler.image_indexer.get_paths(image_display_handler.get_image_context().path, how_many_preload_to_request, forward, ultimate);
 

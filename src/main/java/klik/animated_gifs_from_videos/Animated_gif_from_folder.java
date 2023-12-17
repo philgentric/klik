@@ -48,6 +48,7 @@ public class Animated_gif_from_folder
             return null;
         }
 
+
         Collections.sort(images_in_folder);
         Path actual_icon_cache_dir = Files_and_Paths.get_icon_cache_dir(logger);
         Path folder_icon_cache_dir = Files_and_Paths.get_folder_icon_cache_dir(logger);
@@ -57,13 +58,11 @@ public class Animated_gif_from_folder
         Path out = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(),output_animated_gif_name);
         if ( Files.exists(out))
         {
-            if ( dbg)
-                logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
+            if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
             return out;
         }
 
-        if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = "+in);
-        if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder target out = "+out);
+        if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = "+in+" target out = "+out);
 
         List<String> l = new ArrayList<>();
         l.add("convert");
@@ -78,14 +77,12 @@ public class Animated_gif_from_folder
         List<Path> to_be_cleaned_up = new ArrayList<>();
         for ( int i =0; i < images_in_folder.size(); i += inc)
         {
-            File f = images_in_folder.get(i);
-            String icon_name = make_cache_name(f.toPath(),tag, png_extension);
-            Path icon_path = Path.of(actual_icon_cache_dir.toAbsolutePath().toString(),icon_name);
-            //logger.log("   +icon_path = "+icon_path);
+            File image_file = images_in_folder.get(i);
+            Image image = From_disk.load_icon_from_disk_cache(image_file.toPath(), actual_icon_cache_dir, icon_size, tag, png_extension, dbg,logger);
 
-            Image image = From_disk.load_icon_from_disk_cache(f.toPath(), actual_icon_cache_dir, icon_size, tag, png_extension, false,logger);
             if ( image == null)
             {
+                if ( dbg) logger.log("   fetching icon from cache FAILED for:"+image_file);
                 continue;
             }
             // it seems that animated gif with frames of different sizes is not well supported
@@ -113,7 +110,11 @@ public class Animated_gif_from_folder
             String local = make_cache_name(in,FRAME1+i, png_extension);
             Path icon_path2 = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(),local);
             try {
-                Files.copy(icon_path, icon_path2, REPLACE_EXISTING);
+                //String icon_name = make_cache_name(image_file.toPath(),tag, png_extension);
+                //Path icon_path = Path.of(actual_icon_cache_dir.toAbsolutePath().toString(),icon_name);
+                File icon_file= From_disk.file_for_icon_cache(actual_icon_cache_dir.toAbsolutePath(), image_file.toPath(), tag, png_extension);
+
+                Files.copy(icon_file.toPath(), icon_path2, REPLACE_EXISTING);
                 if ( dbg) logger.log("copy DONE "+icon_path2);
                 to_be_cleaned_up.add(icon_path2);
 
@@ -125,7 +126,11 @@ public class Animated_gif_from_folder
             if ( actual> MAX) break;
         }
 
-        if ( actual < 2) return null; // abort
+        if ( actual < 2)
+        {
+            if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder too few images, aborting ");
+            return null; // abort
+        }
 
         l.add("-delay");
         l.add("30"); // in centiseconds
@@ -139,8 +144,10 @@ public class Animated_gif_from_folder
         {
             StringBuilder sb = null;
             if (dbg_imagemagic_call) sb = new StringBuilder();
-            if (!Execute_command.execute_command_list(l, folder_icon_cache_dir.toFile(), 2000, sb, logger)) {
+            if (!Execute_command.execute_command_list(l, folder_icon_cache_dir.toFile(), 2000, sb, logger))
+            {
                 logger.log(warning_IMAGEMAGIC);
+                logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;
             }
             if (dbg_imagemagic_call) logger.log(sb.toString());
@@ -155,7 +162,9 @@ public class Animated_gif_from_folder
                 logger.log(Stack_trace_getter.get_stack_trace("WARNING: cleanup failed "+e));
             }
         }
-        
+
+        if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder DONE "+out.toAbsolutePath().toString());
+
         return out;
     }
 }
