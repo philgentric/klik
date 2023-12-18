@@ -25,9 +25,9 @@ public class External_close_event_handler implements EventHandler<WindowEvent>
     public void handle(WindowEvent windowEvent)
     //**********************************************************
     {
-        browser.logger.log("\n\n\nBrowser External_close_event_handler = "+browser.signature());
+        //browser.logger.log("\n\n\nBrowser External_close_event_handler = "+browser.signature());
         browser.close_window();
-        browser.logger.log("After close = "+ browser.signature());
+        //browser.logger.log("After close = "+ browser.signature());
 
         if (browser.windows_count.get() ==0)
         {

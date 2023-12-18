@@ -85,7 +85,7 @@ Q: Why is the "sort files by aspect ratio" mode so slow?
 A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder it will take several seconds... then klik caches these and the second time you open the folder it should be quite fast.
 
 Q: A popup tells me the cache is getting pretty large, what should I do?  
-A: To make browsing faster klik uses a cache for icons, on your disk. If you have a lot of images, this cache can grow so large your main storage will become full, which is a bad thing. Use the menu: "Files/Clean" to clear the cache. Alternatively if you have a lot of spare room, you can edit the configuration file to increase the limit so as to avoid the annoying popup when you start klik.
+A: To make browsing faster klik uses a cache for icons, on your disk. If you have a lot of images, this cache can grow so large your main storage will become full, which is a bad thing. Use the menu: "Files/Clean" to clear the cache. Alternatively if you have a lot of spare room, you can edit the configuration file to increase the limit so as to avoid the annoying popup when you start klik. Note that klik erases items in the disk cache that are older than 2 days.
 
 Q: Should I edit the configuration file?  
 A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean one, but of course you wil loose all bookmarks and preferences.
@@ -246,7 +246,6 @@ Fusk: you can obfuscate images, for example if you store personal pictures on a 
 
 ## TODO list
 
-Make the icon cache on disk evict "old" icons
 
 Make an installer for Mac,Linux and windows
 
