@@ -99,7 +99,7 @@ public class Change_image_actor implements Actor
     {
         if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative target = "+ target_image_path);
         String skey = Image_context.get_full_path(target_image_path);
-        Image_context iai = change_image_message.image_stage.image_display_handler.image_cache.get(skey);
+        Image_context iai = change_image_message.image_stage.image_display_handler.get(skey);
         boolean forward = true;
         if ( change_image_message.delta < 0) forward = false;
         if (iai != null)
@@ -108,7 +108,7 @@ public class Change_image_actor implements Actor
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + skey);
             Platform.runLater(() -> change_image_message.image_stage.set_image(change_image_message.output_image_context[0],false));
             //cim.image_stage.restore_cursor();
-            change_image_message.image_stage.image_display_handler.image_cache.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
+            change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
             return "found in cache";
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
@@ -139,7 +139,7 @@ public class Change_image_actor implements Actor
         change_image_message.image_stage.set_image(change_image_message.output_image_context[0],false);
         //cim.image_stage.restore_cursor();
 
-        change_image_message.image_stage.image_display_handler.image_cache.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
+        change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
         return "OK";
     }
 

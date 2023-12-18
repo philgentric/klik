@@ -9,26 +9,25 @@ import klik.images.decoding.Image_decoding_actor;
 import klik.util.Logger;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 //**********************************************************
-public class Image_cache_cafeine implements Cache_interface
+public class Image_cache_dummy implements Cache_interface
 //**********************************************************
 {
     private static final boolean ultra_dbg = false;
     private final Image_decoding_actor image_decoding_actor;
     Logger logger;
-    Cache<String, Image_context> cache;
+    HashMap<String, Image_context> cache;
 
     //**********************************************************
-    public Image_cache_cafeine(int cache_size,Logger logger_)
+    public Image_cache_dummy( Logger logger_)
     //**********************************************************
     {
-        cache = Caffeine.newBuilder()
-                .maximumSize(cache_size)
-                .build();
+        cache = new HashMap<>();
         logger = logger_;
         image_decoding_actor = new Image_decoding_actor(logger);// need a single instance
     }
@@ -39,7 +38,7 @@ public class Image_cache_cafeine implements Cache_interface
     public Image_context get(String key)
     //**********************************************************
     {
-        return cache.getIfPresent(key);
+        return cache.get(key);
     }
 
     //**********************************************************
@@ -47,7 +46,7 @@ public class Image_cache_cafeine implements Cache_interface
     public Object put(String key, Image_context value)
     //**********************************************************
     {
-        if (ultra_dbg) logger.log("writing in Caffeine:" + value.path.getFileName());
+        if (ultra_dbg) logger.log("writing in dummy image cache:" + value.path.getFileName());
         cache.put(key, value);
         return null;
     }
@@ -85,27 +84,6 @@ public class Image_cache_cafeine implements Cache_interface
     public void check_decoded_image_cache_size(Image_display_handler image_context_owner, Logger logger)
     //**********************************************************
     {
-        if (ultra_dbg)
-            logger.log("------------ cache content: ---------------");
-
-        for (Map.Entry e : cache.asMap().entrySet())
-        {
-            String key = (String) e.getKey();
-            Image_context local_image_context = (Image_context) e.getValue();
-
-            if ( image_context_owner.image_indexer.distance_larger_than(image_context_owner.get_image_context().path,local_image_context.path, Image_decoding_actor.FORWARD_PRELOAD_SIZE))
-            {
-                cache.invalidate(key);
-                if (ultra_dbg) logger.log("       Evicted:" + key + ", distance too large from:" + image_context_owner.get_image_context().path + " to " + local_image_context.path.toAbsolutePath());
-            }
-            else
-            {
-                if (ultra_dbg)
-                    logger.log("       NOT evicted:" + key );
-            }
-        }
-        if (ultra_dbg) logger.log("---------- end cache content: -------------");
-
     }
 
     //**********************************************************
@@ -115,7 +93,7 @@ public class Image_cache_cafeine implements Cache_interface
     {
         Image_decode_request request = new Image_decode_request(path,false,null);
         String key = request.make_key();
-        cache.invalidate(key);
+        cache.remove(key);
         if (ultra_dbg) logger.log("       Evicted:" + key );
     }
 
@@ -124,8 +102,7 @@ public class Image_cache_cafeine implements Cache_interface
     public void clear_all()
     //**********************************************************
     {
-        cache.invalidateAll();
-        cache.cleanUp();
+        cache.clear();
     }
 
     //**********************************************************
@@ -133,39 +110,15 @@ public class Image_cache_cafeine implements Cache_interface
     public void print()
     //**********************************************************
     {
-        CacheStats s = cache.stats();
-
-
-        ConcurrentMap<String, Image_context> m = cache.asMap();
-
         long total_pixel = 0;
-        for ( Map.Entry<String ,Image_context> e : m.entrySet())
+        for ( Map.Entry<String ,Image_context> e : cache.entrySet())
         {
             Image_context ic = e.getValue();
             logger.log("   cache entry: "+ic.path);
             total_pixel += ic.image.getHeight()*ic.image.getWidth();
 
         }
-        logger.log("cache hitRate: "+s.hitRate());
-        logger.log("cache loadCount: "+s.loadCount());
-        logger.log("cache totalLoadTime: "+s.totalLoadTime());
         logger.log("cache size: "+total_pixel/1_000_000+" Mpixels");
-
     }
 
-/*
-    //**********************************************************
-    private int distance(int possible_deletion_target, int current, Image_indexer image_file_source)
-    //**********************************************************
-    {
-        int distance1 = current - possible_deletion_target;
-        if (distance1 < 0) distance1 = -distance1;
-
-        int max = image_file_source.how_many_images();
-        int distance2 = max - current + possible_deletion_target;
-        if (distance1 < distance2) return distance1;
-        else return distance2;
-
-    }
-*/
 }

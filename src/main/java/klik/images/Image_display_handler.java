@@ -12,6 +12,7 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
+import klik.images.decoding.Image_decoding_actor;
 import klik.level2.experimental.Static_image_utilities;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
@@ -42,6 +43,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
     // alternate rescaler:
     boolean alternate_rescaler = false;
+    public static final boolean use_image_caching = false;
 
     //**********************************************************
     public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Aborter aborter, Comparator<? super Path> file_comparator, Logger logger_)
@@ -93,7 +95,15 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
         Change_gang.register(this,logger); // image_context must be valid!
 
-        image_cache = new Image_cache_cafeine(logger);
+
+        if ( use_image_caching)
+        {
+            image_cache = new Image_cache_cafeine(Image_decoding_actor.CACHE_SIZE,logger);
+        }
+        else
+        {
+            image_cache = new Image_cache_dummy(logger);
+        }
         {
             Image image = Look_and_feel_manager.get_default_icon(300);
             if (image != null) image_stage.the_Stage.getIcons().add(image);
@@ -234,7 +244,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
 
 
-
+    public void print_image_cache()
+    {
+        image_cache.print();
+    }
 
 
     //**********************************************************
@@ -382,4 +395,20 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public void set_image_context(Image_context image_context_) {
         image_context = image_context_;
     }
+
+    public void clear_all_image_cache() {
+        image_cache.clear_all();
+    }
+
+    public Image_context get(String skey) {
+        return image_cache.get(skey);
+    }
+
+    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, boolean high_quality)
+    {
+        image_cache.preload(image_display_handler,ultimate,forward,high_quality);
+
+    }
+
+
 }

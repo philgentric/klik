@@ -21,7 +21,7 @@ def main_class_name = 'klik.Klik_application'
 
 application {
     mainClassName = main_class_name
-    applicationDefaultJvmArgs = ["-Xms4G"]
+    applicationDefaultJvmArgs = ["-Xms1G"]
     //applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "--enable-preview"]
 }
 

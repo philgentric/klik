@@ -258,7 +258,7 @@ public class Menu_for_image_stage
     //**********************************************************
     {
         MenuItem clear_ram_cache = new MenuItem("Print image RAM cache info");//I18n.get_I18n_string("qsqsdsdq", image_stage.logger));
-        clear_ram_cache.setOnAction(event -> image_stage.image_display_handler.image_cache.print());
+        clear_ram_cache.setOnAction(event -> image_stage.image_display_handler.print_image_cache());
         return clear_ram_cache;
     }
 
@@ -267,7 +267,7 @@ public class Menu_for_image_stage
     //**********************************************************
     {
         MenuItem clear_ram_cache = new MenuItem("Clear image RAM cache");//I18n.get_I18n_string("qsqsdsdq", image_stage.logger));
-        clear_ram_cache.setOnAction(event -> image_stage.image_display_handler.image_cache.clear_all());
+        clear_ram_cache.setOnAction(event -> image_stage.image_display_handler.clear_all_image_cache());
         return clear_ram_cache;
     }
 
