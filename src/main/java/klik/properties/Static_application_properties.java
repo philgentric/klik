@@ -225,7 +225,7 @@ public class Static_application_properties
     {
         String s = get_properties_manager(logger).get(SHOW_FOLDER_SIZE);
         if (s == null) {
-            get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, "true", false);
+            get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, "false", false);
             return false;
         } else {
             return Boolean.parseBoolean(s);
