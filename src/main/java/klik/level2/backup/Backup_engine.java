@@ -66,7 +66,7 @@ public class Backup_engine
                 new Directory_backup_job_request(source.toFile(),sink.toFile(), aborter, true,logger),
                         null,logger);
 
-        Sizes sizes= Files_and_Paths.get_sizes_on_disk(source,aborter, logger);
+        Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source,aborter, logger);
         stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");
         start = System.currentTimeMillis();

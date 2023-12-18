@@ -261,7 +261,7 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static Sizes get_sizes_on_disk2(Path path, Aborter aborter, Logger logger)
+    public static Sizes get_sizes_on_disk_shallow(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         File[] all_files = path.toFile().listFiles();
@@ -298,12 +298,12 @@ public class Files_and_Paths {
 
     }
     //**********************************************************
-    public static Sizes get_sizes_on_disk(Path path, Aborter aborter, Logger logger)
+    public static Sizes get_sizes_on_disk_deep(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         //get_size_on_disk_with_streams(path,logger);
         // the concurrent version is at least 5 times faster!
-        return get_sizes_on_disk_concurrent(path,aborter, logger);
+        return get_sizes_on_disk_deep_concurrent(path,aborter, logger);
     }
     /*
     //**********************************************************
@@ -332,7 +332,7 @@ public class Files_and_Paths {
 */
 
     //**********************************************************
-    public static Sizes get_sizes_on_disk_concurrent(Path path, Aborter aborter, Logger logger)
+    public static Sizes get_sizes_on_disk_deep_concurrent(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( !path.toFile().isDirectory())
@@ -386,15 +386,15 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static long get_how_many_files_down_the_tree(Path path, Aborter aborter, Logger logger)
+    public static long get_how_many_files_deep(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         //return get_how_many_files_streams(path,logger);
-        return get_how_many_files_concurrent(path,aborter, logger);
+        return get_how_many_files_deep_concurrent(path,aborter, logger);
     }
 
     //**********************************************************
-    private static long get_how_many_files_concurrent(Path path, Aborter aborter, Logger logger)
+    private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( !path.toFile().isDirectory())

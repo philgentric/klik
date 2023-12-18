@@ -581,7 +581,7 @@ public class Icon_manager
     }
 
     //**********************************************************
-    public void show_how_many_files_in_each_folder()
+    public void show_how_many_files_deep_in_each_folder()
     //**********************************************************
     {
         for ( Item i : all_items_map.values())
@@ -590,7 +590,7 @@ public class Icon_manager
             {
                 if(Files.isDirectory(ini.get_true_path()))
                 {
-                    Item_button.show_how_many_files_folder(ini.get_button(), ini.text, ini.get_true_path(), aborter, logger);
+                    Item_button.show_how_many_files_deep_folder(ini.get_button(), ini.text, ini.get_true_path(), aborter, logger);
                 }
             }
         }

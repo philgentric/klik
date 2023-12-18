@@ -404,8 +404,9 @@ public class Item_button extends Item implements Icon_destination
         make_button_drop_receiver_capable();
         give_a_menu_to_the_button();
 
-        if ( Static_application_properties.get_show_folder_size(logger)) {
-            show_how_many_files_folder(button,text,path,aborter,logger);
+        if ( Static_application_properties.get_show_folder_size(logger))
+        {
+            show_how_many_files_deep_folder(button,text,path,aborter,logger);
         }
     }
 
@@ -697,7 +698,7 @@ public class Item_button extends Item implements Icon_destination
         final boolean[] done = {false};
 
         Runnable r = () -> {
-            Sizes sizes = Files_and_Paths.get_sizes_on_disk(path,aborter, logger);
+            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path,aborter, logger);
 
             Platform.runLater(() -> {
                 String size_on_disk = I18n.get_I18n_string("Size_on_disk",logger);
@@ -791,12 +792,12 @@ public class Item_button extends Item implements Icon_destination
 
 
     //**********************************************************
-    public static void show_how_many_files_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
+    public static void show_how_many_files_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
             String s = text;
-            s += " (" + Files_and_Paths.get_how_many_files_down_the_tree(path, aborter, logger) + " files)";
+            s += " (" + Files_and_Paths.get_how_many_files_deep(path, aborter, logger) + " files)";
 
             String finalS = s;
             Platform.runLater(() -> {

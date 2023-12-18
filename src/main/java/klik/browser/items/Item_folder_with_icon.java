@@ -862,7 +862,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
         Runnable r = () -> {
-            String s = String.valueOf(Files_and_Paths.get_how_many_files_down_the_tree(path, aborter,logger));
+            String s = String.valueOf(Files_and_Paths.get_how_many_files_deep(path, aborter,logger));
             Platform.runLater(() -> {
                 size_info_receiver.set_file_count_text(s);
             });
@@ -877,7 +877,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
         Runnable r = () -> {
-            Sizes sizes = Files_and_Paths.get_sizes_on_disk2(path, aborter,logger);
+            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter,logger);
             Platform.runLater(() -> {
                 disk_foot_print_receiver.set_disk_foot_print_text(sizes);
             });

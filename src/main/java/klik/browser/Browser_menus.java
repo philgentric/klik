@@ -519,6 +519,15 @@ public class Browser_menus
         return bookmarks_menu;
     }
     //**********************************************************
+    public Menu make_roots_menu()
+    //**********************************************************
+    {
+        String text = "File system roots";// I18n.get_I18n_string("Undo",logger);// to: " + parent.toAbsolutePath().toString();
+        Menu roots_menu = new Menu(text);
+        create_roots_menu(browser,roots_menu, logger);
+        return roots_menu;
+    }
+    //**********************************************************
     public Menu make_undos_menu()
     //**********************************************************
     {
@@ -659,6 +668,23 @@ public class Browser_menus
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> pop_up_whole_undo_history());
             undos_menu.getItems().add(item);
+        }
+    }
+
+
+    //**********************************************************
+    public void create_roots_menu(Browser browser, Menu roots_menu, Logger logger)
+    //**********************************************************
+    {
+        for ( File f : File.listRoots())
+        {
+
+            String text = f.getAbsolutePath().toString();
+            MenuItem item = new MenuItem(text);
+            item.setOnAction(event -> {
+                    Browser_creation_context.replace_different_folder(f.toPath(),browser,null,logger);
+            });
+            roots_menu.getItems().add(item);
         }
     }
 
@@ -903,10 +929,10 @@ public class Browser_menus
         return menu;
     }
     //**********************************************************
-    public Menu make_button_width_menu()
+    public Menu make_column_width_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Button_width",logger);
+        String text = I18n.get_I18n_string("Column_width",logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
 
@@ -1077,7 +1103,7 @@ public class Browser_menus
     {
         String text = "Show how many files are in each folder";//I18n.get_I18n_string("Create_new_empty_directory",logger);// to: " + parent.toAbsolutePath().toString();
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.show_how_many_files_in_each_folder());
+        item.setOnAction(event -> browser.show_how_many_files_deep_in_each_folder());
         return item;
     }
 

@@ -326,10 +326,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    public void show_how_many_files_in_each_folder()
+    public void show_how_many_files_deep_in_each_folder()
     //**********************************************************
     {
-        icon_manager.show_how_many_files_in_each_folder();
+        icon_manager.show_how_many_files_deep_in_each_folder();
 
 
     }

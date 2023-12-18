@@ -286,6 +286,7 @@ public class Browser_UI
         ContextMenu bandh_menu = new ContextMenu();
         bandh_menu.getItems().add(browser_menus.make_bookmarks_menu());
         bandh_menu.getItems().add(browser_menus.make_history_menu());
+        bandh_menu.getItems().add(browser_menus.make_roots_menu());
         bandh_menu.getItems().add(browser_menus.make_undos_menu());
         return bandh_menu;
     }
@@ -380,7 +381,7 @@ public class Browser_UI
         if (level2) pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
-        pref.getItems().add(browser_menus.make_button_width_menu());
+        pref.getItems().add(browser_menus.make_column_width_menu());
         pref.getItems().add(browser_menus.make_font_size_menu_item());
         pref.getItems().add(browser_menus.make_style_menu_item());
         pref.getItems().add(browser_menus.make_language_menu());
