@@ -96,7 +96,7 @@ public class From_disk
             if( image.getException().toString().contains("OutOfMemoryError"))
             {
                 logger.log("IMAGE decode Panic :"+image.getException());
-                Popups.popup_Exception(image.getException(),100,"Kill the instance and restart one!",logger);
+                Popups.popup_Exception(image.getException(),100,"Your java VM machine is running out of RAM, try to increase the max in build.gadle and restart",logger);
             }
             else
             {
