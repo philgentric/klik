@@ -839,17 +839,17 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(sizes.folders);
+        sb.append(sizes.folders());
         sb.append(" folders\n");
-        sb.append(sizes.files);
+        sb.append(sizes.files());
         sb.append(" files\n");
-        sb.append(sizes.images);
+        sb.append(sizes.images());
         sb.append(" images\n");
-        sb.append(sizes.bytes);
+        sb.append(sizes.bytes());
         sb.append(" bytes\n");
 
-        file_count_text = sizes.files+" files";
-        disk_footprint_text = sizes.bytes+" bytes";
+        file_count_text = sizes.files()+" files";
+        disk_footprint_text = sizes.bytes()+" bytes";
         if ( !has_images)
         {
             label2.setText(sb.toString());

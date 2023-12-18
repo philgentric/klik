@@ -2,22 +2,99 @@
 
 Enables to sort pictures into folders, intuitive and fast, drag-and-drop anything.
 
-# Easiest way to try klik 
-Open a terminal and type:
+# Try klik 
 
-git clone https://github.com/philgentric/klik.git
+At this stage no installation executable or binaries are distributed, you will have to build klik from source, but it is super easy to do!
 
-cd klik
+### Beguiners' guide: how to install git and java
 
-./gradlew run
+### On MacOS
 
-(if you do not have git, you need to install it first:see https://git-scm.com/
-or, on a mac, install brew then git:
+On MacOS, I recommend leveraging homebrew and sdkman, (these are safe mainstream tools used by many developers) as follows:
 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+Open a terminal and copy/paste the **command lines** below:
 
-brew install git
+**/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
 
+**brew install sdkman**
+
+**sdk list java**
+
+Look at the list, copy a version (last column on the right side), preferably a recent one, the first number is the java major version, for example "21.ea.35-open" is a version of java 21
+
+**sdk install java 21.ea.35-open**
+
+**brew install git**
+
+### On windows or Linux
+
+type "how to install java and git" in google!-)
+
+### Get klik and run it!
+
+**git clone https://github.com/philgentric/klik.git**
+
+**cd klik**
+
+**./gradlew run**
+
+### Get klik updates
+
+To get the latest version of klik, just go in the klik folder and type:
+
+**git pull**
+
+,this will fetch the last master source code. Then:
+
+**./gradlew run**
+
+# FAQ
+
+Q: It says **git** not found?  
+A: You need git to get klik source code, install it
+
+Q: It says **java** not found?  
+A: klik requires java, you need to install it
+
+Q: It says **gradle** not found?  
+A: gradle is used to compile klik, but the command **./gradlew** will fix everything your you.
+
+Q: Where am I?  
+A: klik navigates your storage following the **directory structure**. The top left button makes you go up the tree (yes, computers are crazy, they have upside-down trees).
+
+Q: Ok, but where am I?  
+A: klik starts in your home folder. On mac it is /Users/yourname. Often people drop things on the desktop, it is located there: /Users/yourname/Desktop
+
+Q: Where are my images?  
+A: To find where your images are on your disk, open a terminal and type: **find . -name "*.jpg"**. Then use klik bookmarks to save the paths.
+
+Q: What is klik made of?  
+A: klik is written 100% in a computer language named "java", and uses the javafx graphic system.
+
+Q: Why is klik so incredibly fast?  
+A: klik uses background worker threads to avoid slowing down the graphic system. 
+
+Q: What is a "background worker thread"?  
+A: It is a way to execute code on a different core of your computer. When processing is spread other multiple cores, the job gets done faster, and it does not slow down the user interface; it reacts very fast, this is what you perceive as "speed". The more cores your machine has, the faster klik is.
+
+Q: Why is klik so slow on large images?  
+A: klik uses java ImageIO library, which is pretty fast but uses a lot of RAM. Large images (say more than 100 MegaPixel) simply need more RAM and computing power to be decoded, if your computer is super recent and has a lot of RAM, it should be OK, but yes, on older machines it is going to take up to several seconds... and the garbage collection will cause hickups... on the other hand, I doubt you will find another tool that can do it faster?
+
+
+Q: Why is the "sort files by aspect ratio" mode so slow?  
+A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder it will take several seconds... then klik caches these and the second time you open the folder it should be quite fast.
+
+Q: A popup tells me the cache is getting pretty large, what should I do?  
+A: To make browsing faster klik uses a cache for icons, on your disk. If you have a lot of images, this cache can grow so large your main storage will become full, which is a bad thing. Use the menu: "Files/Clean" to clear the cache. Alternatively if you have a lot of spare room, you can edit the configuration file to increase the limit so as to avoid the annoying popup when you start klik.
+
+Q: Should I edit the configuration file?  
+A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean one, but of course you wil loose all bookmarks and preferences.
+
+Q: Why should I edit the configuration file?  
+A: To increase the warning limit of cache size, or to look for easter eggs.
+
+Q: How can I edit the configuration file?  
+A: The file name is klik_properties.txt, it is localted in the .klik hidden folder in your home folder.
 
 # Intuitive
 
@@ -164,3 +241,22 @@ You can repair animated gifs.
 You can assign tags (text strings) to images that are saved in .properties files, one per image, and klik moves this metadata file with the image!
 
 Note: in order for movies to be displayed as animated gifs, you must have ffmpeg installed and in your path
+
+Fusk: you can obfuscate images, for example if you store personal pictures on a network drive. Becareful that if you loose the key, the content will not be recoverable!
+
+## TODO list
+
+Make the icon cache on disk evict "old" icons
+
+Make an installer for Mac,Linux and windows
+
+Try faster jpeg decoding like twelveMonkey
+
+Try supporting more formats via Java Advanced Imaging
+
+Try better down-scaling filters (not needed on mac screens, it is built-in) for example with imgscalr
+
+Try better EXIF for example via rkall/exiftool or apache Commons Imaging
+
+
+

@@ -704,10 +704,10 @@ public class Item_button extends Item implements Icon_destination
                 {
                     String display_text;
 
-                    if (sizes.bytes < 0) {
+                    if (sizes.bytes() < 0) {
                         display_text = path+ "\nAn error occurred, probably Access Denied, check the logs";
                     } else {
-                        display_text = path+"\n"+size_on_disk + " " + Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes);
+                        display_text = path+"\n"+size_on_disk + " " + Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes());
                     }
                     textarea1.setText(display_text);
                     if (Item_button.dbg)  logger.log(display_text);
@@ -715,9 +715,9 @@ public class Item_button extends Item implements Icon_destination
                     String folders = I18n.get_I18n_string("Folders", logger);
                     String files = I18n.get_I18n_string("Files", logger);
                     String images = I18n.get_I18n_string("Images", logger);
-                    textarea2.setText(folders+": "+ sizes.folders + "\n"+files+": " + sizes.files + "\n" + images+": "+sizes.images);
+                    textarea2.setText(folders+": "+ sizes.folders() + "\n"+files+": " + sizes.files() + "\n" + images+": "+sizes.images());
                     {
-                        browser.set_status(path + " :  " + sizes.folders + " " + folders + " , " + sizes.files + " " + files + " , " + sizes.images + " " + images + " , " + display_text);
+                        browser.set_status(path + " :  " + sizes.folders() + " " + folders + " , " + sizes.files() + " " + files + " , " + sizes.images() + " " + images + " , " + display_text);
                     }
                 }
             });

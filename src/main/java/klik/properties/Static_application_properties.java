@@ -246,18 +246,25 @@ public class Static_application_properties
     {
         Properties_manager pm = get_properties_manager(logger);
         String x_s = pm.get(SCREEN_TOP_LEFT_X);
-        if (x_s == null) return null;
+        if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
         String y_s = pm.get(SCREEN_TOP_LEFT_Y);
-        if (y_s == null) return null;
+        if (y_s == null) return default_rectangle();
         double y = Double.parseDouble(y_s);
         String w_s = pm.get(SCREEN_WIDTH);
-        if (w_s == null) return null;
+        if (w_s == null) return default_rectangle();
         double w = Double.parseDouble(w_s);
         String h_s = pm.get(SCREEN_HEIGHT);
-        if (h_s == null) return null;
+        if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
         return new Rectangle2D(x, y, w, h);
+    }
+
+    //**********************************************************
+    private static Rectangle2D default_rectangle()
+    //**********************************************************
+    {
+        return new Rectangle2D(0, 0, 800, 600);
     }
 
     //**********************************************************

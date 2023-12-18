@@ -125,14 +125,10 @@ public class Image_window
         Screen current = intersecting_screens.get(0);
 
         Rectangle2D bounds = Static_application_properties.get_bounds(logger_);
-        double x = bounds.getMinX();//current.getVisualBounds().getMinX();
-        double y = bounds.getMinY();//current.getVisualBounds().getMinY();
+        double x = bounds.getMinX();
+        double y = bounds.getMinY();
         double w = bounds.getWidth();
         double h = bounds.getHeight();
-        //logger_.log("got x,y,w,h from Static_application_properties ="+x+","+y+","+w+","+h);
-        //double w = current.getBounds().getWidth();
-        //double h = current.getBounds().getHeight();
-        //logger_.log("got w,h from intersecting_screens ="+current.getBounds());
 
         Image_window returned = new Image_window(b, path, x, y,w, h, logger_);
         returned.the_Stage.setX(x);

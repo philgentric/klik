@@ -26,6 +26,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -803,7 +806,9 @@ public class Files_and_Paths {
 
     }
 
+    //**********************************************************
     public static Error_type explain_error(Path dir, Logger logger)
+    //**********************************************************
     {
         try
         {
@@ -829,10 +834,47 @@ public class Files_and_Paths {
         return Error_type.OK;
     }
 
-    private static String BasicFileAttributes_to_string(BasicFileAttributes x) {
+    //**********************************************************
+    private static String BasicFileAttributes_to_string(BasicFileAttributes x)
+    //**********************************************************
+    {
         StringBuilder sb = new StringBuilder();
         sb.append("isDirectory: ").append(x.isDirectory()).append(" isSymbolicLink: ").append(x.isSymbolicLink());
         return sb.toString();
     }
 
+    //**********************************************************
+    public static long get_file_age_in_hours(File f, Logger logger)
+    //**********************************************************
+    {
+        Duration age = get_file_age(f,logger);
+        if ( age == null) return Integer.MAX_VALUE;
+        return age.toHours();
+    }
+    //**********************************************************
+    public static long get_file_age_in_days(File f, Logger logger)
+    //**********************************************************
+    {
+        Duration age = get_file_age(f,logger);
+        if ( age == null) return Integer.MAX_VALUE;
+        return age.toDays();
+    }
+    //**********************************************************
+    public static Duration get_file_age(File f, Logger logger)
+    //**********************************************************
+    {
+        BasicFileAttributes x = null;
+        try {
+            x = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
+        } catch (IOException e) {
+            logger.log_exception("file age",e);
+            return null;
+        }
+        FileTime creation= x.creationTime();
+        Instant c = creation.toInstant();
+        Instant now = Instant.now();
+
+        Duration age = Duration.between(c,now);
+        return age;
+    }
 }

@@ -78,8 +78,14 @@ public class Icon_writer_actor implements Actor
 		if ( path == null) return null;
 		String full_name = path.toAbsolutePath().toString();
 		StringBuilder sb = new StringBuilder();
-		sb.append(clean_name(full_name));
-		//sb.append(UUID.nameUUIDFromBytes(full_name.getBytes())); // the name is always the same length
+		if ( dbg)
+		{
+			sb.append(clean_name(full_name));
+		}
+		else
+		{
+			sb.append(UUID.nameUUIDFromBytes(full_name.getBytes())); // the name is always the same length and is obfuscated
+		}
 		sb.append("_");
 		sb.append(tag);
 		sb.append(".");

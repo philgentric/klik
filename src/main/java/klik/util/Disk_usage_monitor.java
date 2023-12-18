@@ -16,7 +16,10 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Disk_usage_monitor {
+//**********************************************************
+public class Disk_usage_monitor
+//**********************************************************
+{
 
     public final Logger logger;
     public final Aborter aborter;
@@ -28,7 +31,9 @@ public class Disk_usage_monitor {
 
     public final int WARNING_LIMIT_BYTES;
 
+    //**********************************************************
     public Disk_usage_monitor(Aborter aborter_, Logger logger_)
+    //**********************************************************
     {
         aborter= aborter_;
         logger = logger_;
@@ -43,7 +48,6 @@ public class Disk_usage_monitor {
         /*
         for (FileStore fileStore : FileSystems.getDefault().getFileStores())
         {
-
             try {
                 logger.log("fileStore: "+fileStore.name()+" "+fileStore.getUsableSpace());
             } catch (IOException e) {
@@ -54,7 +58,9 @@ public class Disk_usage_monitor {
 
     }
 
+    //**********************************************************
     private boolean monitor()
+    //**********************************************************
     {
         //long total = 0;
         for( Monitored_folder monitored_folder : monitored_folders)
@@ -102,7 +108,10 @@ public class Disk_usage_monitor {
         return true;
     }
 
-    public void start() {
+    //**********************************************************
+    public void start()
+    //**********************************************************
+    {
         Runnable r = new Runnable() {
             @Override
             public void run() {

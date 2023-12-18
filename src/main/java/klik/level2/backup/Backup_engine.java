@@ -67,7 +67,7 @@ public class Backup_engine
                         null,logger);
 
         Sizes sizes= Files_and_Paths.get_sizes_on_disk(source,aborter, logger);
-        stats.source_byte_count = sizes.bytes;
+        stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");
         start = System.currentTimeMillis();
         Runnable monitoring = () -> {

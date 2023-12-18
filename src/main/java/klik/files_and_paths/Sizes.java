@@ -1,5 +1,8 @@
 package klik.files_and_paths;
 
+public record Sizes(long bytes, int folders, long files, long images){}
+
+/*
 //**********************************************************
 public class Sizes
 //**********************************************************
@@ -19,3 +22,4 @@ public class Sizes
         this.images = images;
     }
 }
+*/
