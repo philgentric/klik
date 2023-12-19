@@ -1,0 +1,87 @@
+package klik.images.caching;
+
+import klik.images.Image_context;
+import klik.images.Image_display_handler;
+import klik.images.caching.Cache_interface;
+import klik.util.Logger;
+
+import java.nio.file.Path;
+
+//**********************************************************
+public class Image_cache_dummy implements Cache_interface
+//**********************************************************
+{
+    private static final boolean ultra_dbg = true;
+    Logger logger;
+    private String key;
+    private Image_context image_context;
+
+    //**********************************************************
+    public Image_cache_dummy( Logger logger_)
+    //**********************************************************
+    {
+        logger = logger_;
+    }
+
+
+    //**********************************************************
+    @Override
+    public Image_context get(String key_)
+    //**********************************************************
+    {
+        logger.log("Image_cache_dummy: key = "+key_);
+        if ( image_context == null) logger.log("image context is null");
+        return image_context;
+    }
+
+    //**********************************************************
+    @Override
+    public Object put(String key_, Image_context value)
+    //**********************************************************
+    {
+        logger.log("writing in dummy image cache:" + value.path.getFileName());
+        key = key_;
+        image_context = value;
+        return null;
+    }
+
+
+    //**********************************************************
+    @Override
+    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, boolean high_quality)//, int target_width)
+    //**********************************************************
+    {
+    }
+
+    //**********************************************************
+    public void check_decoded_image_cache_size(Image_display_handler image_context_owner, Logger logger)
+    //**********************************************************
+    {
+    }
+
+    //**********************************************************
+    @Override // Image_cache_interface
+    public void evict(Path path)
+    //**********************************************************
+    {
+    }
+
+    @Override
+    //**********************************************************
+    public void clear_all()
+    //**********************************************************
+    {
+       image_context = null;
+    }
+
+    //**********************************************************
+    @Override
+    public void print()
+    //**********************************************************
+    {
+        logger.log("   cache entry: "+image_context.path);
+        long total_pixel = (long) (image_context.image.getHeight()*image_context.image.getWidth());
+        logger.log("cache size: "+total_pixel/1_000_000+" Mpixels");
+    }
+
+}

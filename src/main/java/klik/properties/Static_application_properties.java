@@ -29,6 +29,7 @@ public class Static_application_properties
     private static final String LEVEL2 = "LEVEL2";
     public static final String DISK_CACHE_SIZE_WARNING_BYTES = "DISK_CACHE_SIZE_WARNING_BYTES";
     private static final int DEFAULT_SIZE_WARNING_BYTES = 100_000_000;
+    private static final String AUTO_PURGE_ICON_CACHE = "AUTO_PURGE_ICON_CACHE";
     public static Properties_manager the_properties_manager;
     private static int icon_size = -1;
     private static int video_length = -1;
@@ -185,6 +186,26 @@ public class Static_application_properties
         }
     }
 
+
+    //**********************************************************
+    public static boolean get_auto_purge_icon_disk_cache(Logger logger)
+    //**********************************************************
+    {
+        String s = get_properties_manager(logger).get(AUTO_PURGE_ICON_CACHE);
+        if (s == null) {
+            get_properties_manager(logger).save_unico(AUTO_PURGE_ICON_CACHE, "false", false);
+            return false;
+        } else {
+            return Boolean.parseBoolean(s);
+        }
+    }
+    //**********************************************************
+    public static void set_auto_purge_icon_disk_cache(boolean b, Logger logger)
+    //**********************************************************
+    {
+        get_properties_manager(logger).save_unico(AUTO_PURGE_ICON_CACHE, String.valueOf(b), false);
+    }
+
     //**********************************************************
     public static boolean get_enable_fusk(Logger logger)
     //**********************************************************
@@ -203,6 +224,7 @@ public class Static_application_properties
     {
         get_properties_manager(logger).save_unico(ENABLE_FUSK, String.valueOf(b), false);
     }
+
 
     //**********************************************************
     public static void set_show_hidden_files(boolean b, Logger logger)

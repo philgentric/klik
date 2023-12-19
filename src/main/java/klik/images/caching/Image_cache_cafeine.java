@@ -1,11 +1,11 @@
-package klik.images;
+package klik.images.caching;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import klik.actor.Actor_engine;
-import klik.images.decoding.Image_decode_request;
-import klik.images.decoding.Image_decoding_actor;
+import klik.images.Image_context;
+import klik.images.Image_display_handler;
 import klik.util.Logger;
 
 import java.nio.file.Path;
@@ -18,19 +18,22 @@ public class Image_cache_cafeine implements Cache_interface
 //**********************************************************
 {
     private static final boolean ultra_dbg = false;
-    private final Image_decoding_actor image_decoding_actor;
+    private final Image_decoding_actor_for_cache image_decoding_actor;
     Logger logger;
     Cache<String, Image_context> cache;
+    int forward_size;
 
     //**********************************************************
-    public Image_cache_cafeine(int cache_size,Logger logger_)
+    public Image_cache_cafeine(int forward_size,Logger logger_)
     //**********************************************************
     {
+
         cache = Caffeine.newBuilder()
-                .maximumSize(cache_size)
+                .maximumSize(2*forward_size+1)
                 .build();
         logger = logger_;
-        image_decoding_actor = new Image_decoding_actor(logger);// need a single instance
+        logger.log("Cafeine max size = "+(2*forward_size+1));
+        image_decoding_actor = new Image_decoding_actor_for_cache(logger);// need a single instance
     }
 
 
@@ -60,7 +63,6 @@ public class Image_cache_cafeine implements Cache_interface
     {
         //int increment = -1;
         //if (forward) increment = 1;
-        int how_many_preload_to_request = Image_decoding_actor.FORWARD_PRELOAD_SIZE;
 
         if ( image_display_handler.image_indexer == null)
         {
@@ -68,15 +70,15 @@ public class Image_cache_cafeine implements Cache_interface
             return;
         }
         //if (ultra_dbg) logger.log("preloading target: " + how_many_preload_to_request);
-        final List<Path> kk = image_display_handler.image_indexer.get_paths(image_display_handler.get_image_context().path, how_many_preload_to_request, forward, ultimate);
+        final List<Path> kk = image_display_handler.image_indexer.get_paths(image_display_handler.get_image_context().path, forward_size, forward, ultimate);
 
         for (Path path: kk)
         {
-            Image_decode_request idr = new Image_decode_request(path, high_quality, this);
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, high_quality, this);
             if (ultra_dbg) logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
         }
-        check_decoded_image_cache_size(image_display_handler, logger);
+        //check_decoded_image_cache_size(image_display_handler, logger);
 
 
     }
@@ -93,7 +95,7 @@ public class Image_cache_cafeine implements Cache_interface
             String key = (String) e.getKey();
             Image_context local_image_context = (Image_context) e.getValue();
 
-            if ( image_context_owner.image_indexer.distance_larger_than(image_context_owner.get_image_context().path,local_image_context.path, Image_decoding_actor.FORWARD_PRELOAD_SIZE))
+            if ( image_context_owner.image_indexer.distance_larger_than(forward_size,image_context_owner.get_image_context().path,local_image_context.path))
             {
                 cache.invalidate(key);
                 if (ultra_dbg) logger.log("       Evicted:" + key + ", distance too large from:" + image_context_owner.get_image_context().path + " to " + local_image_context.path.toAbsolutePath());
@@ -113,7 +115,7 @@ public class Image_cache_cafeine implements Cache_interface
     public void evict(Path path)
     //**********************************************************
     {
-        Image_decode_request request = new Image_decode_request(path,false,null);
+        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,false,null);
         String key = request.make_key();
         cache.invalidate(key);
         if (ultra_dbg) logger.log("       Evicted:" + key );
@@ -139,17 +141,20 @@ public class Image_cache_cafeine implements Cache_interface
         ConcurrentMap<String, Image_context> m = cache.asMap();
 
         long total_pixel = 0;
+        int count = 0;
         for ( Map.Entry<String ,Image_context> e : m.entrySet())
         {
             Image_context ic = e.getValue();
             logger.log("   cache entry: "+ic.path);
             total_pixel += ic.image.getHeight()*ic.image.getWidth();
+            count++;
 
         }
+        logger.log(count+ " images in cache");
+        logger.log("Total cache size: "+total_pixel/1_000_000+" Mpixels");
         logger.log("cache hitRate: "+s.hitRate());
         logger.log("cache loadCount: "+s.loadCount());
         logger.log("cache totalLoadTime: "+s.totalLoadTime());
-        logger.log("cache size: "+total_pixel/1_000_000+" Mpixels");
 
     }
 

@@ -27,7 +27,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
         if ( browser.dbg) browser.logger.log("KeyEvent="+key_event);
         if (key_event.getCode() == KeyCode.ESCAPE)
         {
-            browser.logger.log("\n\n\n\nWindows RECEIVES ESCAPE = "+browser.signature());
+            browser.logger.log("\n\n\n\nWindow RECEIVED ESCAPE = "+browser.signature());
             if ( browser.my_Stage.escape>0) return;
             browser.my_Stage.escape++;
             key_event.consume();
@@ -47,9 +47,9 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
                     browser.close_window();
                     if (browser.windows_count.get() ==0)
                     {
-                        browser.logger.log(browser.signature()+" opening a HOME Browser");
+                        //browser.logger.log(browser.signature()+" opening a HOME Browser");
                         Browser_creation_context.additional_no_past(browser.home,browser.logger);
-                        browser.logger.log(browser.signature()+" after opening a HOME Browser");
+                        //browser.logger.log(browser.signature()+" after opening a HOME Browser");
                     }
                 }
             }

@@ -201,7 +201,7 @@ public class Image_indexer
     }
 
     //**********************************************************
-    public boolean distance_larger_than(Path ref, Path other, int max_distance)
+    public boolean distance_larger_than(int max_distance, Path ref, Path other)
     //**********************************************************
     {
         Integer i1 = state.index_from_path(ref);

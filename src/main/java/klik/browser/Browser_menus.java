@@ -72,7 +72,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Clear_Trash_Folder",logger);// to: " + parent.toAbsolutePath().toString();
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Files_and_Paths.clear_trash(browser.my_Stage.the_Stage,browser.aborter,logger));
+        item.setOnAction(event -> Files_and_Paths.clear_trash_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
         return item;
     }
     //**********************************************************
@@ -95,7 +95,7 @@ public class Browser_menus
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
             browser.icon_manager.clear_aspect_ratio_cache();
                 });
         return item;
@@ -111,7 +111,7 @@ public class Browser_menus
         String text = "Clear FOLDER icon cache on disk";//I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);// to: " + parent.toAbsolutePath().toString();
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Files_and_Paths.clear_folder_icon_cache_on_disk(browser.my_Stage.the_Stage,browser.aborter,logger));
+        item.setOnAction(event -> Files_and_Paths.clear_folder_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
         return item;
     }
 
@@ -257,6 +257,21 @@ public class Browser_menus
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.scene_geometry_changed("enable fusk boolean changed",true,false);
+        });
+        return item;
+    }
+
+
+    //**********************************************************
+    public MenuItem make_auto_purge_icon_disk_cache_check_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Auto_purge_cache",logger);// to: " + parent.toAbsolutePath().toString();
+
+        CheckMenuItem item = new CheckMenuItem(text);
+        item.setSelected(Static_application_properties.get_auto_purge_icon_disk_cache(logger));
+        item.setOnAction(actionEvent -> {
+            Static_application_properties.set_auto_purge_icon_disk_cache(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
         });
         return item;
     }

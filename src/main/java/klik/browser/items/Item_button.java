@@ -773,7 +773,7 @@ public class Item_button extends Item implements Icon_destination
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Clear_Trash_Folder",logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("clearing trash!");
-            Files_and_Paths.clear_trash(browser.my_Stage.the_Stage,aborter,logger);
+            Files_and_Paths.clear_trash_with_warning(browser.my_Stage.the_Stage,aborter,logger);
         });
         return menu_item;
     }

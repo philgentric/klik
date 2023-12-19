@@ -372,6 +372,7 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_directories_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
+        if (level2) pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
         if (level2) pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
         if (level2) pref.getItems().add(browser_menus.make_show_how_many_files_menu_item());
 

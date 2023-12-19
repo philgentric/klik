@@ -201,24 +201,32 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void clear_icon_cache_on_disk(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_icon_cache_on_disk_with_warning(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_icon_cache_dir(logger);
 
         double size = get_size_on_disk(icons, aborter, logger);
-
         String s1 = I18n.get_I18n_string("Warning_deleting_icon", logger);
         String s2 = size / 1000_000_000.0 + I18n.get_I18n_string("GB_deleted", logger);
         if (size < 1_000_000_000) {
             s2 = size / 1000_000.0 + I18n.get_I18n_string("MB_deleted", logger);
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
+
         delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_on_disk(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_icon_cache_on_disk_no_warning(Logger logger)
+    //**********************************************************
+    {
+        Path icons = get_icon_cache_dir(logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+    }
+
+    //**********************************************************
+    public static void clear_folder_icon_cache_on_disk_with_warning(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);
@@ -235,7 +243,16 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static void clear_trash(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_folder_icon_cache_no_warning(Logger logger)
+    //**********************************************************
+    {
+        Path icons = get_folder_icon_cache_dir(logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+    }
+
+
+    //**********************************************************
+    public static void clear_trash_with_warning(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path trash = Static_application_properties.get_trash_dir(logger);

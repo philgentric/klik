@@ -1,4 +1,4 @@
-package klik.images.decoding;
+package klik.images.caching;
 
 import klik.actor.Actor;
 import klik.actor.Message;
@@ -8,18 +8,16 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
 //**********************************************************
-public class Image_decoding_actor implements Actor
+public class Image_decoding_actor_for_cache implements Actor
 //**********************************************************
 {
     private static final boolean verbose = false;
     private static final boolean ultra_dbg = false;
-    public static final int FORWARD_PRELOAD_SIZE = 8;
-    public static final int CACHE_SIZE = 2*(FORWARD_PRELOAD_SIZE+1);
     Logger logger;
 
 
     //**********************************************************
-    public Image_decoding_actor(Logger logger_)
+    public Image_decoding_actor_for_cache(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -30,13 +28,14 @@ public class Image_decoding_actor implements Actor
     public String run(Message m)
     //**********************************************************
     {
-        Image_decode_request request = (Image_decode_request) m;
+        Image_decode_request_for_cache request = (Image_decode_request_for_cache) m;
         if ( ultra_dbg) logger.log("decode request:"+request.get_string());
 
         String key = request.make_key();
         if ( request.cache.get(key) != null)
         {
-            if ( verbose) logger.log("NOT decoding because image found in cache:"+key);
+            //if ( verbose)
+                logger.log("NOT decoding because image found in cache:"+key);
             return"found in cache";
         }
 

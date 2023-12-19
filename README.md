@@ -10,7 +10,7 @@ At this stage no installation executable or binaries are distributed, you will h
 
 ### On MacOS
 
-On MacOS, I recommend leveraging homebrew and sdkman, (these are safe mainstream tools used by many developers) as follows:
+On MacOS, use homebrew and sdkman, (these are safe mainstream tools used by many developers) as follows:
 
 Open a terminal and copy/paste the **command lines** below:
 
@@ -20,7 +20,7 @@ Open a terminal and copy/paste the **command lines** below:
 
 **sdk list java**
 
-Look at the list, copy a version (last column on the right side), preferably a recent one, the first number is the java major version, for example "21.ea.35-open" is a version of java 21
+Look at the list, copy a version (last column on the right side), preferably a recent one >= 21, the first number is the java major version, for example "21.ea.35-open" is a version of java 21
 
 **sdk install java 21.ea.35-open**
 

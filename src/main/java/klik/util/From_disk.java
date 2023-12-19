@@ -136,6 +136,7 @@ public class From_disk
     public static long get_remaining_memory()
     //**********************************************************
     {
+        //https://stackoverflow.com/questions/3571203/what-are-runtime-getruntime-totalmemory-and-freememory
         Runtime runtime = Runtime.getRuntime();
         long used = runtime.totalMemory() - runtime.freeMemory();
         long max = runtime.maxMemory();

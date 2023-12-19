@@ -1,18 +1,10 @@
 package klik.util;
 
 import klik.actor.Aborter;
-import klik.files_and_paths.Disk_scanner;
-import klik.files_and_paths.File_payload;
 import klik.files_and_paths.Files_and_Paths;
 import klik.properties.Static_application_properties;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttributeView;
-import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +13,8 @@ public class Disk_usage_monitor
 //**********************************************************
 {
 
+    public static final String ICON_CACHE_FOLDER = "Icon cache folder";
+    public static final String TRASH_FOLDER = "Trash folder";
     public final Logger logger;
     public final Aborter aborter;
     private volatile boolean warning_issued = false;
@@ -29,7 +23,7 @@ public class Disk_usage_monitor
 
     List<Monitored_folder> monitored_folders = new ArrayList<>();
 
-    public final int WARNING_LIMIT_BYTES;
+    public final int warning_limit_bytes;
 
     //**********************************************************
     public Disk_usage_monitor(Aborter aborter_, Logger logger_)
@@ -38,11 +32,11 @@ public class Disk_usage_monitor
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder("Icon cache folder",Files_and_Paths.get_icon_cache_dir(logger)));
+        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger)));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder("Trash folder",Static_application_properties.get_trash_dir(logger)));
+        monitored_folders.add(new Monitored_folder(TRASH_FOLDER,Static_application_properties.get_trash_dir(logger)));
 
-        WARNING_LIMIT_BYTES = Static_application_properties.get_size_warning_bytes(logger);
+        warning_limit_bytes = Static_application_properties.get_size_warning_bytes(logger);
 
 
         /*
@@ -66,8 +60,17 @@ public class Disk_usage_monitor
         for( Monitored_folder monitored_folder : monitored_folders)
         {
             long tmp = Files_and_Paths.get_size_on_disk_concurrent(monitored_folder.path,aborter,logger);
-            if ( tmp > WARNING_LIMIT_BYTES)
+            if ( tmp > warning_limit_bytes)
             {
+                if( monitored_folder.name.equals(ICON_CACHE_FOLDER))
+                {
+                    if (Static_application_properties.get_auto_purge_icon_disk_cache(logger))
+                    {
+                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(logger);
+                        Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+                        continue;
+                    }
+                }
                 if ( !warning_issued)
                 {
                     Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp/1000_000+" Mbytes",

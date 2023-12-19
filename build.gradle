@@ -3,6 +3,8 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'maven-publish'
+
 }
 
 repositories {
@@ -15,6 +17,10 @@ compileJava {
     options.compilerArgs += ['--enable-preview']
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 
 def main_class_name = 'klik.Klik_application'
@@ -26,7 +32,7 @@ application {
 }
 
 javafx {
-    version = "20"
+    version = "21"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media' ]
 }
 
@@ -40,6 +46,14 @@ if (currentOS.isWindows()) {
     platform = 'mac'
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': main_class_name
+        )
+    }
+}
+
 dependencies {
     // EXIF reader
     implementation 'com.drewnoakes:metadata-extractor:2.18.0'
@@ -50,4 +64,22 @@ dependencies {
     // PDF icons
     implementation 'org.apache.pdfbox:pdfbox:3.0.0-RC1'
 
+}
+
+group = 'philgentric'
+version = '0.0.1'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'my_sample_repo'
+            url = layout.buildDirectory.dir('my_sample_repo')
+        }
+    }
 }

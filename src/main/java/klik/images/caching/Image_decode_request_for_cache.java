@@ -1,13 +1,12 @@
-package klik.images.decoding;
+package klik.images.caching;
 
 import klik.actor.Aborter;
 import klik.actor.Message;
-import klik.images.Cache_interface;
 
 import java.nio.file.Path;
 
 //**********************************************************
-public class Image_decode_request implements Message
+public class Image_decode_request_for_cache implements Message
 //**********************************************************
 {
     public final Path path;
@@ -16,7 +15,7 @@ public class Image_decode_request implements Message
     public final Aborter aborter;
 
     //**********************************************************
-    public Image_decode_request(Path path_, boolean high_quality_, Cache_interface preloaded_)
+    public Image_decode_request_for_cache(Path path_, boolean high_quality_, Cache_interface preloaded_)
     //**********************************************************
     {
         path = path_;

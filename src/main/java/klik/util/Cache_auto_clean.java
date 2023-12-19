@@ -43,27 +43,32 @@ public class Cache_auto_clean
     private boolean monitor()
     //**********************************************************
     {
-        //long total = 0;
         for( Monitored_folder monitored_folder : monitored_folders)
         {
             File[] files = monitored_folder.path.toFile().listFiles();
             for ( File f : files)
             {
-                long age = Files_and_Paths.get_file_age_in_days(f,logger);
-                //logger.log(f.toPath().toAbsolutePath()+ " age = "+age+ " days");
-                if ( age > AGE_LIMIT_IN_DAYS)
-                {
-                    if ( dbg) logger.log(f.toPath().toAbsolutePath()+ " is too old at "+age+" days, deleting");
-                    try {
-                        Files.delete(f.toPath());
-                    } catch (IOException e) {
-                        logger.log(""+e);
-                    }
-                }
+                delete_if_too_old(f);
             }
         }
-
         return true;
+    }
+
+    //**********************************************************
+    private void delete_if_too_old(File f)
+    //**********************************************************
+    {
+        long age = Files_and_Paths.get_file_age_in_days(f,logger);
+        //logger.log(f.toPath().toAbsolutePath()+ " age = "+age+ " days");
+        if ( age > AGE_LIMIT_IN_DAYS)
+        {
+            if ( dbg) logger.log(f.toPath().toAbsolutePath()+ " is too old at "+age+" days, deleting");
+            try {
+                Files.delete(f.toPath());
+            } catch (IOException e) {
+                logger.log(""+e);
+            }
+        }
     }
 
     //**********************************************************

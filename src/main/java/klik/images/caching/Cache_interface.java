@@ -1,4 +1,7 @@
-package klik.images;
+package klik.images.caching;
+
+import klik.images.Image_context;
+import klik.images.Image_display_handler;
 
 import java.nio.file.Path;
 

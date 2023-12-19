@@ -163,7 +163,7 @@ public class Image_window
         the_Stage.setWidth(w);
         the_Stage.setHeight(h);
         the_Stage.setMinWidth(800);
-        the_Stage.setMinHeight(600);
+        the_Stage.setMinHeight(100);
         boolean high_quality = false;
         image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, the_browser.get_file_comparator(), logger);
         if ( image_display_handler == null)
@@ -501,6 +501,7 @@ public class Image_window
         }
         // if pix-for-pix was used on a very large image, the window size is very large too..
         // let us check and correct that
+        Platform.runLater(() -> {
 
         local_image_context.the_image_view.setPreserveRatio(true);
         //logger.log("smooth?"+local_image_context.imageView.isSmooth());
@@ -554,7 +555,6 @@ public class Image_window
         }
         final boolean local_pix_for_pix2 =  local_pix_for_pix;
 
-        Platform.runLater(() -> {
             //the_BorderPane.getChildren().clear();
             the_BorderPane.setCenter(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
             //logger.log("ic.imageView"+ local_image_context.imageView.getImage().toString());

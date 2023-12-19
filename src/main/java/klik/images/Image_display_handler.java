@@ -12,12 +12,16 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.images.decoding.Image_decoding_actor;
+import klik.images.caching.Cache_interface;
+import klik.images.caching.Image_cache_cafeine;
+import klik.images.caching.Image_cache_dummy;
+import klik.images.caching.Image_decoding_actor_for_cache;
 import klik.level2.experimental.Static_image_utilities;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
 import klik.look.Look_and_feel_manager;
+import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Threads;
@@ -43,7 +47,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
     // alternate rescaler:
     boolean alternate_rescaler = false;
-    public static final boolean use_image_caching = false;
+    public static final boolean use_image_caching = true;
 
     //**********************************************************
     public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Aborter aborter, Comparator<? super Path> file_comparator, Logger logger_)
@@ -98,7 +102,22 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
         if ( use_image_caching)
         {
-            image_cache = new Image_cache_cafeine(Image_decoding_actor.CACHE_SIZE,logger);
+            long remaining_RAM = From_disk.get_remaining_memory();
+            int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
+            int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
+            logger.log("cache_slots="+cache_slots);
+            if( cache_slots < 3)
+            {
+                image_cache = new Image_cache_dummy(logger);
+            }
+            else
+            {
+                int forward_size = cache_slots/2;
+                if ( forward_size > 100) forward_size = 100;//Image_decoding_actor_for_cache.CACHE_SIZE;
+                logger.log("forward_size="+forward_size);
+
+                image_cache = new Image_cache_cafeine(forward_size,logger);
+            }
         }
         else
         {
@@ -314,75 +333,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             }
         };
         Actor_engine.run(Change_image_actor.get_instance(), m, tr,logger);
-        /*
-        if ( dbg) logger.log("change_image_relative delta=" + delta);
 
-        if (image_indexer == null)
-        {
-            if ( dbg) logger.log("change_image_relative image_file_source == null");
-            if (image_context.path == null)
-            {
-                if ( dbg) logger.log("change_image_relative image_context.path == null");
-                image_stage.set_nothing_to_display(null);
-                return;
-            }
-        }
-
-        // the safe way is to get the index of the current image from its path
-        // however, when renaming a sequence of image this is annoying
-        // since when you press next, you are in the new name context...
-
-        image_stage.show_wait_cursor();
-        Path target = image_indexer.get_new_path_relative(image_context.path,delta,ultimate);
-        if ( target == null)
-        {
-            if ( dbg) logger.log("change_image_relative something really bad happened, like the whole dir was deleted behind the scene");
-            image_stage.set_nothing_to_display(null);
-            image_stage.restore_cursor();
-            return;
-        }
-        if ( dbg) logger.log("change_image_relative target = "+target);
-        String skey = Image_context.get_key(target);
-        Image_context iai = image_cache.get(skey);
-        boolean forward = true;
-        if ( delta < 0) forward = false;
-        if (iai != null)
-        {
-            image_context = iai;
-            if ( dbg) logger.log("\n FOUND in CACHE: " + skey);
-            image_stage.set_image(image_context,false);
-            image_stage.restore_cursor();
-            image_cache.preload(this, ultimate, forward, alternate_rescaler,(int) the_Stage.getWidth());
-            return;
-        }
-        if ( dbg) logger.log("\n NOT found in cache: " + skey);
-        iai = local_getImage_context(target);
-        if (iai == null)
-        {
-            if ( dbg) logger.log("null image (1) in change_image_relative");
-            Change_gang.report_anomaly(image_context.path.getParent());
-            image_stage.restore_cursor();
-            return;
-        }
-
-        image_context = iai;
-
-        if (image_stage.mouse_handling_for_image_stage.something_is_wrong_with_image_size())
-        {
-            if ( dbg) logger.log("something_is_wrong_with_image_size in change_image_relative");
-            //image_stage.restore_cursor();
-            //return;
-        }
-        else
-        {
-            if ( dbg) logger.log("change_image_relative OK! index is:" + target + " for file:" + image_context.path.getFileName());
-        }
-
-        image_stage.set_image(image_context,false);
-        image_stage.restore_cursor();
-
-        image_cache.preload(this, ultimate, forward, alternate_rescaler,(int) the_Stage.getWidth());
-        */
     }
 
     @Override // Slide_show_slave
@@ -390,7 +341,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     {
         image_stage.set_stage_title(image_context);
     }
-
 
     public void set_image_context(Image_context image_context_) {
         image_context = image_context_;
@@ -400,7 +350,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         image_cache.clear_all();
     }
 
-    public Image_context get(String skey) {
+    public Image_context try_to_get_from_cache(String skey) {
         return image_cache.get(skey);
     }
 
@@ -411,4 +361,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     }
 
 
+    public void save_in_cache(String skey, Image_context iai) {
+        image_cache.put(skey,iai);
+    }
 }
