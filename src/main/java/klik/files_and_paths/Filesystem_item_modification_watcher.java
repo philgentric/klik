@@ -29,7 +29,11 @@ public class Filesystem_item_modification_watcher
 
         final Filesystem_item_signature[] signature = new Filesystem_item_signature[1];
         signature[0] = new Filesystem_item_signature(logger);
-        if (!signature[0].init(path)) return false;
+        if (!signature[0].init(path))
+        {
+            logger.log("signature failed for");
+            return false;
+        }
 
         //ScheduledFuture<?> finalT = t;
         Runnable r = () -> {

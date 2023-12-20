@@ -25,12 +25,12 @@ public class Static_application_properties
 //**********************************************************
 {
     private static final boolean dbg = false;
+    public static Properties_manager the_properties_manager;
     public static final String SORT_FILES_BY = "sort_files_by";
     private static final String LEVEL2 = "LEVEL2";
-    public static final String DISK_CACHE_SIZE_WARNING_BYTES = "DISK_CACHE_SIZE_WARNING_BYTES";
+    public static final String DISK_CACHE_SIZE_WARNING_BYTES = "DISK_CACHE_SIZE_WARNING_SIZE_IN_BYTES";
     private static final int DEFAULT_SIZE_WARNING_BYTES = 100_000_000;
-    private static final String AUTO_PURGE_ICON_CACHE = "AUTO_PURGE_ICON_CACHE";
-    public static Properties_manager the_properties_manager;
+    private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
     private static int icon_size = -1;
     private static int video_length = -1;
     private static int button_width = -1;
@@ -58,6 +58,7 @@ public class Static_application_properties
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
     public static final String TRASH_DIR = "klik_trash";
     public static final String ICON_CACHE_DIR = "klik_icon_cache";
+    public static final String ASPECT_RATIO_CACHE_DIR = "klik_aspect_ratio_cache";
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
     public static final String USER_HOME = "user.home";
     public static final String SINGLE_COLUMN = "single_column";
@@ -116,22 +117,22 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static File_sorter get_sort_files_by(Logger logger)
+    public static File_sort_by get_sort_files_by(Logger logger)
     //**********************************************************
     {
         String s = Static_application_properties.get_properties_manager(logger).get(SORT_FILES_BY);
         if (s == null) {
-            Static_application_properties.get_properties_manager(logger).save_unico(SORT_FILES_BY, File_sorter.NAME.name(), false);
-            return File_sorter.NAME;
+            Static_application_properties.get_properties_manager(logger).save_unico(SORT_FILES_BY, File_sort_by.NAME.name(), false);
+            return File_sort_by.NAME;
         }
         else
         {
-            return File_sorter.valueOf(s);
+            return File_sort_by.valueOf(s);
         }
     }
 
     //**********************************************************
-    public static void set_sort_files_by(File_sorter b, Logger logger)
+    public static void set_sort_files_by(File_sort_by b, Logger logger)
     //**********************************************************
     {
         Static_application_properties.get_properties_manager(logger).save_unico(SORT_FILES_BY, b.name(), false);
@@ -188,12 +189,12 @@ public class Static_application_properties
 
 
     //**********************************************************
-    public static boolean get_auto_purge_icon_disk_cache(Logger logger)
+    public static boolean get_auto_purge_disk_caches(Logger logger)
     //**********************************************************
     {
-        String s = get_properties_manager(logger).get(AUTO_PURGE_ICON_CACHE);
+        String s = get_properties_manager(logger).get(AUTO_PURGE_DISK_CACHES);
         if (s == null) {
-            get_properties_manager(logger).save_unico(AUTO_PURGE_ICON_CACHE, "false", false);
+            get_properties_manager(logger).save_unico(AUTO_PURGE_DISK_CACHES, "false", false);
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -203,7 +204,7 @@ public class Static_application_properties
     public static void set_auto_purge_icon_disk_cache(boolean b, Logger logger)
     //**********************************************************
     {
-        get_properties_manager(logger).save_unico(AUTO_PURGE_ICON_CACHE, String.valueOf(b), false);
+        get_properties_manager(logger).save_unico(AUTO_PURGE_DISK_CACHES, String.valueOf(b), false);
     }
 
     //**********************************************************

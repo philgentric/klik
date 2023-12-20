@@ -38,6 +38,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.History;
 import klik.properties.Static_application_properties;
+import klik.util.Importer;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -113,6 +114,21 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         return icon_manager.paths_manager.file_comparator;
+    }
+
+    //**********************************************************
+    public void import_apple_Photos()
+    //**********************************************************
+    {
+        if (!Popups.popup_ask_for_confirmation(my_Stage.the_Stage,"Importing photos will create COPIES","Please select a destination drive with enough space",logger) ) return;
+
+        Importer.import_now(my_Stage.the_Stage,logger);
+    }
+    //**********************************************************
+    public void estimate_size_of_importing_apple_Photos()
+    //**********************************************************
+    {
+        Importer.estimate_size(my_Stage.the_Stage,logger);
     }
 
 
@@ -798,7 +814,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         if (result.isPresent()) {
             String new_name = result.get();
 
-            for (; ; ) {
+            for (int i =0; i<10 ;i++ ) {
                 try {
                     Path new_dir = displayed_folder_path.resolve(new_name);
                     Files.createDirectory(new_dir);

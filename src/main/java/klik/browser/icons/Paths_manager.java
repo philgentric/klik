@@ -1,6 +1,5 @@
 package klik.browser.icons;
 
-import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -8,20 +7,16 @@ import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
-import klik.images.decoding.Fast_date_from_exif_metadata_extractor;
-import klik.properties.File_sorter;
+import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
 import klik.util.*;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 //**********************************************************
 public class Paths_manager
@@ -127,8 +122,8 @@ public class Paths_manager
 */
         boolean use_aspect_ratio = false;
         if (
-                (Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) ||
-                        (Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM_ASPECT_RATIO )) {
+                (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ||
+                        (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO )) {
             use_aspect_ratio = true;
             if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
             aspect_ratio_cache.reload_aspect_ratio_cache();
@@ -137,6 +132,7 @@ public class Paths_manager
         try
         {
             File files[] = folder_path.toFile().listFiles();
+            /*
             if ( use_aspect_ratio)
             {
                 boolean warning = true;
@@ -150,7 +146,7 @@ public class Paths_manager
                     };
                     Platform.runLater(rr);
                 }
-            }
+            }*/
 
             for ( File f : files)
             {
@@ -177,7 +173,7 @@ public class Paths_manager
             return Error_type.OK;
         }
 
-            if ( Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM)
+            if ( Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM)
         {
             Collections.shuffle(iconized);
         }

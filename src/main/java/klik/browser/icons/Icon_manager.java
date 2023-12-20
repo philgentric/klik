@@ -19,7 +19,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.File_sorter;
+import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -165,8 +165,8 @@ public class Icon_manager
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean use_aspect_ratio = false;
-        if ( (Static_application_properties.get_sort_files_by(logger) == File_sorter.ASPECT_RATIO) ||
-            (Static_application_properties.get_sort_files_by(logger) == File_sorter.RANDOM_ASPECT_RATIO))
+        if ( (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ||
+            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO))
         {
             use_aspect_ratio = true;
         }

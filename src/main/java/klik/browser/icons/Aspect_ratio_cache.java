@@ -1,14 +1,12 @@
 package klik.browser.icons;
 
-import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Files_and_Paths;
-import klik.properties.File_sorter;
+import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
-import klik.util.Popups;
 import klik.util.Threads;
 
 import java.nio.file.Path;
@@ -40,7 +38,7 @@ public class Aspect_ratio_cache
         String s = folder_path.toAbsolutePath().toString();
         cache_file_name = UUID.nameUUIDFromBytes(s.getBytes()).toString();
         {
-            Path dir = Files_and_Paths.get_icon_cache_dir(logger);
+            Path dir = Files_and_Paths.get_aspect_ratio_cache_dir(logger);
             path_of_aspect_ratio_cache_file= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         }
         aborter = aborter_;
@@ -157,7 +155,7 @@ public class Aspect_ratio_cache
     void save_aspect_ratio_cache()
     //**********************************************************
     {
-        Path dir = Files_and_Paths.get_icon_cache_dir(logger);
+        Path dir = Files_and_Paths.get_aspect_ratio_cache_dir(logger);
         Properties_manager pm = new Properties_manager(path_of_aspect_ratio_cache_file,logger);
 
         int saved = 0;
@@ -200,7 +198,7 @@ public class Aspect_ratio_cache
                     if ( aspect_ratio_actor.in_flight.get() == 0)
                     {
                         done = true;
-                        if (Static_application_properties.get_sort_files_by(logger)== File_sorter.RANDOM_ASPECT_RATIO)
+                        if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
                         {
                             paths_manager.file_comparator = new Aspect_ratio_comparator_random();
                         }

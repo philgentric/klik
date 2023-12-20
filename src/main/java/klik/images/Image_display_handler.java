@@ -113,7 +113,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             else
             {
                 int forward_size = cache_slots/2;
-                if ( forward_size > 100) forward_size = 100;//Image_decoding_actor_for_cache.CACHE_SIZE;
+                if ( forward_size > 10) forward_size = 10;//Image_decoding_actor_for_cache.CACHE_SIZE;
                 logger.log("forward_size="+forward_size);
 
                 image_cache = new Image_cache_cafeine(forward_size,logger);

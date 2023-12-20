@@ -21,13 +21,13 @@ public class Image_cache_cafeine implements Cache_interface
     private final Image_decoding_actor_for_cache image_decoding_actor;
     Logger logger;
     Cache<String, Image_context> cache;
-    int forward_size;
+    private final int forward_size;
 
     //**********************************************************
-    public Image_cache_cafeine(int forward_size,Logger logger_)
+    public Image_cache_cafeine(int forward_size_,Logger logger_)
     //**********************************************************
     {
-
+        forward_size = forward_size_;
         cache = Caffeine.newBuilder()
                 .maximumSize(2*forward_size+1)
                 .build();
@@ -61,6 +61,8 @@ public class Image_cache_cafeine implements Cache_interface
     public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, boolean high_quality)//, int target_width)
     //**********************************************************
     {
+        logger.log("preloading request! " + forward_size);
+
         //int increment = -1;
         //if (forward) increment = 1;
 
@@ -75,7 +77,8 @@ public class Image_cache_cafeine implements Cache_interface
         for (Path path: kk)
         {
             Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, high_quality, this);
-            if (ultra_dbg) logger.log("preloading request: " + idr.get_string());
+            //if (ultra_dbg)
+                logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
         }
         //check_decoded_image_cache_size(image_display_handler, logger);

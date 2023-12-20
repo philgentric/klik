@@ -88,16 +88,44 @@ public class Browser_menus
 
 
     //**********************************************************
+    public MenuItem make_clear_all_caches_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Clear_All_Caches",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> {
+            Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+            browser.icon_manager.clear_aspect_ratio_cache();
+        });
+        return item;
+    }
+
+    //**********************************************************
     public MenuItem make_clear_icon_disk_cache_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);// to: " + parent.toAbsolutePath().toString();
-
+        String text = I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
             browser.icon_manager.clear_aspect_ratio_cache();
-                });
+        });
+        return item;
+    }
+
+
+    //**********************************************************
+    public MenuItem make_clear_aspect_ratio_disk_cache_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> {
+            Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+            browser.icon_manager.clear_aspect_ratio_cache();
+        });
         return item;
     }
 
@@ -205,7 +233,7 @@ public class Browser_menus
             logger.log("Show_number_of_files_in_folder_buttons = "+Static_application_properties.get_show_folder_size(logger));
             if (!Static_application_properties.get_show_folder_size(logger) )
             {
-                if (!Popups.popup_ask_for_confirmation(stage, "Warning", "This makes browsing into a new folder much slower", logger))
+                if (!Popups.popup_ask_for_confirmation(stage, "Warning", "This can make browsing MUCH slower", logger))
                 {
                     ((CheckMenuItem) actionEvent.getSource()).setSelected(false);
                     return;
@@ -269,7 +297,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Auto_purge_cache",logger);// to: " + parent.toAbsolutePath().toString();
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_auto_purge_icon_disk_cache(logger));
+        item.setSelected(Static_application_properties.get_auto_purge_disk_caches(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_auto_purge_icon_disk_cache(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
         });
@@ -969,7 +997,7 @@ public class Browser_menus
 
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
 
-        for ( File_sorter sort_by : File_sorter.values())
+        for ( File_sort_by sort_by : File_sort_by.values())
         {
             create_menu_item_for_one_file_sort_method(browser, menu, sort_by, all_check_menu_items, logger);
         }
@@ -978,11 +1006,11 @@ public class Browser_menus
     }
 
     //**********************************************************
-    public void create_menu_item_for_one_file_sort_method(Browser browser, Menu menu, File_sorter sort_by, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    public void create_menu_item_for_one_file_sort_method(Browser browser, Menu menu, File_sort_by sort_by, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string(sort_by.name(),logger));
-        File_sorter actual = Static_application_properties.get_sort_files_by(logger);
+        File_sort_by actual = Static_application_properties.get_sort_files_by(logger);
         item.setSelected(actual == sort_by);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -1155,6 +1183,23 @@ public class Browser_menus
         return menu;
     }
     //**********************************************************
+    public Menu make_import_menu()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Import",logger);
+        Menu menu = new Menu(text);
+        {
+            MenuItem mi = make_import_from_apple_Photos_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
+            MenuItem mi = make_estimate_size_of_importing_from_apple_Photos_menu_item();
+            menu.getItems().add(mi);
+        }
+
+        return menu;
+    }
+    //**********************************************************
     public Menu make_fusk_menu()
     //**********************************************************
     {
@@ -1305,45 +1350,25 @@ public class Browser_menus
         return item;
     }
 
-    /*
-    // can be used instead of a menu bar
+
     //**********************************************************
-    public void show_popup_menu(double x, double y)
+    public MenuItem make_import_from_apple_Photos_menu_item()
     //**********************************************************
     {
-        logger.log("Browser_menus.show_popup_menu()");
-        ContextMenu context_menu;
-        context_menu = new ContextMenu();
-        context_menu.getItems().add(make_bookmarks_menu(browser, change_receiver, logger));
-        context_menu.getItems().add(make_history_menu(browser, change_receiver, logger));
-        context_menu.getItems().add(make_refresh_menu_item(browser, logger));
-        context_menu.getItems().add(make_start_fullscreen_menu_item(browser, logger));
-        context_menu.getItems().add(make_stop_fullscreen_menu_item(browser, logger));
-        context_menu.getItems().add(make_create_empty_directory_menu_item(browser, logger));
-        context_menu.getItems().add(make_new_window_menu_item(browser, change_receiver, logger));
-        context_menu.getItems().add(make_start_stop_slideshow_menu_item(browser, logger));
-        context_menu.getItems().add(make_select_all_files_menu_item(sh, logger));
-        context_menu.getItems().add(make_select_all_folders_menu_item(sh, logger));
-        context_menu.getItems().add(make_remove_empty_folders_menu_item(browser, logger));
-        context_menu.getItems().add(make_remove_recursively_empty_folders_menu_item(browser, logger));
-        context_menu.getItems().add(make_search_by_keywords_menu_item(browser, logger));
-        context_menu.getItems().add(make_undo_menu_item(logger));
-        context_menu.getItems().add(make_show_hidden_directories_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_show_hidden_files_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_show_gifs_first_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_sort_files_by_name_vs_decreasing_size_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_show_icons_for_images_and_videos_check_menu_item(browser, logger));
-        context_menu.getItems().add(make_icon_size_menu(browser, logger));
-        context_menu.getItems().add(make_font_size_menu_item(browser, logger));
-        context_menu.getItems().add(make_style_menu_item(browser, change_receiver, logger));
-        context_menu.getItems().add(make_language_menu(browser, change_receiver, logger));
-        context_menu.getItems().add(make_invert_vertical_scroll_menu_item(logger));
-        context_menu.getItems().add(make_clear_icon_cache_menu_item(logger));
-        context_menu.getItems().add(make_clear_trash_menu_item(logger));
-        context_menu.getItems().add(make_about_menu_item(logger));
-
-
-        context_menu.show(browser.get_stage(), x, y);
+        String text = I18n.get_I18n_string("Import_Apple_Photos",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.import_apple_Photos());
+        return item;
     }
-*/
+    //**********************************************************
+    public MenuItem make_estimate_size_of_importing_from_apple_Photos_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Estimate_Size_Of_Import_Apple_Photos",logger);// to: " + parent.toAbsolutePath().toString();
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.estimate_size_of_importing_apple_Photos());
+        return item;
+    }
+
+
 }

@@ -14,6 +14,7 @@ public class Disk_usage_monitor
 {
 
     public static final String ICON_CACHE_FOLDER = "Icon cache folder";
+    public static final String ASPECT_RATIO_CACHE_FOLDER = "Aspect ratio cache folder";
     public static final String TRASH_FOLDER = "Trash folder";
     public final Logger logger;
     public final Aborter aborter;
@@ -33,6 +34,7 @@ public class Disk_usage_monitor
         logger = logger_;
 
         monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger)));
+        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_cache_dir(logger)));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger)));
         monitored_folders.add(new Monitored_folder(TRASH_FOLDER,Static_application_properties.get_trash_dir(logger)));
 
@@ -64,10 +66,18 @@ public class Disk_usage_monitor
             {
                 if( monitored_folder.name.equals(ICON_CACHE_FOLDER))
                 {
-                    if (Static_application_properties.get_auto_purge_icon_disk_cache(logger))
+                    if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
                         Files_and_Paths.clear_icon_cache_on_disk_no_warning(logger);
                         Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+                        continue;
+                    }
+                }
+                if( monitored_folder.name.equals(ASPECT_RATIO_CACHE_FOLDER))
+                {
+                    if (Static_application_properties.get_auto_purge_disk_caches(logger))
+                    {
+                        Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
                         continue;
                     }
                 }
