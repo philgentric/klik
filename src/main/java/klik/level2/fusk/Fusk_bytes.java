@@ -5,6 +5,7 @@ import klik.util.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class Fusk_bytes
@@ -14,18 +15,18 @@ public class Fusk_bytes
     private static byte[] signature_clear;
     static byte[] signature_fusk;
 
-    private static volatile boolean initialized = false;
+    private static AtomicBoolean initialized = new AtomicBoolean(false);
     //**********************************************************
     synchronized static void init(Logger logger)
     //**********************************************************
     {
-        if ( !initialized)
+        if ( !initialized.get())
         {
             //logger.log(Stack_trace_getter.get_stack_trace("fusk signature initialized as:->"+signature_text+"<-"));
             logger.log("fusk signature initialized");
             signature_clear = signature_text.getBytes(StandardCharsets.UTF_8);
             signature_fusk = fusk(signature_clear, new Aborter());
-            initialized = true;
+            initialized.set(true);
         }
     }
 

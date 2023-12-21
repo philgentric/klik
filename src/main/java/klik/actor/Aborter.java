@@ -1,23 +1,25 @@
 package klik.actor;
 
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 // a container for aborting background tasks
 //**********************************************************
 public class Aborter
 //**********************************************************
 {
-    private volatile boolean abort = false;
+    private AtomicBoolean abort = new AtomicBoolean(false);
 
     //**********************************************************
     public void abort()
     //**********************************************************
     {
-        abort = true;
+        abort.set(true);
     }
     //**********************************************************
     public boolean should_abort()
     //**********************************************************
     {
-        return abort;
+        return abort.get();
     }
 }

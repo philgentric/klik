@@ -39,6 +39,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public abstract class Item implements Icon_destination
@@ -53,7 +54,7 @@ public abstract class Item implements Icon_destination
     protected final Browser browser;
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
-    public boolean visible_in_scene = false;
+    public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
     public final Aborter aborter = new Aborter();
 
     // virtual coordinates: will change whenever the window geometry changes

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class Aspect_ratio_cache
@@ -172,13 +173,13 @@ public class Aspect_ratio_cache
         if (dbg) logger.log(saved +"items of aspect ratio cache saved to file");
     }
 
-    private volatile boolean done = false;
+    private AtomicBoolean done = new AtomicBoolean(false);
     private Runnable look_for_end_runnable = null;
     //**********************************************************
     public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Aborter aborter)
     //**********************************************************
     {
-        if ( done) return;
+        if ( done.get()) return;
         if ( look_for_end_runnable != null) return;
         look_for_end_runnable = new Runnable() {
             @Override
@@ -197,7 +198,7 @@ public class Aspect_ratio_cache
 
                     if ( aspect_ratio_actor.in_flight.get() == 0)
                     {
-                        done = true;
+                        done.set(true);
                         if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
                         {
                             paths_manager.file_comparator = new Aspect_ratio_comparator_random();

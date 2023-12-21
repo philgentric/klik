@@ -9,6 +9,7 @@ import klik.util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 //**********************************************************
@@ -21,7 +22,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	private final List<My_File_and_status> files  = new ArrayList<>();
 	BlockingQueue<File_pair> output_queue_of_same_in_pairs;
 	Deduplication_engine deduplication_engine;
-	private volatile boolean is_finished = false;
+	private AtomicBoolean is_finished = new AtomicBoolean(false);
 	private final Aborter aborter;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs(
@@ -60,7 +61,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			if ( aborter.should_abort())
 			{
 				logger.log("Runnable_for_finding_duplicate_file_pairs abort");
-				is_finished = true;
+				is_finished.set(true);
 				return;
 			}
 
@@ -82,7 +83,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				if ( aborter.should_abort())
 				{
 					logger.log("Runnable_for_finding_duplicate_file_pairs abort");
-					is_finished = true;
+					is_finished.set(true);
 					return;
 				}
 
@@ -137,7 +138,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			deduplication_engine.get_interface().set_status_text("Total = "+ deduplication_engine.duplicates_found.get()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
 		}
 
-		is_finished = true;
+		is_finished.set(true);
 	}
 
 
@@ -232,6 +233,6 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	public boolean is_finished()
 	//**********************************************************
 	{
-		return is_finished;
+		return is_finished.get();
 	}
 }

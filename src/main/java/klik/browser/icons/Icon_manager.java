@@ -436,7 +436,7 @@ public class Icon_manager
         //if (show_icons_instead_of_text == false) return;
 
         {
-            item.visible_in_scene = true;
+            item.visible_in_scene.set(true);
             if (item instanceof Item_image ii) {
 
                 switch (ii.icon_status) {
@@ -471,8 +471,9 @@ public class Icon_manager
     private void process_is_invisible(Pane pane, Item item)
     //**********************************************************
     {
-        if (item.visible_in_scene) {
-            item.visible_in_scene = false;
+        if (item.visible_in_scene.compareAndSet(true,false))
+        {
+            //item.visible_in_scene.false;
             item.cancel();
             if (item.get_Node() == null) return;
             item.get_Node().setVisible(false);

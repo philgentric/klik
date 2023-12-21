@@ -298,7 +298,7 @@ public class Item_image extends Item implements Icon_destination
             return;
         }
 
-        if (!visible_in_scene)
+        if (!visible_in_scene.get())
         {
             //if ( dbg) g(0);
             the_image_view.setImage(null);
@@ -376,7 +376,7 @@ public class Item_image extends Item implements Icon_destination
 
             // the above operation can take some time...
             // and in the mean time the situation can change
-            if (!visible_in_scene) {
+            if (!visible_in_scene.get()) {
                 the_image_view.setImage(null);
                 icon_status = Icon_status.no_icon;
                 if (dbg_visibility) log_visibility_state_number(1);
