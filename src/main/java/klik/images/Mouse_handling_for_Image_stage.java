@@ -329,8 +329,10 @@ public class Mouse_handling_for_Image_stage
                 if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_stage.the_Stage);
                 enable_drag_and_drop(image_stage);
                 // REFRESH i.e. especially when going out of pix-for-pix
-                boolean white_background = something_is_wrong_with_image_size();
-                image_stage.set_image(Objects.requireNonNull(image_stage.image_display_handler).get_image_context(), white_background);
+                if(!something_is_wrong_with_image_size())
+                {
+                    image_stage.set_image(Objects.requireNonNull(image_stage.image_display_handler).get_image_context());
+                }
             }
             case pix_for_pix -> {
                 if (old_mode == Mouse_mode.pix_for_pix) {
@@ -444,7 +446,7 @@ public class Mouse_handling_for_Image_stage
                 if ( ic2 != null)
                 {
                     image_stage.image_display_handler.set_image_context(ic2);
-                    image_stage.set_image(ic2,false);
+                    image_stage.set_image(ic2);
                 }
                 image_stage.restore_cursor();
                 break;
@@ -469,7 +471,7 @@ public class Mouse_handling_for_Image_stage
         image_stage.the_BorderPane.setOnDragExited(drag_event -> {
             if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
             if (image_stage.image_display_handler.get_image_context() != null) {
-                image_stage.set_background(Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).getFileName().toString(), false);
+                image_stage.set_background(Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).getFileName().toString());
             }
             drag_event.consume();
         });

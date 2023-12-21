@@ -84,9 +84,12 @@ public class Properties_manager
             the_Properties.store(fos, "no comment");
             fos.close();
             if (dbg) logger.log(("ALL properties stored in:" + f.toAbsolutePath()));
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
+            Popups.popup_Exception(new AccessDeniedException(f.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, logger);
+
         }
     }
 

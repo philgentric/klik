@@ -28,6 +28,8 @@ import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.level2.fusk.Fusk_static_core;
 import klik.level2.fusk.Fusk_strings;
+import klik.look.Look_and_feel;
+import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -152,7 +154,7 @@ public class Image_window
         the_Stage = new Stage();
 
         the_BorderPane = new BorderPane(); // makes it trivially easy to center the image!
-        set_background(first_image_path.getFileName().toString(),true);
+        set_background(FilenameUtils.getExtension(first_image_path.getFileName().toString()));
         the_Scene = new Scene(the_BorderPane);
         the_Stage.setScene(the_Scene);
         the_Stage.setMinWidth(w);
@@ -314,12 +316,29 @@ public class Image_window
     }
 
     //**********************************************************
-    void set_background(String image_name, boolean white)
+    void set_background(String extension)
     //**********************************************************
     {
+
+        if ( extension.equalsIgnoreCase("png"))
+        {
+            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        }
+        else if ( extension.equalsIgnoreCase("gif"))
+        {
+            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+        }
+        else
+        {
+            Look_and_feel current_style = Static_application_properties.read_look_and_feel_from_properties_file(logger);
+
+            BackgroundFill background_fill = current_style.get_background_fill();
+            the_BorderPane.setBackground(new Background(background_fill));
+        }
+        /*
         if (white)
         {
-            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
             return;
         }
         if ((image_name.endsWith(".png")) || (image_name.endsWith(".PNG")))
@@ -334,7 +353,7 @@ public class Image_window
         {
             the_BorderPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         }
-
+        */
     }
 
     //**********************************************************
@@ -489,7 +508,7 @@ public class Image_window
 
 
     //**********************************************************
-    void set_image(Image_context local_image_context, boolean white_background)
+    void set_image(Image_context local_image_context)
     //**********************************************************
     {
         //logger.log("set_image: "+local_image_context.path);
@@ -529,7 +548,7 @@ public class Image_window
             local_image_context.the_image_view.fitHeightProperty().bind(real_height_property);
         }
 
-        set_background(local_image_context.get_image_name(),  white_background);
+        set_background(FilenameUtils.getExtension(local_image_context.get_image_name()));
 
         boolean local_pix_for_pix =  false;
         /*

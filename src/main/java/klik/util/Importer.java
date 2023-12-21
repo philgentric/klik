@@ -32,7 +32,7 @@ public class Importer
 {
 
     //**********************************************************
-    public static void import_now(Stage owner, Logger logger)
+    public static void perform_import(Stage owner, Logger logger)
     //**********************************************************
     {
         Path home = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
@@ -134,11 +134,27 @@ public class Importer
     public static void estimate_size(Stage owner, Logger logger)
     //**********************************************************
     {
-
         Path home = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
 
         Path target = home.resolve(Path.of("Pictures"));
-        //Path target = home.resolve(Path.of("Pictures/Photos Library.photoslibrary"));
+
+        Stage local_stage = new Stage();
+        local_stage.initOwner(owner);
+        local_stage.setX(200);
+        local_stage.setY(200);
+        local_stage.setHeight(400);
+        local_stage.setWidth(800);
+        TextArea textarea1 = new TextArea("Please wait, scanning folders...");
+        TextArea textarea2 = new TextArea();
+        Font_size.set_font_size(textarea1,24,logger);
+        Font_size.set_font_size(textarea2,20,logger);
+        VBox vbox = new VBox(textarea1, textarea2);
+        Scene scene = new Scene(vbox, Color.WHITE);
+        local_stage.setTitle(target.toAbsolutePath().toString());
+        local_stage.setScene(scene);
+        local_stage.show();
+        local_stage.setAlwaysOnTop(true);
+
 
 
         AtomicLong size = new AtomicLong(0);
@@ -159,13 +175,14 @@ public class Importer
         };
 
         AtomicBoolean done = new AtomicBoolean(false);
+        /*
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 for(;;)
                 {
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(300);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -173,12 +190,17 @@ public class Importer
                     {
                         return;
                     }
-                    logger.log("Importation: "+size.get()+ " bytes so far ...");
+                    long val = size.get();
+                    if ( last_print.get() +100_000_000 < val)
+                    {
+                        last_print.set(val);
+                        logger.log("Apple Photos' importation Size ..."+val/1_000_000+" MBytes");
+                    }
                 }
             }
         };
         Threads.execute(r,logger);
-
+*/
         Disk_scanner.process_folder(
                 target,
                 file_payload,
@@ -190,23 +212,6 @@ public class Importer
 
 
 
-        Stage local_stage = new Stage();
-        local_stage.initOwner(owner);
-        local_stage.setX(200);
-        local_stage.setY(200);
-        local_stage.setHeight(400);
-        local_stage.setWidth(800);
-        TextArea textarea1 = new TextArea("Please wait, scanning folders...");
-        TextArea textarea2 = new TextArea();
-        Font_size.set_font_size(textarea1,24,logger);
-        Font_size.set_font_size(textarea2,20,logger);
-        VBox vbox = new VBox(textarea1, textarea2);
-        Scene scene = new Scene(vbox, Color.WHITE);
-        local_stage.setTitle(target.toAbsolutePath().toString());
-        local_stage.setScene(scene);
-        local_stage.show();
-        local_stage.setAlwaysOnTop(true);
-
         // use a scheduled thread to track the process...
         // not sure a sleep would not be just as good?
         ScheduledFuture<?>[] progress_tracking_cancel = {null};
@@ -216,7 +221,9 @@ public class Importer
             {
                 logger.log("done!");
                 progress_tracking_cancel[0].cancel(true);
-                Platform.runLater(() -> textarea1.setText("Total size is "+size.get()/1_000_000+" MBytes"));
+                String s = "Importation size estimation: "+size.get()/1_000_000+" MBytes";
+                Platform.runLater(() -> textarea1.setText(s));
+                logger.log(s);
                 return;
             }
             Platform.runLater(() -> textarea1.setText(progress_string[0]));
@@ -225,7 +232,6 @@ public class Importer
         };
 
         progress_tracking_cancel[0] = Scheduled_thread_pool.execute(progress_tracking, 300, TimeUnit.MILLISECONDS);
-        logger.log("Importation size estimation: "+size.get()+ " bytes");
 
     }
 }

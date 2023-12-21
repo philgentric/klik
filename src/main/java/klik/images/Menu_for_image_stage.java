@@ -245,7 +245,7 @@ public class Menu_for_image_stage
             if (image_context_owner.image_context == null) {
                 image_context_owner.logger.log("getting a new image context failed after gif repair");
             } else {
-                image_fenetre.set_image(image_context_owner.image_context, false);
+                image_fenetre.set_image(image_context_owner.image_context);
             }
         });
         return repair1;
@@ -395,7 +395,7 @@ public class Menu_for_image_stage
             boolean new_high_quality = ((CheckMenuItem) actionEvent.getSource()).isSelected();
             if (new_high_quality != image_context_owner.alternate_rescaler) {
                 Image_context image_context = build_Image_context(new_high_quality, image_context_owner.image_context.path, image_stage.aborter, image_stage.logger);
-                image_stage.set_image(image_context, false);
+                image_stage.set_image(image_context);
             }
 
         });

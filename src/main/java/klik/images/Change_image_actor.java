@@ -107,7 +107,7 @@ public class Change_image_actor implements Actor
             // image was found in cache
             change_image_message.output_image_context[0] = iai;
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + skey);
-            Platform.runLater(() -> change_image_message.image_stage.set_image(change_image_message.output_image_context[0],false));
+            Platform.runLater(() -> change_image_message.image_stage.set_image(change_image_message.output_image_context[0]));
             //cim.image_stage.restore_cursor();
             change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
             return "found in cache";
@@ -136,9 +136,9 @@ public class Change_image_actor implements Actor
         else
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative OK! index is:" + target_image_path + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
+            change_image_message.image_stage.set_image(change_image_message.output_image_context[0]);
         }
 
-        change_image_message.image_stage.set_image(change_image_message.output_image_context[0],false);
         //cim.image_stage.restore_cursor();
 
         change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);

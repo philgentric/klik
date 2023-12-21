@@ -31,8 +31,8 @@ public abstract class Look_and_feel
 
 
     public static final boolean dbg = false;
-    private static final double BORDER_WIDTH = 2;
-    private static final double BORDER_RADII = 7;
+    //private static final double BORDER_WIDTH = 2;
+    //private static final double BORDER_RADII = 7;
     public static final double MAGIC_HEIGHT_FACTOR = 2;
 
     public final String style_sheet_url_string;

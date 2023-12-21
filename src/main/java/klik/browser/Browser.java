@@ -122,7 +122,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         if (!Popups.popup_ask_for_confirmation(my_Stage.the_Stage,"Importing photos will create COPIES","Please select a destination drive with enough space",logger) ) return;
 
-        Importer.import_now(my_Stage.the_Stage,logger);
+        Importer.perform_import(my_Stage.the_Stage,logger);
     }
     //**********************************************************
     public void estimate_size_of_importing_apple_Photos()

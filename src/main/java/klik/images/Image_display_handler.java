@@ -242,7 +242,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         Files_and_Paths.clear_one_icon_from_cache_on_disk(image_context.path,logger);
                         // reload the image
                         image_context =   local_getImage_context(image_context.path,  new Aborter());
-                        image_stage.set_image(image_context,false);
+                        image_stage.set_image(image_context);
                     });
                 }
                 else
