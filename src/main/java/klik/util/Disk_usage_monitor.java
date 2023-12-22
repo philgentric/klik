@@ -55,7 +55,7 @@ public class Disk_usage_monitor
     }
 
     //**********************************************************
-    private boolean monitor()
+    public boolean monitor()
     //**********************************************************
     {
         //long total = 0;
@@ -121,27 +121,4 @@ public class Disk_usage_monitor
         return true;
     }
 
-    //**********************************************************
-    public void start()
-    //**********************************************************
-    {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                for(;;)
-                {
-                    if ( aborter.should_abort()) return;
-                    if ( !monitor()) break;
-
-                    try {
-                        Thread.sleep(3*1000);
-                    } catch (InterruptedException e) {
-                        logger.log(""+e);
-                    }
-                }
-            }
-        };
-        Threads.execute(r,logger);
-
-    }
 }

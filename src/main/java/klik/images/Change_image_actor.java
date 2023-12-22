@@ -12,7 +12,7 @@ import java.util.Objects;
 public class Change_image_actor implements Actor
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     private static Change_image_actor instance;
 
     //**********************************************************
@@ -78,7 +78,7 @@ public class Change_image_actor implements Actor
        //if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current OLD path="+change_image_message.input_image_context.path);
         Path target_path = change_image_message.image_stage.image_display_handler.image_indexer.get_new_path_relative(
                 change_image_message.input_image_context.previous_path,change_image_message.delta,change_image_message.ultimate);
-        if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current NEW path="+target_path);
+        if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor target_path="+target_path);
         if ( target_path == null)
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative something really bad happened, like the whole dir was deleted behind the scene");
@@ -98,15 +98,15 @@ public class Change_image_actor implements Actor
     //**********************************************************
     {
         if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative target = "+ target_image_path);
-        String skey = Image_context.get_full_path(target_image_path);
-        Image_context iai = change_image_message.image_stage.image_display_handler.try_to_get_from_cache(skey);
+        String full_path = Image_context.get_full_path(target_image_path);
+        Image_context image_context = change_image_message.image_stage.image_display_handler.try_to_get_from_cache(full_path);
         boolean forward = true;
         if ( change_image_message.delta < 0) forward = false;
-        if (iai != null)
+        if (image_context != null)
         {
             // image was found in cache
-            change_image_message.output_image_context[0] = iai;
-            if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + skey);
+            change_image_message.output_image_context[0] = image_context;
+            if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
             Platform.runLater(() -> change_image_message.image_stage.set_image(change_image_message.output_image_context[0]));
             //cim.image_stage.restore_cursor();
             change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
@@ -114,9 +114,9 @@ public class Change_image_actor implements Actor
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
-        if ( dbg) change_image_message.logger.log("\n Change_image_actorNOT found in cache: " + skey);
-        iai = change_image_message.image_stage.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
-        if (iai == null)
+        if ( dbg) change_image_message.logger.log("\n Change_image_actor NOT found in cache: " + full_path);
+        image_context = change_image_message.image_stage.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
+        if (image_context == null)
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor null image (1) in change_image_relative");
             Change_gang.report_anomaly(Objects.requireNonNull(change_image_message.input_image_context.path).getParent());
@@ -124,8 +124,8 @@ public class Change_image_actor implements Actor
             return "Failed";
         }
 
-        change_image_message.image_stage.image_display_handler.save_in_cache(skey,iai);
-        change_image_message.output_image_context[0] = iai;
+        change_image_message.image_stage.image_display_handler.save_in_cache(full_path,image_context);
+        change_image_message.output_image_context[0] = image_context;
 
         if (Objects.requireNonNull(change_image_message.image_stage.mouse_handling_for_image_stage).something_is_wrong_with_image_size())
         {
@@ -135,8 +135,11 @@ public class Change_image_actor implements Actor
         }
         else
         {
-            if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative OK! index is:" + target_image_path + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
-            change_image_message.image_stage.set_image(change_image_message.output_image_context[0]);
+            if ( dbg) change_image_message.logger.log(
+                    "Change_image_actor change_image_relative OK! target_image_path is:" + target_image_path
+                            +" image_context.path :"+image_context.path
+                    + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
+            change_image_message.image_stage.set_image(image_context);
         }
 
         //cim.image_stage.restore_cursor();

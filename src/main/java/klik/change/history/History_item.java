@@ -1,4 +1,4 @@
-package klik.properties;
+package klik.change.history;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;

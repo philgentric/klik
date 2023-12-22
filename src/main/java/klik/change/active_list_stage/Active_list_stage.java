@@ -80,7 +80,7 @@ public class Active_list_stage
     //**********************************************************
     {
         //logger.log(Stack_trace_getter.get_stack_trace("define!!!"));
-        Map<LocalDateTime, String> map = source.get();
+        Map<LocalDateTime, String> map = source.get_map_of_date_to_signature();
         List<LocalDateTime> keys = new ArrayList<>(map.keySet());
         Collections.sort(keys);
         Collections.reverse(keys);

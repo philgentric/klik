@@ -1,4 +1,4 @@
-package klik.metadata;
+package klik.level2.metadata;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;

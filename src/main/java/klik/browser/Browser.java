@@ -36,7 +36,7 @@ import klik.level2.fusk.Static_fusk_paths;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
-import klik.properties.History;
+import klik.change.history.History_engine;
 import klik.properties.Static_application_properties;
 import klik.util.Importer;
 import klik.util.Logger;
@@ -201,7 +201,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         set_icon();
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
-        History.get_History_instance(logger).add(context.folder_path);
+        History_engine.get_instance(logger).add(context.folder_path);
 
         displayed_folder_path = context.folder_path;
 

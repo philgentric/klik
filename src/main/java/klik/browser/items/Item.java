@@ -28,7 +28,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.metadata.Tag_stage;
+import klik.level2.metadata.Tag_stage;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;

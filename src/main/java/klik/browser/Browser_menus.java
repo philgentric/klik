@@ -6,16 +6,18 @@ import javafx.stage.Stage;
 
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
-import klik.change.Change_receiver;
-import klik.change.Undo_engine;
-import klik.change.Undo_item;
+import klik.change.*;
 import klik.change.active_list_stage.Datetime_to_signature_source;
+import klik.change.history.History_engine;
+import klik.change.history.History_item;
+import klik.change.undo.Undo_engine;
+import klik.change.undo.Undo_item;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.metadata.Tag_items_management_stage;
+import klik.level2.metadata.Tag_items_management_stage;
 import klik.look.my_i18n.I18n;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.*;
@@ -591,7 +593,7 @@ public class Browser_menus
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> {
                 logger.log("clearing history");
-                History.clear(logger);
+                History_engine.clear(logger);
                 Browser_creation_context.replace_same_folder(browser,logger);
 
             });
@@ -601,8 +603,8 @@ public class Browser_menus
         int max_on_screen = 20;
         int on_screen = 0;
         MenuItem more = null;
-        Map<String,History_item> path_already_done = new HashMap<>();
-        for (History_item hi : History.get_History_instance(logger).get_list())
+        Map<String, History_item> path_already_done = new HashMap<>();
+        for (History_item hi : History_engine.get_instance(logger).get_all_history_items())
         {
             if ( on_screen < max_on_screen)
             {
@@ -652,7 +654,7 @@ public class Browser_menus
         Active_list_stage_action action = text -> Browser_creation_context.replace_different_folder(Path.of(text),browser, null, logger);
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
             @Override
-            public Map<LocalDateTime, String> get() {
+            public Map<LocalDateTime, String> get_map_of_date_to_signature() {
                 return the_whole_history;
             }
         };
@@ -737,7 +739,7 @@ public class Browser_menus
     {
         Active_list_stage_action action = signature ->
         {
-            Map<String,Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
+            Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
             Undo_item item = signature_to_undo_item.get(signature);
             if ( item == null)
             {
@@ -1020,7 +1022,9 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_sort_files_by(sort_by,logger);
-                browser.scene_geometry_changed("file sorting method changed",true,false);
+                logger.log("new sorting order= "+sort_by);
+                Browser_creation_context.replace_same_folder(browser,logger);
+                //browser.scene_geometry_changed("file sorting method changed",true,false);
             }
         });
         menu.getItems().add(item);

@@ -6,6 +6,7 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.My_Stage;
+import klik.change.history.History_auto_clean;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.Static_application_properties;
@@ -54,16 +55,14 @@ public class Klik_application extends Application
         setUserAgentStylesheet(STYLESHEET_MODENA);
         Logger logger = new System_out_logger();
 
-        Disk_usage_monitor dum = new Disk_usage_monitor(new Aborter(), logger);
-        dum.start();
-        Cache_auto_clean cac = new Cache_auto_clean(new Aborter(), logger);
-        cac.start();
+        new Monitor(new Aborter(),logger).start();
+
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
         Language_manager.init_registered_languages(logger);
 
         Path path = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
-        Browser browser = Browser_creation_context.first(new My_Stage(primary_stage,logger),path,logger);
+        Browser_creation_context.first(new My_Stage(primary_stage,logger),path,logger);
     }
 
 

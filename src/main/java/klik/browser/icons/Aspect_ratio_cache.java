@@ -1,5 +1,6 @@
 package klik.browser.icons;
 
+import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Files_and_Paths;
@@ -7,6 +8,7 @@ import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.util.Popups;
 import klik.util.Threads;
 
 import java.nio.file.Path;
@@ -16,6 +18,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Aspect_ratio_cache
@@ -25,12 +28,15 @@ public class Aspect_ratio_cache
 
     public record Aspect_ratio(double value, boolean truth){}
     Map<String, Aspect_ratio> aspect_ratio_cache = new ConcurrentHashMap<>();
-    private Aspect_ratio_actor aspect_ratio_actor = new Aspect_ratio_actor();
+    private Aspect_ratio_actor aspect_ratio_actor;
 
     public final Logger logger;
     public final Aborter aborter;
     private final String cache_file_name;
     private final Path path_of_aspect_ratio_cache_file;
+
+    public AtomicInteger in_flight = new AtomicInteger(-1);
+
     //**********************************************************
     public Aspect_ratio_cache(Path folder_path, Aborter aborter_, Logger logger_)
     //**********************************************************
@@ -43,6 +49,7 @@ public class Aspect_ratio_cache
             path_of_aspect_ratio_cache_file= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         }
         aborter = aborter_;
+        aspect_ratio_actor = new Aspect_ratio_actor(in_flight);
     }
 
     //**********************************************************
@@ -93,6 +100,40 @@ public class Aspect_ratio_cache
 
 
     //**********************************************************
+    class Random_comparator_aspect_ratio implements Comparator<Path>
+            //**********************************************************
+    {
+
+        long seed;
+        public Random_comparator_aspect_ratio()
+        {
+            Random r = new Random();
+            seed = r.nextLong();
+        }
+        @Override
+        public int compare(Path p1, Path p2) {
+
+            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
+            Long l1 = new Random(seed*s1).nextLong();
+            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
+            Long l2 = new Random(seed*s2).nextLong();
+            int diff=  l1.compareTo(l2);
+            if (diff != 0) return diff;
+
+            Double d1 = get_aspect_ratio(p1);
+            Double d1r= Double.valueOf(String.format("%.1f",d1));
+            Double d2 = get_aspect_ratio(p2);
+            Double d2r= Double.valueOf(String.format("%.1f",d2));
+
+            return d1r.compareTo(d2r);
+        }
+
+    };
+
+
+
+
+    //**********************************************************
     static String key_from_path(Path p)
     //**********************************************************
     {
@@ -109,14 +150,16 @@ public class Aspect_ratio_cache
         {
             if(dbg) logger.log("not in RAM for: "+p.toAbsolutePath());
             aspect_ratio_cache.put(key_from_path(p), new Aspect_ratio(1.0,false));
-            aspect_ratio_actor.in_flight.incrementAndGet();
+            in_flight.compareAndSet(-1,0);
+            in_flight.incrementAndGet();
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,aborter,logger),null,logger);
             return 1.0;
         }
         if ( ! d.truth )
         {
             if(dbg) logger.log("RAM is fake for: "+p.toAbsolutePath());
-            aspect_ratio_actor.in_flight.incrementAndGet();
+            in_flight.compareAndSet(-1,0);
+            in_flight.incrementAndGet();
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,aborter,logger),null,logger);
             return 1.0;
         }
@@ -191,17 +234,21 @@ public class Aspect_ratio_cache
                 {
                     if ( aborter.should_abort()) return;
                     try {
-                        Thread.sleep(300);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
 
-                    if ( aspect_ratio_actor.in_flight.get() == 0)
+                    if(in_flight.get()<0) continue;
+
+                    if ( in_flight.get() == 0)
                     {
                         done.set(true);
+
                         if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
                         {
-                            paths_manager.file_comparator = new Aspect_ratio_comparator_random();
+                            //paths_manager.file_comparator = new Aspect_ratio_comparator_random();
+                            paths_manager.file_comparator = new Random_comparator_aspect_ratio();
                         }
                         else
                         {
@@ -210,6 +257,17 @@ public class Aspect_ratio_cache
                         logger.log("aspect ratios loaded, going to refresh");
                         refresh_target.refresh();
                         return;
+                    }
+                    else
+                    {
+                        logger.log("aspect ratios remaining: "+aspect_ratio_actor.in_flight.get());
+                        Runnable r = new Runnable() {
+                            @Override
+                            public void run() {
+                                Popups.popup_warning(null,"please wait!","Filling aspect ratio cache,"+aspect_ratio_actor.in_flight.get()+" files remaining",true,logger);
+                            }
+                        };
+                        Platform.runLater(r);
                     }
                 }
             }

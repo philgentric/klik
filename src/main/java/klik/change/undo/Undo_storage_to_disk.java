@@ -1,4 +1,4 @@
-package klik.change;
+package klik.change.undo;
 
 import klik.files_and_paths.Command_old_and_new_Path;
 import klik.files_and_paths.Old_and_new_Path;
@@ -22,7 +22,7 @@ public class Undo_storage_to_disk
     static final boolean ultra_dbg = false;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
     public static final String HOW_MANY = "_how_many";
-    private final Properties_manager pm;
+    private final Properties_manager properties_manager;
     private final Logger logger;
 
     //**********************************************************
@@ -30,7 +30,7 @@ public class Undo_storage_to_disk
     //**********************************************************
     {
         logger = logger_;
-        pm = Static_application_properties.get_properties_manager(logger);
+        properties_manager = Static_application_properties.get_properties_manager(logger);
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded");
     }
@@ -88,56 +88,56 @@ public class Undo_storage_to_disk
     public void remove_all_undo_items_from_property_file()
     //**********************************************************
     {
-        Set<String> set = pm.get_all_keys();
+        Set<String> set = properties_manager.get_all_keys();
         for ( String k : set)
         {
             if ( !k.startsWith(key_base)) continue;
             if (!k.endsWith(HOW_MANY)) continue;
 
             UUID index = extract_index(k,logger);
-            int number_of_oan = Integer.parseInt(pm.get(k));
+            int number_of_oan = Integer.parseInt(properties_manager.get(k));
             if ( dbg) logger.log("\nremove_all_undo_items_from_property_file index = "+index+" has "+number_of_oan+ " oans");
             {
                 String key = generate_key_for_datetime(index);
-                String new_path_string = pm.get(key);
+                String new_path_string = properties_manager.get(key);
                 if ( new_path_string != null)
                 {
                     logger.log("removed: "+key);
-                    pm.remove(key);
+                    properties_manager.remove(key);
                 }
             }
             {
                 String key = generate_key_for_how_many_oans(index);
-                String new_path_string = pm.get(key);
+                String new_path_string = properties_manager.get(key);
                 if ( new_path_string != null)
                 {
                     logger.log("removed: "+key);
-                    pm.remove(key);
+                    properties_manager.remove(key);
                 }
             }
             for (int j = 0 ;j < number_of_oan; j++)
             {
                 {
                     String key = generate_key_for_old_path(index, j);
-                    String old_path_string = pm.get(key);
+                    String old_path_string = properties_manager.get(key);
                     if (old_path_string != null)
                     {
                         logger.log("removed: "+key);
-                        pm.remove(key);
+                        properties_manager.remove(key);
                     }
                 }
                 {
                     String key = generate_key_for_new_path(index, j);
-                    String new_path_string = pm.get(key);
+                    String new_path_string = properties_manager.get(key);
                     if ( new_path_string != null)
                     {
                         logger.log("removed: "+key);
-                        pm.remove(key);
+                        properties_manager.remove(key);
                     }
                 }
             }
         }
-        pm.store_properties();
+        properties_manager.store_properties();
     }
 
     //**********************************************************
@@ -195,16 +195,16 @@ public class Undo_storage_to_disk
         Status_old_and_new_Path stt = Status_old_and_new_Path.move_done;
 
         List<Undo_item> returned = new ArrayList<>();
-        Set<String> set = pm.get_all_keys();
+        Set<String> set = properties_manager.get_all_keys();
         for ( String k : set)
         {
             if ( !k.startsWith(key_base)) continue;
             if (k.endsWith(HOW_MANY))
             {
                 UUID index = extract_index(k,logger);
-                int number_of_oan = Integer.parseInt(pm.get(k));
+                int number_of_oan = Integer.parseInt(properties_manager.get(k));
                 if ( dbg) logger.log("      undo item, index = "+index+" has "+number_of_oan+ " oans");
-                String datetime_string = pm.get(generate_key_for_datetime(index));
+                String datetime_string = properties_manager.get(generate_key_for_datetime(index));
                 if ( datetime_string == null)
                 {
                     logger.log("WEIRD: datetime_string=null for: "+k);
@@ -213,13 +213,13 @@ public class Undo_storage_to_disk
                 List<Old_and_new_Path> l = new ArrayList<>();
                 for (int j = 0 ;j < number_of_oan; j++)
                 {
-                    String old_path_string = pm.get(generate_key_for_old_path(index,j));
+                    String old_path_string = properties_manager.get(generate_key_for_old_path(index,j));
                     if ( old_path_string == null)
                     {
                         logger.log("WEIRD: old_path_string=null with "+j);
                         continue;
                     }
-                    String new_path_string = pm.get(generate_key_for_new_path(index,j));
+                    String new_path_string = properties_manager.get(generate_key_for_new_path(index,j));
                     if ( new_path_string == null)
                     {
                         l.add(new Old_and_new_Path(Path.of(old_path_string),null,cmd,stt));
@@ -247,13 +247,13 @@ public class Undo_storage_to_disk
         {
             String k = generate_key_for_how_many_oans(undo_item.index);
             String v = String.valueOf(undo_item.oans.size());
-            pm.raw_put(k, v);
+            properties_manager.raw_put(k, v);
             if ( dbg) logger.log("       "+k+"="+v);
         }
         {
             String k = generate_key_for_datetime(undo_item.index);
             String v = undo_item.time_stamp.toString();
-            pm.raw_put(k, v);
+            properties_manager.raw_put(k, v);
             if ( dbg)  logger.log("       "+k+"="+v);
         }
         int j = 0;
@@ -262,24 +262,24 @@ public class Undo_storage_to_disk
             {
                 String key_for_old_path = generate_key_for_old_path(undo_item.index, j);
                 String string_for_old_path = oan.old_Path.toAbsolutePath().toString();
-                pm.raw_put(key_for_old_path, string_for_old_path);
+                properties_manager.raw_put(key_for_old_path, string_for_old_path);
                 if ( dbg) logger.log("       "+key_for_old_path+"="+string_for_old_path);
             }
             if ( oan.new_Path != null)
             {
                 String key_for_new_path = generate_key_for_new_path(undo_item.index, j);
                 String string_for_new_path = oan.new_Path.toAbsolutePath().toString();
-                pm.raw_put(key_for_new_path, string_for_new_path);
+                properties_manager.raw_put(key_for_new_path, string_for_new_path);
                 if ( dbg) logger.log("       "+key_for_new_path+"="+string_for_new_path);
             }
             j++;
         }
-        pm.store_properties();
+        properties_manager.store_properties();
 
     }
 
     //**********************************************************
-    public void remove_after_undo_done(Undo_item undo_item)
+    public void remove_undo_item(Undo_item undo_item)
     //**********************************************************
     {
         if ( dbg) logger.log("Undo_storage_to_disk REMOVE:"+undo_item.to_string());
@@ -293,7 +293,7 @@ public class Undo_storage_to_disk
     {
         {
             String key = generate_key_for_how_many_oans(index);
-            Object found = pm.remove(key);
+            Object found = properties_manager.remove(key);
             if ( found == null)
             {
                 logger.log("WEIRD error tried to remove "+key+" from properties but it was not there?");
@@ -305,7 +305,7 @@ public class Undo_storage_to_disk
         }
         {
             String key = generate_key_for_datetime(index);
-            Object found = pm.remove(key);
+            Object found = properties_manager.remove(key);
             if ( found == null)
             {
                 logger.log("WEIRD error tried to remove "+key+" from properties but it was not there?");
@@ -320,7 +320,7 @@ public class Undo_storage_to_disk
         {
             {
                 String key_for_old_path = generate_key_for_old_path(index, j);
-                Object found = pm.remove(key_for_old_path);
+                Object found = properties_manager.remove(key_for_old_path);
                 if ( found == null)
                 {
                     logger.log("WEIRD error tried to remove "+key_for_old_path+" from properties but it was not there?");
@@ -333,7 +333,7 @@ public class Undo_storage_to_disk
             }
             {
                 String key_for_new_path = generate_key_for_new_path(index, j);
-                Object found = pm.remove(key_for_new_path);
+                Object found = properties_manager.remove(key_for_new_path);
                 if ( found == null)
                 {
                     logger.log("WEIRD error tried to remove "+key_for_new_path+" from properties but it was not there?");
@@ -345,7 +345,7 @@ public class Undo_storage_to_disk
             }
             j++;
         }
-        pm.store_properties();
+        properties_manager.store_properties();
     }
 
     //**********************************************************
@@ -358,4 +358,10 @@ public class Undo_storage_to_disk
         return l.get(0);
     }
 
+    //**********************************************************
+    public void remove(String k)
+    //**********************************************************
+    {
+        properties_manager.remove(k);
+    }
 }

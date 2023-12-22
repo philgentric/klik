@@ -6,9 +6,9 @@ import klik.actor.Aborter;
 import klik.animated_gifs_from_videos.Gif_repair;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.change.Undo_engine;
+import klik.change.undo.Undo_engine;
 import klik.files_and_paths.Guess_file_type;
-import klik.metadata.Tag_stage;
+import klik.level2.metadata.Tag_stage;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 

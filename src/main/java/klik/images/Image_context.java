@@ -61,11 +61,11 @@ public class Image_context
     public final FileTime creation_time;
 
     //**********************************************************
-    public static Image_context get_Image_context(Path f_, Aborter aborter,Logger logger_)
+    public static Image_context get_Image_context(Path path, Aborter aborter,Logger logger_)
     //**********************************************************
     {
-        if ( !Files.exists(f_)) return null;
-        Image local_image = From_disk.load_image_from_disk(f_, aborter,logger_);
+        if ( !Files.exists(path)) return null;
+        Image local_image = From_disk.load_image_from_disk(path, aborter,logger_);
         if ( local_image == null)
         {
             return null;
@@ -73,22 +73,21 @@ public class Image_context
         if ( local_image.isError())
         {
             Image broken = Look_and_feel_manager.get_broken_icon(300);
-
-            return new Image_context(f_,f_,broken,logger_);
+            return new Image_context(path,path,broken,logger_);
         }
 
-        return new Image_context(f_,f_, local_image,logger_);
+        return new Image_context(path,path, local_image,logger_);
     }
 
 
     //**********************************************************
-    public Image_context(Path current_path,Path previous_path_, Image im_, Logger logger_)
+    public Image_context(Path current_path,Path previous_path_, Image image_, Logger logger_)
     //**********************************************************
     {
         path = current_path;
         previous_path = previous_path_;
         logger = logger_;
-        image = im_;
+        image = image_;
         the_image_view = new ImageView(image);
         the_image_view.setCacheHint(CacheHint.QUALITY);
         creation_time = Fast_date_from_OS.get_date(current_path,logger);

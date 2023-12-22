@@ -40,7 +40,7 @@ public class Cache_auto_clean
     }
 
     //**********************************************************
-    private boolean monitor()
+    public boolean monitor()
     //**********************************************************
     {
         for( Monitored_folder monitored_folder : monitored_folders)
@@ -71,27 +71,4 @@ public class Cache_auto_clean
         }
     }
 
-    //**********************************************************
-    public void start()
-    //**********************************************************
-    {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                for(;;)
-                {
-                    if ( aborter.should_abort()) return;
-                    if ( !monitor()) break;
-
-                    try {
-                        Thread.sleep(10*60*1000);
-                    } catch (InterruptedException e) {
-                        logger.log(""+e);
-                    }
-                }
-            }
-        };
-        Threads.execute(r,logger);
-
-    }
 }

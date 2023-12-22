@@ -16,6 +16,7 @@ import java.io.File;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -83,6 +84,7 @@ public class Paths_manager
     }
 
 
+
     //**********************************************************
     public Error_type scan_dir(Path folder_path, Stage stage)
     //**********************************************************
@@ -127,26 +129,12 @@ public class Paths_manager
             use_aspect_ratio = true;
             if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
             aspect_ratio_cache.reload_aspect_ratio_cache();
+            // start a thread that will switch the file_comparator
             aspect_ratio_cache.look_for_end(this, refresh_target,aborter);
         }
         try
         {
             File files[] = folder_path.toFile().listFiles();
-            /*
-            if ( use_aspect_ratio)
-            {
-                boolean warning = true;
-                if (files.length < 300) warning = false;
-                if (warning) {
-                    Runnable rr = new Runnable() {
-                        @Override
-                        public void run() {
-                            Popups.popup_warning(null, "This may take some time ... ", "...especially the first time", true, logger);
-                        }
-                    };
-                    Platform.runLater(rr);
-                }
-            }*/
 
             for ( File f : files)
             {
@@ -173,13 +161,21 @@ public class Paths_manager
             return Error_type.OK;
         }
 
-            if ( Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM)
+        if ( Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM)
         {
             Collections.shuffle(iconized);
         }
         else
         {
-            iconized.sort(file_comparator);
+            Comparator<? super Path> tmp = file_comparator;
+            try
+            {
+                iconized.sort(tmp);
+            }
+            catch(IllegalArgumentException e)
+            {
+                logger.log_stack_trace("Path_manager: sort fails: "+e);
+            }
         }
         if ( use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
 

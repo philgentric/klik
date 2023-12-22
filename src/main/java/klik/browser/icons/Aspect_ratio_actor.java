@@ -12,7 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Aspect_ratio_actor implements Actor
 //**********************************************************
 {
-    public static AtomicInteger in_flight = new AtomicInteger(0);
+    AtomicInteger in_flight;
+
+    public Aspect_ratio_actor(AtomicInteger in_flight_) {
+        in_flight = in_flight_;
+    }
 
     //**********************************************************
     @Override

@@ -1,4 +1,4 @@
-package klik.change;
+package klik.change.undo;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -14,6 +14,7 @@ import klik.change.active_list_stage.Active_list_stage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
 
 //**********************************************************
@@ -26,25 +27,25 @@ public class Undo_engine implements Datetime_to_signature_source
     public static List<Active_list_stage> undo_stages = new ArrayList<>();
     private final Undo_storage_to_disk store;
 
+    //**********************************************************
     public static Undo_engine get_instance(Logger logger)
+    //**********************************************************
     {
         if (instance == null) instance = new Undo_engine(logger);
         return instance;
     }
     //**********************************************************
-    public static List<Undo_item> get_all_undo_items(Logger logger_)
+    public static List<Undo_item> get_all_undo_items(Logger logger)
     //**********************************************************
     {
-        if ( instance == null ) instance =  new Undo_engine(logger_);
-        return instance.store.read_all_undo_items_from_disk();
+        return get_instance(logger).store.read_all_undo_items_from_disk();
     }
 
     //**********************************************************
     public static void perform_undo(Undo_item item, Stage owner, Logger logger)
     //**********************************************************
     {
-        if ( instance == null ) instance =  new Undo_engine(logger);
-        instance.undo(item,owner);
+        get_instance(logger).undo(item,owner);
     }
 
     //**********************************************************
@@ -52,24 +53,64 @@ public class Undo_engine implements Datetime_to_signature_source
     //**********************************************************
     {
         //logger_.log(Stack_trace_getter.get_stack_trace("Undo_engine::add"));
-        if ( instance == null ) instance =  new Undo_engine(logger_);
-        return instance.add_internal(l);
+        return get_instance(logger_).add_internal(l);
     }
     //**********************************************************
     public static boolean perform_last_undo(Stage owner, Logger logger)
     //**********************************************************
     {
-        if ( instance == null ) instance =  new Undo_engine(logger);
-        return instance.undo_last_move(owner);
+        return get_instance(logger).undo_last_move(owner);
 
     }
     //**********************************************************
     public static void remove_all_undo_items(Logger logger)
     //**********************************************************
     {
-        if ( instance == null ) instance =  new Undo_engine(logger);
-        instance.remove_all_undo_items_internal();
+        get_instance(logger).remove_all_undo_items_internal();
     }
+
+    //**********************************************************
+    public static boolean check_validity(Undo_item undo_item, Stage owner, Logger logger)
+    //**********************************************************
+    {
+        return get_instance(logger).check_validity_internal(undo_item, owner);
+    }
+
+    //**********************************************************
+    public static void erase_if_too_old(int max_count, int max_days, Logger logger)
+    //**********************************************************
+    {
+        Map<LocalDateTime, String> map = get_instance(logger).get_map_of_date_to_signature();
+        if ( map.keySet().size() < max_count) return;
+        LocalDateTime now = LocalDateTime.now();
+        List<String> to_be_deleted = new ArrayList<>();
+        for( Map.Entry<LocalDateTime, String> e: map.entrySet())
+        {
+            LocalDateTime date = e.getKey();
+            Period p = Period.between(now.toLocalDate(), date.toLocalDate());
+            if ( p.getDays() < max_days)
+            {
+                to_be_deleted.add(e.getValue());
+            }
+        }
+        for ( String signature :to_be_deleted)
+        {
+            Undo_item ui = get_instance(logger).get_undo_item_from_signature(signature);
+            get_instance(logger).store.remove_undo_item(ui);
+            logger.log("out of age undo item removed: "+ui.signature());
+        }
+
+    }
+
+    Undo_item get_undo_item_from_signature(String signature)
+    {
+        Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
+        return signature_to_undo_item.get(signature);
+    }
+
+
+
+
 
     //**********************************************************
     private Undo_engine(Logger logger_)
@@ -79,13 +120,6 @@ public class Undo_engine implements Datetime_to_signature_source
         store = new Undo_storage_to_disk(logger);
     }
 
-    //**********************************************************
-    public static boolean check_validity(Undo_item undo_item, Stage owner, Logger logger)
-    //**********************************************************
-    {
-        if ( instance == null ) instance =  new Undo_engine(logger);
-        return instance.check_validity_internal(undo_item, owner);
-    }
 
     //**********************************************************
     private boolean check_validity_internal(Undo_item undo_item, Stage owner)
@@ -111,7 +145,7 @@ public class Undo_engine implements Datetime_to_signature_source
 
     //**********************************************************
     @Override
-    public Map<LocalDateTime, String> get()
+    public Map<LocalDateTime, String> get_map_of_date_to_signature()
     //**********************************************************
     {
         List<Undo_item> ll = instance.store.read_all_undo_items_from_disk();
@@ -164,6 +198,7 @@ public class Undo_engine implements Datetime_to_signature_source
         return true;
     }
 
+
     //**********************************************************
     private boolean undo_last_move(Stage owner)
     //**********************************************************
@@ -199,7 +234,7 @@ public class Undo_engine implements Datetime_to_signature_source
 
         Moving_files.perform_safe_moves_in_a_thread(owner,reverse_last_move, new Aborter(), true, false, logger);
 
-        store.remove_after_undo_done(undo_item);
+        store.remove_undo_item(undo_item);
         refresh_UI();
         return true;
     }

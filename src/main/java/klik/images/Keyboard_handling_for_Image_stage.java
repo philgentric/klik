@@ -5,15 +5,10 @@ import javafx.scene.input.KeyEvent;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.Change_gang;
-import klik.files_and_paths.Command_old_and_new_Path;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.files_and_paths.Status_old_and_new_Path;
-import klik.metadata.Tag_stage;
+import klik.level2.metadata.Tag_stage;
 import klik.util.Logger;
 
 import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;

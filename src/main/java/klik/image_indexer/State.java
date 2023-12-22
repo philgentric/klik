@@ -47,8 +47,7 @@ class State
     //**********************************************************
     {
         //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
-        index_to_path.clear();
-        path_to_index.clear();
+
         boolean consider_also_hidden_files =  Static_application_properties.get_show_hidden_files(logger);
 
         List<Path> path_list = new ArrayList<>();
@@ -75,6 +74,8 @@ class State
 
         path_list.sort(file_comparator);
         int index = 0;
+        index_to_path.clear();
+        path_to_index.clear();
         for (Path p : path_list) {
             index_to_path.put(index,p);
             path_to_index.put(p,index);

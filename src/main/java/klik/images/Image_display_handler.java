@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Image_display_handler implements Change_receiver, Slide_show_slave
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
 
     public final Image_window image_stage;
     public Image_indexer image_indexer = null;
@@ -88,14 +88,17 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         image_stage = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context.path.toAbsolutePath().getParent());
 
+        /*
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
-                image_indexer.scan();
+                //image_indexer.scan();
             }
         };
         Threads.execute(r,logger);
+        */
+        image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
 
         Change_gang.register(this,logger); // image_context must be valid!
 
@@ -140,16 +143,16 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     Image_context local_getImage_context(Path path, Aborter aborter)
     //**********************************************************
     {
-        Image_context iai;
+        Image_context image_context;
         if (alternate_rescaler)
         {
-            iai = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_stage.the_Stage.getWidth(),image_stage.aborter,logger);
+            image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_stage.the_Stage.getWidth(),image_stage.aborter,logger);
         }
         else
         {
-            iai = Image_context.get_Image_context(path,aborter, logger);
+            image_context = Image_context.get_Image_context(path,aborter, logger);
         }
-        return iai;
+        return image_context;
     }
 
 
@@ -306,7 +309,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         }
 
         Image_context[] returned_new_image_context = new Image_context[1];
-        Change_image_message m = new Change_image_message(delta,image_context,image_stage,ultimate,returned_new_image_context,logger);
+        Change_image_message change_image_message = new Change_image_message(delta,image_context,image_stage,ultimate,returned_new_image_context,logger);
         // Job_termination_reporter will recover the NEW image_context
 
         Index_reporter index_reporter = index -> {
@@ -332,7 +335,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 index_reporter.report_index(image_indexer.get_index(image_context.path));
             }
         };
-        Actor_engine.run(Change_image_actor.get_instance(), m, tr,logger);
+        Actor_engine.run(Change_image_actor.get_instance(), change_image_message, tr,logger);
 
     }
 

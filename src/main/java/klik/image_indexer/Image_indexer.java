@@ -81,7 +81,7 @@ public class Image_indexer
     //**********************************************************
     {
         int target = 0;
-        Integer current_index = state.index_from_path(path.toAbsolutePath());
+        Integer current_index = state.index_from_path(path);//.toAbsolutePath());
         if ( dbg) logger.log("path_to_index("+path+")="+current_index);
         if ( current_index == null)
         {
