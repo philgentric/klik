@@ -98,12 +98,19 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //static boolean was_escaped = false;
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
+    //**********************************************************
     @Override
-    public void refresh() {
+    public void refresh()
+    //**********************************************************
+    {
+        Browser local = this;
         Runnable r = new Runnable() {
             @Override
             public void run() {
+
+                logger.log("REFRESH");
                 scene_geometry_changed("aspect ratio engine",true, true);
+                //Browser_creation_context.replace_same_folder(local,logger);
             }
         };
         Platform.runLater(r);

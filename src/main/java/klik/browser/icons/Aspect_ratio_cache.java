@@ -35,7 +35,7 @@ public class Aspect_ratio_cache
     private final String cache_file_name;
     private final Path path_of_aspect_ratio_cache_file;
 
-    public AtomicInteger in_flight = new AtomicInteger(-1);
+    public AtomicInteger in_flight = new AtomicInteger(0);
 
     //**********************************************************
     public Aspect_ratio_cache(Path folder_path, Aborter aborter_, Logger logger_)
@@ -137,7 +137,7 @@ public class Aspect_ratio_cache
     static String key_from_path(Path p)
     //**********************************************************
     {
-        return p.getFileName().toString();
+        return p.toAbsolutePath().toString();
     }
 
     //**********************************************************
@@ -150,7 +150,6 @@ public class Aspect_ratio_cache
         {
             if(dbg) logger.log("not in RAM for: "+p.toAbsolutePath());
             aspect_ratio_cache.put(key_from_path(p), new Aspect_ratio(1.0,false));
-            in_flight.compareAndSet(-1,0);
             in_flight.incrementAndGet();
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,aborter,logger),null,logger);
             return 1.0;
@@ -158,7 +157,6 @@ public class Aspect_ratio_cache
         if ( ! d.truth )
         {
             if(dbg) logger.log("RAM is fake for: "+p.toAbsolutePath());
-            in_flight.compareAndSet(-1,0);
             in_flight.incrementAndGet();
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(p,aspect_ratio_cache,aborter,logger),null,logger);
             return 1.0;
@@ -194,6 +192,7 @@ public class Aspect_ratio_cache
             }
         }
         if (dbg) logger.log("aspect ratio cache, "+reloaded+" items reloaded from file");
+
     }
     //**********************************************************
     void save_aspect_ratio_cache()
@@ -203,13 +202,13 @@ public class Aspect_ratio_cache
         Properties_manager pm = new Properties_manager(path_of_aspect_ratio_cache_file,logger);
 
         int saved = 0;
-        for(Map.Entry e : aspect_ratio_cache.entrySet())
+        for(Map.Entry<String, Aspect_ratio> e : aspect_ratio_cache.entrySet())
         {
-            Aspect_ratio ar = (Aspect_ratio) e.getValue();
+            Aspect_ratio ar = e.getValue();
             if (ar.truth)
             {
                 saved++;
-                pm.imperative_store((String) e.getKey(), Double.toString(ar.value), false, false);
+                pm.imperative_store(e.getKey(), Double.toString(ar.value), false, false);
             }
         }
         pm.store_properties();
@@ -223,23 +222,21 @@ public class Aspect_ratio_cache
     //**********************************************************
     {
         if ( done.get()) return;
-        if ( look_for_end_runnable != null) return;
+        if (look_for_end_runnable != null) return;
+
         look_for_end_runnable = new Runnable() {
             @Override
             public void run() {
 
-
-
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 for(;;)
                 {
                     if ( aborter.should_abort()) return;
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
 
-                    if(in_flight.get()<0) continue;
 
                     if ( in_flight.get() == 0)
                     {
@@ -247,7 +244,10 @@ public class Aspect_ratio_cache
 
                         if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
                         {
-                            //paths_manager.file_comparator = new Aspect_ratio_comparator_random();
+                            paths_manager.file_comparator = new Aspect_ratio_comparator_random();
+                        }
+                        else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO_RANDOM)
+                        {
                             paths_manager.file_comparator = new Random_comparator_aspect_ratio();
                         }
                         else
@@ -269,6 +269,12 @@ public class Aspect_ratio_cache
                         };
                         Platform.runLater(r);
                     }
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             }
         };

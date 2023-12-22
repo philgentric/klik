@@ -8,5 +8,6 @@ public enum File_sort_by {
   ASPECT_RATIO,
   RANDOM,
   RANDOM_ASPECT_RATIO,
+  ASPECT_RATIO_RANDOM,
   NAME_GIFS_FIRST
 }
