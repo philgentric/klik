@@ -40,7 +40,7 @@ public class Icon_manager
     public static final boolean dbg_visible = false;
     public static final boolean dbg_scroll = false;
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
-    public static final int MIN_BUTTON_WIDTH = 300;
+    public static final int MIN_COLUMN_WIDTH = 300;
     public static final boolean add_and_remove = true;
 
     private final Logger logger;
@@ -100,7 +100,7 @@ public class Icon_manager
         double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
         double icon_size = Static_application_properties.get_icon_size(logger);
         double column_increment = icon_size;
-        int min_button_width = Static_application_properties.get_button_width(logger);
+        int min_button_width = Static_application_properties.get_column_width(logger);
         if ( column_increment < min_button_width) column_increment = min_button_width;
         if ( single_column) column_increment = pane.getWidth();
         double row_increment_for_dirs_with_picture = row_increment_for_dirs + icon_size;

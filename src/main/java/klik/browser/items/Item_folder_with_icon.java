@@ -178,8 +178,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             vbox.setMinWidth(browser.my_Stage.the_Stage.getWidth()-30);
         }
         else {
-            int button_width = Static_application_properties.get_button_width(logger);
-            if (button_width < Icon_manager.MIN_BUTTON_WIDTH) button_width = Icon_manager.MIN_BUTTON_WIDTH;
+            int button_width = Static_application_properties.get_column_width(logger);
+            if (button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
             if (button_width < icon_size) button_width = icon_size;
             vbox.setPrefWidth(button_width);
             vbox.setMinWidth(button_width);
@@ -212,8 +212,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
         rotate_and_center(image, the_image_view);
 
-        int button_width = Static_application_properties.get_button_width(logger);
-        if ( button_width < Icon_manager.MIN_BUTTON_WIDTH) button_width = Icon_manager.MIN_BUTTON_WIDTH;
+        int button_width = Static_application_properties.get_column_width(logger);
+        if ( button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
         if ( icon_size > button_width)
         {
             double w = icon_size-10;
@@ -733,31 +733,32 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger));
         menu_item.setOnAction(event -> {
 
-            if (dbg) logger.log("Item_button: Renaming");
-            String original = path.getFileName().toString();
-            TextField text_edit = new TextField(original);
+            if (dbg) logger.log("Item_folder_with_icon: Renaming");
+            String original_name = path.getFileName().toString();
+            TextField text_edit = new TextField(original_name);
             Node restored = label1.getGraphic();
             label1.setGraphic(text_edit);
             text_edit.setMinWidth(label1.getWidth() * 0.9);
             text_edit.requestFocus();
-            text_edit.positionCaret(original.length());
+            text_edit.positionCaret(original_name.length());
             text_edit.setFocusTraversable(true);
             text_edit.setOnAction(actionEvent -> {
                 String new_dir_name = text_edit.getText();
-                if ( path.toFile().isDirectory() )
-                {
-                    label1.setText(new_dir_name);
-                    label1.setGraphic(restored);
-                }
-                else
-                {
-                    String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
-                    label1.setText(new_dir_name+" ("+size+")");
-                }
                 actionEvent.consume();
-                path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                Path new_path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                if ( new_path == null)
+
+                {
+                    if (dbg) logger.log("rename failed");
+                    label1.setText(original_name);
+                    label1.setGraphic(restored);
+                    return;
+                }
+                path = new_path;
+                label1.setText(new_dir_name);
+                label1.setGraphic(restored);
                 if (dbg) logger.log("rename done");
-                // button.setOnAction(the_button_event_handler);
+
             });
         });
         return menu_item;

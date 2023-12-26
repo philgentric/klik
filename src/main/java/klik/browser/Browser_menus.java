@@ -887,12 +887,12 @@ public class Browser_menus
 
 
     //**********************************************************
-    public void create_menu_item_for_one_button_width(Browser browser, Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    public void create_menu_item_for_one_column_width(Browser browser, Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Button_width",logger);
+        String text = I18n.get_I18n_string(Static_application_properties.COLUMN_WIDTH,logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length);
-        int actual_size = Static_application_properties.get_button_width(logger);
+        int actual_size = Static_application_properties.get_column_width(logger);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -901,8 +901,8 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_button_width(length,logger);
-                browser.scene_geometry_changed("button width changed",true,false);
+                Static_application_properties.set_column_width(length,logger);
+                browser.scene_geometry_changed("column width changed",true,false);
             }
         });
         menu.getItems().add(item);
@@ -977,14 +977,14 @@ public class Browser_menus
     public Menu make_column_width_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Column_width",logger);
+        String text = I18n.get_I18n_string(Static_application_properties.COLUMN_WIDTH,logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
 
-        int[] possible_lenghts ={Icon_manager.MIN_BUTTON_WIDTH,400,500,600,800,1000,2000,4000};
+        int[] possible_lenghts ={Icon_manager.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
         for ( int l : possible_lenghts)
         {
-            create_menu_item_for_one_button_width(browser, menu, l, all_check_menu_items, logger);
+            create_menu_item_for_one_column_width(browser, menu, l, all_check_menu_items, logger);
         }
 
         return menu;

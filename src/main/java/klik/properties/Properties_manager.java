@@ -87,7 +87,7 @@ public class Properties_manager
         }
         catch (Exception e)
         {
-            logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
+            //logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
             Popups.popup_Exception(new AccessDeniedException(f.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, logger);
 
         }

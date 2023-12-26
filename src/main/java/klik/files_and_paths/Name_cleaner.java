@@ -16,6 +16,7 @@ public class Name_cleaner
     public static String clean(String in, boolean check_extension, Logger logger)
     //**********************************************************
     {
+        
         String extension = "";
         String base_name = in;
         if ( check_extension)

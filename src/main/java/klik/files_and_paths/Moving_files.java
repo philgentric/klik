@@ -424,7 +424,7 @@ public class Moving_files
             // identical or not ?
             return My_File.files_have_same_content(mf1, mf2, aborter, logger);
         }
-        logger.log("new path does not exist, so not identical " + oandn.get_string());
+        if ( dbg) logger.log("new path does not exist, so not identical " + oandn.get_string());
         return false;
     }
 

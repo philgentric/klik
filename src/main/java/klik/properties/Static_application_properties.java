@@ -33,11 +33,10 @@ public class Static_application_properties
     private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
     private static int icon_size = -1;
     private static int video_length = -1;
-    private static int button_width = -1;
+    private static int column_width = -1;
     public static final int DEFAULT_ICON_SIZE = 256;
     public static final int DEFAULT_VIDEO_LENGTH = 1;
-    public static final String STYLE_KEYWORD = "STYLE";
-
+    public static final String STYLE = "STYLE";
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
     public static final String SHOW_FOLDER_SIZE = "show_folder_size";
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
@@ -46,11 +45,11 @@ public class Static_application_properties
     private static final String SHOW_FFMPEG_INSTALL_WARNING = "SHOW_FFMPEG_INSTALL_WARNING";
     private static final String MAX_EXCLUDED_KEYWORDS = "max_number_of_excluded_keywords";
     public static final String EXCLUDED_KEYWORD_PREFIX = "excluded_keyword_";
-    public static final String ICON_SIZE_KEYWORD = "ICON_SIZE";
-    public static final String VIDEO_LENGTH_KEYWORD = "VIDEO_SAMPLE_LENGTH";
-    public static final String LANGUAGE_KEYWORD = "LANGUAGE";
-    public static final String FONT_SIZE_KEYWORD = "FONT_SIZE_KEYWORD";
-    public static final String BUTTON_WIDTH_KEYWORD = "BUTTON_WIDTH_KEYWORD";
+    public static final String ICON_SIZE = "ICON_SIZE";
+    public static final String VIDEO_SAMPLE_LENGTH = "VIDEO_SAMPLE_LENGTH";
+    public static final String LANGUAGE = "LANGUAGE";
+    public static final String FONT_SIZE = "FONT_SIZE";
+    public static final String COLUMN_WIDTH = "Column_width"; //this must match the ressource bundles
     public static final String VERTICAL_SCROLL_INVERTED = "vertical_scroll_inverted";
     public static final String ESCAPE = "escape_fast_exit";
     public static final String SHOW_ICONS = "show_icons";
@@ -89,7 +88,7 @@ public class Static_application_properties
     //**********************************************************
     {
         Look_and_feel look_and_feel = null;
-        String style_s = Static_application_properties.get_properties_manager(logger).get(STYLE_KEYWORD);
+        String style_s = Static_application_properties.get_properties_manager(logger).get(STYLE);
         if (style_s == null)
         {
             // DEFAULT STYLE, first time klik is launched on the platform
@@ -105,7 +104,7 @@ public class Static_application_properties
         if (look_and_feel == null) {
             look_and_feel = new Look_and_feel_light(logger);
         }
-        Static_application_properties.get_properties_manager(logger).save_unico(STYLE_KEYWORD, look_and_feel.name,false);
+        Static_application_properties.get_properties_manager(logger).save_unico(STYLE, look_and_feel.name,false);
         return look_and_feel;
     }
 
@@ -113,7 +112,7 @@ public class Static_application_properties
     public static void set_style(Look_and_feel style,Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_properties_manager(logger).save_unico(STYLE_KEYWORD, style.name,false);
+        Static_application_properties.get_properties_manager(logger).save_unico(STYLE, style.name,false);
     }
 
     //**********************************************************
@@ -127,7 +126,13 @@ public class Static_application_properties
         }
         else
         {
-            return File_sort_by.valueOf(s);
+            try {
+                return File_sort_by.valueOf(s);
+            }
+            catch ( IllegalArgumentException e)
+            {
+                return File_sort_by.NAME;
+            }
         }
     }
 
@@ -337,7 +342,6 @@ public class Static_application_properties
                 // when browsing $home
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed";
-                logger.log_stack_trace(err);
                 Popups.popup_Exception(e,300,err,logger);
                 return null;
             }
@@ -350,7 +354,6 @@ public class Static_application_properties
                 Files.createDirectory(conf_dir2);
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
-                logger.log_stack_trace(err);
                 Popups.popup_Exception(e,300,err,logger);
                 return null;
             }
@@ -365,8 +368,7 @@ public class Static_application_properties
                 return returned;
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
-                logger.log_stack_trace(err);
-                Popups.popup_Exception(e, 300," Attempt to create dir named->" + returned.toAbsolutePath() + "<- failed",logger);
+                Popups.popup_Exception(e, 300,err,logger);
                 return null;
             }
         }
@@ -384,14 +386,14 @@ public class Static_application_properties
     {
         if (video_length > 0) return video_length;
         // first time, we look it up on disk
-        String video_length_s = get_properties_manager(logger).get(VIDEO_LENGTH_KEYWORD);
+        String video_length_s = get_properties_manager(logger).get(VIDEO_SAMPLE_LENGTH);
         if (video_length_s == null) {
             video_length = DEFAULT_VIDEO_LENGTH;
         } else {
             double d_video_length = Double.parseDouble(video_length_s);
             video_length = (int) d_video_length;
         }
-        get_properties_manager(logger).save_unico(VIDEO_LENGTH_KEYWORD, String.valueOf(video_length), false);
+        get_properties_manager(logger).save_unico(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length), false);
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return video_length;
     }
@@ -401,32 +403,32 @@ public class Static_application_properties
     //**********************************************************
     {
         video_length = l;
-        get_properties_manager(logger).save_unico(VIDEO_LENGTH_KEYWORD, String.valueOf(video_length), false);
+        get_properties_manager(logger).save_unico(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length), false);
     }
 
     //**********************************************************
-    public static int get_button_width(Logger logger)
+    public static int get_column_width(Logger logger)
     //**********************************************************
     {
-        if (button_width > 0) return button_width;
+        if (column_width > 0) return column_width;
         // first time, we look it up on disk
-        String video_length_s = get_properties_manager(logger).get(BUTTON_WIDTH_KEYWORD);
+        String video_length_s = get_properties_manager(logger).get(COLUMN_WIDTH);
         if (video_length_s == null) {
-            button_width = Icon_manager.MIN_BUTTON_WIDTH;
+            column_width = Icon_manager.MIN_COLUMN_WIDTH;
         } else {
             double local = Double.parseDouble(video_length_s);
-            button_width = (int) local;
+            column_width = (int) local;
         }
-        get_properties_manager(logger).save_unico(BUTTON_WIDTH_KEYWORD, String.valueOf(button_width), false);
-        return button_width;
+        get_properties_manager(logger).save_unico(COLUMN_WIDTH, String.valueOf(column_width), false);
+        return column_width;
     }
 
     //**********************************************************
-    public static void set_button_width(int l, Logger logger)
+    public static void set_column_width(int l, Logger logger)
     //**********************************************************
     {
-        button_width = l;
-        get_properties_manager(logger).save_unico(BUTTON_WIDTH_KEYWORD, String.valueOf(button_width), false);
+        column_width = l;
+        get_properties_manager(logger).save_unico(COLUMN_WIDTH, String.valueOf(column_width), false);
     }
 
 
@@ -438,14 +440,14 @@ public class Static_application_properties
     {
         if (icon_size > 0) return icon_size;
         // first time, we look it up on disk
-        String icon_size_s = get_properties_manager(logger).get(ICON_SIZE_KEYWORD);
+        String icon_size_s = get_properties_manager(logger).get(ICON_SIZE);
         if (icon_size_s == null) {
             icon_size = DEFAULT_ICON_SIZE;
         } else {
             double d_icon_size = Double.parseDouble(icon_size_s);
             icon_size = (int) d_icon_size;
         }
-        get_properties_manager(logger).save_unico(ICON_SIZE_KEYWORD, String.valueOf(icon_size), false);
+        get_properties_manager(logger).save_unico(ICON_SIZE, String.valueOf(icon_size), false);
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return icon_size;
     }
@@ -456,7 +458,7 @@ public class Static_application_properties
     //**********************************************************
     {
         icon_size = target_size;
-        get_properties_manager(logger).save_unico(ICON_SIZE_KEYWORD, String.valueOf(icon_size), false);
+        get_properties_manager(logger).save_unico(ICON_SIZE, String.valueOf(icon_size), false);
     }
 
     static double font_size_cache = -1.0;
@@ -468,7 +470,7 @@ public class Static_application_properties
         if (font_size_cache > 0) return font_size_cache;
         double font_size = 16; // this is the default immediately after installing or after erasing properties
         // first time, we look it up on disk
-        String font_size_s = get_properties_manager(logger).get(FONT_SIZE_KEYWORD);
+        String font_size_s = get_properties_manager(logger).get(FONT_SIZE);
         if (font_size_s != null) {
             try {
                 font_size = Double.parseDouble(font_size_s);
@@ -476,7 +478,7 @@ public class Static_application_properties
                 logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
             }
         }
-        get_properties_manager(logger).save_unico(FONT_SIZE_KEYWORD, String.valueOf(font_size), false);
+        get_properties_manager(logger).save_unico(FONT_SIZE, String.valueOf(font_size), false);
         font_size_cache = font_size;
         return font_size;
     }
@@ -487,7 +489,7 @@ public class Static_application_properties
     //**********************************************************
     {
         font_size_cache = target_size;
-        get_properties_manager(logger).save_unico(FONT_SIZE_KEYWORD, String.valueOf(target_size), false);
+        get_properties_manager(logger).save_unico(FONT_SIZE, String.valueOf(target_size), false);
     }
 
 
@@ -509,11 +511,11 @@ public class Static_application_properties
     public static String get_language(Logger logger)
     //**********************************************************
     {
-        String s = get_properties_manager(logger).get(LANGUAGE_KEYWORD);
+        String s = get_properties_manager(logger).get(LANGUAGE);
         if (s == null) {
             s = "english-US";
         }
-        get_properties_manager(logger).save_unico(LANGUAGE_KEYWORD, s, false);
+        get_properties_manager(logger).save_unico(LANGUAGE, s, false);
         return s;
     }
 
@@ -521,7 +523,7 @@ public class Static_application_properties
     public static void set_language(String s, Logger logger)
     //**********************************************************
     {
-        get_properties_manager(logger).save_unico(LANGUAGE_KEYWORD, s, false);
+        get_properties_manager(logger).save_unico(LANGUAGE, s, false);
 
     }
 

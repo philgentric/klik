@@ -3,13 +3,16 @@ package klik.level2.backup;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
+import klik.files_and_paths.Moving_files;
 import klik.files_and_paths.My_File;
 import klik.util.Logger;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -152,6 +155,7 @@ public class Backup_actor_for_one_file implements Actor
                 if ( file_backup_job_request.mini_console!=null)
                 {
                     file_backup_job_request.mini_console.increment_file_count();
+                    file_backup_job_request.mini_console.increment_skipped_files();
                     file_backup_job_request.mini_console.show_progress();
                 }
                 return returned;
@@ -293,10 +297,10 @@ public class Backup_actor_for_one_file implements Actor
                 // actual copy occurs below
                 if ( !rename_destination_file(destination_file))
                 {
-                    mini_console.increment_renamed_files();
-                    mini_console.add_to_renamed_files_names(destination_file.getAbsolutePath());
-                    logger.log("rename failed for:" + destination_file.getAbsolutePath());
+                    logger.log("WARNING: rename failed for:" + destination_file.getAbsolutePath());
                 }
+                mini_console.increment_renamed_files();
+                mini_console.add_to_renamed_files_names(destination_file.getAbsolutePath());
                 return Similarity_result.not_same;
         }
     }
@@ -306,9 +310,19 @@ public class Backup_actor_for_one_file implements Actor
     private boolean rename_destination_file(File destination_file)
     //**********************************************************
     {
-        Date date = new Date();
-        File new_dest = new File(destination_file.getAbsolutePath() + ".old." + date.toString());
-        return destination_file.renameTo(new_dest);
+        for ( int i = 0; i < 33; i++)
+        {
+            Path x = Moving_files.generate_new_candidate_name(destination_file.toPath(), "RENAMED_", ""+i, logger);
+            if ( x.toFile().exists()) continue;
+            try {
+                FileUtils.moveFile(destination_file,x.toFile());
+            } catch (IOException e) {
+                logger.log_stack_trace(e.toString());
+                return false;
+            }
+            return true;
+        }
+        return false;
 
     }
 

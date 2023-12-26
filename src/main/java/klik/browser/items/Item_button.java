@@ -87,8 +87,8 @@ public class Item_button extends Item implements Icon_destination
             return;
         }
 
-        double button_width = Static_application_properties.get_button_width(logger);
-        if ( button_width < Icon_manager.MIN_BUTTON_WIDTH) button_width = Icon_manager.MIN_BUTTON_WIDTH;
+        double button_width = Static_application_properties.get_column_width(logger);
+        if ( button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
 
         if (Files.isDirectory(path))
         {
@@ -833,36 +833,49 @@ public class Item_button extends Item implements Icon_destination
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Item_button: Renaming");
-            String original = path.getFileName().toString();
-            TextField text_edit = new TextField(original);
+            String original_name = path.getFileName().toString();
+            TextField text_edit = new TextField(original_name);
             Node restored = button.getGraphic();
             button.setGraphic(text_edit);
             text_edit.setMinWidth(button.getWidth() * 0.9);
             text_edit.requestFocus();
-            text_edit.positionCaret(original.length());
+            text_edit.positionCaret(original_name.length());
             text_edit.setFocusTraversable(true);
             text_edit.setOnAction(actionEvent -> {
                 String new_dir_name = text_edit.getText();
+                actionEvent.consume();
                 if ( path.toFile().isDirectory() )
                 {
+                    Path new_path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                    if ( new_path == null)
+                    {
+                        if (dbg) logger.log("rename failed");
+                        button.setText(original_name);
+                        button.setGraphic(restored);
+                        return;
+                    }
+                    path = new_path;
                     button.setText(new_dir_name);
                     button.setGraphic(restored);
                 }
                 else
                 {
+                    Path new_path = Files_and_Paths.change_file_name(path, logger, new_dir_name);
+                    if ( new_path == null)
+                    {
+                        if (dbg) logger.log("rename failed");
+                        button.setText(original_name);
+                        button.setGraphic(restored);
+                        return;
+                    }
+                    path = new_path;
                     String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
                     button.setText(size);
                     Label label = new Label(new_dir_name);
                     Font_size.set_preferred_font_size(label,logger);
                     button.setGraphic(label);
                 }
-                actionEvent.consume();
-                if ( path.toFile().isDirectory() ) {
-                    path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
-                }
-                else {
-                    path = Files_and_Paths.change_file_name(path, logger, new_dir_name);
-                }
+
                 if (dbg) logger.log("rename done");
                 // button.setOnAction(the_button_event_handler);
             });

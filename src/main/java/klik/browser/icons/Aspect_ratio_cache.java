@@ -80,6 +80,7 @@ public class Aspect_ratio_cache
         }
         @Override
         public int compare(Path p1, Path p2) {
+            // round the aspect ratio a bit
             Double d1 = get_aspect_ratio(p1);
             Double d1r= Double.valueOf(String.format("%.1f",d1));
             Double d2 = get_aspect_ratio(p2);
@@ -222,7 +223,11 @@ public class Aspect_ratio_cache
     //**********************************************************
     {
         if ( done.get()) return;
-        if (look_for_end_runnable != null) return;
+        if (look_for_end_runnable != null)
+        {
+            //already running;
+            return;
+        }
 
         look_for_end_runnable = new Runnable() {
             @Override
@@ -246,10 +251,10 @@ public class Aspect_ratio_cache
                         {
                             paths_manager.file_comparator = new Aspect_ratio_comparator_random();
                         }
-                        else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO_RANDOM)
+                        /*else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO_RANDOM)
                         {
                             paths_manager.file_comparator = new Random_comparator_aspect_ratio();
-                        }
+                        }*/
                         else
                         {
                             paths_manager.file_comparator = new Aspect_ratio_comparator();

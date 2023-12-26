@@ -97,12 +97,14 @@ public class Undo_engine implements Datetime_to_signature_source
         {
             Undo_item ui = get_instance(logger).get_undo_item_from_signature(signature);
             get_instance(logger).store.remove_undo_item(ui);
-            logger.log("out of age undo item removed: "+ui.signature());
+            if ( dbg) logger.log("out of age undo item removed: "+ui.signature());
         }
 
     }
 
+    //**********************************************************
     Undo_item get_undo_item_from_signature(String signature)
+    //**********************************************************
     {
         Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
         return signature_to_undo_item.get(signature);

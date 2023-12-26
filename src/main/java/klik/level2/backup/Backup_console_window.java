@@ -66,7 +66,7 @@ public class Backup_console_window
         {
             Label source = new Label("SOURCE= "+ backup_engine.source.toAbsolutePath());
             vbox.getChildren().add(source);
-            Label sink = new Label("SINK= "+ backup_engine.sink.toAbsolutePath());
+            Label sink = new Label("DESTINATION= "+ backup_engine.sink.toAbsolutePath());
             vbox.getChildren().add(sink);
         }
 

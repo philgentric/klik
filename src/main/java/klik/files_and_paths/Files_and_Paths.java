@@ -611,42 +611,38 @@ public class Files_and_Paths {
             logger.log("....done");
             return new_path;
         } catch (FileExistsException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
             Popups.popup_Exception(e, 200, "File already exists", logger);
         }
         catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
-        return path;
+        return null;
     }
 
 
     //**********************************************************
-    public static Path change_dir_name(Path path, Logger logger, String new_name)
+    public static Path change_dir_name(Path old_path, Logger logger, String new_name)
     //**********************************************************
     {
         if (dbg) logger.log("change_dir_name, new name: " + new_name);
 
         try {
-            logger.log("trying rename: " + path.getFileName() + " => " + new_name);
-            Path new_path = Paths.get(path.getParent().toString(), new_name);
+            logger.log("trying rename: " + old_path.getFileName() + " => " + new_name);
+            Path new_path = Paths.get(old_path.getParent().toString(), new_name);
             //Files.move(path, new_path);
-            FileUtils.moveDirectory(path.toFile(),new_path.toFile());
+            FileUtils.moveDirectory(old_path.toFile(),new_path.toFile());
             logger.log("....done");
             return new_path;
         } catch (FileAlreadyExistsException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
             Popups.popup_Exception(e, 200, "File already exists", logger);
         } catch (AccessDeniedException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
             Popups.popup_Exception(e, 200, "Access Denied", logger);
         } catch (FileSystemException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
             Popups.popup_Exception(e, 200, "File System Exception", logger);
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            Popups.popup_Exception(e, 200, "IO Exception", logger);
         }
-        return path;
+        return null;
     }
 
 
