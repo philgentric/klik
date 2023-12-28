@@ -43,7 +43,7 @@ public class Item_image extends Item implements Icon_destination
 //**********************************************************
 {
     protected ImageView the_image_view;
-    private static final boolean dbg_visibility = false;
+    private static final boolean visibility_dbg = false;
     private boolean rotation_known = false;
     private Job job;
     public double aspect_ratio = -1.0;
@@ -368,7 +368,7 @@ public class Item_image extends Item implements Icon_destination
                 } else {
                     the_image_view.setImage(null);
                     icon_status = Icon_status.no_icon;
-                    if (dbg_visibility) log_visibility_state_number(0);
+                    if (visibility_dbg) log_visibility_state_number(0);
                     return;
                 }
 
@@ -379,7 +379,7 @@ public class Item_image extends Item implements Icon_destination
             if (!visible_in_scene.get()) {
                 the_image_view.setImage(null);
                 icon_status = Icon_status.no_icon;
-                if (dbg_visibility) log_visibility_state_number(1);
+                if (visibility_dbg) log_visibility_state_number(1);
                 return;
             }
 
@@ -412,13 +412,13 @@ public class Item_image extends Item implements Icon_destination
             }
 
             icon_status = Icon_status.true_icon;
-            if (dbg_visibility) log_visibility_state_number(2);
+            if (visibility_dbg) log_visibility_state_number(2);
 
         }
         else
         {
             icon_status = Icon_status.default_icon;
-            if (dbg_visibility) log_visibility_state_number(3);
+            if (visibility_dbg) log_visibility_state_number(3);
         }
     }
 

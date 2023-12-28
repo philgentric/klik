@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Image_display_handler implements Change_receiver, Slide_show_slave
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
 
     public final Image_window image_stage;
     public Image_indexer image_indexer = null;

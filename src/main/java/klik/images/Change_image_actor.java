@@ -12,7 +12,7 @@ import java.util.Objects;
 public class Change_image_actor implements Actor
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private static Change_image_actor instance;
 
     //**********************************************************

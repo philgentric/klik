@@ -37,8 +37,8 @@ public class Icon_manager
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public static final boolean dbg_visible = false;
-    public static final boolean dbg_scroll = false;
+    public static final boolean visible_dbg = false;
+    public static final boolean scroll_dbg = false;
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final boolean add_and_remove = true;
@@ -372,10 +372,10 @@ public class Icon_manager
     )
     //**********************************************************
     {
-        if ( dbg_scroll)
+        if (scroll_dbg)
             logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" rebuild_all_items="+rebuild_all_items);
         boolean single_column = Static_application_properties.get_single_column(logger);
-        if ( dbg_scroll) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
+        if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
         map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
@@ -388,7 +388,7 @@ public class Icon_manager
             String reason)
     //**********************************************************
     {
-        if (dbg_scroll)
+        if (scroll_dbg)
             logger.log("move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
         current_vertical_offset = new_vertical_offset;
         check_visibility(pane);
@@ -405,17 +405,17 @@ public class Icon_manager
             //if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
             if (item.get_y() + item.get_Height() < current_vertical_offset -icon_size)
             {
-                if (dbg_visible)
+                if (visible_dbg)
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_y() + " item height=" + item.get_Height());
                 process_is_invisible(pane, item);
                 continue;
             }
             if (item.get_y()  > h+current_vertical_offset+icon_size) {
-                if (dbg_visible) logger.log(item.get_item_path() + " invisible (too far down)");
+                if (visible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 process_is_invisible(pane, item);
                 continue;
             }
-            if (dbg_visible)
+            if (visible_dbg)
                 logger.log(item.get_item_path() + " visible  y=" + item.get_y() + " item height=" + item.get_Height());
             process_is_visible(pane, item);
             if ( item.get_x() > 0) continue;
@@ -456,7 +456,7 @@ public class Icon_manager
             //if (item.get_Node() == null) logger.log("item.get_Node() == null");
             if (!pane.getChildren().contains(item.get_Node()))
             {
-                if (dbg_visible) logger.log("adding item: " + item.get_string());
+                if (visible_dbg) logger.log("adding item: " + item.get_string());
                 pane.getChildren().add(item.get_Node());
             }
             item.set_visible(true);
@@ -478,7 +478,7 @@ public class Icon_manager
             if (item.get_Node() == null) return;
             item.get_Node().setVisible(false);
             if (add_and_remove) {
-                if (dbg_visible) logger.log("removing from pane invisible icon of: " + item.get_string());
+                if (visible_dbg) logger.log("removing from pane invisible icon of: " + item.get_string());
                 pane.getChildren().remove(item.get_Node());
 
             }
@@ -753,7 +753,7 @@ public class Icon_manager
     private void compute_bounding_rectangle(String reason)
     //**********************************************************
     {
-        if ( dbg_scroll) logger.log("compute_bounding_rectangle() "+reason);
+        if (scroll_dbg) logger.log("compute_bounding_rectangle() "+reason);
         // compute bounding rectangle
 
         double x_min = Double.MAX_VALUE;
@@ -781,7 +781,7 @@ public class Icon_manager
             // it may happen that the height of the last row of buttons at the bottom is underestimated
             landscape_height += 100;
         }
-        if ( dbg_scroll)
+        if (scroll_dbg)
             logger.log("landscape_height="+landscape_height);
         if ( landscape_height_listener != null)
         {

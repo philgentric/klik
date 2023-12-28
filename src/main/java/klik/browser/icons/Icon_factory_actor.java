@@ -36,7 +36,7 @@ public class Icon_factory_actor implements Actor
     private static final boolean verbose = false;
     private static final boolean dbg = false;
     private static final boolean pdf_dbg = false;
-    private static final boolean dbg_aborting = false;
+    private static final boolean aborting_dbg = false;
 
     Logger logger;
     private final Stage owner;
@@ -171,7 +171,7 @@ public class Icon_factory_actor implements Actor
         }
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting1");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting1");
             return null;
         }
         String tag = String.valueOf(icon_factory_request.icon_size);
@@ -186,7 +186,7 @@ public class Icon_factory_actor implements Actor
         Image image = From_disk.load_icon_from_disk_cache(p, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg,logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting2");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting2");
             return null;
         }
         if (image == null) {
@@ -196,7 +196,7 @@ public class Icon_factory_actor implements Actor
             image = From_disk.read_original_image_from_disk_and_return_icon(p, icon_factory_request.icon_size, icon_factory_request.aborter, dbg, logger);
             if (icon_factory_request.aborter.should_abort())
             {
-                if ( dbg_aborting) logger.log("Icon_factory thread: aborting3");
+                if ( aborting_dbg) logger.log("Icon_factory thread: aborting3");
                 return null;
             }
             if (image == null) {
@@ -238,7 +238,7 @@ public class Icon_factory_actor implements Actor
         Image image = From_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag,gif_extension, dbg, logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting4");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting4");
             return null;
         }
         if ( image != null)
@@ -255,7 +255,7 @@ public class Icon_factory_actor implements Actor
         //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting5");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting5");
             return null;
         }
 
@@ -287,7 +287,7 @@ public class Icon_factory_actor implements Actor
         Animated_gif_generator.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, icon_factory_request.get_aborter(),logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting6");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting6");
             return null;
         }
 
@@ -301,7 +301,7 @@ public class Icon_factory_actor implements Actor
         image = From_disk.load_icon_from_disk_cache(destination.get_path_for_display(), icon_cache_dir, icon_factory_request.icon_size, tag,gif_extension, dbg, logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting7");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting7");
             return null;
         }
         if (image == null)
@@ -333,7 +333,7 @@ public class Icon_factory_actor implements Actor
         Image image_from_cache = From_disk.load_icon_from_disk_cache(item_image.get_path_for_display(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, dbg,logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting8");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting8");
             return null;
         }
         if (image_from_cache != null)
@@ -349,7 +349,7 @@ public class Icon_factory_actor implements Actor
         File resulting_png_name = From_disk.file_for_icon_cache(icon_cache_dir, item_image.get_item_path(), tag, png_extension);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting9");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting9");
             return null;
         }
 
@@ -358,7 +358,7 @@ public class Icon_factory_actor implements Actor
         {
             if (icon_factory_request.aborter.should_abort())
             {
-                if ( dbg_aborting) logger.log("Icon_factory thread: aborting10");
+                if ( aborting_dbg) logger.log("Icon_factory thread: aborting10");
                 return null;
             }
             if (pdf_dbg) logger.log("Icon_factory thread:  PDF loaded");
@@ -374,7 +374,7 @@ public class Icon_factory_actor implements Actor
                 BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
                 if (icon_factory_request.aborter.should_abort())
                 {
-                    if ( dbg_aborting) logger.log("Icon_factory thread: aborting11");
+                    if ( aborting_dbg) logger.log("Icon_factory thread: aborting11");
                     return null;
                 }
                 try (OutputStream output = new BufferedOutputStream(new FileOutputStream(resulting_png_name))) {
@@ -391,7 +391,7 @@ public class Icon_factory_actor implements Actor
                         while (writers.hasNext()) {
                             if (icon_factory_request.aborter.should_abort())
                             {
-                                if ( dbg_aborting) logger.log("Icon_factory thread: aborting12");
+                                if ( aborting_dbg) logger.log("Icon_factory thread: aborting12");
                                 return null;
                             }
                             if (writer != null) {
@@ -423,7 +423,7 @@ public class Icon_factory_actor implements Actor
                         imageOutput = ImageIO.createImageOutputStream(output);
                         if (icon_factory_request.aborter.should_abort())
                         {
-                            if ( dbg_aborting) logger.log("Icon_factory thread: aborting13");
+                            if ( aborting_dbg) logger.log("Icon_factory thread: aborting13");
                             return null;
                         }
                         writer.setOutput(imageOutput);
@@ -449,7 +449,7 @@ public class Icon_factory_actor implements Actor
         image_from_cache = From_disk.load_icon_from_disk_cache(item_image.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg, logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( dbg_aborting) logger.log("Icon_factory thread: aborting14");
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting14");
             return null;
         }
 

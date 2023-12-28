@@ -11,7 +11,6 @@ import java.nio.file.Path;
 public class Image_cache_dummy implements Cache_interface
 //**********************************************************
 {
-    private static final boolean ultra_dbg = true;
     Logger logger;
     private String key;
     private Image_context image_context;

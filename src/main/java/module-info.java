@@ -7,6 +7,7 @@ module klikmodule {
     requires java.desktop;
     requires com.github.benmanes.caffeine;
     requires metadata.extractor;
+    requires pdfbox;
 
     exports klik;
 }

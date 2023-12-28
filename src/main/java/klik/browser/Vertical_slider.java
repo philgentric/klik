@@ -41,7 +41,7 @@ public class Vertical_slider implements Landscape_height_listener
 
         the_Slider.valueProperty().addListener((ov, old_val_, new_val_) -> {
             double slider = new_val_.doubleValue();
-            if ( Icon_manager.dbg_scroll)
+            if ( Icon_manager.scroll_dbg)
                 logger.log("slider property changed: OLD= "+ old_val_.doubleValue()+" ==> NEW= "+ slider);
             slider_moved_by_user(slider, icon_manager);
         });
@@ -55,7 +55,7 @@ public class Vertical_slider implements Landscape_height_listener
         double new_pixel = slider_to_pixels(slider, pixel_height);
 
         String reason = "";
-        if ( Icon_manager.dbg_scroll)
+        if ( Icon_manager.scroll_dbg)
         {
             reason = "(normalized+inverted with pixel_height= "+pixel_height+") slider = "+ slider +"  ==> " +new_pixel;
             logger.log(reason);
@@ -88,7 +88,7 @@ public class Vertical_slider implements Landscape_height_listener
             tmp = 1.0 - tmp;
         }
         double new_pixel = pixel_height * tmp;
-        if ( Icon_manager.dbg_scroll) logger.log("slider_to_pixels (with pixel_height="+pixel_height+") gives: "+slider_value+" ==> "+new_pixel);
+        if ( Icon_manager.scroll_dbg) logger.log("slider_to_pixels (with pixel_height="+pixel_height+") gives: "+slider_value+" ==> "+new_pixel);
 
         return new_pixel;
     }
@@ -104,7 +104,7 @@ public class Vertical_slider implements Landscape_height_listener
             tmp = 1.0 - tmp;
         }
         double new_slider= tmp * get_slider_max();
-        if ( Icon_manager.dbg_scroll) logger.log("pixels_to_slider (with pixel_height="+pixel_height+") gives: "+pixels+" ==> "+new_slider);
+        if ( Icon_manager.scroll_dbg) logger.log("pixels_to_slider (with pixel_height="+pixel_height+") gives: "+pixels+" ==> "+new_slider);
         return new_slider;
     }
 
@@ -114,7 +114,7 @@ public class Vertical_slider implements Landscape_height_listener
     //**********************************************************
     {
         double pixel_height = get_pixel_height(icon_manager.get_landscape_height());
-        if ( Icon_manager.dbg_scroll) logger.log(Stack_trace_getter.get_stack_trace("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
+        if ( Icon_manager.scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
         the_Slider.setValue(pixels_to_slider(pixels,pixel_height ));
 
     }
@@ -127,17 +127,17 @@ public class Vertical_slider implements Landscape_height_listener
         boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
         if (inverted)
         {
-            if ( Icon_manager.dbg_scroll) logger.log("scroll is inverted="+dy+" ==> "+(-dy));
+            if ( Icon_manager.scroll_dbg) logger.log("scroll is inverted="+dy+" ==> "+(-dy));
             dy = -dy;
         }
         else
         {
-            if ( Icon_manager.dbg_scroll) logger.log("scroll is not inverted="+dy);
+            if ( Icon_manager.scroll_dbg) logger.log("scroll is not inverted="+dy);
         }
         double old_val = the_Slider.getValue();
         double new_val = old_val - dy;
 
-        if (Icon_manager.dbg_scroll) logger.log("slider old val:"+old_val+" - scroll="+dy+" SETTING SLIDER VAL ="+new_val);
+        if (Icon_manager.scroll_dbg) logger.log("slider old val:"+old_val+" - scroll="+dy+" SETTING SLIDER VAL ="+new_val);
 
         the_Slider.setValue(new_val);
 
@@ -161,7 +161,7 @@ public class Vertical_slider implements Landscape_height_listener
     //**********************************************************
     {
 
-        if ( Icon_manager.dbg_scroll)
+        if ( Icon_manager.scroll_dbg)
             logger.log("browsed_landscape_height_has_changed = "+new_landscape_height);
         double pixel_height = get_pixel_height(new_landscape_height);
         the_Slider.setValue(pixels_to_slider(current_vertical_offset,pixel_height));
