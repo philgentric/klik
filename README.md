@@ -50,8 +50,11 @@ To get the latest version of klik, just go in the klik folder and type:
 
 # FAQ
 
-Q: It says **git** not found?  
-A: You need git to get klik source code, install it
+Q: What is the smallest/weakest hardware/software configuration klik has been proven to run onto?  
+A: It is a HP mini-PC, Celeron N2840 2.16GHz with 2GB of RAM, with a nominal memory bandwidth of 16GB/s, Windows 8.1 (2013)
+
+Q: When I type "git clone...", it says: **git** not found?  
+A: You need to install git, it is a safe open source code management tool used by all developers on earth.
 
 Q: It says **java** not found?  
 A: klik requires java, you need to install it

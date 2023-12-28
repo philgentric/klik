@@ -511,7 +511,7 @@ public class Image_window
     void set_image(Image_context local_image_context)
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("set_image: "+local_image_context.path));
+        //logger.log(Stack_trace_getter.get_stack_trace("set_image: "+local_image_context.path));
 
         if ( local_image_context == null)
         {

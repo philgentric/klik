@@ -4,6 +4,8 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id 'maven-publish'
+    //id("org.panteleyev.jpackageplugin") version "1.6.0"
+    id("org.beryx.jlink") version "3.0.1"
 
 }
 
@@ -26,7 +28,8 @@ java {
 def main_class_name = 'klik.Klik_application'
 
 application {
-    mainClassName = main_class_name
+    mainModule = 'klikmodule'
+    mainClass = main_class_name
     applicationDefaultJvmArgs = ["-Xms1G"]
     //applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "--enable-preview"]
 }
@@ -66,20 +69,7 @@ dependencies {
 
 }
 
-group = 'philgentric'
-version = '0.0.1'
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
+group = 'klik'
+version = '1.0.0'
 
-    repositories {
-        maven {
-            name = 'my_sample_repo'
-            url = layout.buildDirectory.dir('my_sample_repo')
-        }
-    }
-}
