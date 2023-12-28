@@ -77,7 +77,7 @@ public class Image_cache_cafeine implements Cache_interface
         for (Path path: kk)
         {
             Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, high_quality, this);
-            //if (ultra_dbg)
+            if (ultra_dbg)
                 logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
         }
@@ -159,6 +159,19 @@ public class Image_cache_cafeine implements Cache_interface
         logger.log("cache loadCount: "+s.loadCount());
         logger.log("cache totalLoadTime: "+s.totalLoadTime());
 
+    }
+
+    public long compute_cache_size_in_pixels()
+    {
+        ConcurrentMap<String, Image_context> m = cache.asMap();
+        long total_pixel = 0;
+        for ( Map.Entry<String ,Image_context> e : m.entrySet())
+        {
+            Image_context ic = e.getValue();
+            logger.log("   cache entry: "+ic.path);
+            total_pixel += ic.image.getHeight()*ic.image.getWidth();
+        }
+        return total_pixel;
     }
 
 /*

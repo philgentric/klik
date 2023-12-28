@@ -49,6 +49,29 @@ public class Aspect_ratio_cache
         aspect_ratio_actor = new Aspect_ratio_actor(in_flight);
     }
 
+
+    //**********************************************************
+    static double round_to_one_decimal(double d)
+    //**********************************************************
+    {
+        return round_to_one_decimal_method2(d);
+    }
+    // must use the same string format otherwise since string.format calls
+    // the default locale, we get weird things like 1.5 is read as 1,5 in french locale
+    private static final Locale local_us = new Locale("en");
+    //**********************************************************
+    static double round_to_one_decimal_method1(double d)
+    //**********************************************************
+    {
+        return Double.valueOf(String.format(local_us,"%.1f",d));
+    }
+    //**********************************************************
+    static double round_to_one_decimal_method2(double d)
+    //**********************************************************
+    {
+        double dd = 10.0*d;
+        return Math.round(dd)*10.0;
+    }
     //**********************************************************
     class Aspect_ratio_comparator implements Comparator<Path>
             //**********************************************************
@@ -57,9 +80,9 @@ public class Aspect_ratio_cache
         @Override
         public int compare(Path p1, Path p2) {
             Double d1 = get_aspect_ratio(p1);
-            Double d1r= Double.valueOf(String.format("%.1f",d1));
+            Double d1r= round_to_one_decimal(d1);
             Double d2 = get_aspect_ratio(p2);
-            Double d2r= Double.valueOf(String.format("%.1f",d2));
+            Double d2r= round_to_one_decimal(d2);
             return d1r.compareTo(d2r);
         }
     };
@@ -68,7 +91,6 @@ public class Aspect_ratio_cache
     class Aspect_ratio_comparator_random implements Comparator<Path>
             //**********************************************************
     {
-        private static final Locale local_us = new Locale("en");
 
         long seed;
         public Aspect_ratio_comparator_random()
@@ -120,9 +142,9 @@ public class Aspect_ratio_cache
             if (diff != 0) return diff;
 
             Double d1 = get_aspect_ratio(p1);
-            Double d1r= Double.valueOf(String.format("%.1f",d1));
+            Double d1r= round_to_one_decimal(d1);
             Double d2 = get_aspect_ratio(p2);
-            Double d2r= Double.valueOf(String.format("%.1f",d2));
+            Double d2r= round_to_one_decimal(d2);
 
             return d1r.compareTo(d2r);
         }
@@ -184,7 +206,6 @@ public class Aspect_ratio_cache
         for(String s : pm.get_all_keys())
         {
             String v = pm.get(s);
-            logger.log("from Properties ->"+v+"<-");
             if (aspect_ratio_cache.get(s) == null)
             {
                 aspect_ratio_cache.put(s, new Aspect_ratio(Double.valueOf(v),true));
@@ -198,7 +219,6 @@ public class Aspect_ratio_cache
     void save_aspect_ratio_cache()
     //**********************************************************
     {
-        Path dir = Files_and_Paths.get_aspect_ratio_cache_dir(logger);
         Properties_manager pm = new Properties_manager(path_of_aspect_ratio_cache_file,logger);
 
         int saved = 0;
@@ -258,13 +278,13 @@ public class Aspect_ratio_cache
                         {
                             paths_manager.file_comparator = new Aspect_ratio_comparator();
                         }
-                        logger.log("aspect ratios loaded, going to refresh");
+                        if ( dbg) logger.log("aspect ratios loaded, going to refresh");
                         refresh_target.refresh();
                         return;
                     }
                     else
                     {
-                        logger.log("aspect ratios remaining: "+aspect_ratio_actor.in_flight.get());
+                        if ( dbg) logger.log("aspect ratios remaining: "+aspect_ratio_actor.in_flight.get());
                         Runnable r = new Runnable() {
                             @Override
                             public void run() {

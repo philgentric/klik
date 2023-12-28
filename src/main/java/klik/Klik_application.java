@@ -52,6 +52,11 @@ public class Klik_application extends Application
         {
             System.out.println(name+" = "+p.getProperty(name));
         }
+        System.out.println("RAM total: "+(int)(Runtime.getRuntime().totalMemory()/1_000_000.0)+" MBytes");
+        System.out.println("RAM free: "+(int)(Runtime.getRuntime().freeMemory()/1_000_000.0)+" MBytes");
+
+
+
         setUserAgentStylesheet(STYLESHEET_MODENA);
         Logger logger = new System_out_logger();
 

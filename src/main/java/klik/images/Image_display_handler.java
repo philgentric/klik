@@ -277,12 +277,8 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     {
         Path to_be_deleted = image_context.path;
-
-
         change_image_relative(1,image_stage.ultim_mode);
-
         Runnable r = () -> image_indexer.signal_deleted_file(to_be_deleted);
-
         Files_and_Paths.move_to_trash(image_stage.the_Stage,to_be_deleted, r, new Aborter(),logger);
     }
 

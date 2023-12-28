@@ -11,8 +11,7 @@ import klik.util.Stack_trace_getter;
 public class Image_decoding_actor_for_cache implements Actor
 //**********************************************************
 {
-    private static final boolean verbose = false;
-    private static final boolean ultra_dbg = false;
+    private static final boolean dbg = false;
     Logger logger;
 
 
@@ -29,12 +28,12 @@ public class Image_decoding_actor_for_cache implements Actor
     //**********************************************************
     {
         Image_decode_request_for_cache request = (Image_decode_request_for_cache) m;
-        if ( ultra_dbg) logger.log("decode request:"+request.get_string());
+        if (dbg) logger.log("decode request:"+request.get_string());
 
         String key = request.make_key();
         if ( request.cache.get(key) != null)
         {
-            //if ( verbose)
+            if (dbg)
                 logger.log("NOT decoding because image found in cache:"+key);
             return"found in cache";
         }
@@ -50,7 +49,7 @@ public class Image_decoding_actor_for_cache implements Actor
             if ( (image_context.image.getWidth() > 1) && (image_context.image.getHeight() > 1))
             {
                 Object o = request.cache.put(request.make_key(), image_context);
-                if ( verbose) logger.log("image decoded ok is now in cache: " + image_context.path.getFileName() );
+                if (dbg) logger.log("image decoded ok is now in cache: " + image_context.path.getFileName() );
             }
             else
             {

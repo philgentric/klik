@@ -108,7 +108,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             @Override
             public void run() {
 
-                logger.log("REFRESH");
+                //logger.log("REFRESH");
                 scene_geometry_changed("aspect ratio engine",true, true);
                 //Browser_creation_context.replace_same_folder(local,logger);
             }

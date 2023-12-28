@@ -34,7 +34,10 @@ def main_class_name = 'klik.Klik_application'
 application {
     mainModule = 'klikmodule'
     mainClass = main_class_name
-    applicationDefaultJvmArgs = ["-Xms1G"]
+
+    applicationDefaultJvmArgs = ["-XX:MaxRAMPercentage=90.0"]
+    //applicationDefaultJvmArgs = ["-Xms10G","-Xmx10G"]
+    //applicationDefaultJvmArgs = ["-Xms1G"]
     //applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "--enable-preview"]
 }
 

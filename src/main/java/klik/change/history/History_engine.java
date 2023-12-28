@@ -247,7 +247,7 @@ public class History_engine
             String path = properties_manager.get(k);
             if (Path.of(path).equals(p) )
             {
-                logger.log("History engine: "+p+" already present in history, removed");
+                if (dbg) logger.log("History engine: "+p+" already present in history, removed");
                 properties_manager.remove(k);
                 UUID uuid = extract_uuid_from_key(k);
                 if (uuid != null) {

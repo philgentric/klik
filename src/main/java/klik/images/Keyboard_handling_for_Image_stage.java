@@ -6,7 +6,9 @@ import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.Change_gang;
 import klik.level2.metadata.Tag_stage;
+import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.util.Popups;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,31 +49,34 @@ public class Keyboard_handling_for_Image_stage
             return;
         }
 
-        if(key_event.isShiftDown() && key_event.getCode().equals(KeyCode.D))
+        if(
+                (key_event.isShiftDown() )
+                        &&
+                        (key_event.getCode().equals(KeyCode.D)||(key_event.getCode() == KeyCode.BACK_SPACE))
+        )
         {
-            // shift d is "sure delete"
-            Path path = image_stage.image_display_handler.get_image_context().path;
-            try {
-                Files.delete(path);
-            } catch (NoSuchFileException x) {
-                logger.log("no such file or directory:" + path);
-                return;
+            key_event.consume();
+            if (Static_application_properties.get_level2(logger))
+            {
+                // shift d is "sure delete"
+                Path path = image_stage.image_display_handler.get_image_context().path;
+                try {
+                    Files.delete(path);
+                } catch (NoSuchFileException x) {
+                    logger.log("no such file or directory:" + path);
+                    return;
+                } catch (IOException e) {
+                    logger.log("cannot delete ? " + e);
+                    return;
+                }
+                image_stage.image_display_handler.change_image_relative(1, image_stage.ultim_mode);
             }
-            catch (IOException e) {
-                logger.log("cannot delete ? " + e);
-                return;
+            else {
+                Popups.popup_warning(the_browser.my_Stage.the_Stage,"Ahah!","Using Shift-D for sure-deleting a file requires to be on level2", false,logger);
             }
-            image_stage.image_display_handler.change_image_relative(1, image_stage.ultim_mode);
+            return;
+        }
 
-            key_event.consume();
-            return;
-        }
-        if (Objects.requireNonNull(key_event.getCode()) == KeyCode.BACK_SPACE) {
-            if (keyword_dbg) logger.log("BACK_SPACE like delete");
-            image_stage.image_display_handler.delete();
-            key_event.consume();
-            return;
-        }
         switch (key_event.getText())
         {
             default -> {
@@ -93,7 +98,7 @@ public class Keyboard_handling_for_Image_stage
                 return;
             }
             case "d" -> {
-                if (keyword_dbg) logger.log("d like delete");
+                if (keyword_dbg) logger.log("d like delete, move to trash");
                 image_stage.image_display_handler.delete();
                 key_event.consume();
                 return;
