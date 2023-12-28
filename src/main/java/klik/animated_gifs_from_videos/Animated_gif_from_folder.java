@@ -1,13 +1,11 @@
 package klik.animated_gifs_from_videos;
 
 import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import klik.browser.icons.Icon_writer_actor;
 import klik.files_and_paths.Files_and_Paths;
 import klik.properties.Static_application_properties;
-import klik.util.Execute_command;
-import klik.util.From_disk;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +37,7 @@ public class Animated_gif_from_folder
     private static boolean dbg_imagemagic_call = true;
 
     //**********************************************************
-    public static Path make_animated_gif_from_all_images_in_folder(Path in, List<File> images_in_folder, Logger logger)
+    public static Path make_animated_gif_from_all_images_in_folder(Stage owner, Path in, List<File> images_in_folder, Logger logger)
     //**********************************************************
     {
         if (! Files.isDirectory(in))
@@ -146,6 +144,7 @@ public class Animated_gif_from_folder
             if (dbg_imagemagic_call) sb = new StringBuilder();
             if (!Execute_command.execute_command_list(l, folder_icon_cache_dir.toFile(), 2000, sb, logger))
             {
+                Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
                 logger.log(warning_IMAGEMAGIC);
                 logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;

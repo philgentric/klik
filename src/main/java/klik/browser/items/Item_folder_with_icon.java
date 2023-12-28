@@ -323,7 +323,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(path,  images_in_folder,  logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage,path,  images_in_folder,  logger);
         if ( returned != null) return returned;
         if (images_in_folder.isEmpty())
         {

@@ -89,7 +89,9 @@ public class Animated_gif_generator
         list.add("-show_format");
         StringBuilder sb = new StringBuilder();
         File wd = video_path.getParent().toFile();
-        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger)) {
+        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
+        {
+
             Static_application_properties.manage_show_ffmpeg_install_warning(owner,logger);
         }
         //logger.log("->"+sb.toString()+"<-");

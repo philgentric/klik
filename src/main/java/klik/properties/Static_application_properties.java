@@ -43,6 +43,7 @@ public class Static_application_properties
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
     private static final String ENABLE_FUSK = "enable_fusk";
     private static final String SHOW_FFMPEG_INSTALL_WARNING = "SHOW_FFMPEG_INSTALL_WARNING";
+    private static final String SHOW_IMAGEMAGICK_INSTALL_WARNING = "SHOW_IMAGEMAGICK_INSTALL_WARNING";
     private static final String MAX_EXCLUDED_KEYWORDS = "max_number_of_excluded_keywords";
     public static final String EXCLUDED_KEYWORD_PREFIX = "excluded_keyword_";
     public static final String ICON_SIZE = "ICON_SIZE";
@@ -642,7 +643,9 @@ public class Static_application_properties
         Static_application_properties.get_properties_manager(logger).save_unico(SINGLE_COLUMN, String.valueOf(b), false);
     }
 
+    //**********************************************************
     public static List<String> get_cleanup_tokens(Logger logger)
+    //**********************************************************
     {
         return Static_application_properties.get_properties_manager(logger).get_values_for_base("CLEANUP_TOKEN_");
     }
@@ -669,22 +672,72 @@ public class Static_application_properties
     }
 
     //**********************************************************
+    public static boolean get_show_imagemagick_install_warning(Logger logger)
+    //**********************************************************
+    {
+        String s = Static_application_properties.get_properties_manager(logger).get(SHOW_IMAGEMAGICK_INSTALL_WARNING);
+        if (s == null) {
+            Static_application_properties.get_properties_manager(logger).save_unico(SHOW_IMAGEMAGICK_INSTALL_WARNING, "true", false);
+            return true;
+        }
+        else
+        {
+            return Boolean.parseBoolean(s);
+        }
+    }
+    //**********************************************************
+    public static void set_show_imagemagick_install_warning(boolean b, Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_properties_manager(logger).save_unico(SHOW_IMAGEMAGICK_INSTALL_WARNING, String.valueOf(b), false);
+    }
+
+    static boolean ffmpeg_popup_done = false;
+    //**********************************************************
     public static void manage_show_ffmpeg_install_warning(Stage owner, Logger logger)
     //**********************************************************
     {
         if ( Static_application_properties.get_show_ffmpeg_install_warning(logger))
         {
-            String msg = "klik uses ffmpeg to support several features. It is easy and free to install ffmpeg (google it!)";
-            logger.log("WARNING: " + msg);
-            Platform.runLater(() -> {
-                if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing ffmepg again, click OK", logger)) {
-                    Static_application_properties.set_show_ffmpeg_install_warning(false,logger);
-                }
-            });
+            if ( !ffmpeg_popup_done)
+            {
+                ffmpeg_popup_done = true;
+                String msg = "klik uses ffmpeg to support several features. It is easy and free to install ffmpeg (google it!)";
+                logger.log("WARNING: " + msg);
+                Platform.runLater(() -> {
+                    if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing ffmepg again, click OK", logger)) {
+                        Static_application_properties.set_show_ffmpeg_install_warning(false,logger);
+                    }
+                });
+            }
+        }
+    }
+    static boolean imagemagick_popup_done = false;
+
+    //**********************************************************
+    public static void manage_show_imagemagick_install_warning(Stage owner, Logger logger)
+    //**********************************************************
+    {
+        if ( Static_application_properties.get_show_imagemagick_install_warning(logger))
+        {
+            if(!imagemagick_popup_done)
+            {
+                imagemagick_popup_done = true;
+                String msg = "klik uses the convert utility of imagemagick.org to support some features. It is easy and free to install (google it!)";
+                logger.log("WARNING: " + msg);
+                Platform.runLater(() -> {
+                    if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing imagemagick again, click OK", logger)) {
+                        Static_application_properties.set_show_imagemagick_install_warning(false,logger);
+                    }
+                });
+            }
         }
     }
 
-    public static boolean get_level2(Logger logger) {
+    //**********************************************************
+    public static boolean get_level2(Logger logger)
+    //**********************************************************
+    {
         String s = Static_application_properties.get_properties_manager(logger).get(LEVEL2);
         if (s == null) {
             Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, "false", false);

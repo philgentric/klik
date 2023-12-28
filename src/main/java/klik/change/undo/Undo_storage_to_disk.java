@@ -1,11 +1,14 @@
 package klik.change.undo;
 
+import javafx.stage.Stage;
 import klik.files_and_paths.Command_old_and_new_Path;
 import klik.files_and_paths.Old_and_new_Path;
 import klik.files_and_paths.Status_old_and_new_Path;
+import klik.look.my_i18n.I18n;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.util.Popups;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 
@@ -85,9 +88,16 @@ public class Undo_storage_to_disk
     }
 
     //**********************************************************
-    public void remove_all_undo_items_from_property_file()
+    public void remove_all_undo_items_from_property_file(Stage owner)
     //**********************************************************
     {
+
+        String s1 = I18n.get_I18n_string("Warning_delete_undo", logger);
+        if (!Popups.popup_ask_for_confirmation(owner, s1, "", logger)) return;
+
+
+
+
         Set<String> set = properties_manager.get_all_keys();
         for ( String k : set)
         {

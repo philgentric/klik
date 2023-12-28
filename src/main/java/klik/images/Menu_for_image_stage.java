@@ -223,29 +223,29 @@ public class Menu_for_image_stage
     }
 
     //**********************************************************
-    private static MenuItem get_gif_repair_menu_item(Image_window image_fenetre, Image_display_handler image_context_owner)
+    private static MenuItem get_gif_repair_menu_item(Image_window image_window, Image_display_handler image_context_owner)
     //**********************************************************
     {
-        MenuItem repair1 = new MenuItem(I18n.get_I18n_string("Repair_animated_gif", image_fenetre.logger));
+        MenuItem repair1 = new MenuItem(I18n.get_I18n_string("Repair_animated_gif", image_window.logger));
         repair1.setOnAction(e -> {
             image_context_owner.logger.log("GIF repair1");
-            Path tmp_dir = Gif_repair.extract_all_frames_in_animated_gif(image_fenetre.the_Stage, image_context_owner.image_context, new Aborter(), image_fenetre.logger);
+            Path tmp_dir = Gif_repair.extract_all_frames_in_animated_gif(image_window.the_Stage, image_context_owner.image_context, new Aborter(), image_window.logger);
             if (tmp_dir == null) {
                 image_context_owner.logger.log("GIF repair1 failed!");
                 return;
             }
             image_context_owner.logger.log("GIF repair1 OK");
-            Path local_path = Gif_repair.reassemble_all_frames(image_context_owner.image_context, tmp_dir, image_fenetre.logger);
+            Path local_path = Gif_repair.reassemble_all_frames(image_window.the_Stage, image_context_owner.image_context, tmp_dir, image_window.logger);
             if (local_path == null) {
                 image_context_owner.logger.log("GIF repair2 failed!");
                 return;
             }
             image_context_owner.logger.log("GIF repair2 OK");
-            image_context_owner.image_context = Image_context.get_Image_context(local_path,image_fenetre.aborter, image_fenetre.logger);
+            image_context_owner.image_context = Image_context.get_Image_context(local_path,image_window.aborter, image_window.logger);
             if (image_context_owner.image_context == null) {
                 image_context_owner.logger.log("getting a new image context failed after gif repair");
             } else {
-                image_fenetre.set_image(image_context_owner.image_context);
+                image_window.set_image(image_context_owner.image_context);
             }
         });
         return repair1;

@@ -241,7 +241,7 @@ public class Item_button extends Item implements Icon_destination
         {
             if ( Objects.requireNonNull(images_in_folder).isEmpty()) return null;
 
-            Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(local_path,  images_in_folder,  logger);
+            Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage, local_path,  images_in_folder,  logger);
             if ( returned == null)
             {
                 if (!images_in_folder.isEmpty()) return images_in_folder.get(0).toPath();

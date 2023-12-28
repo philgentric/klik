@@ -4,6 +4,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.files_and_paths.Moving_files;
 import klik.images.Image_context;
+import klik.properties.Static_application_properties;
 import klik.util.Execute_command;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -63,6 +64,9 @@ public class Gif_repair
         l.add("frame_%03d.gif");
         if ( !Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger))
         {
+
+            Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
+
             Popups.popup_warning(owner, "Repair part1 command failed:",warning_IMAGEMAGIC,false,logger);
             // and restore the file !
             Path to_be_restored = Path.of(new_dir.toString(),target.getFileName().toString());
@@ -96,7 +100,7 @@ public class Gif_repair
     }
 
     //**********************************************************
-    public static Path reassemble_all_frames(Image_context image_context, Path tmp_dir, Logger logger)
+    public static Path reassemble_all_frames(Stage owner, Image_context image_context, Path tmp_dir, Logger logger)
     //**********************************************************
     {
         Path target = image_context.path;
@@ -117,6 +121,8 @@ public class Gif_repair
             l.add("../" + image_context.path.getFileName().toString());
             if ( ! Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null,logger))
             {
+                Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
+
                 logger.log(warning_IMAGEMAGIC);
                 return null;
             }
@@ -130,6 +136,8 @@ public class Gif_repair
             l.add(image_context.path.getFileName().toString());
             if ( ! Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger))
             {
+                Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
+
                 logger.log(warning_IMAGEMAGIC);
                 return null;
             }

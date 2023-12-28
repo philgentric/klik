@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.*;
+import java.util.List;
 
 //**********************************************************
 public class Undo_engine implements Datetime_to_signature_source
@@ -63,10 +64,10 @@ public class Undo_engine implements Datetime_to_signature_source
 
     }
     //**********************************************************
-    public static void remove_all_undo_items(Logger logger)
+    public static void remove_all_undo_items(Stage owner, Logger logger)
     //**********************************************************
     {
-        get_instance(logger).remove_all_undo_items_internal();
+        get_instance(logger).remove_all_undo_items_internal(owner);
     }
 
     //**********************************************************
@@ -244,10 +245,10 @@ public class Undo_engine implements Datetime_to_signature_source
 
 
     //**********************************************************
-    private void remove_all_undo_items_internal()
+    private void remove_all_undo_items_internal(Stage owner)
     //**********************************************************
     {
-        store.remove_all_undo_items_from_property_file();
+        store.remove_all_undo_items_from_property_file(owner);
         refresh_UI();
     }
 

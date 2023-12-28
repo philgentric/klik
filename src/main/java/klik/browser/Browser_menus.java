@@ -705,7 +705,7 @@ public class Browser_menus
         {
             String text = I18n.get_I18n_string("Clear_Undos",logger);// to: " + parent.toAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_engine.remove_all_undo_items(logger));
+            item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,logger));
             undos_menu.getItems().add(item);
         }
         {

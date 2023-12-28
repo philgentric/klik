@@ -4,10 +4,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
-    id 'maven-publish'
-    //id("org.panteleyev.jpackageplugin") version "1.6.0"
     id("org.beryx.jlink") version "3.0.1"
-
 }
 
 group = 'klik'
@@ -20,7 +17,7 @@ repositories {
 
 compileJava {
     // this is needed to enable the virtual threads preview feature in java20
-    options.compilerArgs += ['--enable-preview']
+    //options.compilerArgs += ['--enable-preview']
 }
 
 java {
@@ -35,10 +32,12 @@ application {
     mainModule = 'klikmodule'
     mainClass = main_class_name
 
+    // IMPORTANT, Java VM RAM size options:
     applicationDefaultJvmArgs = ["-XX:MaxRAMPercentage=90.0"]
+    // if you have 16GB or more and want to give a lot of RAM to klik to be able to maintain a lot of open windows:
     //applicationDefaultJvmArgs = ["-Xms10G","-Xmx10G"]
+    // if you have 2GB or not much more:
     //applicationDefaultJvmArgs = ["-Xms1G"]
-    //applicationDefaultJvmArgs = ["-Xms6G", "-Xmx10G", "--enable-preview"]
 }
 
 javafx {
@@ -46,15 +45,6 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media' ]
 }
 
-def currentOS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
-def platform
-if (currentOS.isWindows()) {
-    platform = 'win'
-} else if (currentOS.isLinux()) {
-    platform = 'linux'
-} else if (currentOS.isMacOsX()) {
-    platform = 'mac'
-}
 
 jar {
     manifest {
