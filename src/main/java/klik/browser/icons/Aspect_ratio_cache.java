@@ -12,10 +12,7 @@ import klik.util.Popups;
 import klik.util.Threads;
 
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,6 +68,7 @@ public class Aspect_ratio_cache
     class Aspect_ratio_comparator_random implements Comparator<Path>
             //**********************************************************
     {
+        private static final Locale local_us = new Locale("en");
 
         long seed;
         public Aspect_ratio_comparator_random()
@@ -82,9 +80,9 @@ public class Aspect_ratio_cache
         public int compare(Path p1, Path p2) {
             // round the aspect ratio a bit
             Double d1 = get_aspect_ratio(p1);
-            Double d1r= Double.valueOf(String.format("%.1f",d1));
+            Double d1r= Double.valueOf(String.format(local_us, "%.1f",d1));
             Double d2 = get_aspect_ratio(p2);
-            Double d2r= Double.valueOf(String.format("%.1f",d2));
+            Double d2r= Double.valueOf(String.format(local_us, "%.1f",d2));
 
             int diff = d1r.compareTo(d2r);
             if (diff != 0) return diff;
@@ -186,6 +184,7 @@ public class Aspect_ratio_cache
         for(String s : pm.get_all_keys())
         {
             String v = pm.get(s);
+            logger.log("from Properties ->"+v+"<-");
             if (aspect_ratio_cache.get(s) == null)
             {
                 aspect_ratio_cache.put(s, new Aspect_ratio(Double.valueOf(v),true));

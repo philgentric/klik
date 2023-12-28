@@ -136,9 +136,12 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             if (invert_width_and_height)
             {
                 if (dbg)logger.log(path.getFileName().toString()+" INVERTED aspect ratio: "+h/w);
+                logger.log("from exif ->"+h/w+"<-");
+
                 return h/w;
             }
             if (dbg)logger.log(path.getFileName().toString()+" aspect ratio: "+w/h);
+            logger.log("from exif ->"+w/h+"<-");
             return w/h;
         }
         return 1.0;
