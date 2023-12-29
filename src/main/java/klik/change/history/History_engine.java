@@ -99,7 +99,7 @@ public class History_engine
         String home = System.getProperty(Static_application_properties.USER_HOME);
         Path p = Paths.get(home, Static_application_properties.CONF_DIR, HISTORY_FILENAME);
         properties_manager = new Properties_manager(p, logger);
-        }
+    }
 
     //**********************************************************
     public List<History_item> get_all_history_items()
@@ -129,14 +129,9 @@ public class History_engine
                 properties_manager.remove(k);
                 continue;
             }
-            if (Files.exists(Path.of(path)))
-            {
-                returned.add(new History_item(path, date, uuid));
-            }
-            else
-            {
-                manage_gone_history_item(properties_manager, k, path);
-            }
+            History_item hi = new History_item(path, date, uuid);
+            returned.add(hi);
+            hi.set_available(Files.exists(Path.of(path)));
         }
         properties_manager.store_properties();
         returned.sort(History_item.comparator_by_date);
@@ -144,7 +139,7 @@ public class History_engine
     }
 
     //**********************************************************
-    private void manage_gone_history_item(Properties_manager pm, String k, String path)
+    private void manage_gone_history_item(String key, String path)
     //**********************************************************
     {
         Path p = Path.of(path);
@@ -164,7 +159,7 @@ public class History_engine
                     return;
                 }
                 if (dbg) logger.log("history: path " + path + "  REMOVED from history since it does not exist but the parent does");
-                pm.remove(k);
+                properties_manager.remove(key);
                 return;
             }
         }

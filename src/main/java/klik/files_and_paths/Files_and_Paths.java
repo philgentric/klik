@@ -277,9 +277,11 @@ public class Files_and_Paths {
         Path trash = Static_application_properties.get_trash_dir(logger);
         double size = get_size_on_disk(trash, aborter, logger);
         String s1 = I18n.get_I18n_string("Warning_delete", logger);
-        String s2 = size / 1000_000 + I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
+        String s2 = (int)(size / 1000_000.0) + I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
         if (size > 1000_000_000) {
-            s2 = size / 1000_000_000 + I18n.get_I18n_string("GB_deleted", logger);//"MB of files will be truly deleted";
+            double r  = Math.round(size / 1000_000_00);
+            double s = r/10.0;
+            s2 = (s) + I18n.get_I18n_string("GB_deleted", logger);//"MB of files will be truly deleted";
 
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;

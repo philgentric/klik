@@ -15,6 +15,8 @@ public class History_item
     public final String path;
     public final LocalDateTime time_stamp;
     public final UUID uuid;
+    private boolean available;
+
     // when reloading recorded history from file:
     //**********************************************************
     public History_item(String path_, String time_stamp_, UUID uuid_)
@@ -50,5 +52,15 @@ public class History_item
     //**********************************************************
     {
         return path +" "+time_stamp.toString()+" "+uuid;
+    }
+
+    public void set_available(boolean b)
+    {
+        available = b;
+    }
+
+    public boolean get_available()
+    {
+        return available;
     }
 }

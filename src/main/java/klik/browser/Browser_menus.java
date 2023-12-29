@@ -618,6 +618,10 @@ public class Browser_menus
                     // show the one we are in as inactive
                     item.setDisable(true);
                 }
+                if ( !hi.get_available())
+                {
+                    item.setDisable(true);
+                }
                 item.setOnAction(event -> Browser_creation_context.replace_different_folder(Path.of(hi.path), browser,null,logger));
                 path_already_done.put(hi.path,hi);
                 history_menu.getItems().add(item);
