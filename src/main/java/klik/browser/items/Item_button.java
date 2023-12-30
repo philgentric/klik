@@ -416,7 +416,7 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
         button.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("OnDragEntered for button");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered for button");
 
             set_background_for_setOnDragEntered();
             /*
@@ -442,7 +442,7 @@ public class Item_button extends Item implements Icon_destination
         });
 
         button.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("ItemButton OnDragExited for button");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("ItemButton OnDragExited for button");
 
             set_background_for_setOnDragExited();
 
@@ -468,7 +468,7 @@ public class Item_button extends Item implements Icon_destination
 
 
         button.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("OnDragOver for button: "
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver for button: "
                     +path.toAbsolutePath());
             drag_event.acceptTransferModes(TransferMode.MOVE);
 
@@ -482,7 +482,7 @@ public class Item_button extends Item implements Icon_destination
         });
 
         button.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("OnDragDropped for button !!" + drag_event);
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped for button !!" + drag_event);
             Drag_and_drop.accept_drag_dropped_as_a_move_in(
                     browser.my_Stage.the_Stage,
                     drag_event,
@@ -493,7 +493,7 @@ public class Item_button extends Item implements Icon_destination
             drag_event.consume();
         });
         button.setOnDragDetected(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("OnDragDetected for button !!" + drag_event);
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDetected for button !!" + drag_event);
 
             Dragboard db = button.startDragAndDrop(TransferMode.MOVE);
 

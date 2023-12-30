@@ -54,21 +54,6 @@ public class Aspect_ratio_cache
     static double round_to_one_decimal(double d)
     //**********************************************************
     {
-        return round_to_one_decimal_method2(d);
-    }
-    // must use the same string format otherwise since string.format calls
-    // the default locale, we get weird things like 1.5 is read as 1,5 in french locale
-    private static final Locale local_us = new Locale("en");
-    //**********************************************************
-    static double round_to_one_decimal_method1(double d)
-    //**********************************************************
-    {
-        return Double.valueOf(String.format(local_us,"%.1f",d));
-    }
-    //**********************************************************
-    static double round_to_one_decimal_method2(double d)
-    //**********************************************************
-    {
         double dd = 10.0*d;
         return Math.round(dd)*10.0;
     }
@@ -102,9 +87,9 @@ public class Aspect_ratio_cache
         public int compare(Path p1, Path p2) {
             // round the aspect ratio a bit
             Double d1 = get_aspect_ratio(p1);
-            Double d1r= Double.valueOf(String.format(local_us, "%.1f",d1));
+            Double d1r= round_to_one_decimal(d1);
             Double d2 = get_aspect_ratio(p2);
-            Double d2r= Double.valueOf(String.format(local_us, "%.1f",d2));
+            Double d2r= round_to_one_decimal(d2);
 
             int diff = d1r.compareTo(d2r);
             if (diff != 0) return diff;

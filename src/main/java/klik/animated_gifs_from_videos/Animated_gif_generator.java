@@ -30,12 +30,15 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 //**********************************************************
 public class Animated_gif_generator
 //**********************************************************
 {
     private static final int HUNDRED =100;
+    private static final Locale us_locale = new Locale("en");
+
 
     //**********************************************************
     public static void generate_many_gifs(Stage owner, Path video_path, int clip_lenght, int skip_to_next, Logger logger)
@@ -63,7 +66,7 @@ public class Animated_gif_generator
         }
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
-            String name = video_path.getFileName().toString()+"_part_"+String.format("%07d",start)+".gif";
+            String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",start)+".gif";
             Path destination_gif_full_path = Path.of(dir.getAbsolutePath(),name);
 
             Actor_engine.run(
@@ -171,14 +174,14 @@ public class Animated_gif_generator
     {
         if ( seconds < 60)
         {
-            String f = String.format("%2.3f",seconds);
+            String f = String.format(us_locale,"%2.3f",seconds);
             return "00:00:" + f;//seconds + ".000";
         }
         else
         {
             int minutes = (int)(seconds /60.0);
             double remaining_seconds = seconds -minutes*60;
-            String f = String.format("%2.3f",remaining_seconds);
+            String f = String.format(us_locale,"%2.3f",remaining_seconds);
             if ( minutes < 60)
             {
                 return "00:"+minutes+":" + f;//seconds + ".000";

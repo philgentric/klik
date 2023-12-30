@@ -2,19 +2,14 @@ package klik.images;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.input.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import klik.browser.Drag_and_drop;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 
@@ -397,14 +392,14 @@ public class Mouse_handling_for_Image_stage
         Objects.requireNonNull(image_stage.image_display_handler).get_image_context().the_image_view.setViewport(null);
 
         image_stage.the_BorderPane.setOnDragDetected(event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage: onDragDetected");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
 
             Dragboard db = image_stage.the_BorderPane.startDragAndDrop(TransferMode.MOVE);
 
             ClipboardContent content = new ClipboardContent();
             List<File> possibly_moved = new ArrayList<>();
 
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("going to drag and drop: "+ Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).toFile().getAbsolutePath());
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("going to drag and drop: "+ Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).toFile().getAbsolutePath());
             possibly_moved.add(Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).toFile());
 
             content.putFiles(possibly_moved);
@@ -417,7 +412,7 @@ public class Mouse_handling_for_Image_stage
         image_stage.the_BorderPane.setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
-                if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage: onDragDone");
+                if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDone");
                 //image is gone, replace it with the next one
 
                 image_stage.image_display_handler.change_image_relative(1,false);
@@ -431,14 +426,14 @@ public class Mouse_handling_for_Image_stage
     // and the side effect is that the current directory will change
 
         image_stage.the_BorderPane.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
 
             Dragboard db = drag_event.getDragboard();
             List<File> l = db.getFiles();
             // take one
             for (File fff : l)
             {
-                if (Drag_and_drop.dbg_drag_and_drop) logger.log("  drag2 ACCEPTED for: " + fff.getAbsolutePath());
+                if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + fff.getAbsolutePath());
 
                 image_stage.show_wait_cursor();
                 Image_context ic2 = Image_context.get_Image_context(fff.toPath(), image_stage.aborter, logger);
@@ -458,18 +453,18 @@ public class Mouse_handling_for_Image_stage
         });
 
         image_stage.the_BorderPane.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             drag_event.consume();
             image_stage.the_Stage.requestFocus();
         });
         image_stage.the_BorderPane.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
             Look_and_feel_manager.set_drag_look_for_pane(image_stage.the_BorderPane);
             drag_event.consume();
         });
         image_stage.the_BorderPane.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
             if (image_stage.image_display_handler.get_image_context() != null) {
                 image_stage.set_background(Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).getFileName().toString());
             }

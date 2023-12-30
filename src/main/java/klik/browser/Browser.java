@@ -468,7 +468,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         });
 
         the_Scene.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Browser: OnDragOver handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragOver handler called");
             selection_handler.on_drag_over();
             Object source = drag_event.getGestureSource();
             if (source == null) {
@@ -504,7 +504,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         });
 
         the_Scene.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Browser: OnDragDropped handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + displayed_folder_path);
             int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(my_Stage.the_Stage, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, logger);
             set_status(n + " files have been dropped in");
@@ -514,7 +514,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         });
 
         the_Scene.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Browser: OnDragExited handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragExited handler called");
             if (dbg) logger.log("OnDragExited in browser for dir :" + displayed_folder_path);
             //set_status(" drag done");
             browser_menus.reset_all_files_and_folders();
@@ -522,7 +522,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             drag_event.consume();
         });
         the_Scene.setOnDragDone(drag_event -> {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Browser: setOnDragDone handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: setOnDragDone handler called");
             selection_handler.on_drag_done();
             drag_event.consume();
         });

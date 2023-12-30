@@ -24,7 +24,7 @@ static utilities for drag-and-drop
 public class Drag_and_drop
 //**********************************************************
 {
-    public static boolean dbg_drag_and_drop = false;
+    public static boolean drag_and_drop_dbg = false;
 
     //**********************************************************
     public static int accept_drag_dropped_as_a_move_in(
@@ -70,10 +70,10 @@ public class Drag_and_drop
         }
         else
         {
-            logger.log(origin + " drag ACCEPTED for STRING: " + s);
+            if ( drag_and_drop_dbg) logger.log(origin + " drag ACCEPTED for STRING: " + s);
             for (String ss : s.split("\\r?\\n")) {
                 if (ss.isBlank()) continue;
-                logger.log(origin + " drag ACCEPTED for additional file: " + ss);
+                if ( drag_and_drop_dbg) logger.log(origin + " drag ACCEPTED for additional file: " + ss);
                 list.add(new File(ss));
             }
             if (list.isEmpty())
@@ -97,7 +97,7 @@ public class Drag_and_drop
         for ( File f : list)
         {
             if ( f.isDirectory()) dir_count++;
-            logger.log("going to drag/move:"+f.getAbsolutePath());
+            if (drag_and_drop_dbg) logger.log("going to drag/move:"+f.getAbsolutePath());
         }
         if ( dir_count >= 2)
         {

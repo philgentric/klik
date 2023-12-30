@@ -14,7 +14,6 @@ import klik.browser.items.Item_image;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
-import klik.util.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -47,7 +46,7 @@ public class Selection_handler
     public void on_drag_over()
     //**********************************************************
     {
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("on_drag_over()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("on_drag_over()");
         selection_state = Selection_state.selection_started;
     }
 
@@ -55,7 +54,7 @@ public class Selection_handler
     public void on_drag_exited()
     //**********************************************************
     {
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("on_drag_exited()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("on_drag_exited()");
         selection_state = Selection_state.nothing_selected;
         nothing_selected();
     }
@@ -65,7 +64,7 @@ public class Selection_handler
     public void on_drop()
     //**********************************************************
     {
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("on_drop()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("on_drop()");
 
     }
 
@@ -74,7 +73,7 @@ public class Selection_handler
     public void on_drag_done()
     //**********************************************************
     {
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("on_drag_done()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("on_drag_done()");
 
     }
 
@@ -101,7 +100,7 @@ public class Selection_handler
             return;
         }
         selected_files.add(path.toFile());
-        if (Drag_and_drop.dbg_drag_and_drop)  {
+        if (Drag_and_drop.drag_and_drop_dbg)  {
             logger.log("1 file added to selection = " + path.getFileName());
             logger.log("all selected files =");
             for (File p : selected_files) {
@@ -147,7 +146,7 @@ public class Selection_handler
     public void handle_mouse_pressed(final MouseEvent mouse_event)
     //**********************************************************
     {
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("handle_mouse_pressed()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_pressed()");
 
         if (!mouse_event.isPrimaryButtonDown())
         {
@@ -156,12 +155,12 @@ public class Selection_handler
         }
         if (!enable_multiple_selections)
         {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("handle_mouse_pressed() giving up, multiple selection disabled by config");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_pressed() giving up, multiple selection disabled by config");
             return;
         }
         if ( selection_state != Selection_state.nothing_selected)
         {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("handle_mouse_pressed() giving up, selection_state != Selection_state.nothing_selected");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_pressed() giving up, selection_state != Selection_state.nothing_selected");
             return;
         }
 
@@ -194,11 +193,11 @@ public class Selection_handler
 
         if ( selection_state != Selection_state.selection_started)
         {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("handle_mouse_dragged: GIVING UP since selection_state != Selection_state.selection_started");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_dragged: GIVING UP since selection_state != Selection_state.selection_started");
             mouse_event.consume();
             return;
         }
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("handle_drag_selection()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_drag_selection()");
 
         final Point2D in_parent = the_pane.sceneToLocal(mouse_event.getSceneX(), mouse_event.getSceneY());
         x1 = in_parent.getX();
@@ -217,11 +216,11 @@ public class Selection_handler
         if (!enable_multiple_selections) return;
         if ( selection_state != Selection_state.selection_started)
         {
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("handle_mouse_released: GIVING UP since selection_state != Selection_state.selection_started");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_released: GIVING UP since selection_state != Selection_state.selection_started");
             mouse_event.consume();
             return;
         }
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("*()handle_release_selection()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("*()handle_release_selection()");
         selection_state = Selection_state.selection_defined;
 
         final Point2D in_parent = the_pane.sceneToLocal(mouse_event.getSceneX(), mouse_event.getSceneY());
@@ -239,7 +238,7 @@ public class Selection_handler
         if ((w == 0) && (h == 0)) {
             if (open_item_at(x, y, browser) == true)
             {
-                if ( Drag_and_drop.dbg_drag_and_drop) logger.log("selection area is EMPTY means click to open");
+                if ( Drag_and_drop.drag_and_drop_dbg) logger.log("selection area is EMPTY means click to open");
             }
             reset_selection();
             nothing_selected();
@@ -283,16 +282,16 @@ public class Selection_handler
     private void extract_selected_files(double x, double y, double w, double h)
     //**********************************************************
     {
-        if ( Drag_and_drop.dbg_drag_and_drop) logger.log("selection area is: x=" + x + ", y=" + y + ", w= " + w + ", h= " + h);
+        if ( Drag_and_drop.drag_and_drop_dbg) logger.log("selection area is: x=" + x + ", y=" + y + ", w= " + w + ", h= " + h);
 
         List<Item> items = icon_manager.get_items_in(the_pane, x, y, w, h);
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("=============selection=============");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("=============selection=============");
         for (Item i : items)
         {
             i.set_is_selected(); // show visible feedback to user AND add to list
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("extract_selected_files: "+i.get_item_path().toAbsolutePath());
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("extract_selected_files: "+i.get_item_path().toAbsolutePath());
         }
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("===================================");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("===================================");
 
         if (items.isEmpty())
         {

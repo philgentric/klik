@@ -192,7 +192,7 @@ public abstract class Item implements Icon_destination
 
     void set_background_for_setOnDragEntered() {
         BackgroundFill background_fill = Look_and_feel_manager.get_drag_fill();
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("Item_folder_with_icon OnDragOver color = "+background_fill);
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon OnDragOver color = "+background_fill);
         set_background(background_fill);
     }
 
@@ -205,7 +205,7 @@ public abstract class Item implements Icon_destination
     void set_background_for_setOnDragExited() {
         Look_and_feel i = Look_and_feel_manager.get_instance();
         BackgroundFill color = i.get_background_fill();
-        if (Drag_and_drop.dbg_drag_and_drop) logger.log("Item_folder_with_icon setOnDragExited color = "+color);
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon setOnDragExited color = "+color);
         set_background(color);
 
     }
