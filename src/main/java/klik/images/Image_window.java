@@ -29,7 +29,6 @@ import klik.files_and_paths.*;
 import klik.level2.fusk.Fusk_static_core;
 import klik.level2.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
-import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -55,7 +54,7 @@ public class Image_window
     public final BorderPane the_BorderPane;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
-    public final Mouse_handling_for_Image_stage mouse_handling_for_image_stage;
+    public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
     public final Aborter aborter;
     MenuBar the_menu_bar;
 
@@ -67,7 +66,7 @@ public class Image_window
     Path dir;
 
     //**********************************************************
-    public static Image_window get_Image_stage(
+    public static Image_window get_Image_window(
             Browser b,
             Path path,
             Logger logger_)
@@ -170,14 +169,14 @@ public class Image_window
         image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, the_browser.get_file_comparator(), logger);
         if ( image_display_handler == null)
         {
-            mouse_handling_for_image_stage = null;
+            mouse_handling_for_image_window = null;
             set_nothing_to_display(first_image_path);
             return;
         }
 
 
 
-        the_menu_bar = Menu_for_image_stage.make_menu_bar(the_browser,this, image_display_handler);
+        the_menu_bar = Menu_for_image_window.make_menu_bar(the_browser,this, image_display_handler);
         BorderPane top_border_pane = new  BorderPane();
         top_border_pane.setLeft(the_menu_bar);
         the_progress_bar = new ProgressBar();// new Slider(0,1,0); //
@@ -187,7 +186,7 @@ public class Image_window
         top_border_pane.setCenter(the_progress_bar);
 
         the_BorderPane.setTop(top_border_pane);
-        mouse_handling_for_image_stage = new Mouse_handling_for_Image_stage(this, logger);
+        mouse_handling_for_image_window = new Mouse_handling_for_Image_window(this, logger);
 
         //boolean white_background = mouse_handling_for_image_stage.something_is_wrong_with_image_size();
 
@@ -195,7 +194,7 @@ public class Image_window
         //set_image(image_context_owner.get_image_context(), white_background);
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            logger.log("image wondow size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
+            if ( dbg) logger.log("ChangeListener: image window size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
             Rectangle2D b = new Rectangle2D(the_Stage.getX(), the_Stage.getY(), the_Stage.getWidth(), the_Stage.getHeight());
             Static_application_properties.save_bounds(b,logger);
         };
@@ -203,9 +202,8 @@ public class Image_window
         the_Stage.heightProperty().addListener(change_listener);
 
 
-        //Image_stage image_stage = this;
         the_Stage.setOnCloseRequest(we -> {
-            logger.log("Image_stage is closing");
+            logger.log("Image_window is closing");
             aborter.abort();
             Change_gang.deregister(image_display_handler);
         });
@@ -227,7 +225,7 @@ public class Image_window
         {
             Image_window local = this;
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_stage.handle_keyboard(the_browser,local, keyEvent, logger));
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(the_browser,local, keyEvent, logger));
         }
 
         // event handler if window is hidden (or closed, I hope?): stop animation
@@ -249,7 +247,7 @@ public class Image_window
         };
         the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
 
-        mouse_handling_for_image_stage.create_event_handlers(this);
+        mouse_handling_for_image_window.create_event_handlers(this);
 
     }
 
@@ -475,14 +473,13 @@ public class Image_window
         }
         else
         {
-            switch (mouse_handling_for_image_stage.mouse_mode) {
+            switch (mouse_handling_for_image_window.mouse_mode) {
                 case drag_and_drop -> local_title.append("-- drag-and-drop mode (use mouse to drag the image)");
                 case pix_for_pix -> local_title.append("-- pix-for-pix mode (use mouse to explore large images)");
                 case click_to_zoom -> local_title.append("-- zoom-with-mouse mode (use mouse to select zoom area)");
             }
         }
         the_Stage.setTitle(local_title.toString());
-        //logger.log("Image_stage title = " + local_title);
     }
 
 
@@ -578,7 +575,7 @@ public class Image_window
             the_BorderPane.setCenter(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
             //logger.log("ic.imageView"+ local_image_context.imageView.getImage().toString());
             set_stage_title(local_image_context);
-            if (mouse_handling_for_image_stage.mouse_mode == Mouse_mode.pix_for_pix || local_pix_for_pix2 ) mouse_handling_for_image_stage.pix_for_pix();
+            if (mouse_handling_for_image_window.mouse_mode == Mouse_mode.pix_for_pix || local_pix_for_pix2 ) mouse_handling_for_image_window.pix_for_pix();
         });
     }
 

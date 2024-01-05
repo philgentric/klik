@@ -15,7 +15,6 @@ import klik.change.Change_receiver;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
 import klik.images.caching.Image_cache_dummy;
-import klik.images.caching.Image_decoding_actor_for_cache;
 import klik.level2.experimental.Static_image_utilities;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
@@ -24,7 +23,6 @@ import klik.look.Look_and_feel_manager;
 import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.util.Threads;
 
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -37,7 +35,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 {
     private static final boolean dbg = false;
 
-    public final Image_window image_stage;
+    public final Image_window image_window;
     public Image_indexer image_indexer = null;
     final Logger logger;
     public final Cache_interface image_cache;
@@ -56,7 +54,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Image_context image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
         if (image_context_ == null)
         {
-            logger_.log(Stack_trace_getter.get_stack_trace("Image_stage PANIC: cannot load image " + path.toAbsolutePath()));
+            logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
             return null;
         }
         return new Image_display_handler(image_context_,v_,file_comparator,logger_);
@@ -85,7 +83,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     {
         image_context = image_context_;
         logger = logger_;
-        image_stage = v_;
+        image_window = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context.path.toAbsolutePath().getParent());
 
         /*
@@ -128,7 +126,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         }
         {
             Image image = Look_and_feel_manager.get_default_icon(300);
-            if (image != null) image_stage.the_Stage.getIcons().add(image);
+            if (image != null) image_window.the_Stage.getIcons().add(image);
         }
     }
 
@@ -146,7 +144,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Image_context image_context;
         if (alternate_rescaler)
         {
-            image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_stage.the_Stage.getWidth(),image_stage.aborter,logger);
+            image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_window.the_Stage.getWidth(), image_window.aborter,logger);
         }
         else
         {
@@ -173,14 +171,14 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     {
         if (image_context == null)
         {
-            return Stack_trace_getter.get_stack_trace("Image_stage NO CONTEXT????");
+            return Stack_trace_getter.get_stack_trace("should not happen: image_context == null");
         }
         if (image_context.path == null)
         {
-            return Stack_trace_getter.get_stack_trace("Image_stage NO PATH IN CONTEXT????");
+            return Stack_trace_getter.get_stack_trace("should not happen: image_context.path == null");
         }
 
-        return "Image_stage " + image_context.path.toAbsolutePath();
+        return "Image_display_handler " + image_context.path.toAbsolutePath();
     }
 
 
@@ -191,7 +189,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     {
         logger.log("handle_mouse_clicked_secondary");
 
-        ContextMenu contextMenu = Menu_for_image_stage.make_context_menu(the_browser, image_stage, this);
+        ContextMenu contextMenu = Menu_for_image_window.make_context_menu(the_browser, image_window, this);
         contextMenu.show(border_pane, e.getScreenX(), e.getScreenY());
     }
 
@@ -205,27 +203,20 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     {
 
-        if ( dbg) logger2.log("Image_stage::you_receive_this_because_a_file_event_occurred_somewhere");
-/*
-        if (Change_gang.is_my_directory_impacted(image_context.path.getParent(), l, logger2) == false)
-        {
-            logger2.log("Image_stage::you_receive_this_because_a_move_occurred_somewhere NOT INTERESTED");
-            return;
-        }
-        logger2.log("Image_stage::you_receive_this_because_a_move_occurred_somewhere YES");
-*/
+        if ( dbg) logger2.log("Image_display_handler: you_receive_this_because_a_file_event_occurred_somewhere");
+
         //boolean found = false;
         for (Old_and_new_Path oanf : l)
         {
-            if ( dbg) logger2.log("Image_stage, getting a you_receive_this_because_a_move_occurred_somewhere " + oanf.get_string());
+            if ( dbg) logger2.log("Image_display_handler, getting a you_receive_this_because_a_move_occurred_somewhere " + oanf.get_string());
             if (image_context == null)
             {
-                logger2.log("Image_stage, ic == null");
+                logger2.log("Image_display_handler, ic == null");
                 continue;
             }
             if (image_context.path == null)
             {
-                logger2.log("Image_stage, ic.f == null");
+                logger2.log("Image_display_handler, ic.f == null");
                 continue;
             }
             if ( Files_and_Paths.is_same_path(oanf.get_old_Path(),image_context.path,logger))
@@ -245,7 +236,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         Files_and_Paths.clear_one_icon_from_cache_on_disk(image_context.path,logger);
                         // reload the image
                         image_context =   local_getImage_context(image_context.path,  new Aborter());
-                        image_stage.set_image(image_context);
+                        image_window.set_image(image_context);
                     });
                 }
                 else
@@ -277,9 +268,9 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     {
         Path to_be_deleted = image_context.path;
-        change_image_relative(1,image_stage.ultim_mode);
+        change_image_relative(1, image_window.ultim_mode);
         Runnable r = () -> image_indexer.signal_deleted_file(to_be_deleted);
-        Files_and_Paths.move_to_trash(image_stage.the_Stage,to_be_deleted, r, new Aborter(),logger);
+        Files_and_Paths.move_to_trash(image_window.the_Stage,to_be_deleted, r, new Aborter(),logger);
     }
 
 
@@ -299,17 +290,17 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         if ( dbg) logger.log("change_image_relative delta=" + delta);
 
         // first RESET the display mode
-        if ( image_stage.mouse_handling_for_image_stage.mouse_mode != Mouse_mode.drag_and_drop)
+        if ( image_window.mouse_handling_for_image_window.mouse_mode != Mouse_mode.drag_and_drop)
         {
-            image_stage.mouse_handling_for_image_stage.set_mouse_mode(image_stage, Mouse_mode.drag_and_drop);
+            image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.drag_and_drop);
         }
 
         Image_context[] returned_new_image_context = new Image_context[1];
-        Change_image_message change_image_message = new Change_image_message(delta,image_context,image_stage,ultimate,returned_new_image_context,logger);
+        Change_image_message change_image_message = new Change_image_message(delta,image_context, image_window,ultimate,returned_new_image_context,logger);
         // Job_termination_reporter will recover the NEW image_context
 
         Index_reporter index_reporter = index -> {
-            image_stage.set_progress(image_stage.get_dir(), index);
+            image_window.set_progress(image_window.get_dir(), index);
             if ( dbg) logger.log("reporting index for: "+ image_context.path+" index="+index);
         };
 
@@ -338,7 +329,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     @Override // Slide_show_slave
     public void set_title()
     {
-        image_stage.set_stage_title(image_context);
+        image_window.set_stage_title(image_context);
     }
 
     public void set_image_context(Image_context image_context_) {

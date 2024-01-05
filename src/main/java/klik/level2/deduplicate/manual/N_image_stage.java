@@ -184,7 +184,7 @@ public class N_image_stage
 				public void handle(ActionEvent event)
 				{
 
-					Image_window is = Image_window.get_Image_stage(b,f.my_file.file.toPath(),logger);
+					Image_window is = Image_window.get_Image_window(b,f.my_file.file.toPath(),logger);
 				}
 			});
 

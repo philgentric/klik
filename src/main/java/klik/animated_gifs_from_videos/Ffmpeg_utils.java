@@ -15,7 +15,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.actor.virtual_threads.Concurency_limiter;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
@@ -23,7 +22,8 @@ import klik.properties.Static_application_properties;
 import klik.util.Execute_command;
 import klik.util.From_disk;
 import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.Threads;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import java.io.File;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 //**********************************************************
-public class Animated_gif_generator
+public class Ffmpeg_utils
 //**********************************************************
 {
     private static final int HUNDRED =100;
@@ -41,7 +41,7 @@ public class Animated_gif_generator
 
 
     //**********************************************************
-    public static void generate_many_gifs(Stage owner, Path video_path, int clip_lenght, int skip_to_next, Logger logger)
+    public static void generate_many_gifs(Stage owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
     //**********************************************************
     {
 
@@ -66,12 +66,13 @@ public class Animated_gif_generator
         }
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
+            if (aborter.should_abort()) return;
             String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",start)+".gif";
             Path destination_gif_full_path = Path.of(dir.getAbsolutePath(),name);
 
             Actor_engine.run(
                     new Animated_gif_generation_actor(logger), // need on actor instance per task because we want to be able to abort
-                    new Animated_gif_generation_message(owner,video_path,destination_gif_full_path,clip_lenght,start,logger),
+                    new Animated_gif_generation_message(owner,video_path,destination_gif_full_path,clip_lenght,start,aborter,logger),
                     null,
                     logger);
         }
@@ -111,6 +112,56 @@ public class Animated_gif_generator
             }
         }
         return duration;
+    }
+
+    //**********************************************************
+    public static void video_to_mp4_in_a_thread(
+            Stage owner,
+            Path video_path,
+            Aborter aborter,
+            Logger logger)
+    //**********************************************************
+    {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                video_to_mp4(owner, video_path, aborter, logger);
+            }
+        };
+        Threads.execute(r,logger);
+    }
+
+    //**********************************************************
+    public static void video_to_mp4(
+            Stage owner,
+            Path video_path,
+            Aborter aborter,
+            Logger logger)
+    //**********************************************************
+    {
+        List<String> list = new ArrayList<>();
+        list.add("ffmpeg");
+        list.add("-i");
+        list.add(video_path.getFileName().toString());
+        list.add("-codec");
+        list.add("copy");
+        String new_name = FilenameUtils.getBaseName(video_path.getFileName().toString())+".mp4";
+        list.add(new_name);
+
+        File wd = video_path.getParent().toFile();
+        if (aborter.should_abort())
+        {
+            logger.log("video_to_gif aborted");
+            return;
+        }
+        // Output file is empty
+        StringBuilder sb = new StringBuilder();
+        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
+        {
+            Static_application_properties.manage_show_ffmpeg_install_warning(owner,logger);
+        }
+        logger.log("\n\n\n ffmpeg output :\n"+ sb +"\n\n\n");
+
     }
 
     //**********************************************************

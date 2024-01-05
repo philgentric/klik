@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Mouse_handling_for_Image_stage
+public class Mouse_handling_for_Image_window
 {
 
     private final Image_window image_stage;
@@ -39,7 +39,7 @@ public class Mouse_handling_for_Image_stage
     EventHandler<MouseEvent> mouse_dragged_pix_for_pix_event_handler;
     EventHandler<MouseEvent> mouse_released_pix_for_pix_event_handler;
 
-    public Mouse_handling_for_Image_stage(Image_window image_stage_, Logger logger) {
+    public Mouse_handling_for_Image_window(Image_window image_stage_, Logger logger) {
         image_stage = image_stage_;
         this.logger = logger;
     }

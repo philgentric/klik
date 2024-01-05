@@ -267,24 +267,24 @@ public class Image_context
 
 
     //**********************************************************
-    void change_zoom_factor(Image_window image_stage, double mul)
+    void change_zoom_factor(Image_window image_window, double mul)
     //**********************************************************
     {
-        image_stage.mouse_handling_for_image_stage.set_mouse_mode(image_stage, Mouse_mode.pix_for_pix);
+        image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix);
 
         // depends on aspect ratio
         double image_aspect_ratio = the_image_view.getImage().getHeight()/the_image_view.getImage().getWidth();
-        double scene_aspect_ratio =  image_stage.the_Scene.getHeight()/ image_stage.the_Scene.getWidth();
+        double scene_aspect_ratio =  image_window.the_Scene.getHeight()/ image_window.the_Scene.getWidth();
 
         if ( scene_aspect_ratio > image_aspect_ratio)
         {
-            the_image_view.setFitWidth(image_stage.the_Scene.getWidth());
-            logger.log("change_zoom_factor setFitWidth"+image_stage.the_Scene.getWidth());
+            the_image_view.setFitWidth(image_window.the_Scene.getWidth());
+            logger.log("change_zoom_factor setFitWidth"+image_window.the_Scene.getWidth());
         }
         else
         {
-            the_image_view.setFitHeight(image_stage.the_Scene.getHeight());
-            logger.log("change_zoom_factor setFitHeight"+image_stage.the_Scene.getHeight());
+            the_image_view.setFitHeight(image_window.the_Scene.getHeight());
+            logger.log("change_zoom_factor setFitHeight"+image_window.the_Scene.getHeight());
         }
 
         zoom_factor *= mul;
@@ -496,7 +496,7 @@ public class Image_context
                 Command_old_and_new_Path.command_copy,
                 Status_old_and_new_Path.copy_done));
         Change_gang.report_changes(l);
-        Image_window orphan = Image_window.get_Image_stage(b,new_path, logger);
+        Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;
     }
 
@@ -504,7 +504,7 @@ public class Image_context
 
 
     //**********************************************************
-    public Image_context rename_file_for_an_image_stage(Image_window image_window)
+    public Image_context rename_file_for_an_image_window(Image_window image_window)
     //**********************************************************
     {
         Path new_path =  Files_and_Paths.ask_user_for_new_file_name(image_window.the_Stage, path,logger);

@@ -14,10 +14,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Objects;
 
 //**********************************************************
-public class Keyboard_handling_for_Image_stage
+public class Keyboard_handling_for_Image_window
 //**********************************************************
 {
     private static final boolean keyword_dbg = false;
@@ -79,11 +78,12 @@ public class Keyboard_handling_for_Image_stage
 
         switch (key_event.getText())
         {
-            default -> {
+            case"=" -> {
                 if (keyword_dbg) logger.log("= like pix-for-pix: use mouse to select visible part of large image");
-                image_stage.mouse_handling_for_image_stage.set_mouse_mode(image_stage, Mouse_mode.pix_for_pix);
-                break;
+                image_stage.mouse_handling_for_image_window.set_mouse_mode(image_stage, Mouse_mode.pix_for_pix);
+                return;
             }
+
             case "b" -> {
                 if (keyword_dbg) logger.log("b like browse");
                 Browser_creation_context.additional_different_folder(image_stage.image_display_handler.get_image_context().path.getParent(), the_browser, logger);
@@ -129,7 +129,7 @@ public class Keyboard_handling_for_Image_stage
             }
             case "m" -> {
                 if (keyword_dbg) logger.log("m like Move (enables drag-and-drop mode)");
-                image_stage.mouse_handling_for_image_stage.set_mouse_mode(image_stage, Mouse_mode.drag_and_drop);
+                image_stage.mouse_handling_for_image_window.set_mouse_mode(image_stage, Mouse_mode.drag_and_drop);
                 key_event.consume();
                 return;
             }
@@ -141,7 +141,7 @@ public class Keyboard_handling_for_Image_stage
             }
             case "r" -> {
                 if (keyword_dbg) logger.log("r like rename");
-                image_stage.image_display_handler.get_image_context().rename_file_for_an_image_stage(image_stage);
+                image_stage.image_display_handler.get_image_context().rename_file_for_an_image_window(image_stage);
                 key_event.consume();
                 return;
             }
@@ -191,14 +191,14 @@ public class Keyboard_handling_for_Image_stage
             }
             case "y" -> {
                 if (keyword_dbg) logger.log("y => move to same folder as previous move");
-                Menu_for_image_stage.do_same_move(image_stage);
+                Menu_for_image_window.do_same_move(image_stage);
                 key_event.consume();
                 return;
             }
             case "z" -> {
                 if (keyword_dbg)
                     logger.log("Z like Zoom (enables click-to-zoom mode: use the mouse to select the zoomed area)");
-                image_stage.mouse_handling_for_image_stage.set_mouse_mode(image_stage, Mouse_mode.click_to_zoom);
+                image_stage.mouse_handling_for_image_window.set_mouse_mode(image_stage, Mouse_mode.click_to_zoom);
                 key_event.consume();
                 return;
             }

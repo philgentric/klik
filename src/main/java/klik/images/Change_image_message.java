@@ -10,7 +10,7 @@ public class Change_image_message implements Message
 {
     public final Logger logger;
     public final int delta;
-    public final Image_window image_stage;
+    public final Image_window image_window;
     public final boolean ultimate;
     public final Image_context input_image_context;
     public final Image_context[] output_image_context;
@@ -23,7 +23,7 @@ public class Change_image_message implements Message
         this.logger = logger;
         this.delta = delta;
         this.input_image_context = image_context;
-        this.image_stage = image_stage;
+        this.image_window = image_stage;
         this.ultimate = ultimate;
         this.output_image_context = returned;
         aborter = new Aborter();

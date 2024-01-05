@@ -33,23 +33,23 @@ public class Change_image_actor implements Actor
 
         if ( dbg) change_image_message.logger.log("delta=" + change_image_message.delta);
 
-        if (change_image_message.image_stage == null)
+        if (change_image_message.image_window == null)
         {
             if ( dbg) change_image_message.logger.log("FATAL change_image_message.image_stage == null");
             return "Failed change_image_message.image_stage == null";
         }
-        if (change_image_message.image_stage.image_display_handler == null)
+        if (change_image_message.image_window.image_display_handler == null)
         {
             if ( dbg) change_image_message.logger.log("FATAL change_image_message.image_stage.image_display_handler == null");
             return "Failed change_image_message.image_stage.image_display_handler == null";
         }
-        if (change_image_message.image_stage.image_display_handler.image_indexer == null)
+        if (change_image_message.image_window.image_display_handler.image_indexer == null)
         {
             if ( dbg) change_image_message.logger.log("warning: change_image_message.image_stage.image_display_handler.image_indexer  == null (probably in the making)");
             if (change_image_message.input_image_context.path == null)
             {
                 if ( dbg) change_image_message.logger.log("change_image_message.input_image_context.path == null");
-                change_image_message.image_stage.set_nothing_to_display(null);
+                change_image_message.image_window.set_nothing_to_display(null);
                 return "Failed change_image_message.image_stage.image_display_handler.image_indexer == null";
             }
             return display_target_path(change_image_message.input_image_context.path, change_image_message);
@@ -58,14 +58,14 @@ public class Change_image_actor implements Actor
         if (change_image_message.input_image_context == null)
         {
             if ( dbg) change_image_message.logger.log( "change_image_message.input_image_context == null");
-            change_image_message.image_stage.set_nothing_to_display(null);
+            change_image_message.image_window.set_nothing_to_display(null);
             return "Failed change_image_message.input_image_context == null";
         }
         if (change_image_message.input_image_context.previous_path == null)
         {
             //if ( dbg)
                 change_image_message.logger.log("change_image_message.input_image_context.previous_path == null");
-            change_image_message.image_stage.set_nothing_to_display(null);
+            change_image_message.image_window.set_nothing_to_display(null);
             return "Failed change_image_message.input_image_context.previous_path == null";
         }
 
@@ -76,13 +76,13 @@ public class Change_image_actor implements Actor
 
         //cim.image_stage.show_wait_cursor();
        //if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current OLD path="+change_image_message.input_image_context.path);
-        Path target_path = change_image_message.image_stage.image_display_handler.image_indexer.get_new_path_relative(
+        Path target_path = change_image_message.image_window.image_display_handler.image_indexer.get_new_path_relative(
                 change_image_message.input_image_context.previous_path,change_image_message.delta,change_image_message.ultimate);
-        if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor target_path="+target_path);
+        if ( dbg) change_image_message.image_window.logger.log("Change_image_actor target_path="+target_path);
         if ( target_path == null)
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative something really bad happened, like the whole dir was deleted behind the scene");
-            change_image_message.image_stage.set_nothing_to_display(null);
+            change_image_message.image_window.set_nothing_to_display(null);
             //cim.image_stage.restore_cursor();
             return "BAD";
         }
@@ -99,7 +99,7 @@ public class Change_image_actor implements Actor
     {
         if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative target = "+ target_image_path);
         String full_path = Image_context.get_full_path(target_image_path);
-        Image_context image_context = change_image_message.image_stage.image_display_handler.try_to_get_from_cache(full_path);
+        Image_context image_context = change_image_message.image_window.image_display_handler.try_to_get_from_cache(full_path);
         boolean forward = true;
         if ( change_image_message.delta < 0) forward = false;
         if (image_context != null)
@@ -107,15 +107,15 @@ public class Change_image_actor implements Actor
             // image was found in cache
             change_image_message.output_image_context[0] = image_context;
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
-            Platform.runLater(() -> change_image_message.image_stage.set_image(change_image_message.output_image_context[0]));
+            Platform.runLater(() -> change_image_message.image_window.set_image(change_image_message.output_image_context[0]));
             //cim.image_stage.restore_cursor();
-            change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
+            change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_window.image_display_handler.alternate_rescaler);
             return "found in cache";
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
-        if ( dbg) change_image_message.logger.log("\n Change_image_actor NOT found in cache: " + full_path);
-        image_context = change_image_message.image_stage.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
+        if ( dbg) change_image_message.logger.log("\n image NOT found in cache: " + full_path);
+        image_context = change_image_message.image_window.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
         if (image_context == null)
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor null image (1) in change_image_relative");
@@ -124,10 +124,10 @@ public class Change_image_actor implements Actor
             return "Failed";
         }
 
-        change_image_message.image_stage.image_display_handler.save_in_cache(full_path,image_context);
+        change_image_message.image_window.image_display_handler.save_in_cache(full_path,image_context);
         change_image_message.output_image_context[0] = image_context;
 
-        if (Objects.requireNonNull(change_image_message.image_stage.mouse_handling_for_image_stage).something_is_wrong_with_image_size())
+        if (Objects.requireNonNull(change_image_message.image_window.mouse_handling_for_image_window).something_is_wrong_with_image_size())
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor something_is_wrong_with_image_size in change_image_relative");
             //image_stage.restore_cursor();
@@ -139,12 +139,12 @@ public class Change_image_actor implements Actor
                     "Change_image_actor change_image_relative OK! target_image_path is:" + target_image_path
                             +" image_context.path :"+image_context.path
                     + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
-            change_image_message.image_stage.set_image(image_context);
+            change_image_message.image_window.set_image(image_context);
         }
 
         //cim.image_stage.restore_cursor();
 
-        change_image_message.image_stage.image_display_handler.preload(change_image_message.image_stage.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_stage.image_display_handler.alternate_rescaler);
+        change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_window.image_display_handler.alternate_rescaler);
         return "OK";
     }
 

@@ -240,13 +240,16 @@ public abstract class Item implements Icon_destination
 */
             List<File> ll = browser.selection_handler.get_selected_files();
             // if we are here it is because the user is dragging an item
-            if (!ll.contains(path.toFile())) ll.add(path.toFile());
+            if (!ll.contains(path.toFile())) {
+                ll.add(path.toFile());
+            }
             // this crashes the VM !!?? content.putFiles(ll);
             StringBuilder sb = new StringBuilder();
-            for (File f : ll) {
-                sb.append("\n").append(f.getAbsolutePath());
+            for (File f : ll)
+            {
+                sb.append("\nselected for drag and drop: ").append(f.getAbsolutePath());
             }
-            logger.log(" selected files: " + sb);
+            if ( Drag_and_drop.drag_and_drop_dbg) logger.log(" selected files: " + sb);
             content.put(DataFormat.PLAIN_TEXT, sb.toString());
             db.setContent(content);
             drag_event.consume();

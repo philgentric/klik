@@ -3,7 +3,7 @@ package klik.browser.icons;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import klik.actor.*;
-import klik.animated_gifs_from_videos.Animated_gif_generator;
+import klik.animated_gifs_from_videos.Ffmpeg_utils;
 import klik.browser.items.Iconifiable_item_type;
 import klik.files_and_paths.Files_and_Paths;
 import klik.level2.experimental.performance_monitoring.Sample_collector;
@@ -262,7 +262,7 @@ public class Icon_factory_actor implements Actor
         Path destination_gif_full_path = Paths.get(icon_cache_dir.toAbsolutePath().toString(), gif_animated_icon_file.getName());
 
         int skip = 0;
-        int duration_in_seconds = Animated_gif_generator.get_video_duration(owner, destination.get_item_path(), logger);
+        int duration_in_seconds = Ffmpeg_utils.get_video_duration(owner, destination.get_item_path(), logger);
         if ( duration_in_seconds > 3*3600)
         {
             logger.log("WARNING: ffprobe reports duration that looks wrong");
@@ -284,7 +284,7 @@ public class Icon_factory_actor implements Actor
             skip = duration_in_seconds / 2 - length;
         }
 
-        Animated_gif_generator.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, icon_factory_request.get_aborter(),logger);
+        Ffmpeg_utils.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, icon_factory_request.get_aborter(),logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting6");

@@ -26,7 +26,7 @@ public class Animated_gif_generation_actor implements Actor
             throw new RuntimeException(e);
         }
         Animated_gif_generation_message mm = (Animated_gif_generation_message) m;
-        Animated_gif_generator.video_to_gif(
+        Ffmpeg_utils.video_to_gif(
                 mm.owner,
                 mm.video_path,
                 mm.destination_gif_full_path,

@@ -19,7 +19,6 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
-import klik.browser.icons.Paths_manager;
 import klik.images.Image_window;
 import klik.util.Logger;
 
@@ -440,7 +439,7 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 			parent.getItems().add(one_sub_item);
 			one_sub_item.setOnAction(e -> {
 				logger.log("going to open on menu select: "+displayed_text);
-				Image_window is = Image_window.get_Image_stage(b,path,logger);
+				Image_window is = Image_window.get_Image_window(b,path,logger);
 			});
 		}
 		return returned_count_of_new_menu_items;

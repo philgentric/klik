@@ -28,7 +28,7 @@ import java.nio.file.Path;
 
 
 //**********************************************************
-public class Multiple_image_stage
+public class Multiple_image_window
 //**********************************************************
 {
     static boolean dbg = false;
@@ -47,7 +47,7 @@ public class Multiple_image_stage
     private Image_context ic;
     public final Aborter aborter;
     //**********************************************************
-    public static Multiple_image_stage get_Multiple_image_stage(
+    public static Multiple_image_window get_Multiple_image_window(
             Stage from_stage, // for on same screen
             Path path,
             boolean smaller,
@@ -62,7 +62,7 @@ public class Multiple_image_stage
         }
         logger_.log("Multiple_image_stage OK: image loaded" + path.toAbsolutePath());
         if (from_stage == null) {
-            return new Multiple_image_stage(local_ic, smaller, 800, 600, aborter, logger_);//, tpe_);
+            return new Multiple_image_window(local_ic, smaller, 800, 600, aborter, logger_);//, tpe_);
         }
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
@@ -98,7 +98,7 @@ public class Multiple_image_stage
             y += 100;
 
         }
-        Multiple_image_stage returned = new Multiple_image_stage(local_ic, smaller, w, h, aborter, logger_);//, tpe_);
+        Multiple_image_window returned = new Multiple_image_window(local_ic, smaller, w, h, aborter, logger_);//, tpe_);
 
         returned.the_stage.setX(x);
         returned.the_stage.setY(y);
@@ -106,7 +106,7 @@ public class Multiple_image_stage
     }
 
     //**********************************************************
-    private Multiple_image_stage(
+    private Multiple_image_window(
             //List<Image_play> image_plays_,
             Image_context local_ic,
             boolean smaller,

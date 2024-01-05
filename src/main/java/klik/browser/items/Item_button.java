@@ -524,6 +524,13 @@ public class Item_button extends Item implements Icon_destination
 
         if (!Files.isDirectory(path))
         {
+            //if ( Guess_file_type.is_this_path_a_video(path))
+            {
+                if ( this.item_type == Iconifiable_item_type.video)
+                {
+                   Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
+                }
+            }
             // is a "plain" file
             context_menu.getItems().add(create_system_open_menu_item());
             context_menu.getItems().add(create_rename_dir_menu_item());

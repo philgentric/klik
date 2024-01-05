@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.animated_gifs_from_videos.Animated_gif_generator;
+import klik.animated_gifs_from_videos.Ffmpeg_utils;
 import klik.browser.Browser;
 import klik.browser.System_open_actor;
 import klik.browser.System_open_message;
@@ -21,7 +21,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_status;
 import klik.change.Change_gang;
-import klik.level2.experimental.Multiple_image_stage;
+import klik.level2.experimental.Multiple_image_window;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
@@ -95,7 +95,7 @@ public class Item_image extends Item implements Icon_destination
             }
             if (event.isMetaDown())
             {
-                Multiple_image_stage s = Multiple_image_stage.get_Multiple_image_stage(browser.my_Stage.the_Stage, path, false, logger);
+                Multiple_image_window s = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
                 if (s == null)
                 {
                     // let us a bit of checking about why this failed
@@ -153,7 +153,7 @@ public class Item_image extends Item implements Icon_destination
     public void open_an_image(Logger logger)
     //**********************************************************
     {
-        Image_window s = Image_window.get_Image_stage(browser, path, logger);
+        Image_window s = Image_window.get_Image_window(browser, path, logger);
         if ( dbg) logger.log("\n\nImage_stage opening for path:" + path.toString());
 
         if (s == null) // used to be possible, normally not anymore
@@ -240,27 +240,41 @@ public class Item_image extends Item implements Icon_destination
 
         if ( this.item_type == Iconifiable_item_type.video)
         {
-            {
-                javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("(experimental) generate an awfull lot of 5s gif animations!");
-                menu_item.setOnAction(event -> {
-                    if (dbg) logger.log("Generating animated gifs !");
-                    Animated_gif_generator.generate_many_gifs(browser.my_Stage.the_Stage,path,5,5,logger);
-                });
-                context_menu.getItems().add(menu_item);
-            }
-            {
-                javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("(experimental) generate an 1 gif animation interactively");
-                menu_item.setOnAction(event -> {
-                    if (dbg) logger.log("Generating animated gifs !");
-                    Animated_gif_generator.interactive(path,logger);
-                });
-                context_menu.getItems().add(menu_item);
-            }
+            make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
         }
         return context_menu;
 
     }
 
+    //**********************************************************
+    public static void make_menu_items_for_videos(Path path, Browser browser, ContextMenu context_menu, boolean dbg, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        {
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("Convert to mp4");
+            menu_item.setOnAction(event -> {
+                if (dbg) logger.log("convert to mp4");
+                Ffmpeg_utils.video_to_mp4_in_a_thread(browser.my_Stage.the_Stage,path,aborter, logger);
+            });
+            context_menu.getItems().add(menu_item);
+        }
+        {
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("(experimental) generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
+            menu_item.setOnAction(event -> {
+                if (dbg) logger.log("Generating animated gifs !");
+                Ffmpeg_utils.generate_many_gifs(browser.my_Stage.the_Stage,path,5,5,aborter,logger);
+            });
+            context_menu.getItems().add(menu_item);
+        }
+        {
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("(experimental) generate gif animations from a video, interactively");
+            menu_item.setOnAction(event -> {
+                if (dbg) logger.log("Generating animated gifs !");
+                Ffmpeg_utils.interactive(path,logger);
+            });
+            context_menu.getItems().add(menu_item);
+        }
+    }
 
 
     @Override

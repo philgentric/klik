@@ -85,7 +85,7 @@ public class Drag_and_drop
             List<File> l = dragboard.getFiles();
             for (File fff : l)
             {
-                logger.log(origin + "... drag ACCEPTED for file= " + fff.getAbsolutePath());
+                if ( drag_and_drop_dbg) logger.log(origin + "... drag ACCEPTED for file= " + fff.getAbsolutePath());
                 if ( !list.contains(fff) )  list.add(fff);
                 // Tool_box.safe_move_a_file_or_dir(destination_dir, logger, fff);
                 // logger.log(origin + " 6 drag ACCEPTED for: " + fff.getAbsolutePath());

@@ -17,14 +17,14 @@ public class Animated_gif_generation_message implements Message {
 
     public final Logger logger;
 
-    public Animated_gif_generation_message(Stage owner, Path video_path, Path destination_gif_full_path, int dur, int start, Logger logger) {
+    public Animated_gif_generation_message(Stage owner, Path video_path, Path destination_gif_full_path, int dur, int start, Aborter aborter_, Logger logger) {
         this.owner = owner;
         this.video_path = video_path;
         this.destination_gif_full_path = destination_gif_full_path;
         this.dur = dur;
         this.start = start;
         this.logger = logger;
-        aborter = new Aborter();
+        aborter = aborter_;
     }
 
     @Override
