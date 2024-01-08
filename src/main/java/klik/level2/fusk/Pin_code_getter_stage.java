@@ -1,0 +1,177 @@
+package klik.level2.fusk;
+
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import klik.level2.fusk.Pin_code_client;
+import klik.util.Logger;
+import klik.util.Threads;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+//**********************************************************
+public class Pin_code_getter_stage
+//**********************************************************
+{
+    public final Logger logger;
+    private AtomicBoolean pin_code_validity = new AtomicBoolean(false);
+    private String pin_code_string ="";
+
+
+    //**********************************************************
+    public Pin_code_getter_stage(Logger logger_)
+    //**********************************************************
+    {
+        logger = logger_;
+    }
+
+
+    //**********************************************************
+    public void ask_pin_code_in_a_thread(Pin_code_client client, Logger logger)
+    //**********************************************************
+    {
+        show();
+
+        Runnable get_pin_code = new Runnable() {
+            @Override
+            public void run() {
+
+                for(;;)
+                {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if ( get_pin_code() != null)
+                    {
+                        break;
+                    }
+                }
+                client.set_pin_code( get_pin_code());
+
+                logger.log("fusk signature init, pin_code="+get_pin_code());
+            }
+        };
+        Threads.execute(get_pin_code, logger);
+    }
+    //**********************************************************
+    public String get_pin_code()
+    //**********************************************************
+    {
+        if ( !pin_code_validity.get()) return null;
+        return pin_code_string;
+    }
+
+
+
+    //**********************************************************
+    private void show()
+    //**********************************************************
+    {
+        logger.log("show1");
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                logger.log("show2");
+                define();
+                logger.log("show3");
+            }
+        };
+        Platform.runLater(r);
+
+    }
+
+    //**********************************************************
+    private void define()
+    //**********************************************************
+    {
+        Stage local_stage = new Stage();
+
+        VBox vbox = new VBox();
+        final Text pin_code_text = new Text("");
+        final Text message = new Text("Enter your pin code, minimum 4 digits");
+        vbox.getChildren().add(message);
+        {
+            HBox hbox = new HBox();
+            vbox.getChildren().add(hbox);
+            Label label = new Label("Pin Code:");
+            hbox.getChildren().add(label);
+            hbox.getChildren().add(pin_code_text);
+
+        }
+        for(int i = 0; i<10;)
+        {
+            HBox hbox = new HBox();
+            vbox.getChildren().add(hbox);
+
+            int start = i;
+            for (int j = start; j < start+4; j++,i++)
+            {
+                if (j == 10)
+                {
+                    Button erase = new Button("<-");
+                    erase.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent actionEvent) {
+                            String current = pin_code_text.getText();
+                            String after_erase = current.substring(0,current.length()-1);
+                            pin_code_text.setText(after_erase);
+                        }
+                    });
+                    hbox.getChildren().add(erase);
+                    break;
+                }
+                Button b = new Button(""+j);
+                hbox.getChildren().add(b);
+                int finalI = i;
+                b.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        logger.log("keyboard="+finalI);
+                        pin_code_text.setText(pin_code_text.getText()+finalI);
+                    }
+                });
+            }
+        }
+        logger.log("before validate");
+        Button go = new Button("Validate");
+        go.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                logger.log("Validate button");
+                if ( pin_code_text.getText().length() < 4)
+                {
+                    message.setText("failed: MINIMUM 4 digits");
+                    return;
+                }
+                pin_code_string = pin_code_text.getText();
+                pin_code_validity.set(true);
+                message.setText("PIN CODE OK");
+                logger.log("pin code is ->"+pin_code_string+"<-");
+                local_stage.close();
+            }
+        });
+        vbox.getChildren().add(go);
+        local_stage.setHeight(600);
+        local_stage.setWidth(1000);
+
+        Scene scene = new Scene(vbox, 1000, 600, Color.WHITE);
+        local_stage.setTitle("Enter Pin Code");
+        local_stage.setScene(scene);
+        local_stage.show();
+        logger.log("SHOW !");
+
+    }
+
+}

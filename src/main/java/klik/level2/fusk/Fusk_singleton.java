@@ -16,7 +16,7 @@ public class Fusk_singleton
     private static Fusk_singleton instance;
     public final Logger logger;
     Path source;
-    Path sink;
+    Path destination;
     Aborter aborter = new Aborter();
 
     //**********************************************************
@@ -54,11 +54,11 @@ public class Fusk_singleton
     }
 
     //**********************************************************
-    public static void set_sink(Path fusk_sink, Logger logger)
+    public static void set_destination(Path fusk_destination, Logger logger)
     //**********************************************************
     {
         Fusk_singleton b = get_instance(logger);
-        instance.sink = fusk_sink;
+        instance.destination = fusk_destination;
     }
 
     //**********************************************************
@@ -66,7 +66,7 @@ public class Fusk_singleton
     //**********************************************************
     {
         if ( instance == null) return false;
-        fusk_this_folder(instance.source.toFile(), instance.sink.toFile(), instance.aborter,instance.logger);
+        fusk_this_folder(instance.source.toFile(), instance.destination.toFile(), instance.aborter,instance.logger);
 
         return true;
     }
@@ -76,7 +76,7 @@ public class Fusk_singleton
     //**********************************************************
     {
         if ( instance == null) return false;
-        defusk_this_folder(instance.source.toFile(), instance.sink.toFile(), new Aborter(), instance.logger);
+        defusk_this_folder(instance.source.toFile(), instance.destination.toFile(), new Aborter(), instance.logger);
         return true;
     }
 }

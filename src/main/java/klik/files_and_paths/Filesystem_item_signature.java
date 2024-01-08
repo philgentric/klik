@@ -36,12 +36,7 @@ public class Filesystem_item_signature
 
             if ( folder_signature_array ==null)
             {
-                logger.log("WARNING: no files in "+path);
-                return false;
-            }
-            if ( folder_signature_array.length == 0)
-            {
-                logger.log("WARNING: no files in "+path);
+                logger.log("FATAL: scanning failed for "+path);
                 return false;
             }
             Arrays.sort(folder_signature_array); // just in case
@@ -52,7 +47,7 @@ public class Filesystem_item_signature
             file_signature_array = get_file_hash(path, logger);
             if ( file_signature_array ==null)
             {
-                logger.log("WARNIN: file_signature_array == null for "+path);
+                logger.log("FATAL: file_signature_array == null for "+path);
                 return false;
             }
             if ( file_signature_array.length == 0)
@@ -76,7 +71,8 @@ public class Filesystem_item_signature
 
             MessageDigest sha = MessageDigest.getInstance("MD5");
             //sha.reset();
-            for (; ; ) {
+            for (;;)
+            {
                 int available = fis.available();
                 if (available < internal_hash_computation_buffer_size_in_bytes) {
                     if ( fis.read(b, 0, available) != available)
@@ -104,8 +100,8 @@ public class Filesystem_item_signature
         } catch (FileNotFoundException e) {
             logger.log("get_file_hash() fails because of: " + e);
             return new byte[0];
-        } catch (Exception ioe) {
-            logger.log("get_file_hash() fails because of: " + ioe);
+        } catch (Exception e) {
+            logger.log("get_file_hash() fails because of: " + e);
             return new byte[0];
         }
         return hash;
@@ -122,28 +118,18 @@ public class Filesystem_item_signature
             if ( folder_signature_array == null)
             {
                 logger.log("FATAL, file_signature_array = null ");
+                return true;
             }
             if ( folder_signature_array.length != other.folder_signature_array.length) return false;
 
             if ( Arrays.mismatch(folder_signature_array,other.folder_signature_array) != -1) return false;
 
-            //for (int i = 0; i < folder_signature_array.length ; i++ )
-            //{
-            //    if ( ! (folder_signature_array[i].equals(other.folder_signature_array[i]) )) return false;
-            // }
             return true;
         }
 
         if (file_signature_array.length == 0) return false;
         if (other.file_signature_array.length != this.file_signature_array.length) return false;
-        //no if ( Arrays.compare(previously.signature,presently.signature) != 0) return false;
-        //better stop asap:
         if ( Arrays.mismatch(file_signature_array,other.file_signature_array) != -1) return false;
-
-        //for (int i = 0; i < other.file_signature_array.length; i++)
-        //{
-        //    if (other.file_signature_array[i] != this.file_signature_array[i]) return false;
-        //}
         return true;
     }
 }

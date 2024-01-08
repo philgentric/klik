@@ -8,35 +8,118 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
-public class Fusk_bytes
+public class Fusk_bytes implements Pin_code_client
 //**********************************************************
 {
+    private static Fusk_bytes instance = null;
     private static final String signature_text = "Don't_pay_the_FerryWoman_until_she_brings_you_to_the_other_side";
     private static byte[] signature_clear;
     static byte[] signature_fusk;
-
     private static AtomicBoolean initialized = new AtomicBoolean(false);
+    private static String pin_code = null;
+    public final Logger logger;
+
     //**********************************************************
-    synchronized static void init(Logger logger)
+    private Fusk_bytes(Logger logger_)
     //**********************************************************
     {
-        if ( !initialized.get())
-        {
-            //logger.log(Stack_trace_getter.get_stack_trace("fusk signature initialized as:->"+signature_text+"<-"));
-            logger.log("fusk signature initialized");
-            signature_clear = signature_text.getBytes(StandardCharsets.UTF_8);
-            signature_fusk = fusk(signature_clear, new Aborter());
-            initialized.set(true);
-        }
+        logger = logger_;
     }
 
+    //**********************************************************
+    public static boolean is_initialized()
+    //**********************************************************
+    {
+        return initialized.get();
+    }
+
+
+    /*
+    initialization is super complicated:
+    0. someone needs to fusk or defusk something, but there is no instance
+    1. creates an instance, and ask the user for the pin
+    ... while the user is entering the pin (which can take forever) ... still not usable
+    2. user is finished entering the pin, set_code_pin is called asynchronously, we have the pin!
+    3. someone tries again, init() is called and -this time- succeeds
+
+    to get a new instance one must call RESET
+     */
+    //**********************************************************
+    public static boolean initialize(Logger logger)
+    //**********************************************************
+    {
+        if ( is_initialized())
+        {
+            logger.log("already initialized");
+            return true;
+        }
+        if ( instance == null)
+        {
+            logger.log("creating instance");
+            instance = new Fusk_bytes(logger);
+        }
+        return instance.init(logger);
+    }
+
+    //**********************************************************
+    public static void reset(Logger logger)
+    //**********************************************************
+    {
+        initialized.set(false);
+        instance = null;
+        pin_code = null;
+        logger.log("fusk reset done");
+
+    }
+
+
+    //**********************************************************
+    @Override
+    public void set_pin_code(String new_pin_code)
+    //**********************************************************
+    {
+        pin_code = new_pin_code;
+        logger.log("set_pin_code->"+new_pin_code+"<-");
+        init(logger);
+    }
+    //**********************************************************
+    private synchronized boolean init(Logger logger)
+    //**********************************************************
+    {
+
+        if ( is_initialized())
+        {
+            logger.log("already initialized");
+            return true;
+        }
+        if ( pin_code == null)
+        {
+            logger.log("getting pin code from user");
+
+            Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage(logger);
+            pin_code_getter_stage.ask_pin_code_in_a_thread(this,logger);
+            return false; // not ready yet
+        }
+
+        //logger.log(Stack_trace_getter.get_stack_trace("fusk signature initialized as:->"+signature_text+"<-"));
+        String local = pin_code+signature_text;
+        signature_clear = local.getBytes(StandardCharsets.UTF_8);
+        signature_fusk = fusk(signature_clear, new Aborter());
+        initialized.set(true);
+        logger.log("fusk signature initialized: "+signature_clear.length+" bytes string ="+local);
+        return true;
+    }
+
+
+
     private static final boolean shorter = true; // when true, maybe a bit faster
-    private static final int LIMIT = 1000;
+    private static final int LIMIT = 200;
 
     //**********************************************************
     static byte[] fusk(byte[] in, Aborter aborter)
     //**********************************************************
     {
+
         byte[] out = new byte[in.length];
          if ( shorter & in.length>LIMIT )
          {
@@ -64,7 +147,8 @@ public class Fusk_bytes
     static byte[] obfusk_and_add_signature(byte[] clear, Logger logger)
     //**********************************************************
     {
-        init(logger);
+        if (check(logger)) return null;
+
         byte[] obfuscated = new byte[clear.length+signature_fusk.length];
         System.arraycopy(signature_fusk,0,obfuscated,0,signature_fusk.length);
         byte[] fusk = Fusk_bytes.fusk(clear, new Aborter());
@@ -72,11 +156,13 @@ public class Fusk_bytes
         return obfuscated;
     }
 
+
     //**********************************************************
     static byte[] defusk_bytes_and_remove_signature(byte[] obfuscated, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        init(logger);
+        if (check(logger)) return null;
+
         byte[] fusk = new byte[obfuscated.length-signature_fusk.length];
         // skip signature
         System.arraycopy(obfuscated,signature_fusk.length,fusk,0,fusk.length);
@@ -88,8 +174,23 @@ public class Fusk_bytes
     public static boolean check_signature(byte[] obfuscated, Logger logger)
     //**********************************************************
     {
-        init(logger);
+        if (check(logger)) return false;
+
         if (Arrays.mismatch(obfuscated,signature_fusk) == signature_fusk.length) return true;
         return false;
     }
+
+    //**********************************************************
+    private static boolean check(Logger logger)
+    //**********************************************************
+    {
+        if ( instance == null)
+        {
+            initialize(logger);
+            return true;
+        }
+        if( !is_initialized()) return true;
+        return false;
+    }
+
 }

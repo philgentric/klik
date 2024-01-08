@@ -7,7 +7,7 @@ import java.nio.file.Path;
 public class Static_backup_paths
 //**********************************************************
 {
-    private Path backup_sink = null;
+    private Path backup_destination = null;
     private Path backup_source = null;
     private static Static_backup_paths instance;
 
@@ -19,19 +19,19 @@ public class Static_backup_paths
         return instance.backup_source;
     }
     //**********************************************************
-    public static Path get_backup_sink()
+    public static Path get_backup_destination()
     //**********************************************************
     {
         if ( instance == null) return null;
-        return instance.backup_sink;
+        return instance.backup_destination;
     }
 
     //**********************************************************
-    public static void set_backup_sink(Path p)
+    public static void set_backup_destination(Path p)
     //**********************************************************
     {
         if ( instance == null) create_instance();
-        instance.backup_sink = p;
+        instance.backup_destination = p;
     }
     //**********************************************************
     public static void set_backup_source(Path p)

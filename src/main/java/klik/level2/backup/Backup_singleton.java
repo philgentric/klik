@@ -16,7 +16,7 @@ public class Backup_singleton
     private static Backup_singleton instance;
     Logger logger;
     Path source;
-    Path sink;
+    Path destination;
     private final List<Backup_engine> engines = new ArrayList<>();
 
     //**********************************************************
@@ -27,11 +27,11 @@ public class Backup_singleton
         b.source = source_;
     }
     //**********************************************************
-    public static void set_sink(Path sink_, Logger logger_)
+    public static void set_destination(Path destination_, Logger logger_)
     //**********************************************************
     {
         Backup_singleton b = get_instance(logger_);
-        b.sink = sink_;
+        b.destination = destination_;
     }
     //**********************************************************
     public static boolean start_the_backup(Stage owner)
@@ -55,7 +55,7 @@ public class Backup_singleton
             {
                 if (e.source.equals(source))
                 {
-                    if (e.sink.equals(sink)) {
+                    if (e.destination.equals(destination)) {
                         Popups.popup_warning(owner,"A backup like this is already running", "Sorry: denied",true,logger);
                         return;
                     }
@@ -66,13 +66,13 @@ public class Backup_singleton
 // Get a CONFIRMATION
         String header = "Copy Confirmation Required";
         String content = "This will copy all the files down from directory:\n" + source.toAbsolutePath() + "\n"
-                + "Into the directory:\n" + sink.toAbsolutePath() + "\n"
+                + "Into the directory:\n" + destination.toAbsolutePath() + "\n"
                 + "(this is safe because files with same names, if different, will be renamed)\n"
                 + "Are you sure you want to do that ?";
 
         if (!Popups.popup_ask_for_confirmation(owner,header, content, logger)) return;
 
-        Backup_engine b = new Backup_engine(source, sink, logger);
+        Backup_engine b = new Backup_engine(source, destination, logger);
         b.go();
         engines.add(b);
     }

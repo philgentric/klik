@@ -26,7 +26,7 @@ public class Backup_engine
     public static final String LAST_STATUS = "last_status";
     //private static final boolean dbg = false;
     final Path source;
-    final Path sink;
+    final Path destination;
     final Logger logger;
     Backup_stats stats = new Backup_stats();
     ConcurrentLinkedQueue<String> reports = new ConcurrentLinkedQueue<>();
@@ -40,11 +40,11 @@ public class Backup_engine
 
 
     //**********************************************************
-    public Backup_engine(Path source, Path sink, Logger logger_)
+    public Backup_engine(Path source, Path destination, Logger logger_)
     //**********************************************************
     {
         this.source = source;
-        this.sink = sink;
+        this.destination = destination;
         logger = logger_;
     }
 
@@ -57,13 +57,13 @@ public class Backup_engine
         Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
 
         backup_console_window = new Backup_console_window(this,stats,logger);
-        update_properties(source.toAbsolutePath().toString(), sink.toAbsolutePath().toString());
-        update_status(source.toAbsolutePath().toString(), sink.toAbsolutePath().toString(),"incomplete_backup");
+        update_properties(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString());
+        update_status(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString(),"incomplete_backup");
         Static_application_properties.get_properties_manager(logger).store_properties();
 
         actor_engine_based_on_workers.run(
                 new Backup_actor_for_one_folder(stats,reports,aborter,logger),
-                new Directory_backup_job_request(source.toFile(),sink.toFile(), aborter, true,logger),
+                new Directory_backup_job_request(source.toFile(), destination.toFile(), aborter, true,logger),
                         null,logger);
 
         Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source,aborter, logger);
@@ -375,6 +375,6 @@ public class Backup_engine
     }
 
     public String to_string() {
-        return source.toAbsolutePath()+"=>"+sink.toAbsolutePath();
+        return source.toAbsolutePath()+"=>"+ destination.toAbsolutePath();
     }
 }

@@ -253,9 +253,9 @@ public class Image_context
                 oanps.add(oan);
                 Change_gang.report_changes(oanps);
             };
-            Filesystem_item_modification_watcher w = new Filesystem_item_modification_watcher();
+            Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
-            if ( !w.init(path,reporter,false,10,logger))
+            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,logger))
             {
                 logger.log("Warning: cannot start monitoring: "+path);
             }

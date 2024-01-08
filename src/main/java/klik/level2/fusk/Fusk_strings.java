@@ -40,7 +40,7 @@ public class Fusk_strings
     // items are displayed in the same order
     // "." is not eligible because of extensions
 
-    static char[] illegible_for_change ={
+    static char[] eligible_for_change ={
             'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
             'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
             '_',' '};
@@ -50,13 +50,13 @@ public class Fusk_strings
     private static char forward_legal_to_legal(char c)
     //**********************************************************
     {
-        for (int i = 0; i < illegible_for_change.length; i++)
+        for (int i = 0; i < eligible_for_change.length; i++)
         {
-            if ( c == illegible_for_change[i])
+            if ( c == eligible_for_change[i])
             {
                 int j = i+7;
-                if ( j>= illegible_for_change.length) j = j- illegible_for_change.length;
-                return illegible_for_change[j];
+                if ( j>= eligible_for_change.length) j = j- eligible_for_change.length;
+                return eligible_for_change[j];
             }
         }
         return c;
@@ -66,13 +66,13 @@ public class Fusk_strings
     private static char backward_legal_to_legal(char c)
     //**********************************************************
     {
-        for (int i = 0; i < illegible_for_change.length; i++)
+        for (int i = 0; i < eligible_for_change.length; i++)
         {
-            if ( c == illegible_for_change[i])
+            if ( c == eligible_for_change[i])
             {
                 int j = i-7;
-                if ( j< 0) j = j+ illegible_for_change.length;
-                return illegible_for_change[j];
+                if ( j< 0) j = j+ eligible_for_change.length;
+                return eligible_for_change[j];
             }
         }
         return c;

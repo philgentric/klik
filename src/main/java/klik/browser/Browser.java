@@ -31,6 +31,7 @@ import klik.change.Change_receiver;
 import klik.files_and_paths.Filesystem_item_modification_watcher;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Old_and_new_Path;
+import klik.level2.fusk.Fusk_bytes;
 import klik.level2.fusk.Fusk_singleton;
 import klik.level2.fusk.Static_fusk_paths;
 import klik.look.Font_size;
@@ -383,16 +384,21 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private void set_all_event_handlers()
     //**********************************************************
     {
-        if (displayed_folder_path.toAbsolutePath().toString().equals("/Volumes")) {
-            // NON PORTABLE
-            // this is a trick to refresh the view in case an external storage is inserted/removed
-            // but watching "/Volumes" works only in MACOS afaik
+        boolean monitor_this_folder = false;
 
-            filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, logger);
-            if (filesystem_item_modification_watcher == null) {
-                logger.log("WARNING: cannot monitor folder /Volume");
+        // ALWAYS monitor external drives
+        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(displayed_folder_path,logger);
+
+        if ( !monitor_this_folder)
+        {
+            if (Static_application_properties.get_monitor_browsed_folders(logger))
+            {
+                monitor_this_folder = true;
             }
-        } else if (Static_application_properties.get_monitor_browsed_folders(logger)) {
+        }
+
+        if (monitor_this_folder)
+        {
             filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, logger);
             if (filesystem_item_modification_watcher == null) {
                 logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
@@ -593,15 +599,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             Popups.popup_warning(my_Stage.the_Stage, "Cannot backup!", "Reason: no backup ORIGIN", false, logger);
             return;
         }
-        Path backup_sink = Static_backup_paths.get_backup_sink();
-        if (backup_sink == null) {
-            logger.log("FATAL, no backup_sink");
+        Path backup_destination = Static_backup_paths.get_backup_destination();
+        if (backup_destination == null) {
+            logger.log("FATAL, no backup destination");
             Popups.popup_warning(my_Stage.the_Stage, "Cannot backup!", "Reason: no backup DESTINATION", false, logger);
 
             return;
         }
         Backup_singleton.set_source(backup_source, logger);
-        Backup_singleton.set_sink(backup_sink, logger);
+        Backup_singleton.set_destination(backup_destination, logger);
         Backup_singleton.start_the_backup(my_Stage.the_Stage);
 
     }
@@ -625,15 +631,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             Popups.popup_warning(my_Stage.the_Stage, "Cannot fusk!", "Reason: no fusk ORIGIN", false, logger);
             return;
         }
-        Path fusk_sink = Static_fusk_paths.get_fusk_sink();
-        if (fusk_sink == null) {
-            logger.log("FATAL, no fusk_sink");
+        Path fusk_destination = Static_fusk_paths.get_fusk_destination();
+        if (fusk_destination == null) {
+            logger.log("FATAL, no fusk destination");
             Popups.popup_warning(my_Stage.the_Stage, "Cannot fusk!", "Reason: no fusk DESTINATION", false, logger);
 
             return;
         }
         Fusk_singleton.set_source(fusk_source, logger);
-        Fusk_singleton.set_sink(fusk_sink, logger);
+        Fusk_singleton.set_destination(fusk_destination, logger);
         Fusk_singleton.start_fusk(my_Stage.the_Stage);
 
     }
@@ -645,30 +651,30 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger.log("start defusk");
         Path defusk_source = Static_fusk_paths.get_fusk_source();
         if (defusk_source == null) {
-            logger.log("FATAL, no defusk_source");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk_source ORIGIN", false, logger);
+            logger.log("FATAL, no defusk source");
+            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk SOURCE", false, logger);
             return;
         }
-        Path defusk_sink = Static_fusk_paths.get_fusk_sink();
-        if (defusk_sink == null) {
-            logger.log("FATAL, no defusk_sink");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk_sink DESTINATION", false, logger);
+        Path defusk_destination = Static_fusk_paths.get_fusk_destination();
+        if (defusk_destination == null) {
+            logger.log("FATAL, no defusk destination");
+            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk DESTINATION", false, logger);
 
             return;
         }
         Fusk_singleton.set_source(defusk_source, logger);
-        Fusk_singleton.set_sink(defusk_sink, logger);
+        Fusk_singleton.set_destination(defusk_destination, logger);
         Fusk_singleton.start_defusk(my_Stage.the_Stage);
 
     }
 
 
     //**********************************************************
-    public void you_are_backup_sink()
+    public void you_are_backup_destination()
     //**********************************************************
     {
-        Static_backup_paths.set_backup_sink(displayed_folder_path);
-        logger.log("backup sink = " + displayed_folder_path.toAbsolutePath());
+        Static_backup_paths.set_backup_destination(displayed_folder_path);
+        logger.log("backup destination = " + displayed_folder_path.toAbsolutePath());
 
         set_text_background("BACKUP\nDESTINATION");
 
@@ -686,11 +692,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    public void you_are_fusk_sink()
+    public void you_are_fusk_destination()
     //**********************************************************
     {
-        Static_fusk_paths.set_fusk_sink(displayed_folder_path);
-        logger.log("fusk sink = " + displayed_folder_path.toAbsolutePath());
+        Static_fusk_paths.set_fusk_destination(displayed_folder_path);
+        logger.log("fusk destination = " + displayed_folder_path.toAbsolutePath());
 
         set_text_background("FUSK\nDESTINATION");
 
@@ -706,6 +712,24 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         set_text_background("FUSK\nSOURCE");
 
     }
+
+
+    //**********************************************************
+    public void enter_fusk_pin_code()
+    //**********************************************************
+    {
+        //Pin_code_getter_stage pin_code_getter_stage = Pin_code_getter_stage.ask_pin_code_in_a_thread(logger);
+
+        if (Fusk_bytes.is_initialized())
+        {
+            Fusk_bytes.reset(logger);
+        }
+        Fusk_bytes.initialize(logger);
+    }
+
+
+
+
 
     //**********************************************************
     private void set_text_background(String text)

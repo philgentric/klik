@@ -3,7 +3,10 @@ package klik.util;
 import klik.actor.Aborter;
 import klik.change.history.History_auto_clean;
 
-public class Monitor {
+//**********************************************************
+public class Monitor
+//**********************************************************
+{
 
     public final Aborter aborter;
     public final Logger logger;

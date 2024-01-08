@@ -14,6 +14,7 @@ import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
+import klik.images.caching.Image_cache_cafeine;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -103,6 +104,33 @@ public class Browser_menus
         });
         return item;
     }
+
+    //**********************************************************
+    public MenuItem make_clear_all_RAM_caches_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> {
+            browser.icon_manager.clear_aspect_ratio_cache();
+        });
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_clear_all_disk_caches_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> {
+            Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+        });
+        return item;
+    }
+
 
     //**********************************************************
     public MenuItem make_clear_icon_disk_cache_menu_item(Logger logger)
@@ -268,7 +296,7 @@ public class Browser_menus
     public MenuItem make_monitor_browsed_folders_check_menu_item()
     //**********************************************************
     {
-        String text = "Monitor browsed folders";//I18n.get_I18n_string("Show_hidden_directories",logger);
+        String text = I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_monitor_browsed_folders(logger));
@@ -287,6 +315,7 @@ public class Browser_menus
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.scene_geometry_changed("enable fusk boolean changed",true,false);
+
         });
         return item;
     }
@@ -567,7 +596,7 @@ public class Browser_menus
     public Menu make_roots_menu()
     //**********************************************************
     {
-        String text = "File system roots";// I18n.get_I18n_string("Undo",logger);
+        String text = I18n.get_I18n_string("File_System_Roots",logger);
         Menu roots_menu = new Menu(text);
         create_roots_menu(browser,roots_menu, logger);
         return roots_menu;
@@ -1170,7 +1199,7 @@ public class Browser_menus
             menu.getItems().add(mi);
         }
         {
-            MenuItem mi = make_set_as_backup_sink_menu_item();
+            MenuItem mi = make_set_as_backup_destination_menu_item();
             menu.getItems().add(mi);
         }
         {
@@ -1214,11 +1243,15 @@ public class Browser_menus
         String text = "Fusk (experimental!)"; //I18n.get_I18n_string("Backup",logger);
         Menu menu = new Menu(text);
         {
+            MenuItem mi = make_enter_fusk_pin_code_menu_item();
+            menu.getItems().add(mi);
+        }
+        {
             MenuItem mi = make_set_as_fusk_source_menu_item();
             menu.getItems().add(mi);
         }
         {
-            MenuItem mi = make_set_as_fusk_sink_menu_item();
+            MenuItem mi = make_set_as_fusk_destination_menu_item();
             menu.getItems().add(mi);
         }
         {
@@ -1267,10 +1300,27 @@ public class Browser_menus
         l.add(new Line_for_info_stage(false,"The fusk tool will copy recursively down the paths starting in the SOURCE folder"));
         l.add(new Line_for_info_stage(false,"into the DESTINATION folder"));
         l.add(new Line_for_info_stage(false,"It obfuscates all files in the destination"));
-        l.add(new Line_for_info_stage(false,"WARNING: this is like encryption, but there is a single hardcoded password in Klik code"));
+        l.add(new Line_for_info_stage(false,"You will be asked for a pin code"));
+        l.add(new Line_for_info_stage(false,"You can have multiple pin codes, but at any point of time, klik uses only one"));
+        l.add(new Line_for_info_stage(false,"If the pin code is not the good one the images are not displayed"));
+        l.add(new Line_for_info_stage(false,"WARNING: this is encryption, if you forget your pin code, recovering your files will be painful"));
+        l.add(new Line_for_info_stage(false,"(recovery: someone will have to make a brute force attack code i.e. try all possible pin codes!)"));
 
         Info_stage.show_info_stage("Help on fusk",l, null);
     }
+
+
+
+    //**********************************************************
+    public MenuItem make_enter_fusk_pin_code_menu_item()
+    //**********************************************************
+    {
+        String text = "Enter fusk pin code";//I18n.get_I18n_string("Set_as_backup_source_folder",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.enter_fusk_pin_code());
+        return item;
+    }
+
     //**********************************************************
     public MenuItem make_set_as_fusk_source_menu_item()
     //**********************************************************
@@ -1280,14 +1330,13 @@ public class Browser_menus
         item.setOnAction(event -> browser.you_are_fusk_source());
         return item;
     }
-
     //**********************************************************
-    public MenuItem make_set_as_fusk_sink_menu_item()
+    public MenuItem make_set_as_fusk_destination_menu_item()
     //**********************************************************
     {
-        String text = "Set this folder as fusk sink";//I18n.get_I18n_string("Set_as_backup_sink_folder",logger);
+        String text = "Set this folder as fusk destination";//I18n.get_I18n_string("dsfsdfdsf",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_sink());
+        item.setOnAction(event -> browser.you_are_fusk_destination());
         return item;
     }
 
@@ -1330,12 +1379,12 @@ public class Browser_menus
     }
 
     //**********************************************************
-    public MenuItem make_set_as_backup_sink_menu_item()
+    public MenuItem make_set_as_backup_destination_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Set_as_backup_sink_folder",logger);
+        String text = I18n.get_I18n_string("Set_as_backup_destination_folder",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_backup_sink());
+        item.setOnAction(event -> browser.you_are_backup_destination());
         return item;
     }
 

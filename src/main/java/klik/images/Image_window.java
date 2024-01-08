@@ -457,9 +457,11 @@ public class Image_window
             if (ic.path.toFile().length() == 0)
             {
                 logger.log("\n\n empty file ???? ic.path = "+ic.path);
-                local_title.append(" empty file");
-            } else if (ic.image_is_damaged) {
-                local_title.append(" damaged or invalid (wrong extension?) file, size = ").append(Files_and_Paths.get_size_on_disk(ic.path,null, logger)).append(" Bytes");
+                local_title.append(" empty file:->").append(ic.path.toAbsolutePath().toString()).append("<-");
+            }
+            else if (ic.image_is_damaged)
+            {
+                local_title.append(" damaged or invalid (wrong extension?) ->").append(ic.path.toAbsolutePath().toString()).append("<- size = ").append(ic.path.toFile().length()).append(" Bytes");
             } else {
                 local_title.append(" ").append(ic.image.getWidth()).append("x").append(ic.image.getHeight());
             }

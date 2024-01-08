@@ -98,6 +98,12 @@ public class From_disk
                 logger.log("IMAGE decode Panic :"+image.getException());
                 Popups.popup_Exception(image.getException(),100,"Your java VM machine is running out of RAM, try to increase the max in build.gradle and restart",logger);
             }
+            else if( image.getException().toString().contains("No loader for image data"))
+            {
+                logger.log("IMAGE decode Panic :"+image.getException());
+                Popups.popup_Exception(image.getException(),100,"If this image was fusked, maybe the pin code is wrong?",logger);
+
+            }
             else
             {
                 logger.log("IMAGE ERROR :"+original_image_file.toAbsolutePath()+" : "+image.getException());

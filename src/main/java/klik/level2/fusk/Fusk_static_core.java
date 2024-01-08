@@ -27,6 +27,11 @@ public class Fusk_static_core
     public static boolean is_fusk(Path in, Logger logger)
     //**********************************************************
     {
+        if ( !Fusk_bytes.is_initialized() )
+        {
+            Fusk_bytes.initialize(logger);
+            return false;
+        }
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(in.toFile());
@@ -84,6 +89,14 @@ public class Fusk_static_core
     public static boolean fusk_file(Path in, Path destination_folder,Logger logger)
     //**********************************************************
     {
+        if ( !Fusk_bytes.is_initialized())
+        {
+            if (!Fusk_bytes.initialize(logger))
+            {
+                logger.log("FATAL: fusk_file, Fusk_bytes not initialized " + in.toAbsolutePath());
+                return false;
+            }
+        }
         Path out = get_fusk_path(in, destination_folder,logger);
         try {
             byte[] clear = Files.readAllBytes(in);
@@ -155,7 +168,7 @@ public class Fusk_static_core
     {
         Logger logger = new System_out_logger();
         Aborter aborter = new Aborter();
-        Fusk_bytes.init(logger);
+        Fusk_bytes.initialize(logger);
         {
             String test = "The quick brown fox jumps over the lazy dog 372";
             String f = Fusk_strings.fusk_string(test,logger);

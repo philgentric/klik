@@ -172,7 +172,7 @@ public class Static_application_properties
     {
         String s = get_properties_manager(logger).get(MONITOR_BROWSED_FOLDERS);
         if (s == null) {
-            get_properties_manager(logger).save_unico(MONITOR_BROWSED_FOLDERS, "false", false);
+            get_properties_manager(logger).save_unico(MONITOR_BROWSED_FOLDERS, "true", false);
             return false;
         } else {
             return Boolean.parseBoolean(s);

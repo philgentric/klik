@@ -15,4 +15,5 @@ public enum Status_old_and_new_Path
 	target_dir_does_not_exist,
 	command_failed,
 	same_path,
+	a_change_occured_in_this_folder
 }

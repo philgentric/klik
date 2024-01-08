@@ -339,6 +339,8 @@ public class Browser_UI
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
+            clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
+            clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
             if (level2) clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
             if (level2) clean.getItems().add(browser_menus.make_clear_aspect_ratio_disk_cache_menu_item(logger));
             if (level2) clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));

@@ -7,7 +7,7 @@ import java.nio.file.Path;
 public class Static_fusk_paths
 //**********************************************************
 {
-    private Path fusk_sink = null;
+    private Path fusk_destination = null;
     private Path fusk_source = null;
     private static Static_fusk_paths instance;
 
@@ -19,19 +19,19 @@ public class Static_fusk_paths
         return instance.fusk_source;
     }
     //**********************************************************
-    public static Path get_fusk_sink()
+    public static Path get_fusk_destination()
     //**********************************************************
     {
         if ( instance == null) return null;
-        return instance.fusk_sink;
+        return instance.fusk_destination;
     }
 
     //**********************************************************
-    public static void set_fusk_sink(Path p)
+    public static void set_fusk_destination(Path p)
     //**********************************************************
     {
         if ( instance == null) create_instance();
-        instance.fusk_sink = p;
+        instance.fusk_destination = p;
     }
     //**********************************************************
     public static void set_fusk_source(Path p)

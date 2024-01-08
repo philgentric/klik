@@ -25,6 +25,7 @@ public class Popups
         logger.log(Stack_trace_getter.get_stack_trace("Going to popup exception(1): " + e));
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.getDialogPane().setMinWidth(1000);
             alert.setTitle(title);
             alert.setHeaderText("Operation was denied");
             alert.setContentText(

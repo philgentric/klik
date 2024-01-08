@@ -37,7 +37,7 @@ public class Fusk_actor_for_one_folder implements Actor
         {
             if (destination_folder.mkdir())
             {
-                logger.log("created folder: " + destination_folder);
+                logger.log("FUSK: created folder: " + destination_folder);
             }
             else
             {
@@ -50,11 +50,15 @@ public class Fusk_actor_for_one_folder implements Actor
             if ( aborter.should_abort()) return null;
             if ( f.isDirectory())
             {
+                logger.log("FUSK: doing folder: " + f.getAbsolutePath());
+
                 // generate a new actor job
                 jobs.add(fusk_this_folder(f,destination_folder, aborter,logger));
             }
             else
             {
+                logger.log("FUSK: doing file: " + f.getAbsolutePath());
+
                 if ( Actor_engine.use_virtual_threads)
                 {
                     Runnable r = () -> Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), logger);
