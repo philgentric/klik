@@ -5,10 +5,7 @@ import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
 import klik.change.Change_gang;
-import klik.files_and_paths.Command_old_and_new_Path;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.files_and_paths.Status_old_and_new_Path;
+import klik.files_and_paths.*;
 import klik.util.Logger;
 
 import java.io.File;
@@ -124,6 +121,8 @@ public class Backup_actor_for_one_folder implements Actor
             }
             if (file_to_be_copied.isDirectory()) continue;
 
+            if ( Guess_file_type.ignore(file_to_be_copied.toPath())) continue;
+
             Actor_engine.run(
                     new Backup_actor_for_one_file(stats, logger), // need on actor instance per task because the file comparator is not reentrant
                     new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger),
@@ -150,10 +149,11 @@ public class Backup_actor_for_one_folder implements Actor
             Directory_backup_job_request directory_backup_job_request = new Directory_backup_job_request(sub_dir_to_be_copied, new File(request.destination_dir, sub_dir_to_be_copied.getName()), request.aborter, has_files,logger);
             // dont feed the beast too fast
             // as we open one virtual thread per file
-            while (Backup_actor_for_one_file.ongoing.get() >= ONGOING_FILES) {
+            while (Backup_actor_for_one_file.ongoing.get() >= ONGOING_FILES)
+            {
 
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     logger.log_stack_trace(e.toString());
                     return e.toString();

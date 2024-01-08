@@ -27,6 +27,7 @@ because the format is weird/wrong
 
 public class Gif_repair
 {
+    private static final boolean dbg = false;
     private static final boolean cleanup = true;
 
     //**********************************************************
@@ -62,7 +63,9 @@ public class Gif_repair
         l.add("1");
         l.add("+adjoin");
         l.add("frame_%03d.gif");
-        if ( !Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger))
+        StringBuilder sb = null;
+        if ( dbg) sb = new StringBuilder();
+        if ( !Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, sb, logger))
         {
 
             Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
@@ -78,7 +81,7 @@ public class Gif_repair
             }
             return null;
         }
-
+        if ( dbg) logger.log(sb.toString());
         return tmp_dir;
     }
 

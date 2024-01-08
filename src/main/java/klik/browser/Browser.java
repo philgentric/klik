@@ -38,10 +38,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.change.history.History_engine;
 import klik.properties.Static_application_properties;
-import klik.util.Importer;
-import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.Stack_trace_getter;
+import klik.util.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -81,7 +78,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     final Pane the_Pane;
     final Icon_manager icon_manager;
     final Logger logger;
-    final Path displayed_folder_path;
+    public final Path displayed_folder_path;
     public final Selection_handler selection_handler;
     public final Aborter aborter;
     TextField status;
@@ -136,6 +133,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         Importer.estimate_size(my_Stage.the_Stage,logger);
+    }
+
+    //**********************************************************
+    public void show_where_are_images()
+    //**********************************************************
+    {
+        Locator.locate_photos(displayed_folder_path,100,this,logger);
     }
 
 

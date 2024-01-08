@@ -217,7 +217,7 @@ public class Aspect_ratio_cache
             }
         }
         pm.store_properties();
-        if (dbg) logger.log(saved +"items of aspect ratio cache saved to file");
+        if (dbg) logger.log(saved +" items of aspect ratio cache saved to file");
     }
 
     private AtomicBoolean done = new AtomicBoolean(false);

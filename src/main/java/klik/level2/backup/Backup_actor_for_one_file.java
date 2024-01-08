@@ -261,6 +261,7 @@ public class Backup_actor_for_one_file implements Actor
         My_File fr = new My_File(file_to_be_copied,logger);
         for ( File f : destination_dir.listFiles())
         {
+
             My_File ff = new My_File(f,logger);
 
             if ( My_File.files_have_same_content(fr,ff, aborter, logger))

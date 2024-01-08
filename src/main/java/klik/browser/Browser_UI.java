@@ -348,10 +348,10 @@ public class Browser_UI
             if (level2) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             files_menu.getItems().add(clean);
         }
-        files_menu.getItems().add(browser_menus.make_import_menu());
 
         if (level2)
         {
+            files_menu.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
             files_menu.getItems().add(browser_menus.make_backup_menu());
         }
 

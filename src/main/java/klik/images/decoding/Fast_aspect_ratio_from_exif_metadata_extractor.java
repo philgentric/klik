@@ -21,6 +21,9 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
 {
     public static final boolean dbg = false;
 
+    private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done) {
+    }
+
     //**********************************************************
     public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
     //**********************************************************
@@ -30,85 +33,23 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
         if ( is == null)
         {
-            //logger.log(" get_aspect_ratio failed1");
+            logger.log(" get_aspect_ratio failed cannot open input stream");
             return 1.0;
         }
-        Double w = null;
-        Double h = null;
-        boolean invert_width_and_height = false;
+
+        Directory_result result = null;
         try
         {
             Metadata metadata = ImageMetadataReader.readMetadata(is);
 
-            boolean w_done = false;
-            boolean h_done = false;
-            boolean rot_done = false;
+
+            if (dbg)logger.log("\n start loop on EXIF directories");
             for (Directory directory : metadata.getDirectories())
             {
-                for (Tag tag : directory.getTags())
-                {
-                    if (tag.toString().contains("Width"))
-                    {
-                        //logger.log("==>"+ tag);
-                        if (tag.toString().contains("Image"))
-                        {
-                            w = Double.valueOf(get_number(tag.toString()));
-                            if (dbg)logger.log("w="+w);
-                            w_done = true;
-                            if (w_done && h_done && rot_done) break;
-                        }
-                    }
-                    if (tag.toString().contains("Height"))
-                    {
-                        //logger.log("==>"+ tag);
-                        if (tag.toString().contains("Image"))
-                        {
-                            h = Double.valueOf(get_number(tag.toString()));
-                            if (dbg)logger.log("h="+h);
-                            h_done = true;
-                            if (w_done && h_done && rot_done) break;
-                        }
-                    }
-                    if (tag.toString().contains("Orientation"))
-                    {
-                        if (!tag.toString().contains("Thumbnail"))
-                        {
-                            // Orientation - Right side, top (Rotate 90 CW clockwise)
-                            if (tag.toString().contains("90"))
-                            {
-                                if (tag.toString().contains("CW"))
-                                {
-                                    if (dbg)logger.log("90");
+                if (dbg)logger.log("directory="+directory);
+                result = do_one_dir(directory,logger);
 
-                                    invert_width_and_height = true;
-                                    rot_done = true;
-                                    if (w_done && h_done && rot_done) break;
-                                }
-                            }
-                            else if (tag.toString().contains("180"))
-                            {
-                                if (dbg)logger.log("180");
-                                rot_done = true;
-                                if (w_done && h_done && rot_done) break;
-                            }
-                            else if (tag.toString().contains("270"))
-                            {
-                                if (dbg)logger.log("270");
-
-                                invert_width_and_height = true;
-                                rot_done = true;
-                                if (w_done && h_done && rot_done) break;
-                            }
-                            else
-                            {
-                                if (dbg)logger.log("0");
-                                rot_done = true;
-                                if (w_done && h_done && rot_done) break;
-                            }
-                        }
-                    }
-                }
-                if (w_done && h_done && rot_done) break;
+                if (result.w_done && result.h_done) break;
             }
             is.close();
         }
@@ -131,21 +72,97 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             return 1.0;
         }
 
-        if (( w != null) && ( h != null))
+        if (( result.w != null) && ( result.h != null))
         {
-            if (invert_width_and_height)
+            if (result.invert_width_and_height)
             {
-                if (dbg)logger.log(path.getFileName().toString()+" INVERTED aspect ratio: "+h/w);
+                if (dbg)logger.log(path.getFileName().toString()+" INVERTED aspect ratio: "+result.h+"/"+result.w+"="+result.h/result.w);
                 //logger.log("from exif ->"+h/w+"<-");
-                return h/w;
+                return result.h/result.w;
             }
-            if (dbg)logger.log(path.getFileName().toString()+" aspect ratio: "+w/h);
+            if (dbg)logger.log(path.getFileName().toString()+" STRAIGHT aspect ratio: "+result.w+"/"+result.h+"="+result.w/result.h);
             //logger.log("from exif ->"+w/h+"<-");
-            return w/h;
+            return result.w/result.h;
         }
         return 1.0;
     }
 
+
+    private static Directory_result do_one_dir(Directory directory, Logger logger)
+    {
+        Double w = null;
+        Double h = null;
+        boolean w_done = false;
+        boolean rot_done = false;
+        boolean h_done = false;
+        boolean invert_width_and_height = false;
+
+        for (Tag tag : directory.getTags())
+        {
+            if (dbg)logger.log("tag="+tag);
+            if (tag.toString().contains("Width"))
+            {
+                //logger.log("==>"+ tag);
+                if (tag.toString().contains("Image"))
+                {
+                    w = Double.valueOf(get_number(tag.toString()));
+                    if (dbg)logger.log("w="+w);
+                    w_done = true;
+                    if (w_done && h_done && rot_done) break;
+                }
+            }
+            if (tag.toString().contains("Height"))
+            {
+                //logger.log("==>"+ tag);
+                if (tag.toString().contains("Image"))
+                {
+                    h = Double.valueOf(get_number(tag.toString()));
+                    if (dbg)logger.log("h="+h);
+                    h_done = true;
+                    if (w_done && h_done && rot_done) break;
+                }
+            }
+            if (tag.toString().contains("Orientation"))
+            {
+                if (!tag.toString().contains("Thumbnail"))
+                {
+                    // Orientation - Right side, top (Rotate 90 CW clockwise)
+                    if (tag.toString().contains("90"))
+                    {
+                        if (tag.toString().contains("CW"))
+                        {
+                            if (dbg)logger.log("90");
+
+                            invert_width_and_height = true;
+                            rot_done = true;
+                            if (w_done && h_done && rot_done) break;
+                        }
+                    }
+                    else if (tag.toString().contains("180"))
+                    {
+                        if (dbg)logger.log("180");
+                        rot_done = true;
+                        if (w_done && h_done && rot_done) break;
+                    }
+                    else if (tag.toString().contains("270"))
+                    {
+                        if (dbg)logger.log("270");
+
+                        invert_width_and_height = true;
+                        rot_done = true;
+                        if (w_done && h_done && rot_done) break;
+                    }
+                    else
+                    {
+                        if (dbg)logger.log("0");
+                        rot_done = true;
+                        if (w_done && h_done && rot_done) break;
+                    }
+                }
+            }
+        }
+        return new Directory_result(w,h,invert_width_and_height,w_done,h_done,rot_done);
+    }
     public static double get_number(String s)
     {
         String[] pieces = s.split(" ");

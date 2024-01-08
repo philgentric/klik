@@ -62,7 +62,7 @@ public class Browser_menus
     public MenuItem make_about_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("About_klik",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("About_klik",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> About_klik_stage.show_about_klik_stage());
         return item;
@@ -72,7 +72,7 @@ public class Browser_menus
     public MenuItem make_clear_trash_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Clear_Trash_Folder",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Clear_Trash_Folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Files_and_Paths.clear_trash_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
         return item;
@@ -81,7 +81,7 @@ public class Browser_menus
     public MenuItem make_stored_tag_management_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Open_tag_management",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Open_tag_management",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Tag_items_management_stage.open_tag_management_stage(logger));
         return item;
@@ -138,7 +138,7 @@ public class Browser_menus
     public MenuItem make_clear_folder_icon_disk_cache_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = "Clear FOLDER icon cache on disk";//I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Clear FOLDER icon cache on disk";//I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Files_and_Paths.clear_folder_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
@@ -149,7 +149,7 @@ public class Browser_menus
     public CheckMenuItem make_invert_vertical_scroll_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_vertical_scroll_inverted(logger));
@@ -161,7 +161,7 @@ public class Browser_menus
     public CheckMenuItem make_show_icons_for_images_and_videos_check_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Show_icons_for_images_and_videos",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Show_icons_for_images_and_videos",logger);
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_show_icons(logger));
         item.setOnAction(actionEvent -> {
@@ -177,7 +177,7 @@ public class Browser_menus
     public CheckMenuItem make_show_icons_for_folders_check_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Show_icons_for_folders",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Show_icons_for_folders",logger);
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_show_icons_for_folders(logger));
         item.setOnAction(actionEvent -> {
@@ -190,7 +190,7 @@ public class Browser_menus
     public CheckMenuItem make_show_single_column_check_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Show_single_column",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Show_single_column",logger);
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_single_column(logger));
         item.setOnAction(actionEvent -> {
@@ -228,7 +228,7 @@ public class Browser_menus
     public CheckMenuItem make_show_folder_size_check_menu_item(Stage stage)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Show_number_of_files_in_folder_buttons",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Show_number_of_files_in_folder_buttons",logger);
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_show_folder_size(logger));
         item.setOnAction(actionEvent -> {
@@ -253,7 +253,7 @@ public class Browser_menus
     public MenuItem make_show_hidden_directories_check_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Show_hidden_directories",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Show_hidden_directories",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_show_hidden_directories(logger));
@@ -268,7 +268,7 @@ public class Browser_menus
     public MenuItem make_monitor_browsed_folders_check_menu_item()
     //**********************************************************
     {
-        String text = "Monitor browsed folders";//I18n.get_I18n_string("Show_hidden_directories",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Monitor browsed folders";//I18n.get_I18n_string("Show_hidden_directories",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_monitor_browsed_folders(logger));
@@ -296,7 +296,7 @@ public class Browser_menus
     public MenuItem make_auto_purge_icon_disk_cache_check_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Auto_purge_cache",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Auto_purge_cache",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_auto_purge_disk_caches(logger));
@@ -310,7 +310,7 @@ public class Browser_menus
     public MenuItem make_show_hidden_files_check_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Show_hidden_files",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Show_hidden_files",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_show_hidden_files(logger));
@@ -326,7 +326,7 @@ public class Browser_menus
     public MenuItem make_undo_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Undo_engine.perform_last_undo(browser.my_Stage.the_Stage,logger));
         return item;
@@ -346,7 +346,7 @@ public class Browser_menus
     public MenuItem make_clean_names_menu_item()
     //**********************************************************
     {
-        String text = "Clean up names (experimental)";//I18n.get_I18n_string("Search_images_by_keywords",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Clean up names (experimental)";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> clean_up_names());
@@ -357,7 +357,7 @@ public class Browser_menus
     public MenuItem make_search_by_keywords_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Search_images_by_keywords",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> search_images_by_keyworks());
@@ -368,7 +368,7 @@ public class Browser_menus
     public MenuItem make_remove_recursively_empty_folders_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Remove_empty_folders_recursively",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Remove_empty_folders_recursively",logger);
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> remove_empty_folders_recursively());
@@ -402,7 +402,7 @@ public class Browser_menus
     public MenuItem make_remove_empty_folders_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Remove_empty_folders",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Remove_empty_folders",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> remove_empty_folders());
         return item;
@@ -412,7 +412,7 @@ public class Browser_menus
     public MenuItem make_select_all_folders_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Select_all_folders_for_drag_and_drop",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Select_all_folders_for_drag_and_drop",logger);
 
         select_all_folders_menu_item = new CheckMenuItem(text);
         select_all_folders_menu_item.setSelected(false);
@@ -436,7 +436,7 @@ public class Browser_menus
     public MenuItem make_select_all_files_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Select_all_files_for_drag_and_drop",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Select_all_files_for_drag_and_drop",logger);
 
         select_all_files_menu_item= new CheckMenuItem(text);
         select_all_files_menu_item.setSelected(false);
@@ -466,7 +466,7 @@ public class Browser_menus
     public MenuItem make_start_stop_slideshow_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Start_stop_slow_scan",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Start_stop_slow_scan",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.handle_scan_switch());
         return item;
@@ -475,7 +475,7 @@ public class Browser_menus
     public MenuItem make_slow_down_scan_slideshow_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Slow_down_scan",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Slow_down_scan",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.slow_down_scan());
         return item;
@@ -484,7 +484,7 @@ public class Browser_menus
     public MenuItem make_speed_up_scan_slideshow_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Speed_up_scan",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Speed_up_scan",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.speed_up_scan());
         return item;
@@ -494,7 +494,7 @@ public class Browser_menus
     public MenuItem make_new_window_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("New_window",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("New_window",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Browser_creation_context.additional_same_folder(browser,logger));
         return item;
@@ -504,7 +504,7 @@ public class Browser_menus
     public MenuItem make_create_empty_directory_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Create_new_empty_directory",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Create_new_empty_directory",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.create_new_directory());
         return item;
@@ -536,7 +536,7 @@ public class Browser_menus
     public MenuItem make_refresh_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Refresh",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Refresh",logger);
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.scene_geometry_changed("refresh",false, false));
@@ -547,7 +547,7 @@ public class Browser_menus
     public Menu make_history_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("History",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("History",logger);
 
         Menu history_menu = new Menu(text);
         create_history_menu(browser, history_menu, logger);
@@ -558,7 +558,7 @@ public class Browser_menus
     public Menu make_bookmarks_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Bookmarks",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Bookmarks",logger);
         Menu bookmarks_menu = new Menu(text);
         create_bookmarks_menu(browser,bookmarks_menu, logger);
         return bookmarks_menu;
@@ -567,7 +567,7 @@ public class Browser_menus
     public Menu make_roots_menu()
     //**********************************************************
     {
-        String text = "File system roots";// I18n.get_I18n_string("Undo",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "File system roots";// I18n.get_I18n_string("Undo",logger);
         Menu roots_menu = new Menu(text);
         create_roots_menu(browser,roots_menu, logger);
         return roots_menu;
@@ -576,7 +576,7 @@ public class Browser_menus
     public Menu make_undos_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Undo",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Undo",logger);
         Menu undos_menu = new Menu(text);
         create_undos_menu(browser,undos_menu, logger);
         return undos_menu;
@@ -589,7 +589,7 @@ public class Browser_menus
     //**********************************************************
     {
         {
-            String text = I18n.get_I18n_string("Clear_History",logger);// to: " + parent.toAbsolutePath().toString();
+            String text = I18n.get_I18n_string("Clear_History",logger);
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> {
                 logger.log("clearing history");
@@ -632,7 +632,7 @@ public class Browser_menus
                 //logger.log(max_on_screen+" exceeded creating 1 more menu");
                 if ( more == null)
                 {
-                    String text = I18n.get_I18n_string("Show_Whole_History",logger);// to: " + parent.toAbsolutePath().toString();
+                    String text = I18n.get_I18n_string("Show_Whole_History",logger);
                     more =  new MenuItem(text);
                     history_menu.getItems().add(more);
                     more.setOnAction(actionEvent -> pop_up_whole_history());
@@ -670,13 +670,13 @@ public class Browser_menus
     //**********************************************************
     {
         {
-            String text = I18n.get_I18n_string("Bookmark_this",logger);// to: " + parent.toAbsolutePath().toString();
+            String text = I18n.get_I18n_string("Bookmark_this",logger);
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> Bookmarks.get_bookmarks(logger).add(browser.displayed_folder_path));
             bookmarks_menu.getItems().add(item);
         }
         {
-            String text = I18n.get_I18n_string("Clear_Bookmarks",logger);// to: " + parent.toAbsolutePath().toString();
+            String text = I18n.get_I18n_string("Clear_Bookmarks",logger);
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> Bookmarks.get_bookmarks(logger).clear());
             bookmarks_menu.getItems().add(item);
@@ -707,13 +707,13 @@ public class Browser_menus
         }
 
         {
-            String text = I18n.get_I18n_string("Clear_Undos",logger);// to: " + parent.toAbsolutePath().toString();
+            String text = I18n.get_I18n_string("Clear_Undos",logger);
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,logger));
             undos_menu.getItems().add(item);
         }
         {
-            String text = I18n.get_I18n_string("Show_Undos",logger);// to: " + parent.toAbsolutePath().toString();
+            String text = I18n.get_I18n_string("Show_Undos",logger);
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> pop_up_whole_undo_history());
             undos_menu.getItems().add(item);
@@ -757,7 +757,7 @@ public class Browser_menus
                 return;
             }
             logger.log("\n\n\n undo_item="+item.to_string());
-            String header = I18n.get_I18n_string("Going_To_Undo_This",logger);// to: " + parent.toAbsolutePath().toString();
+            String header = I18n.get_I18n_string("Going_To_Undo_This",logger);
             if (Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage,header,signature,logger))
             {
                 Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,logger);
@@ -773,7 +773,7 @@ public class Browser_menus
     public Menu make_style_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Style",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Style",logger);
 
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
@@ -813,7 +813,7 @@ public class Browser_menus
     public Menu make_language_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Language",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Language",logger);
 
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
@@ -827,7 +827,7 @@ public class Browser_menus
     public MenuItem make_escape_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Escape",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Escape",logger);
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_escape(logger));
         item.setOnAction(actionEvent -> {
@@ -997,7 +997,7 @@ public class Browser_menus
     public Menu make_file_sort_method_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("File_Sorting_Method",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("File_Sorting_Method",logger);
 
         Menu menu = new Menu(text);
 
@@ -1039,7 +1039,7 @@ public class Browser_menus
     public Menu make_icon_size_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Icon_size",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Icon_size",logger);
 
         Menu menu = new Menu(text);
 
@@ -1057,7 +1057,7 @@ public class Browser_menus
     public Menu make_font_size_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Font_size",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Font_size",logger);
 
         Menu menu = new Menu(text);
         double[] candidate_sizes = {10,12,14,16,18,20,22,24,26};
@@ -1152,7 +1152,7 @@ public class Browser_menus
     public MenuItem make_show_how_many_files_menu_item()
     //**********************************************************
     {
-        String text = "Show how many files are in each folder";//I18n.get_I18n_string("Create_new_empty_directory",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Show how many files are in each folder";//I18n.get_I18n_string("Create_new_empty_directory",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.show_how_many_files_deep_in_each_folder());
         return item;
@@ -1163,7 +1163,7 @@ public class Browser_menus
     public Menu make_backup_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Backup",logger);
         Menu menu = new Menu(text);
         {
             MenuItem mi = make_set_as_backup_source_menu_item();
@@ -1183,7 +1183,7 @@ public class Browser_menus
         }
 
         {
-            String text2 = I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
+            String text2 = I18n.get_I18n_string("Backup_help",logger);
             MenuItem item = new MenuItem(text2);
             item.setOnAction(event -> show_backup_help(logger));
             menu.getItems().add(item);
@@ -1211,7 +1211,7 @@ public class Browser_menus
     public Menu make_fusk_menu()
     //**********************************************************
     {
-        String text = "Fusk (experimental!)"; //I18n.get_I18n_string("Backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Fusk (experimental!)"; //I18n.get_I18n_string("Backup",logger);
         Menu menu = new Menu(text);
         {
             MenuItem mi = make_set_as_fusk_source_menu_item();
@@ -1234,7 +1234,7 @@ public class Browser_menus
             menu.getItems().add(mi);
         }
         {
-            String text2 = "Fusk help";//I18n.get_I18n_string("Backup_help",logger);// to: " + parent.toAbsolutePath().toString();
+            String text2 = "Fusk help";//I18n.get_I18n_string("Backup_help",logger);
             MenuItem item = new MenuItem(text2);
             item.setOnAction(event -> show_fusk_help(logger));
             menu.getItems().add(item);
@@ -1275,7 +1275,7 @@ public class Browser_menus
     public MenuItem make_set_as_fusk_source_menu_item()
     //**********************************************************
     {
-        String text = "Set this folder as fusk source";//I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Set this folder as fusk source";//I18n.get_I18n_string("Set_as_backup_source_folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.you_are_fusk_source());
         return item;
@@ -1285,7 +1285,7 @@ public class Browser_menus
     public MenuItem make_set_as_fusk_sink_menu_item()
     //**********************************************************
     {
-        String text = "Set this folder as fusk sink";//I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Set this folder as fusk sink";//I18n.get_I18n_string("Set_as_backup_sink_folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.you_are_fusk_sink());
         return item;
@@ -1295,7 +1295,7 @@ public class Browser_menus
     public MenuItem make_start_fusk_menu_item()
     //**********************************************************
     {
-        String text = "start fusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "start fusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.start_fusk());
         return item;
@@ -1304,7 +1304,7 @@ public class Browser_menus
     public MenuItem make_start_defusk_menu_item()
     //**********************************************************
     {
-        String text = "start defusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "start defusk (experimental!)";//I18n.get_I18n_string("Start_backup",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.start_defusk());
         return item;
@@ -1313,7 +1313,7 @@ public class Browser_menus
     public MenuItem make_abort_fusk_menu_item()
     //**********************************************************
     {
-        String text = "Abort fusk";//I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = "Abort fusk";//I18n.get_I18n_string("Abort_backup",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.abort_fusk());
         return item;
@@ -1323,7 +1323,7 @@ public class Browser_menus
     public MenuItem make_set_as_backup_source_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Set_as_backup_source_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Set_as_backup_source_folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.you_are_backup_source());
         return item;
@@ -1333,7 +1333,7 @@ public class Browser_menus
     public MenuItem make_set_as_backup_sink_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Set_as_backup_sink_folder",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Set_as_backup_sink_folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.you_are_backup_sink());
         return item;
@@ -1343,7 +1343,7 @@ public class Browser_menus
     public MenuItem make_start_backup_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Start_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Start_backup",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.start_backup());
         return item;
@@ -1352,7 +1352,7 @@ public class Browser_menus
     public MenuItem make_abort_backup_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Abort_backup",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Abort_backup",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.abort_backup());
         return item;
@@ -1363,7 +1363,7 @@ public class Browser_menus
     public MenuItem make_import_from_apple_Photos_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Import_Apple_Photos",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Import_Apple_Photos",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.import_apple_Photos());
         return item;
@@ -1372,11 +1372,20 @@ public class Browser_menus
     public MenuItem make_estimate_size_of_importing_from_apple_Photos_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Estimate_Size_Of_Import_Apple_Photos",logger);// to: " + parent.toAbsolutePath().toString();
+        String text = I18n.get_I18n_string("Estimate_Size_Of_Import_Apple_Photos",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.estimate_size_of_importing_apple_Photos());
         return item;
     }
 
 
+    //**********************************************************
+    public MenuItem make_show_where_are_images_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Show_Where_Are_Images",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.show_where_are_images());
+        return item;
+    }
 }

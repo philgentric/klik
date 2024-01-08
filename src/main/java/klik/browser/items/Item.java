@@ -247,7 +247,7 @@ public abstract class Item implements Icon_destination
             StringBuilder sb = new StringBuilder();
             for (File f : ll)
             {
-                sb.append("\nselected for drag and drop: ").append(f.getAbsolutePath());
+                sb.append("\n").append(f.getAbsolutePath());
             }
             if ( Drag_and_drop.drag_and_drop_dbg) logger.log(" selected files: " + sb);
             content.put(DataFormat.PLAIN_TEXT, sb.toString());

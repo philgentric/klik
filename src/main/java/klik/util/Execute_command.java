@@ -92,7 +92,6 @@ public class Execute_command
         if ( to_be_returned != null)
         {
             to_be_returned.append("Execute command: end of wait OK");
-            logger.log(to_be_returned.toString());
         }
         return true;
     }
