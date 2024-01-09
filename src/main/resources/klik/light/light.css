@@ -58,6 +58,20 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
 }
 
 
+/*
+failed attempt to use pseudoclass
+.menu_buttons:selected_item{
+    -fx-background-color: #efefef;
+}
+
+
+Button:selected_item{
+    -fx-background-color: #efefef;
+}
+
+*/
+
+
 .menu_buttons:hover {
   -fx-background-color: #efefef;
 }

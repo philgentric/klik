@@ -166,6 +166,7 @@ public abstract class Item implements Icon_destination
     {
         browser.selection_handler.add_to_selected_files(path);
         set_is_selected_internal();
+        logger.log("item selected:"+path);
     }
 
     //**********************************************************

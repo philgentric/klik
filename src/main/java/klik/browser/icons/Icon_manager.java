@@ -102,7 +102,9 @@ public class Icon_manager
         double column_increment = icon_size;
         int min_button_width = Static_application_properties.get_column_width(logger);
         if ( column_increment < min_button_width) column_increment = min_button_width;
-        if ( single_column) column_increment = pane.getWidth();
+        // the -100 is to make the button shorter than the full width so that
+        // the mouse selection can "start" in the rightmost part of the pane
+        if ( single_column) column_increment = pane.getWidth()-100;
         double row_increment_for_dirs_with_picture = row_increment_for_dirs + icon_size;
         double scene_width = the_browser.the_Scene.getWidth();
         pane.getChildren().clear();
@@ -453,11 +455,18 @@ public class Icon_manager
                         break;
                 }
             }
-            //if (item.get_Node() == null) logger.log("item.get_Node() == null");
-            if (!pane.getChildren().contains(item.get_Node()))
+            if (item.get_Node() == null)
             {
-                if (visible_dbg) logger.log("adding item: " + item.get_string());
-                pane.getChildren().add(item.get_Node());
+                logger.log("item.get_Node() == null");
+            }
+            else
+            {
+                if (!pane.getChildren().contains(item.get_Node()))
+                {
+                    if (visible_dbg) logger.log("adding item: " + item.get_string());
+                    pane.getChildren().add(item.get_Node());
+                }
+
             }
             item.set_visible(true);
         }
@@ -529,11 +538,13 @@ public class Icon_manager
         return null;
     }
 
+    private static final double margin = 20;
+    private static final double dmargin = 2*margin;
     //**********************************************************
     public List<Item> get_items_in(Pane pane, double x, double y, double w, double h)
     //**********************************************************
     {
-        Bounds bounds = new BoundingBox(x, y, w, h);
+        Bounds selection_bounds = new BoundingBox(x, y, w, h);
         //logger.log("selection  X= " + bounds.getMinX() + " " + bounds.getMaxX() + " Y= " + bounds.getMinY() + " " + bounds.getMaxY());
         List<Item> returned = new ArrayList<>();
 
@@ -542,7 +553,10 @@ public class Icon_manager
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
             //if (b.intersects(bounds))
-            if (bounds.contains(b)) {
+            if (selection_bounds.contains(
+                    b.getMinX()+margin, b.getMinY()+margin,b.getMinZ(),
+                    b.getWidth()-dmargin, b.getHeight()-dmargin,b.getDepth()
+            )) {
                 returned.add(item);
                 //logger.log("2YES ! for " + item.get_icon_path() + " we have bounds X= " + b.getMinX() + " " + b.getMaxX() + " Y= " + b.getMinY() + " " + b.getMaxY());
             } else {

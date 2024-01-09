@@ -162,7 +162,7 @@ public class Deduplication_console_window
 
         try {
             Thing_to_do thing_to_do = queue.take();
-            logger.log("getting one thing to do : "+thing_to_do.type);
+            //logger.log("getting one thing to do : "+thing_to_do.type);
 
             switch (thing_to_do.type) {
                 case die:

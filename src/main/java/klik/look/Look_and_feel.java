@@ -1,9 +1,11 @@
 package klik.look;
 
+import javafx.css.PseudoClass;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -114,19 +116,48 @@ public abstract class Look_and_feel
     }
     protected String get_not_found_icon_path() { return "not-found.png";}
 
-    public void set_hovered_directory_style(Node button){
+    //public static final PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
+
+    public void set_hovered_directory_style(Node node){
         System.out.println("Look_and_feel::set_hovered_directory_style");
-        Font_size.apply_font_size(button, logger);
+        Font_size.apply_font_size(node, logger);
+
+        set_text_color(node,"-fx-text-fill: #704040;");
+        //PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
+        //button.pseudoClassStateChanged(pseudo_css_class_for_selection,true);
+
+
     }
+
+    private static void set_text_color(Node node, String color) {
+
+        // color MUST be formatted as: "-fx-text-fill: #704040;"
+        node.setStyle(color);
+        if ( node instanceof Button)
+        {
+            Button button = (Button) node;
+            //button.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(2))));
+            Node g = button.getGraphic();
+            if ( g instanceof Label)
+            {
+                Label t = (Label) g;
+                t.setStyle(color);
+            }
+
+        }
+    }
+
     protected void set_directory_style(Node node){
         Font_size.apply_font_size(node,logger);
     }
 
     protected void set_file_style(Node node)
     {
+        //logger.log("set_file_style");
         if (node instanceof Button button)
         {
             button.setFont(Font.font("Monaco", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
+            set_text_color(node,"-fx-text-fill: #404040;");
         }
         else
         {
@@ -135,7 +166,7 @@ public abstract class Look_and_feel
         //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
     }
     protected void set_selected_file_style(Node button){
-        logger.log("set_selected_file_style");
+        //logger.log("set_selected_file_style");
         set_hovered_directory_style(button);
     }
 

@@ -28,6 +28,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Sizes;
 import klik.look.Font_size;
+import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.music.Audio_player;
 import klik.look.my_i18n.I18n;
@@ -38,8 +39,14 @@ import klik.util.Scheduled_thread_pool;
 import klik.util.Threads;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +70,8 @@ public class Item_button extends Item implements Icon_destination
     public final String text;
     private boolean ignore_next_mouse_clicked = false;
     private Job job;
+
+    private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     //**********************************************************
     public Item_button(
             Browser browser,
@@ -114,22 +123,35 @@ public class Item_button extends Item implements Icon_destination
         }
         Look_and_feel_manager.set_button_look(button);
 
+        button.setViewOrder(1);
 
         button.setManaged(true); // means the parent tells the button its layout
         //button.setManaged(false); // does not work
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
+/*
+        boolean wide = false;
         if ( Static_application_properties.get_single_column(logger))
         {
-            button.setPrefWidth(browser.my_Stage.the_Stage.getWidth());
-            button.setMinWidth(browser.my_Stage.the_Stage.getWidth());
+            wide = true;
+        }
+        if ( path.toFile().isFile())
+        {
+            wide = true;
+        }
+        if (wide)
+        {
+            //logger.log("is wide:"+path.toAbsolutePath());
+            // leave some room for the scrollbar, does not work?
+            button.setPrefWidth(browser.my_Stage.the_Stage.getWidth()-50);
+            button.setMinWidth(browser.my_Stage.the_Stage.getWidth()-50);
         }
         else
         {
             button.setPrefWidth(button_width);
             button.setMinWidth(button_width);
         }
-
+*/
         init_drag_and_drop();
     }
 
@@ -308,13 +330,40 @@ public class Item_button extends Item implements Icon_destination
     private void button_for_a_non_image_file(String text, double width)
     //**********************************************************
     {
-        String size_string = "("+Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length())+")";
 
-        //double w = estimate_text_width(size_string);
-        //w += estimate_text_width(text);
-        Label label = new Label(text);
-        Font_size.set_preferred_font_size(label,logger);
-        button = new Button(size_string,label);
+
+        if ( Static_application_properties.get_single_column(logger))
+        {
+            /*double space_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(" ");// text.length();
+            double text_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(text);// text.length();
+            int text_lenght = (int) (text_lenght_d/space_lenght_d);
+            for(int i = 0 ; i < 200-text_lenght; i++)
+            {
+                sb.append(" ");
+            }*/
+            StringBuilder sb = new StringBuilder();
+            try {
+                FileTime x = Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+                LocalDateTime ldt = x.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                sb.append(ldt.format(date_time_formatter));
+                sb.append("                 ");
+                sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length()));
+                sb.append("                 ");
+            } catch (IOException e) {
+                logger.log_exception("",e);
+            }
+            String size_string = sb.toString();
+            Label label = new Label(size_string);
+            Font_size.set_preferred_font_size(label,logger);
+            //button = new Button(size_string,label);
+            // label is the button graphic, so it is displayed ON THE LEFT of the text!
+            button = new Button(text,label);
+        }
+        else
+        {
+            button = new Button(text);
+        }
+
         button.setMinWidth(width);
         button.setPrefWidth(width);
         Font_size.set_preferred_font_size(button,logger);

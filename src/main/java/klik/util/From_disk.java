@@ -41,7 +41,7 @@ public class From_disk
             }
             else
             {
-                logger.log("fusked image detected "+original_image_file);
+                if ( dbg) logger.log("fusked image detected "+original_image_file);
                 // was fusked !
                 return new ByteArrayInputStream(buf);
             }
@@ -100,8 +100,9 @@ public class From_disk
             }
             else if( image.getException().toString().contains("No loader for image data"))
             {
-                logger.log("IMAGE decode Panic :"+image.getException());
-                Popups.popup_Exception(image.getException(),100,"If this image was fusked, maybe the pin code is wrong?",logger);
+                logger.log("IMAGE decode failed :"+image.getException());
+                // this occurs on damaged images like download not finished, or fusk wrong pin code
+                // Popups.popup_Exception(image.getException(),100,"If this image was fusked, maybe the pin code is wrong?",logger);
 
             }
             else

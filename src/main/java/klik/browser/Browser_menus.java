@@ -223,7 +223,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_single_column(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_single_column(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),false, false);
+            browser.scene_geometry_changed("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true, false);
         });
         return item;
     }

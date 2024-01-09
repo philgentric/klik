@@ -300,7 +300,7 @@ public class Static_application_properties
     public static void save_bounds(Rectangle2D r, Logger logger)
     //**********************************************************
     {
-        logger.log("saving bounds="+r);
+        if ( dbg) logger.log("saving bounds="+r);
         Properties_manager pm = get_properties_manager(logger);
         pm.save_unico(SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
         pm.save_unico(SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
