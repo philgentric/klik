@@ -1,16 +1,27 @@
 package klik.files_and_paths;
 
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.virtual_threads.Concurency_limiter;
+import klik.browser.Browser;
 import klik.browser.icons.Error_type;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
-import klik.util.System_out_logger;
-import klik.util.Threads;
+import klik.browser.items.Item_button;
+import klik.look.Font_size;
+import klik.look.my_i18n.I18n;
+import klik.util.*;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -21,10 +32,12 @@ public class Disk_scanner implements Runnable
     final Path path;
     final File_payload file_payload;
     final Dir_payload dir_payload;
+    final ConcurrentLinkedQueue<String> warning_payload;
+
     public final AtomicInteger folder_count_stop_counter;
     public final Aborter aborter;
     public final Logger logger;
-    private final static Concurency_limiter limiter = new Concurency_limiter("Disk scanner",2,new System_out_logger());
+    //private final static Concurency_limiter limiter = new Concurency_limiter("Disk scanner",2,new System_out_logger());
 
 
     // this will BLOCK until the tree has been traversed
@@ -33,6 +46,7 @@ public class Disk_scanner implements Runnable
             Path path,
             File_payload file_payload_,
             Dir_payload dir_payload_,
+            ConcurrentLinkedQueue<String> warning_payload_,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -42,6 +56,15 @@ public class Disk_scanner implements Runnable
             logger.log(Stack_trace_getter.get_stack_trace("stupid: not a folder "+path));
             return;
         }
+        if (Files.isSymbolicLink(path))
+        {
+            logger.log("WARNING: Disk_scanner not going down symbolic link for folder: "+path);
+            return;
+        }
+        else
+        {
+            logger.log("Disk_scanner going down (not a symbolic links) on folder: "+path);
+        }
         long start = System.currentTimeMillis();
         AtomicInteger folder_count_stop_counter = new AtomicInteger(0);
         launch_folder_in_a_thread_(
@@ -49,6 +72,7 @@ public class Disk_scanner implements Runnable
                 folder_count_stop_counter,
                 file_payload_,
                 dir_payload_,
+                warning_payload_,
                 aborter,
                 logger);
 
@@ -80,13 +104,14 @@ public class Disk_scanner implements Runnable
             AtomicInteger folder_count_stop_counter,
             File_payload file_payload_,
             Dir_payload dir_payload_,
+            ConcurrentLinkedQueue<String> warning_payload_,
             Aborter aborter_,
             Logger logger)
     //**********************************************************
     {
         folder_count_stop_counter.incrementAndGet();
 
-        Runnable r = new Disk_scanner(path, folder_count_stop_counter, file_payload_, dir_payload_, aborter_, logger);
+        Runnable r = new Disk_scanner(path, folder_count_stop_counter, file_payload_, dir_payload_, warning_payload_, aborter_, logger);
         Threads.execute(r,logger);
     }
     //**********************************************************
@@ -95,6 +120,7 @@ public class Disk_scanner implements Runnable
             AtomicInteger folder_count_stop_counter_,
             File_payload file_payload_,
             Dir_payload dir_payload_,
+            ConcurrentLinkedQueue<String> warning_payload_,
             Aborter aborter_,
             Logger logger_)
     //**********************************************************
@@ -102,6 +128,7 @@ public class Disk_scanner implements Runnable
         path = path_;
         file_payload = file_payload_;
         dir_payload = dir_payload_;
+        warning_payload = warning_payload_;
         folder_count_stop_counter = folder_count_stop_counter_;
         logger = logger_;
         if ( aborter_ == null)
@@ -117,26 +144,27 @@ public class Disk_scanner implements Runnable
     public void run()
     //**********************************************************
     {
+        /*
         try {
             limiter.acquire();
         } catch (InterruptedException e) {
             logger.log_exception(Stack_trace_getter.get_stack_trace("Disk scanner"),e);
             return;
-        }
+        }*/
         if (aborter.should_abort())
         {
             //logger.log("ABORTED1: Disk_scanner for "+path);
-            limiter.release();
+           // limiter.release();
             return;
         }
         File[] all_files = path.toFile().listFiles();
         if ( all_files == null)
         {
+            logger.log (" Disk_scanner: listFiles() returns null for: "+path);
             Error_type error = Files_and_Paths.explain_error(path,logger);
-            logger.log(error+ " Disk_scanner: cannot scan folder "+path);
 
             folder_count_stop_counter.decrementAndGet();
-            limiter.release();
+            //limiter.release();
             return ;
         }
         for (File f : all_files)
@@ -148,8 +176,16 @@ public class Disk_scanner implements Runnable
             }
             if (f.isDirectory())
             {
-                if ( dir_payload != null) dir_payload.process_dir(f);
-                launch_folder_in_a_thread_(f.toPath(), folder_count_stop_counter, file_payload, dir_payload, aborter, logger);
+                if ( Files.isSymbolicLink(f.toPath()))
+                {
+                    String x = "warning: disk scanner not following symbolic link folder:"+f;
+                    logger.log(x);
+                    if ( warning_payload!=null) warning_payload.add(x);
+                }
+                else {
+                    if ( dir_payload != null) dir_payload.process_dir(f);
+                    launch_folder_in_a_thread_(f.toPath(), folder_count_stop_counter, file_payload, dir_payload, warning_payload, aborter, logger);
+                }
             }
             else
             {
@@ -157,8 +193,10 @@ public class Disk_scanner implements Runnable
             }
         }
         folder_count_stop_counter.decrementAndGet();
-        limiter.release();
+        //limiter.release();
     }
+
+
 
 
 }

@@ -407,6 +407,8 @@ public class Static_application_properties
         get_properties_manager(logger).save_unico(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length), false);
     }
 
+
+
     //**********************************************************
     public static int get_column_width(Logger logger)
     //**********************************************************

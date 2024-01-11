@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -306,8 +307,8 @@ public class Files_and_Paths {
         if ( all_files == null)
         {
             Error_type error = Files_and_Paths.explain_error(path,logger);
-            logger.log(error+ " get_sizes_on_disk2: cannot scan folder "+path);
-            return new Sizes(0,0,0,0);
+            logger.log(error+ " get_sizes_on_disk_shallow: cannot scan folder "+path);
+            return new Sizes(0,0,0,0,null);
         }
         int folders = 0;
         int files = 0;
@@ -332,7 +333,7 @@ public class Files_and_Paths {
                 bytes += f.length();
             }
         }
-        return new Sizes(bytes,folders,files,images);
+        return new Sizes(bytes,folders,files,images,null);
 
     }
     //**********************************************************
@@ -393,12 +394,13 @@ public class Files_and_Paths {
             folders.incrementAndGet();
             //System.out.println("folder:"+f.getName());
         };
-        Disk_scanner.process_folder(path, fp,dp, aborter, logger);
+        ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
+        Disk_scanner.process_folder(path, fp,dp, wp, aborter, logger);
 
 
         //long now = System.currentTimeMillis();
         //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +bytes.get());
-        return new Sizes(bytes.get(),folders.get(),files.get(),images.get());
+        return new Sizes(bytes.get(),folders.get(),files.get(),images.get(),wp);
     }
 
 
@@ -415,7 +417,8 @@ public class Files_and_Paths {
         //long start = System.currentTimeMillis();
         AtomicLong bytes = new AtomicLong(0);
         File_payload fp = f -> bytes.addAndGet(f.length());
-        Disk_scanner.process_folder(path, fp,null,aborter,logger);
+        ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
+        Disk_scanner.process_folder(path, fp,null,wp,aborter,logger);
         //long now = System.currentTimeMillis();
         //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +size.get());
         return bytes.get();
@@ -442,7 +445,8 @@ public class Files_and_Paths {
         }
         AtomicLong files = new AtomicLong(0);
         File_payload fp = f -> files.incrementAndGet();
-        Disk_scanner.process_folder(path, fp,null, aborter, logger);
+        ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
+        Disk_scanner.process_folder(path, fp,null, wp,aborter, logger);
         return files.get();
     }
 

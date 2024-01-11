@@ -2,6 +2,7 @@ package klik.level2.fusk;
 
 import klik.actor.Aborter;
 import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class Fusk_bytes implements Pin_code_client
         }
         if ( instance == null)
         {
-            logger.log("creating instance");
+            logger.log(Stack_trace_getter.get_stack_trace("creating instance"));
             instance = new Fusk_bytes(logger);
         }
         return instance.init(logger);

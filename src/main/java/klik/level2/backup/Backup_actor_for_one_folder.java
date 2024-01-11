@@ -9,6 +9,7 @@ import klik.files_and_paths.*;
 import klik.util.Logger;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -144,6 +145,12 @@ public class Backup_actor_for_one_folder implements Actor
                 break;
             }
             if (!sub_dir_to_be_copied.isDirectory()) continue;
+            if ( Files.isSymbolicLink(sub_dir_to_be_copied.toPath()))
+            {
+                logger.log("backup warning: symbolic link not followed "+sub_dir_to_be_copied);
+                continue;
+            }
+
 
             // create new job for this subfolder
             Directory_backup_job_request directory_backup_job_request = new Directory_backup_job_request(sub_dir_to_be_copied, new File(request.destination_dir, sub_dir_to_be_copied.getName()), request.aborter, has_files,logger);

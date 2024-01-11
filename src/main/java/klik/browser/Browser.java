@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.icons.JavaFX_to_Swing;
+import klik.browser.locator.Locator;
 import klik.level2.backup.Backup_singleton;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
@@ -140,7 +141,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_where_are_images()
     //**********************************************************
     {
-        Locator.locate_photos(displayed_folder_path,100,this,logger);
+        Locator.locate(displayed_folder_path,10,100_000,this,logger);
     }
 
 

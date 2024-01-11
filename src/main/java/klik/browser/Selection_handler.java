@@ -99,6 +99,14 @@ public class Selection_handler
             a.show();
             return;
         }
+        if ( Files.isSymbolicLink(path))
+        {
+            String s = "WARNING: symbolic link in multiple selection is disabled, ignoring: "+path;
+            logger.log(s);
+            Alert a = new Alert(Alert.AlertType.INFORMATION,s, ButtonType.CLOSE);
+            a.show();
+            return;
+        }
         selected_files.add(path.toFile());
         if (Drag_and_drop.drag_and_drop_dbg)  {
             logger.log("1 file added to selection = " + path.getFileName());
@@ -271,7 +279,7 @@ public class Selection_handler
 
         switch (item.item_type) {
             case image_gif, image_not_gif -> ((Item_image) item).open_an_image(logger);
-            case folder ->
+            case symbolic_link_on_folder ,folder ->
                     Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
             default -> item.open_with_system(logger);
         }

@@ -210,8 +210,9 @@ public class Icon_factory_actor implements Actor
             switch (destination.get_item_type()) {
                 case image_gif:
                     // dont try to disk-cache for gifs, they are either small or animated
+                case symbolic_link_on_folder:
                 case folder:
-                    // no need for folders, the icon is generated and saved by imagemagic
+                    // no need for folders
                     break;
                 default:
                     if (dbg)

@@ -5,6 +5,7 @@ import klik.util.Logger;
 import klik.util.Threads;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 //**********************************************************
@@ -44,19 +45,23 @@ public class Defusk_actor_for_one_folder implements Actor
                 return null;
             }
 
-            if ( f.isDirectory())
+            if (!Files.isSymbolicLink(f.toPath()))
             {
-                jobs.add(defusk_this_folder(f,destination_folder,aborter,logger));
-            }
-            else
-            {
-                if ( Actor_engine.use_virtual_threads)
+                if ( f.isDirectory())
                 {
-                    Runnable r = () -> Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter,logger);
-                    Threads.execute(r,logger);
+                        jobs.add(defusk_this_folder(f,destination_folder,aborter,logger));
                 }
-                else {
-                    Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
+                else
+                {
+
+                    if ( Actor_engine.use_virtual_threads)
+                    {
+                        Runnable r = () -> Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter,logger);
+                        Threads.execute(r,logger);
+                    }
+                    else {
+                        Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
+                    }
                 }
             }
         }

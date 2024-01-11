@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -117,16 +118,19 @@ public class Importer
         };
         Threads.execute(r,logger);
 
+        ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
                 target,
                 file_payload,
                 null,
+                warnings,
                 new Aborter (),
                 logger);
 
         done.set(true);
 
         logger.log("Importation finished: "+counter.get()+ " images copied");
+        for ( String s : warnings) logger.log(s);
 
     }
 
@@ -175,36 +179,13 @@ public class Importer
         };
 
         AtomicBoolean done = new AtomicBoolean(false);
-        /*
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                for(;;)
-                {
-                    try {
-                        Thread.sleep(300);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if ( done.get())
-                    {
-                        return;
-                    }
-                    long val = size.get();
-                    if ( last_print.get() +100_000_000 < val)
-                    {
-                        last_print.set(val);
-                        logger.log("Apple Photos' importation Size ..."+val/1_000_000+" MBytes");
-                    }
-                }
-            }
-        };
-        Threads.execute(r,logger);
-*/
+
+        ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
                 target,
                 file_payload,
                 null,
+                wp,
                 new Aborter (),
                 logger);
 
@@ -222,7 +203,9 @@ public class Importer
                 logger.log("done!");
                 progress_tracking_cancel[0].cancel(true);
                 String s = "Importation size estimation: "+size.get()/1_000_000+" MBytes";
-                Platform.runLater(() -> textarea1.setText(s));
+                for ( String w : wp) s+="\n"+w;
+                String final_s = s;
+                Platform.runLater(() -> textarea1.setText(final_s));
                 logger.log(s);
                 return;
             }

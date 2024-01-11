@@ -23,6 +23,7 @@ import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_manager;
+import klik.files_and_paths.Folder_size;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
@@ -61,8 +62,6 @@ public class Item_button extends Item implements Icon_destination
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public static final String STAR = "*";
-    public static final String PLEASE_WAIT_SCANNING_FOLDERS = "Please wait, scanning folders "+ STAR + STAR;
     public Button button;
     public final boolean is_dir;
     public final boolean is_trash;
@@ -228,6 +227,7 @@ public class Item_button extends Item implements Icon_destination
     Path get_an_image_down_in_the_tree_files(Path local_path)
     //**********************************************************
     {
+        if ( Files.isSymbolicLink(local_path)) return null;
         File dir = local_path.toFile();
         File[] files = dir.listFiles();
         if ( files == null)
@@ -411,6 +411,10 @@ public class Item_button extends Item implements Icon_destination
         if ( Static_application_properties.get_show_folder_size(logger)) {
             text2 += "..."; // room reservation?
         }
+        if ( Files.isSymbolicLink(path))
+        {
+            text2 += " **Symbolic link** ";
+        }
         button = new Button(text2);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         Look_and_feel_manager.set_button_look_as_folder(button, height);
@@ -573,13 +577,11 @@ public class Item_button extends Item implements Icon_destination
 
         if (!Files.isDirectory(path))
         {
-            //if ( Guess_file_type.is_this_path_a_video(path))
+            if ( this.item_type == Iconifiable_item_type.video)
             {
-                if ( this.item_type == Iconifiable_item_type.video)
-                {
-                   Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
-                }
+                Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
             }
+
             // is a "plain" file
             context_menu.getItems().add(create_system_open_menu_item());
             context_menu.getItems().add(create_rename_dir_menu_item());
@@ -705,102 +707,15 @@ public class Item_button extends Item implements Icon_destination
         return browse;
     }
 
-    private static final double size_stage_x_start = 100;
-    private static final double size_stage_y_start = 100;
-    private static final double size_stage_height = 300;
-    private static final double size_stage_width = 1000;
-    private static double size_stage_x = size_stage_x_start;
-    private static double size_stage_y = size_stage_y_start;
-
     //**********************************************************
     private MenuItem create_get_folder_size_menu_item(Aborter aborter)
     //**********************************************************
     {
         MenuItem size = new MenuItem(I18n.get_I18n_string("Get_folder_size",logger));
-        size.setOnAction(event -> get_folder_size(path,browser,aborter, logger));
+        size.setOnAction(event -> Folder_size.get_folder_size(path,browser,aborter, logger));
         return size;
     }
 
-
-    //**********************************************************
-    static void get_folder_size(Path path, Browser browser, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        // open a window to display what is going on and the final result
-        Stage local_stage = new Stage();
-        local_stage.initOwner(browser.my_Stage.the_Stage);
-        local_stage.setX(size_stage_x);
-        local_stage.setY(size_stage_y);
-        size_stage_y += size_stage_height;
-        if ( size_stage_y > 1000)
-        {
-            size_stage_y = size_stage_y_start;
-            size_stage_x += 100;
-            if ( size_stage_x > 1000) size_stage_x = size_stage_x_start;
-        }
-
-        local_stage.setHeight(size_stage_height);
-        local_stage.setWidth(size_stage_width);
-        TextArea textarea1 = new TextArea("Please wait, scanning folders...");
-        TextArea textarea2 = new TextArea();
-        Font_size.set_font_size(textarea1,24,logger);
-        Font_size.set_font_size(textarea2,20,logger);
-        VBox vbox = new VBox(textarea1, textarea2);
-        Scene scene = new Scene(vbox, Color.WHITE);
-        local_stage.setTitle(path.toAbsolutePath().toString());
-        local_stage.setScene(scene);
-        local_stage.show();
-        local_stage.setAlwaysOnTop(true);
-        final boolean[] done = {false};
-
-        Runnable r = () -> {
-            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path,aborter, logger);
-
-            Platform.runLater(() -> {
-                String size_on_disk = I18n.get_I18n_string("Size_on_disk",logger);
-                {
-                    String display_text;
-
-                    if (sizes.bytes() < 0) {
-                        display_text = path+ "\nAn error occurred, probably Access Denied, check the logs";
-                    } else {
-                        display_text = path+"\n"+size_on_disk + " " + Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes());
-                    }
-                    textarea1.setText(display_text);
-                    if (Item_button.dbg)  logger.log(display_text);
-
-                    String folders = I18n.get_I18n_string("Folders", logger);
-                    String files = I18n.get_I18n_string("Files", logger);
-                    String images = I18n.get_I18n_string("Images", logger);
-                    textarea2.setText(folders+": "+ sizes.folders() + "\n"+files+": " + sizes.files() + "\n" + images+": "+sizes.images());
-                    {
-                        browser.set_status(path + " :  " + sizes.folders() + " " + folders + " , " + sizes.files() + " " + files + " , " + sizes.images() + " " + images + " , " + display_text);
-                    }
-                }
-            });
-            done[0] =  true;
-        };
-        Threads.execute(r,logger);
-
-        // use a scheduled thread to track the process...
-        // not sure a sleep would not be just as good?
-        ScheduledFuture<?>[] progress_tracking_cancel = {null};
-        final String[] progress_string = {PLEASE_WAIT_SCANNING_FOLDERS};
-        Runnable progress_tracking = () -> {
-            if (done[0])
-            {
-                logger.log("done!");
-                progress_tracking_cancel[0].cancel(true);
-                return;
-            }
-            Platform.runLater(() -> textarea1.setText(progress_string[0]));
-            progress_string[0] += STAR;
-            if (progress_string[0].length() > 100) progress_string[0] = PLEASE_WAIT_SCANNING_FOLDERS;
-        };
-
-        progress_tracking_cancel[0] = Scheduled_thread_pool.execute(progress_tracking, 300, TimeUnit.MILLISECONDS);
-
-    }
 
 /*
     //**********************************************************
