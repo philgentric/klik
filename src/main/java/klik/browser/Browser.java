@@ -57,7 +57,7 @@ import static java.awt.Taskbar.Feature.ICON_IMAGE;
 
 
 //**********************************************************
-public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter, Refresh_target
+public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter, Refresh_target, Error_receiver
 //**********************************************************
 {
 
@@ -98,7 +98,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
     //**********************************************************
-    @Override
+    @Override // Refresh_target
     public void refresh()
     //**********************************************************
     {
@@ -116,10 +116,28 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
+    @Override // Refresh_target
+    public void refresh2()
+    //**********************************************************
+    {
+        Browser local = this;
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+
+                //logger.log("REFRESH");
+                scene_geometry_changed2("aspect ratio engine",true, true);
+                //Browser_creation_context.replace_same_folder(local,logger);
+            }
+        };
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
     public Comparator<? super Path> get_file_comparator()
     //**********************************************************
     {
-        return icon_manager.paths_manager.file_comparator;
+        return icon_manager.paths_manager.image_file_comparator;
     }
 
     //**********************************************************
@@ -141,7 +159,39 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_where_are_images()
     //**********************************************************
     {
-        Locator.locate(displayed_folder_path,10,100_000,this,logger);
+        Locator.locate(displayed_folder_path,10,200_000,this,logger);
+    }
+
+    //**********************************************************
+    @Override // Error_receiver
+    public void receive_error(Error_type error_type)
+    //**********************************************************
+    {
+        logger.log("receive_error");
+        this.error_type = error_type;
+        Browser browser =  this;
+        Runnable r = new Runnable() {
+            @Override
+            public void run()
+            {
+                switch (error_type) {
+                    case OK:
+                        break;
+                    case DENIED:
+                        logger.log("access denied");
+                        set_status("Acces denied for:" + displayed_folder_path);
+                        icon_manager.geometry_changed(browser, the_Pane, mandatory_in_pane, "access denied", false);
+                        break;
+                    case NOT_FOUND:
+                    case ERROR:
+                        logger.log("directory gone");
+                        set_status("Folder is gone:" + displayed_folder_path);
+                        icon_manager.geometry_changed(browser, the_Pane, mandatory_in_pane, "gone", false);
+                        break;
+                }
+            }
+    };
+    Platform.runLater(r);
     }
 
 
@@ -400,10 +450,19 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         if (monitor_this_folder)
         {
-            filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, logger);
-            if (filesystem_item_modification_watcher == null) {
-                logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
-            }
+            Runnable r = new Runnable() {
+                @Override
+                public void run()
+                {
+                    filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, logger);
+                    if (filesystem_item_modification_watcher == null)
+                    {
+                        logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
+                    }
+                }
+            };
+            Threads.execute(r,logger);
+
         }
         my_Stage.the_Stage.fullScreenProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -800,7 +859,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         if (dbg)
             logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
-        error_type = icon_manager.paths_manager.scan_dir(displayed_folder_path, my_Stage.the_Stage);
+        error_type = icon_manager.paths_manager.scan_dir(displayed_folder_path, my_Stage.the_Stage, from);
         if (error_type != Error_type.OK) {
             logger.log(true, true, "scene_geometry_changed() scan dir failed for :" + displayed_folder_path + " error=" + status);
         }
@@ -821,6 +880,33 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             }
         }
     }
+
+    //**********************************************************
+    public void scene_geometry_changed2(String from, boolean rebuild_all_items, boolean keep_scroll)
+    //**********************************************************
+    {
+        if (dbg)
+            logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
+
+
+        icon_manager.geometry_changed(this, the_Pane, mandatory_in_pane,
+                "scene_geometry_changed from: " + from + " keep_scroll=" + keep_scroll,
+                rebuild_all_items);
+
+        if (dbg) logger.log("the_pane scene_geometry_changed adapt_slider_to_scene");
+        if (!keep_scroll) {
+            vertical_slider.adapt_slider_to_scene(the_Scene, the_Pane);
+        }
+        set_title();
+        {
+            double title_height = my_Stage.the_Stage.getHeight() - the_Scene.getHeight();
+            for (Button b : browser_ui.top_buttons)
+            {
+                b.setMinHeight(title_height);
+            }
+        }
+    }
+
 
     //**********************************************************
     public void apply_font()

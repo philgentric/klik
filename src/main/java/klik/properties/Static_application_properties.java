@@ -38,7 +38,7 @@ public class Static_application_properties
     public static final int DEFAULT_VIDEO_LENGTH = 1;
     public static final String STYLE = "STYLE";
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
-    public static final String SHOW_FOLDER_SIZE = "show_folder_size";
+    //public static final String SHOW_FOLDER_SIZE = "show_folder_size"; // this is way too expensive
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
     private static final String ENABLE_FUSK = "enable_fusk";
@@ -245,27 +245,6 @@ public class Static_application_properties
     //**********************************************************
     {
         get_properties_manager(logger).save_unico(SHOW_HIDDEN_DIRECTORIES, String.valueOf(b), false);
-    }
-
-
-    //**********************************************************
-    public static boolean get_show_folder_size(Logger logger)
-    //**********************************************************
-    {
-        String s = get_properties_manager(logger).get(SHOW_FOLDER_SIZE);
-        if (s == null) {
-            get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, "false", false);
-            return false;
-        } else {
-            return Boolean.parseBoolean(s);
-        }
-    }
-
-    //**********************************************************
-    public static void set_show_folder_size(boolean b, Logger logger)
-    //**********************************************************
-    {
-        get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, String.valueOf(b), false);
     }
 
 
@@ -771,4 +750,27 @@ public class Static_application_properties
         get_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_BYTES, String.valueOf(warning_bytes), false);
         return warning_bytes;
     }
+
+        /*
+    //**********************************************************
+    public static boolean get_show_folder_size(Logger logger)
+    //**********************************************************
+    {
+        String s = get_properties_manager(logger).get(SHOW_FOLDER_SIZE);
+        if (s == null) {
+            get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, "false", false);
+            return false;
+        } else {
+            return Boolean.parseBoolean(s);
+        }
+    }
+
+    //**********************************************************
+    public static void set_show_folder_size(boolean b, Logger logger)
+    //**********************************************************
+    {
+        get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, String.valueOf(b), false);
+    }
+    */
+
 }

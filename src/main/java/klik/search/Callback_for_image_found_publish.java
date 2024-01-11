@@ -1,4 +1,4 @@
-package klik.find;
+package klik.search;
 
 
 import klik.browser.Browser;

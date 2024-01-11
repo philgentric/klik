@@ -1,4 +1,4 @@
-package klik.find;
+package klik.search;
 
 public class Search_statistics
 {

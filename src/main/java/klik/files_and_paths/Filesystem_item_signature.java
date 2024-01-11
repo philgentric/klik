@@ -36,7 +36,7 @@ public class Filesystem_item_signature
 
             if ( folder_signature_array ==null)
             {
-                logger.log("FATAL: scanning failed for "+path);
+                logger.log("FATAL: Filesystem_item_signature scanning failed for "+path);
                 return false;
             }
             Arrays.sort(folder_signature_array); // just in case
@@ -47,12 +47,12 @@ public class Filesystem_item_signature
             file_signature_array = get_file_hash(path, logger);
             if ( file_signature_array ==null)
             {
-                logger.log("FATAL: file_signature_array == null for "+path);
+                logger.log("FATAL: Filesystem_item_signature file_signature_array == null for "+path);
                 return false;
             }
             if ( file_signature_array.length == 0)
             {
-                logger.log("WARNIN: file_signature_array is empty ??? for "+path);
+                logger.log("WARNIN: Filesystem_item_signature file_signature_array is empty ??? for "+path);
                 return false;
             }
         }
@@ -77,7 +77,7 @@ public class Filesystem_item_signature
                 if (available < internal_hash_computation_buffer_size_in_bytes) {
                     if ( fis.read(b, 0, available) != available)
                     {
-                        logger.log("file read failed for: "+path);
+                        logger.log("Filesystem_item_signature file read failed for: "+path);
                         return null;
                     }
                     //System.out.println("byte " + new String(b));
@@ -86,7 +86,7 @@ public class Filesystem_item_signature
                 } else {
                     if (fis.read(b, 0, internal_hash_computation_buffer_size_in_bytes) != internal_hash_computation_buffer_size_in_bytes)
                     {
-                        logger.log("file read failed for: "+path);
+                        logger.log("Filesystem_item_signature file read failed for: "+path);
                         return null;
                     }
                     //System.out.println("byte " + new String(b));
@@ -98,10 +98,10 @@ public class Filesystem_item_signature
             //System.out.println("the MD5 hash of " + srcfile + " is " + new String(hash) + " " + sha.getDigestLength());
 
         } catch (FileNotFoundException e) {
-            logger.log("get_file_hash() fails because of: " + e);
+            logger.log("Filesystem_item_signature get_file_hash() fails because of: " + e);
             return new byte[0];
         } catch (Exception e) {
-            logger.log("get_file_hash() fails because of: " + e);
+            logger.log("Filesystem_item_signature get_file_hash() fails because of: " + e);
             return new byte[0];
         }
         return hash;
@@ -117,7 +117,7 @@ public class Filesystem_item_signature
             // we are comparing folders
             if ( folder_signature_array == null)
             {
-                logger.log("FATAL, file_signature_array = null ");
+                logger.log("FATAL, Filesystem_item_signature file_signature_array = null ");
                 return true;
             }
             if ( folder_signature_array.length != other.folder_signature_array.length) return false;

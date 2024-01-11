@@ -21,6 +21,7 @@ import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_manager;
+import klik.files_and_paths.Folder_size;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
@@ -136,7 +137,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 the_image_view.setPreserveRatio(true);
                 HBox hbox2 = new HBox();
                 hbox2.getChildren().add(the_image_view);
-                label2 = new Label("disk foot print");
+                label2 = new Label("wait ... disk foot print is being computed");
                 hbox2.getChildren().add(label2);
                 double local_font_size = font_size;
                 double icon_size = Static_application_properties.get_icon_size(logger);
@@ -284,7 +285,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_file_a_image(f)) continue; // ignore non images
+            if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
             if (Guess_file_type.is_this_path_a_gif(f.toPath()))
             {
                 if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), aborter, logger))
@@ -307,7 +308,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                     for (File f2 : files2)
                     {
                         if (f2.isDirectory()) continue; // ignore folders
-                        if (!Guess_file_type.is_file_a_image(f2)) continue; // ignore non images
+                        if (!Guess_file_type.is_file_an_image(f2)) continue; // ignore non images
                         if (Guess_file_type.is_this_path_a_gif(f2.toPath()))
                         {
                             if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(),aborter,logger))
@@ -354,7 +355,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         int count = 0;
         for (File f : files) {
             if (f.isDirectory()) continue; // ignore folders
-            if (Guess_file_type.is_file_a_image(f))
+            if (Guess_file_type.is_file_an_image(f))
             {
                 count++;
                 break;
@@ -389,15 +390,14 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
         Label label;
-        if (Static_application_properties.get_show_folder_size(logger))
+        String text2 = text;
+        if ( path != null)
         {
-            String text2 = text+"................"; // temporary string before the file count is determined in a worker thread
-            label = new Label(text2);
+            if (Files.isSymbolicLink(path)) {
+                text2 += " **Symbolic link** ";
+            }
         }
-        else
-        {
-            label = new Label(text);
-        }
+        label = new Label(text2);
 
         Look_and_feel_manager.set_label_look_for_folder(label,icon_height);
         if (path == null)
@@ -443,13 +443,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         {
             show_disk_foot_print_folder(this, text, path, aborter, logger);
         }
-        else
-        {
-            if (Static_application_properties.get_show_folder_size(logger))
-            {
-                show_how_many_files_folder(this, text, path, aborter, logger);
-            }
-        }
+
         return label;
     }
 
@@ -678,7 +672,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
         MenuItem size = new MenuItem(I18n.get_I18n_string("Get_folder_size",logger));
-        size.setOnAction(event -> Item_button.get_folder_size(path,browser,aborter, logger));
+        size.setOnAction(event -> Folder_size.get_folder_size(path,browser,aborter, logger));
         return size;
     }
 

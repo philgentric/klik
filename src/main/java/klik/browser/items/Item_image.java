@@ -129,6 +129,7 @@ public class Item_image extends Item implements Icon_destination
         }
         else
         {
+            System_open_actor.open_with_system(browser,path,logger);
             open_with_system(logger);
         }
     }
@@ -163,30 +164,6 @@ public class Item_image extends Item implements Icon_destination
         }
     }
 
-    //**********************************************************
-    public void open_with_system(Logger logger)
-    //**********************************************************
-    {
-        logger.log("opening with system (using java Desktop class) for path:" + path.toString());
-        // try to open it with the system
-        try
-        {
-            Desktop.getDesktop().open(path.toAbsolutePath().toFile());
-        }
-        catch (Exception e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("open failed :" + e));
-
-            if (e.toString().contains("doesn't exist."))
-            {
-                Popups.popup_warning(browser.my_Stage.the_Stage,"Failed?", "Your OS/GUI could not open this file, the error is:\n" + e, false, logger);
-            }
-            else
-            {
-                Popups.popup_warning(browser.my_Stage.the_Stage,"Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?", false, logger);
-            }
-        }
-    }
 
     @Override
     public Path get_path_for_display() {
@@ -227,9 +204,7 @@ public class Item_image extends Item implements Icon_destination
             javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Edit", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Editing "+path);
-                Actor_engine.run(
-                        System_open_actor.get(),
-                        new System_open_message(browser.my_Stage.the_Stage,path,logger),null,logger);
+                System_open_actor.open_with_system(browser,path,logger);
             });
             context_menu.getItems().add(menu_item);
         }

@@ -1,27 +1,47 @@
 package klik.browser;
 
 import klik.actor.Actor;
+import klik.actor.Actor_engine;
 import klik.actor.Message;
+import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 
 import java.awt.*;
+import java.nio.file.Path;
 
+//**********************************************************
 public class System_open_actor implements Actor
+//**********************************************************
 {
+    //**********************************************************
+    public static void open_with_system(Browser browser, Path path, Logger logger)
+    //**********************************************************
+    {
+    Actor_engine.run(
+            System_open_actor.get(),
+            new System_open_message(browser.my_Stage.the_Stage, path, logger),null,logger);
+    }
 
-    public static System_open_actor instance;
-    public static System_open_actor get()
+    private static System_open_actor instance;
+    //**********************************************************
+    private static System_open_actor get()
+    //**********************************************************
     {
         if ( instance == null) instance = new System_open_actor();
         return instance;
     }
 
 
+    //**********************************************************
     private System_open_actor(){}
+    //**********************************************************
 
+    //**********************************************************
     @Override
-    public String run(Message m) {
+    public String run(Message m)
+    //**********************************************************
+    {
         System_open_message som = (System_open_message) m;
         try
         {

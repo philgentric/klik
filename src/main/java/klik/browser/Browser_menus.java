@@ -14,7 +14,6 @@ import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
-import klik.images.caching.Image_cache_cafeine;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -40,6 +39,7 @@ import java.util.*;
 public class Browser_menus
 //**********************************************************
 {
+    private static final int MAX_MENU_ITEM_STRING_LENGTH = 150;
     Logger logger;
     Selection_handler selection_handler;
     Browser browser;
@@ -252,29 +252,6 @@ public class Browser_menus
         return dummy.button;
     }
 
-    //**********************************************************
-    public CheckMenuItem make_show_folder_size_check_menu_item(Stage stage)
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Show_number_of_files_in_folder_buttons",logger);
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_folder_size(logger));
-        item.setOnAction(actionEvent -> {
-            logger.log("Show_number_of_files_in_folder_buttons = "+Static_application_properties.get_show_folder_size(logger));
-            if (!Static_application_properties.get_show_folder_size(logger) )
-            {
-                if (!Popups.popup_ask_for_confirmation(stage, "Warning", "This can make browsing MUCH slower", logger))
-                {
-                    ((CheckMenuItem) actionEvent.getSource()).setSelected(false);
-                    return;
-                }
-            }
-            Static_application_properties.set_show_folder_size(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show folder size boolean changed",true,true);
-        });
-        return item;
-    }
-
 
 
     //**********************************************************
@@ -386,10 +363,10 @@ public class Browser_menus
     public MenuItem make_search_by_keywords_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = I18n.get_I18n_string("Search_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> search_images_by_keyworks());
+        item.setOnAction(event -> search_files_by_keyworks());
         return item;
     }
 
@@ -641,7 +618,15 @@ public class Browser_menus
                 {
                     continue;
                 }
-                MenuItem item = new MenuItem(hi.path);
+                String displayed_string = hi.path;
+
+                if ( displayed_string.length() > MAX_MENU_ITEM_STRING_LENGTH)
+                {
+                    // trick to avoid that the menu is not displayed when items are very wide
+                    // which may happens for the largest fonts
+                    displayed_string = displayed_string.substring(0,MAX_MENU_ITEM_STRING_LENGTH)+" ...";
+                }
+                MenuItem item = new MenuItem(displayed_string);
                 if ( hi.path.equals(browser.displayed_folder_path.toAbsolutePath().toString()))
                 {
                     // show the one we are in as inactive
@@ -658,7 +643,6 @@ public class Browser_menus
             }
             else
             {
-                //logger.log(max_on_screen+" exceeded creating 1 more menu");
                 if ( more == null)
                 {
                     String text = I18n.get_I18n_string("Show_Whole_History",logger);
@@ -899,7 +883,7 @@ public class Browser_menus
     //**********************************************************
     {
         String text = I18n.get_I18n_string("Length_of_video_sample",logger);
-        CheckMenuItem item = new CheckMenuItem(text + " = " +length);
+        CheckMenuItem item = new CheckMenuItem(text + " = " +length+" s");
         int actual_size = Static_application_properties.get_animated_gif_duration_for_a_video(logger);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
@@ -1153,7 +1137,7 @@ public class Browser_menus
         for (File f : files)
         {
             if ( f.isDirectory()) continue;
-            if ( !Guess_file_type.is_file_a_image(f)) continue;
+            if ( !Guess_file_type.is_file_an_image(f)) continue;
 
             Exif_metadata_extractor e = new Exif_metadata_extractor(f.toPath(),logger);
             e.get_exif_metadata(0, browser.aborter);
@@ -1164,7 +1148,7 @@ public class Browser_menus
     }
 
     //**********************************************************
-    private void search_images_by_keyworks()
+    private void search_files_by_keyworks()
     //**********************************************************
     {
         List<String> given = new ArrayList<>();
@@ -1181,11 +1165,36 @@ public class Browser_menus
     public MenuItem make_show_how_many_files_menu_item()
     //**********************************************************
     {
-        String text = "Show how many files are in each folder";//I18n.get_I18n_string("Create_new_empty_directory",logger);
+        String text = I18n.get_I18n_string("Show_How_Many_Files_Are_In_Each_Folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.show_how_many_files_deep_in_each_folder());
         return item;
     }
+
+    /*
+    //**********************************************************
+    public CheckMenuItem make_show_folder_size_check_menu_item(Stage stage)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Show_number_of_files_in_folder_buttons",logger);
+        CheckMenuItem item = new CheckMenuItem(text);
+        item.setSelected(Static_application_properties.get_show_folder_size(logger));
+        item.setOnAction(actionEvent -> {
+            logger.log("Show_number_of_files_in_folder_buttons = "+Static_application_properties.get_show_folder_size(logger));
+            if (!Static_application_properties.get_show_folder_size(logger) )
+            {
+                if (!Popups.popup_ask_for_confirmation(stage, "Warning", "This can make browsing MUCH slower", logger))
+                {
+                    ((CheckMenuItem) actionEvent.getSource()).setSelected(false);
+                    return;
+                }
+            }
+            Static_application_properties.set_show_folder_size(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            browser.scene_geometry_changed("show folder size boolean changed",true,true);
+        });
+        return item;
+    }
+    */
 
 
     //**********************************************************

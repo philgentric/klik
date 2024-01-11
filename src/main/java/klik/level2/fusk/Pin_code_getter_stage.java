@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.level2.fusk.Pin_code_client;
+import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Threads;
 
@@ -78,14 +79,10 @@ public class Pin_code_getter_stage
     private void show()
     //**********************************************************
     {
-        logger.log("show1");
-
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                logger.log("show2");
                 define();
-                logger.log("show3");
             }
         };
         Platform.runLater(r);
@@ -144,33 +141,57 @@ public class Pin_code_getter_stage
                 });
             }
         }
-        logger.log("before validate");
-        Button go = new Button("Validate");
-        go.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                logger.log("Validate button");
-                if ( pin_code_text.getText().length() < 4)
-                {
-                    message.setText("failed: MINIMUM 4 digits");
-                    return;
+        {
+            Button validate = new Button("Validate");
+            validate.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    if (pin_code_text.getText().length() < 4) {
+                        message.setText("failed: MINIMUM 4 digits");
+                        return;
+                    }
+                    pin_code_string = pin_code_text.getText();
+                    pin_code_validity.set(true);
+                    message.setText("PIN CODE OK");
+                    logger.log("pin code is ->" + pin_code_string + "<-");
+                    local_stage.close();
                 }
-                pin_code_string = pin_code_text.getText();
-                pin_code_validity.set(true);
-                message.setText("PIN CODE OK");
-                logger.log("pin code is ->"+pin_code_string+"<-");
-                local_stage.close();
-            }
-        });
-        vbox.getChildren().add(go);
-        local_stage.setHeight(600);
-        local_stage.setWidth(1000);
+            });
+            vbox.getChildren().add(validate);
+        }
+        {
+            Button stupid_default = new Button("Set stupid default: 0000");
+            stupid_default.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    pin_code_string = "0000";
+                    pin_code_validity.set(true);
+                    message.setText("STUPID DEFAULT PIN CODE SET: 0000");
+                    logger.log("pin code is ->" + pin_code_string + "<-");
+                    local_stage.close();
+                }
+            });
+            vbox.getChildren().add(stupid_default);
+        }
+        {
+            Button disable_fusk = new Button("Disable fusk for now");
+            disable_fusk.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    Static_application_properties.set_enable_fusk(false,logger);
+                    logger.log("fusk disabled");
+                    local_stage.close();
+                }
+            });
+            vbox.getChildren().add(disable_fusk);
+        }
+        local_stage.setHeight(400);
+        local_stage.setWidth(400);
 
         Scene scene = new Scene(vbox, 1000, 600, Color.WHITE);
         local_stage.setTitle("Enter Pin Code");
         local_stage.setScene(scene);
         local_stage.show();
-        logger.log("SHOW !");
 
     }
 

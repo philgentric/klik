@@ -157,7 +157,7 @@ public class Locator
             }
 
             if (!f.isFile()) continue;
-            if (Guess_file_type.is_file_a_image(f))
+            if (Guess_file_type.is_file_an_image(f))
             {
                 if ( f.length() >= min_bytes)
                 {

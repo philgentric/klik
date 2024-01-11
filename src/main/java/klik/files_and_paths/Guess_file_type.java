@@ -33,7 +33,7 @@ public class Guess_file_type
     static String[] supported_non_gif_image_formats = null;
 
     //**********************************************************
-    public static boolean is_file_a_image(File f)
+    public static boolean is_file_an_image(File f)
     //**********************************************************
     {
         return is_this_path_an_image(f.toPath());

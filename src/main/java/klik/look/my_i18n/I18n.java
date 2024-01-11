@@ -11,12 +11,16 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+//**********************************************************
 public class I18n
+//**********************************************************
 {
     private static final boolean dbg = false;
     private ResourceBundle the_resource_bundle;
 
+    //**********************************************************
     private I18n(String language, String country, Logger logger)
+    //**********************************************************
     {
         Locale the_locale = new Locale.Builder().setLanguage(language).setRegion(country).build();
         Locale.setDefault(the_locale);
@@ -70,7 +74,9 @@ public class I18n
    }
 
 
+    //**********************************************************
     private String get_I18n_string_internal(String key, Logger logger)
+    //**********************************************************
     {
         try
         {
@@ -94,7 +100,9 @@ public class I18n
 
     private static I18n cache = null;
 
+    //**********************************************************
     public static String get_I18n_string(String key, Logger logger)
+    //**********************************************************
     {
         if (cache == null)
         {

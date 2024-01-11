@@ -2,7 +2,6 @@ package klik.browser.items;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,10 +9,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
@@ -27,16 +23,13 @@ import klik.files_and_paths.Folder_size;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
-import klik.files_and_paths.Sizes;
 import klik.look.Font_size;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.music.Audio_player;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
-import klik.util.Scheduled_thread_pool;
 import klik.util.Threads;
 
 import java.io.File;
@@ -52,9 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 
 
 //**********************************************************
@@ -249,7 +239,7 @@ public class Item_button extends Item implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_file_a_image(f)) continue; // ignore non images
+            if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
             if( make_animated_gif)
             {
                 Objects.requireNonNull(images_in_folder).add(f);
@@ -394,9 +384,7 @@ public class Item_button extends Item implements Icon_destination
             }
             logger.log("asking the system to open: " + path.toAbsolutePath());
 
-            Actor_engine.run(
-                    System_open_actor.get(),
-                    new System_open_message(browser.my_Stage.the_Stage,path,logger),null,logger);
+            System_open_actor.open_with_system(browser,path,logger);
 
         });
 
@@ -408,12 +396,12 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
         String text2 = text;
-        if ( Static_application_properties.get_show_folder_size(logger)) {
-            text2 += "..."; // room reservation?
-        }
-        if ( Files.isSymbolicLink(path))
+        //if ( Static_application_properties.get_show_folder_size(logger)) {    text2 += "..."; // room reservation since the size will be added later}
+        if ( path != null)
         {
-            text2 += " **Symbolic link** ";
+            if (Files.isSymbolicLink(path)) {
+                text2 += " **Symbolic link** ";
+            }
         }
         button = new Button(text2);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
@@ -457,10 +445,8 @@ public class Item_button extends Item implements Icon_destination
         make_button_drop_receiver_capable();
         give_a_menu_to_the_button();
 
-        if ( Static_application_properties.get_show_folder_size(logger))
-        {
-            show_how_many_files_deep_folder(button,text,path,aborter,logger);
-        }
+        //if ( Static_application_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
+
     }
 
 
@@ -787,12 +773,7 @@ public class Item_button extends Item implements Icon_destination
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Open_with_system", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Item_button: System Open");
-
-            Actor_engine.run(
-                    System_open_actor.get(),
-                    new System_open_message(browser.my_Stage.the_Stage,path,logger),
-                    null,
-                    logger);
+            System_open_actor.open_with_system(browser,path,logger);
         });
         return menu_item;
     }

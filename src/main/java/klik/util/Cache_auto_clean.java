@@ -6,7 +6,9 @@ import klik.properties.Static_application_properties;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,11 @@ public class Cache_auto_clean
             File[] files = monitored_folder.path.toFile().listFiles();
             for ( File f : files)
             {
+                if ( f.isDirectory())
+                {
+                    logger.log("WARNING: Cache_auto_clean not erasing folders "+f);
+                    continue;
+                }
                 delete_if_too_old(f);
             }
         }
@@ -65,8 +72,14 @@ public class Cache_auto_clean
             if ( dbg) logger.log(f.toPath().toAbsolutePath()+ " is too old at "+age+" days, deleting");
             try {
                 Files.delete(f.toPath());
-            } catch (IOException e) {
-                logger.log(""+e);
+            } catch (NoSuchFileException e) {
+                logger.log(Stack_trace_getter.get_stack_trace("too old: "+e.toString()));
+            }
+            catch (DirectoryNotEmptyException e) {
+                logger.log(Stack_trace_getter.get_stack_trace("too old: "+e.toString()));
+            }
+            catch (IOException e) {
+                logger.log(Stack_trace_getter.get_stack_trace("too old: "+e.toString()));
             }
         }
     }

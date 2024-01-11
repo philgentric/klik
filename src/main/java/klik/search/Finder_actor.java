@@ -1,4 +1,4 @@
-package klik.find;
+package klik.search;
 
 import klik.actor.Actor;
 import klik.actor.Message;
@@ -64,12 +64,12 @@ public class Finder_actor implements Actor
         }
         logger.log("--------------------------------");
 
-        find_image_files_from_keywords( target_path,  browser,  keywords);
+        find_files_from_keywords( target_path,  browser,  keywords);
 
     }
 
     //**********************************************************
-    public void find_image_files_from_keywords(Path target_path, Browser browser, List<String> keywords)
+    public void find_files_from_keywords(Path target_path, Browser browser, List<String> keywords)
     //**********************************************************
     {
         Finder_frame popup = new Finder_frame(
@@ -266,16 +266,16 @@ public class Finder_actor implements Actor
         }
         else
         {
-            if ( Guess_file_type.is_this_path_an_image (path))
+            if(fm.look_only_for_images)
             {
-                if ( dbg)
-                    logger.log("keyword is ->"+keyword+"<- matched for IMAGE "+path.toAbsolutePath());
-                record_found_file(path, keyword, fm);
+                if ( !Guess_file_type.is_this_path_an_image (path))
+                {
+                    if ( dbg) logger.log("is not an image: "+path.toAbsolutePath());
+                    return;
+                }
             }
-            else
-            {
-                if ( dbg) logger.log("is not an image: "+path.toAbsolutePath());
-            }
+            if ( dbg) logger.log("keyword is ->"+keyword+"<- matched for IMAGE "+path.toAbsolutePath());
+            record_found_file(path, keyword, fm);
         }
     }
 
@@ -300,7 +300,6 @@ public class Finder_actor implements Actor
                     record_found_dir(path, keyword,fm);
                     continue;
                 }
-                if ( !Guess_file_type.is_this_path_an_image(path) ) continue;
                 record_found_file(path, keyword, fm);
             }
         } catch (IOException e)

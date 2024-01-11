@@ -311,7 +311,7 @@ public class Menu_for_image_window
     private static MenuItem get_search_by_autoextracted_keyword_menu_item(Browser the_browser, Image_window image_window, Image_display_handler image_context_owner)
     //**********************************************************
     {
-        MenuItem search_k = new MenuItem(I18n.get_I18n_string("Search_images_by_keywords_from_this_ones_name", image_window.logger));
+        MenuItem search_k = new MenuItem(I18n.get_I18n_string("Search_by_keywords_from_this_ones_name", image_window.logger));
         search_k.setOnAction(event -> image_context_owner.image_context.search_using_keywords_from_the_name(the_browser));
         return search_k;
     }

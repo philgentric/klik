@@ -1,6 +1,7 @@
 package klik.browser.icons;
 
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Files_and_Paths;
@@ -14,6 +15,7 @@ import klik.util.Threads;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,95 +50,6 @@ public class Aspect_ratio_cache
         aborter = aborter_;
         aspect_ratio_actor = new Aspect_ratio_actor(in_flight);
     }
-
-
-    //**********************************************************
-    static double round_to_one_decimal(double d)
-    //**********************************************************
-    {
-        double dd = 10.0*d;
-        return Math.round(dd)*10.0;
-    }
-    //**********************************************************
-    class Aspect_ratio_comparator implements Comparator<Path>
-            //**********************************************************
-    {
-
-        @Override
-        public int compare(Path p1, Path p2) {
-            Double d1 = get_aspect_ratio(p1);
-            Double d1r= round_to_one_decimal(d1);
-            Double d2 = get_aspect_ratio(p2);
-            Double d2r= round_to_one_decimal(d2);
-            return d1r.compareTo(d2r);
-        }
-    };
-
-    //**********************************************************
-    class Aspect_ratio_comparator_random implements Comparator<Path>
-            //**********************************************************
-    {
-
-        long seed;
-        public Aspect_ratio_comparator_random()
-        {
-            Random r = new Random();
-            seed = r.nextLong();
-        }
-        @Override
-        public int compare(Path p1, Path p2) {
-            // round the aspect ratio a bit
-            Double d1 = get_aspect_ratio(p1);
-            Double d1r= round_to_one_decimal(d1);
-            Double d2 = get_aspect_ratio(p2);
-            Double d2r= round_to_one_decimal(d2);
-
-            int diff = d1r.compareTo(d2r);
-            if (diff != 0) return diff;
-            // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
-            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l1 = new Random(seed*s1).nextLong();
-            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l2 = new Random(seed*s2).nextLong();
-            return l1.compareTo(l2);
-
-        }
-
-    };
-
-
-    //**********************************************************
-    class Random_comparator_aspect_ratio implements Comparator<Path>
-            //**********************************************************
-    {
-
-        long seed;
-        public Random_comparator_aspect_ratio()
-        {
-            Random r = new Random();
-            seed = r.nextLong();
-        }
-        @Override
-        public int compare(Path p1, Path p2) {
-
-            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l1 = new Random(seed*s1).nextLong();
-            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l2 = new Random(seed*s2).nextLong();
-            int diff=  l1.compareTo(l2);
-            if (diff != 0) return diff;
-
-            Double d1 = get_aspect_ratio(p1);
-            Double d1r= round_to_one_decimal(d1);
-            Double d2 = get_aspect_ratio(p2);
-            Double d2r= round_to_one_decimal(d2);
-
-            return d1r.compareTo(d2r);
-        }
-
-    };
-
-
 
 
     //**********************************************************
@@ -223,7 +136,7 @@ public class Aspect_ratio_cache
     private AtomicBoolean done = new AtomicBoolean(false);
     private Runnable look_for_end_runnable = null;
     //**********************************************************
-    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Aborter aborter)
+    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Stage stage, Aborter aborter)
     //**********************************************************
     {
         if ( done.get()) return;
@@ -251,18 +164,17 @@ public class Aspect_ratio_cache
                     {
                         done.set(true);
 
+                        Comparator<Path> local_file_comparator;
                         if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
                         {
-                            paths_manager.file_comparator = new Aspect_ratio_comparator_random();
+                            local_file_comparator = new Aspect_ratio_comparator_random();
                         }
-                        /*else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO_RANDOM)
-                        {
-                            paths_manager.file_comparator = new Random_comparator_aspect_ratio();
-                        }*/
                         else
                         {
-                            paths_manager.file_comparator = new Aspect_ratio_comparator();
+                            local_file_comparator = new Aspect_ratio_comparator();
                         }
+                        paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+
                         if ( dbg) logger.log("aspect ratios loaded, going to refresh");
                         refresh_target.refresh();
                         return;
@@ -273,13 +185,13 @@ public class Aspect_ratio_cache
                         Runnable r = new Runnable() {
                             @Override
                             public void run() {
-                                Popups.popup_warning(null,"please wait!","Filling aspect ratio cache,"+aspect_ratio_actor.in_flight.get()+" files remaining",true,logger);
+                                Popups.popup_warning(stage,"please wait!","Filling aspect ratio cache,"+aspect_ratio_actor.in_flight.get()+" files remaining",true,logger);
                             }
                         };
                         Platform.runLater(r);
                     }
                     try {
-                        Thread.sleep(300);
+                        Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -289,4 +201,100 @@ public class Aspect_ratio_cache
         };
         Threads.execute(look_for_end_runnable,logger);
     }
+
+
+
+    //**********************************************************
+    static double round_to_one_decimal(double d)
+    //**********************************************************
+    {
+        double dd = 10.0*d;
+        return Math.round(dd)*10.0;
+    }
+    //**********************************************************
+    class Aspect_ratio_comparator implements Comparator<Path>
+            //**********************************************************
+    {
+
+        @Override
+        public int compare(Path p1, Path p2) {
+            Double d1 = get_aspect_ratio(p1);
+            Double d1r= round_to_one_decimal(d1);
+            Double d2 = get_aspect_ratio(p2);
+            Double d2r= round_to_one_decimal(d2);
+            int diff =  d1r.compareTo(d2r);
+            if ( diff != 0) return diff;
+            return (p1.toString().compareTo(p2.toString()));
+        }
+    };
+
+
+    //**********************************************************
+    class Aspect_ratio_comparator_random implements Comparator<Path>
+            //**********************************************************
+    {
+
+        long seed;
+        public Aspect_ratio_comparator_random()
+        {
+            Random r = new Random();
+            seed = r.nextLong();
+        }
+        @Override
+        public int compare(Path p1, Path p2) {
+            // round the aspect ratio a bit
+            Double d1 = get_aspect_ratio(p1);
+            Double d1r= round_to_one_decimal(d1);
+            Double d2 = get_aspect_ratio(p2);
+            Double d2r= round_to_one_decimal(d2);
+
+            int diff = d1r.compareTo(d2r);
+            if (diff != 0) return diff;
+            // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
+            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
+            Long l1 = new Random(seed*s1).nextLong();
+            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
+            Long l2 = new Random(seed*s2).nextLong();
+            return l1.compareTo(l2);
+
+        }
+
+    };
+
+
+/*
+    //**********************************************************
+    class Random_comparator_aspect_ratio implements Comparator<Path>
+            //**********************************************************
+    {
+
+        long seed;
+        public Random_comparator_aspect_ratio()
+        {
+            Random r = new Random();
+            seed = r.nextLong();
+        }
+        @Override
+        public int compare(Path p1, Path p2) {
+
+            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
+            Long l1 = new Random(seed*s1).nextLong();
+            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
+            Long l2 = new Random(seed*s2).nextLong();
+            int diff=  l1.compareTo(l2);
+            if (diff != 0) return diff;
+
+            Double d1 = get_aspect_ratio(p1);
+            Double d1r= round_to_one_decimal(d1);
+            Double d2 = get_aspect_ratio(p2);
+            Double d2r= round_to_one_decimal(d2);
+
+            return d1r.compareTo(d2r);
+        }
+
+    };
+*/
+
+
+
 }

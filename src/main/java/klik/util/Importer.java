@@ -121,6 +121,7 @@ public class Importer
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
                 target,
+                "Photo importer",
                 file_payload,
                 null,
                 warnings,
@@ -183,6 +184,7 @@ public class Importer
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
                 target,
+                "Photo importer size estimate",
                 file_payload,
                 null,
                 wp,

@@ -281,7 +281,7 @@ public class Selection_handler
             case image_gif, image_not_gif -> ((Item_image) item).open_an_image(logger);
             case symbolic_link_on_folder ,folder ->
                     Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
-            default -> item.open_with_system(logger);
+            default ->  System_open_actor.open_with_system(browser,item.get_item_path(),logger);
         }
         return true;
     }

@@ -33,7 +33,7 @@ public class Filesystem_item_modification_watcher
         signature[0] = new Filesystem_item_signature(logger);
         if (!signature[0].init(path))
         {
-            logger.log("signature failed for");
+            logger.log("signature failed for :"+path);
             return false;
         }
 

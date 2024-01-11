@@ -24,14 +24,14 @@ import org.apache.commons.io.FileExistsException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -329,7 +329,7 @@ public class Files_and_Paths {
             else
             {
                 files++;
-                if( Guess_file_type.is_file_a_image(f)) images++;
+                if( Guess_file_type.is_file_an_image(f)) images++;
                 bytes += f.length();
             }
         }
@@ -388,19 +388,19 @@ public class Files_and_Paths {
         File_payload fp = f -> {
             bytes.addAndGet(f.length());
             files.incrementAndGet();
-            if ( Guess_file_type.is_file_a_image(f)) images.incrementAndGet();
+            if ( Guess_file_type.is_file_an_image(f)) images.incrementAndGet();
         };
         Dir_payload dp = f -> {
             folders.incrementAndGet();
             //System.out.println("folder:"+f.getName());
         };
-        ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
-        Disk_scanner.process_folder(path, fp,dp, wp, aborter, logger);
+        ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
+        Disk_scanner.process_folder(path, "get_sizes_on_disk_deep_concurrent", fp,dp, warnings, aborter, logger);
 
 
         //long now = System.currentTimeMillis();
         //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +bytes.get());
-        return new Sizes(bytes.get(),folders.get(),files.get(),images.get(),wp);
+        return new Sizes(bytes.get(),folders.get(),files.get(),images.get(),warnings);
     }
 
 
@@ -418,7 +418,7 @@ public class Files_and_Paths {
         AtomicLong bytes = new AtomicLong(0);
         File_payload fp = f -> bytes.addAndGet(f.length());
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
-        Disk_scanner.process_folder(path, fp,null,wp,aborter,logger);
+        Disk_scanner.process_folder(path, "get_size_on_disk_concurrent", fp,null,wp,aborter,logger);
         //long now = System.currentTimeMillis();
         //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +size.get());
         return bytes.get();
@@ -446,7 +446,7 @@ public class Files_and_Paths {
         AtomicLong files = new AtomicLong(0);
         File_payload fp = f -> files.incrementAndGet();
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
-        Disk_scanner.process_folder(path, fp,null, wp,aborter, logger);
+        Disk_scanner.process_folder(path, "get_how_many_files_deep_concurrent", fp,null, wp,aborter, logger);
         return files.get();
     }
 
@@ -566,40 +566,154 @@ public class Files_and_Paths {
     //**********************************************************
     {
 
-        Runnable r = () -> delete_for_ever_all_files_in_dir(dir, logger);
+        Runnable r = () -> {
+            String s = delete_for_ever_all_files_in_dir(dir, logger);
+            if ( s != null)
+            {
+                Runnable rr = new Runnable() {
+                    @Override
+                    public void run() {
+                        if ( s.contains("AccessDeniedException") && s.contains(Static_application_properties.TRASH_DIR))
+                        {
+                            Popups.popup_warning(null,"There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,logger);
+                        }
+                        else {
+                            Popups.popup_warning(null, "Error", s, false, logger);
+                        }
+                    }
+                };
+                Platform.runLater(rr);
+            }
+        };
 
         Threads.execute(r, logger);
 
     }
 
     //**********************************************************
-    private static void delete_for_ever_all_files_in_dir(Path dir, Logger logger)
+    private static String delete_for_ever_all_files_in_dir(Path dir, Logger logger)
     //**********************************************************
     {
+
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
         {
             List<Old_and_new_Path> l = new ArrayList<>();
-            for (Path p : stream) {
-                if (Files.isDirectory(p)) {
-                    delete_for_ever_all_files_in_dir(p, logger);
+            for (Path p : stream)
+            {
+                if (Files.isDirectory(p))
+                {
+                    String s = delete_for_ever_all_files_in_dir(p, logger);
+                    if ( s != null) return s;
                 }
-                try {
-                    Files.delete(p);
-                    l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done));
-                } catch (NoSuchFileException x) {
-                    logger.log("no such file or directory:" + p);
-                } catch (DirectoryNotEmptyException x) {
-                    logger.log(p + " directory not empty");
+                else
+                {
+                    String s = delete_for_ever_a_file(p,l,logger);
+                    if ( s != null) return s;
+
                 }
 
             }
             Change_gang.report_changes(l);
 
-        } catch (IOException x) {
-            // File permission problems are caught here.
-            logger.log(x.toString());
         }
+        catch (IOException x)
+        {
+            // directory permission problems are caught here.
+            if ( x.toString().contains("AccessDeniedException"))
+            {
+                try {
+                    Set<PosixFilePermission> permissions = new TreeSet<>();
+                    permissions.add(PosixFilePermission.OWNER_WRITE);
+                    permissions.add(PosixFilePermission.OTHERS_WRITE);
+                    permissions.add(PosixFilePermission.GROUP_WRITE);
+                    Files.setPosixFilePermissions(dir, permissions);
+                }
+                catch (AccessDeniedException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                } catch (IOException e) {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                }
+                try
+                {
+                    Files.delete(dir);
+                }
+                catch (AccessDeniedException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                }
+                catch (IOException e) {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                }
 
+            }
+            logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
+        }
+        return null;
+    }
+
+    //**********************************************************
+    private static String delete_for_ever_a_file(Path p, List<Old_and_new_Path> l, Logger logger)
+    //**********************************************************
+    {
+        try
+        {
+            Files.delete(p);
+            l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done));
+        } catch (NoSuchFileException x) {
+            logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
+            return x.toString();
+        } catch (DirectoryNotEmptyException x) {
+            logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
+            return x.toString();
+        }
+        catch (IOException x) {
+            if ( x.toString().contains("AccessDeniedException"))
+            {
+                try {
+                    Set<PosixFilePermission> permissions = new TreeSet<>();
+                    permissions.add(PosixFilePermission.OWNER_WRITE);
+                    permissions.add(PosixFilePermission.OWNER_READ);
+                    permissions.add(PosixFilePermission.OWNER_EXECUTE);
+                    permissions.add(PosixFilePermission.OTHERS_WRITE);
+                    permissions.add(PosixFilePermission.OTHERS_READ);
+                    permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+                    permissions.add(PosixFilePermission.GROUP_WRITE);
+                    permissions.add(PosixFilePermission.GROUP_READ);
+                    permissions.add(PosixFilePermission.GROUP_EXECUTE);
+                    Files.setPosixFilePermissions(p, permissions);
+                }
+                catch (UnsupportedOperationException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                    return e.toString();
+                }
+                catch (AccessDeniedException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                    return e.toString();
+                }
+                catch (IOException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                    return e.toString();
+                }
+                try {
+                    Files.delete(p);
+                }
+                catch (IOException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                    return e.toString();
+                }
+            }
+            else {
+                logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
+                return x.toString();
+
+            }
+        }
+        return null;// OK
     }
 
 

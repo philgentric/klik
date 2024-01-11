@@ -46,8 +46,8 @@ public class Browser_creation_context
             if ( Popups.popup_ask_for_confirmation(
                     previous_stage.the_Stage,
                     "Browsing klik icon cache is not such a good idea!",
-                    "Because it causes an explosion of new icons or icons of icons....\n" +
-                            "Remember to clean the icon cache ASAP after ",new System_out_logger()))
+                    "Because it causes an explosion (recursive) of new icons... of icons ... of icons....\n" +
+                            "If you insist, ok, but remember to clear the icon cache ASAP after! ",new System_out_logger()))
             {
                 // ok, its your disk man
                 this.folder_path = dir;

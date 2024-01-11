@@ -116,7 +116,7 @@ public class Icon_manager
             iv_denied.setSmooth(true);
             iv_denied.setY(top_delta_y);
             pane.getChildren().add(iv_denied);
-            compute_bounding_rectangle("Error_type.denied");
+            compute_bounding_rectangle(the_browser.error_type.toString());
             return;
         }
         if (the_browser.error_type == Error_type.NOT_FOUND) {
@@ -125,7 +125,7 @@ public class Icon_manager
             iv_denied.setSmooth(true);
             iv_denied.setY(top_delta_y);
             pane.getChildren().add(iv_denied);
-            compute_bounding_rectangle("Error_type.not_found");
+            compute_bounding_rectangle(the_browser.error_type.toString());
             return;
         }
         if (the_browser.error_type == Error_type.ERROR) {
@@ -134,7 +134,7 @@ public class Icon_manager
             iv_denied.setSmooth(true);
             iv_denied.setY(top_delta_y);
             pane.getChildren().add(iv_denied);
-            compute_bounding_rectangle("Error_type.unknown_error");
+            compute_bounding_rectangle(the_browser.error_type.toString());
             return;
         }
 
@@ -229,7 +229,8 @@ public class Icon_manager
     {
         // manage the non-iconifed-files section
         double row_increment_for_files = 2 * Static_application_properties.get_font_size(logger);
-        for (Path path : paths_manager.non_iconized)
+
+        for (Path path : paths_manager.non_iconized.keySet())
         {
             //logger.log("process_non_iconized_files "+path.toAbsolutePath());
             String text = path.getFileName().toString();
@@ -272,7 +273,7 @@ public class Icon_manager
         if ( Static_application_properties.get_show_icons_for_folders(logger))
         {
             actual_row_increment = row_increment_for_dirs_with_picture;
-            for (Path folder_path : paths_manager.folders)
+            for (Path folder_path : paths_manager.folders.keySet())
             {
                 long start = System.currentTimeMillis();
                 boolean has_picture = false;
@@ -285,7 +286,7 @@ public class Icon_manager
         else
         {
             actual_row_increment = row_increment_for_dirs;
-            for (Path folder_path : paths_manager.folders)
+            for (Path folder_path : paths_manager.folders.keySet())
             {
                 p = process_one_folder_plain(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
             }

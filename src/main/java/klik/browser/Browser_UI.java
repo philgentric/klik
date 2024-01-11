@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
@@ -101,21 +102,9 @@ public class Browser_UI
         BorderPane bottom_border_pane = define_bottom_pane(top_pane);
 
         browser.the_Scene = new Scene(bottom_border_pane);//, W, H);
-        browser.error_type = browser.icon_manager.paths_manager.scan_dir(browser.displayed_folder_path, browser.my_Stage.the_Stage);
-        switch (browser.error_type) {
-            case OK:
-                break;
-            case DENIED:
-                logger.log("access denied");
-                browser.set_status("Acces denied for:" + browser.displayed_folder_path);
-                break;
-            case NOT_FOUND:
-            case ERROR:
-                logger.log("directory gone");
-                browser.set_status("Folder is gone:" + browser.displayed_folder_path);
-                break;
+        browser.error_type = Error_type.OK;
 
-        }
+
         {
             //logger.log("creating vertical slider");
             browser.vertical_slider = new Vertical_slider(browser.the_Scene, browser.the_Pane, browser.icon_manager, logger);
@@ -332,10 +321,11 @@ public class Browser_UI
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
         if (level2)
         {
+            files_menu.getItems().add(browser_menus.make_show_how_many_files_menu_item());
             files_menu.getItems().add(browser_menus.make_search_by_keywords_menu_item());
         }
         {
-            String cleanup = "Clean up";//I18n.get_I18n_string("Clean",logger);
+            String cleanup = I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
@@ -380,22 +370,21 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
         if (level2) pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
         if (level2) pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
-        if (level2) pref.getItems().add(browser_menus.make_show_how_many_files_menu_item());
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
         //pref.getItems().add(browser_menus.make_sort_files_by_name_vs_decreasing_size_check_menu_item());
         //pref.getItems().add(browser_menus.make_show_gifs_first_check_menu_item());
-        if (level2) pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
+        //if (level2) pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
         pref.getItems().add(browser_menus.make_column_width_menu());
         pref.getItems().add(browser_menus.make_font_size_menu_item());
         pref.getItems().add(browser_menus.make_style_menu_item());
         pref.getItems().add(browser_menus.make_language_menu());
+        if (level2) pref.getItems().add(browser_menus.make_video_length_menu());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
         if (level2) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
-        if (level2) pref.getItems().add(browser_menus.make_video_length_menu());
 
         return pref;
     }

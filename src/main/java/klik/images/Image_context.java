@@ -18,7 +18,7 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
-import klik.find.Finder_actor;
+import klik.search.Finder_actor;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.level2.fusk.Fusk_static_core;
 import klik.level2.fusk.Fusk_strings;
@@ -333,26 +333,11 @@ public class Image_context
 
 
 
-
-
-
-    //Finder_in_a_thread finder_in_a_thread;
-
     //**********************************************************
     void search_using_keywords_from_the_name(Browser b)
     //**********************************************************
     {
         logger.log("Image_context search_k");
-        /*
-        if (finder_in_a_thread != null)
-        {
-            finder_in_a_thread.update_display_in_FX_thread(b,"reusing previous results");
-            return;
-        }
-        finder_in_a_thread = new Finder_in_a_thread(logger);
-        finder_in_a_thread.find_image_files(path, b, logger);
-        */
-
         Finder_actor f = new Finder_actor(logger);
         f.find_image_files(path,b);
     }
@@ -406,7 +391,7 @@ public class Image_context
 
                     Finder_actor finder;
                     finder = new Finder_actor(logger);
-                    finder.find_image_files_from_keywords(target,browser, keywords);
+                    finder.find_files_from_keywords(target,browser, keywords);
                 }
             }
 
