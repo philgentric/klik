@@ -117,7 +117,7 @@ public class Animated_gif_from_folder
                 to_be_cleaned_up.add(icon_path2);
 
             } catch (IOException e) {
-                logger.log("copy failed "+e);
+                logger.log("WARNING: make_animated_gif_from_all_images_in_folder copy failed "+e);
                continue;
             }
             actual++;

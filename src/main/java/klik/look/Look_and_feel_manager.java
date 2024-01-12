@@ -583,9 +583,24 @@ public class Look_and_feel_manager
         Objects.requireNonNull(get_instance()).set_file_style(node);
     }
     //**********************************************************
-    public static void give_button_a_selected_file_style(Node node)
+    public static void give_button_a_selected_file_style(Node node1, Node node2)
     //**********************************************************
     {
+        logger.log(Stack_trace_getter.get_stack_trace("give_button_a_selected_file_style"+node1+" "+node2 ));
+
+        do_one_node(node1);
+        if ( node2!=null) do_one_node(node2);
+    }
+
+    //**********************************************************
+    private static void do_one_node(Node node)
+    //**********************************************************
+    {
+        if ( node == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("node is null"));
+            return;
+        }
         if (node instanceof Button button)
         {
             button.setAlignment(Pos.BASELINE_LEFT);

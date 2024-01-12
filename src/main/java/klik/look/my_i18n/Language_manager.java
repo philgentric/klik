@@ -21,9 +21,13 @@ public class Language_manager
     };
 
     //**********************************************************
-    public static Language get_current_language()
+    public static Language get_current_language(Logger logger)
     //**********************************************************
     {
+        if ( instance == null)
+        {
+            logger.log("FATAL: you MUST set the language by calling Language_manager.init_registered_languages(logger) before anycall to I18n");
+        }
         return instance;
     }
 

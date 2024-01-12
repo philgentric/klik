@@ -102,6 +102,9 @@ public abstract class Look_and_feel
     abstract public String get_broken_icon_path();
     abstract public String get_default_icon_path();
     abstract public String get_folder_icon_path();
+    abstract public String get_selected_text_color();
+    abstract public Color get_selection_box_color();
+
     protected String get_dummy_icon_path()
     {
         return "dummy.png";
@@ -118,18 +121,25 @@ public abstract class Look_and_feel
 
     //public static final PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
 
-    public void set_hovered_directory_style(Node node){
+    //**********************************************************
+    public void set_hovered_directory_style(Node node)
+    //**********************************************************
+    {
         System.out.println("Look_and_feel::set_hovered_directory_style");
         Font_size.apply_font_size(node, logger);
 
-        set_text_color(node,"-fx-text-fill: #704040;");
+        set_text_color(node,get_selected_text_color());//"-fx-text-fill: #704040;");
         //PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
         //button.pseudoClassStateChanged(pseudo_css_class_for_selection,true);
 
 
     }
 
-    private static void set_text_color(Node node, String color) {
+
+    //**********************************************************
+    private static void set_text_color(Node node, String color)
+    //**********************************************************
+    {
 
         // color MUST be formatted as: "-fx-text-fill: #704040;"
         node.setStyle(color);
@@ -147,13 +157,20 @@ public abstract class Look_and_feel
         }
     }
 
-    protected void set_directory_style(Node node){
+    //**********************************************************
+    protected void set_directory_style(Node node)
+    //**********************************************************
+    {
         Font_size.apply_font_size(node,logger);
     }
 
+    //**********************************************************
     protected void set_file_style(Node node)
+    //**********************************************************
     {
         //logger.log("set_file_style");
+        Font_size.set_preferred_font_size(node,logger);
+/*
         if (node instanceof Button button)
         {
             button.setFont(Font.font("Monaco", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
@@ -164,14 +181,22 @@ public abstract class Look_and_feel
             Font_size.set_preferred_font_size(node,logger);
         }
         //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
+
+ */
     }
-    protected void set_selected_file_style(Node button){
+    //**********************************************************
+    protected void set_selected_file_style(Node button)
+    //**********************************************************
+    {
         //logger.log("set_selected_file_style");
         set_hovered_directory_style(button);
     }
 
 
-    public Color get_stroke_color_of_folder_items() {
+    //**********************************************************
+    public Color get_stroke_color_of_folder_items()
+    //**********************************************************
+    {
         return Color.BLACK;
     }
 
@@ -217,4 +242,6 @@ public abstract class Look_and_feel
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
     }
+
+
 }

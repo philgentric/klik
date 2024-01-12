@@ -176,7 +176,10 @@ public class Selection_handler
 
         rect.setArcWidth(5);
         rect.setArcHeight(5);
-        rect.setStroke(Color.BLACK);
+
+        Color col = Look_and_feel_manager.get_instance().get_selection_box_color();
+
+        rect.setStroke(col);
         rect.setFill(Color.TRANSPARENT);
 
         final Point2D in_parent = the_pane.sceneToLocal(mouse_event.getSceneX(), mouse_event.getSceneY());

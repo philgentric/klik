@@ -28,8 +28,8 @@ public class Static_application_properties
     public static Properties_manager the_properties_manager;
     public static final String SORT_FILES_BY = "sort_files_by";
     private static final String LEVEL2 = "LEVEL2";
-    public static final String DISK_CACHE_SIZE_WARNING_BYTES = "DISK_CACHE_SIZE_WARNING_SIZE_IN_BYTES";
-    private static final int DEFAULT_SIZE_WARNING_BYTES = 100_000_000;
+    private static final int DEFAULT_SIZE_WARNING_MEGABYTES = 100;
+    private static final String DISK_CACHE_SIZE_WARNING_MEGABYTES = "DISK_CACHE_SIZE_WARNING_MEGABYTES";
     private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
     private static int icon_size = -1;
     private static int video_length = -1;
@@ -436,12 +436,38 @@ public class Static_application_properties
 
 
     //**********************************************************
+    public static void set_cache_size_limit_warning_megabytes(int warning_megabytes, Logger logger)
+    //**********************************************************
+    {
+        get_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes), false);
+    }
+
+    //**********************************************************
+    public static int get_cache_size_limit_warning_megabytes(Logger logger)
+    //**********************************************************
+    {
+        int warning_megabytes = DEFAULT_SIZE_WARNING_MEGABYTES;
+        String warning_bytes_s = get_properties_manager(logger).get(DISK_CACHE_SIZE_WARNING_MEGABYTES);
+        if (warning_bytes_s != null)
+        {
+            warning_megabytes = (int)Double.parseDouble(warning_bytes_s);
+        }
+        get_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes), false);
+        return warning_megabytes;
+    }
+
+
+
+
+    //**********************************************************
     public static void set_icon_size(int target_size, Logger logger)
     //**********************************************************
     {
         icon_size = target_size;
         get_properties_manager(logger).save_unico(ICON_SIZE, String.valueOf(icon_size), false);
     }
+
+
 
     static double font_size_cache = -1.0;
 
@@ -735,20 +761,6 @@ public class Static_application_properties
     //**********************************************************
     {
         Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, String.valueOf(b), false);
-    }
-
-    //**********************************************************
-    public static int get_size_warning_bytes(Logger logger)
-    //**********************************************************
-    {
-        int warning_bytes = DEFAULT_SIZE_WARNING_BYTES;
-        String warning_bytes_s = get_properties_manager(logger).get(DISK_CACHE_SIZE_WARNING_BYTES);
-        if (warning_bytes_s != null)
-        {
-            warning_bytes = (int)Double.parseDouble(warning_bytes_s);
-        }
-        get_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_BYTES, String.valueOf(warning_bytes), false);
-        return warning_bytes;
     }
 
         /*

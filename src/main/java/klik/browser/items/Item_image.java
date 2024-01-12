@@ -278,7 +278,7 @@ public class Item_image extends Item implements Icon_destination
     }
     //**********************************************************
     @Override
-    public void set_Image(Image i, boolean image_is_the_good_one)
+    public void set_Image(Image image, boolean image_is_the_good_one)
     //**********************************************************
     {
         if ( the_image_view == null)
@@ -294,14 +294,14 @@ public class Item_image extends Item implements Icon_destination
             icon_status = Icon_status.no_icon;
             return;
         }
-        if ( (i.getHeight() == 0) && (i.getWidth() == 0))
+        if ( (image.getHeight() == 0) && (image.getWidth() == 0))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
             return;
         }
         //aspect_ratio = i.getWidth()/i.getHeight();
         //logger.log("aspect ratio: "+aspect_ratio);
-        Platform.runLater(() -> do_it_in_fx_thread(i, image_is_the_good_one));
+        Platform.runLater(() -> do_it_in_fx_thread(image, image_is_the_good_one));
     }
 
     //**********************************************************
@@ -325,21 +325,23 @@ public class Item_image extends Item implements Icon_destination
     }
 
     //**********************************************************
-    public void do_it_in_fx_thread(Image i, boolean image_is_the_good_one)
+    public void do_it_in_fx_thread(Image image, boolean image_is_the_good_one)
     //**********************************************************
     {
+        logger.log("crumb0 image.getHeight()="+image.getHeight()+"   image.getWidth()="+image.getWidth());
+
         if ( the_image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
             return;
         }
-        if (( i.getHeight() == 0) && (i.getWidth() ==0))
+        if (( image.getHeight() == 0) && (image.getWidth() ==0))
         {
             logger.log(Stack_trace_getter.get_stack_trace("empty image"));
             return;
         }
-        if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +i.getWidth()+", h="+i.getHeight()+ " for: "+path);
-        the_image_view.setImage(i);
+        if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image.getWidth()+", h="+image.getHeight()+ " for: "+path);
+        the_image_view.setImage(image);
         // does not work: the_image_view.setStyle("-fx-background-color: BLACK");
         if (image_is_the_good_one) {
             if (!rotation_known) {
@@ -352,7 +354,11 @@ public class Item_image extends Item implements Icon_destination
                         rotation = 0;
                     } else {
                         Double rotation_double = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, aborter, logger);
-                        if ( rotation_double != null) rotation = rotation_double;
+                        if ( rotation_double != null)
+                        {
+                            rotation = rotation_double;
+                            //logger.log(path+" rotation= "+ rotation_double);
+                        }
                     }
                 } else {
                     the_image_view.setImage(null);
@@ -372,31 +378,45 @@ public class Item_image extends Item implements Icon_destination
                 return;
             }
 
-            rotate_and_center(i, the_image_view);
+            logger.log("crumb0bis image.getHeight()="+image.getHeight()+"   image.getWidth()="+image.getWidth());
+
+            rotate_and_center(image, the_image_view);
 
             the_image_view.setSmooth(true);
 
-            if (( i.getHeight() >= icon_size) && (i.getWidth() >= icon_size))
+            logger.log("crumb1 image.getHeight()="+image.getHeight()+"   image.getWidth()="+image.getWidth());
+
+            if (( image.getHeight() >= icon_size) && (image.getWidth() >= icon_size))
             {
+                logger.log("crumb2");
                 //the_image_view.setManaged(false);
                 the_image_view.setFitWidth(icon_size);
                 the_image_view.setFitHeight(icon_size);
                 if ((rotation == 90) || (rotation == 270)) {
-                    the_image_view.setFitWidth(icon_size);
+                    logger.log("YOP");
+                    the_image_view.setFitWidth(-1);
+                    //the_image_view.setFitWidth(icon_size);
+                    //the_image_view.setFitHeight(icon_size);
                     the_image_view.setFitHeight(-1);
                 }
             }
             else {
+                logger.log("crumb3");
                 //the_image_view.setManaged(false);
                 // does not work !
                 //logger.log("very small image displayed :"+i.getWidth()+"x"+i.getHeight());
                 if ((rotation == 90) || (rotation == 270)) {
-                    the_image_view.setFitWidth(i.getHeight());
-                    the_image_view.setFitHeight(i.getWidth());
+                    logger.log("crumb4");
+                    the_image_view.setFitWidth(-1);
+                    the_image_view.setFitHeight(-1);
+
+                    //the_image_view.setFitWidth(image.getHeight());
+                    //the_image_view.setFitHeight(image.getWidth());
                 }
                 else {
-                    the_image_view.setFitWidth(i.getWidth());
-                    the_image_view.setFitHeight(i.getHeight());
+                    logger.log("crumb5");
+                    the_image_view.setFitWidth(image.getWidth());
+                    the_image_view.setFitHeight(image.getHeight());
                 }
             }
 

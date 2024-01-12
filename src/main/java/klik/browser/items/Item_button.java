@@ -53,6 +53,7 @@ public class Item_button extends Item implements Icon_destination
 {
     public static final boolean dbg = false;
     public Button button;
+    public Label label;
     public final boolean is_dir;
     public final boolean is_trash;
     public final boolean is_parent;
@@ -310,7 +311,7 @@ public class Item_button extends Item implements Icon_destination
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button);
+        Look_and_feel_manager.give_button_a_selected_file_style(button,label);
     }
 
 
@@ -343,7 +344,7 @@ public class Item_button extends Item implements Icon_destination
                 logger.log_exception("",e);
             }
             String size_string = sb.toString();
-            Label label = new Label(size_string);
+            label = new Label(size_string);
             Font_size.set_preferred_font_size(label,logger);
             //button = new Button(size_string,label);
             // label is the button graphic, so it is displayed ON THE LEFT of the text!
@@ -823,7 +824,7 @@ public class Item_button extends Item implements Icon_destination
                     path = new_path;
                     String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
                     button.setText(size);
-                    Label label = new Label(new_dir_name);
+                    label = new Label(new_dir_name);
                     Font_size.set_preferred_font_size(label,logger);
                     button.setGraphic(label);
                 }

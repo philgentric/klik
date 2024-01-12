@@ -28,6 +28,7 @@ import klik.browser.System_open_message;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
 import klik.look.my_i18n.I18n;
+import klik.music.Audio_player;
 import klik.util.Logger;
 
 import java.nio.file.Path;
@@ -465,6 +466,11 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 				if (Guess_file_type.is_file_an_image(path.toFile()))
 				{
 					Image_window is = Image_window.get_Image_window(browser, path, logger);
+				}
+				else if (Guess_file_type.is_this_path_a_music(path))
+				{
+					logger.log("opening audio file: " + path.toAbsolutePath());
+					Audio_player.play_song(path.toFile(),logger);
 				}
 				else
 				{

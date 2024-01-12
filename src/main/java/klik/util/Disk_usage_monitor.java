@@ -2,6 +2,7 @@ package klik.util;
 
 import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 
 import java.nio.file.Path;
@@ -20,7 +21,7 @@ public class Disk_usage_monitor
     public final Aborter aborter;
     private volatile boolean warning_issued = false;
 
-    record Monitored_folder(String name, Path path){}
+    record Monitored_folder(String name, Path path, boolean auto_delete){}
 
     List<Monitored_folder> monitored_folders = new ArrayList<>();
 
@@ -33,12 +34,12 @@ public class Disk_usage_monitor
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder(TRASH_FOLDER,Static_application_properties.get_trash_dir(logger)));
+        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger),true));
+        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_cache_dir(logger),true));
+        monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger),true));
+        monitored_folders.add(new Monitored_folder(TRASH_FOLDER,Static_application_properties.get_trash_dir(logger),false));
 
-        warning_limit_bytes = Static_application_properties.get_size_warning_bytes(logger);
+        warning_limit_bytes = Static_application_properties.get_cache_size_limit_warning_megabytes (logger);
 
 
         /*
@@ -58,12 +59,27 @@ public class Disk_usage_monitor
     public boolean monitor()
     //**********************************************************
     {
+        if ( warning_limit_bytes <= 0)
+        {
+            logger.log("WARNING: "+     I18n.get_I18n_string("Cache_Size_Warning_Limit",logger)+" is zero = no limit, no monitoring!");
+            return false;
+        }
         //long total = 0;
         for( Monitored_folder monitored_folder : monitored_folders)
         {
             long tmp = Files_and_Paths.get_size_on_disk_concurrent(monitored_folder.path,aborter,logger);
+            tmp = tmp/1_000_000; // mega bytes!
+
             if ( tmp > warning_limit_bytes)
             {
+                if ( !monitored_folder.auto_delete)
+                {
+                    Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
+                            "Consider clearing it...(using Files/Clean menu item)\n" +
+                                    "or change this limit Using the dedicated item in the preferences menu",
+                            false,logger);
+                    continue;
+                }
                 if( monitored_folder.name.equals(ICON_CACHE_FOLDER))
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
@@ -83,9 +99,9 @@ public class Disk_usage_monitor
                 }
                 if ( !warning_issued)
                 {
-                    Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp/1000_000+" Mbytes",
+                    Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...(using Files/Clean menu item)\n" +
-                                    "or change this limit by editing "+Static_application_properties.DISK_CACHE_SIZE_WARNING_BYTES+" in "+Static_application_properties.PROPERTIES_FILENAME,
+                                    "or change this limit Using the dedicated item in the preferences menu",
                             false,logger);
                     warning_issued = true;
                 }

@@ -39,7 +39,7 @@ public class Finder_actor implements Actor
     }
 
     //**********************************************************
-    public void find_image_files(Path target_path, Browser browser)
+    public void find_files(Path target_path, Browser browser)
     //**********************************************************
     {
         List<String> exclusion_list = load_keyword_exclusion_list(logger);

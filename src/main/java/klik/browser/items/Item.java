@@ -369,6 +369,7 @@ public abstract class Item implements Icon_destination
     void rotate_and_center(Image i, ImageView the_image_view)
     //**********************************************************
     {
+
         double x_difference = 0;
         double y_difference = 0;
 
@@ -395,7 +396,7 @@ public abstract class Item implements Icon_destination
             else
             {
                 double actual = icon_size* i.getWidth()/ i.getHeight();
-                x_difference = (icon_size-actual)/2;
+                x_difference = -(icon_size-actual)/2;
             }
         }
         else if ( rotation == 90)
@@ -404,10 +405,12 @@ public abstract class Item implements Icon_destination
             {
                 double actual = icon_size* i.getHeight()/ i.getWidth();
                 x_difference = -(icon_size-actual)/2;
+                y_difference = 0;//(icon_size-actual)/2;
             }
             else
             {
                 double actual = icon_size* i.getWidth()/ i.getHeight();
+                x_difference = -(icon_size-actual)/2;
                 y_difference = (icon_size-actual)/2;
             }
         }
@@ -416,12 +419,13 @@ public abstract class Item implements Icon_destination
             if ( i.getHeight() < i.getWidth())
             {
                 double actual = icon_size* i.getHeight()/ i.getWidth();
+                y_difference = 0;//-(icon_size-actual)/2;
                 x_difference = (icon_size-actual)/2;
             }
             else
             {
                 double actual = icon_size* i.getWidth()/ i.getHeight();
-                y_difference = (icon_size-actual)/2;
+                //y_difference = (icon_size-actual)/2;
             }
         }
 

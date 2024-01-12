@@ -339,7 +339,7 @@ public class Image_context
     {
         logger.log("Image_context search_k");
         Finder_actor f = new Finder_actor(logger);
-        f.find_image_files(path,b);
+        f.find_files(path,b);
     }
 
 

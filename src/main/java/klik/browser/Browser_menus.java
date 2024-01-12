@@ -30,6 +30,8 @@ import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -121,7 +123,7 @@ public class Browser_menus
     public MenuItem make_clear_all_disk_caches_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
+        String text = I18n.get_I18n_string("Clear_All_Disk_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
@@ -280,6 +282,48 @@ public class Browser_menus
         item.setOnAction(actionEvent -> Static_application_properties.set_monitor_browsed_folders(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
         return item;
     }
+
+
+
+
+    //**********************************************************
+    public MenuItem make_cache_size_limit_warning_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Set_The_Cache_Size_Warning_Limit",logger);
+
+        MenuItem item = new MenuItem(text);
+
+        item.setOnAction(actionEvent -> {
+            //Static_application_properties.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.get_cache_size_limit_warning_megabytes (logger));
+            dialog.initOwner(browser.my_Stage.the_Stage);
+            dialog.setWidth(800);
+            dialog.setTitle(I18n.get_I18n_string("Cache_Size_Warning_Limit", logger));
+            dialog.setHeaderText("When the cache on disk is larger than this, you will receive a warning when klik starts. Zero means no limit.");
+            dialog.setContentText(I18n.get_I18n_string("Set_The_Cache_Size_Warning_Limit", logger));
+
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                String new_val = result.get();
+                try
+                {
+                    int val = Integer.parseInt(new_val);
+                    Static_application_properties.set_cache_size_limit_warning_megabytes(val,logger);
+
+                }
+                catch (NumberFormatException e)
+                {
+                    Popups.popup_warning(browser.my_Stage.the_Stage,"Integer only!","Please retry with an integer value!",false,logger);
+                }
+            }
+
+        });
+        return item;
+    }
+
+
 
     //**********************************************************
     public MenuItem make_enable_fusk_check_menu_item()

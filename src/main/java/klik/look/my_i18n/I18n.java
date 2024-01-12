@@ -106,7 +106,7 @@ public class I18n
     {
         if (cache == null)
         {
-            Language language = Language_manager.get_current_language();
+            Language language = Language_manager.get_current_language(logger);
             cache = new I18n(language.language, language.country, logger);
         }
         if ( cache.the_resource_bundle == null)

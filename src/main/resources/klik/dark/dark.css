@@ -5,7 +5,7 @@
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
     -fx-alignment: top-left;
-    -fx-background-color: #121212	;
+    -fx-background-color: black	;
     -fx-padding: -1 -1 -1 -1;
 }
 
@@ -14,12 +14,26 @@
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
     -fx-alignment: top-left;
-    -fx-background-color: #121212	;
+    -fx-background-color: black;
     -fx-padding: -1 -1 -1 -1;
 }
 
 .menu_buttons:hover {
   -fx-background-color: #606060;
+}
+
+.context-menu {
+    -fx-text-fill: white;
+    -fx-background-color: black;
+}
+
+.menu-item .label {
+    -fx-text-fill: white;
+}
+
+.check-menu-item:checked
+{
+    -fx-mark-color:white;
 }
 
 

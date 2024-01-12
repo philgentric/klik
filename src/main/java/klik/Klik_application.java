@@ -37,13 +37,14 @@ public class Klik_application extends Application
         Print_system_info.print();
 
         setUserAgentStylesheet(STYLESHEET_MODENA);
+
         Logger logger = new System_out_logger();
+        Language_manager.init_registered_languages(logger);
 
         new Monitor(new Aborter(),logger).start();
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
-        Language_manager.init_registered_languages(logger);
 
         Path path = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
         Browser_creation_context.first(new My_Stage(primary_stage,logger),path,logger);

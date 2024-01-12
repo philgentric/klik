@@ -380,7 +380,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(vbox);
+        Look_and_feel_manager.give_button_a_selected_file_style(vbox,label1);
     }
 
 

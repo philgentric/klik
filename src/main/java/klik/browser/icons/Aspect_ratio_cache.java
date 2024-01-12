@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Aspect_ratio_cache
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
 
     public record Aspect_ratio(double value, boolean truth){}
     Map<String, Aspect_ratio> aspect_ratio_cache = new ConcurrentHashMap<>();
