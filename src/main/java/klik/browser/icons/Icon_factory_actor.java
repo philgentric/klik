@@ -131,7 +131,7 @@ public class Icon_factory_actor implements Actor
                 rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(),aborter,logger);
             }
         }
-
+        if ( rotation == null) rotation = 1.0;
         Image_and_rotation image_and_rotation = new Image_and_rotation(image,rotation);
 
         if (dbg) logger.log("Icon_factory icon ready");
