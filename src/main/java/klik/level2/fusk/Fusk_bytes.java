@@ -46,7 +46,7 @@ public class Fusk_bytes implements Pin_code_client
     to get a new instance one must call RESET
      */
     //**********************************************************
-    public static boolean initialize(Logger logger)
+    synchronized public static boolean initialize(Logger logger)
     //**********************************************************
     {
         if ( is_initialized())
