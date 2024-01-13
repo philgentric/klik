@@ -12,9 +12,11 @@ import javafx.stage.Stage;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
+import klik.util.Scheduled_thread_pool;
 import klik.util.Threads;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class Meters_stage
 {
@@ -76,13 +78,12 @@ public class Meters_stage
         Scene scene = new Scene(vbox, Look_and_feel_manager.get_instance().get_background_color());
         stage.setScene(scene);
         double context_length = Math.round((double)HEARTH_BEAT*(double)how_many_rectangles/100.0)/10.0;
-        stage.setTitle("Vroom... vroom, threads running in the last "+context_length+"seconds");
+        stage.setTitle("Vroom... vroom... threads running in the last "+context_length+"seconds");
         stage.setMinWidth(WIDTH+2*LEFT);
         stage.setMinHeight(DISPLAY_PIXEL_HEIGHT+100);
         stage.show();
 
-        logger.log("SHIW");
-
+/*
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -106,8 +107,19 @@ public class Meters_stage
 
             }
         };
-//        Actor_engine.execute(r,logger);
-        Threads.execute(r,logger);
+       Actor_engine.execute(r,logger);
+        //Threads.execute(r,logger);
+*/
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                int x = Actor_engine.how_many_threads_are_in_flight(logger);
+                x += 1;// for this one!
+                update(x);
+            }
+        };
+        Scheduled_thread_pool.execute(r, HEARTH_BEAT, TimeUnit.MILLISECONDS);
 
     }
 
