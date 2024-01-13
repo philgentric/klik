@@ -78,7 +78,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public final My_Stage my_Stage;
     public Scene the_Scene;
     final Pane the_Pane;
-    final Icon_manager icon_manager;
+    public final Icon_manager icon_manager;
     final Logger logger;
     public final Path displayed_folder_path;
     public final Selection_handler selection_handler;

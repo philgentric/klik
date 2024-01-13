@@ -4,8 +4,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import klik.actor.*;
 import klik.animated_gifs_from_videos.Ffmpeg_utils;
+import klik.browser.Image_and_rotation;
 import klik.browser.items.Iconifiable_item_type;
 import klik.files_and_paths.Files_and_Paths;
+import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.level2.experimental.performance_monitoring.Sample_collector;
 import klik.properties.Static_application_properties;
 import klik.util.*;
@@ -37,6 +39,7 @@ public class Icon_factory_actor implements Actor
     private static final boolean dbg = false;
     private static final boolean pdf_dbg = false;
     private static final boolean aborting_dbg = false;
+    private final Aspect_ratio_cache aspect_ratio_cache;
 
     Logger logger;
     private final Stage owner;
@@ -49,6 +52,7 @@ public class Icon_factory_actor implements Actor
     public final static Sample_collector sample_collector = new Sample_collector();
     ConcurrentLinkedQueue<Job> jobs;
     Job_termination_reporter termination_reporter;
+    private final Aborter aborter;
 
 
     static public List<Path> videos_for_which_giffing_failed = new ArrayList<>();
@@ -60,18 +64,20 @@ public class Icon_factory_actor implements Actor
         videos_for_which_giffing_failed.clear();
     }
     //**********************************************************
-    public static Icon_factory_actor get_icon_factory(Stage owner, Logger logger)
+    public static Icon_factory_actor get_icon_factory(Aborter aborter, Aspect_ratio_cache aspect_ratio_cache, Stage owner, Logger logger)
     //**********************************************************
     {
         if (icon_factory == null) {
-            icon_factory = new Icon_factory_actor(owner, logger);
+            icon_factory = new Icon_factory_actor(aborter, aspect_ratio_cache, owner, logger);
         }
         return icon_factory;
     }
     //**********************************************************
-    private Icon_factory_actor(Stage owner_, Logger logger_)
+    private Icon_factory_actor(Aborter aborter, Aspect_ratio_cache aspect_ratio_cache, Stage owner_, Logger logger_)
     //**********************************************************
     {
+        this.aspect_ratio_cache = aspect_ratio_cache;
+        this.aborter = aborter;
         owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
@@ -93,8 +99,6 @@ public class Icon_factory_actor implements Actor
         return "icon done";
     }
 
-
-
     //**********************************************************
     private void process(Icon_factory_request icon_factory_request)
     //**********************************************************
@@ -108,7 +112,7 @@ public class Icon_factory_actor implements Actor
         }
 
         Image image = null;
-
+        Double rotation = 1.0;
         switch (destination.get_item_type()) {
             case video -> {
                 image = process_video(icon_factory_request, destination);
@@ -120,10 +124,15 @@ public class Icon_factory_actor implements Actor
             case pdf -> {
                 if (dbg) logger.log(destination.get_item_path() + " type is PDF");
                 image = process_pdf(icon_factory_request, destination);
+
             }
-            default -> image = process_image(icon_factory_request, destination);
+            default -> {
+                image = process_image(icon_factory_request, destination);
+                rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(),aborter,logger);
+            }
         }
 
+        Image_and_rotation image_and_rotation = new Image_and_rotation(image,rotation);
 
         if (dbg) logger.log("Icon_factory icon ready");
 
@@ -132,7 +141,16 @@ public class Icon_factory_actor implements Actor
             if (dbg) logger.log("making an icon failed for : " + destination.get_item_path());
             return;
         }
-        destination.receive_icon(image);
+        destination.receive_icon(image_and_rotation);
+        {
+            double aspect_ratio = image.getWidth()/image.getHeight();
+            if (( rotation==90)||(rotation==270))
+            {
+                aspect_ratio = 1/aspect_ratio;
+            }
+            logger.log(destination.get_item_path()+" "+aspect_ratio+" w="+image.getWidth()+" h="+image.getHeight());
+            if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(destination.get_item_path(),aspect_ratio);
+        }
     }
 
 

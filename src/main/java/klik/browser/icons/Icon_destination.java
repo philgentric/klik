@@ -1,6 +1,7 @@
 package klik.browser.icons;
 
 import javafx.scene.image.Image;
+import klik.browser.Image_and_rotation;
 import klik.browser.items.Iconifiable_item_type;
 
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.nio.file.Path;
 public interface Icon_destination
 {
 
-    void receive_icon(Image icon);
+    void receive_icon(Image_and_rotation icon);
 
     Icon_status get_icon_status();
 

@@ -42,7 +42,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                 sb.append(" get_aspect_ratio failed cannot open input stream");
                 logger.log(sb.toString());
             }
-            return 1.0;
+            return -1.0;
         }
         if (dbg)sb.append("\n\n").append(path);
 
@@ -75,19 +75,19 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         {
             if ( dbg) sb.append(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
             //sb.append(" get_aspect_ratio failed2");
-            if ( e.toString().contains("File format could not be determined"))  return 1.0;
+            if ( e.toString().contains("File format could not be determined"))  return -1.0;
         }
         catch (IOException e)
         {
             if ( dbg) sb.append(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
             //sb.append(" get_aspect_ratio failed3");
-            return 1.0;
+            return -1.0;
         }
         catch (Exception e)
         {
             if ( dbg)
                 sb.append(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return 1.0;
+            return -1.0;
         }
 
         Directory_result result = best;
@@ -99,7 +99,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                 sb.append("NO EXIF data?");
                 logger.log(sb.toString());
             }
-            return 1.0;
+            return -1.0;
         }
         if (( result.w != null) && ( result.h != null))
         {
@@ -125,7 +125,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             sb.append("should not happen?");
             logger.log(sb.toString());
         }
-        return 1.0;
+        return -1.0;
     }
 
 
@@ -143,10 +143,11 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         
         for (Tag tag : directory.getTags())
         {
+            if (tag.toString().contains("Thumbnail")) continue;
             if (dbg) sb.append("tag=").append(tag).append("\n");
             if (tag.toString().contains("Width"))
             {
-                //sb.append("==>"+ tag);
+                if (tag.toString().contains("IFD0")) continue;
                 if (tag.toString().contains("Image"))
                 {
                     w = Double.valueOf(get_number(tag.toString()));
@@ -157,7 +158,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             }
             if (tag.toString().contains("Height"))
             {
-                //sb.append("==>"+ tag);
+                if (tag.toString().contains("IFD0")) continue;
                 if (tag.toString().contains("Image"))
                 {
                     h = Double.valueOf(get_number(tag.toString()));

@@ -99,7 +99,7 @@ public class Item_button extends Item implements Icon_destination
                 //Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
                 //Icon_factory.get_icon_factory(logger).make_icon(ifr);
                 Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                job = Icon_factory_actor.get_icon_factory(this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+                job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
             }
             //button.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
         }
@@ -158,14 +158,15 @@ public class Item_button extends Item implements Icon_destination
     }
     //**********************************************************
     @Override
-    public void receive_icon(Image icon)
+    public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
         Tooltip tooltip =new Tooltip();
         button.setTooltip(tooltip);
         if ( the_tooltip_image_view == null) the_tooltip_image_view = new ImageView();
         tooltip.setGraphic(the_tooltip_image_view);
-        set_Image(icon,true);
+        rotation = image_and_rotation.rotation();
+        set_Image(image_and_rotation.image(),true);
     }
 
 

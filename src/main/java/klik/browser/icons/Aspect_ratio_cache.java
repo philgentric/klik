@@ -25,6 +25,12 @@ public class Aspect_ratio_cache
 {
     private static final boolean dbg = true;
 
+    public void inject(Path path, double aspect_ratio)
+    {
+        logger.log("\n\nAspect_ratio_cache inject "+path);
+        aspect_ratio_cache.put(key_from_path(path),new Aspect_ratio(aspect_ratio,true));
+    }
+
     public record Aspect_ratio(double value, boolean truth){}
     Map<String, Aspect_ratio> aspect_ratio_cache = new ConcurrentHashMap<>();
     private Aspect_ratio_actor aspect_ratio_actor;

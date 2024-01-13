@@ -14,6 +14,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.animated_gifs_from_videos.Ffmpeg_utils;
 import klik.browser.Browser;
+import klik.browser.Image_and_rotation;
 import klik.browser.System_open_actor;
 import klik.browser.System_open_message;
 import klik.browser.icons.Icon_destination;
@@ -273,8 +274,11 @@ public class Item_image extends Item implements Icon_destination
     }
 
     @Override
-    public void receive_icon(Image icon) {
-        set_Image(icon,true);
+    public void receive_icon(Image_and_rotation image_and_rotation)
+    {
+        rotation_known = true;
+        rotation = image_and_rotation.rotation();
+        set_Image(image_and_rotation.image(),true);
     }
     //**********************************************************
     @Override
@@ -320,7 +324,7 @@ public class Item_image extends Item implements Icon_destination
     {
 
         Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-        job = Icon_factory_actor.get_icon_factory(owner, logger).make_icon(ifr);
+        job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, owner, logger).make_icon(ifr);
         icon_status = Icon_status.true_icon_requested;
     }
 
@@ -328,8 +332,6 @@ public class Item_image extends Item implements Icon_destination
     public void do_it_in_fx_thread(Image image, boolean image_is_the_good_one)
     //**********************************************************
     {
-        logger.log("crumb0 image.getHeight()="+image.getHeight()+"   image.getWidth()="+image.getWidth());
-
         if ( the_image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));

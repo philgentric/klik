@@ -124,7 +124,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 //logger.log("has_images: "+has_images+" path=" +path_+" loading the true image");
                 if (dbg) logger.log("setting image tooltip");
                 Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                job = Icon_factory_actor.get_icon_factory(this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+                job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
             }
             else
             {
@@ -238,13 +238,14 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     }
     //**********************************************************
     @Override
-    public void receive_icon(Image icon)
+    public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
         if ( the_image_view == null) the_image_view = new ImageView();
+        rotation = image_and_rotation.rotation();
         Platform.runLater(() -> {
             vbox.getChildren().add(the_image_view);
-            set_Image(icon,true);
+            set_Image(image_and_rotation.image(),true);
         });
     }
 

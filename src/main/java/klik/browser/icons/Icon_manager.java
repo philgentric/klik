@@ -177,6 +177,8 @@ public class Icon_manager
         max_y_in_row[0] = -1;
         boolean[] done_shift_up = new boolean[1];
         done_shift_up[0] = false;
+        boolean[] done_aspect_ratio_change = new boolean[1];
+        done_aspect_ratio_change[0] = false;
         // manage iconized items
         for (Path path : paths_manager.get_iconized())
         {
@@ -210,7 +212,7 @@ public class Icon_manager
 
                 p = compute_next_Point2D_for_icons(p, item,
                         icon_size, icon_size,
-                        scene_width, single_column, use_aspect_ratio,max_y_in_row, done_shift_up);
+                        scene_width, single_column, use_aspect_ratio,max_y_in_row, done_shift_up,done_aspect_ratio_change);
             }
             else
             {
@@ -588,7 +590,7 @@ public class Icon_manager
     {
         //logger.log(("Icon_manager cancel all!"));
         aborter.abort();
-        Icon_factory_actor.get_icon_factory(owner, logger).cancel_all();
+        Icon_factory_actor.get_icon_factory(aborter,paths_manager.aspect_ratio_cache, owner, logger).cancel_all();
         for ( Item i : all_items_map.values())
         {
             i.cancel();
@@ -657,19 +659,24 @@ public class Icon_manager
                                                    boolean single_column,
                                                    boolean use_aspect_ratio,
                                                    double[] max_y_in_row,
-                                                   boolean[] done_shift_up)
+                                                   boolean[] done_shift_up,
+                                                   boolean[] done_aspect_ratio_change)
     //**********************************************************
     {
         double width_of_this = column_increment;
         double height_of_this = row_increment;
         double neg_x = 0;
         double neg_y = 0;
+        double current_x = p.getX();
         if ( use_aspect_ratio)
         {
+            logger.log("yoko0");
+
+            /*
+            trans before rot:
             //logger.log("aspect_ratio: "+((Item_image)item).aspect_ratio);
             if (((Item_image)item).aspect_ratio < 1.0)
             {
-                width_of_this = ((Item_image)item).aspect_ratio * column_increment;
                 //logger.log("width_of_this: "+width_of_this);
                 neg_x = (width_of_this-column_increment)/2.0;
             }
@@ -678,12 +685,29 @@ public class Icon_manager
                 height_of_this = row_increment/((Item_image)item).aspect_ratio;
                 neg_y = (height_of_this-row_increment)/2.0;
             }
+            */
+            if (((Item_image)item).aspect_ratio < 1.0)
+            {
+                logger.log("yoko1");
+                width_of_this *= ((Item_image)item).aspect_ratio;
+                neg_x = (width_of_this-column_increment)/2.0;
+                logger.log("width_of_this: "+width_of_this+" neg_x="+neg_x);
+            }
+            else
+            {
+                done_aspect_ratio_change[0] = true;
+                logger.log("yoko2 aspect ratio="+((Item_image)item).aspect_ratio);
+                height_of_this = row_increment/((Item_image)item).aspect_ratio;
+                neg_y = (height_of_this-row_increment)/2.0;
+            }
         }
 
-        double current_x = p.getX();
         double current_y = p.getY();
         if ( current_x == 0)
         {
+            // this is the first image in a row
+            // IF the next image is wider than taller
+            logger.log("first image in row "+item.get_item_path());
             current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
             if ( neg_y < 0)
             {
@@ -695,6 +719,8 @@ public class Icon_manager
             }
         }
         // position the ImageView at the requested position
+        logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y);
+
         item.set_x(current_x);
         item.set_y(current_y);
         if ( max_y_in_row[0] < current_y+height_of_this) max_y_in_row[0] = current_y+height_of_this;

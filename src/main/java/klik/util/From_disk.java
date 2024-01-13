@@ -64,11 +64,24 @@ public class From_disk
     public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
+        logger.log("\n\nFrom_disk get_aspect_ratio "+path);
+        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
         // the only other way is to load the image!
-        //Image i = load_image_from_disk( original_image_file,  aborter,  logger);
-        //if ( i==null) return 1.0;
-        //return i.getWidth()/i.getHeight();
+        if ( returned > 0) return returned;
+        {
+            Image i = load_image_from_disk( path,  aborter,  logger);
+            if ( i==null)
+            {
+                logger.log("cannot load image to get aspect ratio(1)"+path);
+                return 1.0;
+            }
+            if (i.isError())
+            {
+                logger.log("cannot load image to get aspect ratio(2)"+path);
+                return 1.0;
+            }
+            return i.getWidth()/i.getHeight();
+        }
     }
 
 
@@ -180,14 +193,13 @@ public class From_disk
         }
 
         File f = file_for_icon_cache(cache_dir,original_image_file,tag, extension);
-
         if (dbg) logger.log("load_icon_from_disk file is:"+f.getAbsolutePath()+" for "+original_image_file);
-
         try (FileInputStream input_stream = new FileInputStream(f))
         {
             Image image = new Image(input_stream);
             return image;
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             // this happens the first time one visits a directory...
             // or when the icon cache dir content has been erased etc.
             // so quite a lot, so it is logged only in debug

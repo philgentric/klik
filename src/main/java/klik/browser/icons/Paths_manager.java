@@ -42,7 +42,7 @@ public class Paths_manager
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
     public final Aborter aborter;
-    Aspect_ratio_cache aspect_ratio_cache = null;
+    public Aspect_ratio_cache aspect_ratio_cache = null;
     private Refresh_target refresh_target;
 
     //**********************************************************

@@ -370,61 +370,166 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
 
+        double actual = 1.0; // smaller than one
+        boolean wide = false;
+        if ( i.getHeight() < i.getWidth())
+        {
+            logger.log("wide");
+            wide = true;
+            actual = icon_size* i.getHeight()/ i.getWidth();
+        }
+        else
+        {
+            logger.log("narrow");
+            actual = icon_size* i.getWidth()/ i.getHeight();
+        }
+
         double x_difference = 0;
         double y_difference = 0;
-
         if ( rotation == 0)
         {
-            if ( i.getHeight() < i.getWidth())
+            if ( wide)
             {
-                double actual = icon_size* i.getHeight()/ i.getWidth();
+                logger.log("rot0 wide");
+                x_difference = 0;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                double actual = icon_size* i.getWidth()/ i.getHeight();
+                logger.log("rot0 narrow");
                 x_difference = (icon_size-actual)/2;
+                y_difference = 0;
             }
         }
         else if ( rotation == 180)
         {
-            if ( i.getHeight() < i.getWidth())
+            if ( wide)
             {
-                double actual = icon_size* i.getHeight()/ i.getWidth();
-                y_difference = -(icon_size-actual)/2;
+                logger.log("rot180 wide");
+                x_difference = 0;
+                y_difference = (icon_size-actual)/2;
             }
             else
             {
-                double actual = icon_size* i.getWidth()/ i.getHeight();
+                logger.log("rot180 narrow");
                 x_difference = -(icon_size-actual)/2;
+                y_difference = 0;
             }
         }
         else if ( rotation == 90)
         {
-            if ( i.getHeight() < i.getWidth())
+            if ( wide)
             {
-                double actual = icon_size* i.getHeight()/ i.getWidth();
+                logger.log("rot90 wide");
+                x_difference = 0;//-(icon_size-actual)/2;
+                y_difference = (icon_size-actual)/2;
+            }
+            else
+            {
+                logger.log("rot90 narrow");
+                x_difference = 0;//(icon_size-actual)/2;
+                y_difference = 0;//(icon_size-actual)/2;
+            }
+        }
+        else if ( rotation == 270)
+        {
+            if ( wide)
+            {
+                logger.log("rot270 wide");
+                x_difference = 0;//(icon_size-actual)/2;
+                y_difference = (icon_size-actual)/2;
+            }
+            else
+            {
+                logger.log("rot270 narrow");
+                x_difference = 0;
+                //y_difference = (icon_size-actual)/2;
+            }
+        }
+
+        the_image_view.getTransforms().clear();
+        Translate trans = new Translate();
+        trans.setX(x_difference);
+        trans.setY(y_difference);
+        //the_image_view.getTransforms().add(trans);
+        {
+            Rotate rot = new Rotate();
+            rot.setAngle(rotation);
+            rot.setPivotX(icon_size / 2.0);
+            rot.setPivotY(icon_size / 2.0);
+            the_image_view.getTransforms().add(rot);
+        }
+        the_image_view.getTransforms().add(trans);
+    }
+
+    //**********************************************************
+    void rotate_and_center2(Image i, ImageView the_image_view)
+    //**********************************************************
+    {
+
+        double actual = 1.0; // smaller than one
+        boolean wide = false;
+        if ( i.getHeight() < i.getWidth())
+        {
+            wide = true;
+            actual = icon_size* i.getHeight()/ i.getWidth();
+        }
+        else
+        {
+            actual = icon_size* i.getWidth()/ i.getHeight();
+        }
+
+        double x_difference = 0;
+        double y_difference = 0;
+        if ( rotation == 0)
+        {
+            if ( wide)
+            {
+                x_difference = 0;
+                y_difference = (icon_size-actual)/2;
+            }
+            else
+            {
+                x_difference = (icon_size-actual)/2;
+                y_difference = 0;
+            }
+        }
+        else if ( rotation == 180)
+        {
+            if ( wide)
+            {
+                x_difference = 0;
+                y_difference = -(icon_size-actual)/2;
+            }
+            else
+            {
+                x_difference = -(icon_size-actual)/2;
+                y_difference = 0;
+            }
+        }
+        else if ( rotation == 90)
+        {
+            if ( wide)
+            {
                 x_difference = -(icon_size-actual)/2;
                 y_difference = 0;//(icon_size-actual)/2;
             }
             else
             {
-                double actual = icon_size* i.getWidth()/ i.getHeight();
                 x_difference = -(icon_size-actual)/2;
                 y_difference = (icon_size-actual)/2;
             }
         }
         else if ( rotation == 270)
         {
-            if ( i.getHeight() < i.getWidth())
+            if ( wide)
             {
-                double actual = icon_size* i.getHeight()/ i.getWidth();
                 y_difference = 0;//-(icon_size-actual)/2;
                 x_difference = (icon_size-actual)/2;
             }
             else
             {
-                double actual = icon_size* i.getWidth()/ i.getHeight();
+                x_difference = 0;
                 //y_difference = (icon_size-actual)/2;
             }
         }
