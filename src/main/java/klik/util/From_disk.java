@@ -2,6 +2,7 @@ package klik.util;
 
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_writer_actor;
+import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
@@ -64,10 +65,11 @@ public class From_disk
     public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger.log("\n\nFrom_disk get_aspect_ratio "+path);
+        if (dbg) logger.log("\n\nFrom_disk get_aspect_ratio "+path);
         double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
+        if(Guess_file_type.is_file_an_image(path.toFile()))
         {
             Image i = load_image_from_disk( path,  aborter,  logger);
             if ( i==null)
@@ -82,6 +84,7 @@ public class From_disk
             }
             return i.getWidth()/i.getHeight();
         }
+        return 1.0;//default
     }
 
 

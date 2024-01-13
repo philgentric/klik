@@ -7,6 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
@@ -51,15 +52,15 @@ public class Meters_stage
             for (int threads = 0; threads <= 1000; threads += 100)
             {
                 double ii = threads_to_pixels(threads);
-                Rectangle r = new Rectangle(LEFT, ii, WIDTH, 1);
+                Rectangle r = new Rectangle(LEFT, DISPLAY_PIXEL_HEIGHT-ii, WIDTH, 1);
                 r.setManaged(false);
                 r.setFill(Look_and_feel_manager.get_instance().get_foreground_color());
                 hbox.getChildren().add(r);
 
-                Label l = new Label(""+threads);
+                Text l = new Text(""+threads);
                 l.setManaged(false);
-                l.setLayoutX(0);
-                l.setLayoutY(ii);
+                l.setX(0);
+                l.setY(DISPLAY_PIXEL_HEIGHT-ii);
                 hbox.getChildren().add(l);
             }
             vbox.getChildren().add(hbox);
@@ -98,7 +99,7 @@ public class Meters_stage
 
                     x += 1;// for this one!
                     update(x);
-                    logger.log("threads: "+x);
+                    //logger.log("threads: "+x);
 
 
                 }

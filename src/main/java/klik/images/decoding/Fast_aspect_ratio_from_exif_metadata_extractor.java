@@ -19,7 +19,7 @@ import java.nio.file.Path;
 public class Fast_aspect_ratio_from_exif_metadata_extractor
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
 
     private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done){}
 
@@ -27,7 +27,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
     public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        StringBuilder sb;
+        StringBuilder sb = null;
         if( dbg)
         {
             sb = new StringBuilder();

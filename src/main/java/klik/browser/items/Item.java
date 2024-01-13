@@ -374,13 +374,13 @@ public abstract class Item implements Icon_destination
         boolean wide = false;
         if ( i.getHeight() < i.getWidth())
         {
-            logger.log("wide");
+            if( dbg) logger.log("wide");
             wide = true;
             actual = icon_size* i.getHeight()/ i.getWidth();
         }
         else
         {
-            logger.log("narrow");
+            if( dbg) logger.log("narrow");
             actual = icon_size* i.getWidth()/ i.getHeight();
         }
 
@@ -390,13 +390,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                logger.log("rot0 wide");
+                if( dbg) logger.log("rot0 wide");
                 x_difference = 0;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                logger.log("rot0 narrow");
+                if( dbg) logger.log("rot0 narrow");
                 x_difference = (icon_size-actual)/2;
                 y_difference = 0;
             }
@@ -405,13 +405,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                logger.log("rot180 wide");
+                if( dbg) logger.log("rot180 wide");
                 x_difference = 0;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                logger.log("rot180 narrow");
+                if( dbg) logger.log("rot180 narrow");
                 x_difference = -(icon_size-actual)/2;
                 y_difference = 0;
             }
@@ -420,13 +420,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                logger.log("rot90 wide");
+                if( dbg) logger.log("rot90 wide");
                 x_difference = 0;//-(icon_size-actual)/2;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                logger.log("rot90 narrow");
+                if( dbg) logger.log("rot90 narrow");
                 x_difference = 0;//(icon_size-actual)/2;
                 y_difference = 0;//(icon_size-actual)/2;
             }
@@ -435,13 +435,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                logger.log("rot270 wide");
+                if( dbg) logger.log("rot270 wide");
                 x_difference = 0;//(icon_size-actual)/2;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                logger.log("rot270 narrow");
+                if( dbg) logger.log("rot270 narrow");
                 x_difference = 0;
                 //y_difference = (icon_size-actual)/2;
             }

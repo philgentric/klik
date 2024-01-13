@@ -380,22 +380,16 @@ public class Item_image extends Item implements Icon_destination
                 return;
             }
 
-            logger.log("crumb0bis image.getHeight()="+image.getHeight()+"   image.getWidth()="+image.getWidth());
-
             rotate_and_center(image, the_image_view);
 
             the_image_view.setSmooth(true);
 
-            logger.log("crumb1 image.getHeight()="+image.getHeight()+"   image.getWidth()="+image.getWidth());
-
             if (( image.getHeight() >= icon_size) && (image.getWidth() >= icon_size))
             {
-                logger.log("crumb2");
                 //the_image_view.setManaged(false);
                 the_image_view.setFitWidth(icon_size);
                 the_image_view.setFitHeight(icon_size);
                 if ((rotation == 90) || (rotation == 270)) {
-                    logger.log("YOP");
                     the_image_view.setFitWidth(-1);
                     //the_image_view.setFitWidth(icon_size);
                     //the_image_view.setFitHeight(icon_size);
@@ -403,20 +397,16 @@ public class Item_image extends Item implements Icon_destination
                 }
             }
             else {
-                logger.log("crumb3");
                 //the_image_view.setManaged(false);
                 // does not work !
                 //logger.log("very small image displayed :"+i.getWidth()+"x"+i.getHeight());
                 if ((rotation == 90) || (rotation == 270)) {
-                    logger.log("crumb4");
-                    the_image_view.setFitWidth(-1);
-                    the_image_view.setFitHeight(-1);
-
-                    //the_image_view.setFitWidth(image.getHeight());
-                    //the_image_view.setFitHeight(image.getWidth());
+                    //the_image_view.setFitWidth(-1);
+                    //the_image_view.setFitHeight(-1);
+                    the_image_view.setFitWidth(image.getHeight());
+                    the_image_view.setFitHeight(image.getWidth());
                 }
                 else {
-                    logger.log("crumb5");
                     the_image_view.setFitWidth(image.getWidth());
                     the_image_view.setFitHeight(image.getHeight());
                 }

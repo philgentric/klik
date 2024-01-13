@@ -148,7 +148,7 @@ public class Icon_factory_actor implements Actor
             {
                 aspect_ratio = 1/aspect_ratio;
             }
-            logger.log(destination.get_item_path()+" "+aspect_ratio+" w="+image.getWidth()+" h="+image.getHeight());
+            if(dbg) logger.log("Icon_factory_actor "+destination.get_item_path()+" "+aspect_ratio+" w="+image.getWidth()+" h="+image.getHeight());
             if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(destination.get_item_path(),aspect_ratio);
         }
     }

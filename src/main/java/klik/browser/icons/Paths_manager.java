@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Paths_manager
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public static final String OK = "OK";
     public double max_dir_text_length;
     private static Logger logger;

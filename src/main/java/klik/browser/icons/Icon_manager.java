@@ -670,7 +670,6 @@ public class Icon_manager
         double current_x = p.getX();
         if ( use_aspect_ratio)
         {
-            logger.log("yoko0");
 
             /*
             trans before rot:
@@ -688,15 +687,12 @@ public class Icon_manager
             */
             if (((Item_image)item).aspect_ratio < 1.0)
             {
-                logger.log("yoko1");
                 width_of_this *= ((Item_image)item).aspect_ratio;
                 neg_x = (width_of_this-column_increment)/2.0;
-                logger.log("width_of_this: "+width_of_this+" neg_x="+neg_x);
             }
             else
             {
                 done_aspect_ratio_change[0] = true;
-                logger.log("yoko2 aspect ratio="+((Item_image)item).aspect_ratio);
                 height_of_this = row_increment/((Item_image)item).aspect_ratio;
                 neg_y = (height_of_this-row_increment)/2.0;
             }
@@ -707,7 +703,7 @@ public class Icon_manager
         {
             // this is the first image in a row
             // IF the next image is wider than taller
-            logger.log("first image in row "+item.get_item_path());
+            //logger.log("first image in row "+item.get_item_path());
             current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
             if ( neg_y < 0)
             {
@@ -719,7 +715,7 @@ public class Icon_manager
             }
         }
         // position the ImageView at the requested position
-        logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y);
+        //logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y);
 
         item.set_x(current_x);
         item.set_y(current_y);

@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Aspect_ratio_cache
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
 
     public void inject(Path path, double aspect_ratio)
     {
-        logger.log("\n\nAspect_ratio_cache inject "+path);
+        if(dbg) logger.log("\n\nAspect_ratio_cache inject "+path);
         aspect_ratio_cache.put(key_from_path(path),new Aspect_ratio(aspect_ratio,true));
     }
 

@@ -267,7 +267,6 @@ public class JavaFX_to_Swing
         int iw = (int) img.getWidth();
         int ih = (int) img.getHeight();
         PixelFormat fxFormat = pr.getPixelFormat();
-        //logger.log("fromFXImage crumb1");
 
         boolean srcPixelsAreOpaque = false;
         switch (fxFormat.getType()) {
@@ -304,14 +303,11 @@ public class JavaFX_to_Swing
             }
         }
 
-        //logger.log("fromFXImage crumb2");
-
         if (bimg == null) {
             bimg = new BufferedImage(iw, ih, prefBimgType);
         }
         DataBufferInt db = (DataBufferInt)bimg.getRaster().getDataBuffer();
         int data[] = db.getData();
-        //logger.log("fromFXImage crumb3");
 
         int offset = bimg.getRaster().getDataBuffer().getOffset();
         int scan =  0;
