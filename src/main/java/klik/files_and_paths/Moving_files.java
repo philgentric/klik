@@ -2,6 +2,7 @@ package klik.files_and_paths;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_engine;
@@ -97,7 +98,7 @@ public class Moving_files
         if ( dbg) logger.log("perform_safe_moves_in_a_thread()");
         Runnable r = () -> actual_safe_moves(owner, the_list, aborter, JFX, and_list_for_undo, logger);
         try {
-            Threads.execute(r, logger);
+            Actor_engine.execute(r,logger);
             if ( dbg) logger.log("perform_safe_moves_in_a_thread LAUNCHED, thread COUNT=" + Thread.activeCount());
         } catch (RejectedExecutionException ree) {
             logger.log("perform_safe_moves_in_a_thread()" + ree);
@@ -120,7 +121,7 @@ public class Moving_files
         logger.log("perform_safe_move_in_a_thread()");
         Runnable r = () -> actual_safe_move(owner, oanp, JFX, aborter, logger);
         try {
-            Threads.execute(r, logger);
+            Actor_engine.execute(r,logger);
             logger.log("actual_safe_move LAUNCHED, thread COUNT=" + Thread.activeCount());
         } catch (RejectedExecutionException ree) {
             logger.log("perform_safe_move_in_a_thread()" + ree);

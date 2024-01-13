@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.util.Threads;
 import klik.change.Change_gang;
@@ -586,7 +587,7 @@ public class Files_and_Paths {
             }
         };
 
-        Threads.execute(r, logger);
+        Actor_engine.execute(r,logger);
 
     }
 
@@ -950,7 +951,7 @@ public class Files_and_Paths {
             }
         };
         try {
-            Threads.execute(r, logger);
+            Actor_engine.execute(r,logger);
             logger.log("copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
             logger.log("copy_dir_in_a_thread()" + ree);

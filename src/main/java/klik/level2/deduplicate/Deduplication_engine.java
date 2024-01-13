@@ -2,6 +2,7 @@ package klik.level2.deduplicate;
 
 import javafx.application.Platform;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.files_and_paths.*;
 import klik.util.Threads;
 import klik.browser.Browser;
@@ -69,7 +70,7 @@ public class Deduplication_engine implements Againor
                 runnable_deduplication(local_engine, auto);
             }
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
         logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
 
@@ -96,7 +97,7 @@ public class Deduplication_engine implements Againor
         // launch actor (feeder) in another tread
         finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, same_file_pairs_input_queue, aborter, logger);
 
-        Threads.execute(finder,logger);
+        Actor_engine.execute(finder,logger);
 
         logger.log("Deduplication::look_for_all_files() Duplicate_file_pairs_finder thread launched");
 
@@ -353,7 +354,7 @@ public class Deduplication_engine implements Againor
                 }
             }
         };
-        Threads.execute(r, logger);
+        Actor_engine.execute(r,logger);
 
     }
 
@@ -371,7 +372,7 @@ public class Deduplication_engine implements Againor
                 just_count();
             }
         };
-        Threads.execute(r, logger);
+        Actor_engine.execute(r,logger);
         logger.log("Deduplication::count() runnable_deduplication thread launched");
     }
 

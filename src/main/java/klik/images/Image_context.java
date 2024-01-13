@@ -15,6 +15,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
@@ -472,7 +473,7 @@ public class Image_context
             logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
             return false;
         }
-        Threads.execute(after,logger);
+        Actor_engine.execute(after,logger);
         //Popups.popup_text(I18n.get_I18n_string("Copy_done",logger),I18n.get_I18n_string("New_name",logger)+new_path.getFileName().toString(),false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(

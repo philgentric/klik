@@ -205,7 +205,9 @@ public class Aspect_ratio_cache
                 }
             }
         };
-        Threads.execute(look_for_end_runnable,logger);
+        //Threads.execute(look_for_end_runnable,logger);
+        Actor_engine.execute(look_for_end_runnable,logger);
+
     }
 
 

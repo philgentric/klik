@@ -7,6 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.items.Item_button;
 import klik.look.Font_size;
@@ -95,7 +96,7 @@ public class Folder_size {
             });
             done[0] =  true;
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
 
         // use a scheduled thread to track the process...
         // not sure a sleep would not be just as good?

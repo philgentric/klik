@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Threads;
@@ -151,7 +152,7 @@ public class Deduplication_console_window
                 }
             }
         };
-        Threads.execute(r, logger);
+        Actor_engine.execute(r,logger);
     }
 
     // returns true if the thread should stop

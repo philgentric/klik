@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+import klik.actor.Actor_engine;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Strings;
@@ -212,7 +213,7 @@ public class Per_folder_mini_console
 
                 close();
             };
-            Threads.execute(r,logger);
+            Actor_engine.execute(r,logger);
         }
 
     }

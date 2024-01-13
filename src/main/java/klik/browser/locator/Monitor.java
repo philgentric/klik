@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import klik.actor.Actor_engine;
 import klik.level2.backup.Backup_singleton;
 import klik.util.Logger;
 import klik.util.Threads;
@@ -64,7 +65,7 @@ public class Monitor
 
             }
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
     }
 
     //**********************************************************

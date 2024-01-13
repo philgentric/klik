@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
@@ -104,6 +105,10 @@ public abstract class Look_and_feel
     abstract public String get_folder_icon_path();
     abstract public String get_selected_text_color();
     abstract public Color get_selection_box_color();
+
+    abstract public Color get_background_color();
+    abstract public Color get_foreground_color();
+
 
     protected String get_dummy_icon_path()
     {
@@ -242,6 +247,5 @@ public abstract class Look_and_feel
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
     }
-
 
 }

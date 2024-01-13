@@ -34,7 +34,15 @@ public class Look_and_feel_wood extends Look_and_feel
         return "wood/view.png";
     }
 
+    @Override
+    public Color get_background_color() {
+        return Color.valueOf("#FF4040");
+    }
 
+    @Override
+    public Color get_foreground_color() {
+        return Color.WHITE;
+    }
     @Override
     public String get_bookmarks_icon_path() {
         return "wood/bookmarks.png";

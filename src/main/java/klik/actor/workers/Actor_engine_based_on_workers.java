@@ -5,6 +5,7 @@ import klik.util.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Actor_engine_based_on_workers implements Actor_engine_interface
@@ -22,6 +23,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     private final Logger logger;
     ConcurrentLinkedQueue<Worker> runners = new ConcurrentLinkedQueue<>();
     LinkedBlockingQueue<Job> input_queue_single = new LinkedBlockingQueue<>();
+    private final AtomicInteger threads_in_flight = new AtomicInteger(0);
 
 
     //**********************************************************
@@ -33,7 +35,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         logger = logger_;
         for (int i = 0; i < number_of_runners; i++)
         {
-            Worker r = new Worker("runner_"+i,input_queue_single,logger);
+            Worker r = new Worker("runner_"+i,input_queue_single,threads_in_flight,logger);
             runners.add(r);
         }
         start();
@@ -61,6 +63,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     //**********************************************************
     {
         input_queue_single.add(am);
+        threads_in_flight.incrementAndGet();
         if ( dbg) logger.log(am.to_string()+" scheduled for execution");
     }
 
@@ -69,6 +72,14 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     //**********************************************************
     {
         for ( Worker r : runners) r.stop();
+    }
+
+    //**********************************************************
+    @Override
+    public int how_many_threads_are_in_flight()
+    //**********************************************************
+    {
+        return threads_in_flight.get();
     }
 
     //**********************************************************
@@ -87,6 +98,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
             job.cancel();
         }
         job.has_ended("Engine received cancel for "+job.to_string());
+        threads_in_flight.decrementAndGet();
     }
 
 

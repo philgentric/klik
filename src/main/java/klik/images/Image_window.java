@@ -23,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
@@ -280,7 +281,7 @@ public class Image_window
 
             Platform.runLater(() -> the_progress_bar.setProgress(progress));
         };
-        Threads.execute(rr,logger);
+        Actor_engine.execute(rr,logger);
     }
 
 

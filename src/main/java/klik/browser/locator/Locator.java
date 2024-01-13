@@ -2,6 +2,7 @@ package klik.browser.locator;
 
 import javafx.application.Platform;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.files_and_paths.*;
@@ -127,7 +128,7 @@ public class Locator
                 show();
             }
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
     }
 
     //**********************************************************
@@ -202,10 +203,11 @@ public class Locator
                 };
                 if ( Threads.use_fibers)
                 {
-                    Threads.execute(r, logger);
+                    Actor_engine.execute(r,logger);
                 }
                 else
                 {
+                    // dont use a thread
                     r.run();
                 }
             }

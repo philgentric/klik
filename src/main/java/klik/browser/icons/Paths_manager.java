@@ -4,6 +4,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Error_receiver;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
@@ -149,9 +150,7 @@ public class Paths_manager
                 refresh_target.refresh2();
             }
         };
-        Threads.execute(r,logger);
-
-
+        Actor_engine.execute(r,logger);
 
         return Error_type.OK;
     }

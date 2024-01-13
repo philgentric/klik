@@ -31,6 +31,14 @@ public class Actor_engine // is a singleton
     }
 
     //**********************************************************
+    public static int how_many_threads_are_in_flight(Logger logger)
+    //**********************************************************
+    {
+        if ( instance == null) instance = get(logger);
+        return instance.how_many_threads_are_in_flight();
+    }
+
+    //**********************************************************
     public static Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
     //**********************************************************
     {
@@ -52,5 +60,13 @@ public class Actor_engine // is a singleton
     {
         if ( instance == null) return;
         instance.cancel_one(job);
+    }
+
+    //**********************************************************
+    public static Job execute(Runnable r, Logger logger)
+    //**********************************************************
+    {
+        if ( instance == null) instance = get(logger);
+        return instance.execute_internal(r,logger);
     }
 }

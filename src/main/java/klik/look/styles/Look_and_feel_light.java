@@ -43,7 +43,15 @@ public class Look_and_feel_light extends Look_and_feel
         return "light/preferences.png";
     }
 
+    @Override
+    public Color get_background_color() {
+        return Color.WHITE;
+    }
 
+    @Override
+    public Color get_foreground_color() {
+        return Color.BLACK;
+    }
 
 
     @Override

@@ -8,6 +8,7 @@ import klik.util.Threads;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Worker
@@ -18,11 +19,14 @@ public class Worker
     Logger logger;
     String name;
     private final Aborter aborter = new Aborter();
+    private final AtomicInteger threads_in_flight;
+
     //**********************************************************
-    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, Logger logger_)
+    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, AtomicInteger threads_in_flight_, Logger logger_)
     //**********************************************************
     {
         engine_input_queue = input_queue_;
+        threads_in_flight = threads_in_flight_;
         logger = logger_;
         name = name_;
     }
@@ -53,6 +57,7 @@ public class Worker
                     }
                     String msg = job.actor.run(job.message);
                     if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
+                    threads_in_flight.decrementAndGet();
                 }
                 catch (InterruptedException e) {
                     logger.log(Stack_trace_getter.get_stack_trace(e.toString()));

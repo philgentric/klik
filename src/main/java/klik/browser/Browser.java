@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.browser.locator.Locator;
 import klik.level2.backup.Backup_singleton;
@@ -461,8 +462,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                     }
                 }
             };
-            Threads.execute(r,logger);
-
+            Actor_engine.execute(r,logger);
         }
         my_Stage.the_Stage.fullScreenProperty().addListener(
                 (observable, oldValue, newValue) -> {

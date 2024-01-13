@@ -863,7 +863,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 size_info_receiver.set_file_count_text(s);
             });
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
     }
 
 
@@ -878,7 +878,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 disk_foot_print_receiver.set_disk_foot_print_text(sizes);
             });
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
     }
 
 }

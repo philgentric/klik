@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import klik.actor.Actor_engine;
 import klik.level2.fusk.Pin_code_client;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
@@ -63,7 +64,7 @@ public class Pin_code_getter_stage
                 logger.log("fusk signature init, pin_code="+get_pin_code());
             }
         };
-        Threads.execute(get_pin_code, logger);
+        Actor_engine.execute(get_pin_code,logger);
     }
     //**********************************************************
     public String get_pin_code()

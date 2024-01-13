@@ -1,6 +1,7 @@
 package klik.files_and_paths;
 
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.util.*;
 
@@ -102,7 +103,7 @@ public class Disk_scanner implements Runnable
         folder_count_stop_counter.incrementAndGet();
 
         Runnable r = new Disk_scanner(path, origin, folder_count_stop_counter, file_payload_, dir_payload_, warning_payload_, aborter_, logger);
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
     }
     //**********************************************************
     private Disk_scanner(

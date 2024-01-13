@@ -2,7 +2,6 @@ package klik.browser;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
@@ -30,8 +29,6 @@ import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -70,6 +67,19 @@ public class Browser_menus
         item.setOnAction(event -> About_klik_stage.show_about_klik_stage());
         return item;
     }
+
+
+
+    //**********************************************************
+    public MenuItem make_meters_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Show_Meters",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Meters_stage.show_stage(logger));
+        return item;
+    }
+
 
     //**********************************************************
     public MenuItem make_clear_trash_menu_item(Logger logger)

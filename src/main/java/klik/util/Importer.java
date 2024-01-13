@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.files_and_paths.*;
 import klik.look.Font_size;
 import klik.look.my_i18n.I18n;
@@ -116,7 +117,7 @@ public class Importer
                 }
             }
         };
-        Threads.execute(r,logger);
+        Actor_engine.execute(r,logger);
 
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
