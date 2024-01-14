@@ -1,12 +1,51 @@
 # Klik: a file system explorer/manager with a strong focus on images
 
-Enables to sort pictures into folders, intuitive and fast, drag-and-drop anything.
+Enables to sort files and especially pictures displayed as icons, into folders, intuitive and fast, drag-and-drop anything.
 
 # Try klik 
 
-At this stage no installation executable or binaries are distributed, you will have to build klik from source, but it is super easy to do!
+There are multiple ways to get klik running on your system.
 
-### Beguiners' guide: how to install git and java
+## "Java Binaries"
+
+### java binaries from zip
+
+The release folder: https://github.com/philgentric/klik/releases
+contains zip files: unzip and go to the "bin" folder
+- on MacOS and linux: click on klik (shell script)
+- on Windows: click on klik.bat
+
+Note for developers: this is generated using the command:
+
+**gradle distZip**
+or
+**./gradlew distZip**
+
+### java binaries as a pseudo native app
+
+Available for macOS: klik.app is actually a launcher for java binaries
+
+Note for developers: this is generated using the command:
+
+**gradle jpackage**
+or
+**./gradlew jpackage**
+
+
+## Native binaries
+
+At this stage the native application (using graalVM) is not available.
+(it compiles but fails at execution, there is an issue with javafx) 
+
+Note for developers: this is done using the command:
+
+**gradle nativeRun**
+or
+**./gradlew nativeRun**
+
+## From source
+
+### Beguiners' guide: how to install git & java
 
 ### On MacOS
 
@@ -37,6 +76,9 @@ type "how to install java and git" in google!-)
 **cd klik**
 
 **./gradlew run**
+or
+**gradle run**
+
 
 ### Get klik updates
 
@@ -44,9 +86,7 @@ To get the latest version of klik, just go in the klik folder and type:
 
 **git pull**
 
-,this will fetch the last master source code. Then:
-
-**./gradlew run**
+this will fetch the last master source code.
 
 # FAQ
 
@@ -69,7 +109,7 @@ Q: Ok, but where am I?
 A: klik starts in your home folder. On mac it is /Users/yourname. Often people drop things on the desktop, it is located there: /Users/yourname/Desktop
 
 Q: Where are my images?  
-A: To find where your images are on your disk, open a terminal and type: **find . -name "*.jpg"**. Then use klik bookmarks to save the paths.
+A: To find where your images are on your disk, use klik: the "Files" menu has an item for this, or open a terminal and type: **find . -name "*.jpg"**. Then use klik bookmarks to save the paths.
 
 Q: What is klik made of?  
 A: klik is written 100% in a computer language named "java", and uses the javafx graphic system.
@@ -83,21 +123,20 @@ A: It is a way to execute code on a different core of your computer. When proces
 Q: Why is klik so slow on large images?  
 A: klik uses java ImageIO library, which is pretty fast but uses a lot of RAM. Large images (say more than 100 MegaPixel) simply need more RAM and computing power to be decoded, if your computer is super recent and has a lot of RAM, it should be OK, but yes, on older machines it is going to take up to several seconds... and the garbage collection will cause hickups... on the other hand, I doubt you will find another tool that can do it faster?
 
-
 Q: Why is the "sort files by aspect ratio" mode so slow?  
-A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder it will take several seconds... then klik caches these and the second time you open the folder it should be quite fast.
+A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder it will take several seconds on an old machine... then klik caches these and the second time you open the folder it should be quite fast.
 
 Q: A popup tells me the cache is getting pretty large, what should I do?  
-A: To make browsing faster klik uses a cache for icons, on your disk. If you have a lot of images, this cache can grow so large your main storage will become full, which is a bad thing. Use the menu: "Files/Clean" to clear the cache. Alternatively if you have a lot of spare room, you can edit the configuration file to increase the limit so as to avoid the annoying popup when you start klik. Note that klik erases items in the disk cache that are older than 2 days.
+A: To make browsing faster klik uses a several caches on your disk. If you have a lot of images, this cache can grow so large your main storage could become full, which is a bad thing. For this reason klik monitors its own caches and will warn you when they get larger than a configurable limit. Use the menu: "Files/Clean" to clear the caches. Alternatively if you have a lot of spare room, you can change the configuration to increase the limit so as to avoid the annoying popup when you start klik. Note that klik automatically erases items in the disk caches that are older than 2 days.
 
 Q: Should I edit the configuration file?  
-A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean one, but of course you wil loose all bookmarks and preferences.
+A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean one, but of course you will loose all bookmarks and preferences.
 
 Q: Why should I edit the configuration file?  
-A: To increase the warning limit of cache size, or to look for easter eggs.
+A: To look for easter eggs.
 
 Q: How can I edit the configuration file?  
-A: The file name is klik_properties.txt, it is localted in the .klik hidden folder in your home folder.
+A: The file name is klik_properties.txt, it is localted in the .klik folder in your home folder.
 
 # Intuitive
 
@@ -117,18 +156,25 @@ and enables you to move files from folder to folder.
 
 Klik never deletes a file without asking you for confirmation.
 In Klik, "delete" actually means moving the file into the "klik_trash" folder.
-You can visit the "klik_trash" folder and recover any "deleted" file or folder.
+There are 2 ways to recover a deleted file or folder: (1) use the undo menu item (2) visit the "klik_trash" folder.
 Only clearing the "klik_trash" folder is final, and you will be asked for confirmation.
 If you move a file into a folder where there is already a file with the same name, it is renamed with a postfix "\_xxx".
 When you have duplicates and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the klik_trash folder.
 
 # Numerous formats supported
 
-Klik supports all major image & video file formats, as well a PDF.
+Klik supports all major image & video file formats, as well a PDF (for icons only).
 
 Klik browser window display icons for still images, animated gifs are displayed animated, PDF documents are displayed as a icon-size image of the first page, movies are displayed as a few second of animated gif (this feature requires to have ffmpeg installed).
 
 Klik image windows supports jpeg, png, gif, animated gif, bmp, wbmp.
+
+Klik hides inside a (minimal) audio player with play lists!-)
+
+Klik relies on your default system applications for:
+- video play
+- image edition
+- in general opening any file that is not an image or a sound, or not in a supported format
 
 # Windows
 

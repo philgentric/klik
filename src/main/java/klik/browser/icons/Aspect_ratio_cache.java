@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.files_and_paths.Ding;
 import klik.files_and_paths.Files_and_Paths;
 import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
@@ -166,6 +167,7 @@ public class Aspect_ratio_cache
             //already running;
             return;
         }
+        long start = System.currentTimeMillis();
 
         look_for_end_runnable = new Runnable() {
             @Override
@@ -183,6 +185,14 @@ public class Aspect_ratio_cache
 
                     if ( in_flight.get() == 0)
                     {
+                        if ( System.currentTimeMillis()-start > 5_000)
+                        {
+                            if (Static_application_properties.get_ding(logger))
+                            {
+                                Ding.play(logger);
+                            }
+                        }
+
                         done.set(true);
 
                         Comparator<Path> local_file_comparator;

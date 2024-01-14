@@ -53,6 +53,7 @@ public class Static_application_properties
     public static final String COLUMN_WIDTH = "Column_width"; //this must match the ressource bundles
     public static final String VERTICAL_SCROLL_INVERTED = "vertical_scroll_inverted";
     public static final String ESCAPE = "escape_fast_exit";
+    public static final String DING = "play_ding_when_long_operations_end";
     public static final String SHOW_ICONS = "show_icons";
     public static final String CONF_DIR = ".klik";//+File.separator;
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
@@ -600,6 +601,27 @@ public class Static_application_properties
         String s = Static_application_properties.get_properties_manager(logger).get(ESCAPE);
         if (s == null) {
             Static_application_properties.get_properties_manager(logger).save_unico(ESCAPE, "true", false);
+            return true;
+        } else {
+            return Boolean.parseBoolean(s);
+        }
+    }
+
+
+    //**********************************************************
+    public static void set_ding(boolean b, Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_properties_manager(logger).save_unico(DING, String.valueOf(b), false);
+    }
+
+    //**********************************************************
+    public static boolean get_ding(Logger logger)
+    //**********************************************************
+    {
+        String s = Static_application_properties.get_properties_manager(logger).get(DING);
+        if (s == null) {
+            Static_application_properties.get_properties_manager(logger).save_unico(DING, "true", false);
             return true;
         } else {
             return Boolean.parseBoolean(s);

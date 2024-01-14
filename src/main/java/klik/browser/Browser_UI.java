@@ -384,6 +384,7 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_style_menu_item());
         pref.getItems().add(browser_menus.make_language_menu());
         if (level2) pref.getItems().add(browser_menus.make_video_length_menu());
+        pref.getItems().add(browser_menus.make_ding_menu_item());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
         if (level2) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());

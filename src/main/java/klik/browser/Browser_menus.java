@@ -905,6 +905,20 @@ public class Browser_menus
         });
         return item;
     }
+
+    //**********************************************************
+    public MenuItem make_ding_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Play_Ding_When_Long_Operations_End",logger);
+        CheckMenuItem item = new CheckMenuItem(text);
+        item.setSelected(Static_application_properties.get_ding(logger));
+        item.setOnAction(actionEvent -> {
+            boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
+            Static_application_properties.set_ding(value,logger);
+        });
+        return item;
+    }
     //**********************************************************
     public void create_check_menu_item_for_language(Browser browser, Menu menu, String language, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************

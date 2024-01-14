@@ -449,6 +449,7 @@ public class Moving_files
                     return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, oandn.cmd, Status_old_and_new_Path.same_path);
                 }
                 if (dbg) logger.log("move command issued : " + oandn.get_old_Path() + "=>" + oandn.get_new_Path());
+                long start = System.currentTimeMillis();
                 if (oandn.get_old_Path().toFile().isFile())
                 {
                     // preserves attributes by default:
@@ -459,6 +460,13 @@ public class Moving_files
                     FileUtils.moveDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
 
+                if ( System.currentTimeMillis()-start > 5_000)
+                {
+                    if (Static_application_properties.get_ding(logger))
+                    {
+                        Ding.play(logger);
+                    }
+                }
                 {
                     List<Old_and_new_Path> l = new ArrayList<>();
                     l.add(oandn);

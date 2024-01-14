@@ -5,10 +5,13 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id("org.beryx.jlink") version "3.0.1"
+    //id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.22'
+    //id 'org.graalvm.buildtools.native' version '0.9.28'
+
 }
 
 group = 'klik'
-version = '0.9.0'
+version = '1.0.0'
 
 repositories {
     mavenCentral()
@@ -24,6 +27,20 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
+
+
+dependencies {
+    // EXIF reader
+    implementation 'com.drewnoakes:metadata-extractor:2.18.0'
+    // Cache
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
+    // files etc
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    // PDF icons
+    implementation 'org.apache.pdfbox:pdfbox:3.0.0-RC1'
+
+}
+
 
 
 def main_class_name = 'klik.Klik_application'
@@ -54,16 +71,21 @@ jar {
     }
 }
 
-dependencies {
-    // EXIF reader
-    implementation 'com.drewnoakes:metadata-extractor:2.18.0'
-    // Cache
-    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
-    // files etc
-    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    // PDF icons
-    implementation 'org.apache.pdfbox:pdfbox:3.0.0-RC1'
-
+/*
+graalvmNative {
+    binaries {
+        main {
+            imageName = "klik"
+            mainClass = main_class_name
+            buildArgs.add("-O4")
+        }
+        test {
+            buildArgs.add("-O0")
+        }
+    }
+    binaries.all {
+        buildArgs.add("--verbose")
+    }
 }
-
+*/
 
