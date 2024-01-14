@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
+import klik.browser.meter.Meters_stage;
 import klik.change.*;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.change.history.History_engine;

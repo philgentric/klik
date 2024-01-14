@@ -107,15 +107,30 @@ public class Aspect_ratio_cache
     {
         Properties_manager pm = new Properties_manager(path_of_aspect_ratio_cache_file,logger);
         int reloaded = 0;
-        for(String s : pm.get_all_keys())
+        List<String> cleanup = new ArrayList<>();
+        for(String key : pm.get_all_keys())
         {
-            String v = pm.get(s);
-            if (aspect_ratio_cache.get(s) == null)
+            String v = pm.get(key);
+            if (aspect_ratio_cache.get(key) == null)
             {
-                aspect_ratio_cache.put(s, new Aspect_ratio(Double.valueOf(v),true));
-                reloaded++;
+                try
+                {
+                    double d = Double.valueOf(v);
+                    aspect_ratio_cache.put(key, new Aspect_ratio(d,true));
+                    reloaded++;
+                }
+                catch(NumberFormatException x)
+                {
+                    // this entry in the file cache is wrong
+                    cleanup.add(key);
+                }
             }
         }
+        for ( String key:cleanup)
+        {
+            pm.remove(key);
+        }
+        if ( !cleanup.isEmpty()) pm.store_properties();
         if (dbg) logger.log("aspect ratio cache, "+reloaded+" items reloaded from file");
 
     }

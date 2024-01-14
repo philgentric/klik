@@ -535,7 +535,7 @@ public class Image_window
         DoubleBinding real_height_property = h1.subtract(h2);
         if (( rot == 90) || ( rot == 270))
         {
-            logger.log("image_window rot 90 or 270 " +
+            if(dbg) logger.log("image_window rot 90 or 270 " +
                     " h= "+real_height_property.get()
             +" w= "+the_Scene.widthProperty().get());
             // when the image is rotated imageview "width property" becomes ... the display height !!!
