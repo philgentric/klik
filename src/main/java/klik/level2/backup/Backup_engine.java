@@ -63,7 +63,7 @@ public class Backup_engine
 
         actor_engine_based_on_workers.run(
                 new Backup_actor_for_one_folder(stats,reports,aborter,logger),
-                new Directory_backup_job_request(source.toFile(), destination.toFile(), aborter, true,logger),
+                new Directory_backup_job_request(source.toFile(), destination.toFile(), aborter,logger),
                         null,logger);
 
         Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source,aborter, logger);

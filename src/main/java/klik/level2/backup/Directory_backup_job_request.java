@@ -14,10 +14,10 @@ public class Directory_backup_job_request implements Message
     public final File destination_dir;
     public final Aborter aborter;
     public boolean finished = false;
-    public final boolean has_files;
+
     //**********************************************************
     public Directory_backup_job_request(File source_dir, File destination_dir,
-                                        Aborter aborter_, boolean has_files_, Logger logger)
+                                        Aborter aborter_,  Logger logger)
     //**********************************************************
     {
         this.source_dir = source_dir;
@@ -27,7 +27,6 @@ public class Directory_backup_job_request implements Message
             logger.log_stack_trace("FATAL: aborter must not be null");
         }
         aborter = aborter_;
-        has_files = has_files_;
     }
 
     //**********************************************************

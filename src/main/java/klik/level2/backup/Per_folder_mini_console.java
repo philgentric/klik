@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import klik.actor.Actor_engine;
+import klik.files_and_paths.Guess_file_type;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Strings;
@@ -115,13 +116,18 @@ public class Per_folder_mini_console
 
         for (File f : all_files)
         {
+
             if (!f.isDirectory())
             {
-                target_file_count++;
+                if (!Guess_file_type.ignore(f.toPath()))
+                {
+                    target_file_count++;
+                }
             }
         }
 
         last_news = "Looking at :\n" + target_dir + "\nfile count here is : " + target_file_count+"\n";
+        logger.log("Looking at :" + target_dir + " file count here is : " + target_file_count);
         show_progress();
     }
 
@@ -184,7 +190,7 @@ public class Per_folder_mini_console
 
 
     //**********************************************************
-    void show_progress()
+    synchronized void show_progress()
     //**********************************************************
     {
 

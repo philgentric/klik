@@ -20,7 +20,7 @@ public class Backup_actor_for_one_folder implements Actor
 {
     //File_comparator file_comparator;
     private static final boolean verbose = false;
-    public static final int ONGOING_FILES = 5*Runtime.getRuntime().availableProcessors();// 2000;
+    public static final int ONGOING_FILES = 2*Runtime.getRuntime().availableProcessors();// 2000;
     public final Logger logger;
     private Per_folder_mini_console mini_console;
     public final Backup_stats stats;
@@ -73,17 +73,10 @@ public class Backup_actor_for_one_folder implements Actor
 
         // ok, we will really have something to backup
         stats.target_dir_count.incrementAndGet();
-        mini_console = null;
+        mini_console = new Per_folder_mini_console(logger);
+        mini_console.create();
+        mini_console.init(request);
 
-        if (request.has_files)
-        {
-            if ( Files_and_Paths.get_size_on_disk(request.source_dir.toPath(),aborter, logger) > 10_000_000)
-            {
-                mini_console = new Per_folder_mini_console(logger);
-                mini_console.create();
-                mini_console.init(request);
-            }
-        }
 
         boolean enable_check_for_same_file_different_name = true;
         if (!request.destination_dir.exists()) {
@@ -115,27 +108,29 @@ public class Backup_actor_for_one_folder implements Actor
         }
 
         int count = 0;
-        for (File file_to_be_copied : all_source_files) {
+        for (File file_to_be_copied : all_source_files)
+        {
             if (request.get_aborter().should_abort()) {
                 logger.log("abort2 from duplicate_internal()");
                 break;
             }
             if (file_to_be_copied.isDirectory()) continue;
-
             if ( Guess_file_type.ignore(file_to_be_copied.toPath())) continue;
 
+            /*
             Actor_engine.run(
                     new Backup_actor_for_one_file(stats, logger), // need on actor instance per task because the file comparator is not reentrant
                     new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger),
                     null,
                     logger
             );
+            */
+            new Backup_actor_for_one_file(stats, logger).run(new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger));
             count++;
         }
         logger.log("Folder "+request.source_dir.getAbsolutePath()+" "+count+" files backups launched in threads");
 
-        boolean has_files = false;
-        if ( count > 0) has_files = true;
+
 
 
         for (File sub_dir_to_be_copied : all_source_files)
@@ -153,17 +148,21 @@ public class Backup_actor_for_one_folder implements Actor
 
 
             // create new job for this subfolder
-            Directory_backup_job_request directory_backup_job_request = new Directory_backup_job_request(sub_dir_to_be_copied, new File(request.destination_dir, sub_dir_to_be_copied.getName()), request.aborter, has_files,logger);
+            Directory_backup_job_request directory_backup_job_request = new Directory_backup_job_request(sub_dir_to_be_copied, new File(request.destination_dir, sub_dir_to_be_copied.getName()), request.aborter,logger);
             // dont feed the beast too fast
             // as we open one virtual thread per file
             while (Backup_actor_for_one_file.ongoing.get() >= ONGOING_FILES)
             {
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(30);
                 } catch (InterruptedException e) {
                     logger.log_stack_trace(e.toString());
                     return e.toString();
+                }
+                if (request.get_aborter().should_abort()) {
+                    logger.log("abort3 from duplicate_internal()");
+                    break;
                 }
                 logger.log("ONGOING files = " + Backup_actor_for_one_file.ongoing.get());
             }
@@ -173,6 +172,7 @@ public class Backup_actor_for_one_folder implements Actor
         }
 
 
+        logger.log("Folder "+request.source_dir.getAbsolutePath()+" DONE");
 
         // tell above folder that this subfolder is done
         stats.done_dir_count.incrementAndGet();
@@ -185,6 +185,7 @@ public class Backup_actor_for_one_folder implements Actor
         {
             String final_report = mini_console.make_final_report();
             reports.add(final_report);
+            mini_console.show_progress();
             //mini_console.close();
             //logger.log("\n\n\n closing miniconcole for: "+request.source_dir.getAbsolutePath());
         }

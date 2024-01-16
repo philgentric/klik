@@ -177,7 +177,11 @@ public class Backup_actor_for_one_file implements Actor
             // the destination needs to be created, we must now copy
         }
 
-        if ( file_backup_job_request.get_aborter().should_abort()) return returned;
+        if ( file_backup_job_request.get_aborter().should_abort())
+        {
+            file_backup_job_request.mini_console.increment_file_count();
+            return returned;
+        }
         // last check: there might already be a copy as a file with a different name
 
         if ( file_backup_job_request.enable_check_for_same_file_different_name)
@@ -218,7 +222,11 @@ public class Backup_actor_for_one_file implements Actor
             }
         }
 
-        if ( file_backup_job_request.get_aborter().should_abort()) return returned;
+        if ( file_backup_job_request.get_aborter().should_abort())
+        {
+            file_backup_job_request.mini_console.increment_file_count();
+            return returned;
+        }
 
         // perform the copy
         try
@@ -234,6 +242,7 @@ public class Backup_actor_for_one_file implements Actor
                 file_backup_job_request.mini_console.add_to_last_news("\ndestination file name :\n" + destination_file.getAbsolutePath());
                 file_backup_job_request.mini_console.add_to_last_news("\nERROR: copy failed " + eee);
                 file_backup_job_request.mini_console.show_progress();
+                file_backup_job_request.mini_console.increment_file_count();
             }
             returned.was_copied = false;
             return returned;

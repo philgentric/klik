@@ -46,6 +46,7 @@ public class Backup_console_window
     private int min_speed = Integer.MAX_VALUE;
     private int max_speed = 0;
     private static final int MILLISECONDS = 10_000;
+    Stage stage;
 
     //**********************************************************
     public Backup_console_window(Backup_engine backup_engine_, Backup_stats stats_, Logger logger)
@@ -54,7 +55,8 @@ public class Backup_console_window
         backup_engine = backup_engine_;
         stats = stats_;
         this.logger = logger;
-        Stage stage = new Stage();
+
+        stage = new Stage();
         stage.setX(Per_folder_mini_console.Mini_console_max_x);
         stage.setY(0);
         //stage.setHeight(500);
@@ -169,6 +171,7 @@ public class Backup_console_window
     //**********************************************************
     {
         aborter.abort();
+        stage.close();
     }
 
     //**********************************************************
