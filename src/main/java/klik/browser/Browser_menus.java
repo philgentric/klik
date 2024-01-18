@@ -572,6 +572,18 @@ public class Browser_menus
     }
 
     //**********************************************************
+    public MenuItem make_sort_by_year_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Sort_Files_In_Folders_By_Year",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.sort_by_year());
+        return item;
+    }
+
+
+
+    //**********************************************************
     public MenuItem make_stop_fullscreen_menu_item()
     //**********************************************************
     {
@@ -825,8 +837,8 @@ public class Browser_menus
                 return;
             }
             logger.log("\n\n\n undo_item="+item.to_string());
-            String header = I18n.get_I18n_string("Going_To_Undo_This",logger);
-            if (Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage,header,signature,logger))
+            //String header = I18n.get_I18n_string("Going_To_Undo_This",logger);
+            //if (Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage,header,signature,logger))
             {
                 Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,logger);
             }

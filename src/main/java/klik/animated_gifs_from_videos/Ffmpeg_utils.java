@@ -395,7 +395,7 @@ public class Ffmpeg_utils
         //if (new_name.length() > 24) new_name = new_name.substring(new_name.length() - 12);
         Path new_path = Path.of(gif_saving_dir.getAbsolutePath().toString(), new_name);
         Old_and_new_Path oandnp = new Old_and_new_Path(gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command);
-        Moving_files.perform_safe_move_in_a_thread(the_stage, oandnp, aborter, false, true, logger);
+        Moving_files.perform_safe_move_in_a_thread(the_stage, oandnp, aborter, logger);
     }
 
     //**********************************************************

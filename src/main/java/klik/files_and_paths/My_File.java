@@ -73,9 +73,14 @@ public class My_File
 			return false;
 		}
 
+
 		if (( mf1.first_bytes != null) && (mf2.first_bytes != null))
 		{
-			//if ( !Arrays.equals(mf1.first_bytes,mf2.first_bytes) )
+			if ( mf1.first_bytes.length != mf2.first_bytes.length )
+			{
+				if ( Runnable_for_finding_duplicate_file_pairs.ultra_dbg ) logger.log("first bytes length differ "+ mf1.first_bytes.length+" v.s. "+ mf2.first_bytes.length);
+				return false;
+			}
 			if ( Arrays.mismatch(mf1.first_bytes,mf2.first_bytes) != -1)
 			{
 				if ( Runnable_for_finding_duplicate_file_pairs.ultra_dbg ) logger.log("BYTES differ "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
@@ -88,70 +93,68 @@ public class My_File
 		// let us check, block per block
 		// at the first sign of a difference, return false
 		boolean returned = true;
-		try
-		{
-			BufferedInputStream bis1 = new BufferedInputStream(new FileInputStream(mf1.file));
+		try(BufferedInputStream bis1 = new BufferedInputStream(new FileInputStream(mf1.file));
 			BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(mf2.file));
-			// TODO optimize : allocate once
-			byte[] hashsrc = new byte[BUFFER_SIZE];
-			byte[] hashdest = new byte[BUFFER_SIZE];
-			//Arrays.fill(hashsrc,(byte)0); // dont need to do that
-			boolean quit = false;
+		)
+		{
+			// TODO optimize : allocate once?
+			byte[] buffer1 = new byte[BUFFER_SIZE];
+			byte[] buffer2 = new byte[BUFFER_SIZE];
 			boolean first_loop = true;
 			long start =  System.currentTimeMillis();
 			for(;;)
 			{
 				if ( aborter.should_abort()) return false;
-				int available_src = bis1.available();
-				int available_dest = bis2.available();
-				if ( available_src != available_dest )
+				int bytes1 = bis1.read(buffer1, 0, BUFFER_SIZE);
+				int bytes2 = bis2.read(buffer2, 0, BUFFER_SIZE);
+
+				if (( bytes1==-1)&&(bytes2 ==-1))
 				{
-					//if ( dbg) logger.log("read sizes differ");
+					// both files ended
+					returned = true;
+					break;
+				}
+				if (( bytes1==-1)||(bytes2 ==-1))
+				{
+					// one file ended before the other
 					returned = false;
 					break;
 				}
-				if ( available_src < BUFFER_SIZE)
-				{
-					if ( bis1.read(hashsrc, 0, available_src) != available_src)
-					{
-						logger.log("WARNING file reading failed for: "+mf1.file.getAbsolutePath());
-						return false;
-					}
-					if (bis2.read(hashdest, 0, available_dest) != available_dest)
-					{
-						logger.log("WARNING file reading failed for: "+mf2.file.getAbsolutePath());
-						return false;
-					}
-					quit = true;
-				}
-				else
-				{
-					if ( bis1.read(hashsrc, 0, BUFFER_SIZE) != BUFFER_SIZE)
-					{
-						logger.log("WARNING file reading failed for: "+mf1.file.getAbsolutePath());
-						return false;
-					}
-					if ( bis2.read(hashdest, 0, BUFFER_SIZE) != BUFFER_SIZE)
-					{
-						logger.log("WARNING file reading failed for: "+mf2.file.getAbsolutePath());
-						return false;
-					}
-				}
-
 				if ( first_loop)
 				{
 					first_loop = false;
-					mf1.first_bytes = hashsrc;
-					mf2.first_bytes = hashdest;
+					if ( bytes1 < BUFFER_SIZE)
+					{
+						mf1.first_bytes = new byte[bytes1];
+						System.arraycopy(buffer1,0,mf1.first_bytes,0,bytes1);
+					}
+					else
+					{
+						mf1.first_bytes = buffer1;
+					}
+					if ( bytes2 < BUFFER_SIZE)
+					{
+						mf2.first_bytes = new byte[bytes2];
+						System.arraycopy(buffer2,0,mf2.first_bytes,0,bytes2);
+					}
+					else
+					{
+						mf2.first_bytes = buffer2;
+					}
 				}
-				//if ( !Arrays.equals(hashsrc,hashdest) )
-				if ( Arrays.mismatch(hashsrc,hashdest) != -1)
+				if ( bytes1 != bytes2 )
+				{
+					logger.log("read sizes differ");
+					returned = false;
+					break;
+				}
+
+				if ( Arrays.mismatch(buffer1,buffer2) != -1)
 				{
 					//if ( dbg ) logger.log("content differ");
 					returned = false;
 					break;
 				}
-				if (quit) break;
 				long now = System.currentTimeMillis();
 				if ( (now-start) > 3000 )
 				{
@@ -162,7 +165,6 @@ public class My_File
 			bis1.close();
 			bis2.close();
 			return returned;
-
 		}
 		catch(Exception ioe)
 		{

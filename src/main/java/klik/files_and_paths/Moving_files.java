@@ -109,7 +109,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    public static void perform_safe_move_in_a_thread(Stage owner, Old_and_new_Path oanp, Aborter aborter, boolean JFX, boolean and_list_for_undo, Logger logger)
+    public static void perform_safe_move_in_a_thread(Stage owner, Old_and_new_Path oanp, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (oanp == null) {
@@ -119,7 +119,7 @@ public class Moving_files
         }
 
         logger.log("perform_safe_move_in_a_thread()");
-        Runnable r = () -> actual_safe_move(owner, oanp, JFX, aborter, logger);
+        Runnable r = () -> actual_safe_move(owner, oanp, aborter, logger);
         try {
             Actor_engine.execute(r,logger);
             logger.log("actual_safe_move LAUNCHED, thread COUNT=" + Thread.activeCount());
@@ -132,9 +132,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    private static void actual_safe_move(Stage owner, Old_and_new_Path oandn, boolean JFX,
-                                         //boolean and_list_for_undo,
-                                         Aborter aborter, Logger logger)
+    private static void actual_safe_move(Stage owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
     //**********************************************************
     {
         List<Old_and_new_Path> done = new ArrayList<>();
@@ -205,8 +203,7 @@ public class Moving_files
             }
             boolean for_3seconds = true;
             if (not_done.size() >= 2) for_3seconds = false;
-            if (JFX)
-                Popups.popup_warning(owner, "Move not done?", sb.toString(), for_3seconds, logger);
+            Popups.popup_warning(owner, "Move not done?", sb.toString(), for_3seconds, logger);
             logger.log(Stack_trace_getter.get_stack_trace("Move not done? " + sb));
         }
 

@@ -63,17 +63,26 @@ public class Backup_singleton
             }
         }
 
+        {
 // Get a CONFIRMATION
-        String header = "Copy Confirmation Required";
-        String content = "This will copy all the files down from directory:\n" + source.toAbsolutePath() + "\n"
-                + "Into the directory:\n" + destination.toAbsolutePath() + "\n"
-                + "(this is safe because files with same names, if different, will be renamed)\n"
-                + "Are you sure you want to do that ?";
+            String header = "Copy Confirmation Required";
+            String content = "This will copy all the files down from directory:\n" + source.toAbsolutePath() + "\n"
+                    + "Into the directory:\n" + destination.toAbsolutePath() + "\n"
+                    + "(this is safe because files with same names, if different, will be renamed)\n"
+                    + "Are you sure you want to do that ?";
 
-        if (!Popups.popup_ask_for_confirmation(owner,header, content, logger)) return;
+            if (!Popups.popup_ask_for_confirmation(owner, header, content, logger)) return;
+        }
+        boolean deep = false;
+        {
+        String header = "How deep should the file identity checks be?";
+        String content = "Deep means= check every byte matches, cancel means = not deep, check just names and file sizes";
 
+        deep = Popups.popup_ask_for_confirmation(owner,header, content, logger);
+        }
+        logger.log("backup deep = "+deep);
         Backup_engine b = new Backup_engine(source, destination, logger);
-        b.go();
+        b.go(deep);
         engines.add(b);
     }
 

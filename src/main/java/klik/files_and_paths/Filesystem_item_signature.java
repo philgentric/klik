@@ -67,31 +67,15 @@ public class Filesystem_item_signature
         byte[] hash = null;
         try {
             FileInputStream fis = new FileInputStream(path.toFile());
-            byte[] b = new byte[internal_hash_computation_buffer_size_in_bytes];
+            byte[] buffer = new byte[internal_hash_computation_buffer_size_in_bytes];
 
             MessageDigest sha = MessageDigest.getInstance("MD5");
             //sha.reset();
             for (;;)
             {
-                int available = fis.available();
-                if (available < internal_hash_computation_buffer_size_in_bytes) {
-                    if ( fis.read(b, 0, available) != available)
-                    {
-                        logger.log("Filesystem_item_signature file read failed for: "+path);
-                        return null;
-                    }
-                    //System.out.println("byte " + new String(b));
-                    sha.update(b, 0, available);
-                    break;
-                } else {
-                    if (fis.read(b, 0, internal_hash_computation_buffer_size_in_bytes) != internal_hash_computation_buffer_size_in_bytes)
-                    {
-                        logger.log("Filesystem_item_signature file read failed for: "+path);
-                        return null;
-                    }
-                    //System.out.println("byte " + new String(b));
-                    sha.update(b, 0, internal_hash_computation_buffer_size_in_bytes);
-                }
+                int available = fis.read(buffer, 0, internal_hash_computation_buffer_size_in_bytes);
+                if ( available == -1) break;
+                sha.update(buffer, 0, available);
             }
             fis.close();
             hash = sha.digest();

@@ -2,6 +2,7 @@ package klik.level2.backup;
 
 import javafx.application.Platform;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Sizes;
@@ -51,18 +52,31 @@ public class Backup_engine
 
 
     //**********************************************************
-    public void go()
+    public void go(boolean deep)
     //**********************************************************
     {
-        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
 
         backup_console_window = new Backup_console_window(this,stats,logger);
         update_properties(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString());
         update_status(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString(),"incomplete_backup");
         Static_application_properties.get_properties_manager(logger).store_properties();
 
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                launch_in_thread(deep);
+            }
+        };
+        Actor_engine.execute(runnable,logger);
+    }
+
+    //**********************************************************
+    private void launch_in_thread(boolean deep)
+    //**********************************************************
+    {
+        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
         actor_engine_based_on_workers.run(
-                new Backup_actor_for_one_folder(stats,reports,aborter,logger),
+                new Backup_actor_for_one_folder(stats,deep,deep,reports,aborter,logger),
                 new Directory_backup_job_request(source.toFile(), destination.toFile(), aborter,logger),
                         null,logger);
 

@@ -15,6 +15,7 @@ public class File_backup_job_request implements Message
     public final Per_folder_mini_console mini_console;
     public final boolean enable_check_for_same_file_different_name;
     public final Aborter aborter;
+    public final boolean enable_deep_byte_check;
 
     //**********************************************************
     public File_backup_job_request(
@@ -22,6 +23,7 @@ public class File_backup_job_request implements Message
             File file_to_be_copied,
             Per_folder_mini_console mini_console,
             boolean enable_check_for_same_file_different_name,
+            boolean enable_deep_byte_check,
             Aborter aborter_,
             Logger logger)
     //**********************************************************
@@ -30,6 +32,7 @@ public class File_backup_job_request implements Message
         this.file_to_be_copied = file_to_be_copied;
         this.mini_console = mini_console;
         this.enable_check_for_same_file_different_name = enable_check_for_same_file_different_name;
+        this.enable_deep_byte_check = enable_deep_byte_check;
         if ( aborter_ == null)
         {
             logger.log_stack_trace("FATAL: aborter must not be null");

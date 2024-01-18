@@ -145,7 +145,7 @@ public class Backup_actor_for_one_file implements Actor
         if (destination_file.exists() == true)
         {
             long[] bytes_read = new long[1];
-            Similarity_result status = process_in_case_destination_exists(file_backup_job_request.file_to_be_copied, target_name, destination_file, file_comparator,file_backup_job_request.mini_console,bytes_read);
+            Similarity_result status = process_in_case_destination_exists(file_backup_job_request.file_to_be_copied, target_name, destination_file, file_comparator,file_backup_job_request.mini_console,bytes_read, file_backup_job_request.enable_deep_byte_check);
             returned.bytes_read = bytes_read[0];
             if ( status == Similarity_result.aborted)
             {
@@ -304,10 +304,11 @@ public class Backup_actor_for_one_file implements Actor
             File destination_file,
             File_comparator file_comparator,
             Per_folder_mini_console mini_console,
-            long[] bytes_read)
+            long[] bytes_read,
+            boolean deep)
     //**********************************************************
     {
-        switch (file_comparator.files_are_same(file_to_be_copied, destination_file,bytes_read))
+        switch (file_comparator.files_are_same(file_to_be_copied, destination_file,bytes_read, deep))
         {
             default:
             case aborted:
@@ -317,16 +318,27 @@ public class Backup_actor_for_one_file implements Actor
                 if (verbose == true) logger.log("SKIPPED: the SAME file is already there: " + target_name);
                 return Similarity_result.same;
             case not_same:
-                if (verbose == true)
-                    logger.log("OHOH ??: name exists, but files are DIFFERENT, destination renamed: " + target_name);
+                //if (verbose == true)
+                logger.log("OHOH ??: name exists, but files are DIFFERENT, checking again: " + target_name);
+                Similarity_result check = file_comparator.files_are_same(file_to_be_copied, destination_file, bytes_read, true);
+                if ( check == Similarity_result.same)
+                {
+                    logger.log("fausse alerte: " + target_name);
+                    return Similarity_result.same;
+                }
+                logger.log("CONFIRMED: name exists, but files are DIFFERENT, destination will be renamed: " + target_name);
                 // actual copy occurs below
                 if ( !rename_destination_file(destination_file))
                 {
                     logger.log("WARNING: rename failed for:" + destination_file.getAbsolutePath());
                 }
-                mini_console.increment_renamed_files();
-                mini_console.add_to_renamed_files_names(destination_file.getAbsolutePath());
+                if ( mini_console != null)
+                {
+                    mini_console.increment_renamed_files();
+                    mini_console.add_to_renamed_files_names(destination_file.getAbsolutePath());
+                }
                 return Similarity_result.not_same;
+
         }
     }
 

@@ -112,7 +112,7 @@ public class Undo_storage_to_disk
                 String new_path_string = properties_manager.get(key);
                 if ( new_path_string != null)
                 {
-                    logger.log("removed: "+key);
+                    if ( dbg) logger.log("removed: "+key);
                     properties_manager.remove(key);
                 }
             }
@@ -121,7 +121,7 @@ public class Undo_storage_to_disk
                 String new_path_string = properties_manager.get(key);
                 if ( new_path_string != null)
                 {
-                    logger.log("removed: "+key);
+                    if ( dbg) logger.log("removed: "+key);
                     properties_manager.remove(key);
                 }
             }
@@ -132,7 +132,7 @@ public class Undo_storage_to_disk
                     String old_path_string = properties_manager.get(key);
                     if (old_path_string != null)
                     {
-                        logger.log("removed: "+key);
+                        if ( dbg) logger.log("removed: "+key);
                         properties_manager.remove(key);
                     }
                 }
@@ -141,7 +141,7 @@ public class Undo_storage_to_disk
                     String new_path_string = properties_manager.get(key);
                     if ( new_path_string != null)
                     {
-                        logger.log("removed: "+key);
+                        if ( dbg) logger.log("removed: "+key);
                         properties_manager.remove(key);
                     }
                 }

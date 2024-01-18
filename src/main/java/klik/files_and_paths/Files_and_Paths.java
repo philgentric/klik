@@ -56,7 +56,7 @@ public class Files_and_Paths {
     //**********************************************************
     {
         logger.log("unsafe_delete_all: perform_safe_moves_in_a_thread");
-        Moving_files.perform_safe_move_in_a_thread(owner, oanp, aborter, false, true, logger);
+        Moving_files.perform_safe_move_in_a_thread(owner, oanp, aborter, logger);
 
     }
 

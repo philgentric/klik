@@ -319,6 +319,7 @@ public class Browser_UI
         ContextMenu files_menu = new ContextMenu();
         files_menu.getItems().add(browser_menus.make_undo_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_create_empty_directory_menu_item());
+        files_menu.getItems().add(browser_menus.make_sort_by_year_menu_item());
         files_menu.getItems().add(browser_menus.make_select_all_files_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
         if (level2)

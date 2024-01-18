@@ -23,6 +23,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.browser.locator.Locator;
+import klik.files_and_paths.*;
 import klik.level2.backup.Backup_singleton;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
@@ -30,9 +31,6 @@ import klik.browser.icons.Refresh_target;
 import klik.browser.items.Item;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.files_and_paths.Filesystem_item_modification_watcher;
-import klik.files_and_paths.Guess_file_type;
-import klik.files_and_paths.Old_and_new_Path;
 import klik.level2.fusk.Fusk_bytes;
 import klik.level2.fusk.Fusk_singleton;
 import klik.level2.fusk.Static_fusk_paths;
@@ -47,9 +45,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -921,6 +921,60 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
     }
 
+
+    //**********************************************************
+    public void sort_by_year()
+    //**********************************************************
+    {
+        File[] files = displayed_folder_path.toFile().listFiles();
+        if ( files == null)
+        {
+            logger.log("ERROR: cannot list files in "+displayed_folder_path);
+        }
+        if ( files.length == 0)
+        {
+            logger.log("WARNING: no file in "+displayed_folder_path);
+        }
+        Map<Integer,Path> folders = new HashMap<>();
+        for( File f : files)
+        {
+            BasicFileAttributes x = null;
+            try {
+                x = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
+            } catch (IOException e) {
+                logger.log(""+e);
+                continue;
+            }
+
+            FileTime ft = x.creationTime();
+            LocalDateTime ldt = ft.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            int year = ldt.getYear();
+            Path folder = folders.get(year);
+            if ( folder == null)
+            {
+                folder = Path.of(displayed_folder_path.toAbsolutePath().toString(),String.valueOf(year));
+                try {
+                    Files.createDirectory(folder);
+                } catch (IOException e) {
+                    logger.log(""+e);
+                    continue;
+                }
+            }
+            folders.put(year,folder);
+            List<Old_and_new_Path> l = new ArrayList<>();
+            l.add(new Old_and_new_Path(displayed_folder_path,displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done));
+            Change_gang.report_changes(l);
+
+            Old_and_new_Path oanp = new Old_and_new_Path(
+                    f.toPath(),
+                    Path.of(folder.toAbsolutePath().toString(),f.getName()),
+                    Command_old_and_new_Path.command_move,
+                    Status_old_and_new_Path.before_command);
+            Moving_files.perform_safe_move_in_a_thread(this.my_Stage.the_Stage,oanp,aborter,logger);
+
+        }
+
+    }
     //**********************************************************
     public void create_new_directory()
     //**********************************************************
