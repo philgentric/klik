@@ -15,7 +15,7 @@ this is NOT re-entrant : you need one instance per thread
 public class File_comparator
 //**********************************************************
 {
-    private static final int BUFFER_SIZE = 8192;//4096;//1024;
+    private static final int BUFFER_SIZE = 1_000_000;//8192;//4096;//1024;
 
     private Aborter aborter;
     private static final boolean debug_flag = false;
@@ -42,7 +42,7 @@ public class File_comparator
         aborter.abort();
     }
     //**********************************************************
-    public  Similarity_result files_are_same(File file_to_be_copied, File destination_file)
+    public  Similarity_result files_are_same(File file_to_be_copied, File destination_file, long[] bytes_read)
     //**********************************************************
     {
        long ori_s = file_to_be_copied.length();
@@ -91,6 +91,7 @@ public class File_comparator
                         logger.log("WARNING reading from file "+destination_file+"failed ");
                         return Similarity_result.not_same;
                     }
+                    bytes_read[0]+= 2*available_src;
                     quit = true;
                 } else {
                     if ( bis1.read(hashsrc, 0, BUFFER_SIZE) != BUFFER_SIZE)
@@ -103,6 +104,7 @@ public class File_comparator
                         logger.log("WARNING reading from file "+destination_file+"failed ");
                         return Similarity_result.not_same;
                     }
+                    bytes_read[0]+= 2*BUFFER_SIZE;
                 }
 
                 //if (!Arrays.equals(hashsrc, hashdest))

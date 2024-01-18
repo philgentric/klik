@@ -3,9 +3,11 @@ package klik.level2.backup;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
+import klik.actor.virtual_threads.Concurency_limiter;
 import klik.files_and_paths.Moving_files;
 import klik.files_and_paths.My_File;
 import klik.util.Logger;
+import klik.util.Threads;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -28,16 +30,23 @@ public class Backup_actor_for_one_file implements Actor
     long last;
 
     public static AtomicInteger ongoing = new AtomicInteger(0);
+    static Concurency_limiter file_concurency_limiter;
+
+
     //**********************************************************
     public Backup_actor_for_one_file(Backup_stats stats, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         this.stats = stats;
+        if ( file_concurency_limiter == null)
+        {
+            //file_concurency_limiter = new Concurency_limiter("Backup_actor_for_one_file",40,logger);
+        }
+
     }
 
 
-    //static Concurency_limiter file_concurency_limiter = new Concurency_limiter(4);
 
     //**********************************************************
     @Override
@@ -49,8 +58,8 @@ public class Backup_actor_for_one_file implements Actor
         File_backup_job_request fbjr = (File_backup_job_request) m;
 
         if ( file_comparator==null) file_comparator = new File_comparator(fbjr.aborter,logger);
-
-        /*if (Threads.use_fibers)
+/*
+        if (Threads.use_fibers)
         {
             try {
                 file_concurency_limiter.acquire();
@@ -61,8 +70,7 @@ public class Backup_actor_for_one_file implements Actor
             }
         }
         else
-        */{
-
+ */       {
             do_one_file(fbjr);
         }
         if ( fbjr.mini_console != null)
@@ -101,6 +109,7 @@ public class Backup_actor_for_one_file implements Actor
         stats.files_copied.addAndGet(local.files_copied);
         stats.files_skipped.addAndGet(local.files_skipped);
         stats.number_of_bytes_processed.addAndGet(local.bytes_in_context);
+        stats.number_of_bytes_read.addAndGet(local.bytes_read);
     }
 
 
@@ -135,7 +144,9 @@ public class Backup_actor_for_one_file implements Actor
         destination_file = new File(file_backup_job_request.destination_dir, target_name);
         if (destination_file.exists() == true)
         {
-            Similarity_result status = process_in_case_destination_exists(file_backup_job_request.file_to_be_copied, target_name, destination_file, file_comparator,file_backup_job_request.mini_console);
+            long[] bytes_read = new long[1];
+            Similarity_result status = process_in_case_destination_exists(file_backup_job_request.file_to_be_copied, target_name, destination_file, file_comparator,file_backup_job_request.mini_console,bytes_read);
+            returned.bytes_read = bytes_read[0];
             if ( status == Similarity_result.aborted)
             {
                 returned.was_copied = false;
@@ -143,6 +154,7 @@ public class Backup_actor_for_one_file implements Actor
                 {
                     file_backup_job_request.mini_console.increment_file_count();
                     file_backup_job_request.mini_console.show_progress();
+                    file_backup_job_request.mini_console.add_to_bytes_read(bytes_read[0]);
                 }
                 return returned;
             }
@@ -157,6 +169,7 @@ public class Backup_actor_for_one_file implements Actor
                     file_backup_job_request.mini_console.increment_file_count();
                     file_backup_job_request.mini_console.increment_skipped_files();
                     file_backup_job_request.mini_console.show_progress();
+                    file_backup_job_request.mini_console.add_to_bytes_read(bytes_read[0]);
                 }
                 return returned;
             }
@@ -243,6 +256,7 @@ public class Backup_actor_for_one_file implements Actor
                 file_backup_job_request.mini_console.add_to_last_news("\nERROR: copy failed " + eee);
                 file_backup_job_request.mini_console.show_progress();
                 file_backup_job_request.mini_console.increment_file_count();
+                file_backup_job_request.mini_console.add_to_bytes_read(file_backup_job_request.file_to_be_copied.length());
             }
             returned.was_copied = false;
             return returned;
@@ -289,10 +303,11 @@ public class Backup_actor_for_one_file implements Actor
             String target_name,
             File destination_file,
             File_comparator file_comparator,
-            Per_folder_mini_console mini_console)
+            Per_folder_mini_console mini_console,
+            long[] bytes_read)
     //**********************************************************
     {
-        switch (file_comparator.files_are_same(file_to_be_copied, destination_file))
+        switch (file_comparator.files_are_same(file_to_be_copied, destination_file,bytes_read))
         {
             default:
             case aborted:

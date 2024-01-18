@@ -10,4 +10,5 @@ public class Dir_results
     public int files_copied;
     public int files_skipped;
     public long bytes_in_context;
+    public long bytes_read;
 }

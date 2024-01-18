@@ -25,6 +25,7 @@ public class Per_folder_mini_console
     private String last_news="";
     private final AtomicInteger processed_file_count = new AtomicInteger(0);
     private final AtomicLong copied_bytes =  new AtomicLong(0);
+    private final AtomicLong bytes_read =  new AtomicLong(0);
     private final AtomicInteger copied_files = new AtomicInteger(0);
     private final AtomicInteger renamed_files = new AtomicInteger(0);
     private final AtomicInteger skipped_files = new AtomicInteger(0);
@@ -316,5 +317,9 @@ public class Per_folder_mini_console
 
     public void add_to_renamed_files_names(String s) {
         renamed_files_names+=s+"\n";
+    }
+
+    public void add_to_bytes_read(long length) {
+        bytes_read.addAndGet(length);
     }
 }

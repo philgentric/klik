@@ -26,6 +26,7 @@ public class Backup_actor_for_one_folder implements Actor
     public final Backup_stats stats;
     public final ConcurrentLinkedQueue<String> reports;
     public final Aborter aborter;
+    Backup_actor_for_one_file file_actor;
 
     //**********************************************************
     public Backup_actor_for_one_folder(Backup_stats stats_, ConcurrentLinkedQueue<String> reports_,
@@ -38,6 +39,7 @@ public class Backup_actor_for_one_folder implements Actor
         logger = logger_;
         aborter = aborter_;
 
+        file_actor = new Backup_actor_for_one_file(stats, logger);
 
     }
 
@@ -125,7 +127,7 @@ public class Backup_actor_for_one_folder implements Actor
                     logger
             );
             */
-            new Backup_actor_for_one_file(stats, logger).run(new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger));
+            file_actor.run(new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger));
             count++;
         }
         logger.log("Folder "+request.source_dir.getAbsolutePath()+" "+count+" files backups launched in threads");
@@ -166,7 +168,8 @@ public class Backup_actor_for_one_folder implements Actor
                 }
                 logger.log("ONGOING files = " + Backup_actor_for_one_file.ongoing.get());
             }
-            (new Backup_actor_for_one_folder(stats, reports, aborter,logger)).do_one_folder(directory_backup_job_request);
+            //(new Backup_actor_for_one_folder(stats, reports, aborter,logger)).do_one_folder(directory_backup_job_request);
+            Actor_engine.run(new Backup_actor_for_one_folder(stats, reports, aborter,logger),directory_backup_job_request,null,logger);
             if (mini_console != null) mini_console.show_progress();
 
         }

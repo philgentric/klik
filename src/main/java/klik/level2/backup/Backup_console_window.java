@@ -34,7 +34,8 @@ public class Backup_console_window
     TextField number_of_bytes_copied;
     TextField remaining_time;
     TextField number_of_bytes_to_be_processed;
-    TextField bytes_per_second;
+    TextField application_bytes_per_second;
+    TextField bytes_read_per_second;
     TextField last_minute_bytes_per_second;
     TextField min_last_minute_bytes_per_second;
     TextField max_last_minute_bytes_per_second;
@@ -112,8 +113,12 @@ public class Backup_console_window
             add_one_line(vbox,number_of_bytes_processed,"Total number of bytes processed:");
         }
         {
-            bytes_per_second = new TextField("0");
-            add_one_line(vbox,bytes_per_second,"Speed (since start): ");
+            application_bytes_per_second = new TextField("0");
+            add_one_line(vbox, application_bytes_per_second,"Speed (since start): ");
+        }
+        {
+            bytes_read_per_second = new TextField("0");
+            add_one_line(vbox,bytes_read_per_second,"READING speed (since start): ");
         }
         {
             last_minute_bytes_per_second = new TextField("0");
@@ -199,9 +204,13 @@ public class Backup_console_window
         long now = System.currentTimeMillis();
         {
             double speed = (double) stats.number_of_bytes_processed.get() / (double) (now - start);
-            bytes_per_second.setText(Strings.create_nice_bytes_per_second_string((int) speed));
+            application_bytes_per_second.setText(Strings.create_nice_bytes_per_second_string((int) speed));
             long remaining = (long)((double)(stats.source_byte_count-stats.number_of_bytes_processed.get())/speed);
             remaining_time.setText(Strings.create_nice_remaining_time_string(remaining));
+        }
+        {
+            double read_speed = (double) stats.number_of_bytes_read.get() / (double) (now - start);
+            bytes_read_per_second.setText(Strings.create_nice_bytes_per_second_string((int) read_speed));
         }
         {
 

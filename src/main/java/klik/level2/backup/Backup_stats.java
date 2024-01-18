@@ -12,5 +12,6 @@ public class Backup_stats {
     public final AtomicLong files_copied = new AtomicLong(0);
     //public final AtomicLong remaining_time_in_milliseconds = new AtomicLong(0);
     public final AtomicLong number_of_bytes_processed = new AtomicLong(0);
+    public final AtomicLong number_of_bytes_read = new AtomicLong(0);
     public long source_byte_count;
 }
