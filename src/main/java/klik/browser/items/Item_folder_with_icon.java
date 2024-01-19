@@ -11,6 +11,8 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -57,6 +59,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
     double estimated_text_label_height;
     ImageView the_image_view;
+    Pane image_pane;
     VBox vbox;
     Label label1;
     Label label2;
@@ -99,9 +102,10 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             else
             {
                 ImageView folder_icon_image_view = new ImageView(folder_icon);
+                image_pane = new StackPane(folder_icon_image_view);
                 folder_icon_image_view.setPreserveRatio(true);
                 folder_icon_image_view.setFitHeight(font_size);
-                hbox1.getChildren().add(folder_icon_image_view);
+                hbox1.getChildren().add(image_pane);
             }
 
             if (path == null) {
@@ -211,7 +215,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             if ( tmp != null) rotation = tmp;
         }
 
-        rotate_and_center(image, the_image_view);
+        rotate_and_center(image, the_image_view, image_pane);
 
         int button_width = Static_application_properties.get_column_width(logger);
         if ( button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
@@ -779,8 +783,13 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
 
     @Override
-    public Node get_Node() {
+    public Node get_big_Node() {
         return vbox;
+    }
+
+    @Override
+    public Node get_rotation_Node() {
+        return image_pane;
     }
 
 

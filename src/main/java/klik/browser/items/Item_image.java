@@ -8,6 +8,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -44,6 +46,7 @@ public class Item_image extends Item implements Icon_destination
 //**********************************************************
 {
     protected ImageView the_image_view;
+    Pane image_pane;
     private static final boolean visibility_dbg = false;
     private boolean rotation_known = false;
     private Job job;
@@ -73,6 +76,7 @@ public class Item_image extends Item implements Icon_destination
         }
         if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +i.getWidth()+", h="+i.getHeight()+" FOR:  "+path);
         if ( the_image_view == null) the_image_view = new ImageView();
+        image_pane = new StackPane(the_image_view);
         the_image_view.setImage(i);
         the_image_view.setPreserveRatio(true);
         the_image_view.setSmooth(true);
@@ -380,7 +384,7 @@ public class Item_image extends Item implements Icon_destination
                 return;
             }
 
-            rotate_and_center(image, the_image_view);
+            rotate_and_center(image, the_image_view,image_pane);
 
             the_image_view.setSmooth(true);
 
@@ -432,9 +436,15 @@ public class Item_image extends Item implements Icon_destination
 
 
     @Override
-    public Node get_Node()
+    public Node get_big_Node()
     {
-        return the_image_view;
+        return image_pane;//the_image_view;
+    }
+
+    @Override
+    public Node get_rotation_Node()
+    {
+        return image_pane;//the_image_view;
     }
 
 

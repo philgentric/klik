@@ -5,7 +5,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.input.*;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -21,7 +21,7 @@ import java.util.Objects;
 public class Mouse_handling_for_Image_window
 {
 
-    private final Image_window image_stage;
+    private final Image_window image_window;
     private final Logger logger;
     private boolean old_mouse_valid = false;
     private double old_mouse_x;
@@ -39,8 +39,11 @@ public class Mouse_handling_for_Image_window
     EventHandler<MouseEvent> mouse_dragged_pix_for_pix_event_handler;
     EventHandler<MouseEvent> mouse_released_pix_for_pix_event_handler;
 
-    public Mouse_handling_for_Image_window(Image_window image_stage_, Logger logger) {
-        image_stage = image_stage_;
+    //**********************************************************
+    public Mouse_handling_for_Image_window(Image_window image_window_, Logger logger)
+    //**********************************************************
+    {
+        image_window = image_window_;
         this.logger = logger;
     }
 
@@ -84,7 +87,7 @@ public class Mouse_handling_for_Image_window
     private void move_image_internal(double dx, double dy)
     //**********************************************************
     {
-        Image_context local = Objects.requireNonNull(image_stage.image_display_handler).get_image_context();
+        Image_context local = Objects.requireNonNull(image_window.image_display_handler).get_image_context();
         if (local == null) return;
         //if (local.the_image_view == null) return;
         /*
@@ -99,7 +102,7 @@ public class Mouse_handling_for_Image_window
 
 
     //**********************************************************
-    void mouse_pressed_click_to_zoom(MouseEvent e, BorderPane border_pane)
+    void mouse_pressed_click_to_zoom(MouseEvent e, Pane pane)
     //**********************************************************
     {
         logger.log("mouse_pressed_local_zoom:");
@@ -112,17 +115,17 @@ public class Mouse_handling_for_Image_window
         Color c = new javafx.scene.paint.Color(1, 0, 0, 0.2);
         user_defined_zoom_area.setStroke(c);
         user_defined_zoom_area.setStrokeWidth(10.0f);
-        border_pane.getChildren().add(user_defined_zoom_area);
+        pane.getChildren().add(user_defined_zoom_area);
         user_defined_zoom_area.toFront();
     }
     //**********************************************************
-    void mouse_released_click_to_zoom(MouseEvent e, BorderPane border_pane)
+    void mouse_released_click_to_zoom(MouseEvent e, Pane pane)
     //**********************************************************
     {
-        Image_context local = Objects.requireNonNull(image_stage.image_display_handler).get_image_context();
+        Image_context local = Objects.requireNonNull(image_window.image_display_handler).get_image_context();
 
         logger.log("mouse_released_local_zoom:");
-        border_pane.getChildren().remove(user_defined_zoom_area);
+        pane.getChildren().remove(user_defined_zoom_area);
         if (!user_is_selecting_zoom_area) return;
         user_is_selecting_zoom_area = false;
 
@@ -219,11 +222,11 @@ public class Mouse_handling_for_Image_window
 */
 
     //**********************************************************
-    public void create_event_handlers(Image_window image_stage)
+    public void create_event_handlers(Image_window image_stage, Pane target_pane)
     //**********************************************************
     {
         mouse_pressed_click_to_zoom_event_handler = mouseEvent -> {
-            if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_pressed_click_to_zoom(mouseEvent,image_stage.the_BorderPane);
+            if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_pressed_click_to_zoom(mouseEvent,target_pane);
         };
         mouse_pressed_pix_for_pix_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_pressed_pix_for_pix(mouseEvent);
@@ -237,7 +240,7 @@ public class Mouse_handling_for_Image_window
         };
 
         mouse_released_click_to_zoom_event_handler = mouseEvent -> {
-            if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_released_click_to_zoom(mouseEvent,image_stage.the_BorderPane);
+            if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_released_click_to_zoom(mouseEvent,target_pane);
         };
         mouse_released_pix_for_pix_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_released_pix_for_pix(mouseEvent);
@@ -272,7 +275,7 @@ public class Mouse_handling_for_Image_window
     void pix_for_pix()
     //**********************************************************
     {
-        Image_display_handler tmp = image_stage.image_display_handler;
+        Image_display_handler tmp = image_window.image_display_handler;
         if ( tmp == null)
         {
             logger.log("pix_for_pix weird = Image_display_handler is null?");
@@ -336,13 +339,13 @@ public class Mouse_handling_for_Image_window
                     return;
                 }
                 if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_stage.the_Stage);
-                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_BorderPane);
+                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_image_Pane);
                 enable_pix_for_pix(image_stage.the_Stage);
                 pix_for_pix();
             }
             case click_to_zoom -> {
                 if (old_mode == Mouse_mode.click_to_zoom) return;
-                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_BorderPane);
+                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_image_Pane);
                 if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_stage.the_Stage);
                 enable_click_to_zoom(image_stage.the_Stage);
             }
@@ -355,7 +358,7 @@ public class Mouse_handling_for_Image_window
     boolean something_is_wrong_with_image_size()
     //****************************************y******************
     {
-        Image_context local = Objects.requireNonNull(image_stage.image_display_handler).get_image_context();
+        Image_context local = Objects.requireNonNull(image_window.image_display_handler).get_image_context();
         if (local == null)
         {
             logger.log("image_context is null");
@@ -391,10 +394,10 @@ public class Mouse_handling_for_Image_window
     {
         Objects.requireNonNull(image_stage.image_display_handler).get_image_context().the_image_view.setViewport(null);
 
-        image_stage.the_BorderPane.setOnDragDetected(event -> {
+        image_stage.the_image_Pane.setOnDragDetected(event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
 
-            Dragboard db = image_stage.the_BorderPane.startDragAndDrop(TransferMode.MOVE);
+            Dragboard db = image_stage.the_image_Pane.startDragAndDrop(TransferMode.MOVE);
 
             ClipboardContent content = new ClipboardContent();
             List<File> possibly_moved = new ArrayList<>();
@@ -409,7 +412,7 @@ public class Mouse_handling_for_Image_window
 
         });
 
-        image_stage.the_BorderPane.setOnDragDone(drag_event -> {
+        image_stage.the_image_Pane.setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
                 if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDone");
@@ -425,7 +428,7 @@ public class Mouse_handling_for_Image_window
      // when an image it dropped we display it
     // and the side effect is that the current directory will change
 
-        image_stage.the_BorderPane.setOnDragDropped(drag_event -> {
+        image_stage.the_image_Pane.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
 
             Dragboard db = drag_event.getDragboard();
@@ -452,21 +455,21 @@ public class Mouse_handling_for_Image_window
             drag_event.consume();
         });
 
-        image_stage.the_BorderPane.setOnDragOver(drag_event -> {
+        image_stage.the_image_Pane.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             drag_event.consume();
             image_stage.the_Stage.requestFocus();
         });
-        image_stage.the_BorderPane.setOnDragEntered(drag_event -> {
+        image_stage.the_image_Pane.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
-            Look_and_feel_manager.set_drag_look_for_pane(image_stage.the_BorderPane);
+            Look_and_feel_manager.set_drag_look_for_pane(image_stage.the_image_Pane);
             drag_event.consume();
         });
-        image_stage.the_BorderPane.setOnDragExited(drag_event -> {
+        image_stage.the_image_Pane.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
             if (image_stage.image_display_handler.get_image_context() != null) {
-                image_stage.set_background(Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).getFileName().toString());
+                image_stage.set_background(image_stage.the_image_Pane,Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).getFileName().toString());
             }
             drag_event.consume();
         });

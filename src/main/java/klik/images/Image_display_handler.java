@@ -5,6 +5,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -184,13 +185,13 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
 
     //**********************************************************
-    void handle_mouse_clicked_secondary(Browser the_browser, Stage stage, BorderPane border_pane, MouseEvent e, Logger logger)
+    void handle_mouse_clicked_secondary(Browser the_browser, Stage stage, Pane pane, MouseEvent e, Logger logger)
     //**********************************************************
     {
         logger.log("handle_mouse_clicked_secondary");
 
         ContextMenu contextMenu = Menu_for_image_window.make_context_menu(the_browser, image_window, this);
-        contextMenu.show(border_pane, e.getScreenX(), e.getScreenY());
+        contextMenu.show(pane, e.getScreenX(), e.getScreenY());
     }
 
 
@@ -319,7 +320,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             }
             if ( image_indexer != null)
             {
-                index_reporter.report_index(image_indexer.get_index(image_context.path));
+                index_reporter.report_index((double)image_indexer.get_index(image_context.path)/(double)image_indexer.get_max());
             }
         };
         Actor_engine.run(Change_image_actor.get_instance(), change_image_message, tr,logger);

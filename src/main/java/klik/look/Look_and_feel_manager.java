@@ -744,7 +744,7 @@ public class Look_and_feel_manager
     }
 
     //**********************************************************
-    public static void set_drag_look_for_pane(BorderPane pane)
+    public static void set_drag_look_for_pane(Region pane)
     //**********************************************************
     {
         Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);

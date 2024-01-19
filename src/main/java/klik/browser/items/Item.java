@@ -12,9 +12,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -49,7 +47,7 @@ public abstract class Item implements Icon_destination
     protected double rotation = 0; // cache
     public Icon_status icon_status = Icon_status.no_icon;
 
-    protected final boolean dbg = false;
+    protected final boolean dbg = true;
     protected Path path;
     protected final Browser browser;
     protected final Logger logger;
@@ -87,40 +85,32 @@ public abstract class Item implements Icon_destination
 
     public void set_visible(boolean b)
     {
-        get_Node().setVisible(b);
+        get_big_Node().setVisible(b);
     }
 
     public void set_translate_X(double dx)
     {
-        if (get_Node() != null) get_Node().setTranslateX(dx);
+        if (get_big_Node() != null) get_big_Node().setTranslateX(dx);
     }
 
     public void set_translate_Y(double dy)
     {
-        if (get_Node() != null) get_Node().setTranslateY(dy);
+        if (get_big_Node() != null) get_big_Node().setTranslateY(dy);
     }
 
-    public void set_x(double x_)
-    {
-        x = x_;
-    }
-
+    public void set_x(double x_) { x = x_; }
     public void set_y(double y_)
     {
         y = y_;
     }
-
-    public double get_x()
-    {
-        return x;
-    }
-
+    public double get_x() { return x; }
     public double get_y()
     {
         return y;
     }
 
-    public abstract Node get_Node();
+    public abstract Node get_big_Node();
+    public abstract Node get_rotation_Node();
 
     public abstract double get_Width();
 
@@ -173,10 +163,10 @@ public abstract class Item implements Icon_destination
     private void set_background(BackgroundFill background_fill)
     //**********************************************************
     {
-        Node n = get_Node();
+        Node n = get_big_Node();
         if ( n instanceof Button)
         {
-            Button button = (Button)get_Node();
+            Button button = (Button)n;
             button.setBackground(new Background(background_fill));
             Node node = button.getGraphic();
             if (node instanceof Label)
@@ -186,7 +176,7 @@ public abstract class Item implements Icon_destination
         }
         else if ( n instanceof VBox)
         {
-            ((VBox)get_Node()).setBackground(new Background(background_fill));
+            ((VBox)n).setBackground(new Background(background_fill));
         }
     }
 
@@ -215,9 +205,9 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
 
-        get_Node().setOnDragDetected(drag_event -> {
+        get_big_Node().setOnDragDetected(drag_event -> {
             if (dbg) logger.log("Item.init_drag_and_drop() drag detected");
-            Dragboard db = get_Node().startDragAndDrop(TransferMode.MOVE);
+            Dragboard db = get_big_Node().startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
 /*
             if (browser.selection_handler.get_select_all_folders())
@@ -256,7 +246,7 @@ public abstract class Item implements Icon_destination
             drag_event.consume();
         });
 
-        get_Node().setOnDragDone(drag_event -> {
+        get_big_Node().setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
                 if (dbg) logger.log("Item.init_drag_and_drop() : setOnDragDone for " + path.toAbsolutePath());
@@ -366,7 +356,7 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    void rotate_and_center(Image i, ImageView the_image_view)
+    void rotate_and_center(Image i, ImageView the_image_view, Pane the_pane)
     //**********************************************************
     {
 
@@ -383,6 +373,7 @@ public abstract class Item implements Icon_destination
             if( dbg) logger.log("narrow");
             actual = icon_size* i.getWidth()/ i.getHeight();
         }
+
 
         double x_difference = 0;
         double y_difference = 0;
@@ -422,12 +413,13 @@ public abstract class Item implements Icon_destination
             {
                 if( dbg) logger.log("rot90 wide");
                 x_difference = 0;//-(icon_size-actual)/2;
-                y_difference = (icon_size-actual)/2;
+                if( dbg) logger.log("rot90 wide x_difference="+x_difference);
+                y_difference = (icon_size-actual);//(icon_size-actual)/2;
             }
             else
             {
                 if( dbg) logger.log("rot90 narrow");
-                x_difference = 0;//(icon_size-actual)/2;
+                x_difference = (icon_size-actual)/2;//0;//(icon_size-actual)/2;
                 y_difference = 0;//(icon_size-actual)/2;
             }
         }
@@ -447,6 +439,7 @@ public abstract class Item implements Icon_destination
             }
         }
 
+        /*
         the_image_view.getTransforms().clear();
         Translate trans = new Translate();
         trans.setX(x_difference);
@@ -455,13 +448,22 @@ public abstract class Item implements Icon_destination
         {
             Rotate rot = new Rotate();
             rot.setAngle(rotation);
+            // this pivot is wrong when in aspect_ratio mode?
             rot.setPivotX(icon_size / 2.0);
             rot.setPivotY(icon_size / 2.0);
             the_image_view.getTransforms().add(rot);
         }
         the_image_view.getTransforms().add(trans);
+        */
+        the_pane.setRotate(rotation);
+        logger.log("the_pane.getTranslateX()="+the_pane.getTranslateX());
+        //the_pane.setTranslateX(the_pane.getTranslateX()+x_difference);
+        //the_pane.setTranslateY(the_pane.getTranslateY()+y_difference);
+        set_x(get_x()+x_difference);
+        set_y(get_y()+y_difference);
     }
 
+    /*
     //**********************************************************
     void rotate_and_center2(Image i, ImageView the_image_view)
     //**********************************************************
@@ -547,6 +549,8 @@ public abstract class Item implements Icon_destination
             the_image_view.getTransforms().add(rot);
         }
     }
+
+     */
 
     //**********************************************************
     public void cancel()

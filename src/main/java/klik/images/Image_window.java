@@ -1,8 +1,6 @@
 package klik.images;
 
 import javafx.application.Platform;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -15,10 +13,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -30,10 +25,10 @@ import klik.files_and_paths.*;
 import klik.level2.fusk.Fusk_static_core;
 import klik.level2.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
+import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.util.Threads;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -47,23 +42,23 @@ import java.util.List;
 public class Image_window
 //**********************************************************
 {
-
+    double progress;
     static boolean dbg = false;
-
     public final Scene the_Scene;
     public final Stage the_Stage;
-    public final BorderPane the_BorderPane;
+    final Pane the_image_Pane;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
     public final Aborter aborter;
-    MenuBar the_menu_bar;
+    //MenuBar the_menu_bar;
+    //Button back_button;
+    //Button forward_button;
 
     Slide_show slide_show; // not null if a Slide_show is ongoing
     boolean ultim_mode = false;
     boolean exit_on_escape = true;
-    ProgressBar the_progress_bar;
-    //Slider the_progress_bar;
+    //ProgressBar the_progress_bar;
     Path dir;
 
     //**********************************************************
@@ -152,20 +147,19 @@ public class Image_window
         aborter = new Aborter();
         logger = logger_;
         the_Stage = new Stage();
-
-        the_BorderPane = new BorderPane(); // makes it trivially easy to center the image!
-        set_background(FilenameUtils.getExtension(first_image_path.getFileName().toString()));
-        the_Scene = new Scene(the_BorderPane);
+        the_image_Pane = new StackPane();
+        String extension = FilenameUtils.getExtension(first_image_path.getFileName().toString());
+        set_background(the_image_Pane,extension);
+        the_Scene = new Scene(the_image_Pane);
+        Color background = Look_and_feel_manager.get_instance().get_background_color();
+        the_Scene.setFill(background);
         the_Stage.setScene(the_Scene);
-        the_Stage.setMinWidth(w);
-        the_Stage.setMinHeight(h);
-        //logger_.log("Image_window constructor: w,h  ="+w+","+h);
-        the_Stage.show();
-        //logger_.log("Image_window constructor: REAL w,h  ="+the_Stage.getWidth()+","+the_Stage.getHeight());
+        the_Stage.setX(x);
+        the_Stage.setY(y);
         the_Stage.setWidth(w);
         the_Stage.setHeight(h);
-        the_Stage.setMinWidth(800);
-        the_Stage.setMinHeight(100);
+        the_Stage.show();
+
         boolean high_quality = false;
         image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, the_browser.get_file_comparator(), logger);
         if ( image_display_handler == null)
@@ -175,18 +169,76 @@ public class Image_window
             return;
         }
 
+        //Pane top_pane = new HBox();
+        //main_vbox.getChildren().add(top_pane);
 
 
-        the_menu_bar = Menu_for_image_window.make_menu_bar(the_browser,this, image_display_handler);
-        BorderPane top_border_pane = new  BorderPane();
-        top_border_pane.setLeft(the_menu_bar);
-        the_progress_bar = new ProgressBar();// new Slider(0,1,0); //
-        //the_progress_bar.setOrientation(Orientation.HORIZONTAL);
+        //main_vbox.getChildren().add(special_pane);
 
-        the_progress_bar.setPrefWidth(1000);
-        top_border_pane.setCenter(the_progress_bar);
+        {
+/*
+            {
+                Pane forward_button_pane = new Pane();
+                forward_button = new Button(">>");
+                forward_button_pane.getChildren().add(forward_button);
 
-        the_BorderPane.setTop(top_border_pane);
+                forward_button.setFocusTraversable(false);
+                forward_button_pane.setManaged(false);
+                Font_size.set_font_size(forward_button, 24, logger);
+                forward_button.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        image_display_handler.change_image_relative(1, ultim_mode);
+                    }
+                });
+                main_vbox.getChildren().add(forward_button_pane);
+                forward_button.setLayoutX(the_Stage.getWidth()-55);
+                // forward_button.getWidth() is zero before the button is drawn
+                //forward_button.setLayoutX(the_Stage.getWidth()-forward_button.getWidth()-1);
+                forward_button.setLayoutY(the_Stage.getHeight()/2);
+            }
+            {
+                Pane back_button_pane = new Pane();
+                back_button = new Button("<<");
+                back_button_pane.getChildren().add(back_button);
+
+                back_button.setFocusTraversable(false);
+                back_button_pane.setManaged(false);
+                Font_size.set_font_size(back_button, 24, logger);
+                back_button.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        image_display_handler.change_image_relative(-1, ultim_mode);
+                    }
+                });
+                main_vbox.getChildren().add(back_button_pane);
+                back_button.setLayoutX(0);
+                back_button.setLayoutY(the_Stage.getHeight()/2);
+                //back_button.setViewOrder(0);
+                //the_image_Pane.setViewOrder(10);
+            }
+*/
+        }
+
+        /*
+        {
+
+            the_menu_bar = Menu_for_image_window.make_menu_bar(the_browser,this, image_display_handler);
+            the_menu_bar.setFocusTraversable(true);
+            main_vbox.setFocusTraversable(true);
+
+            top_pane.getChildren().add(the_menu_bar);
+
+
+            the_progress_bar = new ProgressBar();// new Slider(0,1,0); //
+            //the_progress_bar.setOrientation(Orientation.HORIZONTAL);
+
+            the_progress_bar.setPrefWidth(1000);
+            top_pane.getChildren().add(the_progress_bar);
+
+        }
+        */
+
         mouse_handling_for_image_window = new Mouse_handling_for_Image_window(this, logger);
 
         //boolean white_background = mouse_handling_for_image_stage.something_is_wrong_with_image_size();
@@ -198,9 +250,16 @@ public class Image_window
             if ( dbg) logger.log("ChangeListener: image window size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
             Rectangle2D b = new Rectangle2D(the_Stage.getX(), the_Stage.getY(), the_Stage.getWidth(), the_Stage.getHeight());
             Static_application_properties.save_bounds(b,logger);
+            /*
+            back_button.setLayoutX(0);
+            back_button.setLayoutY(the_Stage.getHeight()/2);
+            forward_button.setLayoutX(the_Stage.getWidth()-forward_button.getWidth()-1);
+            forward_button.setLayoutY(the_Stage.getHeight()/2);
+            */
         };
         the_Stage.widthProperty().addListener(change_listener);
         the_Stage.heightProperty().addListener(change_listener);
+
 
 
         the_Stage.setOnCloseRequest(we -> {
@@ -243,45 +302,22 @@ public class Image_window
         EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY)
             {
-                image_display_handler.handle_mouse_clicked_secondary(the_browser, the_Stage, the_BorderPane, mouseEvent,logger);
+                image_display_handler.handle_mouse_clicked_secondary(the_browser, the_Stage, the_image_Pane, mouseEvent,logger);
             }
         };
         the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
 
-        mouse_handling_for_image_window.create_event_handlers(this);
+
+
+        mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
 
     }
 
     //**********************************************************
-    void set_progress(Path dir, double index)
+    void set_progress(Path dir, double p)
     //**********************************************************
     {
-        Path[] dir_static = new Path[1];
-        dir_static[0] = dir;
-        Runnable rr = () -> {
-            if ( dir_static[0] == null)
-            {
-                dir_static[0] = image_display_handler.image_context.path.getParent();
-            }
-            long how_many_files = 0;
-
-            File[] files = dir_static[0].toFile().listFiles();
-            if ( files == null)
-            {
-                return;
-            }
-            Arrays.sort(files);
-
-            for(File f : files)
-            {
-                if (Guess_file_type.is_this_path_an_image(f.toPath())) how_many_files++;
-            }
-            double progress = (index+1.0) /(double)how_many_files;
-            if ( dbg) logger.log("progress = "+progress);
-
-            Platform.runLater(() -> the_progress_bar.setProgress(progress));
-        };
-        Actor_engine.execute(rr,logger);
+        progress = p;
     }
 
 
@@ -315,44 +351,33 @@ public class Image_window
     }
 
     //**********************************************************
-    void set_background(String extension)
+    void set_background(Region target, String extension)
     //**********************************************************
     {
+        BackgroundFill background_fill = get_Background_fill(extension);
+        target.setBackground(new Background(background_fill));
+    }
 
+    //**********************************************************
+    BackgroundFill get_Background_fill(String extension)
+    //**********************************************************
+    {
+        BackgroundFill background_fill = null;
         if ( extension.equalsIgnoreCase("png"))
         {
-            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
+            background_fill = new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY);
 
         }
         else if ( extension.equalsIgnoreCase("gif"))
         {
-            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+            background_fill = new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY);
         }
         else
         {
             Look_and_feel current_style = Static_application_properties.read_look_and_feel_from_properties_file(logger);
-
-            BackgroundFill background_fill = current_style.get_background_fill();
-            the_BorderPane.setBackground(new Background(background_fill));
+            background_fill = current_style.get_background_fill();
         }
-        /*
-        if (white)
-        {
-            return;
-        }
-        if ((image_name.endsWith(".png")) || (image_name.endsWith(".PNG")))
-        {
-            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
-        }
-        else if ((image_name.endsWith(".gif")) || (image_name.endsWith(".GIF")))
-        {
-            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-        }
-        else
-        {
-            the_BorderPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        }
-        */
+        return background_fill;
     }
 
     //**********************************************************
@@ -433,6 +458,8 @@ public class Image_window
         }
 
         StringBuilder local_title = new StringBuilder();
+
+
         if (ic.path == null)
         {
             local_title.append(" no image ");
@@ -482,6 +509,21 @@ public class Image_window
                 case click_to_zoom -> local_title.append("-- zoom-with-mouse mode (use mouse to select zoom area)");
             }
         }
+
+        int budjet = 180;
+        budjet -= local_title.toString().length();
+        budjet -= 4;
+        if ( budjet < 10) budjet = 10;
+        int max_progress_bar = image_display_handler.image_indexer.get_max();
+        if ( max_progress_bar > budjet) max_progress_bar = budjet;
+        int filler = budjet-max_progress_bar;
+        for(int j = 0; j< filler;j++) local_title.append(" ");
+        local_title.append("   ");
+        int i = 0;
+        for ( ; i < max_progress_bar*progress;i++) local_title.append("_");
+        local_title.append("*");
+        for ( ; i < max_progress_bar;i++) local_title.append("_");
+
         the_Stage.setTitle(local_title.toString());
     }
 
@@ -497,7 +539,7 @@ public class Image_window
         // no image to display...
         Platform.runLater(() -> {
             //the_BorderPane.getChildren().clear();
-            the_BorderPane.setCenter(null);
+            the_image_Pane.getChildren().clear();//setCenter(null);
             if( dir_ != null) the_Stage.setTitle("No image to display in: " + dir_.toAbsolutePath());
             else the_Stage.setTitle("No image to display in");
             restore_cursor();
@@ -522,65 +564,66 @@ public class Image_window
         // let us check and correct that
         Platform.runLater(() -> {
 
-        local_image_context.the_image_view.setPreserveRatio(true);
-        //logger.log("smooth?"+local_image_context.imageView.isSmooth());
-        local_image_context.the_image_view.setSmooth(true);
-        //ic.imageView.setCache(true);
-        double rot = local_image_context.get_rotation(aborter);
-        local_image_context.the_image_view.setRotate(rot);
-        //local_image_context.imageView.setRotate(0);
+            local_image_context.the_image_view.setPreserveRatio(true);
+            //logger.log("smooth?"+local_image_context.imageView.isSmooth());
+            local_image_context.the_image_view.setSmooth(true);
+            //ic.imageView.setCache(true);
+            double rot = local_image_context.get_rotation(aborter);
 
-        ReadOnlyDoubleProperty h1 = the_Scene.heightProperty();
-        ReadOnlyDoubleProperty h2 = the_menu_bar.heightProperty();
-        DoubleBinding real_height_property = h1.subtract(h2);
-        if (( rot == 90) || ( rot == 270))
-        {
-            if(dbg) logger.log("image_window rot 90 or 270 " +
-                    " h= "+real_height_property.get()
-            +" w= "+the_Scene.widthProperty().get());
-            // when the image is rotated imageview "width property" becomes ... the display height !!!
-            // (and vice-versa)
-            local_image_context.the_image_view.fitWidthProperty().bind(real_height_property);
-            local_image_context.the_image_view.fitHeightProperty().bind(the_Scene.widthProperty());
-        }
-        else
-        {
-            // this will work properly only for rot = 0 and rot = 180
-            // for exotic values, image corners will be truncated ...
-            local_image_context.the_image_view.fitWidthProperty().bind(the_Scene.widthProperty());
-            local_image_context.the_image_view.fitHeightProperty().bind(real_height_property);
-        }
-
-        set_background(FilenameUtils.getExtension(local_image_context.get_image_name()));
-
-        boolean local_pix_for_pix =  false;
-        /*
-        if (Iconifiable_item_type.from_extension(local_image_context.path) == Iconifiable_item_type.image_gif)
-        {
-            // lots of gifs are small so blowing them up is bad fo quality
-            // but SOME are large
-            if ( the_Scene.getHeight() > local_image_context.imageView.getImage().getHeight())
+            // there is a bug with imageView rotate
+            // see: https://stackoverflow.com/questions/53109791/fitting-rotated-imageview-into-application-window-scene
+            // but the proposed solution does not work well
+            // the trick that works however is to rotate a Pane containing the imageview !!!
+            //local_image_context.the_image_view.setRotate(rot);
+            the_image_Pane.setRotate(rot);
+            if (( rot == 90) || ( rot == 270))
             {
-                if (the_Scene.getWidth() > local_image_context.imageView.getImage().getWidth())
+                local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
+                local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
+            }
+            else {
+                local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
+                local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
+            }
+            /*
+            ReadOnlyDoubleProperty h1 = the_Scene.heightProperty();
+            ReadOnlyDoubleProperty h2 = the_progress_bar.heightProperty();
+            DoubleBinding real_height_property = h1.subtract(h2);
+            if (( rot == 90) || ( rot == 270))
+            {
+                if(dbg) logger.log("image_window rot 90 or 270 " +
+                        " h= "+real_height_property.get()
+                +" w= "+the_Scene.widthProperty().get());
+                // when the image is rotated imageview "width property" becomes ... the display height !!!
+                // (and vice-versa)
+                local_image_context.the_image_view.fitWidthProperty().bind(real_height_property);
+                local_image_context.the_image_view.fitHeightProperty().bind(the_Scene.widthProperty());
+            }
+            else
+            {
+                // this will work properly only for rot = 0 and rot = 180
+                // for exotic values, image corners will be truncated ...
+                local_image_context.the_image_view.fitWidthProperty().bind(the_Scene.widthProperty());
+                local_image_context.the_image_view.fitHeightProperty().bind(real_height_property);
+            }
+*/
+            set_background(the_image_Pane,FilenameUtils.getExtension(local_image_context.get_image_name()));
+
+
+            //the_image_Pane.setCenter(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
+            the_image_Pane.getChildren().clear();
+            the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
+            set_stage_title(local_image_context);
+
+            boolean local_pix_for_pix =  false;
+            if ( the_Scene.getHeight() > local_image_context.the_image_view.getImage().getHeight())
+            {
+                if (the_Scene.getWidth() > local_image_context.the_image_view.getImage().getWidth())
                 {
-                    logger.log("image is gif setting mode pix for pix");
                     local_pix_for_pix = true;
                 }
             }
-        }*/
-        if ( the_Scene.getHeight() > local_image_context.the_image_view.getImage().getHeight())
-        {
-            if (the_Scene.getWidth() > local_image_context.the_image_view.getImage().getWidth())
-            {
-                local_pix_for_pix = true;
-            }
-        }
-        final boolean local_pix_for_pix2 =  local_pix_for_pix;
-
-            //the_BorderPane.getChildren().clear();
-            the_BorderPane.setCenter(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
-            //logger.log("ic.imageView"+ local_image_context.imageView.getImage().toString());
-            set_stage_title(local_image_context);
+            final boolean local_pix_for_pix2 =  local_pix_for_pix;
             if (mouse_handling_for_image_window.mouse_mode == Mouse_mode.pix_for_pix || local_pix_for_pix2 ) mouse_handling_for_image_window.pix_for_pix();
         });
     }

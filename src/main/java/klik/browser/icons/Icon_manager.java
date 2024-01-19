@@ -246,7 +246,7 @@ public class Icon_manager
                         icon_height, false, false, logger);
                 all_items_map.put(path,item);
             }
-            item.get_Node().setVisible(false);
+            item.get_big_Node().setVisible(false);
             p = new_Point_for_files_and_dirs(p, item,
                     column_increment,
                     row_increment_for_files, scene_width, single_column);
@@ -458,16 +458,16 @@ public class Icon_manager
                         break;
                 }
             }
-            if (item.get_Node() == null)
+            if (item.get_big_Node() == null)
             {
                 logger.log("item.get_Node() == null");
             }
             else
             {
-                if (!pane.getChildren().contains(item.get_Node()))
+                if (!pane.getChildren().contains(item.get_big_Node()))
                 {
                     if (visible_dbg) logger.log("adding item: " + item.get_string());
-                    pane.getChildren().add(item.get_Node());
+                    pane.getChildren().add(item.get_big_Node());
                 }
 
             }
@@ -487,11 +487,11 @@ public class Icon_manager
         {
             //item.visible_in_scene.false;
             item.cancel();
-            if (item.get_Node() == null) return;
-            item.get_Node().setVisible(false);
+            if (item.get_big_Node() == null) return;
+            item.get_big_Node().setVisible(false);
             if (add_and_remove) {
                 if (visible_dbg) logger.log("removing from pane invisible icon of: " + item.get_string());
-                pane.getChildren().remove(item.get_Node());
+                pane.getChildren().remove(item.get_big_Node());
 
             }
             if (item instanceof Item_image ii) {
@@ -528,7 +528,7 @@ public class Icon_manager
     {
 
         for (Item item : all_items_map.values()) {
-            Node node = item.get_Node();
+            Node node = item.get_big_Node();
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
             if (b.contains(x, y)) {
@@ -552,7 +552,7 @@ public class Icon_manager
         List<Item> returned = new ArrayList<>();
 
         for (Item item : all_items_map.values()) {
-            Node node = item.get_Node();
+            Node node = item.get_big_Node();
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
             //if (b.intersects(bounds))
@@ -622,10 +622,6 @@ public class Icon_manager
         //logger.log("Icon_manager::get_top_left"+top_left);
         return top_left;
     }
-
-
-
-
 
     //**********************************************************
     public double get_y_offset_of(Path target)

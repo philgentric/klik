@@ -62,9 +62,7 @@ public class Look_and_feel_dark extends Look_and_feel
     public Color get_selection_box_color() {return Color.WHITE;}
 
     @Override
-    public Color get_background_color() {
-        return Color.valueOf("#FF4040");
-    }
+    public Color get_background_color() {return Color.BLACK;/*valueOf("#FF4040");*/}
 
     @Override
     public Color get_foreground_color() {

@@ -264,4 +264,8 @@ public class Image_indexer
     public void scan() {
         state.rescan();
     }
+
+    public int get_max() {
+        return state.how_many_images();
+    }
 }

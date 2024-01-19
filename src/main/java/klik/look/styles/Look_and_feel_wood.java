@@ -36,7 +36,7 @@ public class Look_and_feel_wood extends Look_and_feel
 
     @Override
     public Color get_background_color() {
-        return Color.valueOf("#FF4040");
+        return Color.valueOf("#3B3B3B");
     }
 
     @Override

@@ -37,6 +37,12 @@
     -fx-background-radius: 9,8,5;
 }
 
+
+.context-menu {
+    -fx-text-fill: white;
+    -fx-background-color: darkgrey;
+}
+
 .look_and_feel_drag {
     -fx-background-color: orange;
 }
