@@ -58,6 +58,8 @@ public abstract class Item implements Icon_destination
     // virtual coordinates: will change whenever the window geometry changes
     private double x;
     private double y;
+    public double x_difference = 0;
+    public double y_difference = 0;
 
     //**********************************************************
     public Item(Browser browser_,
@@ -101,6 +103,7 @@ public abstract class Item implements Icon_destination
     public void set_x(double x_) { x = x_; }
     public void set_y(double y_)
     {
+        logger.log(path+"  set_y "+y_);
         y = y_;
     }
     public double get_x() { return x; }
@@ -364,9 +367,9 @@ public abstract class Item implements Icon_destination
         boolean wide = false;
         if ( i.getHeight() < i.getWidth())
         {
-            if( dbg) logger.log("wide");
             wide = true;
             actual = icon_size* i.getHeight()/ i.getWidth();
+            if( dbg) logger.log("wide, actual ="+actual);
         }
         else
         {
@@ -375,8 +378,7 @@ public abstract class Item implements Icon_destination
         }
 
 
-        double x_difference = 0;
-        double y_difference = 0;
+
         if ( rotation == 0)
         {
             if ( wide)
@@ -388,7 +390,7 @@ public abstract class Item implements Icon_destination
             else
             {
                 if( dbg) logger.log("rot0 narrow");
-                x_difference = (icon_size-actual)/2;
+                x_difference = 0;//(icon_size-actual)/2;
                 y_difference = 0;
             }
         }
@@ -398,7 +400,7 @@ public abstract class Item implements Icon_destination
             {
                 if( dbg) logger.log("rot180 wide");
                 x_difference = 0;
-                y_difference = (icon_size-actual)/2;
+                y_difference = (icon_size-actual);//(icon_size-actual)/2;
             }
             else
             {
@@ -413,8 +415,8 @@ public abstract class Item implements Icon_destination
             {
                 if( dbg) logger.log("rot90 wide");
                 x_difference = 0;//-(icon_size-actual)/2;
-                if( dbg) logger.log("rot90 wide x_difference="+x_difference);
-                y_difference = (icon_size-actual);//(icon_size-actual)/2;
+                y_difference = (icon_size-actual)/2;
+                if( dbg) logger.log("rot90 wide x_difference="+x_difference+" y_difference="+y_difference);
             }
             else
             {
@@ -456,11 +458,7 @@ public abstract class Item implements Icon_destination
         the_image_view.getTransforms().add(trans);
         */
         the_pane.setRotate(rotation);
-        logger.log("the_pane.getTranslateX()="+the_pane.getTranslateX());
-        //the_pane.setTranslateX(the_pane.getTranslateX()+x_difference);
-        //the_pane.setTranslateY(the_pane.getTranslateY()+y_difference);
-        set_x(get_x()+x_difference);
-        set_y(get_y()+y_difference);
+
     }
 
     /*

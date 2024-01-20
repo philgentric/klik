@@ -475,8 +475,9 @@ public class Icon_manager
         }
 
 
-        item.set_translate_X(item.get_x());
-        item.set_translate_Y(item.get_y() - current_vertical_offset);
+        item.set_translate_X(item.get_x()+item.x_difference);
+        logger.log(item.get_item_path()+" "+item.get_y()+" - "+current_vertical_offset);
+        item.set_translate_Y(item.get_y() + item.y_difference - current_vertical_offset);
     }
 
     //**********************************************************
@@ -666,25 +667,10 @@ public class Icon_manager
         double current_x = p.getX();
         if ( use_aspect_ratio)
         {
-
-            /*
-            trans before rot:
-            //logger.log("aspect_ratio: "+((Item_image)item).aspect_ratio);
-            if (((Item_image)item).aspect_ratio < 1.0)
-            {
-                //logger.log("width_of_this: "+width_of_this);
-                neg_x = (width_of_this-column_increment)/2.0;
-            }
-            else
-            {
-                height_of_this = row_increment/((Item_image)item).aspect_ratio;
-                neg_y = (height_of_this-row_increment)/2.0;
-            }
-            */
             if (((Item_image)item).aspect_ratio < 1.0)
             {
                 width_of_this *= ((Item_image)item).aspect_ratio;
-                neg_x = (width_of_this-column_increment)/2.0;
+                //neg_x = (width_of_this-column_increment)/2.0;
             }
             else
             {
@@ -711,9 +697,12 @@ public class Icon_manager
             }
         }
         // position the ImageView at the requested position
-        //logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y);
+        logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y
+                +" x_difference="+item.x_difference+" y_difference="+item.y_difference);
 
+        //current_x +=item.x_difference;
         item.set_x(current_x);
+        //current_y += item.y_difference;
         item.set_y(current_y);
         if ( max_y_in_row[0] < current_y+height_of_this) max_y_in_row[0] = current_y+height_of_this;
         /// then compute position of NEXT item
