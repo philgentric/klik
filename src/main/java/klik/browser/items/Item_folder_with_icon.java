@@ -548,6 +548,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu);
 
         if (!Files.isDirectory(path))
         {
@@ -729,7 +730,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     private MenuItem create_rename_dir_menu_item()
     //**********************************************************
     {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger));
+        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger)+" "+path.getFileName());
         menu_item.setOnAction(event -> {
 
             if (dbg) logger.log("Item_folder_with_icon: Renaming");

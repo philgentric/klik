@@ -476,7 +476,7 @@ public class Icon_manager
 
 
         item.set_translate_X(item.get_x()+item.x_difference);
-        logger.log(item.get_item_path()+" "+item.get_y()+" - "+current_vertical_offset);
+        if ( Item.pos_dbg) logger.log(item.get_item_path()+" get_y= "+item.get_y()+" current_vertical_offset="+current_vertical_offset);
         item.set_translate_Y(item.get_y() + item.y_difference - current_vertical_offset);
     }
 
@@ -589,7 +589,7 @@ public class Icon_manager
     public void cancel_all()
     //**********************************************************
     {
-        //logger.log(("Icon_manager cancel all!"));
+        logger.log(("Icon_manager cancel all!"));
         aborter.abort();
         Icon_factory_actor.get_icon_factory(aborter,paths_manager.aspect_ratio_cache, owner, logger).cancel_all();
         for ( Item i : all_items_map.values())
@@ -697,7 +697,7 @@ public class Icon_manager
             }
         }
         // position the ImageView at the requested position
-        logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y
+        if ( Item.pos_dbg) logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y
                 +" x_difference="+item.x_difference+" y_difference="+item.y_difference);
 
         //current_x +=item.x_difference;

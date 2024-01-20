@@ -24,7 +24,11 @@ public class Aspect_ratio_actor implements Actor
     //**********************************************************
     {
         Aspect_ratio_message arm = (Aspect_ratio_message) m;
-        if (arm.aborter.should_abort()) return "aborted";
+        if (arm.aborter.should_abort())
+        {
+            //arm.logger.log("Aspect_ratio_actor aborting 1");
+            return "aborted";
+        }
         double d = From_disk.get_aspect_ratio(arm.path, arm.aborter,arm.logger);
         arm.aspect_ratio_cache.put(Aspect_ratio_cache.key_from_path(arm.path),new Aspect_ratio_cache.Aspect_ratio(d,true));
         int r = in_flight.decrementAndGet();

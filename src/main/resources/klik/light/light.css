@@ -57,6 +57,21 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
     -fx-padding: -1 -1 -1 -1;
 }
 
+.context-menu {
+    -fx-text-fill: #404040	; // color of text
+    //-fx-alignment: top-left;
+    -fx-background-color: white;
+}
+
+.image-window {
+    -fx-text-fill: #404040	; // color of text
+    -fx-font:20 Helvetica; //papyrus;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-color: white;
+    -fx-padding: -1 -1 -1 -1;
+}
+
 
 /*
 failed attempt to use pseudoclass

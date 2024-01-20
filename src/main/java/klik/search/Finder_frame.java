@@ -27,6 +27,7 @@ import klik.browser.System_open_actor;
 import klik.browser.System_open_message;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
+import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.music.Audio_player;
 import klik.util.Logger;
@@ -54,7 +55,7 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 	private final Label reason_to_stop;
 	private final ProgressBar progress_bar;
 	private final Button result_button;
-	private ContextMenu contextMenu;
+	private ContextMenu context_menu;
 	private final Button toggle;
 	Text visited_folders;
 	Text visited_files;
@@ -146,7 +147,7 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 		result_button.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				contextMenu.show(result_button, Side.TOP, result_button.getLayoutX(), result_button.getLayoutY());
+				context_menu.show(result_button, Side.TOP, result_button.getLayoutX(), result_button.getLayoutY());
 			}
 		});
 		result_button.setVisible(false);
@@ -277,7 +278,7 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 	public void set_result(ContextMenu contextMenu_, String reason)
 	//**********************************************************
 	{
-		contextMenu = contextMenu_;
+		context_menu = contextMenu_;
 		result_button.setVisible(true);
 		reason_to_stop.setText(reason);
 		reason_to_stop.setVisible(true);
@@ -344,7 +345,9 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 	private void show_similars(Browser the_browser, HashMap<String, List<String>> similars, String reason)
 	//**********************************************************
 	{
-		final ContextMenu contextMenu = new ContextMenu();
+		context_menu = new ContextMenu();
+		Look_and_feel_manager.set_context_menu_look(context_menu);
+
 		for( Map.Entry<String, List<String>> e : similars.entrySet())
 		{
 			String name = e.getKey();
@@ -352,11 +355,11 @@ public class Finder_frame implements Callback_for_image_found_publish, Job_termi
 			String found = "keyword:" +name+", "+path_set.size()+" items";
 			displayed_items_sequence_number = 0;
 			Menu one_item = create_one_menu_item_for_keyword(the_browser, found, path_set);
-			contextMenu.getItems().add(one_item);
+			context_menu.getItems().add(one_item);
 			if ( Finder_actor.dbg) logger.log("items before: "+path_set.size()+" files,  displayed="+ displayed_items_sequence_number);
 		}
 		//contextMenu.show(popup.stage, popup.stage.getX()+10, popup.stage.getY()+10);
-		set_result(contextMenu, reason);
+		set_result(context_menu, reason);
 	}
 
 

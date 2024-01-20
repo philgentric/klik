@@ -3,12 +3,12 @@ package klik.look;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import klik.Klik_application;
@@ -632,20 +632,22 @@ public class Look_and_feel_manager
             pane.getStylesheets().add(laf.style_sheet_url_string);
             pane.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_GENERAL);
         }
+        Font_size.set_preferred_font_size(pane,logger);
     }
 
     //**********************************************************
-    public static void set_menubar_look(MenuBar menu_bar)
+    public static void set_region_look(Region region)
     //**********************************************************
     {
         Look_and_feel laf = get_instance();
-
         if (laf.style_sheet_url_string != null) {
-            menu_bar.getStylesheets().clear();
-            menu_bar.getStylesheets().add(laf.style_sheet_url_string);
-            menu_bar.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_GENERAL);
+            region.getStylesheets().clear();
+            region.getStylesheets().add(laf.style_sheet_url_string);
+            region.getStyleClass().add("image-window");
         }
+        Font_size.set_preferred_font_size(region,logger);
     }
+
 
     //**********************************************************
     public static void set_label_look_for_folder(Label label, double icon_height)
@@ -671,6 +673,13 @@ public class Look_and_feel_manager
         }
 
     }
+
+
+    public static void set_context_menu_look(ContextMenu context_menu) {
+        context_menu.getStyleClass().add("context-menu");
+        Font_size.set_preferred_font_size(context_menu,logger);
+    }
+
     //**********************************************************
     public static void set_button_and_image_look(Button button,
                                                  Image image,
@@ -730,6 +739,7 @@ public class Look_and_feel_manager
 
         }
     }
+
 
     //**********************************************************
     public static void set_vbox_look(VBox vbox)

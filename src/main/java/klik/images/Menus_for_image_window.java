@@ -9,6 +9,7 @@ import klik.browser.Browser_creation_context;
 import klik.change.undo.Undo_engine;
 import klik.files_and_paths.Guess_file_type;
 import klik.level2.metadata.Tag_stage;
+import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 
@@ -19,10 +20,11 @@ import java.util.List;
 import static klik.images.Image_display_handler.build_Image_context;
 
 //**********************************************************
-public class Menu_for_image_window
+public class Menus_for_image_window
 //**********************************************************
 {
 
+    /*
     //**********************************************************
     public static MenuBar make_menu_bar(Browser the_browser, Image_window image_window, Image_display_handler image_context_owner)
     //**********************************************************
@@ -120,76 +122,75 @@ public class Menu_for_image_window
 
         return returned;
     }
-
+*/
     //**********************************************************
     public static ContextMenu make_context_menu(Browser the_browser, Image_window image_window, Image_display_handler image_context_owner)
     //**********************************************************
     {
-        final ContextMenu contextMenu = new ContextMenu();
-        contextMenu.setStyle("-fx-foreground-color: white;-fx-background-color: darkgrey;");
-
+        final ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu);
         List<MenuItem> fullscreen = manage_full_screen(image_window);
-        for (MenuItem mi : fullscreen) contextMenu.getItems().add(mi);
+        for (MenuItem mi : fullscreen) context_menu.getItems().add(mi);
 
         List<MenuItem> l = manage_slide_show(image_window);
-        for ( MenuItem mi : l) contextMenu.getItems().add(mi);
+        for ( MenuItem mi : l) context_menu.getItems().add(mi);
 
         MenuItem info_menu_item = make_info_menu_item(image_window, image_context_owner);
-        contextMenu.getItems().add(info_menu_item);
+        context_menu.getItems().add(info_menu_item);
 
         MenuItem edit_menu_item = make_edit_menu_item(image_window, image_context_owner);
-        contextMenu.getItems().add(edit_menu_item);
+        context_menu.getItems().add(edit_menu_item);
 
         CheckMenuItem quality = get_quality_check_menu_item(image_window, image_context_owner);
-        contextMenu.getItems().add(quality);
+        context_menu.getItems().add(quality);
 
         MenuItem open = get_open_menu_item(image_window, image_context_owner);
-        contextMenu.getItems().add(open);
+        context_menu.getItems().add(open);
 
 
         MenuItem browse = get_browse_menu_item(image_window, image_context_owner);
-        contextMenu.getItems().add(browse);
+        context_menu.getItems().add(browse);
 
         MenuItem rename = get_rename_menu_item(image_window, image_context_owner);
-        contextMenu.getItems().add(rename);
+        context_menu.getItems().add(rename);
 
         MenuItem copy = get_copy_menu_item(the_browser, image_window, image_context_owner);
-        contextMenu.getItems().add(copy);
+        context_menu.getItems().add(copy);
 
         MenuItem print = get_print_menu_item(image_context_owner);
-        contextMenu.getItems().add(print);
+        context_menu.getItems().add(print);
 
 
         MenuItem search_k = get_search_by_autoextracted_keyword_menu_item(the_browser, image_window, image_context_owner);
-        contextMenu.getItems().add(search_k);
+        context_menu.getItems().add(search_k);
 
 
         MenuItem search_y = get_search_by_user_given_keywords_menu_item(the_browser, image_window, image_context_owner);
-        contextMenu.getItems().add(search_y);
+        context_menu.getItems().add(search_y);
 
 
         MenuItem click_to_zoom = get_set_zoom_mode_menu_item(image_window);
-        contextMenu.getItems().add(click_to_zoom);
+        context_menu.getItems().add(click_to_zoom);
 
         MenuItem drag_and_drop = get_set_drag_and_drop_mode_menu_item(image_window);
-        contextMenu.getItems().add(drag_and_drop);
+        context_menu.getItems().add(drag_and_drop);
 
         MenuItem pix_for_pix = get_set_pix_for_pix_menu_item(image_window);
-        contextMenu.getItems().add(pix_for_pix);
+        context_menu.getItems().add(pix_for_pix);
 
 
         if ( Static_application_properties.get_level2(image_context_owner.logger))
         {
             if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
                 MenuItem gif_repair = get_gif_repair_menu_item(image_window, image_context_owner);
-                contextMenu.getItems().add(gif_repair);
+                context_menu.getItems().add(gif_repair);
             }
         }
 
         MenuItem undo_move = get_undo_menu_item(image_window);
-        contextMenu.getItems().add(undo_move);
+        context_menu.getItems().add(undo_move);
 
-        return contextMenu;
+        return context_menu;
     }
 
     //**********************************************************
@@ -331,7 +332,7 @@ public class Menu_for_image_window
     private static MenuItem get_print_menu_item(Image_display_handler image_context_owner)
     //**********************************************************
     {
-        MenuItem print = new MenuItem("Print (experimental!)");//I18n.get_I18n_string("Print", image_window.logger));
+        MenuItem print = new MenuItem(I18n.get_I18n_string("Print", image_context_owner.logger));
         print.setOnAction(event -> {
             image_context_owner.logger.log("Printing");
             PrinterJob job = PrinterJob.createPrinterJob();
@@ -445,29 +446,40 @@ public class Menu_for_image_window
     {
         List<MenuItem> returned = new ArrayList<>();
 
+        boolean slide_show_is_running = image_window.is_slide_show_running();
+
         MenuItem slide_show_start = new MenuItem(I18n.get_I18n_string("Start_slide_show", image_window.logger)+" (s)");
         returned.add(slide_show_start);
-        slide_show_start.setDisable(false);
-
         MenuItem slide_show_stop = new MenuItem(I18n.get_I18n_string("Stop_slide_show", image_window.logger)+" (s)");
         returned.add(slide_show_stop);
-        slide_show_stop.setDisable(true);
-
         MenuItem faster = new MenuItem("Slide show: faster (x)");
         returned.add(faster);
-        faster.setDisable(true);
         faster.setOnAction(actionEvent -> {
-            if (image_window.slide_show != null) image_window.slide_show.hurry_up();
+            if (slide_show_is_running) image_window.hurry_up();
         });
-
         MenuItem slower = new MenuItem("Slide show: slower (w)");
         returned.add(slower);
-        slower.setDisable(true);
         slower.setOnAction(actionEvent -> {
-            if (image_window.slide_show != null) image_window.slide_show.slow_down();
+            if (slide_show_is_running) image_window.slow_down();
         });
 
+        if( slide_show_is_running)
+        {
+            slide_show_start.setDisable(true);
+            slide_show_stop.setDisable(false);
+            faster.setDisable(false);
+            slower.setDisable(false);
+        }
+        else
+        {
+            slide_show_start.setDisable(false);
+            slide_show_stop.setDisable(true);
+            faster.setDisable(true);
+            slower.setDisable(true);
+        }
+
         slide_show_start.setOnAction(event -> {
+            System.out.println("slide_show_start OnAction");
             image_window.start_slide_show();
             slide_show_start.setDisable(true);
             slide_show_stop.setDisable(false);
@@ -481,7 +493,6 @@ public class Menu_for_image_window
             slide_show_stop.setDisable(true);
             faster.setDisable(true);
             slower.setDisable(true);
-
         });
 
         return returned;
@@ -493,19 +504,28 @@ public class Menu_for_image_window
     //**********************************************************
     {
         MenuItem start_fullscreen = new MenuItem(I18n.get_I18n_string("Go_full_screen", image_window.logger));
-        start_fullscreen.setDisable(false);
         MenuItem stop_fullscreen = new MenuItem(I18n.get_I18n_string("Stop_full_screen", image_window.logger));
-        stop_fullscreen.setDisable(true);
+
+        if ( image_window.is_full_screen)
+        {
+            start_fullscreen.setDisable(true);
+            stop_fullscreen.setDisable(false);
+
+        }
+        else {
+            start_fullscreen.setDisable(false);
+            stop_fullscreen.setDisable(true);
+        }
 
         start_fullscreen.setOnAction(event -> {
             image_window.the_Stage.setFullScreen(true);
-            image_window.exit_on_escape = false;
+            image_window.is_full_screen = true;
             stop_fullscreen.setDisable(false);
             start_fullscreen.setDisable(true);
         });
         stop_fullscreen.setOnAction(event -> {
             image_window.the_Stage.setFullScreen(false);
-            image_window.exit_on_escape = true;
+            image_window.is_full_screen = false;
             stop_fullscreen.setDisable(true);
             start_fullscreen.setDisable(false);
         });

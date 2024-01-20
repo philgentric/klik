@@ -43,11 +43,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Item implements Icon_destination
 //**********************************************************
 {
+    protected final boolean dbg = false;
+
+
     protected final int icon_size;
     protected double rotation = 0; // cache
     public Icon_status icon_status = Icon_status.no_icon;
 
-    protected final boolean dbg = true;
     protected Path path;
     protected final Browser browser;
     protected final Logger logger;
@@ -60,6 +62,7 @@ public abstract class Item implements Icon_destination
     private double y;
     public double x_difference = 0;
     public double y_difference = 0;
+    public static final boolean pos_dbg = false;
 
     //**********************************************************
     public Item(Browser browser_,
@@ -103,7 +106,7 @@ public abstract class Item implements Icon_destination
     public void set_x(double x_) { x = x_; }
     public void set_y(double y_)
     {
-        logger.log(path+"  set_y "+y_);
+        if( pos_dbg) logger.log(path+"  set_y "+y_);
         y = y_;
     }
     public double get_x() { return x; }
@@ -369,11 +372,11 @@ public abstract class Item implements Icon_destination
         {
             wide = true;
             actual = icon_size* i.getHeight()/ i.getWidth();
-            if( dbg) logger.log("wide, actual ="+actual);
+            if( pos_dbg) logger.log("wide, actual ="+actual);
         }
         else
         {
-            if( dbg) logger.log("narrow");
+            if( pos_dbg) logger.log("narrow");
             actual = icon_size* i.getWidth()/ i.getHeight();
         }
 
@@ -383,13 +386,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                if( dbg) logger.log("rot0 wide");
+                if( pos_dbg) logger.log("rot0 wide");
                 x_difference = 0;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                if( dbg) logger.log("rot0 narrow");
+                if( pos_dbg) logger.log("rot0 narrow");
                 x_difference = 0;//(icon_size-actual)/2;
                 y_difference = 0;
             }
@@ -398,13 +401,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                if( dbg) logger.log("rot180 wide");
+                if( pos_dbg) logger.log("rot180 wide");
                 x_difference = 0;
                 y_difference = (icon_size-actual);//(icon_size-actual)/2;
             }
             else
             {
-                if( dbg) logger.log("rot180 narrow");
+                if( pos_dbg) logger.log("rot180 narrow");
                 x_difference = -(icon_size-actual)/2;
                 y_difference = 0;
             }
@@ -413,14 +416,13 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                if( dbg) logger.log("rot90 wide");
                 x_difference = 0;//-(icon_size-actual)/2;
                 y_difference = (icon_size-actual)/2;
-                if( dbg) logger.log("rot90 wide x_difference="+x_difference+" y_difference="+y_difference);
+                if( pos_dbg) logger.log("rot90 wide x_difference="+x_difference+" y_difference="+y_difference);
             }
             else
             {
-                if( dbg) logger.log("rot90 narrow");
+                if( pos_dbg) logger.log("rot90 narrow");
                 x_difference = (icon_size-actual)/2;//0;//(icon_size-actual)/2;
                 y_difference = 0;//(icon_size-actual)/2;
             }
@@ -429,36 +431,20 @@ public abstract class Item implements Icon_destination
         {
             if ( wide)
             {
-                if( dbg) logger.log("rot270 wide");
+                if( pos_dbg) logger.log("rot270 wide");
                 x_difference = 0;//(icon_size-actual)/2;
                 y_difference = (icon_size-actual)/2;
             }
             else
             {
-                if( dbg) logger.log("rot270 narrow");
+                if( pos_dbg) logger.log("rot270 narrow");
                 x_difference = 0;
                 //y_difference = (icon_size-actual)/2;
             }
         }
 
-        /*
-        the_image_view.getTransforms().clear();
-        Translate trans = new Translate();
-        trans.setX(x_difference);
-        trans.setY(y_difference);
-        //the_image_view.getTransforms().add(trans);
-        {
-            Rotate rot = new Rotate();
-            rot.setAngle(rotation);
-            // this pivot is wrong when in aspect_ratio mode?
-            rot.setPivotX(icon_size / 2.0);
-            rot.setPivotY(icon_size / 2.0);
-            the_image_view.getTransforms().add(rot);
-        }
-        the_image_view.getTransforms().add(trans);
-        */
-        the_pane.setRotate(rotation);
 
+        the_pane.setRotate(rotation);
     }
 
     /*

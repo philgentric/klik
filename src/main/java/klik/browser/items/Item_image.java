@@ -5,6 +5,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -18,23 +19,20 @@ import klik.animated_gifs_from_videos.Ffmpeg_utils;
 import klik.browser.Browser;
 import klik.browser.Image_and_rotation;
 import klik.browser.System_open_actor;
-import klik.browser.System_open_message;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_status;
 import klik.change.Change_gang;
-import klik.level2.experimental.Multiple_image_window;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
+import klik.level2.experimental.Multiple_image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.util.Logger;
-import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 
-import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -181,9 +179,10 @@ public class Item_image extends Item implements Icon_destination
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu);
 
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Rename", logger));
+            MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Item_image: Renaming "+path);
 

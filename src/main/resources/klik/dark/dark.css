@@ -5,7 +5,7 @@
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
     -fx-alignment: top-left;
-    -fx-background-color: black	;
+    -fx-background-color: #1a1f2c	;
     -fx-padding: -1 -1 -1 -1;
 }
 
@@ -14,7 +14,17 @@
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
     -fx-alignment: top-left;
-    -fx-background-color: black;
+    -fx-background-color: #1a1f2c;
+    -fx-padding: -1 -1 -1 -1;
+}
+
+
+.image-window {
+    -fx-text-fill: #fefcff	; // color of text
+    -fx-font:20 Helvetica;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-color: #1a1f2c;
     -fx-padding: -1 -1 -1 -1;
 }
 
@@ -24,7 +34,7 @@
 
 .context-menu {
     -fx-text-fill: white;
-    -fx-background-color: black;
+    -fx-background-color: #1a1f2c;
 }
 
 .menu-item .label {

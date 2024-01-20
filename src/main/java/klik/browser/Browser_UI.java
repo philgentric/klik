@@ -48,53 +48,58 @@ public class Browser_UI
     //**********************************************************
     {
 
-        String go_up_text = "";
-        if (browser.displayed_folder_path.getParent() != null)
-        {
-            go_up_text = I18n.get_I18n_string("Parent_Folder", logger);// to: " + parent.toAbsolutePath().toString();
-        }
+
         double font_size = Static_application_properties.get_font_size(logger);
         double height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-        Button up_button = browser_menus.make_button_that_behaves_like_a_folder(browser,
-                browser.displayed_folder_path.getParent(),
-                go_up_text,
-                height,
-                Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
-                false,
-                true,
-                logger);
+
+        Button up_button;
         {
-            Image icon = Look_and_feel_manager.get_up_icon(height);
-            if (icon == null)
-                logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_up_icon_path());
-            Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, true);
+            String go_up_text = "";
+            if (browser.displayed_folder_path.getParent() != null)
+            {
+                go_up_text = I18n.get_I18n_string("Parent_Folder", logger);// to: " + parent.toAbsolutePath().toString();
+            }
+            up_button = browser_menus.make_button_that_behaves_like_a_folder(browser,
+                    browser.displayed_folder_path.getParent(),
+                    go_up_text,
+                    height,
+                    Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
+                    false,
+                    true,
+                    logger);
+            {
+                Image icon = Look_and_feel_manager.get_up_icon(height);
+                if (icon == null)
+                    logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_up_icon_path());
+                Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, true);
 
+            }
+            browser.always_on_front_nodes.add(up_button);
+            top_buttons.add(up_button);
         }
-        browser.always_on_front_nodes.add(up_button);
-        top_buttons.add(up_button);
 
-
-
-        String trash_text = I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
-        Button trash = browser_menus.make_button_that_behaves_like_a_folder(
-                browser,
-                Static_application_properties.get_trash_dir(logger),
-                trash_text,
-                height,
-                Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
-                true,
-                false,
-                logger);
+        Button trash;
         {
-            Image icon = Look_and_feel_manager.get_trash_icon(height);
-            if (icon == null)
-                logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_bookmarks_icon_path());
-            Look_and_feel_manager.set_button_and_image_look(trash, icon, height, true);
+            String trash_text = I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
+            trash = browser_menus.make_button_that_behaves_like_a_folder(
+                    browser,
+                    Static_application_properties.get_trash_dir(logger),
+                    trash_text,
+                    height,
+                    Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
+                    true,
+                    false,
+                    logger);
+            {
+                Image icon = Look_and_feel_manager.get_trash_icon(height);
+                if (icon == null)
+                    logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_bookmarks_icon_path());
+                Look_and_feel_manager.set_button_and_image_look(trash, icon, height, true);
 
+            }
+            browser.always_on_front_nodes.add(trash);
+            top_buttons.add(trash);
         }
-        browser.always_on_front_nodes.add(trash);
-        top_buttons.add(trash);
-
 
         Pane top_pane = define_top_bar_using_buttons_deep(height, up_button, trash);
 
@@ -217,9 +222,9 @@ public class Browser_UI
     private void button_bandh(ActionEvent e)
     //**********************************************************
     {
-        ContextMenu pref = define_contextmenu_bandh();
+        ContextMenu banh = define_contextmenu_bandh();
         Button b = (Button) e.getSource();
-        pref.show(b, Side.TOP, 0, 0);
+        banh.show(b, Side.TOP, 0, 0);
     }
 
     //**********************************************************
@@ -273,6 +278,8 @@ public class Browser_UI
     //**********************************************************
     {
         ContextMenu bandh_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(bandh_menu);
+
         bandh_menu.getItems().add(browser_menus.make_bookmarks_menu());
         bandh_menu.getItems().add(browser_menus.make_history_menu());
         bandh_menu.getItems().add(browser_menus.make_roots_menu());
@@ -285,6 +292,8 @@ public class Browser_UI
     //**********************************************************
     {
         ContextMenu view_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(view_menu);
+
         view_menu.getItems().add(browser_menus.make_new_window_menu_item());
         {
             start_full_screen_menu_item = browser_menus.make_start_fullscreen_menu_item();
@@ -317,6 +326,8 @@ public class Browser_UI
     //**********************************************************
     {
         ContextMenu files_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(files_menu);
+
         files_menu.getItems().add(browser_menus.make_undo_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_create_empty_directory_menu_item());
         files_menu.getItems().add(browser_menus.make_sort_by_year_menu_item());
@@ -365,6 +376,7 @@ public class Browser_UI
     //**********************************************************
     {
         ContextMenu pref = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(pref);
 
         pref.getItems().add(browser_menus.make_show_single_column_check_menu_item());
         pref.getItems().add(browser_menus.make_show_icons_for_images_and_videos_check_menu_item());

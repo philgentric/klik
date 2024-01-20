@@ -69,6 +69,11 @@ public class From_disk
         double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
+        if (aborter.should_abort())
+        {
+            //logger.log("get_aspect_ratio aborting");
+            return -1;
+        }
         if(Guess_file_type.is_file_an_image(path.toFile()))
         {
             Image i = load_image_from_disk( path,  aborter,  logger);

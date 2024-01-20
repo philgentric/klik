@@ -1,6 +1,7 @@
 package klik.browser;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
@@ -208,6 +209,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public Browser(Browser_creation_context context, Logger logger_)
     //**********************************************************
     {
+        if (context.old_browser != null)
+        {
+            context.old_browser.cleanup();
+        }
+
         logger = logger_;
         aborter = new Aborter();
         ID = ID_generator.getAndIncrement();
@@ -217,7 +223,9 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         {
             windows_count.incrementAndGet();
             //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after create: " +context.folder_path +"\n"+ signature()));
-        } else {
+        }
+        else
+        {
             //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after dir change: " +context.folder_path +"\n"+ signature()));
         }
         top_left_in_parent = context.top_left_in_parent;
@@ -228,18 +236,29 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         double width = 2400 / 2.0;
         double height = 1080 - y;
-        if (context.rectangle != null) {
-            width = context.rectangle.getWidth();//old_browser.the_Stage.getWidth();
-            height = context.rectangle.getHeight();//old_browser.the_Stage.getHeight();
-            x = context.rectangle.getMinX();//old_browser.the_Stage.getX();
-            y = context.rectangle.getMinY();//old_browser.the_Stage.getY();
-            if (context.old_browser != null) {
-                context.old_browser.cleanup();
-            }
+
+        if ( windows_count.get() ==1)
+        {
+            Rectangle2D r = Static_application_properties.get_browser_stored_bounds(logger);
+            width = r.getWidth();
+            height = r.getHeight();
+            x = r.getMinX();
+            y = r.getMinY();
         }
-        if (!context.same_place) {
-            x += 100;
-            y += 100;
+        else {
+            if (context.rectangle != null)
+            {
+                width = context.rectangle.getWidth();//old_browser.the_Stage.getWidth();
+                height = context.rectangle.getHeight();//old_browser.the_Stage.getHeight();
+                x = context.rectangle.getMinX();//old_browser.the_Stage.getX();
+                y = context.rectangle.getMinY();//old_browser.the_Stage.getY();
+
+            }
+            if (!context.same_place) {
+                x += 100;
+                y += 100;
+            }
+
         }
         if (dbg) logger.log("NEW browser");
         {
@@ -286,6 +305,22 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         set_all_event_handlers();
 
         my_Stage.the_Stage.setScene(the_Scene);
+
+        ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
+            if ( windows_count.get() != 1)
+            {
+                // ignore: we store the position of a "unique or last" window
+                return;
+            }
+            if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
+            Rectangle2D b = new Rectangle2D(my_Stage.the_Stage.getX(), my_Stage.the_Stage.getY(), my_Stage.the_Stage.getWidth(), my_Stage.the_Stage.getHeight());
+            Static_application_properties.save_browser_bounds(b,logger);
+        };
+        my_Stage.the_Stage.xProperty().addListener(change_listener);
+        my_Stage.the_Stage.yProperty().addListener(change_listener);
+        my_Stage.the_Stage.widthProperty().addListener(change_listener);
+        my_Stage.the_Stage.heightProperty().addListener(change_listener);
+
 
         Platform.runLater(() -> {
 

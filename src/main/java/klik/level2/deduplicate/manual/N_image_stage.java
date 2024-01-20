@@ -21,6 +21,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
 import klik.files_and_paths.Status_old_and_new_Path;
 import klik.images.Image_window;
+import klik.look.Look_and_feel_manager;
 import klik.util.From_disk;
 import klik.util.Logger;
 
@@ -159,15 +160,15 @@ public class N_image_stage
 	//**********************************************************
 	{
 		logger.log("handle_mouse");
-		final ContextMenu contextMenu = new ContextMenu();
-		contextMenu.setStyle("-fx-foreground-color: white;-fx-background-color: darkgrey;");
+		final ContextMenu context_menu = new ContextMenu();
+		Look_and_feel_manager.set_context_menu_look(context_menu);
 
 
 		for ( int i = 0 ; i < file_of_the_images.length ; i++)
 		{
 			My_File_and_status f = file_of_the_images[i];
 			MenuItem file_info = new MenuItem("INFO File"+i+"="+ f.my_file.file.getAbsolutePath());
-			contextMenu.getItems().add(file_info);
+			context_menu.getItems().add(file_info);
 			file_info.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event)
@@ -178,7 +179,7 @@ public class N_image_stage
 			});
 
 			MenuItem file_open = new MenuItem("Open File"+i+"="+ f.my_file.file.getAbsolutePath());
-			contextMenu.getItems().add(file_open);
+			context_menu.getItems().add(file_open);
 			file_open.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event)
@@ -189,7 +190,7 @@ public class N_image_stage
 			});
 
 			MenuItem delete_file_info = new MenuItem("Delete File"+i+"="+ f.my_file.file.getAbsolutePath());
-			contextMenu.getItems().add(delete_file_info);
+			context_menu.getItems().add(delete_file_info);
 			delete_file_info.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event)
@@ -205,7 +206,7 @@ public class N_image_stage
 		}
 
 		MenuItem skip = new MenuItem("Skip this pair");
-		contextMenu.getItems().add(skip);
+		context_menu.getItems().add(skip);
 		skip.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event)
@@ -214,7 +215,7 @@ public class N_image_stage
 				the_Stage.close();
 			}
 		});
-		contextMenu.show(hbox, e.getScreenX(), e.getScreenY());
+		context_menu.show(hbox, e.getScreenX(), e.getScreenY());
 	}
 
 

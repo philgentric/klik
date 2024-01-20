@@ -10,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -29,7 +28,6 @@ import klik.properties.Static_application_properties;
 import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.util.Threads;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
@@ -193,6 +191,7 @@ public class Image_context
             textFlow.getChildren().add(new Text(System.lineSeparator()));
         }
         ScrollPane sp = new ScrollPane();
+        Look_and_feel_manager.set_region_look(sp);
         sp.setPrefSize(1000, 600);
         sp.setContent(textFlow);
         sp.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -202,7 +201,7 @@ public class Image_context
         local_stage.setHeight(600);
         local_stage.setWidth(1000);
 
-        Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
+        Scene scene = new Scene(sp, 1000, 600);
 
         String extension = FilenameUtils.getExtension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
@@ -272,6 +271,16 @@ public class Image_context
     //**********************************************************
     {
         image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix);
+
+        // if image is smaller than screen
+        if (( the_image_view.getImage().getHeight() < image_window.the_Scene.getHeight())
+            &&(the_image_view.getImage().getWidth() < image_window.the_Scene.getWidth()))
+        {
+            the_image_view.setFitWidth(image_window.the_Scene.getWidth());
+            the_image_view.setFitHeight(image_window.the_Scene.getHeight());
+            return;
+        }
+
 
         // depends on aspect ratio
         double image_aspect_ratio = the_image_view.getImage().getHeight()/the_image_view.getImage().getWidth();

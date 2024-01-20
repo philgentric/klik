@@ -20,6 +20,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
 //**********************************************************
 {
     public static final boolean dbg = false;
+    public static final boolean ultra_dbg = false;
 
     private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done){}
 
@@ -56,6 +57,12 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             if (dbg)sb.append("\nstart loop on EXIF directories\n");
             for (Directory directory : metadata.getDirectories())
             {
+                if ( aborter.should_abort())
+                {
+                    //logger.log("Fast_aspect_ratio_from_exif_metadata_extractor aborting ");
+                    return -1;
+                }
+
                 if (dbg)sb.append("directory=").append(directory).append("\n");
                 Directory_result result = do_one_dir(directory,sb);
 
@@ -107,14 +114,14 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             {
                 if (dbg)
                 {
-                    sb.append(" INVERTED aspect ratio: ").append(result.h).append("/").append(result.w).append("=").append(result.h/result.w).append("\n");
+                    sb.append(" INVERTED aspect ratio h/w: ").append(result.h).append("/").append(result.w).append("=").append(result.h/result.w).append("\n");
                     logger.log(sb.toString());
                 }
                 return result.h/result.w;
             }
             if (dbg)
             {
-                sb.append(" STRAIGHT aspect ratio: ").append(result.w).append("/").append(result.h).append("=").append(result.w/result.h).append("\n");
+                sb.append(" aspect ratio w/h: ").append(result.w).append("/").append(result.h).append("=").append(result.w/result.h).append("\n");
                 logger.log(sb.toString());
 
             }
@@ -144,25 +151,43 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         for (Tag tag : directory.getTags())
         {
             if (tag.toString().contains("Thumbnail")) continue;
-            if (dbg) sb.append("tag=").append(tag).append("\n");
+            if (ultra_dbg) sb.append("tag=").append(tag).append("\n");
             if (tag.toString().contains("Width"))
             {
-                if (tag.toString().contains("IFD0")) continue;
+                if (tag.toString().contains("IFD0"))
+                {
+                    if ( dbg) sb.append("width tag contains IFD0: ignored");
+                    continue;
+                }
+                if (tag.toString().contains("Related"))
+                {
+                    if ( dbg) sb.append("width tag contains Related: ignored");
+                    continue; // some images contain the tag "Related Image Width", probably the original before edit?
+                }
                 if (tag.toString().contains("Image"))
                 {
                     w = Double.valueOf(get_number(tag.toString()));
-                    if (dbg) sb.append("w=").append(w).append("\n");
+                    if (dbg) sb.append("w=").append(w).append(" from tag:").append(tag).append("\n");
                     w_done = true;
                     if (w_done && h_done && rot_done) break;
                 }
             }
             if (tag.toString().contains("Height"))
             {
-                if (tag.toString().contains("IFD0")) continue;
+                if (tag.toString().contains("IFD0"))
+                {
+                    if ( dbg) sb.append("height tag contains IFD0: ignored");
+                    continue;
+                }
+                if (tag.toString().contains("Related"))
+                {
+                    if ( dbg) sb.append("width tag contains Related: ignored");
+                    continue; // some images contain the tag "Related Image Width", probably the original before edit?
+                }
                 if (tag.toString().contains("Image"))
                 {
                     h = Double.valueOf(get_number(tag.toString()));
-                    if (dbg)sb.append("h=").append(h).append("\n");
+                    if (dbg) sb.append("h=").append(h).append(" from tag:").append(tag).append("\n");
                     h_done = true;
                     if (w_done && h_done && rot_done) break;
                 }

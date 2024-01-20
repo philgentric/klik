@@ -562,6 +562,7 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu);
 
         if (!Files.isDirectory(path))
         {

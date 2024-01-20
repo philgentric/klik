@@ -65,10 +65,14 @@ public class Static_application_properties
     public static final String SINGLE_COLUMN = "single_column";
     public static final String ICONS_FOR_FOLDERS = "icons_for_folders";
     public static final String MONITOR_BROWSED_FOLDERS = "monitor_browsed_folders";
-    public static final String SCREEN_TOP_LEFT_X = "screen_top_left_x";
-    public static final String SCREEN_TOP_LEFT_Y = "screen_top_left_y";
-    public static final String SCREEN_WIDTH = "screen_width";
-    public static final String SCREEN_HEIGHT = "screen_height";
+    public static final String IMAGE_WINDOW_SCREEN_TOP_LEFT_X = "IMAGE_WINDOW_SCREEN_TOP_LEFT_X";
+    public static final String IMAGE_WINDOW_SCREEN_TOP_LEFT_Y = "IMAGE_WINDOW_SCREEN_TOP_LEFT_Y";
+    public static final String IMAGE_WINDOW_SCREEN_WIDTH = "IMAGE_WINDOW_SCREEN_WIDTH";
+    public static final String IMAGE_WINDOW_SCREEN_HEIGHT = "IMAGE_WINDOW_SCREEN_HEIGHT";
+    public static final String BROWSER_SCREEN_TOP_LEFT_X = "BROWSER_SCREEN_TOP_LEFT_X";
+    public static final String BROWSER_SCREEN_TOP_LEFT_Y = "BROWSER_SCREEN_TOP_LEFT_Y";
+    public static final String BROWSER_SCREEN_WIDTH = "BROWSER_SCREEN_WIDTH";
+    public static final String BROWSER_SCREEN_HEIGHT = "BROWSER_SCREEN_HEIGHT";
 
 
     //**********************************************************
@@ -250,20 +254,40 @@ public class Static_application_properties
 
 
     //**********************************************************
-    public static Rectangle2D get_bounds(Logger logger)
+    public static Rectangle2D get_image_window_stored_bounds(Logger logger)
     //**********************************************************
     {
         Properties_manager pm = get_properties_manager(logger);
-        String x_s = pm.get(SCREEN_TOP_LEFT_X);
+        String x_s = pm.get(IMAGE_WINDOW_SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
-        String y_s = pm.get(SCREEN_TOP_LEFT_Y);
+        String y_s = pm.get(IMAGE_WINDOW_SCREEN_TOP_LEFT_Y);
         if (y_s == null) return default_rectangle();
         double y = Double.parseDouble(y_s);
-        String w_s = pm.get(SCREEN_WIDTH);
+        String w_s = pm.get(IMAGE_WINDOW_SCREEN_WIDTH);
         if (w_s == null) return default_rectangle();
         double w = Double.parseDouble(w_s);
-        String h_s = pm.get(SCREEN_HEIGHT);
+        String h_s = pm.get(IMAGE_WINDOW_SCREEN_HEIGHT);
+        if (h_s == null) return default_rectangle();
+        double h = Double.parseDouble(h_s);
+        return new Rectangle2D(x, y, w, h);
+    }
+
+    //**********************************************************
+    public static Rectangle2D get_browser_stored_bounds(Logger logger)
+    //**********************************************************
+    {
+        Properties_manager pm = get_properties_manager(logger);
+        String x_s = pm.get(BROWSER_SCREEN_TOP_LEFT_X);
+        if (x_s == null) return default_rectangle();
+        double x = Double.parseDouble(x_s);
+        String y_s = pm.get(BROWSER_SCREEN_TOP_LEFT_Y);
+        if (y_s == null) return default_rectangle();
+        double y = Double.parseDouble(y_s);
+        String w_s = pm.get(BROWSER_SCREEN_WIDTH);
+        if (w_s == null) return default_rectangle();
+        double w = Double.parseDouble(w_s);
+        String h_s = pm.get(BROWSER_SCREEN_HEIGHT);
         if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
         return new Rectangle2D(x, y, w, h);
@@ -277,15 +301,27 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static void save_bounds(Rectangle2D r, Logger logger)
+    public static void save_image_window_bounds(Rectangle2D r, Logger logger)
     //**********************************************************
     {
         if ( dbg) logger.log("saving bounds="+r);
         Properties_manager pm = get_properties_manager(logger);
-        pm.save_unico(SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
-        pm.save_unico(SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
-        pm.save_unico(SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
-        pm.save_unico(SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
+        pm.save_unico(IMAGE_WINDOW_SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
+        pm.save_unico(IMAGE_WINDOW_SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
+        pm.save_unico(IMAGE_WINDOW_SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
+        pm.save_unico(IMAGE_WINDOW_SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
+    }
+
+    //**********************************************************
+    public static void save_browser_bounds(Rectangle2D r, Logger logger)
+    //**********************************************************
+    {
+        if ( dbg) logger.log("saving bounds="+r);
+        Properties_manager pm = get_properties_manager(logger);
+        pm.save_unico(BROWSER_SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
+        pm.save_unico(BROWSER_SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
+        pm.save_unico(BROWSER_SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
+        pm.save_unico(BROWSER_SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
     }
 
     // returns a directory using that relative name

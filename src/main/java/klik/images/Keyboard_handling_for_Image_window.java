@@ -35,16 +35,19 @@ public class Keyboard_handling_for_Image_window
                 return;
             }
 
-            if (image_window.exit_on_escape) {
+            if (image_window.is_full_screen)
+            {
+                logger.log("Image_stage : ignoring escape as a way to close the image window, because we were in full screen");
+                // normally javafx will exit fullscreen ...
+                image_window.is_full_screen = false;
+            }
+            else
+            {
                 image_window.the_Stage.close();
                 logger.log("Image_stage closing on escape");
                 Change_gang.deregister(image_window.image_display_handler);
             }
-            else
-            {
-                logger.log("Image_stage : ignoring escape because we are in full screen");
-                image_window.exit_on_escape = true;
-            }
+
             return;
         }
 
@@ -179,19 +182,19 @@ public class Keyboard_handling_for_Image_window
             }
             case "w" -> {
                 if (keyword_dbg) logger.log("w => slow down slide show");
-                if (image_window.slide_show != null) image_window.slide_show.slow_down();
+                if (image_window.is_slide_show_running()) image_window.slow_down();
                 key_event.consume();
                 return;
             }
             case "x" -> {
                 if (keyword_dbg) logger.log("x => speed up slide show");
-                if (image_window.slide_show != null) image_window.slide_show.hurry_up();
+                if (image_window.is_slide_show_running()) image_window.hurry_up();
                 key_event.consume();
                 return;
             }
             case "y" -> {
                 if (keyword_dbg) logger.log("y => move to same folder as previous move");
-                Menu_for_image_window.do_same_move(image_window);
+                Menus_for_image_window.do_same_move(image_window);
                 key_event.consume();
                 return;
             }

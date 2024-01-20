@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+//**********************************************************
 public class Mouse_handling_for_Image_window
+//**********************************************************
 {
 
     private final Image_window image_window;
@@ -105,9 +107,12 @@ public class Mouse_handling_for_Image_window
     void mouse_pressed_click_to_zoom(MouseEvent e, Pane pane)
     //**********************************************************
     {
-        logger.log("mouse_pressed_local_zoom:");
+        logger.log("mouse_pressed_click_to_zoom: event="+e );
+
+
         old_mouse_x = e.getX();
         old_mouse_y = e.getY();
+        logger.log("mouse_pressed_click_to_zoom: x="+old_mouse_x+" y="+old_mouse_y );
 
         user_defined_zoom_area = new Rectangle(e.getX(), e.getY(), 5, 5);
         user_defined_zoom_area.setFill(Color.TRANSPARENT);
@@ -115,6 +120,7 @@ public class Mouse_handling_for_Image_window
         Color c = new javafx.scene.paint.Color(1, 0, 0, 0.2);
         user_defined_zoom_area.setStroke(c);
         user_defined_zoom_area.setStrokeWidth(10.0f);
+        user_defined_zoom_area.setManaged(false);// otherwise the rectangle is always centered i.e. x,y is ignored
         pane.getChildren().add(user_defined_zoom_area);
         user_defined_zoom_area.toFront();
     }
@@ -292,13 +298,16 @@ public class Mouse_handling_for_Image_window
 
 
     //**********************************************************
-    private void enable_click_to_zoom(Stage the_stage)
+    private void enable_click_to_zoom(Stage the_stage, Pane pane)
     //**********************************************************
     {
         // no ! stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
-        the_stage.addEventHandler(MouseEvent.MOUSE_PRESSED, mouse_pressed_click_to_zoom_event_handler);
-        the_stage.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouse_dragged_click_to_zoom_event_handler);
-        the_stage.addEventHandler(MouseEvent.MOUSE_RELEASED, mouse_released_click_to_zoom_event_handler);
+        pane.addEventHandler(MouseEvent.MOUSE_PRESSED, mouse_pressed_click_to_zoom_event_handler);
+        //the_stage.addEventHandler(MouseEvent.MOUSE_PRESSED, mouse_pressed_click_to_zoom_event_handler);
+        pane.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouse_dragged_click_to_zoom_event_handler);
+        //the_stage.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouse_dragged_click_to_zoom_event_handler);
+        pane.addEventHandler(MouseEvent.MOUSE_RELEASED, mouse_released_click_to_zoom_event_handler);
+        //the_stage.addEventHandler(MouseEvent.MOUSE_RELEASED, mouse_released_click_to_zoom_event_handler);
 
     }
 
@@ -347,7 +356,7 @@ public class Mouse_handling_for_Image_window
                 if (old_mode == Mouse_mode.click_to_zoom) return;
                 if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_image_Pane);
                 if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_stage.the_Stage);
-                enable_click_to_zoom(image_stage.the_Stage);
+                enable_click_to_zoom(image_stage.the_Stage,image_stage.the_image_Pane);
             }
         }
 

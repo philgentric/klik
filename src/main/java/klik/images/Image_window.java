@@ -8,8 +8,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -18,7 +16,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
@@ -31,10 +28,8 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -51,14 +46,10 @@ public class Image_window
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
     public final Aborter aborter;
-    //MenuBar the_menu_bar;
-    //Button back_button;
-    //Button forward_button;
 
-    Slide_show slide_show; // not null if a Slide_show is ongoing
+    private Slide_show slide_show; // not null if a Slide_show is ongoing
     boolean ultim_mode = false;
-    boolean exit_on_escape = true;
-    //ProgressBar the_progress_bar;
+    boolean is_full_screen = false;
     Path dir;
 
     //**********************************************************
@@ -83,7 +74,7 @@ public class Image_window
             double y = 0;
             double w = 800;
             double h = 600;
-            Rectangle2D bounds = Static_application_properties.get_bounds(logger_);
+            Rectangle2D bounds = Static_application_properties.get_image_window_stored_bounds(logger_);
             logger_.log("got bounds from properties="+bounds);
             if (bounds != null)
             {
@@ -121,7 +112,7 @@ public class Image_window
         // often there is only one ...
         Screen current = intersecting_screens.get(0);
 
-        Rectangle2D bounds = Static_application_properties.get_bounds(logger_);
+        Rectangle2D bounds = Static_application_properties.get_image_window_stored_bounds(logger_);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
@@ -148,6 +139,8 @@ public class Image_window
         logger = logger_;
         the_Stage = new Stage();
         the_image_Pane = new StackPane();
+        Look_and_feel_manager.set_region_look(the_image_Pane);
+
         String extension = FilenameUtils.getExtension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
         the_Scene = new Scene(the_image_Pane);
@@ -247,16 +240,12 @@ public class Image_window
         //set_image(image_context_owner.get_image_context(), white_background);
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            if ( dbg) logger.log("ChangeListener: image window size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
+            if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
             Rectangle2D b = new Rectangle2D(the_Stage.getX(), the_Stage.getY(), the_Stage.getWidth(), the_Stage.getHeight());
-            Static_application_properties.save_bounds(b,logger);
-            /*
-            back_button.setLayoutX(0);
-            back_button.setLayoutY(the_Stage.getHeight()/2);
-            forward_button.setLayoutX(the_Stage.getWidth()-forward_button.getWidth()-1);
-            forward_button.setLayoutY(the_Stage.getHeight()/2);
-            */
+            Static_application_properties.save_image_window_bounds(b,logger);
         };
+        the_Stage.xProperty().addListener(change_listener);
+        the_Stage.yProperty().addListener(change_listener);
         the_Stage.widthProperty().addListener(change_listener);
         the_Stage.heightProperty().addListener(change_listener);
 
@@ -302,7 +291,7 @@ public class Image_window
         EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY)
             {
-                image_display_handler.handle_mouse_clicked_secondary(the_browser, the_Stage, the_image_Pane, mouseEvent,logger);
+                image_display_handler.handle_mouse_clicked_secondary(the_browser, the_Stage, mouseEvent,logger);
             }
         };
         the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
@@ -322,17 +311,27 @@ public class Image_window
 
 
     //**********************************************************
-    public void toggle_slideshow()
+    public boolean toggle_slideshow()
     //**********************************************************
     {
         if ( slide_show == null)
         {
             start_slide_show();
+            return true;
         }
         else
         {
             stop_slide_show();
+            return false;
         }
+    }
+
+    //**********************************************************
+    public boolean is_slide_show_running()
+    //**********************************************************
+    {
+        if ( slide_show == null) return false;
+        return true;
     }
 
     //**********************************************************
@@ -664,5 +663,14 @@ public class Image_window
 
     public Path get_dir() {
         return dir;
+    }
+
+    public void hurry_up() {
+        if ( slide_show!= null) slide_show.hurry_up();
+    }
+
+    public void slow_down() {
+        if ( slide_show!= null) slide_show.slow_down();
+
     }
 }
