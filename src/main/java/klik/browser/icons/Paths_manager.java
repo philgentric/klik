@@ -136,7 +136,7 @@ public class Paths_manager
             //use_aspect_ratio = true;
             if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
             aspect_ratio_cache.reload_aspect_ratio_cache();
-            // start a thread that will switch the file_comparator
+            // start a thread that will refresh and switch the file_comparator
             aspect_ratio_cache.look_for_end(this, refresh_target,stage,  aborter);
         }
         boolean final_use_aspect_ratio = use_aspect_ratio;

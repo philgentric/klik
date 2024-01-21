@@ -46,7 +46,7 @@ public class Look_and_feel_dark extends Look_and_feel
     @Override
     public String get_default_icon_path()
     {
-        return "light/image.png";
+        return "dark/image.png";
     }
 
     @Override
