@@ -2,20 +2,18 @@ package klik.browser.icons;
 
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Error_receiver;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
-import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
-import klik.util.*;
+import klik.util.Logger;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.nio.file.*;
+import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -133,10 +131,9 @@ public class Paths_manager
         }
 */
         boolean use_aspect_ratio = false;
-        if (
-                (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ||
-                        (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO )) {
-            use_aspect_ratio = true;
+        //if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) || (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO ))
+        {
+            //use_aspect_ratio = true;
             if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
             aspect_ratio_cache.reload_aspect_ratio_cache();
             // start a thread that will switch the file_comparator

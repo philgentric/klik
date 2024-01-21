@@ -189,7 +189,10 @@ public class Icon_manager
                 if ( item == null)
                 {
                     double aspect_ratio = 1.0;
-                    if ( use_aspect_ratio) aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
+                    //if ( use_aspect_ratio)
+                    {
+                        aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
+                    }
                     item = new Item_image(the_browser,path, aspect_ratio, logger);
                     all_items_map.put(path,item);
                 }
@@ -246,7 +249,7 @@ public class Icon_manager
                         icon_height, false, false, logger);
                 all_items_map.put(path,item);
             }
-            item.get_big_Node().setVisible(false);
+            item.get_Node().setVisible(false);
             p = new_Point_for_files_and_dirs(p, item,
                     column_increment,
                     row_increment_for_files, scene_width, single_column);
@@ -443,7 +446,6 @@ public class Icon_manager
         {
             item.visible_in_scene.set(true);
             if (item instanceof Item_image ii) {
-
                 switch (ii.icon_status) {
                     case no_icon:
                         ii.load_default_icon();
@@ -458,26 +460,25 @@ public class Icon_manager
                         break;
                 }
             }
-            if (item.get_big_Node() == null)
+            if (item.get_Node() == null)
             {
                 logger.log("item.get_Node() == null");
             }
             else
             {
-                if (!pane.getChildren().contains(item.get_big_Node()))
+                if (!pane.getChildren().contains(item.get_Node()))
                 {
                     if (visible_dbg) logger.log("adding item: " + item.get_string());
-                    pane.getChildren().add(item.get_big_Node());
+                    pane.getChildren().add(item.get_Node());
                 }
-
             }
             item.set_visible(true);
         }
 
 
         item.set_translate_X(item.get_x()+item.x_difference);
-        if ( Item.pos_dbg) logger.log(item.get_item_path()+" get_y= "+item.get_y()+" current_vertical_offset="+current_vertical_offset);
         item.set_translate_Y(item.get_y() + item.y_difference - current_vertical_offset);
+        //item.set_translate_Y(item.get_y() - current_vertical_offset);
     }
 
     //**********************************************************
@@ -488,11 +489,11 @@ public class Icon_manager
         {
             //item.visible_in_scene.false;
             item.cancel();
-            if (item.get_big_Node() == null) return;
-            item.get_big_Node().setVisible(false);
+            if (item.get_Node() == null) return;
+            item.get_Node().setVisible(false);
             if (add_and_remove) {
                 if (visible_dbg) logger.log("removing from pane invisible icon of: " + item.get_string());
-                pane.getChildren().remove(item.get_big_Node());
+                pane.getChildren().remove(item.get_Node());
 
             }
             if (item instanceof Item_image ii) {
@@ -529,7 +530,7 @@ public class Icon_manager
     {
 
         for (Item item : all_items_map.values()) {
-            Node node = item.get_big_Node();
+            Node node = item.get_Node();
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
             if (b.contains(x, y)) {
@@ -553,7 +554,7 @@ public class Icon_manager
         List<Item> returned = new ArrayList<>();
 
         for (Item item : all_items_map.values()) {
-            Node node = item.get_big_Node();
+            Node node = item.get_Node();
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
             //if (b.intersects(bounds))
@@ -589,7 +590,7 @@ public class Icon_manager
     public void cancel_all()
     //**********************************************************
     {
-        logger.log(("Icon_manager cancel all!"));
+        //logger.log(("Icon_manager cancel all"));
         aborter.abort();
         Icon_factory_actor.get_icon_factory(aborter,paths_manager.aspect_ratio_cache, owner, logger).cancel_all();
         for ( Item i : all_items_map.values())
@@ -662,10 +663,10 @@ public class Icon_manager
     {
         double width_of_this = column_increment;
         double height_of_this = row_increment;
-        double neg_x = 0;
+        //double neg_x = 0;
         double neg_y = 0;
         double current_x = p.getX();
-        if ( use_aspect_ratio)
+        //if ( use_aspect_ratio)
         {
             if (((Item_image)item).aspect_ratio < 1.0)
             {
@@ -686,7 +687,7 @@ public class Icon_manager
             // this is the first image in a row
             // IF the next image is wider than taller
             //logger.log("first image in row "+item.get_item_path());
-            current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
+            //current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
             if ( neg_y < 0)
             {
                 if ( !done_shift_up[0] )
@@ -697,8 +698,7 @@ public class Icon_manager
             }
         }
         // position the ImageView at the requested position
-        if ( Item.pos_dbg) logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y
-                +" x_difference="+item.x_difference+" y_difference="+item.y_difference);
+        if ( Item.pos_dbg) logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y);
 
         //current_x +=item.x_difference;
         item.set_x(current_x);

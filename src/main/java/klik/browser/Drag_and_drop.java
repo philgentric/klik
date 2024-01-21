@@ -49,7 +49,7 @@ public class Drag_and_drop
             //logger.log(Stack_trace_getter.get_stack_trace("source class is:" + source.getClass().getName()));
             //logger.log("excluded class is:" + excluded.getClass().getName());
             if (source instanceof Item item) {
-                Node node_of_source = item.get_big_Node();
+                Node node_of_source = item.get_Node();
                 logger.log("excluded:" + excluded);
                 // data is dragged over the target
                 // accept it only if it is not dragged from the same node

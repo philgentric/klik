@@ -341,15 +341,15 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    private Image process_pdf(Icon_factory_request icon_factory_request, Icon_destination item_image)
+    private Image process_pdf(Icon_factory_request icon_factory_request, Icon_destination icon_destination)
     //**********************************************************
     {
-        if (pdf_dbg) logger.log("Icon_factory thread:  process_pdf " + item_image.get_item_path().toAbsolutePath());
+        if (pdf_dbg) logger.log("Icon_factory thread:  process_pdf " + icon_destination.get_item_path().toAbsolutePath());
 
         // we are going to create the PNG using pdfbox!
 
         String tag = "";//+icon_factory_request.icon_size;
-        Image image_from_cache = From_disk.load_icon_from_disk_cache(item_image.get_path_for_display(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, dbg,logger);
+        Image image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, dbg,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting8");
@@ -357,15 +357,15 @@ public class Icon_factory_actor implements Actor
         }
         if (image_from_cache != null)
         {
-            if (pdf_dbg) logger.log("Icon_factory thread: found in cache for: " + item_image.get_item_path().getFileName());
+            if (pdf_dbg) logger.log("Icon_factory thread: found in cache for: " + icon_destination.get_item_path().getFileName());
             return image_from_cache;
         }
 
         if (pdf_dbg)
-            logger.log("Icon_factory thread:  load from disk cache FAILED for " + item_image.get_item_path().getFileName() + " MAKING IT NOW");
+            logger.log("Icon_factory thread:  load from disk cache FAILED for " + icon_destination.get_item_path().getFileName() + " MAKING IT NOW");
 
-        File file_in = item_image.get_item_path().toFile();
-        File resulting_png_name = From_disk.file_for_icon_cache(icon_cache_dir, item_image.get_item_path(), tag, png_extension);
+        File file_in = icon_destination.get_item_path().toFile();
+        File resulting_png_name = From_disk.file_for_icon_cache(icon_cache_dir, icon_destination.get_item_path(), tag, png_extension);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting9");
@@ -462,18 +462,16 @@ public class Icon_factory_actor implements Actor
             logger.log("Error converting document [" + ioe.getClass().getSimpleName() + "]: " + ioe.getMessage());
             return null;
         }
-
         if (pdf_dbg) logger.log("image of PDF write done (2)" + resulting_png_name);
-
-        image_from_cache = From_disk.load_icon_from_disk_cache(item_image.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg, logger);
+        image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg, logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting14");
             return null;
         }
-
-        if (image_from_cache == null) {
-            logger.log("Icon_factory thread: load from file FAILED for " + item_image.get_item_path().getFileName());
+        if (image_from_cache == null)
+        {
+            logger.log("Icon_factory thread: load from file FAILED for " + icon_destination.get_item_path().getFileName());
         }
         else
         {

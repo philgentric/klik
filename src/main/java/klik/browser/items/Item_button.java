@@ -9,6 +9,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -112,11 +113,8 @@ public class Item_button extends Item implements Icon_destination
             //button.setPrefHeight(FILE_BUTTON_HEIGHT);
         }
         Look_and_feel_manager.set_button_look(button);
-
         button.setViewOrder(1);
-
         button.setManaged(true); // means the parent tells the button its layout
-        //button.setManaged(false); // does not work
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
 /*
@@ -144,6 +142,10 @@ public class Item_button extends Item implements Icon_destination
 */
         init_drag_and_drop();
     }
+
+
+    public ImageView get_image_view(){return null;}
+    public Pane get_pane(){return null;}
 
     ImageView the_tooltip_image_view;
 
@@ -858,24 +860,16 @@ public class Item_button extends Item implements Icon_destination
 
 
     @Override
-    public Node get_big_Node() {
+    public Node get_Node() {
         return button;
     }
 
-    @Override
-    public Node get_rotation_Node() {
-        return null;
-    }
 
     @Override
     public double get_Width() {
         return button.getWidth();
     }
 
-    @Override
-    public void set_MinHeight(double h) {
-        button.setMinHeight(h);
-    }
 
     //**********************************************************
     @Override

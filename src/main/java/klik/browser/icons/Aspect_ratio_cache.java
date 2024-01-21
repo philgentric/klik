@@ -26,9 +26,11 @@ public class Aspect_ratio_cache
 {
     private static final boolean dbg = false;
 
+    //**********************************************************
     public void inject(Path path, double aspect_ratio)
+    //**********************************************************
     {
-        if(dbg) logger.log("\n\nAspect_ratio_cache inject "+path);
+        if(dbg) logger.log("Aspect_ratio_cache inject "+path);
         aspect_ratio_cache.put(key_from_path(path),new Aspect_ratio(aspect_ratio,true));
     }
 
@@ -195,16 +197,16 @@ public class Aspect_ratio_cache
 
                         done.set(true);
 
-                        Comparator<Path> local_file_comparator;
+                        Comparator<Path> local_file_comparator = null;
                         if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
                         {
                             local_file_comparator = new Aspect_ratio_comparator_random();
                         }
-                        else
+                        else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO)
                         {
                             local_file_comparator = new Aspect_ratio_comparator();
                         }
-                        paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+                        if ( local_file_comparator != null) paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
 
                         if ( dbg) logger.log("aspect ratios loaded, going to refresh");
                         refresh_target.refresh();

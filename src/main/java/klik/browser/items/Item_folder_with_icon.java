@@ -164,6 +164,10 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         init_drag_and_drop();
     }
 
+
+    public ImageView get_image_view(){return null;}
+    public Pane get_pane(){return image_pane;}
+
     //**********************************************************
     @Override
     public void cancel_custom()
@@ -215,7 +219,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             if ( tmp != null) rotation = tmp;
         }
 
-        rotate_and_center(image, the_image_view, image_pane);
+        rotate_and_center(image, image_pane);
 
         int button_width = Static_application_properties.get_column_width(logger);
         if ( button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
@@ -784,24 +788,15 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
 
     @Override
-    public Node get_big_Node() {
+    public Node get_Node() {
         return vbox;
     }
 
-    @Override
-    public Node get_rotation_Node() {
-        return image_pane;
-    }
 
 
     @Override
     public double get_Width() {
         return icon_size;
-    }
-
-    @Override
-    public void set_MinHeight(double h) {
-        //vbox.setMinHeight(h);
     }
 
     //**********************************************************

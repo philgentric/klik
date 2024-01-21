@@ -14,8 +14,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
@@ -44,6 +42,7 @@ public abstract class Item implements Icon_destination
 //**********************************************************
 {
     protected final boolean dbg = false;
+    public static final boolean pos_dbg = false;
 
 
     protected final int icon_size;
@@ -62,7 +61,6 @@ public abstract class Item implements Icon_destination
     private double y;
     public double x_difference = 0;
     public double y_difference = 0;
-    public static final boolean pos_dbg = false;
 
     //**********************************************************
     public Item(Browser browser_,
@@ -90,39 +88,32 @@ public abstract class Item implements Icon_destination
 
     public void set_visible(boolean b)
     {
-        get_big_Node().setVisible(b);
+        get_Node().setVisible(b);
     }
 
     public void set_translate_X(double dx)
     {
-        if (get_big_Node() != null) get_big_Node().setTranslateX(dx);
+        if (get_Node() != null) get_Node().setTranslateX(dx);
     }
 
     public void set_translate_Y(double dy)
     {
-        if (get_big_Node() != null) get_big_Node().setTranslateY(dy);
+        if (get_Node() != null) get_Node().setTranslateY(dy);
     }
 
     public void set_x(double x_) { x = x_; }
-    public void set_y(double y_)
-    {
-        if( pos_dbg) logger.log(path+"  set_y "+y_);
-        y = y_;
-    }
+    public void set_y(double y_) {y = y_;}
     public double get_x() { return x; }
     public double get_y()
     {
         return y;
     }
 
-    public abstract Node get_big_Node();
-    public abstract Node get_rotation_Node();
+    public abstract Node get_Node();
+    public abstract ImageView get_image_view();
+    public abstract Pane get_pane();
 
     public abstract double get_Width();
-
-    public abstract void set_MinHeight(double height);
-    //public abstract void set_MinWidth(double height);
-
     public abstract double get_Height();
 
     // this is called asynchronously from Icon_factory, when the icon has been made
@@ -169,7 +160,7 @@ public abstract class Item implements Icon_destination
     private void set_background(BackgroundFill background_fill)
     //**********************************************************
     {
-        Node n = get_big_Node();
+        Node n = get_Node();
         if ( n instanceof Button)
         {
             Button button = (Button)n;
@@ -211,9 +202,9 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
 
-        get_big_Node().setOnDragDetected(drag_event -> {
+        get_Node().setOnDragDetected(drag_event -> {
             if (dbg) logger.log("Item.init_drag_and_drop() drag detected");
-            Dragboard db = get_big_Node().startDragAndDrop(TransferMode.MOVE);
+            Dragboard db = get_Node().startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
 /*
             if (browser.selection_handler.get_select_all_folders())
@@ -252,7 +243,7 @@ public abstract class Item implements Icon_destination
             drag_event.consume();
         });
 
-        get_big_Node().setOnDragDone(drag_event -> {
+        get_Node().setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
                 if (dbg) logger.log("Item.init_drag_and_drop() : setOnDragDone for " + path.toAbsolutePath());
@@ -362,179 +353,50 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    void rotate_and_center(Image i, ImageView the_image_view, Pane the_pane)
+    void rotate_and_center(Image image, Pane the_pane)
     //**********************************************************
     {
-
-        double actual = 1.0; // smaller than one
+/*
+        double small_h = 0.0;
+        double small_w = 0.0;
         boolean wide = false;
-        if ( i.getHeight() < i.getWidth())
+        if ( image.getHeight() < image.getWidth())
         {
             wide = true;
-            actual = icon_size* i.getHeight()/ i.getWidth();
-            if( pos_dbg) logger.log("wide, actual ="+actual);
+            small_h = icon_size* image.getHeight()/ image.getWidth();
+            if( pos_dbg) logger.log("wide, small_h ="+small_h);
         }
         else
         {
-            if( pos_dbg) logger.log("narrow");
-            actual = icon_size* i.getWidth()/ i.getHeight();
+            small_w = icon_size* image.getWidth()/ image.getHeight();
+            if( pos_dbg) logger.log("narrow, small_w ="+small_w);
         }
 
 
 
-        if ( rotation == 0)
+       if (( rotation == 90)||( rotation == 270))
         {
             if ( wide)
             {
-                if( pos_dbg) logger.log("rot0 wide");
-                x_difference = 0;
-                y_difference = (icon_size-actual)/2;
-            }
-            else
-            {
-                if( pos_dbg) logger.log("rot0 narrow");
-                x_difference = 0;//(icon_size-actual)/2;
-                y_difference = 0;
-            }
-        }
-        else if ( rotation == 180)
-        {
-            if ( wide)
-            {
-                if( pos_dbg) logger.log("rot180 wide");
-                x_difference = 0;
-                y_difference = (icon_size-actual);//(icon_size-actual)/2;
-            }
-            else
-            {
-                if( pos_dbg) logger.log("rot180 narrow");
-                x_difference = -(icon_size-actual)/2;
-                y_difference = 0;
-            }
-        }
-        else if ( rotation == 90)
-        {
-            if ( wide)
-            {
-                x_difference = 0;//-(icon_size-actual)/2;
-                y_difference = (icon_size-actual)/2;
+                x_difference = -(icon_size-small_h)/2;
+                y_difference = (icon_size-small_h)/2;
                 if( pos_dbg) logger.log("rot90 wide x_difference="+x_difference+" y_difference="+y_difference);
             }
             else
             {
-                if( pos_dbg) logger.log("rot90 narrow");
-                x_difference = (icon_size-actual)/2;//0;//(icon_size-actual)/2;
+                x_difference = (icon_size-small_w)/2;//0;//(icon_size-actual)/2;
                 y_difference = 0;//(icon_size-actual)/2;
+                if( pos_dbg) logger.log("rot90 narrow x_difference="+x_difference+" y_difference="+y_difference);
             }
         }
-        else if ( rotation == 270)
-        {
-            if ( wide)
-            {
-                if( pos_dbg) logger.log("rot270 wide");
-                x_difference = 0;//(icon_size-actual)/2;
-                y_difference = (icon_size-actual)/2;
-            }
-            else
-            {
-                if( pos_dbg) logger.log("rot270 narrow");
-                x_difference = 0;
-                //y_difference = (icon_size-actual)/2;
-            }
-        }
-
+*/
 
         the_pane.setRotate(rotation);
+
+
     }
 
-    /*
-    //**********************************************************
-    void rotate_and_center2(Image i, ImageView the_image_view)
-    //**********************************************************
-    {
 
-        double actual = 1.0; // smaller than one
-        boolean wide = false;
-        if ( i.getHeight() < i.getWidth())
-        {
-            wide = true;
-            actual = icon_size* i.getHeight()/ i.getWidth();
-        }
-        else
-        {
-            actual = icon_size* i.getWidth()/ i.getHeight();
-        }
-
-        double x_difference = 0;
-        double y_difference = 0;
-        if ( rotation == 0)
-        {
-            if ( wide)
-            {
-                x_difference = 0;
-                y_difference = (icon_size-actual)/2;
-            }
-            else
-            {
-                x_difference = (icon_size-actual)/2;
-                y_difference = 0;
-            }
-        }
-        else if ( rotation == 180)
-        {
-            if ( wide)
-            {
-                x_difference = 0;
-                y_difference = -(icon_size-actual)/2;
-            }
-            else
-            {
-                x_difference = -(icon_size-actual)/2;
-                y_difference = 0;
-            }
-        }
-        else if ( rotation == 90)
-        {
-            if ( wide)
-            {
-                x_difference = -(icon_size-actual)/2;
-                y_difference = 0;//(icon_size-actual)/2;
-            }
-            else
-            {
-                x_difference = -(icon_size-actual)/2;
-                y_difference = (icon_size-actual)/2;
-            }
-        }
-        else if ( rotation == 270)
-        {
-            if ( wide)
-            {
-                y_difference = 0;//-(icon_size-actual)/2;
-                x_difference = (icon_size-actual)/2;
-            }
-            else
-            {
-                x_difference = 0;
-                //y_difference = (icon_size-actual)/2;
-            }
-        }
-
-        the_image_view.getTransforms().clear();
-        Translate trans = new Translate();
-        trans.setX(x_difference);
-        trans.setY(y_difference);
-        the_image_view.getTransforms().add(trans);
-        {
-            Rotate rot = new Rotate();
-            rot.setAngle(rotation);
-            rot.setPivotX(icon_size / 2.0);
-            rot.setPivotY(icon_size / 2.0);
-            the_image_view.getTransforms().add(rot);
-        }
-    }
-
-     */
 
     //**********************************************************
     public void cancel()

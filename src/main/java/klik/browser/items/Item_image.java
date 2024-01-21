@@ -43,7 +43,7 @@ import java.util.List;
 public class Item_image extends Item implements Icon_destination
 //**********************************************************
 {
-    protected ImageView the_image_view;
+    protected ImageView image_view;
     Pane image_pane;
     private static final boolean visibility_dbg = false;
     private boolean rotation_known = false;
@@ -73,27 +73,27 @@ public class Item_image extends Item implements Icon_destination
             return;
         }
         if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +i.getWidth()+", h="+i.getHeight()+" FOR:  "+path);
-        if ( the_image_view == null) the_image_view = new ImageView();
-        image_pane = new StackPane(the_image_view);
-        the_image_view.setImage(i);
-        the_image_view.setPreserveRatio(true);
-        the_image_view.setSmooth(true);
-        //imageview.setCache(true);
-        the_image_view.setFitWidth(actual_icon_size);
-        the_image_view.setFitHeight(actual_icon_size);
+        if ( image_view == null) image_view = new ImageView();
+        image_pane = new StackPane(image_view);
+
+        image_view.setImage(i);
+        image_view.setPreserveRatio(true);
+        image_view.setSmooth(true);
+        image_view.setFitWidth(actual_icon_size);
+        image_view.setFitHeight(actual_icon_size);
         //the_image_view.setManaged(false);
-        the_image_view.setCache(true);
-        the_image_view.setCacheHint(CacheHint.SPEED);
+        image_view.setCache(true);
+        image_view.setCacheHint(CacheHint.SPEED);
         init_drag_and_drop();
 
 
-        the_image_view.setOnMouseClicked(event ->
+        image_view.setOnMouseClicked(event ->
         {
             if (event.getButton() == MouseButton.SECONDARY)
             {
                 //logger.log("\n\nItem_image isSecondaryButtonDown");
                 ContextMenu context_menu = define_a_menu_to_the_imageview();
-                context_menu.show(the_image_view, event.getScreenX(), event.getScreenY());
+                context_menu.show(image_view, event.getScreenX(), event.getScreenY());
                 return;
             }
             if (event.isMetaDown())
@@ -141,7 +141,7 @@ public class Item_image extends Item implements Icon_destination
     @Override // Item
     public void set_is_unselected_internal()
     {
-        if ( the_image_view != null) the_image_view.setViewport(null);
+        if ( image_view != null) image_view.setViewport(null);
     }
     //**********************************************************
     @Override // Item
@@ -149,8 +149,8 @@ public class Item_image extends Item implements Icon_destination
     //**********************************************************
     {
        double DELTA = icon_size/2.0;
-       Rectangle2D r = new Rectangle2D(-DELTA, -DELTA, the_image_view.getFitWidth() + DELTA, the_image_view.getFitHeight() + DELTA);
-       the_image_view.setViewport(r);
+       Rectangle2D r = new Rectangle2D(-DELTA, -DELTA, image_view.getFitWidth() + DELTA, image_view.getFitHeight() + DELTA);
+       image_view.setViewport(r);
     }
 
     //**********************************************************
@@ -262,10 +262,6 @@ public class Item_image extends Item implements Icon_destination
         return icon_size;
     }
 
-    @Override
-    public void set_MinHeight(double h)
-    {
-    } // not used, the height is defined by the IMAGE(icon!) in the imageview
 
 
     //**********************************************************
@@ -288,7 +284,7 @@ public class Item_image extends Item implements Icon_destination
     public void set_Image(Image image, boolean image_is_the_good_one)
     //**********************************************************
     {
-        if ( the_image_view == null)
+        if ( image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
             return;
@@ -297,7 +293,7 @@ public class Item_image extends Item implements Icon_destination
         if (!visible_in_scene.get())
         {
             //if ( dbg) g(0);
-            the_image_view.setImage(null);
+            image_view.setImage(null);
             icon_status = Icon_status.no_icon;
             return;
         }
@@ -306,8 +302,6 @@ public class Item_image extends Item implements Icon_destination
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
             return;
         }
-        //aspect_ratio = i.getWidth()/i.getHeight();
-        //logger.log("aspect ratio: "+aspect_ratio);
         Platform.runLater(() -> do_it_in_fx_thread(image, image_is_the_good_one));
     }
 
@@ -335,7 +329,7 @@ public class Item_image extends Item implements Icon_destination
     public void do_it_in_fx_thread(Image image, boolean image_is_the_good_one)
     //**********************************************************
     {
-        if ( the_image_view == null)
+        if ( image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
             return;
@@ -346,7 +340,7 @@ public class Item_image extends Item implements Icon_destination
             return;
         }
         if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image.getWidth()+", h="+image.getHeight()+ " for: "+path);
-        the_image_view.setImage(image);
+        image_view.setImage(image);
         // does not work: the_image_view.setStyle("-fx-background-color: BLACK");
         if (image_is_the_good_one) {
             if (!rotation_known) {
@@ -366,7 +360,7 @@ public class Item_image extends Item implements Icon_destination
                         }
                     }
                 } else {
-                    the_image_view.setImage(null);
+                    image_view.setImage(null);
                     icon_status = Icon_status.no_icon;
                     if (visibility_dbg) log_visibility_state_number(0);
                     return;
@@ -377,43 +371,56 @@ public class Item_image extends Item implements Icon_destination
             // the above operation can take some time...
             // and in the mean time the situation can change
             if (!visible_in_scene.get()) {
-                the_image_view.setImage(null);
+                image_view.setImage(null);
                 icon_status = Icon_status.no_icon;
                 if (visibility_dbg) log_visibility_state_number(1);
                 return;
             }
 
-            rotate_and_center(image, the_image_view,image_pane);
 
-            the_image_view.setSmooth(true);
+            image_pane.setPrefWidth(icon_size);
+            image_pane.setPrefHeight(icon_size);
+            image_pane.setMinWidth(icon_size);
+            image_pane.setMinHeight(icon_size);
+
+
+            image_view.setSmooth(true);
 
             if (( image.getHeight() >= icon_size) && (image.getWidth() >= icon_size))
             {
-                //the_image_view.setManaged(false);
-                the_image_view.setFitWidth(icon_size);
-                the_image_view.setFitHeight(icon_size);
-                if ((rotation == 90) || (rotation == 270)) {
-                    the_image_view.setFitWidth(-1);
-                    //the_image_view.setFitWidth(icon_size);
-                    //the_image_view.setFitHeight(icon_size);
-                    the_image_view.setFitHeight(-1);
+                image_view.setFitWidth(icon_size);
+                image_view.setFitHeight(icon_size);
+                if ((rotation == 90) || (rotation == 270))
+                {
+                    logger.log("NEVER HAPPENS");
+                    image_view.setFitWidth(image.getHeight());
+                    image_view.setFitHeight(image.getWidth());
                 }
             }
-            else {
-                //the_image_view.setManaged(false);
-                // does not work !
-                //logger.log("very small image displayed :"+i.getWidth()+"x"+i.getHeight());
-                if ((rotation == 90) || (rotation == 270)) {
-                    //the_image_view.setFitWidth(-1);
-                    //the_image_view.setFitHeight(-1);
-                    the_image_view.setFitWidth(image.getHeight());
-                    the_image_view.setFitHeight(image.getWidth());
+            else
+            {
+                if ((rotation == 90) || (rotation == 270))
+                {
+                    if ( image.getHeight() < image.getWidth())
+                    {
+                        image_view.setFitWidth(icon_size);
+                        image_view.setFitHeight(-1);
+                    }
+                    else
+                    {
+                        image_view.setFitWidth(-1);
+                        image_view.setFitHeight(icon_size);
+                    }
                 }
-                else {
-                    the_image_view.setFitWidth(image.getWidth());
-                    the_image_view.setFitHeight(image.getHeight());
+                else
+                {
+                    image_view.setFitWidth(image.getWidth());
+                    image_view.setFitHeight(image.getHeight());
                 }
             }
+
+            rotate_and_center(image,image_pane);
+
 
             icon_status = Icon_status.true_icon;
             if (visibility_dbg) log_visibility_state_number(2);
@@ -435,16 +442,14 @@ public class Item_image extends Item implements Icon_destination
 
 
     @Override
-    public Node get_big_Node()
+    public Node get_Node()
     {
-        return image_pane;//the_image_view;
+        return image_pane;
     }
 
-    @Override
-    public Node get_rotation_Node()
-    {
-        return image_pane;//the_image_view;
-    }
+    public ImageView get_image_view(){return image_view;}
+    public Pane get_pane(){return image_pane;}
+
 
 
     @Override

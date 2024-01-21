@@ -94,6 +94,9 @@ public class Exif_metadata_extractor
         file_size = file_size.replace("\n","  -  ");
         exif_metadata.add(file_size);
 
+        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
+        exif_metadata.add("aspect_ratio="+aspect_ratio);
+
         {
             long l = 0;
             try

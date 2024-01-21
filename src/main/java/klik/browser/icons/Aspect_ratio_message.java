@@ -11,7 +11,6 @@ import java.util.Map;
 public class Aspect_ratio_message implements Message
 //**********************************************************
 {
-    
     public final Path path;
     public final Logger logger;
     public final Map<String, Aspect_ratio_cache.Aspect_ratio> aspect_ratio_cache;
