@@ -94,7 +94,8 @@ public class Exif_metadata_extractor
         file_size = file_size.replace("\n","  -  ");
         exif_metadata.add(file_size);
 
-        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
+        List<String> sb = new ArrayList<>();
+        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,sb,logger);
         exif_metadata.add("aspect_ratio="+aspect_ratio);
 
         {
@@ -163,23 +164,19 @@ public class Exif_metadata_extractor
                                 {
                                     // have to rotate +90
                                     rotation = 90.0;
-                                    exif_metadata.add("rotated 90");
                                 }
                             }
                             else if (tag.toString().contains("180"))
                             {
                                 rotation = 180.0;
-                                exif_metadata.add("rotated 180");
                             }
                             else if (tag.toString().contains("270"))
                             {
                                 rotation = 270.0;
-                                exif_metadata.add("rotated 270");
                             }
                             else
                             {
                                 rotation = 0.0;
-                                exif_metadata.add("rotated 0");
                             }
                         }
                     }
@@ -212,6 +209,10 @@ public class Exif_metadata_extractor
                 logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
             }
         }
+
+        exif_metadata.add("apparently (careful here, this may be wrong in rare cases) rotated:"+rotation);
+
+        exif_metadata.addAll(sb);
 
         return exif_metadata;
 

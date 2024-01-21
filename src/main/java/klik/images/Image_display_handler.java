@@ -86,16 +86,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         image_window = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context.path.toAbsolutePath().getParent());
 
-        /*
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
-                //image_indexer.scan();
-            }
-        };
-        Threads.execute(r,logger);
-        */
         image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
 
         Change_gang.register(this,logger); // image_context must be valid!

@@ -66,7 +66,7 @@ public class From_disk
     //**********************************************************
     {
         if (dbg) logger.log("\n\nFrom_disk get_aspect_ratio "+path);
-        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,logger);
+        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter, null, logger);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())

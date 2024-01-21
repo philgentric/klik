@@ -42,7 +42,7 @@ public abstract class Item implements Icon_destination
 //**********************************************************
 {
     protected final boolean dbg = false;
-    public static final boolean pos_dbg = false;
+    public static final boolean layout_dbg = false;
 
 
     protected final int icon_size;
@@ -57,10 +57,14 @@ public abstract class Item implements Icon_destination
     public final Aborter aborter = new Aborter();
 
     // virtual coordinates: will change whenever the window geometry changes
-    private double x;
-    private double y;
-    public double x_difference = 0;
-    public double y_difference = 0;
+    // this is the (top-left) position if the square box containing the image
+    // for a landscape image we can shift up so javafx_y < screen_y_of_image
+    // for a portrait image we can shift left so javafx_x < screen_x_of_image
+    private double javafx_x;
+    private double javafx_y;
+    // this is the (top-left) position of the image
+    private double screen_x_of_image = 0;
+    private double screen_y_of_image = 0;
 
     //**********************************************************
     public Item(Browser browser_,
@@ -101,12 +105,20 @@ public abstract class Item implements Icon_destination
         if (get_Node() != null) get_Node().setTranslateY(dy);
     }
 
-    public void set_x(double x_) { x = x_; }
-    public void set_y(double y_) {y = y_;}
-    public double get_x() { return x; }
-    public double get_y()
+    public void set_javafx_x(double x_) { javafx_x = x_; }
+    public void set_javafx_y(double y_) {javafx_y = y_;}
+    public double get_javafx_x() { return javafx_x; }
+    public double get_javafx_y()
     {
-        return y;
+        return javafx_y;
+    }
+
+    public void set_screen_x_of_image(double x_) { screen_x_of_image = x_; }
+    public void set_screen_y_of_image(double y_) {screen_y_of_image = y_;}
+    public double get_screen_x_of_image() { return screen_x_of_image; }
+    public double get_screen_y_of_image()
+    {
+        return screen_y_of_image;
     }
 
     public abstract Node get_Node();

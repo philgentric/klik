@@ -174,11 +174,8 @@ public class Icon_manager
         }
 
         double max_y_in_row[] = new double[1];
-        max_y_in_row[0] = -1;
-        boolean[] done_shift_up = new boolean[1];
-        done_shift_up[0] = false;
-        boolean[] done_aspect_ratio_change = new boolean[1];
-        done_aspect_ratio_change[0] = false;
+        max_y_in_row[0] = 0;
+        List<Item> current_row = new ArrayList<>();
         // manage iconized items
         for (Path path : paths_manager.get_iconized())
         {
@@ -215,7 +212,7 @@ public class Icon_manager
 
                 p = compute_next_Point2D_for_icons(p, item,
                         icon_size, icon_size,
-                        scene_width, single_column, use_aspect_ratio,max_y_in_row, done_shift_up,done_aspect_ratio_change);
+                        scene_width, single_column, use_aspect_ratio,max_y_in_row, current_row);
             }
             else
             {
@@ -411,25 +408,25 @@ public class Icon_manager
         double min_y = Double.MAX_VALUE;
         for (Item item : all_items_map.values()) {
             //if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
-            if (item.get_y() + item.get_Height() < current_vertical_offset -icon_size)
+            if (item.get_javafx_y() + item.get_Height() < current_vertical_offset -icon_size)
             {
                 if (visible_dbg)
-                    logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_y() + " item height=" + item.get_Height());
+                    logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
                 process_is_invisible(pane, item);
                 continue;
             }
-            if (item.get_y()  > h+current_vertical_offset+icon_size) {
+            if (item.get_javafx_y()  > h+current_vertical_offset+icon_size) {
                 if (visible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 process_is_invisible(pane, item);
                 continue;
             }
             if (visible_dbg)
-                logger.log(item.get_item_path() + " visible  y=" + item.get_y() + " item height=" + item.get_Height());
+                logger.log(item.get_item_path() + " visible  y=" + item.get_javafx_y() + " item height=" + item.get_Height());
             process_is_visible(pane, item);
-            if ( item.get_x() > 0) continue;
-            if ( item.get_y() < min_y)
+            if ( item.get_javafx_x() > 0) continue;
+            if ( item.get_javafx_y() < min_y)
             {
-                min_y = item.get_y();
+                min_y = item.get_javafx_y();
                 top_left = item.get_item_path();
             }
         }
@@ -476,9 +473,8 @@ public class Icon_manager
         }
 
 
-        item.set_translate_X(item.get_x()+item.x_difference);
-        item.set_translate_Y(item.get_y() + item.y_difference - current_vertical_offset);
-        //item.set_translate_Y(item.get_y() - current_vertical_offset);
+        item.set_translate_X(item.get_javafx_x());
+        item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
     }
 
     //**********************************************************
@@ -638,7 +634,7 @@ public class Icon_manager
             if ( i.get_item_path().toAbsolutePath().toString().equals(t2))
             {
                 //logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_y());
-                return i.get_y();
+                return i.get_javafx_y();
             }
         }
         //logger.log("\n\nIcon_manager::get_y_offset_of "+target+" NOT FOUND");
@@ -656,80 +652,114 @@ public class Icon_manager
                                                    double scene_width,
                                                    boolean single_column,
                                                    boolean use_aspect_ratio,
-                                                   double[] max_y_in_row,
-                                                   boolean[] done_shift_up,
-                                                   boolean[] done_aspect_ratio_change)
+                                                   double[] max_screen_y_in_row,
+                                                   List<Item> current_row)
     //**********************************************************
     {
         double width_of_this = column_increment;
         double height_of_this = row_increment;
-        //double neg_x = 0;
-        double neg_y = 0;
-        double current_x = p.getX();
-        //if ( use_aspect_ratio)
+
+        final double current_screen_x = p.getX();
+        final double current_screen_y = p.getY();
+        item.set_screen_x_of_image(current_screen_x);
+        item.set_screen_y_of_image(current_screen_y);
+
+        if (((Item_image)item).aspect_ratio < 1.0)
         {
-            if (((Item_image)item).aspect_ratio < 1.0)
-            {
-                width_of_this *= ((Item_image)item).aspect_ratio;
-                //neg_x = (width_of_this-column_increment)/2.0;
-            }
-            else
-            {
-                done_aspect_ratio_change[0] = true;
-                height_of_this = row_increment/((Item_image)item).aspect_ratio;
-                neg_y = (height_of_this-row_increment)/2.0;
-            }
+            // portrait image
+            width_of_this = column_increment * ((Item_image)item).aspect_ratio;
+            double neg_x = (width_of_this-column_increment)/2.0;
+            // shift left to compensate the portrait
+            item.set_javafx_x(current_screen_x+neg_x);
+            item.set_javafx_y(current_screen_y);
+        }
+        else
+        {
+            // landscape image
+            item.set_javafx_x(current_screen_x);
+            height_of_this = row_increment/((Item_image)item).aspect_ratio;
+            double neg_y = (height_of_this-row_increment)/2.0;
+            // shift up to compensate the landscape
+            item.set_javafx_y(current_screen_y+neg_y);
         }
 
-        double current_y = p.getY();
-        if ( current_x == 0)
-        {
-            // this is the first image in a row
-            // IF the next image is wider than taller
-            //logger.log("first image in row "+item.get_item_path());
-            //current_x += neg_x; // first image in row is shifted LEFT to get screen_x = 0;
-            if ( neg_y < 0)
-            {
-                if ( !done_shift_up[0] )
-                {
-                    current_y += neg_y; // ONCE, first image in row shifted UP to stick to the previous row bottom
-                    done_shift_up[0] = true;
-                }
-            }
-        }
-        // position the ImageView at the requested position
-        if ( Item.pos_dbg) logger.log(item.get_item_path()+" current_x="+current_x+" current_y="+current_y);
+        current_row.add(item);
+        if ( max_screen_y_in_row[0] < item.get_screen_y_of_image()+height_of_this) max_screen_y_in_row[0] = item.get_screen_y_of_image()+height_of_this;
+        if ( Item.layout_dbg) logger.log(item.get_item_path()+"\n" +
+                "width_of_this="+width_of_this+" current_x="+current_screen_x+"\n" +
+                "height_of_this="+height_of_this+" current_y="+current_screen_y+ " max_y = "+max_screen_y_in_row[0]);
 
-        //current_x +=item.x_difference;
-        item.set_x(current_x);
-        //current_y += item.y_difference;
-        item.set_y(current_y);
-        if ( max_y_in_row[0] < current_y+height_of_this) max_y_in_row[0] = current_y+height_of_this;
+
+
         /// then compute position of NEXT item
         if ( single_column)
         {
+            current_row.clear();
             how_many_rows++;
             double future_x = 0;
-            double future_y = current_y + row_increment;
+            double future_y = current_screen_y + row_increment;
             //logger.log("new row "+row_increment);
             return new Point2D(future_x, future_y);
         }
 
 
 
-        double real_future_x = current_x+ width_of_this;
-        //logger.log("new_x: "+new_x);
-        if (real_future_x + column_increment > scene_width)
+        double future_x = item.get_screen_x_of_image()+width_of_this;
+        if ( Item.layout_dbg) logger.log("width_of_this="+width_of_this+" => future_x: "+future_x);
+        if (future_x + column_increment > scene_width)
         {
+            if ( Item.layout_dbg) logger.log("NEW ROW, max_screen_y_in_row="+max_screen_y_in_row[0]);
+
+            // adapt the vertical shift up (neg_y)
+            // e.g. when the row also contains portraits
+            double min_y = Double.MAX_VALUE;
+            double max_y = 0;
+            for(Item i : current_row)
+            {
+                if (i.get_screen_y_of_image() < min_y) min_y = i.get_screen_y_of_image();
+                double height = 0;
+                if (((Item_image)i).aspect_ratio < 1.0)
+                {
+                    // portrait image
+                    height=row_increment;
+                }
+                else
+                {
+                    // landscape image
+                    height = row_increment/((Item_image)i).aspect_ratio;
+                }
+                if (i.get_screen_y_of_image()+height > max_y) max_y = i.get_screen_y_of_image()+height;
+            }
+            double row_height = (max_y-min_y);
+            for(Item i : current_row)
+            {
+                double height = 0;
+                if (((Item_image)i).aspect_ratio < 1.0)
+                {
+                    // portrait image
+                    height=row_increment;
+                }
+                else
+                {
+                    // landscape image
+                    height = row_increment/((Item_image)i).aspect_ratio;
+                }
+                double diff = (row_height-height)/2.0;
+                i.set_javafx_y(i.get_javafx_y()+diff);
+            }
+
+
+
             // new ROW
+            current_row.clear();
             how_many_rows++;
-            Point2D returned =  new Point2D(0, max_y_in_row[0]);
-            max_y_in_row[0] = -1;
+            Point2D returned =  new Point2D(0, max_screen_y_in_row[0]);
+            max_screen_y_in_row[0] = 0;
             return returned;
         }
 
         // continued row
-        return new Point2D(current_x+width_of_this, current_y);
+        return new Point2D(future_x, current_screen_y);
     }
 
     //**********************************************************
@@ -743,8 +773,8 @@ public class Icon_manager
     {
         double old_x = point.getX();
         double old_y = point.getY();
-        last_item.set_x(old_x);
-        last_item.set_y(old_y);
+        last_item.set_javafx_x(old_x);
+        last_item.set_javafx_y(old_y);
 
         double delta_h = row_increment;
         if ( single_column)
@@ -783,19 +813,19 @@ public class Icon_manager
         double y_min = Double.MAX_VALUE;
         landscape_height = 0;
         for (Item item : all_items_map.values()) {
-            if (item.get_x() < x_min) x_min = item.get_x();
-            if (item.get_x() + item.get_Width() > x_max)
+            if (item.get_javafx_x() < x_min) x_min = item.get_javafx_x();
+            if (item.get_javafx_x() + item.get_Width() > x_max)
             {
-                x_max = item.get_x() + item.get_Width();
+                x_max = item.get_javafx_x() + item.get_Width();
             }
-            if (item.get_y() < y_min)
+            if (item.get_javafx_y() < y_min)
             {
-                y_min = item.get_y();
+                y_min = item.get_javafx_y();
             }
             double h = item.get_Height();
             if ( dbg) logger.log("compute_bounding_rectangle, h="+h+" for "+item.get_string());
 
-            if (item.get_y() + h > landscape_height) landscape_height = item.get_y() + h;
+            if (item.get_javafx_y() + h > landscape_height) landscape_height = item.get_javafx_y() + h;
         }
 
         if (paths_manager.get_iconized().isEmpty()) {

@@ -14,45 +14,42 @@ import klik.util.Stack_trace_getter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.List;
 
 //**********************************************************
 public class Fast_aspect_ratio_from_exif_metadata_extractor
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public static final boolean ultra_dbg = false;
 
     private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done){}
 
     //**********************************************************
-    public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
+    public static double get_aspect_ratio(Path path, Aborter aborter, List<String> sb, Logger logger)
     //**********************************************************
     {
-        StringBuilder sb = null;
-        if( dbg)
+        if( sb != null)
         {
-            sb = new StringBuilder();
-            sb.append("\n\n").append(path);
+            sb.add(path.toString());
         }
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
         InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
         if ( is == null)
         {
-            if ( dbg)
+            if ( sb != null)
             {
-                sb.append(" get_aspect_ratio failed cannot open input stream");
+                sb.add(" get_aspect_ratio failed cannot open input stream");
                 logger.log(sb.toString());
             }
             return -1.0;
         }
-        if (dbg)sb.append("\n\n").append(path);
 
         Directory_result best = null;
         Directory_result best_no_rot = null;
         try
         {
             Metadata metadata = ImageMetadataReader.readMetadata(is);
-            if (dbg)sb.append("\nstart loop on EXIF directories\n");
+            if (sb != null)sb.add("\nstart loop on EXIF directories");
             for (Directory directory : metadata.getDirectories())
             {
                 if ( aborter.should_abort())
@@ -61,18 +58,24 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                     return -1;
                 }
 
-                if (dbg)sb.append("directory=").append(directory).append("\n");
+                if ( directory.toString().contains("Canon Makernote"))
+                {
+                    if (sb != null)sb.add("skipping directory="+directory);
+
+                    continue;
+                }
+                if (sb != null)sb.add("directory="+directory);
                 Directory_result local = do_one_dir(directory,sb);
 
                 if (local.w_done && local.h_done && local.rot_done)
                 {
                     best = local;
-                    if (dbg)sb.append("rotation found\n");
+                    if (sb != null)sb.add("rotation found");
                     break;
                 }
                 if (local.w_done && local.h_done)
                 {
-                    if (dbg)sb.append("rotation not found\n");
+                    if (sb != null)sb.add("rotation not found");
                     best_no_rot = local;
                 }
             }
@@ -80,30 +83,30 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         }
         catch (ImageProcessingException e)
         {
-            if ( dbg) sb.append(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
+            if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
             if ( e.toString().contains("File format could not be determined"))  return -1.0;
         }
         catch (IOException e)
         {
-            if ( dbg) sb.append(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
+            if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
             return -1.0;
         }
         catch (Exception e)
         {
-            if ( dbg)
-                sb.append(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
+            if ( sb != null)
+                sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
             return -1.0;
         }
 
         Directory_result result = best;
         if ( result == null)
         {
-            if (dbg)sb.append("finally ... rotation not found\n");
+            if (sb != null)sb.add("finally ... rotation not found");
             result = best_no_rot;
         }
         else
         {
-            if (dbg)sb.append("finally ... rotation found\n");
+            if (sb != null)sb.add("finally ... rotation found");
         }
 
         if ((best != null) && (best_no_rot != null))
@@ -114,21 +117,21 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             if (best.w != best_no_rot.w) w = best_no_rot.w;
             if (best.invert_width_and_height)
             {
-                if (dbg) sb.append(" INVERTED aspect ratio h/w: ").append(h).append("/").append(w).append("=").append(h/w).append("\n");
+                if (sb != null) sb.add(" INVERTED aspect ratio h/w: "+h+"/"+w+"="+h/w);
                 return h/w;
             }
             else
             {
-                if (dbg) sb.append(" aspect ratio w/h: ").append(w).append("/").append(h).append("=").append(w/h).append("\n");
+                if (sb != null) sb.add(" aspect ratio w/h: "+w+"/"+h+"="+w/h);
                 return w/h;
             }
         }
 
         if ( result == null)
         {
-            if ( dbg)
+            if ( sb != null)
             {
-                sb.append("NO EXIF data?");
+                sb.add("NO EXIF data?");
                 logger.log(sb.toString());
             }
             return -1.0;
@@ -137,24 +140,24 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         {
             if (result.invert_width_and_height)
             {
-                if (dbg)
+                if (sb != null)
                 {
-                    sb.append(" INVERTED aspect ratio h/w: ").append(result.h).append("/").append(result.w).append("=").append(result.h/result.w).append("\n");
+                    sb.add(" INVERTED aspect ratio h/w: "+result.h+"/"+result.w+"="+result.h/result.w);
                     logger.log(sb.toString());
                 }
                 return result.h/result.w;
             }
-            if (dbg)
+            if (sb != null)
             {
-                sb.append(" aspect ratio w/h: ").append(result.w).append("/").append(result.h).append("=").append(result.w/result.h).append("\n");
+                sb.add(" aspect ratio w/h: "+result.w+"/"+result.h+"="+result.w/result.h);
                 logger.log(sb.toString());
 
             }
             return result.w/result.h;
         }
-        if ( dbg)
+        if ( sb != null)
         {
-            sb.append("should not happen?");
+            sb.add("should not happen?");
             logger.log(sb.toString());
         }
         return -1.0;
@@ -162,7 +165,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
 
 
     //**********************************************************
-    private static Directory_result do_one_dir(Directory directory, StringBuilder sb)
+    private static Directory_result do_one_dir(Directory directory, List<String> sb)
     //**********************************************************
     {
         Double w = null;
@@ -176,45 +179,43 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         for (Tag tag : directory.getTags())
         {
             if (tag.toString().contains("Thumbnail")) continue;
-            if (ultra_dbg) sb.append("tag=").append(tag).append("\n");
+            if (dbg) sb.add("tag->"+tag+"<-");
             if (tag.toString().contains("Width"))
             {
-                /*
-                if (tag.toString().contains("IFD0"))
+                if (tag.toString().contains("SubIFD"))
                 {
-                    if ( dbg) sb.append("width tag contains IFD0: ignored\n");
-                    continue;
-                }*/
+                    if ( sb!=null) sb.add("width tag contains Related: ignored");
+                    continue; // some images contain the tag "Related Image Width", probably the original before edit?
+                }
                 if (tag.toString().contains("Related"))
                 {
-                    if ( dbg) sb.append("width tag contains Related: ignored\n");
+                    if ( sb!=null) sb.add("width tag contains Related: ignored");
                     continue; // some images contain the tag "Related Image Width", probably the original before edit?
                 }
                 if (tag.toString().contains("Image"))
                 {
                     w = Double.valueOf(get_number(tag.toString()));
-                    if (dbg) sb.append("w=").append(w).append(" from tag:").append(tag).append("\n");
+                    if (sb!=null) sb.add("w="+w+" from tag:"+tag);
                     w_done = true;
                     if (w_done && h_done && rot_done) break;
                 }
             }
             if (tag.toString().contains("Height"))
             {
-                /*
-                if (tag.toString().contains("IFD0"))
+                if (tag.toString().contains("SubIFD"))
                 {
-                    if ( dbg) sb.append("height tag contains IFD0: ignored\n");
-                    continue;
-                }*/
+                    if ( sb!=null) sb.add("height tag contains Related: ignored");
+                    continue; // some images contain the tag "Related Image Width", probably the original before edit?
+                }
                 if (tag.toString().contains("Related"))
                 {
-                    if ( dbg) sb.append("width tag contains Related: ignored\n");
+                    if ( sb!=null) sb.add("width tag contains Related: ignored");
                     continue; // some images contain the tag "Related Image Width", probably the original before edit?
                 }
                 if (tag.toString().contains("Image"))
                 {
                     h = Double.valueOf(get_number(tag.toString()));
-                    if (dbg) sb.append("h=").append(h).append(" from tag:").append(tag).append("\n");
+                    if (sb!=null) sb.add("h="+h+" from tag:"+tag);
                     h_done = true;
                     if (w_done && h_done && rot_done) break;
                 }
@@ -229,7 +230,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                     {
                         if (tag.toString().contains("CW"))
                         {
-                            if (dbg)sb.append("rotation=90\n");
+                            if (sb!=null)sb.add("rotation=90");
 
                             invert_width_and_height = true;
                             rot_done = true;
@@ -238,13 +239,13 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                     }
                     else if (tag.toString().contains("180"))
                     {
-                        if (dbg)sb.append("rotation=180\n");
+                        if (sb!=null)sb.add("rotation=180");
                         rot_done = true;
                         if (w_done && h_done && rot_done) break;
                     }
                     else if (tag.toString().contains("270"))
                     {
-                        if (dbg)sb.append("rotation=270\n");
+                        if (sb!=null)sb.add("rotation=270");
 
                         invert_width_and_height = true;
                         rot_done = true;
@@ -252,7 +253,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                     }
                     else
                     {
-                        if (dbg)sb.append("rotation=0\n");
+                        if (sb!=null)sb.add("rotation=0");
                         rot_done = true;
                         if (w_done && h_done && rot_done) break;
                     }
@@ -261,7 +262,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         }
         return new Directory_result(w,h,invert_width_and_height,w_done,h_done,rot_done);
     }
-    public static double get_number(String s)
+    public static Double get_number(String s)
     {
         String[] pieces = s.split(" ");
         for ( int i = pieces.length-1; i>0;i--)
@@ -277,7 +278,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
                 continue;
             }
         }
-        return 0;
+        return Double.valueOf(0);
     }
 
 }

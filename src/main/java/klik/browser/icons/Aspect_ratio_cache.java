@@ -206,7 +206,11 @@ public class Aspect_ratio_cache
                         {
                             local_file_comparator = new Aspect_ratio_comparator();
                         }
-                        if ( local_file_comparator != null) paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+                        if ( local_file_comparator != null)
+                        {
+                            paths_manager.image_file_comparator = local_file_comparator;
+                            paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+                        }
 
                         if ( dbg) logger.log("aspect ratios loaded, going to refresh");
                         refresh_target.refresh();

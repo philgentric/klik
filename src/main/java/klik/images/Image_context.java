@@ -49,7 +49,7 @@ public class Image_context
     public final Path path;
     public final Image image;
     public final ImageView the_image_view;
-    private List<String> exifs_tags_list = null;
+    //private List<String> exifs_tags_list = null;
     private double rotation = 0;
     Logger logger;
     double zoom_factor = 1.0;
@@ -127,13 +127,6 @@ public class Image_context
 
 
     //**********************************************************
-    public List<String> get_exif_metadata(Aborter aborter)
-    //**********************************************************
-    {
-        load_exif(aborter);
-        return exifs_tags_list;
-    }
-    //**********************************************************
     public double get_rotation(Aborter aborter)
     //**********************************************************
     {
@@ -142,10 +135,10 @@ public class Image_context
     }
 
     //**********************************************************
-    private void load_exif(Aborter aborter)
+    private List<String> load_exif(Aborter aborter)
     //**********************************************************
     {
-        if (exifs_tags_list != null) return;
+        List<String> exifs_tags_list = new ArrayList<>();
         image_is_damaged = false;
         try
         {
@@ -165,6 +158,7 @@ public class Image_context
         {
             logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
         }
+        return exifs_tags_list;
     }
 
 
@@ -183,13 +177,15 @@ public class Image_context
         TextFlow textFlow = new TextFlow();
         textFlow.setLayoutX(40);
         textFlow.setLayoutY(40);
-        for (String s : get_exif_metadata(new Aborter()))
+        logger.log("$$$$$$ EXIF $$$$$$$$$$$");
+        for (String s : load_exif(new Aborter()))
         {
-            //logger.log("exif tag:" + s);
+            logger.log(s);
             Text t = new Text(s);
             textFlow.getChildren().add(t);
             textFlow.getChildren().add(new Text(System.lineSeparator()));
         }
+        logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
         ScrollPane sp = new ScrollPane();
         Look_and_feel_manager.set_region_look(sp);
         sp.setPrefSize(1000, 600);
