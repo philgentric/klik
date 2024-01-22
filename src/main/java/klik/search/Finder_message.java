@@ -14,18 +14,26 @@ public class Finder_message implements Message
 
     public final Path path;
     public final List<String> keywords;
-    public final Callback_for_image_found_publish callback;
+    public final Callback_for_file_found_publish callback;
     public final Browser the_browser;
     public final Aborter aborter;
     public final boolean look_only_for_images;
+    public final String extension;
 
     //**********************************************************
-    public Finder_message(Path p_, List<String> keywords, boolean look_only_for_images, Callback_for_image_found_publish callback_, Aborter aborter_, Browser the_browser_)
+    public Finder_message(Path p_, List<String> keywords, boolean look_only_for_images, String extension, Callback_for_file_found_publish callback_, Aborter aborter_, Browser the_browser_)
     //**********************************************************
     {
         path = p_;
         this.keywords = keywords;
         this.look_only_for_images = look_only_for_images;
+        if ( extension == null)
+        {
+            this.extension = null;
+        }
+        else {
+            this.extension = extension.toLowerCase();
+        }
         callback = callback_;
         the_browser = the_browser_;
         aborter = aborter_;

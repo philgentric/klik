@@ -6,7 +6,7 @@
     -fx-font-weight: bold;
     -fx-alignment: top-left;
     -fx-background-color: #1a1f2c	;
-    -fx-padding: -1 -1 -1 -1;
+    //-fx-padding: -1 -1 -1 -1;
 }
 
 .menu_buttons {
@@ -23,9 +23,9 @@
     -fx-text-fill: #fefcff	; // color of text
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
-    -fx-alignment: center;
+    //-fx-alignment: center;
     -fx-background-color: #1a1f2c;
-    -fx-padding: -1 -1 -1 -1;
+    //-fx-padding: -1 -1 -1 -1;
 }
 
 .menu_buttons:hover {

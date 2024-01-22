@@ -34,7 +34,16 @@ public class Font_size
     public static void set_font_size(Node x, double size, Logger logger)
     //**********************************************************
     {
-        x.setStyle(FX_FONT_SIZE + size + PX);
+        if ( x.getStyle().contains(FX_FONT_SIZE))
+        {
+            x.setStyle(FX_FONT_SIZE + size + PX);
+        }
+        else
+        {
+            x.setStyle(x.getStyle()+FX_FONT_SIZE + size + PX);
+
+        }
+        //logger.log("set_font_size->"+x.getStyle()+"<-");
     }
 
     //**********************************************************

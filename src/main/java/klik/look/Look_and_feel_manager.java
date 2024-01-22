@@ -29,6 +29,7 @@ import java.util.Objects;
 public class Look_and_feel_manager
 //**********************************************************
 {
+    // https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
 
 
     public static final boolean icon_load_dbg = false;
@@ -622,6 +623,7 @@ public class Look_and_feel_manager
         return returned;
     }
 
+    /*
     //**********************************************************
     public static void set_pane_look(Pane pane)
     //**********************************************************
@@ -634,7 +636,7 @@ public class Look_and_feel_manager
         }
         Font_size.set_preferred_font_size(pane,logger);
     }
-
+*/
     //**********************************************************
     public static void set_region_look(Region region)
     //**********************************************************
@@ -721,7 +723,7 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static void set_button_look(Button button)
+    public static void set_button_look(Button button, boolean with_border)
     //**********************************************************
     {
         Look_and_feel laf = get_instance();
@@ -730,6 +732,13 @@ public class Look_and_feel_manager
             button.getStylesheets().clear();
             button.getStylesheets().add(laf.style_sheet_url_string);
             button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            if ( with_border)
+            {
+                button.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(2),new BorderWidths(1))));
+                button.setStyle("-fx-padding: 0 2 0 2;");
+            }
+            Font_size.set_preferred_font_size(button,logger);
+
             Node g = button.getGraphic();
             if ( g != null)
             {

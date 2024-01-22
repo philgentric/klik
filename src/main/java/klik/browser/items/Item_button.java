@@ -83,7 +83,7 @@ public class Item_button extends Item implements Icon_destination
             button.setPrefWidth(Control.USE_COMPUTED_SIZE);
             button.setTextOverrun(OverrunStyle.ELLIPSIS);
             button.setGraphicTextGap(20);
-            Look_and_feel_manager.set_button_look(button);
+            Look_and_feel_manager.set_button_look(button,false);
             return;
         }
 
@@ -102,7 +102,6 @@ public class Item_button extends Item implements Icon_destination
                 Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
                 job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
             }
-            //button.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
         }
         else
         {
@@ -112,7 +111,7 @@ public class Item_button extends Item implements Icon_destination
             //button.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(2))));
             //button.setPrefHeight(FILE_BUTTON_HEIGHT);
         }
-        Look_and_feel_manager.set_button_look(button);
+        Look_and_feel_manager.set_button_look(button,false);
         button.setViewOrder(1);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names

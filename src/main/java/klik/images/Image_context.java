@@ -18,6 +18,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
+import klik.search.Finder;
 import klik.search.Finder_actor;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.level2.fusk.Fusk_static_core;
@@ -25,6 +26,7 @@ import klik.level2.fusk.Fusk_strings;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
+import klik.search.Keyword_extractor;
 import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -38,6 +40,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 //**********************************************************
 public class Image_context
@@ -338,14 +341,53 @@ public class Image_context
     }
 
 
+    //**********************************************************
+    private static List<String> load_keyword_exclusion_list(Logger logger)
+    //**********************************************************
+    {
+
+        List<String> returned = new ArrayList<>();
+        int max = Static_application_properties.get_excluded_keyword_list_max_size(logger);
+        for (int i = 0; i < max; i++) {
+            String key = Static_application_properties.EXCLUDED_KEYWORD_PREFIX + i;
+            String kw = Static_application_properties.get_properties_manager(logger).get(key);
+            if (kw != null) {
+                String lower = kw.toLowerCase();
+                returned.add(lower);
+                logger.log("excluded key word: ->" + lower + "<-");
+            }
+        }
+        return returned;
+    }
 
     //**********************************************************
     void search_using_keywords_from_the_name(Browser b)
     //**********************************************************
     {
-        logger.log("Image_context search_k");
-        Finder_actor f = new Finder_actor(logger);
-        f.find_files(path,b);
+        logger.log("Image_context search_using_keywords_from_the_name");
+        List<String> exclusion_list = load_keyword_exclusion_list(logger);
+        Keyword_extractor ke = new Keyword_extractor(logger, exclusion_list);
+        Set<String> keywords_set = ke.extract_keywords_from_file_and_dir_names(path);
+        if (keywords_set == null) {
+            logger.log("FATAL null keywords ??? ");
+            return;
+        }
+        if (keywords_set.isEmpty()) {
+            logger.log("FATAL no keywords ??? ");
+            return;
+        }
+        List<String> keywords = new ArrayList<>();
+        for (String k : keywords_set) {
+            keywords.add(k.toLowerCase());
+        }
+
+        logger.log("---- looking at keywords -------");
+        for (String s : keywords) {
+            logger.log("->" + s + "<-");
+        }
+        logger.log("--------------------------------");
+
+        Finder.find(path,b,keywords,logger);
     }
 
 
@@ -395,9 +437,7 @@ public class Image_context
                         keywords.add(s);
                     }
 
-                    Finder_actor finder;
-                    finder = new Finder_actor(logger);
-                    finder.find_files_from_keywords(target,browser, keywords);
+                    Finder.find(target,browser,keywords,logger);
                 }
             }
 

@@ -246,7 +246,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             x = r.getMinX();
             y = r.getMinY();
         }
-        else {
+        else
+        {
             if (context.rectangle != null)
             {
                 width = context.rectangle.getWidth();//old_browser.the_Stage.getWidth();
@@ -255,7 +256,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 y = context.rectangle.getMinY();//old_browser.the_Stage.getY();
 
             }
-            if (!context.same_place) {
+            if (context.move_a_bit)
+            {
                 x += 100;
                 y += 100;
             }
@@ -513,7 +515,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
         Browser this_browser = this;
-        Look_and_feel_manager.set_pane_look(the_Pane);
+        Look_and_feel_manager.set_region_look(the_Pane);
         {
             the_Pane.addEventHandler(MouseEvent.MOUSE_PRESSED, selection_handler::handle_mouse_pressed);
             the_Pane.addEventHandler(MouseEvent.MOUSE_DRAGGED, selection_handler::handle_mouse_dragged);

@@ -86,9 +86,9 @@ public class Image_window
 
             return new Image_window(b, path, x,y, w,h, logger_);
         }
+        /*
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
-
         if (dbg)
         {
             ObservableList<Screen> screens = Screen.getScreens();
@@ -111,7 +111,7 @@ public class Image_window
         }
         // often there is only one ...
         Screen current = intersecting_screens.get(0);
-
+        */
         Rectangle2D bounds = Static_application_properties.get_image_window_stored_bounds(logger_);
         double x = bounds.getMinX();
         double y = bounds.getMinY();

@@ -45,7 +45,7 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
     -fx-font-weight: bold;
     -fx-alignment: top-left;
     -fx-background-color: white;
-    -fx-padding: -1 -1 -1 -1;
+    //-fx-padding: -1 -1 -1 -1;
 }
 
 .menu_buttons {
@@ -67,9 +67,9 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
     -fx-text-fill: #404040	; // color of text
     -fx-font:20 Helvetica; //papyrus;
     -fx-font-weight: bold;
-    -fx-alignment: center;
+    //-fx-alignment: center;
     -fx-background-color: white;
-    -fx-padding: -1 -1 -1 -1;
+    //-fx-padding: -1 -1 -1 -1;
 }
 
 

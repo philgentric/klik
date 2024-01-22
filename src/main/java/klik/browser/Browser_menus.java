@@ -555,9 +555,18 @@ public class Browser_menus
     public MenuItem make_new_window_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("New_window",logger);
+        String text = I18n.get_I18n_string("New_Window",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Browser_creation_context.additional_same_folder(browser,logger));
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_new_window2_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("New_Twin_Window",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Browser_creation_context.additional_same_folder_twin(browser,logger));
         return item;
     }
 

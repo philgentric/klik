@@ -130,7 +130,7 @@ public class Browser_UI
     //**********************************************************
     {
         BorderPane returned = new BorderPane();
-        Look_and_feel_manager.set_pane_look(top_pane);
+        Look_and_feel_manager.set_region_look(top_pane);
 
 
         returned.setTop(top_pane);
@@ -162,7 +162,7 @@ public class Browser_UI
             Region spacer2 = new Region();
             top_pane2.getChildren().add(spacer2);
             HBox.setHgrow(spacer2, Priority.SOMETIMES);
-            Look_and_feel_manager.set_pane_look(top_pane2);
+            Look_and_feel_manager.set_region_look(top_pane2);
             top_pane.getChildren().add(top_pane2);
         }
         top_pane.getChildren().add(new Separator());
@@ -295,6 +295,7 @@ public class Browser_UI
         Look_and_feel_manager.set_context_menu_look(view_menu);
 
         view_menu.getItems().add(browser_menus.make_new_window_menu_item());
+        view_menu.getItems().add(browser_menus.make_new_window2_menu_item());
         {
             start_full_screen_menu_item = browser_menus.make_start_fullscreen_menu_item();
             start_full_screen_menu_item.setDisable(false);
