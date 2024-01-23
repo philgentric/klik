@@ -163,9 +163,10 @@ public abstract class Item implements Icon_destination
     public void set_is_selected()
     //**********************************************************
     {
-        browser.selection_handler.add_to_selected_files(path);
-        set_is_selected_internal();
-        logger.log("item selected:"+path);
+        if (browser.selection_handler.add_to_selected_files(path)) {
+            set_is_selected_internal();
+            logger.log("item selected:" + path);
+        }
     }
 
     //**********************************************************
@@ -329,7 +330,7 @@ public abstract class Item implements Icon_destination
                 if ( xxx > 1000) xxx = 200;
             }
             TextArea textarea1 = new TextArea(message+"\n"+file_size);
-            Font_size.set_font_size(textarea1,24,logger);
+            Font_size.apply_font_size(textarea1,24,logger);
             VBox vbox = new VBox(textarea1);
             Scene scene = new Scene(vbox, Color.WHITE);
             local_stage.setTitle(path.toAbsolutePath().toString());
@@ -361,7 +362,7 @@ public abstract class Item implements Icon_destination
 
     // path for display takes different form depending on the item type
     // it can be null, a PNG icon, or an animated gif
-    abstract public Path get_path_for_display();
+    abstract public Path get_path_for_display(boolean try_deep);
 
 
     //**********************************************************

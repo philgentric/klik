@@ -147,7 +147,7 @@ public class Image_context
         {
             Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,logger);
             double how_many_pixels = image.getWidth()*image.getHeight();
-            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,aborter);
+            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,aborter,true);
             rotation = extractor.get_rotation(how_many_pixels,aborter);
             if ( dbg) logger.log(path+" rotation="+rotation);
             image_is_damaged = extractor.is_image_damaged();

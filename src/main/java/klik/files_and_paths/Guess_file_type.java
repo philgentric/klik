@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.music.Audio_player.PLAYLIST_EXTENSION;
+import static klik.level2.experimental.music.Audio_player.PLAYLIST_EXTENSION;
 
 /*
 static utilities to guess the file type from its extension
@@ -163,7 +163,7 @@ public class Guess_file_type
         if (! Guess_file_type.is_this_path_a_gif(path)) return false;
 
         Exif_metadata_extractor e = new Exif_metadata_extractor(path,logger);
-        List<String> l = e.get_exif_metadata(42,aborter);
+        List<String> l = e.get_exif_metadata(42,aborter,false);
 
         if ( l == null) return false;
         if ( l.isEmpty()) return false;

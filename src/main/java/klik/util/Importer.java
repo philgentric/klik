@@ -154,8 +154,8 @@ public class Importer
         local_stage.setWidth(800);
         TextArea textarea1 = new TextArea("Please wait, scanning folders...");
         TextArea textarea2 = new TextArea();
-        Font_size.set_font_size(textarea1,24,logger);
-        Font_size.set_font_size(textarea2,20,logger);
+        Font_size.apply_font_size(textarea1,24,logger);
+        Font_size.apply_font_size(textarea2,20,logger);
         VBox vbox = new VBox(textarea1, textarea2);
         Scene scene = new Scene(vbox, Color.WHITE);
         local_stage.setTitle(target.toAbsolutePath().toString());

@@ -23,7 +23,7 @@ import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
-import klik.music.Audio_player;
+import klik.level2.experimental.music.Audio_player;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import java.nio.file.Path;

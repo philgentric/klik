@@ -112,6 +112,8 @@ public abstract class Look_and_feel
 
     protected String get_dummy_icon_path()
     {
+        // dummy is a transparent icon 14 pixel wide by 256
+        // it is used as a DEFAULT graphic in button for folders
         return "dummy.png";
     }
     protected String get_denied_icon_path()
@@ -125,19 +127,16 @@ public abstract class Look_and_feel
     protected String get_not_found_icon_path() { return "not-found.png";}
 
     //public static final PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
-
     //**********************************************************
     public void set_hovered_directory_style(Node node)
     //**********************************************************
     {
-        System.out.println("Look_and_feel::set_hovered_directory_style");
+        //System.out.println("Look_and_feel::set_hovered_directory_style");
         Font_size.apply_font_size(node, logger);
 
         set_text_color(node,get_selected_text_color());//"-fx-text-fill: #704040;");
         //PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
         //button.pseudoClassStateChanged(pseudo_css_class_for_selection,true);
-
-
     }
 
 
@@ -145,7 +144,6 @@ public abstract class Look_and_feel
     private static void set_text_color(Node node, String color)
     //**********************************************************
     {
-
         // color MUST be formatted as: "-fx-text-fill: #704040;"
         node.setStyle(color);
         if ( node instanceof Button)
@@ -174,7 +172,8 @@ public abstract class Look_and_feel
     //**********************************************************
     {
         //logger.log("set_file_style");
-        Font_size.set_preferred_font_size(node,logger);
+        //Font_size.set_preferred_font_size(node,logger);
+        Font_size.apply_font_size(node,logger);
 /*
         if (node instanceof Button button)
         {

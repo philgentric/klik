@@ -30,7 +30,7 @@ public class Animated_gif_from_folder
 {
     public static final String warning_IMAGEMAGIC = "This feature requires ImageMagic\n . for mac: brew install imagemagick\n . for other systems download from imagemagic.org\n";
 
-    private final static boolean dbg = false;
+    private final static boolean dbg = true;
     public static final String FRAME1 = "Frame_";
     public static final String FRAME2 = "_"+FRAME1;
     public static final String PNG = ".png";
@@ -62,6 +62,10 @@ public class Animated_gif_from_folder
 
         if ( dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = "+in+" target out = "+out);
 
+        /*
+        STEP1: for each image in the folder
+        find the icon in the cache (if it is not present... too bad !)
+         */
         List<String> l = new ArrayList<>();
         l.add("convert");
 
@@ -77,7 +81,6 @@ public class Animated_gif_from_folder
         {
             File image_file = images_in_folder.get(i);
             Image image = From_disk.load_icon_from_disk_cache(image_file.toPath(), actual_icon_cache_dir, icon_size, tag, png_extension, dbg,logger);
-
             if ( image == null)
             {
                 if ( dbg) logger.log("   fetching icon from cache FAILED for:"+image_file);
@@ -153,12 +156,17 @@ public class Animated_gif_from_folder
         }
 
 
-        // clean up
-        for (Path p : to_be_cleaned_up) {
+        /*
+        STEP3: clean up the temporary frames
+         */
+        for (Path p : to_be_cleaned_up)
+        {
             try {
                 Files.delete(p);
             } catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace("WARNING: cleanup failed "+e));
+                if (dbg) logger.log(Stack_trace_getter.get_stack_trace("WARNING: cleanup failed "+e));
+                else logger.log(("WARNING: cleanup failed "+e));
+
             }
         }
 

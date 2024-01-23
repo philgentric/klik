@@ -6,6 +6,7 @@ import klik.util.Logger;
 
 import java.util.List;
 
+
 public class Font_name {
 
     List<String> get_all_font_names() {
@@ -25,16 +26,19 @@ public class Font_name {
         }
     }
 
+    /*
 
     public static final String FX_FONT_SIZE = "-fx-font-size:";
     public static final String PX = "px;";
 
     private final static boolean dbg = false;
 
+    @Deprecated
     public static void set_font_style(Node x, Logger logger) {
         x.setStyle(FX_FONT_SIZE + Static_application_properties.get_font_size(logger) + PX);
     }
 
+    @Deprecated
     public static void apply_font_size(Node x, Logger logger) {
         double size = Static_application_properties.get_font_size(logger);
         if (dbg) System.out.println("applying font size " + size);
@@ -60,4 +64,6 @@ public class Font_name {
 
         if (dbg) System.out.println("new_style2->" + new_style + "<-");
     }
+
+*/
 }

@@ -66,11 +66,25 @@ public class Look_and_feel_manager
     }
 
     //**********************************************************
+    public static Look_and_feel get_look_and_feel_instance(Logger logger)
+    //**********************************************************
+    {
+        Look_and_feel returned = Look_and_feel_manager.get_instance();
+        if ( returned == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: Look_and_feel_manager.get_instance() returns null?"));
+        }
+        return returned;
+    }
+
+
+    //**********************************************************
     public static void init_Look_and_feel(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
         if (!registered.isEmpty()) return;
+        // if you want to add a new style, its here!
         registered.add(new Look_and_feel_light(logger_));
         registered.add(new Look_and_feel_dark(logger_));
         registered.add(new Look_and_feel_wood(logger_));
@@ -100,6 +114,17 @@ public class Look_and_feel_manager
         up_icon = null;
         preferences_icon = null;
     }
+
+    /**********************************************************
+
+
+
+                            ICON SECTION
+
+
+
+
+    *///**********************************************************
 
     //**********************************************************
     public static Image get_dummy_icon(double icon_size)
@@ -435,360 +460,6 @@ public class Look_and_feel_manager
         return unknown_error_icon;
     }
 
-    /*
-    //**********************************************************
-    public static Image get_default_icon(double icon_size)
-    //**********************************************************
-    {
-        if (default_icon == null)
-        {
-            load_default_icon(icon_size);
-        }
-        if (default_icon == null) return null;
-        if (default_icon.getHeight() != icon_size)
-        {
-            load_default_icon(icon_size);
-        }
-        return default_icon;
-    }
-
-    //**********************************************************
-    private static void load_default_icon(double icon_size)
-    //**********************************************************
-    {
-        default_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_default_image_path(), icon_size);
-    }
-
-    //**********************************************************
-    private static Image load_denied_icon(double icon_size)
-    //**********************************************************
-    {
-        denied_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_denied_icon_path(), icon_size);
-        return denied_icon;
-    }
-
-
-    //**********************************************************
-    public static Image get_denied_icon(double icon_size)
-    //**********************************************************
-    {
-        if (denied_icon == null) denied_icon = load_denied_icon(icon_size);
-        return denied_icon;
-    }
-
-
-    //**********************************************************
-    public static Image get_not_found_icon(double icon_size)
-    //**********************************************************
-    {
-        if (not_found_icon == null) not_found_icon = load_not_found_icon(icon_size);
-        return not_found_icon;
-    }
-    //**********************************************************
-    private static Image load_not_found_icon(double icon_size)
-    //**********************************************************
-    {
-        not_found_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_not_found_icon_path(), icon_size);
-        return not_found_icon;
-    }
-
-
-    //**********************************************************
-    public static Image get_default_trash_icon(double icon_size)
-    //**********************************************************
-    {
-        if (trash_icon == null)
-        {
-            trash_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_trash_icon_path(), icon_size);
-        }
-        return trash_icon;
-    }
-
-
-
-
-    //**********************************************************
-    private static Image load_unknown_error_icon(double icon_size)
-    //**********************************************************
-    {
-        unknown_error_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_unknown_error_icon_path(), icon_size);
-        return unknown_error_icon;
-    }
-
-    //**********************************************************
-    public static Image get_unknown_error_icon(double icon_size)
-    //**********************************************************
-    {
-        if (unknown_error_icon == null) unknown_error_icon = load_unknown_error_icon(icon_size);
-        return unknown_error_icon;
-    }
-
-
-    //**********************************************************
-    public static Image get_broken_icon(double icon_size)
-    //**********************************************************
-    {
-        if (broken_icon == null) load_broken_icon(icon_size);
-        return broken_icon;
-    }
-
-    //**********************************************************
-    private static void load_broken_icon(double icon_size)
-    //**********************************************************
-    {
-        broken_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_broken_icon_path(), icon_size);
-    }
-
-    //**********************************************************
-    public static Image get_default_up_icon(double icon_size)
-    //**********************************************************
-    {
-        if (up_icon == null)
-        {
-            up_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_up_icon_path(), icon_size);
-        }
-        return up_icon;
-    }
-*/
-
-    //**********************************************************
-    public static void set_button_look_as_folder(Button button, double icon_height)
-    //**********************************************************
-    {
-        //logger.log("set_button_look_as_folder = "+icon_height);
-        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-        if (s == null) logger.log("WARNING: could not load folder icon");
-        Image icon = load_icon_fx_from_jar(s, icon_height);
-        if (icon == null) logger.log("WARNING: could not load " +s);
-        set_button_and_image_look(button, icon, icon_height, true);
-    }
-
-    //**********************************************************
-    public static void give_button_a_directory_style(Node node)
-    //**********************************************************
-    {
-        if (node instanceof Button button)
-        {
-            button.setAlignment(Pos.BASELINE_LEFT);
-        }
-        Objects.requireNonNull(get_instance()).set_directory_style(node);
-    }
-    //**********************************************************
-    public static void give_button_a_file_style(Node node)
-    //**********************************************************
-    {
-        if (node instanceof Button button)
-        {
-           button.setAlignment(Pos.BASELINE_LEFT);
-        }
-        Objects.requireNonNull(get_instance()).set_file_style(node);
-    }
-    //**********************************************************
-    public static void give_button_a_selected_file_style(Node node1, Node node2)
-    //**********************************************************
-    {
-        logger.log(Stack_trace_getter.get_stack_trace("give_button_a_selected_file_style"+node1+" "+node2 ));
-
-        do_one_node(node1);
-        if ( node2!=null) do_one_node(node2);
-    }
-
-    //**********************************************************
-    private static void do_one_node(Node node)
-    //**********************************************************
-    {
-        if ( node == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("node is null"));
-            return;
-        }
-        if (node instanceof Button button)
-        {
-            button.setAlignment(Pos.BASELINE_LEFT);
-        }
-        Objects.requireNonNull(get_instance()).set_selected_file_style(node);
-    }
-
-    //**********************************************************
-    public static Look_and_feel get_look_and_feel_instance(Logger logger)
-    //**********************************************************
-    {
-        Look_and_feel returned = Look_and_feel_manager.get_instance();
-        if ( returned == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: Look_and_feel_manager.get_instance() returns null?"));
-        }
-        return returned;
-    }
-
-    /*
-    //**********************************************************
-    public static void set_pane_look(Pane pane)
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        if (laf.style_sheet_url_string != null) {
-            pane.getStylesheets().clear();
-            pane.getStylesheets().add(laf.style_sheet_url_string);
-            pane.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_GENERAL);
-        }
-        Font_size.set_preferred_font_size(pane,logger);
-    }
-*/
-    //**********************************************************
-    public static void set_region_look(Region region)
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        if (laf.style_sheet_url_string != null) {
-            region.getStylesheets().clear();
-            region.getStylesheets().add(laf.style_sheet_url_string);
-            region.getStyleClass().add("image-window");
-        }
-        Font_size.set_preferred_font_size(region,logger);
-    }
-
-    //**********************************************************
-    public static void set_dialog_look(Dialog dialog)
-    //**********************************************************
-    {
-        DialogPane dialog_pane = dialog.getDialogPane();
-        Look_and_feel laf = get_instance();
-        if (laf.style_sheet_url_string != null) {
-            dialog_pane.getStylesheets().clear();
-            dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
-            dialog_pane.getStyleClass().add("my_dialog");
-        }
-        Font_size.set_preferred_font_size(dialog_pane,logger);
-    }
-
-    //**********************************************************
-    public static void set_label_look_for_folder(Label label, double icon_height)
-    //**********************************************************
-    {
-        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-        if (s == null) logger.log("WARNING: could not load folder icon");
-        Image icon = load_icon_fx_from_jar(s, icon_height);
-        if (icon == null) logger.log("WARNING: could not load " +s);
-        set_label_look(label);
-    }
-
-    //**********************************************************
-    public static void set_label_look(Label label)
-    //**********************************************************
-    {
-        Look_and_feel laf = Look_and_feel_manager.get_instance();
-        if (laf.style_sheet_url_string != null)
-        {
-            label.getStylesheets().clear();
-            label.getStylesheets().add(laf.style_sheet_url_string);
-            label.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-        }
-
-    }
-
-
-    public static void set_context_menu_look(ContextMenu context_menu) {
-        context_menu.getStyleClass().add("context-menu");
-        Font_size.set_preferred_font_size(context_menu,logger);
-    }
-
-    //**********************************************************
-    public static void set_button_and_image_look(Button button,
-                                                 Image image,
-                                                 double height,
-                                                 boolean is_dir)
-    //**********************************************************
-    {
-        Look_and_feel laf = Look_and_feel_manager.get_instance();
-        if (laf.style_sheet_url_string != null)
-        {
-            button.getStylesheets().clear();
-            button.getStylesheets().add(laf.style_sheet_url_string);
-            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-        }
-
-        if ( image != null) {
-            ImageView image_view = new ImageView(image);
-            image_view.setPreserveRatio(true);
-            {
-                //if (H < Static_application_properties.get_font_size()) H = Static_application_properties.get_font_size();
-                image_view.setFitHeight(height);
-            }
-            //if (node instanceof Button button)
-            {
-                button.setGraphic(image_view);
-            }
-        }
-
-        if (look_dbg) logger.log(Stack_trace_getter.get_stack_trace("set_button_look"));
-        if (is_dir)
-        {
-            give_button_a_directory_style(button);
-        }
-        else
-        {
-            give_button_a_file_style(button);
-        }
-    }
-
-
-    //**********************************************************
-    public static void set_button_look(Button button, boolean with_border)
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        if ( laf.style_sheet_url_string !=null)
-        {
-            button.getStylesheets().clear();
-            button.getStylesheets().add(laf.style_sheet_url_string);
-            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-            if ( with_border)
-            {
-                button.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(2),new BorderWidths(1))));
-                button.setStyle("-fx-padding: 0 2 0 2;");
-            }
-            Font_size.set_preferred_font_size(button,logger);
-
-            Node g = button.getGraphic();
-            if ( g != null)
-            {
-                // the button has a Label... must set the right text color
-                g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-            }
-
-        }
-    }
-
-
-    //**********************************************************
-    public static void set_vbox_look(VBox vbox)
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        Color color = laf.get_stroke_color_of_folder_items();
-        vbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
-        vbox.getStylesheets().clear();
-        vbox.getStylesheets().add(laf.style_sheet_url_string);
-        vbox.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-    }
-
-    //**********************************************************
-    public static void set_drag_look_for_pane(Region pane)
-    //**********************************************************
-    {
-        Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
-        pane.setBackground(new Background(i.get_drag_fill()));
-
-    }
-
-    //**********************************************************
-    public static BackgroundFill get_drag_fill()
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        return laf.get_drag_fill();
-    }
 
 
     //**********************************************************
@@ -911,95 +582,362 @@ public class Look_and_feel_manager
         return get_broken_icon(icon_size);
     }
 
-    private static final boolean audioclip_load_dbg = true;
+
+    /*
     //**********************************************************
-    public static Media load_audio_from_jar(String file_path)
+    public static Image get_default_icon(double icon_size)
     //**********************************************************
     {
-
-        if (audioclip_load_dbg)
+        if (default_icon == null)
         {
-            logger.log("looking for audio clip->" + file_path + "<-");
-            {
-                String path = "";
-                URL url1 = Klik_application.class.getResource(path);
-                if (url1 == null)
-                {
-                    logger.log("Method1 fails: Klik_application.class.getResource(" + path + ");  failed");
-                }
-                else
-                {
-                    logger.log("Method1 works: Klik_application.class.getResource(" + path + ");" + url1.getPath());
-                }
-            }
-            {
-                String path = ".";
-                URL url2 = Klik_application.class.getResource(path);
-                if (url2 == null)
-                {
-                    logger.log("Method2 fails: Klik_application.class.getResource(" + path + ");  failed");
-                }
-                else
-                {
-                    logger.log("Method2 works: Klik_application.class.getResource(" + path + ")" + url2.getPath());
-                }
-            }
-            {
-                String path = "../";
-                URL url3 = Klik_application.class.getResource(path);
-                if (url3 == null)
-                {
-                    logger.log("Method3 fails: Klik_application.class.getResource(" + path + ");  failed");
-                }
-                else
-                {
-                    logger.log("Method3 works: Klik_application.class.getResource(" + path + "); " + url3.getPath());
-                }
-            }
-            {
-                String classpath = System.getProperty("java.class.path");
-                URL url5 = Klik_application.class.getResource(classpath);
-                if (url5 == null)
-                {
-                    logger.log("Method5 failed");// this is a long string to print
-                    // : classpath->"+classpath+"<-");
-                }
-                else
-                {
-                    logger.log("Method5 works: classpath " + url5.getPath());
-                }
-            }
+            load_default_icon(icon_size);
         }
-
-        /*
-        this gives the original source path: not the one being deployed
-        URL url_loader = Klik_application.class.getProtectionDomain().getCodeSource().getLocation();
-        logger.log("===Klik_application.class.getProtectionDomain().getCodeSource().getLocation()====" + url_loader.toString() );
-        logger.log("===getProtectionDomain().getCodeSource().getLocation().getPath()====" + url_loader.getPath() );
-        */
-
-        URL url4 = Klik_application.class.getResource(file_path);
-        if (url4 == null)
+        if (default_icon == null) return null;
+        if (default_icon.getHeight() != icon_size)
         {
-            logger.log("Method4 failed :Klik_application.class.getResource(" + file_path + ");  failed");
-            InputStream input_stream = Klik_application.class.getResourceAsStream(file_path);
-            if (input_stream == null)
-            {
-                logger.log("Method4 bis failed");
-                return null;
-            }
-            logger.log("Method4 bis worked");
-
-            return null;
+            load_default_icon(icon_size);
         }
-        if (icon_load_dbg) logger.log("Method4 works :Klik_application.class.getResource(" + file_path + ") path:" + url4.getPath());
-
-        if (icon_load_dbg) logger.log("path=" + url4.getPath());
-
-        Media audioClip = new Media(url4.toString());
-
-        return audioClip;
+        return default_icon;
     }
+
+    //**********************************************************
+    private static void load_default_icon(double icon_size)
+    //**********************************************************
+    {
+        default_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_default_image_path(), icon_size);
+    }
+
+    //**********************************************************
+    private static Image load_denied_icon(double icon_size)
+    //**********************************************************
+    {
+        denied_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_denied_icon_path(), icon_size);
+        return denied_icon;
+    }
+
+
+    //**********************************************************
+    public static Image get_denied_icon(double icon_size)
+    //**********************************************************
+    {
+        if (denied_icon == null) denied_icon = load_denied_icon(icon_size);
+        return denied_icon;
+    }
+
+
+    //**********************************************************
+    public static Image get_not_found_icon(double icon_size)
+    //**********************************************************
+    {
+        if (not_found_icon == null) not_found_icon = load_not_found_icon(icon_size);
+        return not_found_icon;
+    }
+    //**********************************************************
+    private static Image load_not_found_icon(double icon_size)
+    //**********************************************************
+    {
+        not_found_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_not_found_icon_path(), icon_size);
+        return not_found_icon;
+    }
+
+
+    //**********************************************************
+    public static Image get_default_trash_icon(double icon_size)
+    //**********************************************************
+    {
+        if (trash_icon == null)
+        {
+            trash_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_trash_icon_path(), icon_size);
+        }
+        return trash_icon;
+    }
+
+
+
+
+    //**********************************************************
+    private static Image load_unknown_error_icon(double icon_size)
+    //**********************************************************
+    {
+        unknown_error_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_unknown_error_icon_path(), icon_size);
+        return unknown_error_icon;
+    }
+
+    //**********************************************************
+    public static Image get_unknown_error_icon(double icon_size)
+    //**********************************************************
+    {
+        if (unknown_error_icon == null) unknown_error_icon = load_unknown_error_icon(icon_size);
+        return unknown_error_icon;
+    }
+
+
+    //**********************************************************
+    public static Image get_broken_icon(double icon_size)
+    //**********************************************************
+    {
+        if (broken_icon == null) load_broken_icon(icon_size);
+        return broken_icon;
+    }
+
+    //**********************************************************
+    private static void load_broken_icon(double icon_size)
+    //**********************************************************
+    {
+        broken_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_broken_icon_path(), icon_size);
+    }
+
+    //**********************************************************
+    public static Image get_default_up_icon(double icon_size)
+    //**********************************************************
+    {
+        if (up_icon == null)
+        {
+            up_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_up_icon_path(), icon_size);
+        }
+        return up_icon;
+    }
+*/
+
+
+
+
+
+
+
+
+    /**********************************************************
+
+
+
+                        CSS STYLE SECTION
+
+
+
+
+     *///**********************************************************
+
+    //**********************************************************
+    public static void set_button_look_as_folder(Button button, double icon_height) // Button is a region
+    //**********************************************************
+    {
+        //logger.log("set_button_look_as_folder = "+icon_height);
+        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
+        if (s == null) logger.log("WARNING: could not load folder icon");
+        Image icon = load_icon_fx_from_jar(s, icon_height);
+        if (icon == null) logger.log("WARNING: could not load " +s);
+        set_button_and_image_look(button, icon, icon_height, true);
+    }
+
+    //**********************************************************
+    public static void give_button_a_directory_style(Node node)
+    //**********************************************************
+    {
+        if (node instanceof Button button)
+        {
+            button.setAlignment(Pos.BASELINE_LEFT);
+        }
+        Objects.requireNonNull(get_instance()).set_directory_style(node);
+    }
+    //**********************************************************
+    public static void give_button_a_file_style(Node node)
+    //**********************************************************
+    {
+        if (node instanceof Button button)
+        {
+           button.setAlignment(Pos.BASELINE_LEFT);
+        }
+        Objects.requireNonNull(get_instance()).set_file_style(node);
+    }
+    //**********************************************************
+    public static void give_button_a_selected_file_style(Node node1, Node node2)
+    //**********************************************************
+    {
+        // a klik browser "button" has 2 graphical components
+        // because there is a Label in the button
+        // and "folders with icon" actually have a VBox and a label...
+        //logger.log(Stack_trace_getter.get_stack_trace("give_button_a_selected_file_style"+node1+" "+node2 ));
+
+        do_one_node(node1);
+        if ( node2!=null) do_one_node(node2);
+    }
+
+    //**********************************************************
+    private static void do_one_node(Node node)
+    //**********************************************************
+    {
+        if ( node == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("node is null"));
+            return;
+        }
+        if (node instanceof Button button)
+        {
+            button.setAlignment(Pos.BASELINE_LEFT);
+        }
+        Objects.requireNonNull(get_instance()).set_selected_file_style(node);
+    }
+
+    //**********************************************************
+    public static void set_region_look(Region region) // Region is a Node via Parent
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance();
+        if (laf.style_sheet_url_string != null) {
+            region.getStylesheets().clear();
+            region.getStylesheets().add(laf.style_sheet_url_string);
+            region.getStyleClass().add("image-window");
+        }
+        //Font_size.set_preferred_font_size(region,logger);
+        Font_size.apply_font_size(region,logger);
+    }
+
+    //**********************************************************
+    public static void set_dialog_look(Dialog dialog) // Dialog is NOT a node, it is completely appart
+    //**********************************************************
+    {
+        DialogPane dialog_pane = dialog.getDialogPane();
+        Look_and_feel laf = get_instance();
+        if (laf.style_sheet_url_string != null) {
+            dialog_pane.getStylesheets().clear();
+            dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
+            dialog_pane.getStyleClass().add("my_dialog");
+        }
+        //Font_size.set_preferred_font_size(dialog_pane,logger);
+        Font_size.apply_font_size(dialog_pane,logger);
+    }
+
+    //**********************************************************
+    public static void set_label_look_for_folder(Label label) // Label is a Region
+    //**********************************************************
+    {
+        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
+        if (s == null) logger.log("WARNING: could not load folder icon");
+        set_label_look(label);
+    }
+
+    //**********************************************************
+    public static void set_label_look(Label label)
+    //**********************************************************
+    {
+        Look_and_feel laf = Look_and_feel_manager.get_instance();
+        if (laf.style_sheet_url_string != null)
+        {
+            label.getStylesheets().clear();
+            label.getStylesheets().add(laf.style_sheet_url_string);
+            label.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+        }
+
+    }
+
+
+    //**********************************************************
+    public static void set_context_menu_look(ContextMenu context_menu)
+    //**********************************************************
+    {
+        context_menu.getStyleClass().add("context-menu");
+        //Font_size.set_preferred_font_size(context_menu,logger);
+        Font_size.apply_font_size(context_menu,logger);
+    }
+
+    //**********************************************************
+    public static void set_button_and_image_look(Button button,
+                                                 Image image,
+                                                 double height,
+                                                 boolean is_dir) // Button is a Region
+    //**********************************************************
+    {
+        Look_and_feel laf = Look_and_feel_manager.get_instance();
+        if (laf.style_sheet_url_string != null)
+        {
+            button.getStylesheets().clear();
+            button.getStylesheets().add(laf.style_sheet_url_string);
+            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+        }
+
+        if ( image != null) {
+            ImageView image_view = new ImageView(image);
+            image_view.setPreserveRatio(true);
+            {
+                //if (H < Static_application_properties.get_font_size()) H = Static_application_properties.get_font_size();
+                image_view.setFitHeight(height);
+            }
+            //if (node instanceof Button button)
+            {
+                button.setGraphic(image_view);
+            }
+        }
+
+        if (look_dbg) logger.log(Stack_trace_getter.get_stack_trace("set_button_look"));
+        if (is_dir)
+        {
+            give_button_a_directory_style(button);
+        }
+        else
+        {
+            give_button_a_file_style(button);
+        }
+    }
+
+
+    //**********************************************************
+    public static void set_button_look(Button button, boolean with_border) // Button is a Region
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance();
+        if ( laf.style_sheet_url_string !=null)
+        {
+            button.getStylesheets().clear();
+            button.getStylesheets().add(laf.style_sheet_url_string);
+            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            if ( with_border)
+            {
+                button.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(2),new BorderWidths(1))));
+                button.setStyle("-fx-padding: 0 2 0 2;");
+            }
+            //Font_size.set_preferred_font_size(button,logger);
+            Font_size.apply_font_size(button,logger);
+
+            Node g = button.getGraphic();
+            if ( g != null)
+            {
+                // the button has a Label... must set the right text color
+                g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            }
+
+        }
+    }
+
+
+    //**********************************************************
+    public static void set_vbox_look(VBox vbox) // VBox is a region
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance();
+        Color color = laf.get_stroke_color_of_folder_items();
+        vbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
+        vbox.getStylesheets().clear();
+        vbox.getStylesheets().add(laf.style_sheet_url_string);
+        vbox.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+    }
+
+    //**********************************************************
+    public static void set_drag_look_for_pane(Region pane)
+    //**********************************************************
+    {
+        Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
+        pane.setBackground(new Background(i.get_drag_fill()));
+
+    }
+
+    //**********************************************************
+    public static BackgroundFill get_drag_fill()
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance();
+        return laf.get_drag_fill();
+    }
+
 
 
 }

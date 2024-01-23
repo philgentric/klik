@@ -1231,7 +1231,7 @@ public class Browser_menus
             if ( !Guess_file_type.is_file_an_image(f)) continue;
 
             Exif_metadata_extractor e = new Exif_metadata_extractor(f.toPath(),logger);
-            e.get_exif_metadata(0, browser.aborter);
+            e.get_exif_metadata(0, browser.aborter,false);
             if( !e.is_image_damaged()) continue;
             Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,f.toPath(), null, browser.aborter, logger);
         }

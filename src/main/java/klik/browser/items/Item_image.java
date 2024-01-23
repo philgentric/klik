@@ -168,8 +168,13 @@ public class Item_image extends Item implements Icon_destination
     }
 
 
-    @Override
-    public Path get_path_for_display() {
+    @Override // Item
+    public Path get_path_for_display(boolean try_deep) {
+        return path;
+    }
+
+    @Override // Icon_destination
+    public Path get_path_for_display_icon_destination() {
         return path;
     }
 

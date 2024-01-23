@@ -1,4 +1,4 @@
-package klik.music;
+package klik.level2.experimental.music;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -87,17 +87,27 @@ public class Audio_player
         stage.setTitle(the_song_file.getName());
 
 
-        String encodedString;
+        String encoded;
         try {
-            encodedString = "file://"+the_song_file.getCanonicalPath();
+            encoded = "file://"+the_song_file.getCanonicalPath();
         } catch (IOException e) {
             logger.log("\n\nFATAL: "+e);
             return;
         }
-        encodedString = encodedString.replaceAll(" ","%20");
+        encoded = encoded.replaceAll(" ","%20");
         //UrlEscapers.urlFragmentEscaper().escape("file://"+f.getCanonicalPath());
 
-        Media sound = new Media( encodedString  );
+        Media sound;
+        try
+        {
+            sound = new Media(encoded);
+        }
+        catch (IllegalArgumentException e)
+        {
+            Popups.popup_Exception(e,256,"Fatal",logger);
+            return;
+        }
+
         MediaPlayer local = new MediaPlayer(sound);
         local.setCycleCount(1);
         local.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));

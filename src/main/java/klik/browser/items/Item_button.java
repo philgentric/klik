@@ -26,12 +26,11 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.music.Audio_player;
+import klik.level2.experimental.music.Audio_player;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
-import klik.util.Threads;
 
 import java.io.File;
 import java.io.IOException;
@@ -178,17 +177,25 @@ public class Item_button extends Item implements Icon_destination
         return path;
     }
 
+    @Override // Icon_destination
+    public Path get_path_for_display_icon_destination()
+    {
+        return get_path_for_display(true);
+    }
+
     // this call is intended only from a working thread
     // in the icon factory as
     //**********************************************************
-    @Override
-    public Path get_path_for_display()
+    @Override // Item
+    public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
         if (is_trash) return null;
         if (is_parent) return null;
         // for a file the displayed icon is built from the file itself, if supported:
         if ( !path.toFile().isDirectory()) return path;
+
+        if ( !try_deep) return null;
 
         // for a folder we have 2 ways to provide an icon
         // 1) an image is taken from the folder and used as icon
@@ -347,9 +354,8 @@ public class Item_button extends Item implements Icon_destination
             }
             String size_string = sb.toString();
             label = new Label(size_string);
-            Font_size.set_preferred_font_size(label,logger);
-            //button = new Button(size_string,label);
-            // label is the button graphic, so it is displayed ON THE LEFT of the text!
+            //Font_size.set_preferred_font_size(label,logger);
+            Font_size.apply_font_size(label,logger);
             button = new Button(text,label);
         }
         else
@@ -359,7 +365,8 @@ public class Item_button extends Item implements Icon_destination
 
         button.setMinWidth(width);
         button.setPrefWidth(width);
-        Font_size.set_preferred_font_size(button,logger);
+        //Font_size.set_preferred_font_size(button,logger);
+        Font_size.apply_font_size(button,logger);
 
         Look_and_feel_manager.give_button_a_file_style(button);
         button.setTextAlignment(TextAlignment.RIGHT);
@@ -828,7 +835,8 @@ public class Item_button extends Item implements Icon_destination
                     String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
                     button.setText(size);
                     label = new Label(new_dir_name);
-                    Font_size.set_preferred_font_size(label,logger);
+                    //Font_size.set_preferred_font_size(label,logger);
+                    Font_size.apply_font_size(label,logger);
                     button.setGraphic(label);
                 }
 

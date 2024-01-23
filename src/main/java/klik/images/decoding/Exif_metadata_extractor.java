@@ -45,12 +45,16 @@ public class Exif_metadata_extractor
     }
 
     //**********************************************************
+    @Deprecated
     public double get_rotation(double how_many_pixels, Aborter aborter)
     //**********************************************************
     {
         if ( exif_metadata != null ) return rotation;
-        get_exif_metadata(how_many_pixels, aborter);
-        return rotation;
+        logger.log("Not a good idea");
+        return Fast_rotation_from_exif_metadata_extractor.get_rotation(path,aborter,logger);
+
+        //get_exif_metadata(how_many_pixels, aborter,false);
+        //return rotation;
     }
 
     //**********************************************************
@@ -60,7 +64,7 @@ public class Exif_metadata_extractor
         return image_is_damaged;
     }
     //**********************************************************
-    public List<String> get_exif_metadata(double how_many_pixels, Aborter aborter)
+    public List<String> get_exif_metadata(double how_many_pixels, Aborter aborter, boolean details)
     //**********************************************************
     {
         if ( exif_metadata != null) return exif_metadata;
@@ -94,8 +98,12 @@ public class Exif_metadata_extractor
         file_size = file_size.replace("\n","  -  ");
         exif_metadata.add(file_size);
 
-        List<String> sb = new ArrayList<>();
-        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,sb,logger);
+        List<String> list_of_strings = null;
+        if ( details)
+        {
+            list_of_strings = new ArrayList<>();
+        }
+        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,list_of_strings,logger);
         exif_metadata.add("aspect_ratio="+aspect_ratio);
 
         {
@@ -212,7 +220,7 @@ public class Exif_metadata_extractor
 
         exif_metadata.add("apparently (careful here, this may be wrong in rare cases) rotated:"+rotation);
 
-        exif_metadata.addAll(sb);
+        if ( list_of_strings!=null) exif_metadata.addAll(list_of_strings);
 
         return exif_metadata;
 

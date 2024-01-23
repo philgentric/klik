@@ -17,7 +17,7 @@ public interface Icon_destination
 
     Iconifiable_item_type get_item_type();
 
-    Path get_path_for_display();
+    Path get_path_for_display_icon_destination();
 
     String get_string();
 

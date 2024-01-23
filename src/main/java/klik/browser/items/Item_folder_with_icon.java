@@ -54,7 +54,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     public static final boolean dbg = false;
     public final boolean is_trash;
     public final boolean is_parent;
-    public final boolean has_images;
+    //public final boolean has_images;
     public final String text;
 
     double estimated_text_label_height;
@@ -75,7 +75,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             Path path_,
             String text_,
             boolean is_trash_, boolean is_parent_,
-            boolean has_images_,
             Logger logger)
     //**********************************************************
     {
@@ -83,7 +82,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         text = text_;
         is_trash = is_trash_;
         is_parent = is_parent_;
-        has_images = has_images_;
+        //has_images = has_images_;
         vbox = new VBox();
         Look_and_feel_manager.set_vbox_look(vbox);
         vbox.setAlignment(Pos.TOP_CENTER);
@@ -120,7 +119,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
                 return;
             }
-
+/*
             if( has_images)
             {
                 label1 =  for_a_directory(text,estimated_text_label_height/2, false);
@@ -130,7 +129,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
                 job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
             }
-            else
+            else*/
             {
                 label1 =  for_a_directory(text,estimated_text_label_height/2, true);
                 hbox1.getChildren().add(label1);
@@ -150,6 +149,9 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 Font_size.apply_font_size(label2, local_font_size,logger);
                 Look_and_feel_manager.set_label_look(label2);
                 vbox.getChildren().add(hbox2);
+                Icon_factory_request ifr = new Icon_factory_request(this, (int)icon_size);
+                job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+
             }
 
 
@@ -212,7 +214,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         //logger.log(Stack_trace_getter.get_stack_trace("item non image set tooltip icon for "+path+ " image = "+i.getWidth()));
         the_image_view.setImage(image);
         the_image_view.setPreserveRatio(true);
-        Path local = get_path_for_display();
+        Path local = get_path_for_display(false);
         if ( local!=null)
         {
             Double tmp = Fast_rotation_from_exif_metadata_extractor.get_rotation(local,aborter,logger);
@@ -256,23 +258,41 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             set_Image(image_and_rotation.image(),true);
         });
     }
+    //**********************************************************
+    @Override // Icon_destination
+    public Path get_path_for_display_icon_destination()
+    //**********************************************************
+    {
+        Path path= get_path_for_display(true);
+        if ( path == null) return null;
+        if ( Files.isDirectory(path))
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("this is going to hit the fan"));
+            return null;
+        }
+        return path;
+    }
 
     // this call is intended only from a working thread typically: in the icon factory 
     //**********************************************************
-    @Override
-    public Path get_path_for_display()
+    @Override // Item
+    public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
-        //logger.log(Stack_trace_getter.get_stack_trace("get_path_for_display "+get_item_path()));
+        //if ( try_deep) logger.log(Stack_trace_getter.get_stack_trace("get_path_for_display with try deep "));
         if (is_trash) return null;
         if (is_parent) return null;
         // for a file the displayed icon is built from THE FILE ITSELF, if supported:
         if ( !path.toFile().isDirectory()) return path;
 
+        if ( !try_deep)  return null;
+
         // for a folder we have 3 ways to provide an icon
         // 1) an image is taken from the folder and used as icon
         // 2) multiple images are taken from the folder to form an animated gif icon
         // 3) if there are no documents that we know how to iconify, use defaalt
+        // this is "TRY DEEP", it takes time so it should be called ONLY from the icon factory
+        // i.e. in a separste thread
 
         // try to find an icon for the folder
 
@@ -305,23 +325,17 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             }
             images_in_folder.add(f);
         }
-        if ( images_in_folder.isEmpty())
-        {
-            for (File folder : files)
-            {
-                if (folder.isDirectory())
-                {
+        if ( images_in_folder.isEmpty()) {
+            for (File folder : files) {
+                if (folder.isDirectory()) {
                     File[] files2 = folder.listFiles();
-                    if ( files2 == null) return null;
+                    if (files2 == null) return null;
                     Arrays.sort(files2);
-                    for (File f2 : files2)
-                    {
+                    for (File f2 : files2) {
                         if (f2.isDirectory()) continue; // ignore folders
                         if (!Guess_file_type.is_file_an_image(f2)) continue; // ignore non images
-                        if (Guess_file_type.is_this_path_a_gif(f2.toPath()))
-                        {
-                            if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(),aborter,logger))
-                            {
+                        if (Guess_file_type.is_this_path_a_gif(f2.toPath())) {
+                            if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), aborter, logger)) {
                                 return f2.toPath();
                             }
                             continue; // ignore not animated gifs
@@ -331,6 +345,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 }
             }
             return null;
+
         }
 
         Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage,path,  images_in_folder,  logger);
@@ -408,7 +423,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         }
         label = new Label(text2);
 
-        Look_and_feel_manager.set_label_look_for_folder(label,icon_height);
+        Look_and_feel_manager.set_label_look_for_folder(label);
         if (path == null)
         {
             // protect crash when going up: root has no parent
@@ -823,11 +838,11 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
         file_count_text = text;
-        if ( has_images)
+        /*if ( has_images)
         {
             label1.setText(label1.getText() + "("+text+" files)");
         }
-        else
+        else*/
         {
             label2.setText(file_count_text+"\ndisk size: "+disk_footprint_text);
         }
@@ -839,37 +854,24 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     //**********************************************************
     {
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(sizes.folders());
-        sb.append(" folders\n");
-        sb.append(sizes.files());
-        sb.append(" files\n");
-        sb.append(sizes.images());
-        sb.append(" images\n");
-        sb.append(sizes.bytes());
-        sb.append(" bytes\n");
 
         file_count_text = sizes.files()+" files";
         disk_footprint_text = sizes.bytes()+" bytes";
-        if ( !has_images)
+        //if ( !has_images)
         {
+            StringBuilder sb = new StringBuilder();
+            sb.append(sizes.folders());
+            sb.append(" folders\n");
+            sb.append(sizes.files());
+            sb.append(" files\n");
+            sb.append(sizes.images());
+            sb.append(" images\n");
+            sb.append(sizes.bytes());
+            sb.append(" bytes\n");
             label2.setText(sb.toString());
         }
     }
 
-    //**********************************************************
-    public static void show_how_many_files_folder(
-            File_count_receiver size_info_receiver, String text, Path path,Aborter aborter,Logger logger)
-    //**********************************************************
-    {
-        Runnable r = () -> {
-            String s = String.valueOf(Files_and_Paths.get_how_many_files_deep(path, aborter,logger));
-            Platform.runLater(() -> {
-                size_info_receiver.set_file_count_text(s);
-            });
-        };
-        Actor_engine.execute(r,logger);
-    }
 
 
     //**********************************************************
@@ -886,4 +888,20 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         Actor_engine.execute(r,logger);
     }
 
+
+/*
+    //**********************************************************
+    public static void show_how_many_files_folder(
+            File_count_receiver size_info_receiver, String text, Path path,Aborter aborter,Logger logger)
+    //**********************************************************
+    {
+        Runnable r = () -> {
+            String s = String.valueOf(Files_and_Paths.get_how_many_files_deep(path, aborter,logger));
+            Platform.runLater(() -> {
+                size_info_receiver.set_file_count_text(s);
+            });
+        };
+        Actor_engine.execute(r,logger);
+    }
+*/
 }

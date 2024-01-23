@@ -10,6 +10,7 @@ import klik.level2.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /*
@@ -28,6 +29,7 @@ public class From_disk
     public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, Aborter aborter, Logger logger)
     //**********************************************************
     {
+
         if (try_fusked)
         {
             byte[] buf= Fusk_static_core.defusk_file_to_bytes(original_image_file, aborter, logger);
@@ -54,8 +56,13 @@ public class From_disk
         }
         catch(FileNotFoundException e)
         {
+            if (Files.isDirectory(original_image_file))
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL this is a directory! get_image_InputStream:"+e));
+                return null;
+            }
             //logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            logger.log((e.toString()));
+            logger.log("get_image_InputStream:"+e);
             return null;
         }
 

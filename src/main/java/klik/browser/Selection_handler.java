@@ -14,6 +14,7 @@ import klik.browser.items.Item_image;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
+import klik.util.Popups;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -88,24 +89,22 @@ public class Selection_handler
     }
 
     //**********************************************************
-    public void add_to_selected_files(Path path)
+    public boolean add_to_selected_files(Path path)
     //**********************************************************
     {
         if ( Files.isDirectory(path))
         {
-            String s = "WARNING: directories in multiple selection is disabled, ignoring: "+path;
+            String s = "WARNING: directories in a multiple selection is disabled, ignoring: "+path;
             logger.log(s);
-            Alert a = new Alert(Alert.AlertType.INFORMATION,s, ButtonType.CLOSE);
-            a.show();
-            return;
+            Popups.simple_alert(s);
+            return false;
         }
         if ( Files.isSymbolicLink(path))
         {
             String s = "WARNING: symbolic link in multiple selection is disabled, ignoring: "+path;
             logger.log(s);
-            Alert a = new Alert(Alert.AlertType.INFORMATION,s, ButtonType.CLOSE);
-            a.show();
-            return;
+            Popups.simple_alert(s);
+            return false;
         }
         selected_files.add(path.toFile());
         if (Drag_and_drop.drag_and_drop_dbg)  {
@@ -115,6 +114,7 @@ public class Selection_handler
                 logger.log("        " + p.getName());
             }
         }
+        return true;
     }
 
     //**********************************************************
@@ -129,9 +129,12 @@ public class Selection_handler
     //**********************************************************
     {
         Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
-        if (b) {
+        if (b)
+        {
             the_pane.setBackground(new Background(i.get_all_files_fill()));
-        } else {
+        }
+        else
+        {
             the_pane.setBackground(new Background(i.get_background_fill()));
         }
     }
@@ -282,8 +285,7 @@ public class Selection_handler
 
         switch (item.item_type) {
             case image_gif, image_not_gif -> ((Item_image) item).open_an_image(logger);
-            case symbolic_link_on_folder ,folder ->
-                    Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
+            case symbolic_link_on_folder ,folder -> Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
             default ->  System_open_actor.open_with_system(browser,item.get_item_path(),logger);
         }
         return true;

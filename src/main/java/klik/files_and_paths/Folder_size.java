@@ -58,8 +58,8 @@ public class Folder_size {
         TextArea textarea2 = new TextArea();
         vbox.getChildren().add(textarea2);
         textarea2.setMinHeight(400);
-        Font_size.set_font_size(textarea1,24,logger);
-        Font_size.set_font_size(textarea2,20,logger);
+        Font_size.apply_font_size(textarea1,24,logger);
+        Font_size.apply_font_size(textarea2,20,logger);
         Scene scene = new Scene(vbox, Color.WHITE);
         local_stage.setTitle(path.toAbsolutePath().toString());
         local_stage.setScene(scene);

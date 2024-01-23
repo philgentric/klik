@@ -1,10 +1,6 @@
-package klik.music;
+package klik.level2.experimental.music;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -17,16 +13,8 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import klik.util.Logger;
-import klik.util.Popups;
-
-import javax.swing.*;
-import java.io.*;
-import java.util.Optional;
-
-import static klik.properties.Static_application_properties.USER_HOME;
 
 //**********************************************************
 public class Video_player

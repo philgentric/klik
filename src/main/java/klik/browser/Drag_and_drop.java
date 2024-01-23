@@ -101,6 +101,12 @@ public class Drag_and_drop
         }
         if ( dir_count >= 2)
         {
+            // this code remains as a second line security
+            // but it should not happen as:
+            // 1. a single folder can be drag-and-dropped, OK
+            // 2. the only way to select more than 1 folder is multiple selection, but there is a check in there
+            // and folders are just NOT allowed because it is too easy to fool with the mouse and "woosh" ...
+            // multiple folders are gone "who knows where"
             logger.log("popup alert to warn user");
             Alert a = new Alert(Alert.AlertType.CONFIRMATION,"Are you sure? It seems you are trying to move "+dir_count+" folders", ButtonType.OK,ButtonType.CANCEL);
             a.showAndWait();

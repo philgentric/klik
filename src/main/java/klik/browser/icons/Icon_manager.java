@@ -267,6 +267,7 @@ public class Icon_manager
         return p;
     }
 
+    long tot_ms = 0;
     //**********************************************************
     private Point2D process_folders(Browser the_browser, boolean single_column, double row_increment_for_dirs, double column_increment, double row_increment_for_dirs_with_picture, double scene_width, Point2D p)
     //**********************************************************
@@ -278,10 +279,19 @@ public class Icon_manager
             for (Path folder_path : paths_manager.folders.keySet())
             {
                 long start = System.currentTimeMillis();
+                /*
                 boolean has_picture = false;
-                if (Item_folder_with_icon.would_produce_an_image_down_in_the_tree_files(folder_path, logger)) has_picture = true;
-                if(dbg) logger.log("folder :"+folder_path+" took1 "+(System.currentTimeMillis()-start)+" milliseconds, has_picture="+has_picture);
-                p = process_one_folder_with_picture(has_picture, the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
+                if (Item_folder_with_icon.would_produce_an_image_down_in_the_tree_files(folder_path, logger))
+                {
+                    has_picture = true;
+                }
+                tot_ms += System.currentTimeMillis()-start;
+                logger.log("ZOZOZO: "+tot_ms);
+                */
+
+
+                if(dbg) logger.log("folder :"+folder_path+" took1 "+(System.currentTimeMillis()-start)+" milliseconds");
+                p = process_one_folder_with_picture(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
                 if(dbg) logger.log("folder :"+folder_path+" took2 "+(System.currentTimeMillis()-start)+" milliseconds");
             }
         }
@@ -304,7 +314,6 @@ public class Icon_manager
 
     //**********************************************************
     private Point2D process_one_folder_with_picture(
-            boolean has_picture,
             Browser the_browser,
             boolean single_column,
             double column_increment,
@@ -317,7 +326,7 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, has_picture, logger);
+             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, logger);
             all_items_map.put(folder_path, folder_item);
         }
         p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
@@ -341,7 +350,7 @@ public class Icon_manager
         {
             if ( Static_application_properties.get_show_icons_for_folders(logger))
             {
-                folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, false, logger);
+                folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, logger);
             }
             else
             {

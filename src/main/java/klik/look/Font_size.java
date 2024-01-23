@@ -4,6 +4,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.PopupControl;
+import javafx.stage.Window;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 
@@ -13,6 +15,8 @@ public class Font_size
 {
     public static final String FX_FONT_SIZE = "-fx-font-size:";
     public static final String PX = "px;";
+    public static int PX_LENGTH = ("px;").length();
+
 
     private final static boolean dbg = false;
     //**********************************************************
@@ -22,6 +26,7 @@ public class Font_size
         return FX_FONT_SIZE + Static_application_properties.get_font_size( logger) + PX;
     }
 
+    /*
     // brutally set the font size by setting the whole style
     // i.e. the font could be reverted to the default one
     //**********************************************************
@@ -30,18 +35,20 @@ public class Font_size
     {
         set_font_size(x,Static_application_properties.get_font_size(logger),logger);
     }
+
+
     //**********************************************************
     public static void set_font_size(Node x, double size, Logger logger)
     //**********************************************************
     {
         if ( x.getStyle().contains(FX_FONT_SIZE))
         {
+            // problem:this erases possible previous style!
             x.setStyle(FX_FONT_SIZE + size + PX);
         }
         else
         {
             x.setStyle(x.getStyle()+FX_FONT_SIZE + size + PX);
-
         }
         //logger.log("set_font_size->"+x.getStyle()+"<-");
     }
@@ -57,7 +64,7 @@ public class Font_size
     //**********************************************************
     {
         x.setStyle(FX_FONT_SIZE + size + PX);
-    }
+    }*/
 
 
     // edit the style to change the font size, without affecting the rest of the style
@@ -66,7 +73,7 @@ public class Font_size
     //**********************************************************
     {
         double size = Static_application_properties.get_font_size(logger);
-        if (dbg) System.out.println("applying font size " + size);
+        if (dbg) logger.log("applying font size " + size);
         apply_font_size(node, size, logger);
     }
     //**********************************************************
@@ -74,26 +81,86 @@ public class Font_size
     //**********************************************************
     {
         String style = node.getStyle();
-        if ( dbg) System.out.println("style->" + style + "<-");
+        if ( style.isEmpty()|| style.endsWith(";"))
+        {
+            // shortcut!
+            StringBuilder sb = new StringBuilder();
+            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
+            node.setStyle(sb.toString());
+            //node.setStyle(style + FX_FONT_SIZE + size + PX);
+            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            return;
+        }
+        //if ( dbg)
+            logger.log("Node style->" + style + "<-");
         int index = style.indexOf(FX_FONT_SIZE);
 
         if (index < 0) {
-            node.setStyle(style + FX_FONT_SIZE + size + PX);
-            if ( dbg)  System.out.println("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            // font not in stlye yet, so we add it
+            StringBuilder sb = new StringBuilder();
+            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
+            node.setStyle(sb.toString());
+            //node.setStyle(style + FX_FONT_SIZE + size + PX);
+            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            return;
+        }
+        index += (FX_FONT_SIZE).length();
+        int index2 = style.indexOf(PX, index);
+        index2 += PX_LENGTH;
+
+        String new_style = style.substring(0, index);
+        StringBuilder sb = new StringBuilder();
+        sb.append(new_style).append(size).append(PX).append(style.substring(index2));
+        node.setStyle(sb.toString());
+
+        if( dbg) logger.log("new_style2->" + new_style + "<-");
+    }
+
+    //**********************************************************
+    public static void apply_font_size(PopupControl popup_control, Logger logger)
+    //**********************************************************
+    {
+        double size = Static_application_properties.get_font_size(logger);
+        if (dbg) logger.log("applying font size " + size);
+        apply_font_size(popup_control, size, logger);
+    }
+    //**********************************************************
+    public static void apply_font_size(PopupControl popup_control, double size, Logger logger)
+    //**********************************************************
+    {
+        String style = popup_control.getStyle();
+        if ( style.isEmpty() || style.endsWith(";"))
+        {
+            // shortcut!
+            StringBuilder sb = new StringBuilder();
+            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
+            popup_control.setStyle(sb.toString());
+            //node.setStyle(style + FX_FONT_SIZE + size + PX);
+            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            return;
+        }
+        //if ( dbg)
+            logger.log("PopupControl style->" + style + "<-");
+        int index = style.indexOf(FX_FONT_SIZE);
+
+        if (index < 0) {
+            // font not in stlye yet, so we add it
+            StringBuilder sb = new StringBuilder();
+            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
+            popup_control.setStyle(sb.toString());
+            if ( dbg)  logger.log("new_style1->" + sb.toString() + "<-");
             return;
         }
         index += (FX_FONT_SIZE).length();
 
         int index2 = style.indexOf(PX, index);
-        index2 += ("px;").length();
+        index2 += PX_LENGTH;
 
         String new_style = style.substring(0, index);
-        new_style += size + PX;
-        new_style += style.substring(index2);
-        //new_style += "-fx-wrap-text:true;";
-        //System.out.println("WRAP2!");
-        node.setStyle(new_style);
+        StringBuilder sb = new StringBuilder();
+        sb.append(new_style).append(size).append(PX).append(style.substring(index2));
+        popup_control.setStyle(sb.toString());
 
-        if ( dbg) System.out.println("new_style2->" + new_style + "<-");
+        if( dbg) logger.log("new_style2->" + sb.toString() + "<-");
     }
 }
