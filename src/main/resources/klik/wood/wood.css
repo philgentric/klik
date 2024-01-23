@@ -68,3 +68,27 @@
 .look_and_feel_all_dirs {
     -fx-background-color: blue;
 }
+
+
+my_dialog{
+    -fx-background-color: darkgrey;
+    -fx-text-fill:white;
+}
+.my_dialog > *.button-bar > *.container{
+    -fx-background-color: darkgrey;
+    -fx-text-fill:white;
+}
+.my_dialog > *.label.content{
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill:white;
+}
+.my_dialog:header *.header-panel{
+    -fx-background-color: darkgrey;
+    -fx-text-fill:white;
+}
+.my_dialog:header *.header-panel *.label{
+    -fx-font-size: 18px;
+    -fx-font-style: italic;
+    -fx-text-fill:white;
+}

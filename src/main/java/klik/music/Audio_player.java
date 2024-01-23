@@ -13,6 +13,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 import klik.util.Popups;
 
@@ -448,6 +449,7 @@ public class Audio_player
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog("playlistname");
+        Look_and_feel_manager.set_dialog_look(dialog);
         dialog.initOwner(stage);
         dialog.setTitle("Choose a name for the playlist");
         dialog.setContentText("playlistname");

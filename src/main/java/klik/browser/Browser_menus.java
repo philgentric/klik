@@ -179,7 +179,7 @@ public class Browser_menus
     public MenuItem make_clear_folder_icon_disk_cache_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = "Clear FOLDER icon cache on disk";//I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
+        String text = I18n.get_I18n_string("Clear_Folder_Icon_Cache_Folder",logger);
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Files_and_Paths.clear_folder_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
@@ -308,6 +308,7 @@ public class Browser_menus
         item.setOnAction(actionEvent -> {
             //Static_application_properties.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.get_cache_size_limit_warning_megabytes (logger));
+            Look_and_feel_manager.set_dialog_look(dialog);
             dialog.initOwner(browser.my_Stage.the_Stage);
             dialog.setWidth(800);
             dialog.setTitle(I18n.get_I18n_string("Cache_Size_Warning_Limit", logger));
@@ -1260,32 +1261,6 @@ public class Browser_menus
         item.setOnAction(event -> browser.show_how_many_files_deep_in_each_folder());
         return item;
     }
-
-    /*
-    //**********************************************************
-    public CheckMenuItem make_show_folder_size_check_menu_item(Stage stage)
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Show_number_of_files_in_folder_buttons",logger);
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_folder_size(logger));
-        item.setOnAction(actionEvent -> {
-            logger.log("Show_number_of_files_in_folder_buttons = "+Static_application_properties.get_show_folder_size(logger));
-            if (!Static_application_properties.get_show_folder_size(logger) )
-            {
-                if (!Popups.popup_ask_for_confirmation(stage, "Warning", "This can make browsing MUCH slower", logger))
-                {
-                    ((CheckMenuItem) actionEvent.getSource()).setSelected(false);
-                    return;
-                }
-            }
-            Static_application_properties.set_show_folder_size(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show folder size boolean changed",true,true);
-        });
-        return item;
-    }
-    */
-
 
     //**********************************************************
     public Menu make_backup_menu()

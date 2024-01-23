@@ -1018,6 +1018,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog(I18n.get_I18n_string("New_directory", logger));
+        Look_and_feel_manager.set_dialog_look(dialog);
         dialog.initOwner(my_Stage.the_Stage);
         dialog.setWidth(my_Stage.the_Stage.getWidth());
         dialog.setTitle(I18n.get_I18n_string("New_directory", logger));

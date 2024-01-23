@@ -11,28 +11,31 @@ import java.util.List;
 public class Finder_message implements Message
 //**********************************************************
 {
-
-    public final Path path;
-    public final List<String> keywords;
     public final Callback_for_file_found_publish callback;
     public final Browser the_browser;
     public final Aborter aborter;
-    public final boolean look_only_for_images;
     public final String extension;
+    Search_config search_config;
 
     //**********************************************************
-    public Finder_message(Path p_, List<String> keywords, boolean look_only_for_images, String extension, Callback_for_file_found_publish callback_, Aborter aborter_, Browser the_browser_)
+    public Finder_message(Search_config search_config, Callback_for_file_found_publish callback_, Aborter aborter_, Browser the_browser_)
     //**********************************************************
     {
-        path = p_;
-        this.keywords = keywords;
-        this.look_only_for_images = look_only_for_images;
-        if ( extension == null)
+        this.search_config = search_config;
+        if ( search_config.extension() == null)
         {
             this.extension = null;
         }
-        else {
-            this.extension = extension.toLowerCase();
+        else
+        {
+            if ( search_config.extension().isBlank())
+            {
+                this.extension = null;
+            }
+            else
+            {
+                this.extension = search_config.extension().toLowerCase();
+            }
         }
         callback = callback_;
         the_browser = the_browser_;
@@ -44,11 +47,14 @@ public class Finder_message implements Message
     public String to_string()
     //**********************************************************
     {
-        return "Finder : "+path;
+        return "Finder : "+search_config.path();
     }
 
+    //**********************************************************
     @Override
-    public Aborter get_aborter() {
+    public Aborter get_aborter()
+    //**********************************************************
+    {
         return aborter;
     }
 }

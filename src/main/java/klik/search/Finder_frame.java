@@ -26,18 +26,13 @@ import klik.look.my_i18n.I18n;
 import klik.music.Audio_player;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
-
 import java.nio.file.Path;
 import java.util.*;
-
-
 
 //**********************************************************
 public class Finder_frame implements Search_receiver
 //**********************************************************
 {
-	private static final int MAX_MENU_ITEMS = 23;
-	//private final Label reason_to_stop;
 	private final ProgressBar progress_bar;
 	private final Button start;
 	private final Button stop;
@@ -50,6 +45,8 @@ public class Finder_frame implements Search_receiver
 	private final VBox top_vbox;
 	private boolean look_only_for_images = false;
 	private boolean use_extension = false;
+	private boolean also_folders = true;
+	private boolean check_case = false;
 	Search_session session;
 	Path target_path;
 
@@ -70,14 +67,25 @@ public class Finder_frame implements Search_receiver
 
 
 		top_vbox.setAlignment(Pos.BASELINE_LEFT);
-		{
-			visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
-			top_vbox.getChildren().add(visited_folders);
-			Look_and_feel_manager.set_region_look(visited_folders);
-			visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
-			top_vbox.getChildren().add(visited_files);
-			Look_and_feel_manager.set_region_look(visited_files);
 
+		/*
+		the logic is:
+		always look for file and maybe also folders
+		only images means that we first check that the file is an image
+		extension is then checked
+		 */
+
+		{
+			CheckBox search_also_folders = new CheckBox(I18n.get_I18n_string("Search_Also_Folders", logger));
+			search_also_folders.setSelected(also_folders);
+			Look_and_feel_manager.set_region_look(search_also_folders);
+			search_also_folders.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
+					also_folders = new_value;
+				}
+			});
+			top_vbox.getChildren().add(search_also_folders);
 		}
 		top_vbox.getChildren().add(vertical_spacer());
 		{
@@ -105,13 +113,55 @@ public class Finder_frame implements Search_receiver
 				}
 			});
 			hb.getChildren().add(use_extension_cb);
-			hb.getChildren().add(horizontal_spacer());
 			extension_tf = new TextField("");
 			hb.getChildren().add(extension_tf);
-
+			hb.getChildren().add(horizontal_spacer());
 			top_vbox.getChildren().add(hb);
 		}
 		top_vbox.getChildren().add(vertical_spacer());
+		{
+			CheckBox check_case_cb = new CheckBox(I18n.get_I18n_string("Check_Case", logger));
+			check_case_cb.setSelected(check_case);
+			Look_and_feel_manager.set_region_look(check_case_cb);
+			check_case_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
+					check_case = new_value;
+				}
+			});
+			top_vbox.getChildren().add(check_case_cb);
+		}
+
+		top_vbox.getChildren().add(vertical_spacer());
+
+		VBox keyword_vbox = new VBox();
+		for(String keyword : input_keywords )
+		{
+			if ( keyword.trim().isBlank()) continue;
+			add_keyword(keyword.trim(),keyword_vbox);
+		}
+		top_vbox.getChildren().add(keyword_vbox);
+		{
+			HBox hbox = new HBox();
+			TextField new_keyword = new TextField("");
+			hbox.getChildren().add(new_keyword);
+			Button add_keyword = new Button(I18n.get_I18n_string("Add_Keyword", logger));
+			Look_and_feel_manager.set_button_look(add_keyword,true);
+			add_keyword.setOnAction(actionEvent -> {
+				if (new_keyword.getText().trim().isBlank()) return;
+				if (keyword_to_Label.containsKey(new_keyword.getText().trim())) return;
+				session.stop_search();
+				result_vbox.getChildren().clear();
+				if ( !new_keyword.getText().trim().isEmpty()) add_keyword(new_keyword.getText().trim(), keyword_vbox);
+				new_keyword.setText("");
+			});
+			hbox.getChildren().add(add_keyword);
+			hbox.getChildren().add(horizontal_spacer());
+			top_vbox.getChildren().add(hbox);
+		}
+		top_vbox.getChildren().add(vertical_spacer());
+
+
 		start = new Button(I18n.get_I18n_string("Start_Search", logger));
 		start.setOnAction(new EventHandler<>() {
 			@Override
@@ -136,31 +186,14 @@ public class Finder_frame implements Search_receiver
 		Look_and_feel_manager.set_button_look(stop,true);
 		top_vbox.getChildren().add(vertical_spacer());
 
-		VBox keyword_vbox = new VBox();
-		for(String keyword : input_keywords )
 		{
-			add_keyword(keyword.trim(),keyword_vbox);
-		}
-		top_vbox.getChildren().add(keyword_vbox);
-		{
-			HBox hbox = new HBox();
-			TextField new_keyword = new TextField("");
-			//Look_and_feel_manager.set_region_look(new_keyword);
+			visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
+			top_vbox.getChildren().add(visited_folders);
+			Look_and_feel_manager.set_region_look(visited_folders);
+			visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
+			top_vbox.getChildren().add(visited_files);
+			Look_and_feel_manager.set_region_look(visited_files);
 
-			hbox.getChildren().add(new_keyword);
-			hbox.getChildren().add(horizontal_spacer());
-			Button add_keyword = new Button(I18n.get_I18n_string("Add_Keyword", logger));
-			Look_and_feel_manager.set_button_look(add_keyword,true);
-
-			add_keyword.setOnAction(actionEvent -> {
-				if (keyword_to_Label.containsKey(new_keyword.getText().trim())) return;
-				session.stop_search();
-				result_vbox.getChildren().clear();
-				if ( !new_keyword.getText().trim().isEmpty()) add_keyword(new_keyword.getText().trim(), keyword_vbox);
-				new_keyword.setText("");
-			});
-			hbox.getChildren().add(add_keyword);
-			top_vbox.getChildren().add(hbox);
 		}
 		top_vbox.getChildren().add(vertical_spacer());
 
@@ -369,7 +402,9 @@ public class Finder_frame implements Search_receiver
 		keyset.sort(string_length_comparator);
 		for( String key : keyset)
 		{
-			result_vbox.getChildren().add(new Label(I18n.get_I18n_string("Matched_Keywords", logger)+": "+key));
+			Label label = new Label(I18n.get_I18n_string("Matched_Keywords", logger)+": "+key);
+			Look_and_feel_manager.set_region_look(label);
+			result_vbox.getChildren().add(label);
 			List<Path> path_set = search_results.get(key);
 			int count = 0;
 			for ( Path path : path_set)
@@ -412,19 +447,21 @@ public class Finder_frame implements Search_receiver
 		String local_extension = null;
 		if ( use_extension)
 		{
-			String extension = extension_tf.getText().trim();
+			String extension = extension_tf.getText();
 			if (extension != null)
 			{
-				local_extension = extension.trim().toLowerCase();
-				logger.log("extension="+local_extension);
+				if (!extension.isBlank())
+				{
+					local_extension = extension.trim().toLowerCase();
+					logger.log("extension="+local_extension);
+				}
 			}
 		}
-		session = new Search_session(target_path,keywords,look_only_for_images,local_extension,browser,this,logger);
+		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension,also_folders,check_case);
+		session = new Search_session(search_config,browser,this,logger);
 		session.start_search();
 		stop.setDisable(false);
 		start.setDisable(true);
 		start_time = System.currentTimeMillis();
 	}
-
-
 }

@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
+import klik.look.Look_and_feel_manager;
 import klik.util.Threads;
 import klik.change.Change_gang;
 import klik.level2.deduplicate.console.Deduplication_console_interface;
@@ -774,6 +775,7 @@ public class Files_and_Paths {
         String old_name = path.getFileName().toString();
 
         TextInputDialog dialog = new TextInputDialog(old_name);
+        Look_and_feel_manager.set_dialog_look(dialog);
         dialog.initOwner(owner);
         {
             String text = I18n.get_I18n_string("Rename", logger);// to: " + parent.toAbsolutePath().toString();
@@ -834,6 +836,7 @@ public class Files_and_Paths {
     {
         String old_name = path.getFileName().toString();
         TextInputDialog dialog = new TextInputDialog(old_name);
+        Look_and_feel_manager.set_dialog_look(dialog);
         dialog.initOwner(owner);
         {
             String text = I18n.get_I18n_string("Folder_copy_name", logger);// to: " + parent.toAbsolutePath().toString();

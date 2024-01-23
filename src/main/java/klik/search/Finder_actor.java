@@ -44,25 +44,23 @@ public class Finder_actor implements Actor
     //**********************************************************
     {
         Finder_message fm = (Finder_message) m;
-        if ( fm.keywords.isEmpty())
+        if ( fm.search_config.keywords().isEmpty())
         {
-            logger.log("no keywords ? aborting search");
-            fm.callback.has_ended(Search_status.invalid, "no keywords");
-
-            Ding.play(logger);
-            return "no keywords ? aborting search";
+            if (fm.search_config.extension() == null)
+            {
+                logger.log("no keywords ? aborting search");
+                fm.callback.has_ended(Search_status.invalid, "no keywords");
+                Ding.play(logger);
+                return "no keywords ? aborting search";
+            }
         }
         visited_files = 0;
         visited_folders =0;
         logger.log("Finder::search()");
-        print_keywords(fm.keywords,fm.extension);
+        print_keywords(fm.search_config.keywords(),fm.extension);
 
         String reason_to_stop = find_similar_files(fm);
-
-        logger.log("find_similar_files returned");
-
-        //fm.callback.update_display_in_FX_thread(fm.the_browser, reason_to_stop);
-        fm.callback.has_ended(Search_status.done, "Done");
+        fm.callback.has_ended(Search_status.done, reason_to_stop);
         return "search done";
     }
 
@@ -72,11 +70,11 @@ public class Finder_actor implements Actor
     private String find_similar_files(Finder_message fm)
     //**********************************************************
     {
-        logger.log("find_similar_files()");
-        Path dir = fm.path; // for a folder
-        if ( !Files.isDirectory(fm.path))
+        //logger.log("find_similar_files()");
+        Path dir = fm.search_config.path();
+        if ( !Files.isDirectory(fm.search_config.path()))
         {
-            dir = fm.path.getParent();
+            dir = fm.search_config.path().getParent();
         }
         start = System.currentTimeMillis();
         extract_dir( dir, fm);
@@ -90,37 +88,28 @@ public class Finder_actor implements Actor
     //**********************************************************
     {
         if ( ultra_dbg) logger.log("finder extract_dir");
-
-        /*
-        if (dir.toAbsolutePath().toString().contains("Library"))
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("ZOZO"));
-            return;
-        }
-
-         */
         if ( fm.aborter.should_abort() )
         {
-            logger.log("finder abort");
+            if ( ultra_dbg) logger.log("finder abort");
             return;
         }
         if ( !Files.isDirectory(dir) ) return;
 
         if ( dbg) logger.log("Now looking into dir:"+dir.toAbsolutePath());
-
         visited_folders++;
-
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))
         {
             for (Path path : stream)
             {
                 if ( fm.aborter.should_abort() )
                 {
-                    logger.log("finder abort");
+                    if ( ultra_dbg) logger.log("finder abort");
                     return;
                 }
                 if ( Files.isDirectory(path))
                 {
+                    visited_folders++;
+
                     if (Files.isSymbolicLink(path))
                     {
                         if ( dbg) logger.log("NOT following symbolic link:"+path);
@@ -130,10 +119,15 @@ public class Finder_actor implements Actor
                         if ( dbg) logger.log("going down? trying folder:"+path);
                         extract_dir(path, fm);
                     }
+                    if (fm.search_config.also_folders())
+                    {
+                        check_if_file_name_matches_keywords(path, fm);
+                    }
                 }
                 else
                 {
-                    if ( fm.look_only_for_images)
+                    visited_files++;
+                    if ( fm.search_config.look_only_for_images())
                     {
                         if (Guess_file_type.is_this_path_an_image(path))
                         {
@@ -150,7 +144,7 @@ public class Finder_actor implements Actor
                 {
                     if ( fm.callback != null)
                     {
-                        fm.callback.on_the_fly_stats(new Search_result(dir,new ArrayList<String>()),new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
+                        fm.callback.on_the_fly_stats(null,new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
                         start = now;
                     }
                 }
@@ -162,34 +156,73 @@ public class Finder_actor implements Actor
             else logger.log("Finder_actor:extract_dir "+e.toString());
             if ( fm.callback != null)
             {
-                fm.callback.on_the_fly_stats(new Search_result(dir,new ArrayList<String>()),new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
+                fm.callback.on_the_fly_stats(null,new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
             }
         }
     }
 
     //**********************************************************
-    private void check_if_file_name_matches_keywords(Path target_file_path, Finder_message fm)
+    private void check_if_file_name_matches_keywords(Path target_path, Finder_message fm)
     //**********************************************************
     {
-        visited_files++;
-
-        if ( fm.extension != null)
+        if ( fm.search_config.keywords().isEmpty())
         {
-            String ext = FilenameUtils.getExtension(target_file_path.getFileName().toString()).toLowerCase();
-            if (! ext.equals(fm.extension))
+            if ( fm.search_config.extension()!=null)
             {
-                if ( ultra_dbg) logger.log("extensions dont match"+ext+" vs "+fm.extension);
-                return;
+                // no keywords but an extension
+                String ext = FilenameUtils.getExtension(target_path.getFileName().toString()).toLowerCase();
+                if(ext.equals(fm.search_config.extension()))
+                {
+                    List<String> empty_keyword_list = new ArrayList<>();
+                    record_found(target_path, empty_keyword_list, fm);
+                }
+            }
+            return;
+        }
+        String name;
+        if ( Files.isDirectory(target_path))
+        {
+            name = target_path.getFileName().toString();
+            if ( !fm.search_config.check_case())
+            {
+                name.toLowerCase();
             }
         }
-        String base_name = FilenameUtils.getBaseName(target_file_path.getFileName().toString());
+        else
+        {
+            if ( fm.search_config.look_only_for_images())
+            {
+                if (!Guess_file_type.is_this_path_an_image(target_path))
+                {
+                    return;
+                }
+            }
+            if (fm.extension != null)
+            {
+                if (!fm.extension.isBlank())
+                {
+                    String ext = FilenameUtils.getExtension(target_path.getFileName().toString()).toLowerCase();
+                    if (!ext.equals(fm.extension))
+                    {
+                        if (ultra_dbg) logger.log("extensions dont match" + ext + " vs " + fm.extension);
+                        return;
+                    }
+                }
+            }
+            name = FilenameUtils.getBaseName(target_path.getFileName().toString());
+            if ( !fm.search_config.check_case())
+            {
+                name.toLowerCase();
+            }
+        }
 
-        if ( ultra_dbg) logger.log("checking if all keywords are present for: "+base_name);
+
+        if ( ultra_dbg) logger.log("checking if all keywords are present for: "+name);
         // look for ALL of them
         List<String> all_matched_keywords = new ArrayList<>();
-        for ( String keyword : fm.keywords)
+        for ( String keyword : fm.search_config.keywords())
         {
-            if ( !base_name.toLowerCase().contains(keyword.toLowerCase()) )
+            if ( !name.contains(keyword) )
             {
                 // if one keyword is missing we give up
                 break;
@@ -202,27 +235,27 @@ public class Finder_actor implements Actor
 
         if ( all_matched_keywords.isEmpty())
         {
-            if (ultra_dbg) logger.log("checking if a few keywords are present for: " + base_name);
+            // second chance: trying matching only some keywords
+            if (ultra_dbg) logger.log("checking if a few keywords are present for: " + name);
             List<String> shorter_keyword_list = new ArrayList<>();
-            for (String keyword : fm.keywords)
+            for (String keyword : fm.search_config.keywords())
             {
-                if (base_name.toLowerCase().contains(keyword.toLowerCase()))
+                if (name.contains(keyword))
                 {
                     count_keyword(keyword);
                     shorter_keyword_list.add(keyword);
                 }
             }
-            if ( !shorter_keyword_list.isEmpty()) {
-                process_name_selected(target_file_path, shorter_keyword_list, fm);
+            if ( !shorter_keyword_list.isEmpty())
+            {
+                record_found(target_path, shorter_keyword_list, fm);
             }
         }
         else
         {
-            if ( dbg) logger.log("all keywords "+all_matched_keywords+" found for "+target_file_path.getFileName());
-            process_name_selected(target_file_path, all_matched_keywords, fm);
+            if ( dbg) logger.log("all keywords "+all_matched_keywords+" found for "+target_path.getFileName());
+            record_found(target_path, all_matched_keywords, fm);
         }
-
-
     }
 
     //**********************************************************
@@ -235,88 +268,28 @@ public class Finder_actor implements Actor
     }
 
     //**********************************************************
-    private void process_name_selected(Path path, List<String> matched_keywords,Finder_message fm)
+    private void record_found(Path path, List<String> matched_keywords, Finder_message fm)
     //**********************************************************
     {
-        if ( Files.isDirectory(path))
-        {
-            if ( dbg)
-                logger.log("keywords  ->"+matched_keywords+"<- matched for DIR "+path.toAbsolutePath());
-            record_found_dir(path, matched_keywords,fm);
-        }
-        else
-        {
-            if(fm.look_only_for_images)
-            {
-                if ( !Guess_file_type.is_this_path_an_image (path))
-                {
-                    if ( dbg) logger.log("is not an image: "+path.toAbsolutePath());
-                    return;
-                }
-            }
-            if ( dbg) logger.log("keywords ->"+matched_keywords+"<- matched for file: "+path.toAbsolutePath());
-            record_found_file(path, matched_keywords, fm);
-        }
-    }
-
-    //**********************************************************
-    private void record_found_dir(Path dir, List<String> matched_keywords, Finder_message fm)
-    //**********************************************************
-    {
-
-        if ( ultra_dbg) logger.log("Matching folder found: "+dir.toAbsolutePath());
+        if ( ultra_dbg) logger.log("Matching item found: "+path.toAbsolutePath());
         if ( fm.callback != null)
         {
-            fm.callback.on_the_fly_stats(new Search_result(dir,matched_keywords),new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
-        }
-
-    }
-
-    //**********************************************************
-    private void record_found_file(Path file, List<String> matched_keywords, Finder_message fm)
-    //**********************************************************
-    {
-
-        if ( ultra_dbg) logger.log("Matching file found: "+file.toAbsolutePath());
-        if ( fm.callback != null)
-        {
-            fm.callback.on_the_fly_stats( new Search_result(file,matched_keywords), new Search_statistics(visited_folders,visited_files,matched_keyword_counts));
+            fm.callback.on_the_fly_stats(new Search_result(path,matched_keywords),new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
         }
     }
 
-    //**********************************************************
-    private static List<String> load_keyword_exclusion_list(Logger logger)
-    //**********************************************************
-    {
 
-        List<String> returned = new ArrayList<>();
-        int max = Static_application_properties.get_excluded_keyword_list_max_size(logger);
-        for (int i = 0; i < max; i++) {
-            String key = Static_application_properties.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Static_application_properties.get_properties_manager(logger).get(key);
-            if (kw != null) {
-                String lower = kw.toLowerCase();
-                returned.add(lower);
-                logger.log("excluded key word: ->" + lower + "<-");
-            }
-        }
-        return returned;
-    }
     //**********************************************************
     private void print_keywords(List<String> keywords, String extension)
     //**********************************************************
     {
-        //if ( dbg == false) return;
-
         logger.log("---Finder keywords------");
         logger.log("Extension="+extension);
         for( String s: keywords)
         {
             logger.log("->"+s+"<-");
         }
-
         logger.log("------------------------");
-
     }
 
 /*
@@ -351,6 +324,48 @@ public class Finder_actor implements Actor
     }
 
 
- */
+    //**********************************************************
+    private static List<String> load_keyword_exclusion_list(Logger logger)
+    //**********************************************************
+    {
+
+        List<String> returned = new ArrayList<>();
+        int max = Static_application_properties.get_excluded_keyword_list_max_size(logger);
+        for (int i = 0; i < max; i++) {
+            String key = Static_application_properties.EXCLUDED_KEYWORD_PREFIX + i;
+            String kw = Static_application_properties.get_properties_manager(logger).get(key);
+            if (kw != null) {
+                String lower = kw.toLowerCase();
+                returned.add(lower);
+                logger.log("excluded key word: ->" + lower + "<-");
+            }
+        }
+        return returned;
+    }
+
+    //**********************************************************
+    private void process_name_selected(Path path, List<String> matched_keywords,Finder_message fm)
+    //**********************************************************
+    {
+        if ( Files.isDirectory(path))
+        {
+            if ( dbg) logger.log("keywords  ->"+matched_keywords+"<- matched for DIR "+path.toAbsolutePath());
+            record_found(path, matched_keywords,fm);
+        }
+        else
+        {
+            if(fm.look_only_for_images)
+            {
+                if ( !Guess_file_type.is_this_path_an_image(path))
+                {
+                    if ( dbg) logger.log("is not an image: "+path.toAbsolutePath());
+                    return;
+                }
+            }
+            if ( dbg) logger.log("keywords ->"+matched_keywords+"<- matched for file: "+path.toAbsolutePath());
+            record_found(path, matched_keywords, fm);
+        }
+    }
+*/
 
 }

@@ -2,15 +2,13 @@ package klik.look;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
+import javafx.stage.StageStyle;
 import klik.Klik_application;
 import klik.look.styles.*;
 import klik.properties.Static_application_properties;
@@ -650,6 +648,19 @@ public class Look_and_feel_manager
         Font_size.set_preferred_font_size(region,logger);
     }
 
+    //**********************************************************
+    public static void set_dialog_look(Dialog dialog)
+    //**********************************************************
+    {
+        DialogPane dialog_pane = dialog.getDialogPane();
+        Look_and_feel laf = get_instance();
+        if (laf.style_sheet_url_string != null) {
+            dialog_pane.getStylesheets().clear();
+            dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
+            dialog_pane.getStyleClass().add("my_dialog");
+        }
+        Font_size.set_preferred_font_size(dialog_pane,logger);
+    }
 
     //**********************************************************
     public static void set_label_look_for_folder(Label label, double icon_height)

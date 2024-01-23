@@ -11,6 +11,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.*;
 import klik.look.Font_size;
+import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import org.apache.commons.io.FilenameUtils;
@@ -48,6 +49,7 @@ public class Importer
         Path new_dir = null;
 
         TextInputDialog dialog = new TextInputDialog(I18n.get_I18n_string("New_directory", logger));
+        Look_and_feel_manager.set_dialog_look(dialog);
         dialog.initOwner(owner);
         dialog.setWidth(800);
         dialog.setTitle(I18n.get_I18n_string("New_directory", logger));
