@@ -14,7 +14,7 @@ import javafx.scene.text.TextAlignment;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.animated_gifs_from_videos.Animated_gif_from_folder;
+import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -31,6 +31,7 @@ import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
+import klik.util.Stack_trace_getter;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,13 +94,22 @@ public class Item_button extends Item implements Icon_destination
         {
             is_dir = true;
             button_for_a_directory(text, button_width, height);
-            if ( Static_application_properties.get_show_icons_for_folders(logger))
+            if((!is_parent)&&(!is_trash)) {
+                if (Static_application_properties.get_show_icons_for_folders(logger))
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN" + path));
+                    if (dbg) logger.log("setting image tooltip");
+                    Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
+                    job = Icon_factory_actor.get_icon_factory(browser.aborter, browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+                }
+                else
+                {
+                    //logger.log("normal path");
+                }
+            }
+            else
             {
-                if (dbg) logger.log("setting image tooltip");
-                //Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                //Icon_factory.get_icon_factory(logger).make_icon(ifr);
-                Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+                //logger.log("normal path for parent and trash");
             }
         }
         else
@@ -180,6 +190,7 @@ public class Item_button extends Item implements Icon_destination
     @Override // Icon_destination
     public Path get_path_for_display_icon_destination()
     {
+        logger.log("Item_button get_path_for_display_icon_destination DEEP !???");
         return get_path_for_display(true);
     }
 
@@ -196,6 +207,8 @@ public class Item_button extends Item implements Icon_destination
         if ( !path.toFile().isDirectory()) return path;
 
         if ( !try_deep) return null;
+
+        logger.log("YOPOPOPOOOOO");
 
         // for a folder we have 2 ways to provide an icon
         // 1) an image is taken from the folder and used as icon
@@ -261,15 +274,23 @@ public class Item_button extends Item implements Icon_destination
         }
         if( make_animated_gif)
         {
-            if ( Objects.requireNonNull(images_in_folder).isEmpty()) return null;
+            logger.log("make_animated_gif!?");
+
+            if ( Objects.requireNonNull(images_in_folder).isEmpty())
+            {
+                return null;
+            }
 
             Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage, local_path,  images_in_folder,  logger);
             if ( returned == null)
             {
+                logger.log("make_animated_gif_from_all_images_in_folder fails");
                 if (!images_in_folder.isEmpty()) return images_in_folder.get(0).toPath();
             }
             else
             {
+                logger.log("make_animated_gif_from_all_images_in_folder OK");
+
                 return returned;
             }
         }
@@ -448,6 +469,8 @@ public class Item_button extends Item implements Icon_destination
             }
             // if the button represents a folder, clicking on it "opens" that folder
             // = we create a NEW browser, as a replacement
+
+            logger.log("Item_button button setOnAction calling replace_different_folder");
             Browser_creation_context.replace_different_folder(path,browser,scroll_to,logger);
 
         });
@@ -571,19 +594,16 @@ public class Item_button extends Item implements Icon_destination
     {
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu);
-
         if (!Files.isDirectory(path))
         {
             if ( this.item_type == Iconifiable_item_type.video)
             {
                 Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
             }
-
             // is a "plain" file
             context_menu.getItems().add(create_system_open_menu_item());
             context_menu.getItems().add(create_rename_dir_menu_item());
             context_menu.getItems().add(create_delete_dir_menu_item());
-
             context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
             context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
         }
@@ -615,9 +635,6 @@ public class Item_button extends Item implements Icon_destination
                 }
             }
         }
-
-
-
 
         button.setOnContextMenuRequested((ContextMenuEvent event) -> {
             if ( dbg) logger.log("show context menu of button:"+ path.toAbsolutePath());

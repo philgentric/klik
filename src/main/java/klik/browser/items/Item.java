@@ -314,7 +314,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Show_file_size", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("File size");
-            String file_size = Files_and_Paths.get_2_line_string_with_size(path,logger);
+            String size_in_bytes = Files_and_Paths.get_1_line_string_with_size(path,logger);
             String message = I18n.get_I18n_string("File_size_for", logger) +"\n"+ path.getFileName().toString();
             //Popups.popup_warning(message, file_size, false,logger);
             Stage local_stage = new Stage();
@@ -329,7 +329,7 @@ public abstract class Item implements Icon_destination
                 xxx += 600;
                 if ( xxx > 1000) xxx = 200;
             }
-            TextArea textarea1 = new TextArea(message+"\n"+file_size);
+            TextArea textarea1 = new TextArea(message+"\n"+size_in_bytes);
             Font_size.apply_font_size(textarea1,24,logger);
             VBox vbox = new VBox(textarea1);
             Scene scene = new Scene(vbox, Color.WHITE);
@@ -337,7 +337,8 @@ public abstract class Item implements Icon_destination
             local_stage.setScene(scene);
             local_stage.show();
 
-            b_.set_status(message+"   :   "+file_size.replace("\n","   =   "));
+            logger.log("size_in_bytes->"+size_in_bytes+"<-");
+            b_.set_status(size_in_bytes);
         });
         return menu_item;
     }

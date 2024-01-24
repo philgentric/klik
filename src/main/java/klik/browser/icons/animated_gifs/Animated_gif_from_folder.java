@@ -1,4 +1,4 @@
-package klik.animated_gifs_from_videos;
+package klik.browser.icons.animated_gifs;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -52,7 +52,7 @@ public class Animated_gif_from_folder
         Path folder_icon_cache_dir = Files_and_Paths.get_folder_icon_cache_dir(logger);
 
         int icon_size = Static_application_properties.get_icon_size(logger);
-        String output_animated_gif_name = make_cache_name(in,"ANIMATED_FOLDER_"+icon_size, "gif");
+        String output_animated_gif_name = Icon_writer_actor.make_cache_name(in,"ANIMATED_FOLDER_"+icon_size, "gif");
         Path out = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(),output_animated_gif_name);
         if ( Files.exists(out))
         {
@@ -108,7 +108,9 @@ public class Animated_gif_from_folder
                     continue;
                 }
             }
-            String local = make_cache_name(in,FRAME1+i, png_extension);
+
+            /* copy the icons to the folder_icon_folder */
+            String local = Icon_writer_actor.make_cache_name(in,FRAME1+i, png_extension);
             Path icon_path2 = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(),local);
             try {
                 //String icon_name = make_cache_name(image_file.toPath(),tag, png_extension);
@@ -135,7 +137,7 @@ public class Animated_gif_from_folder
 
         l.add("-delay");
         l.add("30"); // in centiseconds
-        String frames = Icon_writer_actor.clean_name(in.toAbsolutePath().toString())+ FRAME2 + "*" + PNG;
+        String frames = Icon_writer_actor.make_cache_name_raw(in.toAbsolutePath())+ FRAME2 + "*" + PNG;
         l.add(frames);
         l.add(out.getFileName().toString());
 

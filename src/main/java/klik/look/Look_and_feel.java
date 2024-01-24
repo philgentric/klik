@@ -110,7 +110,9 @@ public abstract class Look_and_feel
     abstract public Color get_foreground_color();
 
 
+    //**********************************************************
     protected String get_dummy_icon_path()
+    //**********************************************************
     {
         // dummy is a transparent icon 14 pixel wide by 256
         // it is used as a DEFAULT graphic in button for folders

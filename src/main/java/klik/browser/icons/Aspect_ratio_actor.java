@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Aspect_ratio_actor implements Actor
 //**********************************************************
 {
+    public static final boolean dbg = false;
     AtomicInteger in_flight;
 
     public Aspect_ratio_actor(AtomicInteger in_flight_) {
@@ -32,17 +33,17 @@ public class Aspect_ratio_actor implements Actor
             return "aborted";
         }
 
-        double aspect_ratio;
         if (Guess_file_type.is_this_extension_a_pdf(FilenameUtils.getExtension(arm.path.getFileName().toString())))
         {
-            aspect_ratio = 1.0;
+            double aspect_ratio = 1.0;
+            arm.aspect_ratio_cache.put(Aspect_ratio_cache.key_from_path(arm.path),new Aspect_ratio_cache.Aspect_ratio(aspect_ratio,false));
         }
         else
         {
-            aspect_ratio = From_disk.get_aspect_ratio(arm.path, arm.aborter,arm.logger);
+            double aspect_ratio = From_disk.get_aspect_ratio(arm.path, dbg, arm.aborter,arm.logger);
+            arm.aspect_ratio_cache.put(Aspect_ratio_cache.key_from_path(arm.path),new Aspect_ratio_cache.Aspect_ratio(aspect_ratio,true));
         }
 
-        arm.aspect_ratio_cache.put(Aspect_ratio_cache.key_from_path(arm.path),new Aspect_ratio_cache.Aspect_ratio(aspect_ratio,true));
         int r = in_flight.decrementAndGet();
         //arm.logger.log(d+" is aspect ratio for: "+arm.path+" remaining="+r);
         return "ok";

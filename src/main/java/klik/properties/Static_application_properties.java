@@ -32,9 +32,11 @@ public class Static_application_properties
     private static final String DISK_CACHE_SIZE_WARNING_MEGABYTES = "DISK_CACHE_SIZE_WARNING_MEGABYTES";
     private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
     private static int icon_size = -1;
+    private static int folder_icon_size = -1;
     private static int video_length = -1;
     private static int column_width = -1;
     public static final int DEFAULT_ICON_SIZE = 256;
+    public static final int DEFAULT_FOLDER_ICON_SIZE = 32;
     public static final int DEFAULT_VIDEO_LENGTH = 1;
     public static final String STYLE = "STYLE";
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
@@ -47,6 +49,7 @@ public class Static_application_properties
     private static final String MAX_EXCLUDED_KEYWORDS = "max_number_of_excluded_keywords";
     public static final String EXCLUDED_KEYWORD_PREFIX = "excluded_keyword_";
     public static final String ICON_SIZE = "ICON_SIZE";
+    public static final String FOLDER_ICON_SIZE = "FOLDER_ICON_SIZE";
     public static final String VIDEO_SAMPLE_LENGTH = "VIDEO_SAMPLE_LENGTH";
     public static final String LANGUAGE = "LANGUAGE";
     public static final String FONT_SIZE = "FONT_SIZE";
@@ -431,11 +434,11 @@ public class Static_application_properties
     {
         if (column_width > 0) return column_width;
         // first time, we look it up on disk
-        String video_length_s = get_properties_manager(logger).get(COLUMN_WIDTH);
-        if (video_length_s == null) {
+        String column_width_s = get_properties_manager(logger).get(COLUMN_WIDTH);
+        if (column_width_s == null) {
             column_width = Icon_manager.MIN_COLUMN_WIDTH;
         } else {
-            double local = Double.parseDouble(video_length_s);
+            double local = Double.parseDouble(column_width_s);
             column_width = (int) local;
         }
         get_properties_manager(logger).save_unico(COLUMN_WIDTH, String.valueOf(column_width), false);
@@ -471,6 +474,25 @@ public class Static_application_properties
         return icon_size;
     }
 
+    //**********************************************************
+    public static int get_folder_icon_size(Logger logger)
+    //**********************************************************
+    {
+        if (folder_icon_size > 0) return folder_icon_size;
+        // first time, we look it up on disk
+        String folder_icon_size_s = get_properties_manager(logger).get(FOLDER_ICON_SIZE);
+        if (folder_icon_size_s == null) {
+            folder_icon_size = DEFAULT_FOLDER_ICON_SIZE;
+        } else {
+            double d_icon_size = Double.parseDouble(folder_icon_size_s);
+            folder_icon_size = (int) d_icon_size;
+        }
+        get_properties_manager(logger).save_unico(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size), false);
+        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
+        return folder_icon_size;
+    }
+
+
 
     //**********************************************************
     public static void set_cache_size_limit_warning_megabytes(int warning_megabytes, Logger logger)
@@ -502,6 +524,16 @@ public class Static_application_properties
     {
         icon_size = target_size;
         get_properties_manager(logger).save_unico(ICON_SIZE, String.valueOf(icon_size), false);
+    }
+
+
+
+    //**********************************************************
+    public static void set_folder_icon_size(int target_size, Logger logger)
+    //**********************************************************
+    {
+        folder_icon_size = target_size;
+        get_properties_manager(logger).save_unico(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size), false);
     }
 
 

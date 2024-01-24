@@ -76,6 +76,20 @@ public class Icon_writer_actor implements Actor
 	//**********************************************************
 	{
 		if ( path == null) return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(make_cache_name_raw(path));
+		sb.append("_");
+		sb.append(tag);
+		sb.append(".");
+		sb.append(extension);
+		return sb.toString();
+//		return clean_name(full_name) + "_"+tag + "."+extension;
+	}
+	//**********************************************************
+	public static String make_cache_name_raw(Path path)
+	//**********************************************************
+	{
+		if ( path == null) return null;
 		String full_name = path.toAbsolutePath().toString();
 		StringBuilder sb = new StringBuilder();
 		if ( dbg)
@@ -86,13 +100,10 @@ public class Icon_writer_actor implements Actor
 		{
 			sb.append(UUID.nameUUIDFromBytes(full_name.getBytes())); // the name is always the same length and is obfuscated
 		}
-		sb.append("_");
-		sb.append(tag);
-		sb.append(".");
-		sb.append(extension);
 		return sb.toString();
 //		return clean_name(full_name) + "_"+tag + "."+extension;
 	}
+
 
 
 	//**********************************************************

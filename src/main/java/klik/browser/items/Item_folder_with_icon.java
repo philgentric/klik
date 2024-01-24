@@ -6,18 +6,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.animated_gifs_from_videos.Animated_gif_from_folder;
+import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -37,7 +31,6 @@ import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
-import klik.util.Threads;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -59,8 +52,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
     double estimated_text_label_height;
     ImageView the_image_view;
-    Pane image_pane;
-    VBox vbox;
+    Pane the_folder_icon_pane;
+    Region the_box;
     Label label1;
     Label label2;
     Job job;
@@ -68,107 +61,152 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     private boolean ignore_next_mouse_clicked = false;
     String file_count_text = ".......";
     String disk_footprint_text = ".......";
-
+    boolean show_disk_foot_print = false;//Static_application_properties.
+    private final int folder_icon_size;
+    private final int column_width; // as set by the icon manager
     //**********************************************************
     public Item_folder_with_icon(
             Browser browser,
             Path path_,
             String text_,
             boolean is_trash_, boolean is_parent_,
+            int column_width_,
             Logger logger)
     //**********************************************************
     {
         super(browser, path_, logger);
+        column_width = column_width_;
+        folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
         text = text_;
         is_trash = is_trash_;
         is_parent = is_parent_;
         //has_images = has_images_;
-        vbox = new VBox();
-        Look_and_feel_manager.set_vbox_look(vbox);
-        vbox.setAlignment(Pos.TOP_CENTER);
 
         double font_size = Static_application_properties.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
+
+        boolean v1 = false;
+        if(v1)
         {
-            HBox hbox1 = new HBox();
-            vbox.getChildren().add(hbox1);
+            the_box = new VBox();
+            Look_and_feel_manager.set_box_look(the_box);
+            ((VBox)the_box).setAlignment(Pos.CENTER_LEFT);
+
+            HBox hbox1 = new HBox(); // contains the folder icon and the name
+            //Look_and_feel_manager.set_hbox_look(hbox1, Color.GREEN);
+            ((VBox)the_box).getChildren().add(hbox1);
             double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
             Image folder_icon = Look_and_feel_manager.get_folder_icon(icon_height);
-
-            if (folder_icon == null) {
+            if (folder_icon == null)
+            {
                 logger.log("WARNING: cannot get default icon for directory");
             }
             else
             {
                 ImageView folder_icon_image_view = new ImageView(folder_icon);
-                image_pane = new StackPane(folder_icon_image_view);
+                the_folder_icon_pane = new StackPane(folder_icon_image_view);
                 folder_icon_image_view.setPreserveRatio(true);
-                folder_icon_image_view.setFitHeight(font_size);
-                hbox1.getChildren().add(image_pane);
+                folder_icon_image_view.setFitHeight(icon_height);
+                hbox1.getChildren().add(the_folder_icon_pane);
             }
-
-            if (path == null) {
+            if (path == null)
+            {
                 logger.log(Stack_trace_getter.get_stack_trace("SHIT HAPPENS"));
                 label1 = new Label("----------");
                 hbox1.getChildren().add(label1);
                 return;
             }
+            if ( dbg)
+            {
+                if (!Files.isDirectory(path))
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                    return;
+                }
+            }
+            // launch content icon fabrication:
+            Icon_factory_request ifr = new Icon_factory_request(this, folder_icon_size);
+            job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
 
-            if (!Files.isDirectory(path))
+            label1 =  for_a_directory(text, show_disk_foot_print);
+            hbox1.setAlignment(Pos.CENTER_LEFT);
+            hbox1.getChildren().add(label1);
+
+            //logger.log("has_images: "+has_images+" path=" +path_+" loading the DUMMY image");
+
             {
-                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
-                return;
-            }
-/*
-            if( has_images)
-            {
-                label1 =  for_a_directory(text,estimated_text_label_height/2, false);
-                hbox1.getChildren().add(label1);
-                //logger.log("has_images: "+has_images+" path=" +path_+" loading the true image");
-                if (dbg) logger.log("setting image tooltip");
-                Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
-            }
-            else*/
-            {
-                label1 =  for_a_directory(text,estimated_text_label_height/2, true);
-                hbox1.getChildren().add(label1);
-                //logger.log("has_images: "+has_images+" path=" +path_+" loading the DUMMY image");
+                HBox hbox2 = new HBox();
+                //Look_and_feel_manager.set_hbox_look(hbox2,Color.RED);
                 the_image_view = new ImageView();
                 Image image = Look_and_feel_manager.get_dummy_icon(icon_size);
                 the_image_view.setImage(image);
                 the_image_view.setPreserveRatio(true);
-                HBox hbox2 = new HBox();
+                the_image_view.setFitHeight(folder_icon_size-10);
+                the_image_view.setFitWidth(folder_icon_size-5);
                 hbox2.getChildren().add(the_image_view);
-                label2 = new Label("wait ... disk foot print is being computed");
+                label2 = new Label("");
+                if (show_disk_foot_print) label2.setText("wait ... disk foot print is being computed");
                 hbox2.getChildren().add(label2);
                 double local_font_size = font_size;
-                double icon_size = Static_application_properties.get_icon_size(logger);
-                if ( icon_size <128) local_font_size = 10;
-                if ( icon_size <64) local_font_size = 8;
-                Font_size.apply_font_size(label2, local_font_size,logger);
+                if (folder_icon_size < 128) local_font_size = 10;
+                if (folder_icon_size < 64) local_font_size = 8;
+                Font_size.apply_font_size(label2, local_font_size, logger);
                 Look_and_feel_manager.set_label_look(label2);
-                vbox.getChildren().add(hbox2);
-                Icon_factory_request ifr = new Icon_factory_request(this, (int)icon_size);
-                job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
-
+                ((VBox)the_box).getChildren().add(hbox2);
             }
-
-
             label1.setTextOverrun(OverrunStyle.ELLIPSIS);
             Font_size.apply_font_size(label1, logger);
             Look_and_feel_manager.set_label_look(label1);
+            resize_the_box(the_box);
+        }
+        else
+        {
+
+            // v2
+
+            //the_box = new HBox();
+
+            the_box = new FlowPane();
+            ((FlowPane)the_box).setVgap(2);
+            ((FlowPane)the_box).setHgap(2);
+            ((FlowPane)the_box).setPrefWrapLength(300);
+
+            Look_and_feel_manager.set_box_look(the_box);
+            ((FlowPane)the_box).setAlignment(Pos.TOP_LEFT);
+
+            double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+            Image folder_icon = Look_and_feel_manager.get_folder_icon(icon_height);
+            if (folder_icon == null)
+            {
+                logger.log("WARNING: cannot get default icon for directory");
+            }
+            else
+            {
+                ImageView folder_icon_image_view = new ImageView(folder_icon);
+                the_folder_icon_pane = new StackPane(folder_icon_image_view);
+                folder_icon_image_view.setPreserveRatio(true);
+                folder_icon_image_view.setFitHeight(icon_height);
+                ((FlowPane)the_box).getChildren().add(the_folder_icon_pane);
+            }
+
+            Icon_factory_request ifr = new Icon_factory_request(this, folder_icon_size);
+            job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+
+            label1 =  for_a_directory(text, show_disk_foot_print);
+            ((FlowPane)the_box).getChildren().add(label1);
+
+
+            resize_the_box(the_box);
         }
 
 
-        resize_the_box();
 
         init_drag_and_drop();
     }
 
 
     public ImageView get_image_view(){return null;}
-    public Pane get_pane(){return image_pane;}
+    public Pane get_pane(){return the_folder_icon_pane;}
 
     //**********************************************************
     @Override
@@ -180,22 +218,22 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     }
 
     //**********************************************************
-    private void resize_the_box()
+    private void resize_the_box(Region r)
     //**********************************************************
     {
         if ( Static_application_properties.get_single_column(logger))
         {
-            vbox.setPrefWidth(browser.my_Stage.the_Stage.getWidth()-30);
-            vbox.setMinWidth(browser.my_Stage.the_Stage.getWidth()-30);
+            r.setPrefWidth(browser.my_Stage.the_Stage.getWidth()-Icon_manager.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            r.setMinWidth(browser.my_Stage.the_Stage.getWidth()-Icon_manager.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
         }
-        else {
-            int button_width = Static_application_properties.get_column_width(logger);
-            if (button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
-            if (button_width < icon_size) button_width = icon_size;
-            vbox.setPrefWidth(button_width);
-            vbox.setMinWidth(button_width);
-            vbox.setPrefHeight(icon_size + estimated_text_label_height);
-            vbox.setMinHeight(icon_size + estimated_text_label_height);
+        else
+        {
+            r.setPrefWidth(column_width);
+            r.setMinWidth(column_width);
+            //logger.log("vbox height=folder_icon_size="+folder_icon_size +"+ estimated_text_label_height=" +estimated_text_label_height+"="+(folder_icon_size + estimated_text_label_height));
+            r.setPrefHeight(folder_icon_size + estimated_text_label_height);
+            r.setMinHeight(folder_icon_size + estimated_text_label_height);
+            r.setMaxHeight(folder_icon_size + estimated_text_label_height);
         }
     }
 
@@ -217,19 +255,15 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         Path local = get_path_for_display(false);
         if ( local!=null)
         {
-            Double tmp = Fast_rotation_from_exif_metadata_extractor.get_rotation(local,aborter,logger);
+            Double tmp = Fast_rotation_from_exif_metadata_extractor.get_rotation(local,dbg,aborter,logger);
             if ( tmp != null) rotation = tmp;
         }
 
-        rotate_and_center(image, image_pane);
+        rotate_and_center(image, the_folder_icon_pane);
 
-        int button_width = Static_application_properties.get_column_width(logger);
-        if ( button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
-        if ( icon_size > button_width)
+        if ( folder_icon_size > column_width)
         {
-            double w = icon_size-10;
-            //double w = Icon_manager.MIN_OTHER_BUTTON_WIDTH - 10;
-            //if ( w < icon_size) w = icon_size-10;
+            double w = folder_icon_size-10;
             if ( image.getWidth() > image.getHeight())
             {
                 if ( (rotation ==0) || (rotation== 180))
@@ -244,7 +278,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                 }
             }
         }
-        resize_the_box();
+        resize_the_box(the_box);
     }
     //**********************************************************
     @Override
@@ -254,7 +288,9 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         if ( the_image_view == null) the_image_view = new ImageView();
         rotation = image_and_rotation.rotation();
         Platform.runLater(() -> {
-            vbox.getChildren().add(the_image_view);
+            ((FlowPane)the_box).getChildren().add(the_image_view);
+            //((HBox)the_box).getChildren().add(the_image_view);
+            //((VBox)the_box).getChildren().add(the_image_view);
             set_Image(image_and_rotation.image(),true);
         });
     }
@@ -361,63 +397,30 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
     }
     //**********************************************************
-    public static boolean would_produce_an_image_down_in_the_tree_files(Path local_path, Logger logger)
-    //**********************************************************
-    {
-       // long start = System.currentTimeMillis();
-        File dir = local_path.toFile();
-        File[] files = dir.listFiles();
-        if (files == null) {
-            if (dbg) logger.log("WARNING: dir is access denied: " + local_path);
-            return false;
-        }
-        if (files.length == 0) {
-            if (dbg) logger.log("dir is empty: " + local_path);
-            return false;
-        }
-
-        int count = 0;
-        for (File f : files) {
-            if (f.isDirectory()) continue; // ignore folders
-            if (Guess_file_type.is_file_an_image(f))
-            {
-                count++;
-                break;
-            }
-        }
-
-        //logger.log("would_produce_an_image_down_in_the_tree_files(2) for " + local_path + " in " + (System.currentTimeMillis() - start) + " milliseconds");
-        if (count == 0) return false;
-        return true;
-    }
-    
-    //**********************************************************
     @Override // Item
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(vbox);
+        Look_and_feel_manager.give_button_a_file_style(the_box);
     }
-
 
     //**********************************************************
     @Override // Item
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(vbox,label1);
+        Look_and_feel_manager.give_button_a_selected_file_style(the_box,label1);
     }
 
-
-
     //**********************************************************
-    private Label for_a_directory(String text, double icon_height, boolean extended)
+    private Label for_a_directory(String text, boolean show_disk_foot_print)
     //**********************************************************
     {
         Label label;
         String text2 = text;
         if ( path != null)
         {
-            if (Files.isSymbolicLink(path)) {
+            if (Files.isSymbolicLink(path))
+            {
                 text2 += " **Symbolic link** ";
             }
         }
@@ -429,17 +432,25 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             // protect crash when going up: root has no parent
             return label;
         }
+/*
+        the_vbox.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouse_event)
+            {
+                logger.log("\n\n\nItem_folder_with_icon MouseMoved: "+path+" h= "+ the_vbox.getHeight()+" vs "+get_Height()+"\n\n\n");
+            }
+        });
+*/
 
-        vbox.setOnMouseClicked(mouse_event -> {
-            if ( dbg) logger.log("\n\n\nItem_folder_with_icon MouseClicked: "+ mouse_event.toString()+"\n\n\n");
-
+        the_box.setOnMouseClicked(mouse_event -> {
+            if ( dbg)
+                logger.log("\n\n\nItem_folder_with_icon MouseClicked: "+path+" "+ mouse_event.toString()+"\n\n\n");
             if ( ignore_next_mouse_clicked)
             {
                 if(dbg) logger.log("\n\n\nMOUSE CLICK IGNORED! due to ignore_next_mouse_clicked="+ignore_next_mouse_clicked);
                 ignore_next_mouse_clicked = false;
                 return;
             }
-
             if (mouse_event.getButton() == MouseButton.SECONDARY )
             {
                 //logger.log("isSecondaryButtonDown");
@@ -457,17 +468,16 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             {
                 //logger.log("Item_folder_with_icon is NOT parent");
             }
+            logger.log("Item_folder_with_icon vbox setOnMouseClicked calling replace_different_folder");
             Browser_creation_context.replace_different_folder(path,browser, scroll_to, logger);
             mouse_event.consume();
         });
         make_button_drop_receiver_capable();
         give_a_menu_to_the_button();
-
-        if ( extended)
+        if ( show_disk_foot_print)
         {
-            show_disk_foot_print_folder(this, text, path, aborter, logger);
+            launch_disk_foot_print_thread(this, text, path, aborter, logger);
         }
-
         return label;
     }
 
@@ -476,7 +486,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     private void make_button_drop_receiver_capable()
     //**********************************************************
     {
-        vbox.setOnDragEntered(drag_event -> {
+        the_box.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered for button" );
 
             set_background_for_setOnDragEntered();
@@ -490,7 +500,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             drag_event.consume();
         });
 
-        vbox.setOnDragExited(drag_event -> {
+        the_box.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon::OnDragExited");
 
             set_background_for_setOnDragExited();
@@ -515,14 +525,14 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         });
 
 
-        vbox.setOnDragOver(drag_event -> {
+        the_box.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon OnDragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             set_background_for_setOnDragOver();
             drag_event.consume();
         });
 
-        vbox.setOnDragDropped(drag_event -> {
+        the_box.setOnDragDropped(drag_event -> {
 
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped for button");
 
@@ -530,15 +540,15 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                     browser.my_Stage.the_Stage,
                     drag_event,
                     path,
-                    vbox,
+                    the_box,
                     "button",
                     logger);
             drag_event.consume();
         });
-        vbox.setOnDragDetected(drag_event -> {
+        the_box.setOnDragDetected(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDetected for button !!" + drag_event);
 
-            Dragboard db = vbox.startDragAndDrop(TransferMode.MOVE);
+            Dragboard db = the_box.startDragAndDrop(TransferMode.MOVE);
 
             ClipboardContent content = new ClipboardContent();
             List<File> l = new ArrayList<>();
@@ -548,7 +558,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             drag_event.consume();
         });
 
-        vbox.setOnDragDone(drag_event -> {
+        the_box.setOnDragDone(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg)
             {
                 if (drag_event.getTransferMode() == TransferMode.MOVE)
@@ -607,9 +617,9 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
 
 
-        vbox.setOnContextMenuRequested(event -> {
+        the_box.setOnContextMenuRequested(event -> {
             if( dbg) logger.log("show context menu of button:"+ path.toAbsolutePath());
-            context_menu.show(vbox, event.getScreenX(), event.getScreenY());
+            context_menu.show(the_box, event.getScreenX(), event.getScreenY());
         });
     }
 
@@ -804,14 +814,19 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
     @Override
     public Node get_Node() {
-        return vbox;
+        return the_box;
     }
 
 
 
+    //**********************************************************
     @Override
-    public double get_Width() {
-        return icon_size;
+    public double get_Width()
+    //**********************************************************
+    {
+        double returned = folder_icon_size;
+        if ( returned < column_width) returned= column_width;
+        return returned;
     }
 
     //**********************************************************
@@ -819,7 +834,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     public double get_Height()
     //**********************************************************
     {
-        return icon_size;
+        return folder_icon_size + estimated_text_label_height;
     }
 
     //**********************************************************
@@ -875,7 +890,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
 
     //**********************************************************
-    public static void show_disk_foot_print_folder(
+    public static void launch_disk_foot_print_thread(
             Disk_foot_print_receiver disk_foot_print_receiver, String text, Path path,Aborter aborter,Logger logger)
     //**********************************************************
     {
@@ -902,6 +917,37 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             });
         };
         Actor_engine.execute(r,logger);
+    }
+
+    //**********************************************************
+    public static boolean would_produce_an_image_down_in_the_tree_files(Path local_path, Logger logger)
+    //**********************************************************
+    {
+       // long start = System.currentTimeMillis();
+        File dir = local_path.toFile();
+        File[] files = dir.listFiles();
+        if (files == null) {
+            if (dbg) logger.log("WARNING: dir is access denied: " + local_path);
+            return false;
+        }
+        if (files.length == 0) {
+            if (dbg) logger.log("dir is empty: " + local_path);
+            return false;
+        }
+
+        int count = 0;
+        for (File f : files) {
+            if (f.isDirectory()) continue; // ignore folders
+            if (Guess_file_type.is_file_an_image(f))
+            {
+                count++;
+                break;
+            }
+        }
+
+        //logger.log("would_produce_an_image_down_in_the_tree_files(2) for " + local_path + " in " + (System.currentTimeMillis() - start) + " milliseconds");
+        if (count == 0) return false;
+        return true;
     }
 */
 }

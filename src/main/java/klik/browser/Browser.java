@@ -515,7 +515,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
         Browser this_browser = this;
-        Look_and_feel_manager.set_region_look(the_Pane);
         {
             the_Pane.addEventHandler(MouseEvent.MOUSE_PRESSED, selection_handler::handle_mouse_pressed);
             the_Pane.addEventHandler(MouseEvent.MOUSE_DRAGGED, selection_handler::handle_mouse_dragged);
@@ -906,7 +905,12 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 rebuild_all_items);
 
         if (dbg) logger.log("the_pane scene_geometry_changed adapt_slider_to_scene");
-        if (!keep_scroll) {
+        if (keep_scroll)
+        {
+            vertical_slider.transform_pixel_value(0,icon_manager);
+        }
+        else
+        {
             vertical_slider.adapt_slider_to_scene(the_Scene, the_Pane);
         }
         set_title();

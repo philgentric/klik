@@ -18,7 +18,7 @@ public class Ding {
         local.setCycleCount(1);
         local.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
         local.setOnReady(() -> {
-            logger.log("player READY!");
+            logger.log("DING!");
             local.play();
         });
     }

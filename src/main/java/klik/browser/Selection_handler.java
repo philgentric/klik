@@ -250,10 +250,13 @@ public class Selection_handler
 
         // empty selection is a reset
         if ((w == 0) && (h == 0)) {
+            /*
             if (open_item_at(x, y, browser) == true)
             {
                 if ( Drag_and_drop.drag_and_drop_dbg) logger.log("selection area is EMPTY means click to open");
             }
+            */
+
             reset_selection();
             nothing_selected();
         }
@@ -285,7 +288,10 @@ public class Selection_handler
 
         switch (item.item_type) {
             case image_gif, image_not_gif -> ((Item_image) item).open_an_image(logger);
-            case symbolic_link_on_folder ,folder -> Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
+            case symbolic_link_on_folder ,folder -> {
+                logger.log("Selection_handler calling replace_different_folder");
+                Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
+            }
             default ->  System_open_actor.open_with_system(browser,item.get_item_path(),logger);
         }
         return true;

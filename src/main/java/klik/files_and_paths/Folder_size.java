@@ -1,11 +1,13 @@
 package klik.files_and_paths;
 
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
@@ -67,31 +69,37 @@ public class Folder_size {
         local_stage.setAlwaysOnTop(true);
         final boolean[] done = {false};
 
+        Aborter local = new Aborter();
+        local_stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                local.abort();
+            }
+        });
         Runnable r = () -> {
-            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path,aborter, logger);
+            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path,local, logger);
 
             Platform.runLater(() -> {
                 String size_on_disk = I18n.get_I18n_string("Size_on_disk",logger);
+                String bytes = Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes());
                 {
                     String display_text;
-
-                    if (sizes.bytes() < 0) {
+                    if (sizes.bytes() < 0)
+                    {
                         display_text = path+ "\nAn error occurred, probably Access Denied, check the logs";
                     } else {
-                        display_text = path+"\n"+size_on_disk + " " + Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes());
+                        display_text = path+"\n"+size_on_disk + " " + bytes;
                     }
                     textarea1.setText(display_text);
                     if (Item_button.dbg)  logger.log(display_text);
 
-                    String folders = I18n.get_I18n_string("Folders", logger);
-                    String files = I18n.get_I18n_string("Files", logger);
-                    String images = I18n.get_I18n_string("Images", logger);
+                    String folders_s = I18n.get_I18n_string("Folders", logger);
+                    String files_s = I18n.get_I18n_string("Files", logger);
+                    String image_s = I18n.get_I18n_string("Images", logger);
                     String ww ="\n";
                     for ( String w : sizes.warnings()) ww += w+"\n";
-                    textarea2.setText(folders+": "+ sizes.folders() + "\n"+files+": " + sizes.files() + "\n" + images+": "+sizes.images()+ww);
-                    {
-                        browser.set_status(path + " :  " + sizes.folders() + " " + folders + " , " + sizes.files() + " " + files + " , " + sizes.images() + " " + images + " , " + display_text);
-                    }
+                    textarea2.setText(folders_s+": "+ sizes.folders() + "\n"+files_s+": " + sizes.files() + "\n" + image_s+": "+sizes.images()+ww);
+                    browser.set_status(path + " :  " + sizes.folders() + " " + folders_s + " , " + sizes.files() + " " + files_s + " , " + sizes.images() + " " + image_s+" "+bytes);
                 }
             });
             done[0] =  true;
@@ -109,6 +117,7 @@ public class Folder_size {
                 progress_tracking_cancel[0].cancel(true);
                 return;
             }
+            if (aborter.should_abort()) local.abort();
             Platform.runLater(() -> textarea1.setText(progress_string[0]));
             progress_string[0] += STAR;
             if (progress_string[0].length() > 100) progress_string[0] = PLEASE_WAIT_SCANNING_FOLDERS;

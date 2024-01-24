@@ -26,7 +26,7 @@ public class From_disk
 
 
     //**********************************************************
-    public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, Aborter aborter, Logger logger)
+    public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
 
@@ -58,22 +58,25 @@ public class From_disk
         {
             if (Files.isDirectory(original_image_file))
             {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL this is a directory! get_image_InputStream:"+e));
+                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN (try to file-open a directory!) get_image_InputStream:"+e));
                 return null;
             }
             //logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            logger.log("get_image_InputStream:"+e);
+            if ( report_if_not_found)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("get_image_InputStream:"+e));
+            }
             return null;
         }
 
     }
 
     //**********************************************************
-    public static double get_aspect_ratio(Path path, Aborter aborter, Logger logger)
+    public static double get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("\n\nFrom_disk get_aspect_ratio "+path);
-        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter, null, logger);
+        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter, null, logger);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())
@@ -83,7 +86,7 @@ public class From_disk
         }
         if(Guess_file_type.is_file_an_image(path.toFile()))
         {
-            Image i = load_image_from_disk( path,  aborter,  logger);
+            Image i = load_image_from_disk( path,  true, aborter,  logger);
             if ( i==null)
             {
                 logger.log("cannot load image to get aspect ratio(1)"+path);
@@ -101,7 +104,7 @@ public class From_disk
 
 
     //**********************************************************
-    public static Image load_image_from_disk(Path original_image_file, Aborter aborter, Logger logger)
+    public static Image load_image_from_disk(Path original_image_file, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB) {
@@ -109,7 +112,7 @@ public class From_disk
             return null;
         }
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, aborter, logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
         Image image = new Image(input_stream);
         try {
@@ -143,11 +146,11 @@ public class From_disk
     }
     // this call RESIZES to the target icon size
     //**********************************************************
-    public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size, Aborter aborter, boolean dbg, Logger logger)
+    public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size,  boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************
     {
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, aborter,logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, dbg, aborter,logger);
         if (input_stream == null) return null;
         if ( aborter.should_abort()) return null;
         Image image = new Image(input_stream, icon_size, icon_size, true, true);

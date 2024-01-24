@@ -46,12 +46,12 @@ public class Exif_metadata_extractor
 
     //**********************************************************
     @Deprecated
-    public double get_rotation(double how_many_pixels, Aborter aborter)
+    public double get_rotation(boolean report_if_not_found, Aborter aborter)
     //**********************************************************
     {
         if ( exif_metadata != null ) return rotation;
         logger.log("Not a good idea");
-        return Fast_rotation_from_exif_metadata_extractor.get_rotation(path,aborter,logger);
+        return Fast_rotation_from_exif_metadata_extractor.get_rotation(path,report_if_not_found,aborter,logger);
 
         //get_exif_metadata(how_many_pixels, aborter,false);
         //return rotation;
@@ -64,7 +64,7 @@ public class Exif_metadata_extractor
         return image_is_damaged;
     }
     //**********************************************************
-    public List<String> get_exif_metadata(double how_many_pixels, Aborter aborter, boolean details)
+    public List<String> get_exif_metadata(double how_many_pixels, boolean report_if_not_found, Aborter aborter, boolean details)
     //**********************************************************
     {
         if ( exif_metadata != null) return exif_metadata;
@@ -94,8 +94,8 @@ public class Exif_metadata_extractor
             }
         }
 
-        String file_size = Files_and_Paths.get_2_line_string_with_size(path.toAbsolutePath(),logger);
-        file_size = file_size.replace("\n","  -  ");
+        String file_size = Files_and_Paths.get_1_line_string_with_size(path.toAbsolutePath(),logger);
+        //file_size = file_size.replace("\n","  -  ");
         exif_metadata.add(file_size);
 
         List<String> list_of_strings = null;
@@ -103,7 +103,7 @@ public class Exif_metadata_extractor
         {
             list_of_strings = new ArrayList<>();
         }
-        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,aborter,list_of_strings,logger);
+        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger);
         exif_metadata.add("aspect_ratio="+aspect_ratio);
 
         {
@@ -141,7 +141,7 @@ public class Exif_metadata_extractor
         image_is_damaged = false;
 
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, enable_fusk, report_if_not_found, aborter, logger);
         if ( is == null)
         {
             image_is_damaged = true;

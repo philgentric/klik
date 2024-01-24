@@ -1021,7 +1021,7 @@ public class Browser_menus
     public void create_menu_item_for_one_icon_size(Browser browser, Menu menu, int target_size, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
     {
-        CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string("Icon_size",logger) + " = " +target_size);
+        CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string("Icon_Size",logger) + " = " +target_size);
         int actual_size = Static_application_properties.get_icon_size(logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
@@ -1033,6 +1033,30 @@ public class Browser_menus
                 }
                 Static_application_properties.set_icon_size(target_size,logger);
                 browser.scene_geometry_changed("icon size changed",true,false);
+            }
+        });
+        menu.getItems().add(item);
+        all_check_menu_items.add(item);
+
+    }
+
+
+    //**********************************************************
+    public void create_menu_item_for_one_folder_icon_size(Browser browser, Menu menu, int target_size, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    //**********************************************************
+    {
+        CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string("Folder_Icon_Size",logger) + " = " +target_size);
+        int actual_size = Static_application_properties.get_folder_icon_size(logger);
+        item.setSelected(actual_size == target_size);
+        item.setOnAction(actionEvent -> {
+            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
+            if (local.isSelected()) {
+                for ( CheckMenuItem cmi : all_check_menu_items)
+                {
+                    if ( cmi != local) cmi.setSelected(false);
+                }
+                Static_application_properties.set_folder_icon_size(target_size,logger);
+                browser.scene_geometry_changed("folder icon size changed",true,false);
             }
         });
         menu.getItems().add(item);
@@ -1143,7 +1167,7 @@ public class Browser_menus
     public Menu make_icon_size_menu()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Icon_size",logger);
+        String text = I18n.get_I18n_string("Icon_Size",logger);
 
         Menu menu = new Menu(text);
 
@@ -1153,6 +1177,24 @@ public class Browser_menus
         for ( int size : possible_sizes)
         {
             create_menu_item_for_one_icon_size(browser, menu, size, all_check_menu_items, logger);
+        }
+
+        return menu;
+    }
+    //**********************************************************
+    public Menu make_folder_icon_size_menu()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Folder_Icon_Size",logger);
+
+        Menu menu = new Menu(text);
+
+        List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
+
+        int[] possible_sizes ={Static_application_properties.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
+        for ( int size : possible_sizes)
+        {
+            create_menu_item_for_one_folder_icon_size(browser, menu, size, all_check_menu_items, logger);
         }
 
         return menu;
@@ -1231,7 +1273,7 @@ public class Browser_menus
             if ( !Guess_file_type.is_file_an_image(f)) continue;
 
             Exif_metadata_extractor e = new Exif_metadata_extractor(f.toPath(),logger);
-            e.get_exif_metadata(0, browser.aborter,false);
+            e.get_exif_metadata(0, true, browser.aborter,false);
             if( !e.is_image_damaged()) continue;
             Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,f.toPath(), null, browser.aborter, logger);
         }

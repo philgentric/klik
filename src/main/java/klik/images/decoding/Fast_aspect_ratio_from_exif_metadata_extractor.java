@@ -25,7 +25,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
     private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done){}
 
     //**********************************************************
-    public static double get_aspect_ratio(Path path, Aborter aborter, List<String> sb, Logger logger)
+    public static double get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Logger logger)
     //**********************************************************
     {
         if( sb != null)
@@ -33,7 +33,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             sb.add(path.toString());
         }
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream is = From_disk.get_image_InputStream(path, enable_fusk, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, enable_fusk, report_if_not_found, aborter, logger);
         if ( is == null)
         {
             if ( sb != null)
@@ -52,7 +52,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
             if (sb != null)
             {
                 sb.add("\nstart loop on EXIF directories");
-                logger.log(Stack_trace_getter.get_stack_trace("WTF"));
+                //logger.log(Stack_trace_getter.get_stack_trace("WTF"));
             }
             for (Directory directory : metadata.getDirectories())
             {

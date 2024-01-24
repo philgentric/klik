@@ -717,17 +717,29 @@ public class Look_and_feel_manager
 
      *///**********************************************************
 
+
+
     //**********************************************************
-    public static void set_button_look_as_folder(Button button, double icon_height) // Button is a region
+    public static void set_dialog_look(Dialog dialog) // Dialog is NOT a node, it is completely appart
     //**********************************************************
     {
-        //logger.log("set_button_look_as_folder = "+icon_height);
-        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-        if (s == null) logger.log("WARNING: could not load folder icon");
-        Image icon = load_icon_fx_from_jar(s, icon_height);
-        if (icon == null) logger.log("WARNING: could not load " +s);
-        set_button_and_image_look(button, icon, icon_height, true);
+        DialogPane dialog_pane = dialog.getDialogPane();
+        Look_and_feel laf = get_instance();
+        if (laf.style_sheet_url_string != null) {
+            dialog_pane.getStylesheets().clear();
+            dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
+            dialog_pane.getStyleClass().add("my_dialog");
+        }
+        //Font_size.set_preferred_font_size(dialog_pane,logger);
+        Font_size.apply_font_size(dialog_pane,logger);
     }
+
+    /*
+
+                    NODE
+
+     */
+
 
     //**********************************************************
     public static void give_button_a_directory_style(Node node)
@@ -737,7 +749,7 @@ public class Look_and_feel_manager
         {
             button.setAlignment(Pos.BASELINE_LEFT);
         }
-        Objects.requireNonNull(get_instance()).set_directory_style(node);
+        (get_instance()).set_directory_style(node);
     }
     //**********************************************************
     public static void give_button_a_file_style(Node node)
@@ -745,9 +757,9 @@ public class Look_and_feel_manager
     {
         if (node instanceof Button button)
         {
-           button.setAlignment(Pos.BASELINE_LEFT);
+            button.setAlignment(Pos.BASELINE_LEFT);
         }
-        Objects.requireNonNull(get_instance()).set_file_style(node);
+        (get_instance()).set_file_style(node);
     }
     //**********************************************************
     public static void give_button_a_selected_file_style(Node node1, Node node2)
@@ -775,9 +787,21 @@ public class Look_and_feel_manager
         {
             button.setAlignment(Pos.BASELINE_LEFT);
         }
-        Objects.requireNonNull(get_instance()).set_selected_file_style(node);
+        (get_instance()).set_selected_file_style(node);
     }
 
+
+
+    /*
+
+                    REGION
+
+     */
+
+
+    // some regions are not affected by the global CSS
+    // this is the case for sub windows and dialogs
+    // but maybe also others? unclear
     //**********************************************************
     public static void set_region_look(Region region) // Region is a Node via Parent
     //**********************************************************
@@ -786,33 +810,20 @@ public class Look_and_feel_manager
         if (laf.style_sheet_url_string != null) {
             region.getStylesheets().clear();
             region.getStylesheets().add(laf.style_sheet_url_string);
+            region.getStyleClass().clear();
             region.getStyleClass().add("image-window");
         }
         //Font_size.set_preferred_font_size(region,logger);
         Font_size.apply_font_size(region,logger);
     }
 
-    //**********************************************************
-    public static void set_dialog_look(Dialog dialog) // Dialog is NOT a node, it is completely appart
-    //**********************************************************
-    {
-        DialogPane dialog_pane = dialog.getDialogPane();
-        Look_and_feel laf = get_instance();
-        if (laf.style_sheet_url_string != null) {
-            dialog_pane.getStylesheets().clear();
-            dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
-            dialog_pane.getStyleClass().add("my_dialog");
-        }
-        //Font_size.set_preferred_font_size(dialog_pane,logger);
-        Font_size.apply_font_size(dialog_pane,logger);
-    }
 
     //**********************************************************
     public static void set_label_look_for_folder(Label label) // Label is a Region
     //**********************************************************
     {
-        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-        if (s == null) logger.log("WARNING: could not load folder icon");
+        //String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
+        //if (s == null) logger.log("WARNING: could not load folder icon");
         set_label_look(label);
     }
 
@@ -830,6 +841,24 @@ public class Look_and_feel_manager
 
     }
 
+
+    /*
+
+                    Button
+
+     */
+
+    //**********************************************************
+    public static void set_button_look_as_folder(Button button, double icon_height) // Button is a region
+    //**********************************************************
+    {
+        //logger.log("set_button_look_as_folder = "+icon_height);
+        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
+        if (s == null) logger.log("WARNING: could not load folder icon");
+        Image icon = load_icon_fx_from_jar(s, icon_height);
+        if (icon == null) logger.log("WARNING: could not load " +s);
+        set_button_and_image_look(button, icon, icon_height, true);
+    }
 
     //**********************************************************
     public static void set_context_menu_look(ContextMenu context_menu)
@@ -910,16 +939,28 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static void set_vbox_look(VBox vbox) // VBox is a region
+    public static void set_box_look(Region r) // VBox is a region
     //**********************************************************
     {
         Look_and_feel laf = get_instance();
         Color color = laf.get_stroke_color_of_folder_items();
-        vbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
-        vbox.getStylesheets().clear();
-        vbox.getStylesheets().add(laf.style_sheet_url_string);
-        vbox.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+        r.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
+        r.getStylesheets().clear();
+        r.getStylesheets().add(laf.style_sheet_url_string);
+        r.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
     }
+
+    //**********************************************************
+    public static void set_hbox_look(HBox hbox,Color col) // VBox is a region
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance();
+        hbox.setBorder(new Border(new BorderStroke(col, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
+        hbox.getStylesheets().clear();
+        hbox.getStylesheets().add(laf.style_sheet_url_string);
+        hbox.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+    }
+
 
     //**********************************************************
     public static void set_drag_look_for_pane(Region pane)

@@ -42,6 +42,7 @@ public class Icon_manager
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final boolean add_and_remove = true;
+    public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
 
     private final Logger logger;
     private Landscape_height_listener landscape_height_listener;
@@ -98,14 +99,23 @@ public class Icon_manager
     //**********************************************************
     {
         double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
-        double icon_size = Static_application_properties.get_icon_size(logger);
-        double column_increment = icon_size;
-        int min_button_width = Static_application_properties.get_column_width(logger);
-        if ( column_increment < min_button_width) column_increment = min_button_width;
-        // the -100 is to make the button shorter than the full width so that
-        // the mouse selection can "start" in the rightmost part of the pane
-        if ( single_column) column_increment = pane.getWidth()-100;
-        double row_increment_for_dirs_with_picture = row_increment_for_dirs + icon_size;
+        int folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
+        int column_width = Static_application_properties.get_column_width(logger);
+        int column_increment_for_folders = column_width;
+        if ( column_increment_for_folders < folder_icon_size) column_increment_for_folders = folder_icon_size;
+
+        int icon_size = Static_application_properties.get_icon_size(logger);
+        int column_increment_for_icons = icon_size;
+
+        if ( single_column)
+        {
+            // the -100 is to make the button shorter than the full width so that
+            // the mouse selection can "start" in the rightmost part of the pane
+            column_increment_for_icons = (int)(pane.getWidth()-RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            column_increment_for_folders = column_increment_for_icons;
+        }
+        double row_increment_for_dirs_with_picture = row_increment_for_dirs + folder_icon_size;
+
         double scene_width = the_browser.the_Scene.getWidth();
         pane.getChildren().clear();
         pane.getChildren().addAll(mandatory);
@@ -153,9 +163,9 @@ public class Icon_manager
         }
         how_many_rows = 0;
         Point2D p = new Point2D(0, 0);
-        p = process_folders(the_browser, single_column, row_increment_for_dirs, column_increment, row_increment_for_dirs_with_picture, scene_width, p);
-        p = process_non_iconized_files(the_browser, single_column, column_increment, scene_width, p);
-        process_iconified_items(the_browser, single_column, icon_size, column_increment, scene_width, p);
+        p = process_folders(the_browser, single_column, row_increment_for_dirs, column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
+        p = process_non_iconized_files(the_browser, single_column, column_increment_for_folders, scene_width, p);
+        process_iconified_items(the_browser, single_column, icon_size, column_increment_for_icons, scene_width, p);
         compute_bounding_rectangle("map_buttons_and_icons() OK");
     }
 
@@ -166,12 +176,12 @@ public class Icon_manager
         double file_button_height = 2 * Static_application_properties.get_font_size(logger);
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
-        boolean use_aspect_ratio = false;
+        /*boolean use_aspect_ratio = false;
         if ( (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ||
             (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO))
         {
             use_aspect_ratio = true;
-        }
+        }*/
 
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = 0;
@@ -196,6 +206,8 @@ public class Icon_manager
             }
             else
             {
+                // this is an item that could have an image but the user prefers
+                // to see it as a text: we use an Item_button
                 String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
                 item = all_items_map.get(path);
                 if ( item == null)
@@ -212,7 +224,7 @@ public class Icon_manager
 
                 p = compute_next_Point2D_for_icons(p, item,
                         icon_size, icon_size,
-                        scene_width, single_column, use_aspect_ratio,max_y_in_row, current_row);
+                        scene_width, single_column,max_y_in_row, current_row);
             }
             else
             {
@@ -276,20 +288,11 @@ public class Icon_manager
         if ( Static_application_properties.get_show_icons_for_folders(logger))
         {
             actual_row_increment = row_increment_for_dirs_with_picture;
+            //logger.log("column_increment: "+column_increment+", row_increment: "+actual_row_increment);
+
             for (Path folder_path : paths_manager.folders.keySet())
             {
                 long start = System.currentTimeMillis();
-                /*
-                boolean has_picture = false;
-                if (Item_folder_with_icon.would_produce_an_image_down_in_the_tree_files(folder_path, logger))
-                {
-                    has_picture = true;
-                }
-                tot_ms += System.currentTimeMillis()-start;
-                logger.log("ZOZOZO: "+tot_ms);
-                */
-
-
                 if(dbg) logger.log("folder :"+folder_path+" took1 "+(System.currentTimeMillis()-start)+" milliseconds");
                 p = process_one_folder_with_picture(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
                 if(dbg) logger.log("folder :"+folder_path+" took2 "+(System.currentTimeMillis()-start)+" milliseconds");
@@ -326,9 +329,11 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, logger);
+             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, (int)column_increment, logger);
             all_items_map.put(folder_path, folder_item);
         }
+        //logger.log("column_increment: "+column_increment+", row_increment: "+row_increment);
+
         p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
         return p;
     }
@@ -348,14 +353,9 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-            if ( Static_application_properties.get_show_icons_for_folders(logger))
-            {
-                folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, logger);
-            }
-            else
-            {
-                folder_item = new Item_button(the_browser,folder_path, folder_path.getFileName().toString(), icon_height, false, false, logger);
-            }
+            // a "plain" folder is "like a file" from a layout point of view
+            // the difference is: it will get a border
+            folder_item = new Item_button(the_browser,folder_path, folder_path.getFileName().toString(), icon_height, false, false, logger);
             all_items_map.put(folder_path, folder_item);
         }
 
@@ -377,6 +377,7 @@ public class Icon_manager
         paths_manager.aspect_ratio_cache.clear_aspect_ratio_RAM_cache();
     }
 
+    long geometry_changed_elapsed = 0;
     //**********************************************************
     public void geometry_changed(Browser b,
                                  Pane pane,
@@ -386,6 +387,7 @@ public class Icon_manager
     )
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         if (scroll_dbg)
             logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" rebuild_all_items="+rebuild_all_items);
         boolean single_column = Static_application_properties.get_single_column(logger);
@@ -393,6 +395,8 @@ public class Icon_manager
         map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
+        geometry_changed_elapsed += (System.currentTimeMillis()-start);
+        logger.log("geometry_changed_elapsed= "+geometry_changed_elapsed);
     }
 
     //**********************************************************
@@ -510,23 +514,6 @@ public class Icon_manager
         }
     }
 
-
-
-
-    //**********************************************************
-    public void modify_button_fonts(double v)
-    //**********************************************************
-    {
-        for (Item i : all_items_map.values()) {
-            if (i instanceof Item_button) {
-                Item_button ini = (Item_button) i;
-                double s = ini.get_button().getFont().getSize();
-                Font f = new Font(s * v);
-                ini.get_button().setFont(f);
-
-            }
-        }
-    }
 
 
     //**********************************************************
@@ -660,7 +647,6 @@ public class Icon_manager
                                                    double row_increment,
                                                    double scene_width,
                                                    boolean single_column,
-                                                   boolean use_aspect_ratio,
                                                    double[] max_screen_y_in_row,
                                                    List<Item> current_row)
     //**********************************************************
@@ -773,17 +759,19 @@ public class Icon_manager
 
     //**********************************************************
     private Point2D new_Point_for_files_and_dirs(Point2D point,
-                                                 Item last_item,
+                                                 Item item,
                                                  double column_increment,
                                                  double row_increment,
                                                  double scene_width,
                                                  boolean single_column)
     //**********************************************************
     {
+        //logger.log("column_increment: "+column_increment+", row_increment: "+row_increment);
+
         double old_x = point.getX();
         double old_y = point.getY();
-        last_item.set_javafx_x(old_x);
-        last_item.set_javafx_y(old_y);
+        item.set_javafx_x(old_x);
+        item.set_javafx_y(old_y);
 
         double delta_h = row_increment;
         if ( single_column)
@@ -798,7 +786,7 @@ public class Icon_manager
         double future_x_with_width = future_x + column_increment;
         if (future_x_with_width > scene_width)
         {
-            // too far right, need to create a new row for THIS item
+            //logger.log("old_x: "+old_x+" column_increment: "+ column_increment+" future_x_with_width: "+future_x_with_width+">"+ scene_width+" too far right, need to create a new row "+item.get_item_path());
             how_many_rows++;
             double new_x = 0;
             double new_y = old_y + delta_h;
@@ -849,5 +837,23 @@ public class Icon_manager
             landscape_height_listener.browsed_landscape_height_has_changed(landscape_height,current_vertical_offset);
         }
     }
+
+
+/*
+    //**********************************************************
+    public void modify_button_fonts(double v)
+    //**********************************************************
+    {
+        for (Item i : all_items_map.values()) {
+            if (i instanceof Item_button) {
+                Item_button ini = (Item_button) i;
+                double s = ini.get_button().getFont().getSize();
+                Font f = new Font(s * v);
+                ini.get_button().setFont(f);
+
+            }
+        }
+    }
+*/
 
 }

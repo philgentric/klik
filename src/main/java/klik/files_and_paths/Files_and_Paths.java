@@ -539,26 +539,35 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static String get_2_line_string_with_size(Path path, Logger logger)
+    public static String get_1_line_string_with_size(Path path, Logger logger)
     //**********************************************************
     {
-        long size = path.toFile().length();
-        String bytes = I18n.get_I18n_string("Bytes", logger);
-        String kbytes = I18n.get_I18n_string("KBytes", logger);
-        String mbytes = I18n.get_I18n_string("MBytes", logger);
-        String file_size = size + " " + bytes;
-        if (size > 1000_000_000) {
-            double GB = (double) size / 1000_000_000.0;
-            file_size += "\n" + String.format("%.1f", GB) + " " + I18n.get_I18n_string("GBytes", logger);
-        } else if (size > 1000_000) {
-            double MB = (double) size / 1000_000.0;
-            file_size += "\n" + String.format("%.1f", MB) + " " + mbytes;
-        } else {
-            if (size > 1000) {
-                file_size += "\n" + String.format("%.1f", (double) size / 1000.0) + " " + kbytes;
-            }
+        long BYTES = path.toFile().length();
+        StringBuilder sb = new StringBuilder();
+        if (BYTES > 1000_000_000)
+        {
+            double GB = (double) BYTES / 1000_000_000.0;
+            String GBytes = I18n.get_I18n_string("GBytes", logger);
+            sb.append(String.format("%.1f", GB)).append(" ").append(GBytes);
         }
-        return file_size;
+        else if (BYTES > 1000_000)
+        {
+            double MB = (double) BYTES / 1000_000.0;
+            String MBytes = I18n.get_I18n_string("MBytes", logger);
+            sb.append(String.format("%.1f", MB)).append(" ").append(MBytes);
+        }
+        else if (BYTES > 1000)
+        {
+            String kBytes = I18n.get_I18n_string("KBytes", logger);
+            sb.append(String.format("%.1f", (double) BYTES / 1000.0)).append(" ").append(kBytes);
+        }
+        else
+        {
+            String bytes = I18n.get_I18n_string("Bytes", logger);
+            sb.append(BYTES).append(" ").append(bytes);
+        }
+
+        return sb.toString();
     }
 
 

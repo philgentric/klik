@@ -3,7 +3,7 @@ package klik.browser.icons;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import klik.actor.*;
-import klik.animated_gifs_from_videos.Ffmpeg_utils;
+import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_rotation;
 import klik.browser.items.Iconifiable_item_type;
 import klik.files_and_paths.Files_and_Paths;
@@ -133,14 +133,14 @@ public class Icon_factory_actor implements Actor
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
-                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), aborter, logger);
+                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
             }
             case no_path -> {
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
-                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), aborter, logger);
+                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
             }
 
@@ -226,7 +226,7 @@ public class Icon_factory_actor implements Actor
             if (dbg)
                 logger.log("Icon_factory thread:  load from cache FAILED for " + p.getFileName());
 
-            image = From_disk.read_original_image_from_disk_and_return_icon(p, icon_factory_request.icon_size, icon_factory_request.aborter, dbg, logger);
+            image = From_disk.read_original_image_from_disk_and_return_icon(p, icon_factory_request.icon_size, dbg, icon_factory_request.aborter, logger);
             if (icon_factory_request.aborter.should_abort())
             {
                 if ( aborting_dbg) logger.log("Icon_factory thread: aborting3");
@@ -406,7 +406,7 @@ public class Icon_factory_actor implements Actor
             renderer.setSubsamplingAllowed(true);
             int i = 0;
             {
-                int dpi = Static_application_properties.get_icon_size(logger);
+                int dpi = 10;//Static_application_properties.get_icon_size(logger);
                 BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
                 if (icon_factory_request.aborter.should_abort())
                 {
@@ -436,6 +436,7 @@ public class Icon_factory_actor implements Actor
                             writer = writers.next();
                             if (writer != null) {
                                 param = writer.getDefaultWriteParam();
+                                logger.log("PDF writer params="+param);
                                 metadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(image), param);
                                 if (metadata != null
                                         && !metadata.isReadOnly()

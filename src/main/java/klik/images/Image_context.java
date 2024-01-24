@@ -67,7 +67,7 @@ public class Image_context
     //**********************************************************
     {
         if ( !Files.exists(path)) return null;
-        Image local_image = From_disk.load_image_from_disk(path, aborter,logger_);
+        Image local_image = From_disk.load_image_from_disk(path, true, aborter,logger_);
         if ( local_image == null)
         {
             return null;
@@ -147,8 +147,8 @@ public class Image_context
         {
             Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,logger);
             double how_many_pixels = image.getWidth()*image.getHeight();
-            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,aborter,true);
-            rotation = extractor.get_rotation(how_many_pixels,aborter);
+            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,true, aborter,true);
+            rotation = extractor.get_rotation(true,aborter);
             if ( dbg) logger.log(path+" rotation="+rotation);
             image_is_damaged = extractor.is_image_damaged();
             title = extractor.title;
@@ -191,6 +191,7 @@ public class Image_context
         logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
         ScrollPane sp = new ScrollPane();
         Look_and_feel_manager.set_region_look(sp);
+        Look_and_feel_manager.set_region_look(textFlow);
         sp.setPrefSize(1000, 600);
         sp.setContent(textFlow);
         sp.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS);

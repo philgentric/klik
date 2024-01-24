@@ -1,4 +1,4 @@
-package klik.animated_gifs_from_videos;
+package klik.browser.icons.animated_gifs;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static klik.animated_gifs_from_videos.Animated_gif_from_folder.warning_IMAGEMAGIC;
+import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_IMAGEMAGIC;
 
 /*
 animated-GIF repairing utility: recover the frames and re-assemble them in a "more standard" format

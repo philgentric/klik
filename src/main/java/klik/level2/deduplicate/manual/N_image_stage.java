@@ -137,7 +137,7 @@ public class N_image_stage
 			}
 			title += local_file.my_file.file.getName()+"-";
 
-			Image image = From_disk.load_image_from_disk(local_file.my_file.file.toPath(),aborter, logger);
+			Image image = From_disk.load_image_from_disk(local_file.my_file.file.toPath(),true, aborter, logger);
 			ImageView image_view = new ImageView(image);
 			image_view.setPreserveRatio(true);
 			image_view.setSmooth(false);

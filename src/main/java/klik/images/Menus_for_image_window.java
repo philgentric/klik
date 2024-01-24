@@ -3,7 +3,7 @@ package klik.images;
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import klik.actor.Aborter;
-import klik.animated_gifs_from_videos.Gif_repair;
+import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.undo.Undo_engine;

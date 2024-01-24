@@ -72,11 +72,11 @@ public class Disk_scanner implements Runnable
         {
             if (aborter.should_abort())
             {
-                //logger.log("ABORTED3: Disk_scanner monitoring for "+path);
+                logger.log("ABORTED: Disk_scanner monitoring for "+path);
                 return;
             }
             try {
-                Thread.sleep(10);
+                Thread.sleep(10+folder_count_stop_counter.get());
                 //logger.log("how_many_folders="+how_many_folders);
             } catch (InterruptedException e) {
                 logger.log_stack_trace(origin+e.toString());
@@ -137,17 +137,10 @@ public class Disk_scanner implements Runnable
     public void run()
     //**********************************************************
     {
-        /*
-        try {
-            limiter.acquire();
-        } catch (InterruptedException e) {
-            logger.log_exception(Stack_trace_getter.get_stack_trace("Disk scanner"),e);
-            return;
-        }*/
+
         if (aborter.should_abort())
         {
-            //logger.log("ABORTED1: Disk_scanner for "+path);
-           // limiter.release();
+            logger.log("ABORTED1: Disk_scanner for "+path);
             return;
         }
         File[] all_files = path.toFile().listFiles();
@@ -160,14 +153,13 @@ public class Disk_scanner implements Runnable
             }
 
             folder_count_stop_counter.decrementAndGet();
-            //limiter.release();
             return ;
         }
         for (File f : all_files)
         {
             if (aborter.should_abort())
             {
-                //logger.log("ABORTED2: Disk_scanner for "+path);
+                logger.log("ABORTED2: Disk_scanner for "+path);
                 break;
             }
             if (f.isDirectory())
@@ -191,7 +183,6 @@ public class Disk_scanner implements Runnable
             }
         }
         folder_count_stop_counter.decrementAndGet();
-        //limiter.release();
     }
 
 

@@ -1,4 +1,4 @@
-package klik.animated_gifs_from_videos;
+package klik.browser.icons.animated_gifs;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -22,7 +22,6 @@ import klik.properties.Static_application_properties;
 import klik.util.Execute_command;
 import klik.util.From_disk;
 import klik.util.Logger;
-import klik.util.Threads;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;

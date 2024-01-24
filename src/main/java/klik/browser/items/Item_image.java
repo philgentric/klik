@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.animated_gifs_from_videos.Ffmpeg_utils;
+import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Browser;
 import klik.browser.Image_and_rotation;
 import klik.browser.System_open_actor;
@@ -357,7 +357,7 @@ public class Item_image extends Item implements Icon_destination
                     ) {
                         rotation = 0;
                     } else {
-                        Double rotation_double = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, aborter, logger);
+                        Double rotation_double = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
                         if ( rotation_double != null)
                         {
                             rotation = rotation_double;

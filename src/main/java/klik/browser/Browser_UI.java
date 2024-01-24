@@ -102,10 +102,7 @@ public class Browser_UI
         }
 
         Pane top_pane = define_top_bar_using_buttons_deep(height, up_button, trash);
-
-
         BorderPane bottom_border_pane = define_bottom_pane(top_pane);
-
         browser.the_Scene = new Scene(bottom_border_pane);//, W, H);
         browser.error_type = Error_type.OK;
 
@@ -130,15 +127,14 @@ public class Browser_UI
     //**********************************************************
     {
         BorderPane returned = new BorderPane();
-        Look_and_feel_manager.set_region_look(top_pane);
-
-
         returned.setTop(top_pane);
         returned.setCenter(browser.the_Pane);
         VBox the_status_bar = new VBox();
         browser.status = new TextField("Status: OK");
+        Look_and_feel_manager.set_region_look(browser.status);
         the_status_bar.getChildren().add(browser.status);
         returned.setBottom(the_status_bar);
+        Look_and_feel_manager.set_region_look(returned);
         return returned;
     }
 
@@ -393,6 +389,7 @@ public class Browser_UI
         //if (level2) pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
+        pref.getItems().add(browser_menus.make_folder_icon_size_menu());
         pref.getItems().add(browser_menus.make_column_width_menu());
         pref.getItems().add(browser_menus.make_font_size_menu_item());
         pref.getItems().add(browser_menus.make_style_menu_item());

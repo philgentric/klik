@@ -1,4 +1,4 @@
-package klik.animated_gifs_from_videos;
+package klik.browser.icons.animated_gifs;
 
 import klik.actor.Actor;
 import klik.actor.Message;

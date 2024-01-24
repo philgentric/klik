@@ -163,7 +163,7 @@ public class Guess_file_type
         if (! Guess_file_type.is_this_path_a_gif(path)) return false;
 
         Exif_metadata_extractor e = new Exif_metadata_extractor(path,logger);
-        List<String> l = e.get_exif_metadata(42,aborter,false);
+        List<String> l = e.get_exif_metadata(42,true, aborter,false);
 
         if ( l == null) return false;
         if ( l.isEmpty()) return false;

@@ -29,7 +29,7 @@ public class Static_image_utilities
     //**********************************************************
     {
         if (!Files.exists(path_)) return null;
-        javafx.scene.image.Image local_image = From_disk.load_image_from_disk(path_, aborter, logger_);
+        javafx.scene.image.Image local_image = From_disk.load_image_from_disk(path_, true, aborter, logger_);
         if ( local_image == null) return null;
         if ( local_image.isError())
         {
