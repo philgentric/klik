@@ -762,7 +762,7 @@ public class Look_and_feel_manager
         (get_instance()).set_file_style(node);
     }
     //**********************************************************
-    public static void give_button_a_selected_file_style(Node node1, Node node2)
+    public static void give_button_a_selected_file_style(Node node)
     //**********************************************************
     {
         // a klik browser "button" has 2 graphical components
@@ -770,14 +770,6 @@ public class Look_and_feel_manager
         // and "folders with icon" actually have a VBox and a label...
         //logger.log(Stack_trace_getter.get_stack_trace("give_button_a_selected_file_style"+node1+" "+node2 ));
 
-        do_one_node(node1);
-        if ( node2!=null) do_one_node(node2);
-    }
-
-    //**********************************************************
-    private static void do_one_node(Node node)
-    //**********************************************************
-    {
         if ( node == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("node is null"));
@@ -908,30 +900,32 @@ public class Look_and_feel_manager
         }
     }
 
-
     //**********************************************************
-    public static void set_button_look(Button button, boolean with_border) // Button is a Region
+    public static void set_button_look(Region r, boolean with_border) // Button is a Region
     //**********************************************************
     {
         Look_and_feel laf = get_instance();
         if ( laf.style_sheet_url_string !=null)
         {
-            button.getStylesheets().clear();
-            button.getStylesheets().add(laf.style_sheet_url_string);
-            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            r.getStylesheets().clear();
+            r.getStylesheets().add(laf.style_sheet_url_string);
+            r.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
             if ( with_border)
             {
-                button.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(2),new BorderWidths(1))));
-                button.setStyle("-fx-padding: 0 2 0 2;");
+                r.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
+                r.setStyle("-fx-padding: 0 2 0 2;");
             }
             //Font_size.set_preferred_font_size(button,logger);
-            Font_size.apply_font_size(button,logger);
+            Font_size.apply_font_size(r,logger);
 
-            Node g = button.getGraphic();
-            if ( g != null)
+            if ( r instanceof Button button)
             {
-                // the button has a Label... must set the right text color
-                g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+                Node g = button.getGraphic();
+                if ( g != null)
+                {
+                    // the button has a Label... must set the right text color
+                    g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+                }
             }
 
         }

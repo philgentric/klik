@@ -5,9 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
@@ -148,35 +146,38 @@ public class Item_button extends Item implements Icon_destination
             button.setMinWidth(button_width);
         }
 */
-        init_drag_and_drop();
+        init_drag_and_drop_sender_side();
     }
 
 
     public ImageView get_image_view(){return null;}
     public Pane get_pane(){return null;}
 
-    ImageView the_tooltip_image_view;
+    //ImageView the_tooltip_image_view;
 
     @Override
-    public void set_Image(Image i, boolean real)
+    public void set_Image(Image_and_rotation image_and_rotation, boolean real)
     //**********************************************************
     {
+        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
 
-        if ( the_tooltip_image_view == null) the_tooltip_image_view = new ImageView();
-        //logger.log(Stack_trace_getter.get_stack_trace("item non image set tooltip icon for "+path+ " image = "+i.getWidth()));
-        the_tooltip_image_view.setImage(i);
+        //if ( the_tooltip_image_view == null) the_tooltip_image_view = new ImageView();
+        //the_tooltip_image_view.setImage(image_and_rotation.image());
     }
     //**********************************************************
     @Override
     public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
+        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+        /*
         Tooltip tooltip =new Tooltip();
         button.setTooltip(tooltip);
         if ( the_tooltip_image_view == null) the_tooltip_image_view = new ImageView();
         tooltip.setGraphic(the_tooltip_image_view);
-        rotation = image_and_rotation.rotation();
-        set_Image(image_and_rotation.image(),true);
+        //the_rotation = image_and_rotation.rotation();
+        set_Image(image_and_rotation,true);
+         */
     }
 
 
@@ -341,7 +342,7 @@ public class Item_button extends Item implements Icon_destination
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button,label);
+        Look_and_feel_manager.give_button_a_selected_file_style(button);
     }
 
 
@@ -475,7 +476,7 @@ public class Item_button extends Item implements Icon_destination
 
         });
 
-        make_button_drop_receiver_capable();
+        init_drag_and_drop_RECEIVER_SIDE();
         give_a_menu_to_the_button();
 
         //if ( Static_application_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
@@ -484,7 +485,7 @@ public class Item_button extends Item implements Icon_destination
 
 
     //**********************************************************
-    private void make_button_drop_receiver_capable()
+    private void init_drag_and_drop_RECEIVER_SIDE()
     //**********************************************************
     {
         button.setOnDragEntered(drag_event -> {
@@ -515,9 +516,7 @@ public class Item_button extends Item implements Icon_destination
 
         button.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("ItemButton OnDragExited for button");
-
             set_background_for_setOnDragExited();
-
             /* mouse moved away, remove the graphical cues */
 
             /*Look_and_feel i = Look_and_feel_manager.get_instance();
@@ -543,13 +542,7 @@ public class Item_button extends Item implements Icon_destination
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver for button: "
                     +path.toAbsolutePath());
             drag_event.acceptTransferModes(TransferMode.MOVE);
-
             set_background_for_setOnDragOver();
-
-            //set_normal_background();
-
-            //button.getStylesheets().add(browser.browser_ui.style_sheet_url_string);
-            //button.getStyleClass().add(Browser_UI.LOOK_AND_FEEL_MENU_BUTTONS);
             drag_event.consume();
         });
 
@@ -564,6 +557,8 @@ public class Item_button extends Item implements Icon_destination
                     logger);
             drag_event.consume();
         });
+
+        /*
         button.setOnDragDetected(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDetected for button !!" + drag_event);
 
@@ -584,6 +579,8 @@ public class Item_button extends Item implements Icon_destination
             }
             drag_event.consume();
         });
+        */
+
     }
 
 

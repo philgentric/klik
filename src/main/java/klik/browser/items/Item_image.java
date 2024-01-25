@@ -46,7 +46,6 @@ public class Item_image extends Item implements Icon_destination
     protected ImageView image_view;
     Pane image_pane;
     private static final boolean visibility_dbg = false;
-    private boolean rotation_known = false;
     private Job job;
     public double aspect_ratio = -1.0;
 
@@ -84,7 +83,7 @@ public class Item_image extends Item implements Icon_destination
         //the_image_view.setManaged(false);
         image_view.setCache(true);
         image_view.setCacheHint(CacheHint.SPEED);
-        init_drag_and_drop();
+        init_drag_and_drop_sender_side();
 
 
         image_view.setOnMouseClicked(event ->
@@ -280,13 +279,12 @@ public class Item_image extends Item implements Icon_destination
     @Override
     public void receive_icon(Image_and_rotation image_and_rotation)
     {
-        rotation_known = true;
-        rotation = image_and_rotation.rotation();
-        set_Image(image_and_rotation.image(),true);
+        //the_rotation = image_and_rotation.rotation();
+        set_Image(image_and_rotation,true);
     }
     //**********************************************************
     @Override
-    public void set_Image(Image image, boolean image_is_the_good_one)
+    public void set_Image(Image_and_rotation image_and_rotation, boolean image_is_the_good_one2)
     //**********************************************************
     {
         if ( image_view == null)
@@ -302,12 +300,12 @@ public class Item_image extends Item implements Icon_destination
             icon_status = Icon_status.no_icon;
             return;
         }
-        if ( (image.getHeight() == 0) && (image.getWidth() == 0))
+        if ( (image_and_rotation.image().getHeight() == 0) && (image_and_rotation.image().getWidth() == 0))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
             return;
         }
-        Platform.runLater(() -> do_it_in_fx_thread(image, image_is_the_good_one));
+        Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation, image_is_the_good_one2));
     }
 
     //**********************************************************
@@ -331,7 +329,7 @@ public class Item_image extends Item implements Icon_destination
     }
 
     //**********************************************************
-    public void do_it_in_fx_thread(Image image, boolean image_is_the_good_one)
+    public void do_it_in_fx_thread(Image_and_rotation image_and_rotation, boolean image_is_the_good_one2)
     //**********************************************************
     {
         if ( image_view == null)
@@ -339,32 +337,41 @@ public class Item_image extends Item implements Icon_destination
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
             return;
         }
-        if (( image.getHeight() == 0) && (image.getWidth() ==0))
+        if (( image_and_rotation.image().getHeight() == 0) && (image_and_rotation.image().getWidth() ==0))
         {
             logger.log(Stack_trace_getter.get_stack_trace("empty image"));
             return;
         }
-        if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image.getWidth()+", h="+image.getHeight()+ " for: "+path);
-        image_view.setImage(image);
+        if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
+        image_view.setImage(image_and_rotation.image());
         // does not work: the_image_view.setStyle("-fx-background-color: BLACK");
-        if (image_is_the_good_one) {
-            if (!rotation_known) {
-                rotation_known = true;
-                if (Files.exists(path)) {
+        if (!image_is_the_good_one2)
+        {
+            logger.log("WGWFSFFSFFS");
+            icon_status = Icon_status.default_icon;
+            if (visibility_dbg) log_visibility_state_number(3);
+        }
+        else
+        {
+            Double local_rot = image_and_rotation.rotation();
+            if (local_rot == null)
+            {
+                if (Files.exists(path))
+                {
                     if (
-                            (Guess_file_type.is_this_path_a_video(path))
-                                    || (Guess_file_type.is_this_path_a_pdf(path))
-                    ) {
-                        rotation = 0;
-                    } else {
-                        Double rotation_double = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
-                        if ( rotation_double != null)
-                        {
-                            rotation = rotation_double;
-                            //logger.log(path+" rotation= "+ rotation_double);
-                        }
+                            (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
+                    )
+                    {
+                        logger.log("PDF => rot=0");
+                        local_rot = Double.valueOf(0);
                     }
-                } else {
+                    else
+                    {
+                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
+                    }
+                }
+                else
+                {
                     image_view.setImage(null);
                     icon_status = Icon_status.no_icon;
                     if (visibility_dbg) log_visibility_state_number(0);
@@ -375,67 +382,68 @@ public class Item_image extends Item implements Icon_destination
 
             // the above operation can take some time...
             // and in the mean time the situation can change
-            if (!visible_in_scene.get()) {
+            if (!visible_in_scene.get())
+            {
                 image_view.setImage(null);
                 icon_status = Icon_status.no_icon;
                 if (visibility_dbg) log_visibility_state_number(1);
                 return;
             }
 
-
             image_pane.setPrefWidth(icon_size);
             image_pane.setPrefHeight(icon_size);
             image_pane.setMinWidth(icon_size);
             image_pane.setMinHeight(icon_size);
 
-
             image_view.setSmooth(true);
 
-            if (( image.getHeight() >= icon_size) && (image.getWidth() >= icon_size))
+            if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
             {
+                logger.log("item_image 1");
+
                 image_view.setFitWidth(icon_size);
                 image_view.setFitHeight(icon_size);
-                if ((rotation == 90) || (rotation == 270))
+                if ((local_rot == 90) || (local_rot == 270))
                 {
                     logger.log("NEVER HAPPENS");
-                    image_view.setFitWidth(image.getHeight());
-                    image_view.setFitHeight(image.getWidth());
+                    image_view.setFitWidth(image_and_rotation.image().getHeight());
+                    image_view.setFitHeight(image_and_rotation.image().getWidth());
                 }
             }
             else
             {
-                if ((rotation == 90) || (rotation == 270))
+                if ((local_rot == 90) || (local_rot == 270))
                 {
-                    if ( image.getHeight() < image.getWidth())
+                    if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
                     {
+                        logger.log("item_image 2");
                         image_view.setFitWidth(icon_size);
                         image_view.setFitHeight(-1);
                     }
                     else
                     {
+                        logger.log("item_image 3");
                         image_view.setFitWidth(-1);
                         image_view.setFitHeight(icon_size);
                     }
                 }
                 else
                 {
-                    image_view.setFitWidth(image.getWidth());
-                    image_view.setFitHeight(image.getHeight());
+                    logger.log("item_image 4");
+                    image_view.setFitWidth(image_and_rotation.image().getWidth());
+                    image_view.setFitHeight(image_and_rotation.image().getHeight());
                 }
             }
 
-            rotate_and_center(image,image_pane);
-
+            if ( image_and_rotation.rotation() != null) {
+                image_pane.setRotate(image_and_rotation.rotation());
+            }
 
             icon_status = Icon_status.true_icon;
             if (visibility_dbg) log_visibility_state_number(2);
 
         }
-        else
-        {
-            icon_status = Icon_status.default_icon;
-            if (visibility_dbg) log_visibility_state_number(3);
-        }
+
     }
 
 

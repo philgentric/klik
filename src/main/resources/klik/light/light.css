@@ -94,7 +94,8 @@ Button:selected_item{
 
 
 .look_and_feel_drag {
-    -fx-background-color: #efefff;
+    -fx-background-color: #88ffff; // light blue
+//    -fx-background-color: #efefff;
 }
 
 

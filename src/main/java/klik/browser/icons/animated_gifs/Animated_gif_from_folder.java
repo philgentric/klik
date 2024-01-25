@@ -2,6 +2,7 @@ package klik.browser.icons.animated_gifs;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.files_and_paths.Files_and_Paths;
 import klik.properties.Static_application_properties;
@@ -16,8 +17,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static klik.browser.icons.Icon_factory_actor.png_extension;
-import static klik.browser.icons.Icon_writer_actor.make_cache_name;
 
 /*
 animated-GIF making utility:
@@ -30,7 +29,7 @@ public class Animated_gif_from_folder
 {
     public static final String warning_IMAGEMAGIC = "This feature requires ImageMagic\n . for mac: brew install imagemagick\n . for other systems download from imagemagic.org\n";
 
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
     public static final String FRAME1 = "Frame_";
     public static final String FRAME2 = "_"+FRAME1;
     public static final String PNG = ".png";
@@ -80,7 +79,7 @@ public class Animated_gif_from_folder
         for ( int i =0; i < images_in_folder.size(); i += inc)
         {
             File image_file = images_in_folder.get(i);
-            Image image = From_disk.load_icon_from_disk_cache(image_file.toPath(), actual_icon_cache_dir, icon_size, tag, png_extension, dbg,logger);
+            Image image = From_disk.load_icon_from_disk_cache(image_file.toPath(), actual_icon_cache_dir, icon_size, tag, Icon_factory_actor.png_extension, dbg,logger);
             if ( image == null)
             {
                 if ( dbg) logger.log("   fetching icon from cache FAILED for:"+image_file);
@@ -110,12 +109,12 @@ public class Animated_gif_from_folder
             }
 
             /* copy the icons to the folder_icon_folder */
-            String local = Icon_writer_actor.make_cache_name(in,FRAME1+i, png_extension);
+            String local = Icon_writer_actor.make_cache_name(in,FRAME1+i, Icon_factory_actor.png_extension);
             Path icon_path2 = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(),local);
             try {
                 //String icon_name = make_cache_name(image_file.toPath(),tag, png_extension);
                 //Path icon_path = Path.of(actual_icon_cache_dir.toAbsolutePath().toString(),icon_name);
-                File icon_file= From_disk.file_for_icon_cache(actual_icon_cache_dir.toAbsolutePath(), image_file.toPath(), tag, png_extension);
+                File icon_file= From_disk.file_for_icon_cache(actual_icon_cache_dir.toAbsolutePath(), image_file.toPath(), tag, Icon_factory_actor.png_extension);
 
                 Files.copy(icon_file.toPath(), icon_path2, REPLACE_EXISTING);
                 if ( dbg) logger.log("copy DONE "+icon_path2);

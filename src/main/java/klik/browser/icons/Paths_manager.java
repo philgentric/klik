@@ -93,12 +93,12 @@ public class Paths_manager
     }
 
 
-long scan_dir_elapsed = 0;
+    //long scan_dir_elapsed = 0;
     //**********************************************************
     public Error_type scan_dir(Path folder_path, Stage stage, String from)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         logger.log((from+" scan dir "+folder_path));
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
@@ -149,8 +149,8 @@ long scan_dir_elapsed = 0;
         };
         Actor_engine.execute(r,logger);
 
-        scan_dir_elapsed += (System.currentTimeMillis()-start);
-        logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
+        //scan_dir_elapsed += (System.currentTimeMillis()-start);
+        //logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
         return Error_type.OK;
     }
 

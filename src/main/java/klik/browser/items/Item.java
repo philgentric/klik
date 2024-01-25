@@ -6,8 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
@@ -18,6 +16,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
+import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_status;
 import klik.files_and_paths.Files_and_Paths;
@@ -46,7 +45,7 @@ public abstract class Item implements Icon_destination
 
 
     protected final int icon_size;
-    protected double rotation = 0; // cache
+    //protected Double the_rotation = null; // cache
     public Icon_status icon_status = Icon_status.no_icon;
 
     protected Path path;
@@ -122,14 +121,13 @@ public abstract class Item implements Icon_destination
     }
 
     public abstract Node get_Node();
-    public abstract ImageView get_image_view();
-    public abstract Pane get_pane();
 
     public abstract double get_Width();
     public abstract double get_Height();
 
     // this is called asynchronously from Icon_factory, when the icon has been made
-    public abstract void set_Image(Image i, boolean real);
+    //public abstract void set_Image(Image i, boolean real);
+    public abstract void set_Image(Image_and_rotation i_and_r, boolean real);
 
     @Override
     public Icon_status get_icon_status() {
@@ -184,9 +182,9 @@ public abstract class Item implements Icon_destination
                 Look_and_feel_manager.set_label_look((Label) node);
             }
         }
-        else if ( n instanceof VBox)
+        else if ( n instanceof FlowPane)
         {
-            ((VBox)n).setBackground(new Background(background_fill));
+            ((FlowPane)n).setBackground(new Background(background_fill));
         }
     }
 
@@ -200,7 +198,6 @@ public abstract class Item implements Icon_destination
     void set_background_for_setOnDragOver()
     {
         set_background_for_setOnDragEntered();
-
     }
 
     void set_background_for_setOnDragExited() {
@@ -211,12 +208,12 @@ public abstract class Item implements Icon_destination
 
     }
     //**********************************************************
-    public void init_drag_and_drop()
+    public void init_drag_and_drop_sender_side()
     //**********************************************************
     {
 
         get_Node().setOnDragDetected(drag_event -> {
-            if (dbg) logger.log("Item.init_drag_and_drop() drag detected");
+            if (dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
             Dragboard db = get_Node().startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
 /*
@@ -259,7 +256,7 @@ public abstract class Item implements Icon_destination
         get_Node().setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
-                if (dbg) logger.log("Item.init_drag_and_drop() : setOnDragDone for " + path.toAbsolutePath());
+                if (dbg) logger.log("Item.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
                 /*
                 DO NOT report it: it will be reported by the receiver Browser scene
                 List<Old_and_new_Path> l = new ArrayList<>();
@@ -365,50 +362,6 @@ public abstract class Item implements Icon_destination
     // it can be null, a PNG icon, or an animated gif
     abstract public Path get_path_for_display(boolean try_deep);
 
-
-    //**********************************************************
-    void rotate_and_center(Image image, Pane the_pane)
-    //**********************************************************
-    {
-/*
-        double small_h = 0.0;
-        double small_w = 0.0;
-        boolean wide = false;
-        if ( image.getHeight() < image.getWidth())
-        {
-            wide = true;
-            small_h = icon_size* image.getHeight()/ image.getWidth();
-            if( pos_dbg) logger.log("wide, small_h ="+small_h);
-        }
-        else
-        {
-            small_w = icon_size* image.getWidth()/ image.getHeight();
-            if( pos_dbg) logger.log("narrow, small_w ="+small_w);
-        }
-
-
-
-       if (( rotation == 90)||( rotation == 270))
-        {
-            if ( wide)
-            {
-                x_difference = -(icon_size-small_h)/2;
-                y_difference = (icon_size-small_h)/2;
-                if( pos_dbg) logger.log("rot90 wide x_difference="+x_difference+" y_difference="+y_difference);
-            }
-            else
-            {
-                x_difference = (icon_size-small_w)/2;//0;//(icon_size-actual)/2;
-                y_difference = 0;//(icon_size-actual)/2;
-                if( pos_dbg) logger.log("rot90 narrow x_difference="+x_difference+" y_difference="+y_difference);
-            }
-        }
-*/
-
-        the_pane.setRotate(rotation);
-
-
-    }
 
 
 

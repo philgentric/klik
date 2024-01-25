@@ -377,7 +377,7 @@ public class Icon_manager
         paths_manager.aspect_ratio_cache.clear_aspect_ratio_RAM_cache();
     }
 
-    long geometry_changed_elapsed = 0;
+   // long geometry_changed_elapsed = 0;
     //**********************************************************
     public void geometry_changed(Browser b,
                                  Pane pane,
@@ -395,8 +395,8 @@ public class Icon_manager
         map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
-        geometry_changed_elapsed += (System.currentTimeMillis()-start);
-        logger.log("geometry_changed_elapsed= "+geometry_changed_elapsed);
+        //geometry_changed_elapsed += (System.currentTimeMillis()-start);
+        //logger.log("geometry_changed_elapsed= "+geometry_changed_elapsed);
     }
 
     //**********************************************************
