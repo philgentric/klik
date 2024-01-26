@@ -410,8 +410,10 @@ public class Icon_factory_actor implements Actor
             renderer.setSubsamplingAllowed(true);
             int i = 0;
             {
-                int dpi = Static_application_properties.get_icon_size(logger);
-                BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
+                //int dpi = Static_application_properties.get_icon_size(logger);
+                BufferedImage image = renderer.renderImage(i);
+                logger.log("PDF = "+image.getWidth()+"x"+image.getHeight()+" aspect ratio = "+((double)(image.getWidth())/(double)(image.getHeight())));
+                //BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
                 if (icon_factory_request.aborter.should_abort())
                 {
                     if ( aborting_dbg) logger.log("Icon_factory thread: aborting11");
@@ -440,7 +442,6 @@ public class Icon_factory_actor implements Actor
                             writer = writers.next();
                             if (writer != null) {
                                 param = writer.getDefaultWriteParam();
-                                logger.log("PDF writer params="+param);
                                 metadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(image), param);
                                 if (metadata != null
                                         && !metadata.isReadOnly()

@@ -31,13 +31,13 @@ java {
 
 dependencies {
     // EXIF reader
-    implementation 'com.drewnoakes:metadata-extractor:2.18.0'
+    implementation 'com.drewnoakes:metadata-extractor:2.19.0'
     // Cache
-    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
     // files etc
-    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.15.1'
     // PDF icons
-    implementation 'org.apache.pdfbox:pdfbox:3.0.0-RC1'
+    implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '3.0.1'
 
 }
 

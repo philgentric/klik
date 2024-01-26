@@ -362,7 +362,7 @@ public class Item_image extends Item implements Icon_destination
                             (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
                     )
                     {
-                        logger.log("PDF => rot=0");
+                        if ( dbg) logger.log("PDF => rot=0");
                         local_rot = Double.valueOf(0);
                     }
                     else
