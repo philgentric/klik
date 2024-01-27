@@ -39,18 +39,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 
 //**********************************************************
-public class Item_folder_with_icon extends Item implements Icon_destination, File_count_receiver, Disk_foot_print_receiver
+public class Item_folder_with_icon extends Item implements Icon_destination, Disk_foot_print_receiver
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public final boolean is_trash;
-    public final boolean is_parent;
-    //public final boolean has_images;
     public final String text;
-
     double estimated_text_label_height;
 
     // these 2 are for the image representing the folder CONTENT
@@ -59,14 +56,10 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     // or an animated gif with a sample of the images in the folder
     ImageView the_image_view;
     FlowPane the_image_pane;
-//    Label label_for_sizes;
+    Label label_for_sizes;
     Job job;
     Button the_button;
-
-    private boolean ignore_next_mouse_clicked = false;
-    String file_count_text = ".......";
-    String disk_footprint_text = ".......";
-    boolean show_disk_foot_print = false;//Static_application_properties.
+    String disk_footprint_text;
     private final int folder_icon_size;
     private final int column_width; // as set by the icon manager
     //**********************************************************
@@ -74,7 +67,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             Browser browser,
             Path path_,
             String text_,
-            boolean is_trash_, boolean is_parent_,
             int column_width_,
             Logger logger)
     //**********************************************************
@@ -84,22 +76,22 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
         // launch content icon fabrication:
         Icon_factory_request ifr = new Icon_factory_request(this, folder_icon_size);
-        job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+        job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
 
         text = text_;
-        is_trash = is_trash_;
-        is_parent = is_parent_;
+        //is_trash = is_trash_;
+        //is_parent = is_parent_;
         //has_images = has_images_;
 
         double font_size = Static_application_properties.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
-        double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-        Image folder_icon = Look_and_feel_manager.get_folder_icon(icon_height);
-        if (folder_icon == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("WARNING: cannot get default icon for directory !?"));
-        }
+        //double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+        //Image folder_icon = Look_and_feel_manager.get_folder_icon(icon_height);
+        //if (folder_icon == null)
+        //{
+        //    logger.log(Stack_trace_getter.get_stack_trace("WARNING: cannot get default icon for directory !?"));
+        //}
 
         the_button = new Button(text);
         the_button.setTextOverrun(OverrunStyle.ELLIPSIS);
@@ -125,10 +117,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         init_drag_and_drop_receiver_side();
         init_drag_and_drop_sender_side();
         give_a_menu_to_the_button();
-        if ( show_disk_foot_print)
-        {
-            launch_disk_foot_print_thread(this, text, path, aborter, logger);
-        }
+
     }
 
 
@@ -168,8 +157,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     public void set_Image(Image_and_rotation image_and_rotation, boolean real2)
     //**********************************************************
     {
-        logger.log("set_Image ");
-
         if ( image_and_rotation.image() == null)
         {
             the_image_view = null;
@@ -193,55 +180,9 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             Path local = get_path_for_display(false);
             local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger);
-            image_and_rotation = new Image_and_rotation(image_and_rotation.image(),local_rot);
+            //image_and_rotation = new Image_and_rotation(image_and_rotation.image(),local_rot);
         }
-/*
-        if ((local_rot == 90) || (local_rot == 270))
-        {
-            if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
-            {
-                logger.log("option1 "+path);
-                the_image_view.setFitWidth(folder_icon_size-10);
-                the_image_view.setFitHeight(-1);
-            }
-            else
-            {
-                logger.log("option2 "+path);
-                the_image_view.setFitWidth(-1);
-                the_image_view.setFitHeight(folder_icon_size-10);
-            }
-        }
-        else
-        {
-            logger.log("option3 "+path);
-            the_image_view.setFitWidth(image_and_rotation.image().getWidth());
-            the_image_view.setFitHeight(image_and_rotation.image().getHeight());
-        }
-
- */
-        the_image_pane.setRotate(image_and_rotation.rotation());
-
-
-/*
-        if ( folder_icon_size > column_width)
-        {
-            double w = folder_icon_size-10;
-            if ( image_and_rotation.image().getWidth() > image_and_rotation.image().getHeight())
-            {
-                if ( (image_and_rotation.rotation() ==0) || (image_and_rotation.rotation()== 180))
-                {
-                    // downscale to fit in the VBOX WIDTH
-                    the_image_view.setFitWidth(w);
-                    the_image_view.setFitHeight(-1); // reset Height!
-                }
-                else
-                {
-                    the_image_view.setFitWidth(w);
-                }
-            }
-        }
-
- */
+        the_image_pane.setRotate(local_rot);
         resize_the_box(the_button);
     }
     //**********************************************************
@@ -267,15 +208,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
-        //if ( try_deep) logger.log(Stack_trace_getter.get_stack_trace("get_path_for_display with try deep "));
-        if (is_trash) return null;
-        if (is_parent) return null;
-        // for a file the displayed icon is built from THE FILE ITSELF, if supported:
-        if ( !path.toFile().isDirectory())
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
-            return path;
-        }
 
         if ( !try_deep)
         {
@@ -297,11 +229,13 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         if ( files == null)
         {
             if ( dbg) logger.log("WARNING: dir is access denied: "+path);
+            create_label_for_sizes("Access Denied?");
             return null;
         }
         if ( files.length == 0)
         {
             if ( dbg) logger.log("dir is empty: "+path);
+            create_label_for_sizes("Empty folder");
             return null;
         }
         Arrays.sort(files);
@@ -321,7 +255,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
             }
             images_in_folder.add(f);
         }
-        if ( images_in_folder.isEmpty()) {
+        if ( images_in_folder.isEmpty())
+        {
             for (File folder : files) {
                 if (folder.isDirectory()) {
                     File[] files2 = folder.listFiles();
@@ -340,28 +275,41 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
                     }
                 }
             }
+            create_label_for_sizes("...computing sizes...");
+            launch_disk_foot_print_thread(this, path, aborter, logger);
             return null;
-
         }
 
         Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage,path,  images_in_folder,  logger);
         if ( returned != null)
         {
-            logger.log("animated gif made");
+            if (dbg) logger.log("animated gif made");
             return returned;
         }
         if (images_in_folder.isEmpty())
         {
-            logger.log("no images");
+            if (dbg) logger.log("no images");
             return null;
         }
         else
         {
-            logger.log("picking first image");
+            if (dbg) logger.log("picking first image");
             return images_in_folder.get(0).toPath();
         }
-
     }
+
+    //**********************************************************
+    private void create_label_for_sizes(String s)
+    //**********************************************************
+    {
+        label_for_sizes = new Label(s);
+        Look_and_feel_manager.set_label_look(label_for_sizes);
+        Platform.runLater(() -> {
+            the_image_pane.getChildren().clear();
+            the_image_pane.getChildren().add(label_for_sizes);
+        });
+    }
+
     //**********************************************************
     @Override // Item
     public void set_is_unselected_internal()
@@ -389,7 +337,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
         the_button.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon::OnDragExited  RECEIVER SIDE");
             set_background_for_setOnDragExited();
-            ignore_next_mouse_clicked = true;
             drag_event.consume();
         });
         the_button.setOnDragOver(drag_event -> {
@@ -416,47 +363,27 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
     public void give_a_menu_to_the_button()
     //**********************************************************
     {
-        ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu);
-
         if (!Files.isDirectory(path))
         {
-            // is a "plain" file
-            //context_menu.getItems().add(create_rename_dir_menu_item());
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
-            context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            return;
         }
-        else
+        ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu);
+        context_menu.getItems().add(create_get_folder_size_menu_item());
+        context_menu.getItems().add(create_browse_in_new_window_menu_item());
+        context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
+        context_menu.getItems().add(create_rename_dir_menu_item());
+        context_menu.getItems().add(create_delete_dir_menu_item());
+        context_menu.getItems().add(create_copy_dir_menu_item());
         {
-            // is a folder
-            context_menu.getItems().add(create_get_folder_size_menu_item());
-            if ( is_trash)
-            {
-                MenuItem menu_item = create_clear_trash_menu_item();
-                context_menu.getItems().add(menu_item);
-            }
-
-            if(!is_trash && !is_parent)
-            {
-                context_menu.getItems().add(create_browse_in_new_window_menu_item());
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
-                context_menu.getItems().add(create_rename_dir_menu_item());
-                context_menu.getItems().add(create_delete_dir_menu_item());
-                context_menu.getItems().add(create_copy_dir_menu_item());
-                {
-                    Menu sub = new Menu("File deduplication tool");
-                    context_menu.getItems().add(sub);
-                    sub.getItems().add(create_help_on_deduplication_menu_item());
-                    sub.getItems().add(create_deduplication_count_menu_item());
-                    sub.getItems().add(create_manual_deduplication_menu_item());
-                    sub.getItems().add(create_auto_deduplication_menu_item());
-                }
-            }
+            Menu sub = new Menu("File deduplication tool");
+            context_menu.getItems().add(sub);
+            sub.getItems().add(create_help_on_deduplication_menu_item());
+            sub.getItems().add(create_deduplication_count_menu_item());
+            sub.getItems().add(create_manual_deduplication_menu_item());
+            sub.getItems().add(create_auto_deduplication_menu_item());
         }
-
-
-
-
         the_button.setOnContextMenuRequested(event -> {
             if( dbg) logger.log("show context menu of button:"+ path.toAbsolutePath());
             context_menu.show(the_button, event.getScreenX(), event.getScreenY());
@@ -669,50 +596,41 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Fil
 
     //**********************************************************
     @Override
-    public void set_file_count_text(String text)
-    //**********************************************************
-    {
-        file_count_text = text;
-        /*if ( has_images)
-        {
-            label1.setText(label1.getText() + "("+text+" files)");
-        }
-        else*/
-        {
-            //label_for_sizes.setText(file_count_text+"\ndisk size: "+disk_footprint_text);
-        }
-    }
-
-    //**********************************************************
-    @Override
     public void set_disk_foot_print_text(Sizes sizes)
     //**********************************************************
     {
-        file_count_text = sizes.files()+" files";
-        disk_footprint_text = sizes.bytes()+" bytes";
-        //if ( !has_images)
+        if (label_for_sizes == null)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.append(sizes.folders());
-            sb.append(" folders\n");
-            sb.append(sizes.files());
-            sb.append(" files\n");
-            sb.append(sizes.images());
-            sb.append(" images\n");
-            sb.append(sizes.bytes());
-            sb.append(" bytes\n");
-            //label_for_sizes.setText(sb.toString());
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            return;
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(sizes.folders());
+        sb.append(" folders\n");
+        sb.append(sizes.files());
+        sb.append(" files\n");
+        sb.append(sizes.images());
+        sb.append(" images\n");
+        sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes()));
+        label_for_sizes.setText(sb.toString());
+
     }
 
 
+static Random random = new Random();
 
     //**********************************************************
-    public static void launch_disk_foot_print_thread(
-            Disk_foot_print_receiver disk_foot_print_receiver, String text, Path path,Aborter aborter,Logger logger)
+    public static void launch_disk_foot_print_thread(Disk_foot_print_receiver disk_foot_print_receiver, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
+            try {
+                Thread.sleep(50+random.nextInt(300));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if ( aborter.should_abort()) return;
             Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter,logger);
             Platform.runLater(() -> {
                 disk_foot_print_receiver.set_disk_foot_print_text(sizes);

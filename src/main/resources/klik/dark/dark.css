@@ -15,7 +15,8 @@
     -fx-font-weight: bold;
     -fx-alignment: top-left;
     -fx-background-color: #1a1f2c;
-    -fx-padding: -1 -1 -1 -1;
+    //-fx-padding: -1 -1 -1 -1;
+    -fx-padding: 0 2 0 2;
 }
 
 

@@ -14,7 +14,6 @@ import klik.util.*;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.*;
@@ -40,6 +39,7 @@ public class Icon_factory_actor implements Actor
     private static final boolean pdf_dbg = false;
     private static final boolean aborting_dbg = false;
     private final Aspect_ratio_cache aspect_ratio_cache;
+    private final Rotation_cache rotation_cache;
 
     Logger logger;
     private final Stage owner;
@@ -64,19 +64,20 @@ public class Icon_factory_actor implements Actor
         videos_for_which_giffing_failed.clear();
     }
     //**********************************************************
-    public static Icon_factory_actor get_icon_factory(Aborter aborter, Aspect_ratio_cache aspect_ratio_cache, Stage owner, Logger logger)
+    public static Icon_factory_actor get_icon_factory(Aborter aborter, Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Stage owner, Logger logger)
     //**********************************************************
     {
         if (icon_factory == null) {
-            icon_factory = new Icon_factory_actor(aborter, aspect_ratio_cache, owner, logger);
+            icon_factory = new Icon_factory_actor(aborter, aspect_ratio_cache, rotation_cache, owner, logger);
         }
         return icon_factory;
     }
     //**********************************************************
-    private Icon_factory_actor(Aborter aborter, Aspect_ratio_cache aspect_ratio_cache, Stage owner_, Logger logger_)
+    private Icon_factory_actor(Aborter aborter, Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Stage owner_, Logger logger_)
     //**********************************************************
     {
         this.aspect_ratio_cache = aspect_ratio_cache;
+        this.rotation_cache = rotation_cache;
         this.aborter = aborter;
         owner = owner_;
         logger = logger_;
@@ -112,7 +113,7 @@ public class Icon_factory_actor implements Actor
         }
 
         Image image = null;
-        Double rotation = null;
+        Double rotation = Double.valueOf(0.0);
         switch (destination.get_item_type()) {
             case video -> {
                 image = process_video(icon_factory_request, destination);
@@ -130,21 +131,24 @@ public class Icon_factory_actor implements Actor
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
-                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_path_for_display_icon_destination(), false, aborter, logger);
+                    rotation = rotation_cache.get_rotation(destination.get_path_for_display_icon_destination());
+                    //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_path_for_display_icon_destination(), false, aborter, logger);
                 }
             }
             case image_gif, image_not_gif -> {
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
-                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
+                    rotation = rotation_cache.get_rotation(destination.get_item_path());
+                    //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
             }
             case no_path -> {
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
-                    rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
+                    rotation = rotation_cache.get_rotation(destination.get_item_path());
+                    //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
             }
 
@@ -412,7 +416,10 @@ public class Icon_factory_actor implements Actor
             {
                 //int dpi = Static_application_properties.get_icon_size(logger);
                 BufferedImage image = renderer.renderImage(i);
-                logger.log("PDF = "+image.getWidth()+"x"+image.getHeight()+" aspect ratio = "+((double)(image.getWidth())/(double)(image.getHeight())));
+                //if ( dbg)
+                    logger.log("PDF = "+image.getWidth()+"x"+image.getHeight()+" aspect ratio = "+((double)(image.getWidth())/(double)(image.getHeight())));
+                if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(icon_destination.get_item_path(),((double)(image.getWidth())/(double)(image.getHeight())));
+
                 //BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
                 if (icon_factory_request.aborter.should_abort())
                 {
@@ -504,7 +511,7 @@ public class Icon_factory_actor implements Actor
     }
 
 
-
+/*
     //**********************************************************
     public void cancel_all()
     //**********************************************************
@@ -512,4 +519,6 @@ public class Icon_factory_actor implements Actor
         Actor_engine.get(logger).cancel_all(jobs);
         jobs.clear();
     }
+
+ */
 }

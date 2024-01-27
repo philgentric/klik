@@ -830,7 +830,7 @@ public class Look_and_feel_manager
             label.getStylesheets().add(laf.style_sheet_url_string);
             label.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
         }
-
+        Font_size.apply_font_size(label,logger);
     }
 
 

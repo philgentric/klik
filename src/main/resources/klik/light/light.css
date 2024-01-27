@@ -55,7 +55,7 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
     -fx-font-weight: bold;
     -fx-alignment: top-left;
     -fx-background-color: white;
-    -fx-padding: -1 -1 -1 -1;
+    -fx-padding: 0 2 0 2;
 }
 
 .context-menu {

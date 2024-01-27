@@ -98,7 +98,7 @@ public class Item_button extends Item implements Icon_destination
                     logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN" + path));
                     if (dbg) logger.log("setting image tooltip");
                     Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                    job = Icon_factory_actor.get_icon_factory(browser.aborter, browser.icon_manager.paths_manager.aspect_ratio_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+                    job = Icon_factory_actor.get_icon_factory(browser.aborter, browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
                 }
                 else
                 {

@@ -2,7 +2,6 @@ package klik.util;
 
 import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
-import klik.properties.Static_application_properties;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class Cache_auto_clean
 
         monitored_folders.add(new Monitored_folder("Icon cache folder",Files_and_Paths.get_icon_cache_dir(logger)));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder("Aspect ratio cache folder",Files_and_Paths.get_aspect_ratio_cache_dir(logger)));
+        monitored_folders.add(new Monitored_folder("Aspect ratio cache folder",Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(logger)));
         
         //monitored_folders.add(new Monitored_folder("Trash folder",Static_application_properties.get_trash_dir(logger)));
 

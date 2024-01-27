@@ -25,8 +25,6 @@ public class Disk_scanner implements Runnable
     public final AtomicInteger folder_count_stop_counter;
     public final Aborter aborter;
     public final Logger logger;
-    //private final static Concurency_limiter limiter = new Concurency_limiter("Disk scanner",2,new System_out_logger());
-
 
     // this will BLOCK until the tree has been traversed
     //**********************************************************
@@ -72,7 +70,7 @@ public class Disk_scanner implements Runnable
         {
             if (aborter.should_abort())
             {
-                logger.log("ABORTED: Disk_scanner monitoring for "+path);
+                //logger.log("ABORTED: Disk_scanner monitoring for "+path);
                 return;
             }
             try {
@@ -137,10 +135,9 @@ public class Disk_scanner implements Runnable
     public void run()
     //**********************************************************
     {
-
         if (aborter.should_abort())
         {
-            logger.log("ABORTED1: Disk_scanner for "+path);
+            //logger.log("ABORTED1: Disk_scanner for "+path);
             return;
         }
         File[] all_files = path.toFile().listFiles();
@@ -159,7 +156,7 @@ public class Disk_scanner implements Runnable
         {
             if (aborter.should_abort())
             {
-                logger.log("ABORTED2: Disk_scanner for "+path);
+                //logger.log("ABORTED2: Disk_scanner for "+path);
                 break;
             }
             if (f.isDirectory())

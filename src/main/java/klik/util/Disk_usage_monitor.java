@@ -35,7 +35,7 @@ public class Disk_usage_monitor
         logger = logger_;
 
         monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger),true));
-        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_cache_dir(logger),true));
+        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(logger),true));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger),true));
         monitored_folders.add(new Monitored_folder(TRASH_FOLDER,Static_application_properties.get_trash_dir(logger),false));
 
@@ -93,7 +93,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
                         continue;
                     }
                 }

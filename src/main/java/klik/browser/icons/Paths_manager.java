@@ -32,7 +32,7 @@ public class Paths_manager
     // these MUST be mutually exclusive:
     public ConcurrentSkipListMap<Path,Integer> folders;
     public ConcurrentSkipListMap<Path,Integer> non_iconized;
-    ConcurrentSkipListMap<Path,Integer> iconized;
+    ConcurrentSkipListMap<Path, Aspect_ratio> iconized;
 
 
     public Comparator<? super Path> image_file_comparator;
@@ -41,7 +41,9 @@ public class Paths_manager
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
     public final Aborter aborter;
-    public Aspect_ratio_cache aspect_ratio_cache = null;
+    public Aspect_ratio_cache aspect_ratio_cache;
+    public Rotation_cache rotation_cache;
+
     private Refresh_target refresh_target;
 
     //**********************************************************
@@ -139,6 +141,11 @@ public class Paths_manager
             // start a thread that will refresh and switch the file_comparator
             aspect_ratio_cache.look_for_end(this, refresh_target,stage,  aborter);
         }
+        {
+            if (rotation_cache == null) rotation_cache = new Rotation_cache(folder_path,aborter,logger);
+            rotation_cache.reload_rotation_cache();
+
+        }
         boolean final_use_aspect_ratio = use_aspect_ratio;
         Runnable r = new Runnable() {
             @Override
@@ -229,7 +236,7 @@ public class Paths_manager
                     // special dirty case: MKV can be audio OR video ...
                     if ( Guess_file_type.is_this_a_video_or_audio_file(stage,path,logger))
                     {
-                        iconized.put(path,1);
+                        iconized.put(path,new Aspect_ratio(1,false));
                     }
                     else
                     {
@@ -237,7 +244,7 @@ public class Paths_manager
                     }
                     return;
                 }
-                iconized.put(path,1);
+                iconized.put(path,new Aspect_ratio(16.0/9.0,false));
                 return;
             }
             else
@@ -252,7 +259,7 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
-                iconized.put(path,1);
+                iconized.put(path,new Aspect_ratio(Aspect_ratio_message.ISO_A4_aspect_ratio,false));
                 return;
             }
             else
@@ -267,7 +274,7 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
-                iconized.put(path,1);
+                iconized.put(path,new Aspect_ratio(1.0,false));
                 return;
             }
             else
@@ -470,7 +477,10 @@ public class Paths_manager
 
     }
 
-    public NavigableSet<Path> get_iconized() {
-        return iconized.keySet();
+    //**********************************************************
+    public ConcurrentSkipListMap<Path, Aspect_ratio> get_iconized()
+    //**********************************************************
+    {
+        return iconized;
     }
 }

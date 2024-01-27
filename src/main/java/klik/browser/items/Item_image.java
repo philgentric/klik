@@ -15,14 +15,11 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
+import klik.browser.icons.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Browser;
 import klik.browser.Image_and_rotation;
 import klik.browser.System_open_actor;
-import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.Icon_factory_request;
-import klik.browser.icons.Icon_status;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
@@ -47,13 +44,13 @@ public class Item_image extends Item implements Icon_destination
     Pane image_pane;
     private static final boolean visibility_dbg = false;
     private Job job;
-    public double aspect_ratio = -1.0;
+    public Aspect_ratio aspect_ratio = null;
 
     //**********************************************************
     public Item_image(
             Browser b,
             Path p,
-            double aspect_ratio, Logger logger)
+            Aspect_ratio aspect_ratio, Logger logger)
     //**********************************************************
     {
         super(b,p, logger);
@@ -276,15 +273,17 @@ public class Item_image extends Item implements Icon_destination
         return icon_size;
     }
 
+    //**********************************************************
     @Override
     public void receive_icon(Image_and_rotation image_and_rotation)
+    //**********************************************************
     {
         //the_rotation = image_and_rotation.rotation();
         set_Image(image_and_rotation,true);
     }
     //**********************************************************
     @Override
-    public void set_Image(Image_and_rotation image_and_rotation, boolean image_is_the_good_one2)
+    public void set_Image(Image_and_rotation image_and_rotation, boolean image_is_the_good_one)
     //**********************************************************
     {
         if ( image_view == null)
@@ -305,7 +304,20 @@ public class Item_image extends Item implements Icon_destination
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
             return;
         }
-        Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation, image_is_the_good_one2));
+        if ( item_type == Iconifiable_item_type.pdf)
+        {
+            double local = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
+            if (aspect_ratio.truth())
+            {
+                if ( aspect_ratio.value() != local)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("aspect ratio discrepancy: from image "+local+" from data: "+aspect_ratio.value()));
+                }
+            }
+            logger.log(aspect_ratio.value()+" aspect ratio for PDF: "+ local);
+            aspect_ratio = new Aspect_ratio(local,true);
+        }
+        Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation, image_is_the_good_one));
     }
 
     //**********************************************************
@@ -324,12 +336,12 @@ public class Item_image extends Item implements Icon_destination
     {
 
         Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-        job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, owner, logger).make_icon(ifr);
+        job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, owner, logger).make_icon(ifr);
         icon_status = Icon_status.true_icon_requested;
     }
 
     //**********************************************************
-    public void do_it_in_fx_thread(Image_and_rotation image_and_rotation, boolean image_is_the_good_one2)
+    public void do_it_in_fx_thread(Image_and_rotation image_and_rotation, boolean image_is_the_good_one)
     //**********************************************************
     {
         if ( image_view == null)
@@ -344,10 +356,9 @@ public class Item_image extends Item implements Icon_destination
         }
         if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
         image_view.setImage(image_and_rotation.image());
-        // does not work: the_image_view.setStyle("-fx-background-color: BLACK");
-        if (!image_is_the_good_one2)
+        if (!image_is_the_good_one)
         {
-            logger.log("WGWFSFFSFFS");
+            logger.log(Stack_trace_getter.get_stack_trace("DEFAULT ICON"));
             icon_status = Icon_status.default_icon;
             if (visibility_dbg) log_visibility_state_number(3);
         }
@@ -399,13 +410,11 @@ public class Item_image extends Item implements Icon_destination
 
             if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
             {
-                logger.log("item_image 1");
-
                 image_view.setFitWidth(icon_size);
                 image_view.setFitHeight(icon_size);
                 if ((local_rot == 90) || (local_rot == 270))
                 {
-                    logger.log("NEVER HAPPENS");
+                    logger.log("HAPPENS for: "+path);
                     image_view.setFitWidth(image_and_rotation.image().getHeight());
                     image_view.setFitHeight(image_and_rotation.image().getWidth());
                 }
@@ -416,57 +425,48 @@ public class Item_image extends Item implements Icon_destination
                 {
                     if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
                     {
-                        logger.log("item_image 2");
                         image_view.setFitWidth(icon_size);
                         image_view.setFitHeight(-1);
                     }
                     else
                     {
-                        logger.log("item_image 3");
                         image_view.setFitWidth(-1);
                         image_view.setFitHeight(icon_size);
                     }
                 }
                 else
                 {
-                    logger.log("item_image 4");
                     image_view.setFitWidth(image_and_rotation.image().getWidth());
                     image_view.setFitHeight(image_and_rotation.image().getHeight());
                 }
             }
-
             if ( image_and_rotation.rotation() != null) {
                 image_pane.setRotate(image_and_rotation.rotation());
             }
-
             icon_status = Icon_status.true_icon;
             if (visibility_dbg) log_visibility_state_number(2);
-
         }
-
     }
 
-
-
+    //**********************************************************
     private void log_visibility_state_number(int i)
+    //**********************************************************
     {
         get_logger().log(path+" visibility state #" + i);
     }
 
-
+    //**********************************************************
     @Override
     public Node get_Node()
+    //**********************************************************
     {
         return image_pane;
     }
 
-    public ImageView get_image_view(){return image_view;}
-    public Pane get_pane(){return image_pane;}
-
-
-
+    //**********************************************************
     @Override
     public String get_string()
+    //**********************************************************
     {
         return "is Item_image for : " + path.toAbsolutePath();
     }

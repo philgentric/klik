@@ -111,7 +111,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
             Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
             browser.icon_manager.clear_aspect_ratio_cache();
         });
@@ -138,7 +138,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
             Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
         });
         return item;
@@ -160,14 +160,15 @@ public class Browser_menus
 
 
     //**********************************************************
-    public MenuItem make_clear_aspect_ratio_disk_cache_menu_item(Logger logger)
+    public MenuItem make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(Logger logger)
     //**********************************************************
     {
         String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_aspect_ratio_cache_on_disk_no_warning(logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
             browser.icon_manager.clear_aspect_ratio_cache();
+            browser.icon_manager.clear_rotation_cache();
         });
         return item;
     }
@@ -207,7 +208,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true, true);
+            browser.scene_geometry_changed("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true, false);
         });
         return item;
     }
@@ -1080,7 +1081,7 @@ public class Browser_menus
                     if (cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_font_size(target_size,logger);
-                browser.scene_geometry_changed("font size changed", true, true);
+                browser.scene_geometry_changed("font size changed", true, false);
             }
         });
         menu.getItems().add(item);

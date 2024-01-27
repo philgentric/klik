@@ -343,7 +343,7 @@ public class Browser_UI
             clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
             if (level2) clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
-            if (level2) clean.getItems().add(browser_menus.make_clear_aspect_ratio_disk_cache_menu_item(logger));
+            if (level2) clean.getItems().add(browser_menus.make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(logger));
             if (level2) clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
             if (level2) clean.getItems().add(browser_menus.make_clean_names_menu_item());
             if (level2) clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());

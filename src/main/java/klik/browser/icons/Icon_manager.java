@@ -176,31 +176,28 @@ public class Icon_manager
         double file_button_height = 2 * Static_application_properties.get_font_size(logger);
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
-        /*boolean use_aspect_ratio = false;
-        if ( (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ||
-            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO))
-        {
-            use_aspect_ratio = true;
-        }*/
-
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = 0;
         List<Item> current_row = new ArrayList<>();
         // manage iconized items
-        for (Path path : paths_manager.get_iconized())
+        for (Map.Entry<Path,Aspect_ratio> e : paths_manager.get_iconized().entrySet())
         {
+            Path path = e.getKey();
+            if ( path == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("BAD"));
+                continue;
+            }
             Item item;
             if (show_icons_instead_of_text)
             {
                 item = all_items_map.get(path);
                 if ( item == null)
                 {
-                    double aspect_ratio = 1.0;
-                    //if ( use_aspect_ratio)
-                    {
-                        aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
-                    }
-                    item = new Item_image(the_browser,path, aspect_ratio, logger);
+                    Aspect_ratio local_aspect_ratio = e.getValue();
+                    Aspect_ratio cache_aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
+                    Aspect_ratio best = Aspect_ratio_message.get_best(local_aspect_ratio,cache_aspect_ratio,path.toString(),logger);
+                    item = new Item_image(the_browser,path, best, logger);
                     all_items_map.put(path,item);
                 }
             }
@@ -329,7 +326,7 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), false, false, (int)column_increment, logger);
+             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), (int)column_increment, logger);
             all_items_map.put(folder_path, folder_item);
         }
         //logger.log("column_increment: "+column_increment+", row_increment: "+row_increment);
@@ -584,7 +581,7 @@ public class Icon_manager
     {
         //logger.log(("Icon_manager cancel all"));
         aborter.abort();
-        Icon_factory_actor.get_icon_factory(aborter,paths_manager.aspect_ratio_cache, owner, logger).cancel_all();
+        //Icon_factory_actor.get_icon_factory(aborter,paths_manager.aspect_ratio_cache,paths_manager.rotation_cache, owner, logger).cancel_all();
         for ( Item i : all_items_map.values())
         {
             i.cancel();
@@ -659,10 +656,12 @@ public class Icon_manager
         item.set_screen_x_of_image(current_screen_x);
         item.set_screen_y_of_image(current_screen_y);
 
-        if (((Item_image)item).aspect_ratio < 1.0)
+        if (((Item_image)item).aspect_ratio.value() < 1.0)
         {
+            logger.log("item ar<1 "+item.get_item_path());
+
             // portrait image
-            width_of_this = column_increment * ((Item_image)item).aspect_ratio;
+            width_of_this = column_increment * ((Item_image)item).aspect_ratio.value();
             double neg_x = (width_of_this-column_increment)/2.0;
             // shift left to compensate the portrait
             item.set_javafx_x(current_screen_x+neg_x);
@@ -670,9 +669,10 @@ public class Icon_manager
         }
         else
         {
+            logger.log("item ar>1 "+item.get_item_path());
             // landscape image
             item.set_javafx_x(current_screen_x);
-            height_of_this = row_increment/((Item_image)item).aspect_ratio;
+            height_of_this = row_increment/((Item_image)item).aspect_ratio.value();
             double neg_y = (height_of_this-row_increment)/2.0;
             // shift up to compensate the landscape
             item.set_javafx_y(current_screen_y+neg_y);
@@ -713,7 +713,7 @@ public class Icon_manager
             {
                 if (i.get_screen_y_of_image() < min_y) min_y = i.get_screen_y_of_image();
                 double height = 0;
-                if (((Item_image)i).aspect_ratio < 1.0)
+                if (((Item_image)i).aspect_ratio.value() < 1.0)
                 {
                     // portrait image
                     height=row_increment;
@@ -721,7 +721,7 @@ public class Icon_manager
                 else
                 {
                     // landscape image
-                    height = row_increment/((Item_image)i).aspect_ratio;
+                    height = row_increment/((Item_image)i).aspect_ratio.value();
                 }
                 if (i.get_screen_y_of_image()+height > max_y) max_y = i.get_screen_y_of_image()+height;
             }
@@ -729,7 +729,7 @@ public class Icon_manager
             for(Item i : current_row)
             {
                 double height = 0;
-                if (((Item_image)i).aspect_ratio < 1.0)
+                if (((Item_image)i).aspect_ratio.value() < 1.0)
                 {
                     // portrait image
                     height=row_increment;
@@ -737,7 +737,7 @@ public class Icon_manager
                 else
                 {
                     // landscape image
-                    height = row_increment/((Item_image)i).aspect_ratio;
+                    height = row_increment/((Item_image)i).aspect_ratio.value();
                 }
                 double diff = (row_height-height)/2.0;
                 i.set_javafx_y(i.get_javafx_y()+diff);
@@ -836,6 +836,11 @@ public class Icon_manager
         {
             landscape_height_listener.browsed_landscape_height_has_changed(landscape_height,current_vertical_offset);
         }
+    }
+
+    public void clear_rotation_cache() {
+        if ( paths_manager.rotation_cache == null) return;
+        paths_manager.rotation_cache.clear_rotation_RAM_cache();
     }
 
 

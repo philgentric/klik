@@ -8,7 +8,6 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.look.Look_and_feel_manager;
-import klik.util.Threads;
 import klik.change.Change_gang;
 import klik.level2.deduplicate.console.Deduplication_console_interface;
 import klik.browser.icons.Icon_factory_actor;
@@ -26,7 +25,6 @@ import org.apache.commons.io.FileExistsException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -165,12 +163,12 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static Path get_aspect_ratio_cache_dir(Logger logger)
+    public static Path get_aspect_ratio_and_rotation_caches_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Static_application_properties.get_absolute_dir(logger, Static_application_properties.ASPECT_RATIO_CACHE_DIR);
+        Path tmp_dir = Static_application_properties.get_absolute_dir(logger, Static_application_properties.ASPECT_RATIO_AND_ROTATION_CACHES_DIR);
         if (dbg) if (tmp_dir != null) {
-            logger.log("icon dir file=" + tmp_dir.toAbsolutePath());
+            logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
         }
         return tmp_dir;
     }
@@ -239,11 +237,12 @@ public class Files_and_Paths {
         delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
     }
 
+
     //**********************************************************
-    public static void clear_aspect_ratio_cache_on_disk_no_warning(Logger logger)
+    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(Logger logger)
     //**********************************************************
     {
-        Path icons = get_aspect_ratio_cache_dir(logger);
+        Path icons = get_aspect_ratio_and_rotation_caches_dir(logger);
         delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
     }
 
