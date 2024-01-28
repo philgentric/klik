@@ -471,7 +471,7 @@ public class Item_button extends Item implements Icon_destination
             // if the button represents a folder, clicking on it "opens" that folder
             // = we create a NEW browser, as a replacement
 
-            logger.log("Item_button button setOnAction calling replace_different_folder");
+            if( dbg) logger.log("Item_button button setOnAction calling replace_different_folder");
             Browser_creation_context.replace_different_folder(path,browser,scroll_to,logger);
 
         });

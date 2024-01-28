@@ -5,9 +5,10 @@ import javafx.stage.Stage;
 import klik.actor.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_rotation;
+import klik.browser.icons.caches.Aspect_ratio_cache;
+import klik.browser.icons.caches.Rotation_cache;
 import klik.browser.items.Iconifiable_item_type;
 import klik.files_and_paths.Files_and_Paths;
-import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.level2.experimental.performance_monitoring.Sample_collector;
 import klik.properties.Static_application_properties;
 import klik.util.*;
@@ -153,15 +154,19 @@ public class Icon_factory_actor implements Actor
             }
 
         }
-        Image_and_rotation image_and_rotation = new Image_and_rotation(image,rotation);
-
-        if (dbg) logger.log("Icon_factory icon ready");
-
         if (image == null) {
             // must treat as non_image
             if (dbg) logger.log("making an icon failed for : " + destination.get_item_path());
             return;
         }
+        if (( image.getWidth()==0)||(image.getHeight()==0))
+        {
+            // must treat as non_image
+            //if (dbg)
+                logger.log("empty icon for : " + destination.get_item_path());
+            return;
+        }
+        Image_and_rotation image_and_rotation = new Image_and_rotation(image,rotation);
         destination.receive_icon(image_and_rotation);
         if ( rotation!=null)
         {
@@ -171,7 +176,7 @@ public class Icon_factory_actor implements Actor
                 aspect_ratio = 1/aspect_ratio;
             }
             if(dbg) logger.log("Icon_factory_actor "+destination.get_item_path()+" "+aspect_ratio+" w="+image.getWidth()+" h="+image.getHeight());
-            if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(destination.get_item_path(),aspect_ratio);
+            if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(destination.get_item_path(),aspect_ratio,true);
         }
     }
 
@@ -234,7 +239,7 @@ public class Icon_factory_actor implements Actor
             if (dbg)
                 logger.log("Icon_factory thread:  load from cache FAILED for " + path.getFileName());
 
-            image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, dbg, icon_factory_request.aborter, logger);
+            image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, true, icon_factory_request.aborter, logger);
             if (icon_factory_request.aborter.should_abort())
             {
                 if ( aborting_dbg) logger.log("Icon_factory thread: aborting3");
@@ -416,9 +421,9 @@ public class Icon_factory_actor implements Actor
             {
                 //int dpi = Static_application_properties.get_icon_size(logger);
                 BufferedImage image = renderer.renderImage(i);
-                //if ( dbg)
+                if ( pdf_dbg)
                     logger.log("PDF = "+image.getWidth()+"x"+image.getHeight()+" aspect ratio = "+((double)(image.getWidth())/(double)(image.getHeight())));
-                if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(icon_destination.get_item_path(),((double)(image.getWidth())/(double)(image.getHeight())));
+                if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(icon_destination.get_item_path(),((double)(image.getWidth())/(double)(image.getHeight())),true);
 
                 //BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
                 if (icon_factory_request.aborter.should_abort())
@@ -511,14 +516,4 @@ public class Icon_factory_actor implements Actor
     }
 
 
-/*
-    //**********************************************************
-    public void cancel_all()
-    //**********************************************************
-    {
-        Actor_engine.get(logger).cancel_all(jobs);
-        jobs.clear();
-    }
-
- */
 }

@@ -226,7 +226,7 @@ public class Files_and_Paths {
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
 
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,logger);
     }
 
     //**********************************************************
@@ -234,7 +234,7 @@ public class Files_and_Paths {
     //**********************************************************
     {
         Path icons = get_icon_cache_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
     }
 
 
@@ -243,7 +243,7 @@ public class Files_and_Paths {
     //**********************************************************
     {
         Path icons = get_aspect_ratio_and_rotation_caches_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false,logger);
     }
 
     //**********************************************************
@@ -260,7 +260,7 @@ public class Files_and_Paths {
             s2 = size / 1000_000.0 + I18n.get_I18n_string("MB_deleted", logger);
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,logger);
     }
 
     //**********************************************************
@@ -268,7 +268,7 @@ public class Files_and_Paths {
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
     }
 
 
@@ -287,7 +287,7 @@ public class Files_and_Paths {
 
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-        delete_for_ever_all_files_in_dir_in_a_thread(trash, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(trash, true,logger);
     }
 
 
@@ -572,12 +572,12 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, Logger logger)
+    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Logger logger)
     //**********************************************************
     {
 
         Runnable r = () -> {
-            String s = delete_for_ever_all_files_in_dir(dir, logger);
+            String s = delete_for_ever_all_files_in_dir(dir, also_folders,logger);
             if ( s != null)
             {
                 Runnable rr = new Runnable() {
@@ -601,7 +601,7 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    private static String delete_for_ever_all_files_in_dir(Path dir, Logger logger)
+    private static String delete_for_ever_all_files_in_dir(Path dir, boolean also_folders, Logger logger)
     //**********************************************************
     {
 
@@ -612,8 +612,9 @@ public class Files_and_Paths {
             {
                 if (Files.isDirectory(p))
                 {
-                    String s = delete_for_ever_all_files_in_dir(p, logger);
+                    String s = delete_for_ever_all_files_in_dir(p, also_folders, logger);
                     if ( s != null) return s;
+                    if (also_folders) Files.delete(p);
                 }
                 else
                 {

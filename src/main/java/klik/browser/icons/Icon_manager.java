@@ -6,7 +6,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
@@ -19,13 +18,12 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
-import java.nio.file.Path;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -180,9 +178,8 @@ public class Icon_manager
         max_y_in_row[0] = 0;
         List<Item> current_row = new ArrayList<>();
         // manage iconized items
-        for (Map.Entry<Path,Aspect_ratio> e : paths_manager.get_iconized().entrySet())
+        for (Path path : paths_manager.get_iconized().keySet())
         {
-            Path path = e.getKey();
             if ( path == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("BAD"));
@@ -194,10 +191,10 @@ public class Icon_manager
                 item = all_items_map.get(path);
                 if ( item == null)
                 {
-                    Aspect_ratio local_aspect_ratio = e.getValue();
-                    Aspect_ratio cache_aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
-                    Aspect_ratio best = Aspect_ratio_message.get_best(local_aspect_ratio,cache_aspect_ratio,path.toString(),logger);
-                    item = new Item_image(the_browser,path, best, logger);
+                    //Aspect_ratio local_aspect_ratio = e.getValue();
+                    Double cache_aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
+                    //Aspect_ratio best = Aspect_ratio_message.get_best(local_aspect_ratio,cache_aspect_ratio,path.toString(),logger);
+                    item = new Item_image(the_browser,path, cache_aspect_ratio, logger);
                     all_items_map.put(path,item);
                 }
             }
@@ -371,7 +368,7 @@ public class Icon_manager
     //**********************************************************
     {
         if ( paths_manager.aspect_ratio_cache == null) return;
-        paths_manager.aspect_ratio_cache.clear_aspect_ratio_RAM_cache();
+        paths_manager.aspect_ratio_cache.clear_RAM_cache();
     }
 
    // long geometry_changed_elapsed = 0;
@@ -656,12 +653,12 @@ public class Icon_manager
         item.set_screen_x_of_image(current_screen_x);
         item.set_screen_y_of_image(current_screen_y);
 
-        if (((Item_image)item).aspect_ratio.value() < 1.0)
+        if (((Item_image)item).aspect_ratio < 1.0)
         {
-            logger.log("item ar<1 "+item.get_item_path());
+            if (dbg) logger.log("item is portrait aspect ratio: "+item.get_item_path());
 
             // portrait image
-            width_of_this = column_increment * ((Item_image)item).aspect_ratio.value();
+            width_of_this = column_increment * ((Item_image)item).aspect_ratio;
             double neg_x = (width_of_this-column_increment)/2.0;
             // shift left to compensate the portrait
             item.set_javafx_x(current_screen_x+neg_x);
@@ -669,10 +666,9 @@ public class Icon_manager
         }
         else
         {
-            logger.log("item ar>1 "+item.get_item_path());
-            // landscape image
+            if( dbg) logger.log("item is landscape aspect ratio: "+item.get_item_path());
             item.set_javafx_x(current_screen_x);
-            height_of_this = row_increment/((Item_image)item).aspect_ratio.value();
+            height_of_this = row_increment/((Item_image)item).aspect_ratio;
             double neg_y = (height_of_this-row_increment)/2.0;
             // shift up to compensate the landscape
             item.set_javafx_y(current_screen_y+neg_y);
@@ -713,7 +709,7 @@ public class Icon_manager
             {
                 if (i.get_screen_y_of_image() < min_y) min_y = i.get_screen_y_of_image();
                 double height = 0;
-                if (((Item_image)i).aspect_ratio.value() < 1.0)
+                if (((Item_image)i).aspect_ratio < 1.0)
                 {
                     // portrait image
                     height=row_increment;
@@ -721,7 +717,7 @@ public class Icon_manager
                 else
                 {
                     // landscape image
-                    height = row_increment/((Item_image)i).aspect_ratio.value();
+                    height = row_increment/((Item_image)i).aspect_ratio;
                 }
                 if (i.get_screen_y_of_image()+height > max_y) max_y = i.get_screen_y_of_image()+height;
             }
@@ -729,7 +725,7 @@ public class Icon_manager
             for(Item i : current_row)
             {
                 double height = 0;
-                if (((Item_image)i).aspect_ratio.value() < 1.0)
+                if (((Item_image)i).aspect_ratio < 1.0)
                 {
                     // portrait image
                     height=row_increment;
@@ -737,7 +733,7 @@ public class Icon_manager
                 else
                 {
                     // landscape image
-                    height = row_increment/((Item_image)i).aspect_ratio.value();
+                    height = row_increment/((Item_image)i).aspect_ratio;
                 }
                 double diff = (row_height-height)/2.0;
                 i.set_javafx_y(i.get_javafx_y()+diff);
@@ -838,27 +834,12 @@ public class Icon_manager
         }
     }
 
-    public void clear_rotation_cache() {
-        if ( paths_manager.rotation_cache == null) return;
-        paths_manager.rotation_cache.clear_rotation_RAM_cache();
-    }
-
-
-/*
     //**********************************************************
-    public void modify_button_fonts(double v)
+    public void clear_rotation_cache()
     //**********************************************************
     {
-        for (Item i : all_items_map.values()) {
-            if (i instanceof Item_button) {
-                Item_button ini = (Item_button) i;
-                double s = ini.get_button().getFont().getSize();
-                Font f = new Font(s * v);
-                ini.get_button().setFont(f);
-
-            }
-        }
+        if ( paths_manager.rotation_cache == null) return;
+        paths_manager.rotation_cache.clear_RAM_cache();
     }
-*/
 
 }

@@ -5,6 +5,10 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Error_receiver;
+import klik.browser.icons.caches.Aspect_ratio_actor;
+import klik.browser.icons.caches.Aspect_ratio_cache;
+import klik.browser.icons.caches.Cache_for_doubles;
+import klik.browser.icons.caches.Rotation_cache;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
@@ -20,6 +24,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static klik.browser.icons.caches.Aspect_ratio_actor.movie_aspect_ratio;
+
 //**********************************************************
 public class Paths_manager
 //**********************************************************
@@ -32,7 +38,7 @@ public class Paths_manager
     // these MUST be mutually exclusive:
     public ConcurrentSkipListMap<Path,Integer> folders;
     public ConcurrentSkipListMap<Path,Integer> non_iconized;
-    ConcurrentSkipListMap<Path, Aspect_ratio> iconized;
+    public ConcurrentSkipListMap<Path, Boolean> iconized;
 
 
     public Comparator<? super Path> image_file_comparator;
@@ -101,7 +107,7 @@ public class Paths_manager
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
-        logger.log((from+" scan dir "+folder_path));
+        //logger.log((from+" scan dir "+folder_path));
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
@@ -113,44 +119,22 @@ public class Paths_manager
         iconized.clear();
         non_iconized.clear();
         folders.clear();
-/*
-        try {
-            Stream<Path> stream = Files.list(folder_path);
-            stream.forEach(path ->{
-                if (Files.isDirectory(path))
-                {
-                    do_folder(path,show_hidden_directories,show_icons_for_folders);
-                }
-                else
-                {
-                    do_file(path, show_hidden_files, show_icons_instead_of_text, stage);
-                }
 
-            });
-        } catch (IOException e) {
-            Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
-            if (denied != null) return denied;
-        }
-*/
-        boolean use_aspect_ratio = false;
-        //if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) || (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO ))
         {
-            //use_aspect_ratio = true;
             if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
-            aspect_ratio_cache.reload_aspect_ratio_cache();
+            aspect_ratio_cache.reload_cache_from_disk();
             // start a thread that will refresh and switch the file_comparator
             aspect_ratio_cache.look_for_end(this, refresh_target,stage,  aborter);
         }
         {
             if (rotation_cache == null) rotation_cache = new Rotation_cache(folder_path,aborter,logger);
-            rotation_cache.reload_rotation_cache();
+            rotation_cache.reload_cache_from_disk();
 
         }
-        boolean final_use_aspect_ratio = use_aspect_ratio;
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                do_the_hard_part(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text, final_use_aspect_ratio);
+                do_the_hard_work_of_scan_dir_in_a_thread(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
                 refresh_target.refresh2();
             }
         };
@@ -162,7 +146,10 @@ public class Paths_manager
     }
 
     private AtomicBoolean hard_part_ongoing = new AtomicBoolean(false);
-    synchronized private void do_the_hard_part(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text, boolean use_aspect_ratio)
+
+    //**********************************************************
+    synchronized private void do_the_hard_work_of_scan_dir_in_a_thread(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
+    //**********************************************************
     {
         if ( hard_part_ongoing.get()) return;
         hard_part_ongoing.set(true);
@@ -198,7 +185,7 @@ public class Paths_manager
             return;
         }
         //logger.log("hard part in a thread done!");
-        if (use_aspect_ratio) aspect_ratio_cache.save_aspect_ratio_cache();
+        aspect_ratio_cache.save_whole_cache_to_disk();
         hard_part_ongoing.set(false);
     }
 
@@ -227,16 +214,13 @@ public class Paths_manager
                     non_iconized.put(path,1);
                     return;
                 }
-                //logger.log("Paths_manager: video NOT on videos_for_which_giffing_failed list: "+path);
-
-
                 String extension = FilenameUtils.getExtension(path.getFileName().toString());
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
                     // special dirty case: MKV can be audio OR video ...
                     if ( Guess_file_type.is_this_a_video_or_audio_file(stage,path,logger))
                     {
-                        iconized.put(path,new Aspect_ratio(1,false));
+                        iconized.put(path,true);//movie_aspect_ratio);
                     }
                     else
                     {
@@ -244,14 +228,11 @@ public class Paths_manager
                     }
                     return;
                 }
-                iconized.put(path,new Aspect_ratio(16.0/9.0,false));
+                iconized.put(path,true);//movie_aspect_ratio);
                 return;
             }
-            else
-            {
-                non_iconized.put(path,1);
-                return;
-            }
+            non_iconized.put(path,1);
+            return;
         }
         if ( aborter.should_abort()) return;
 
@@ -259,7 +240,7 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
-                iconized.put(path,new Aspect_ratio(Aspect_ratio_message.ISO_A4_aspect_ratio,false));
+                iconized.put(path,true);//Aspect_ratio_actor.ISO_A4_aspect_ratio);
                 return;
             }
             else
@@ -274,7 +255,7 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
-                iconized.put(path,new Aspect_ratio(1.0,false));
+                iconized.put(path,true);//1.0);
                 return;
             }
             else
@@ -478,7 +459,7 @@ public class Paths_manager
     }
 
     //**********************************************************
-    public ConcurrentSkipListMap<Path, Aspect_ratio> get_iconized()
+    public ConcurrentSkipListMap<Path, Boolean> get_iconized()
     //**********************************************************
     {
         return iconized;

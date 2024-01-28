@@ -44,13 +44,13 @@ public class Item_image extends Item implements Icon_destination
     Pane image_pane;
     private static final boolean visibility_dbg = false;
     private Job job;
-    public Aspect_ratio aspect_ratio = null;
+    public Double aspect_ratio = null;
 
     //**********************************************************
     public Item_image(
             Browser b,
             Path p,
-            Aspect_ratio aspect_ratio, Logger logger)
+            Double aspect_ratio, Logger logger)
     //**********************************************************
     {
         super(b,p, logger);
@@ -306,16 +306,12 @@ public class Item_image extends Item implements Icon_destination
         }
         if ( item_type == Iconifiable_item_type.pdf)
         {
-            double local = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
-            if (aspect_ratio.truth())
+            if (aspect_ratio == null)
             {
-                if ( aspect_ratio.value() != local)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace("aspect ratio discrepancy: from image "+local+" from data: "+aspect_ratio.value()));
-                }
+                double local = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
+                if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
+                aspect_ratio = local;
             }
-            logger.log(aspect_ratio.value()+" aspect ratio for PDF: "+ local);
-            aspect_ratio = new Aspect_ratio(local,true);
         }
         Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation, image_is_the_good_one));
     }

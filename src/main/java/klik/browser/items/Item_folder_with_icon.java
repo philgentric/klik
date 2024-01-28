@@ -604,22 +604,46 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             return;
         }
-
+        boolean on_one_line;
+        if ( folder_icon_size >= 128)
+        {
+            // large icon = enough room for 3 lines of text
+            on_one_line = false;
+        }
+        else
+        {
+            on_one_line = true;
+            label_for_sizes.setWrapText(true);
+        }
         StringBuilder sb = new StringBuilder();
-        sb.append(sizes.folders());
-        sb.append(" folders\n");
-        sb.append(sizes.files());
-        sb.append(" files\n");
-        sb.append(sizes.images());
-        sb.append(" images\n");
         sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes()));
+        intercalaire(on_one_line, sb);
+        sb.append(sizes.folders());
+        sb.append(" folders");
+        intercalaire(on_one_line, sb);
+        sb.append(sizes.files());
+        sb.append(" files");
+        intercalaire(on_one_line, sb);
+        sb.append(sizes.images());
+        sb.append(" images");
         label_for_sizes.setText(sb.toString());
 
     }
 
+    //**********************************************************
+    private static void intercalaire(boolean on_one_line, StringBuilder sb)
+    //**********************************************************
+    {
+        if (on_one_line) {
+            sb.append(", ");
+        }
+        else {
+            sb.append("\n");
+        }
+    }
 
-static Random random = new Random();
 
+    static Random random = new Random();
     //**********************************************************
     public static void launch_disk_foot_print_thread(Disk_foot_print_receiver disk_foot_print_receiver, Path path, Aborter aborter, Logger logger)
     //**********************************************************
