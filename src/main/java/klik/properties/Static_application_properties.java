@@ -681,7 +681,7 @@ public class Static_application_properties
     private static Path get_MacOS_volume(Path for_this, Logger logger)
     //**********************************************************
     {
-        logger.log("get_MacOS_volume ENTRY = "+for_this);
+        //logger.log("get_MacOS_volume ENTRY = "+for_this);
 
         Path volume = for_this.toAbsolutePath();
         for(;;)
@@ -689,15 +689,15 @@ public class Static_application_properties
             Path test = volume.getParent();
             if ( test == null)
             {
-                logger.log("get_MacOS_volume test == null ");
+                //logger.log("get_MacOS_volume test == null ");
                 break;
             }
             if ( test.getFileName() == null)
             {
-                logger.log("get_MacOS_volume test == null ");
+                //logger.log("get_MacOS_volume test == null ");
                 break;
             }
-            logger.log("get_MacOS_volume testing "+test);
+            //logger.log("get_MacOS_volume testing "+test);
             if ( test.toString().equals("/Volumes"))
             {
                 logger.log("get_MacOS_volume returning "+volume);

@@ -287,7 +287,7 @@ public class Moving_files
 
         }
 
-        if ( done.isEmpty())
+        if ( !done.isEmpty())
         {
             Change_gang.report_changes(done);
             if ( and_list_for_undo)
@@ -495,12 +495,6 @@ public class Moving_files
                         Ding.play(logger);
                     }
                 }
-                /*
-                {
-                    List<Old_and_new_Path> l = new ArrayList<>();
-                    l.add(oandn);
-                    Undo_engine.add(l, logger);
-                }*/
             }
             return move_success(oandn, logger);
 
