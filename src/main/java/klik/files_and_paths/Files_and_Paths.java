@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
+import klik.change.undo.Undo_engine;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
 import klik.level2.deduplicate.console.Deduplication_console_interface;
@@ -50,15 +51,18 @@ public class Files_and_Paths {
 
     }
 
+    /*
     //**********************************************************
     public static void unsafe_delete_file(Stage owner, Old_and_new_Path oanp, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("unsafe_delete_all: perform_safe_moves_in_a_thread");
-        Moving_files.perform_safe_move_in_a_thread(owner, oanp, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner, oanp, aborter, logger);
 
     }
+*/
 
+    /*
     //**********************************************************
     public static void safe_delete_file(Stage owner, Old_and_new_Path oanf, Aborter aborter, Logger logger)
     //**********************************************************
@@ -74,38 +78,21 @@ public class Files_and_Paths {
 
         Moving_files.perform_safe_moves_in_a_thread(owner, l2, aborter, true, logger);
 
-    }
+    }*/
 
-    //**********************************************************
-    public static void safe_delete_files(Stage owner, List<Old_and_new_Path> l, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Path trash_dir = Static_application_properties.get_trash_dir(logger);
-        List<Old_and_new_Path> l2 = new ArrayList<>();
-        for (Old_and_new_Path oanf : l) {
-            Path new_Path = (Paths.get(trash_dir.toString(), oanf.get_old_Path().getFileName().toString()));
-            Old_and_new_Path oanf2 = new Old_and_new_Path(oanf.old_Path, new_Path, oanf.cmd, oanf.status);
-            l2.add(oanf2);
-        }
-
-        logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
-
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2, aborter, true, logger);
-
-    }
 
     //**********************************************************
     public static void move_to_trash(Stage owner, Path f, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Static_application_properties.get_trash_dir(logger);
+        Path trash_dir = Static_application_properties.get_trash_dir(f,logger);
         if (f.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, I18n.get_I18n_string("Nothing_done", logger), I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
         Path new_Path = (Paths.get(trash_dir.toString(), f.getFileName().toString()));
-        Old_and_new_Path oanf2 = new Old_and_new_Path(f, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command);
+        Old_and_new_Path oanf2 = new Old_and_new_Path(f, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
         Moving_files.perform_safe_moves_in_a_thread(owner, l2, aborter, true, logger);
@@ -166,7 +153,7 @@ public class Files_and_Paths {
     public static Path get_aspect_ratio_and_rotation_caches_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Static_application_properties.get_absolute_dir(logger, Static_application_properties.ASPECT_RATIO_AND_ROTATION_CACHES_DIR);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.ASPECT_RATIO_AND_ROTATION_CACHES_DIR, false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
         }
@@ -177,7 +164,7 @@ public class Files_and_Paths {
     public static Path get_icon_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Static_application_properties.get_absolute_dir(logger, Static_application_properties.ICON_CACHE_DIR);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.ICON_CACHE_DIR, false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -187,7 +174,7 @@ public class Files_and_Paths {
     public static Path get_folder_icon_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Static_application_properties.get_absolute_dir(logger, Static_application_properties.FOLDER_ICON_CACHE_DIR);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.FOLDER_ICON_CACHE_DIR, false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("folder icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -276,18 +263,23 @@ public class Files_and_Paths {
     public static void clear_trash_with_warning(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash = Static_application_properties.get_trash_dir(logger);
-        double size = get_size_on_disk(trash, aborter, logger);
+        List<Path> trashes = Static_application_properties.get_existing_trash_dirs(logger);
         String s1 = I18n.get_I18n_string("Warning_delete", logger);
-        String s2 = (int)(size / 1000_000.0) + I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
+        double size = 0;
+        for (Path trash : trashes) {
+            size += get_size_on_disk(trash, aborter, logger);
+        }
+        String s2 = (int) (size / 1000_000.0) + I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
         if (size > 1000_000_000) {
-            double r  = Math.round(size / 1000_000_00);
-            double s = r/10.0;
+            double r = Math.round(size / 1000_000_00);
+            double s = r / 10.0;
             s2 = (s) + I18n.get_I18n_string("GB_deleted", logger);//"MB of files will be truly deleted";
 
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-        delete_for_ever_all_files_in_dir_in_a_thread(trash, true,logger);
+        for (Path trash : trashes) {
+            delete_for_ever_all_files_in_dir_in_a_thread(trash, true, logger);
+        }
     }
 
 
@@ -670,7 +662,7 @@ public class Files_and_Paths {
         try
         {
             Files.delete(p);
-            l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done));
+            l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done, false));
         } catch (NoSuchFileException x) {
             logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
             return x.toString();
@@ -729,17 +721,21 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static Path change_file_name(Path path, Logger logger, String new_name)
+    public static Path change_file_name(Path old_path, Logger logger, String new_name)
     //**********************************************************
     {
         if (dbg) logger.log("change_file_name, new name: " + new_name);
 
         try {
-            logger.log("trying rename: " + path.getFileName() + " => " + new_name);
-            Path new_path = Paths.get(path.getParent().toString(), new_name);
+            logger.log("trying rename: " + old_path.getFileName() + " => " + new_name);
+            Path new_path = Paths.get(old_path.getParent().toString(), new_name);
             //Files.move(path, new_path);
-            FileUtils.moveFile(path.toFile(),new_path.toFile());
+            FileUtils.moveFile(old_path.toFile(),new_path.toFile());
             logger.log("....done");
+            Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
+            List<Old_and_new_Path> l = new ArrayList<>();
+            l.add(oan);
+            Undo_engine.add(l,logger);
             return new_path;
         } catch (FileExistsException e) {
             Popups.popup_Exception(e, 200, "File already exists", logger);
@@ -763,6 +759,10 @@ public class Files_and_Paths {
             //Files.move(path, new_path);
             FileUtils.moveDirectory(old_path.toFile(),new_path.toFile());
             logger.log("....done");
+            Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
+            List<Old_and_new_Path> l = new ArrayList<>();
+            l.add(oan);
+            Undo_engine.add(l,logger);
             return new_path;
         } catch (FileAlreadyExistsException e) {
             Popups.popup_Exception(e, 200, "File already exists", logger);
@@ -909,7 +909,7 @@ public class Files_and_Paths {
             FileUtils.copyDirectory(origin.toFile(), new_path.toFile());
 
             List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done);
+            Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done, false);
             l.add(oan);
             Change_gang.report_changes(l);
             return true;

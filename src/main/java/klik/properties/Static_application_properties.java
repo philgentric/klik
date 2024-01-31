@@ -13,10 +13,12 @@ import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 ;
@@ -327,78 +329,6 @@ public class Static_application_properties
         pm.save_unico(BROWSER_SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
     }
 
-    // returns a directory using that relative name
-    //**********************************************************
-    public static Path get_trash_dir(Logger logger)
-    //**********************************************************
-    {
-        Path trash_dir = get_absolute_dir(logger, TRASH_DIR);
-        if ( trash_dir == null)
-        {
-            logger.log("PANIC: trash dir unknown");
-            return null;
-        }
-        if (dbg) logger.log("trash_dir file=" + trash_dir.toAbsolutePath());
-        return trash_dir;
-    }
-
-    // returns a directory using that relative name
-    //**********************************************************
-    public static Path get_absolute_dir(Logger logger, String relative_dir_name)
-    //**********************************************************
-    {
-        if (dbg) logger.log("dir_name=" + relative_dir_name);
-        String home = System.getProperty(USER_HOME);
-        if (dbg) logger.log("user home =" + home);
-
-        Path conf_dir1 = Paths.get(home,CONF_DIR);
-        if (!conf_dir1.toFile().exists())
-        {
-            try {
-                Files.createDirectory(conf_dir1);
-
-                // do it once more, this way icons don't show up in $home/.klik
-                // privacy violation
-                // when browsing $home
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e,300,err,logger);
-                return null;
-            }
-        }
-
-        Path conf_dir2 = Paths.get(conf_dir1.toString(),CONF_DIR+"_privacy_screen");
-        if (!conf_dir2.toFile().exists())
-        {
-            try {
-                Files.createDirectory(conf_dir2);
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e,300,err,logger);
-                return null;
-            }
-        }
-
-
-        Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
-        if (dbg) logger.log("get_dir returns=" + returned.toAbsolutePath());
-        if (!Files.exists(returned)) {
-            try {
-                Files.createDirectory(returned);
-                return returned;
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e, 300,err,logger);
-                return null;
-            }
-        }
-        if (dbg) {
-            String err = "directory named->" + returned.toAbsolutePath() + "<- OK";
-            logger.log_stack_trace(err);
-        }
-        return returned;
-    }
-
 
     //**********************************************************
     public static int get_animated_gif_duration_for_a_video(Logger logger)
@@ -647,13 +577,187 @@ public class Static_application_properties
     }
 
 
+
+
+    // returns a directory using that relative name, on the user home
+    // creates it if needed
     //**********************************************************
-    public static boolean is_this_trash(Path dir, Logger logger)
+    public static Path get_absolute_dir_on_user_home(String relative_dir_name, boolean can_fail, Logger logger)
     //**********************************************************
     {
-        Path trash = get_trash_dir(logger);
-        return Files_and_Paths.is_same_path(trash, dir, logger);
+        if (dbg) logger.log("dir_name=" + relative_dir_name);
+        String home = System.getProperty(USER_HOME);
+        if (dbg) logger.log("user home =" + home);
+
+        return from_home(home, relative_dir_name,can_fail, logger);
     }
+
+    //**********************************************************
+    private static Path from_home(String home, String relative_dir_name, boolean can_fail, Logger logger)
+    //**********************************************************
+    {
+        Path conf_dir1 = Paths.get(home,CONF_DIR);
+        if (!conf_dir1.toFile().exists())
+        {
+            try {
+                Files.createDirectory(conf_dir1);
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed";
+                if ( can_fail)
+                {
+                    logger.log(err);
+                    return null;
+                }
+                Popups.popup_Exception(e,300,err,logger);
+                return null;
+            }
+        }
+
+        // do it deeper, this way icons don't show up in $home/.klik
+        // to avoid privacy violation
+        // when browsing $home
+
+        Path conf_dir2 = Paths.get(conf_dir1.toString(),CONF_DIR+"_privacy_screen");
+        if (!conf_dir2.toFile().exists())
+        {
+            try {
+                Files.createDirectory(conf_dir2);
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
+                Popups.popup_Exception(e,300,err,logger);
+                return null;
+            }
+        }
+
+
+        Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
+        if (dbg) logger.log("get_dir returns=" + returned.toAbsolutePath());
+        if (!Files.exists(returned)) {
+            try {
+                Files.createDirectory(returned);
+                return returned;
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
+                Popups.popup_Exception(e, 300,err,logger);
+                return null;
+            }
+        }
+        if (dbg) {
+            String err = "directory named->" + returned.toAbsolutePath() + "<- OK";
+            logger.log_stack_trace(err);
+        }
+        return returned;
+    }
+
+    // returns a directory using that relative name
+    //**********************************************************
+    public static Path get_trash_dir(Path for_this, Logger logger)
+    //**********************************************************
+    {
+
+        Path full_path = for_this.toAbsolutePath();
+        if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes")))
+        {
+            // this is MacOS...
+            logger.log("get_trash_dir "+for_this.toAbsolutePath().toString());
+            Path volume = get_MacOS_volume(for_this,logger);
+            if ( volume == null) {
+                logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath().toString()+" fails");
+            }
+            return from_home(volume.toString(),TRASH_DIR,true, logger);
+        }
+
+        Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
+        if ( trash_dir == null)
+        {
+            logger.log("PANIC: trash dir unknown");
+            return null;
+        }
+        if (dbg) logger.log("trash_dir file=" + trash_dir.toAbsolutePath());
+        return trash_dir;
+    }
+
+    //**********************************************************
+    private static Path get_MacOS_volume(Path for_this, Logger logger)
+    //**********************************************************
+    {
+        logger.log("get_MacOS_volume ENTRY = "+for_this);
+
+        Path volume = for_this.toAbsolutePath();
+        for(;;)
+        {
+            Path test = volume.getParent();
+            if ( test == null)
+            {
+                logger.log("get_MacOS_volume test == null ");
+                break;
+            }
+            if ( test.getFileName() == null)
+            {
+                logger.log("get_MacOS_volume test == null ");
+                break;
+            }
+            logger.log("get_MacOS_volume testing "+test);
+            if ( test.toString().equals("/Volumes"))
+            {
+                logger.log("get_MacOS_volume returning "+volume);
+                return volume;
+            }
+            volume = volume.getParent();
+            if (volume.toString().equals("/")) break;
+        }
+        logger.log("get_MacOS_volume FAILED! ");
+        return null;
+
+    }
+
+
+    //**********************************************************
+    public static List<Path> get_existing_trash_dirs(Logger logger)
+    //**********************************************************
+    {
+        List<Path> trashes = new ArrayList<>();
+        for ( File f : File.listRoots())
+        {
+            logger.log("root ->"+f+"<-");
+            if ( f.toString().equals("/"))
+            {
+                Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
+                trashes.add(trash_dir);
+                // unix system...
+                Path volumes = Path.of("/","Volumes");
+                File files[] = volumes.toFile().listFiles();
+                for ( File ff : files)
+                {
+                    if ( ff.isDirectory())
+                    {
+                        Path test = Path.of(ff.toPath().toString(),".klik");
+                        if (Files.exists(test)) {
+                            trashes.add(test);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if ( f.getName().startsWith("C:")) {
+                    Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
+                    trashes.add(trash_dir);
+                }
+                else {
+                    Path trash_dir = from_home(f.toPath().toString(), TRASH_DIR,true, logger);
+                    trashes.add(trash_dir);
+                    logger.log("WARNING: untested trash on windows drives !!!!");
+                }
+
+
+            }
+        }
+        return trashes;
+    }
+
+
+
 
     //**********************************************************
     public static void set_escape(boolean b, Logger logger)

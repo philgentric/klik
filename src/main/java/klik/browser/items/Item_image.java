@@ -174,6 +174,14 @@ public class Item_image extends Item implements Icon_destination
         return path;
     }
 
+    //**********************************************************
+    @Override
+    public boolean is_trash()
+    //**********************************************************
+    {
+        return false;
+    }
+
 
     //**********************************************************
     public ContextMenu define_a_menu_to_the_imageview()
@@ -191,7 +199,7 @@ public class Item_image extends Item implements Icon_destination
                 if ( new_path == null) return;
 
                 List<Old_and_new_Path> l = new ArrayList<>();
-                Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command);
+                Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
                 l.add(oandn);
                 Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, new Aborter(),true,logger);
             });

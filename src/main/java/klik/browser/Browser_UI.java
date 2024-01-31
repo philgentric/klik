@@ -83,7 +83,7 @@ public class Browser_UI
             String trash_text = I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
                     browser,
-                    Static_application_properties.get_trash_dir(logger),
+                    Static_application_properties.get_trash_dir(browser.displayed_folder_path,logger),
                     trash_text,
                     height,
                     Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,

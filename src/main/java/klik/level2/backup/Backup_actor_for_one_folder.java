@@ -198,7 +198,7 @@ public class Backup_actor_for_one_folder implements Actor
             mini_console.close();
             //logger.log("\n\n\n closing miniconcole for: "+request.source_dir.getAbsolutePath());
             List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oanp = new Old_and_new_Path(request.source_dir.toPath(), request.destination_dir.toPath(), Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done);
+            Old_and_new_Path oanp = new Old_and_new_Path(request.source_dir.toPath(), request.destination_dir.toPath(), Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done,false);
             l.add(oanp);
             Change_gang.report_changes(l);
         }

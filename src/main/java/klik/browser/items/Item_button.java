@@ -3,7 +3,6 @@ package klik.browser.items;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.TransferMode;
@@ -57,7 +56,7 @@ public class Item_button extends Item implements Icon_destination
     public final boolean is_trash;
     public final boolean is_parent;
     public final String text;
-    private boolean ignore_next_mouse_clicked = false;
+    //private boolean ignore_next_mouse_clicked = false;
     private Job job;
 
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -119,7 +118,7 @@ public class Item_button extends Item implements Icon_destination
             //button.setPrefHeight(FILE_BUTTON_HEIGHT);
         }
         Look_and_feel_manager.set_button_look(button,false);
-        button.setViewOrder(1);
+        //button.setViewOrder(1);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
@@ -394,17 +393,12 @@ public class Item_button extends Item implements Icon_destination
         button.setTextAlignment(TextAlignment.RIGHT);
 
         button.setOnAction(event -> {
-
-
-
             if ( Guess_file_type.is_this_path_a_playlist(path))
             {
                 logger.log("opening audio playlist: " + path.toAbsolutePath());
                 Audio_player.play_playlist(path.toFile(),logger);
                 return;
-
             }
-
             if ( Guess_file_type.is_this_path_a_music(path))
             {
                 if ( !Guess_file_type.is_this_a_video_or_audio_file(browser.my_Stage.the_Stage,path,logger))
@@ -415,9 +409,7 @@ public class Item_button extends Item implements Icon_destination
                 }
             }
             logger.log("asking the system to open: " + path.toAbsolutePath());
-
             System_open_actor.open_with_system(browser,path,logger);
-
         });
 
         give_a_menu_to_the_button();
@@ -444,18 +436,32 @@ public class Item_button extends Item implements Icon_destination
         if (path == null)
         {
             // protect crash when going up: root has no parent
+            logger.log("WARNING no action for folder:"+text);
+
+            if ( text.equals("Trash")) {
+                button.setOnAction(event -> {
+                    Popups.popup_warning(browser.my_Stage.the_Stage,"WARNING","NO trash on this media: probably it is read only",true,logger);
+                });
+            }
             return;
         }
 
         button.setOnAction(event -> {
 
+            if (path == null)
+            {
+                // protect crash when going up: root has no parent
+                logger.log("WARNING no action for folder:"+text);
+                return;
+            }
+            /*
             if ( ignore_next_mouse_clicked)
             {
                 //logger.log("button action IGNORED! due to ignore_next_mouse_clicked="+ignore_next_mouse_clicked);
                 ignore_next_mouse_clicked = false;
                 return;
             }
-
+            */
 
             Path scroll_to = null;
             if (is_parent)
@@ -476,110 +482,10 @@ public class Item_button extends Item implements Icon_destination
 
         });
 
-        init_drag_and_drop_RECEIVER_SIDE();
+        init_drag_and_drop_receiver_side();
         give_a_menu_to_the_button();
 
         //if ( Static_application_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
-
-    }
-
-
-    //**********************************************************
-    private void init_drag_and_drop_RECEIVER_SIDE()
-    //**********************************************************
-    {
-        button.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered for button");
-
-            set_background_for_setOnDragEntered();
-            /*
-            if (Files.isDirectory(path))
-            {
-                logger.log("OnDragEntered for button, path is a dir" + drag_event);
-                set_drag_over_background();
-                //Objects.requireNonNull(Look_and_feel_manager.get_instance()).set_dragged_over_directory_style(button);
-            }
-            */
-
-            /*
-            this never happens: file-buttons do not receive drop!
-
-            else
-            {
-                logger.log("OnDragEntered for button, path is a dir" + event);
-                Look_and_feel_manager.get_instance().set_hovered_file_style(button);
-            }
-            */
-
-            drag_event.consume();
-        });
-
-        button.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("ItemButton OnDragExited for button");
-            set_background_for_setOnDragExited();
-            /* mouse moved away, remove the graphical cues */
-
-            /*Look_and_feel i = Look_and_feel_manager.get_instance();
-            Paint color = i.get_background_color();
-            if (Drag_and_drop.dbg_drag_and_drop) logger.log("Item_button setOnDragExited color = "+color);
-            button.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
-            */
-            /*
-            if (Files.isDirectory(path))
-            {
-                Look_and_feel_manager.give_button_a_directory_style(button);
-            }
-            else
-            {
-                Look_and_feel_manager.give_button_a_file_style(button);
-            }*/
-            ignore_next_mouse_clicked = true;
-            drag_event.consume();
-        });
-
-
-        button.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver for button: "
-                    +path.toAbsolutePath());
-            drag_event.acceptTransferModes(TransferMode.MOVE);
-            set_background_for_setOnDragOver();
-            drag_event.consume();
-        });
-
-        button.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped for button !!" + drag_event);
-            Drag_and_drop.accept_drag_dropped_as_a_move_in(
-                    browser.my_Stage.the_Stage,
-                    drag_event,
-                    path,
-                    button,
-                    "button",
-                    logger);
-            drag_event.consume();
-        });
-
-        /*
-        button.setOnDragDetected(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDetected for button !!" + drag_event);
-
-            Dragboard db = button.startDragAndDrop(TransferMode.MOVE);
-
-            ClipboardContent content = new ClipboardContent();
-            List<File> l = new ArrayList<>();
-            l.add(path.toFile());
-            content.putFiles(l);
-            db.setContent(content);
-            drag_event.consume();
-        });
-
-        button.setOnDragDone(drag_event -> {
-            if (dbg) if (drag_event.getTransferMode() == TransferMode.MOVE)
-            {
-                logger.log("OnDragDone for button !!" + drag_event);
-            }
-            drag_event.consume();
-        });
-        */
 
     }
 
@@ -906,6 +812,13 @@ public class Item_button extends Item implements Icon_destination
         return button.getHeight();
     }
 
+    //**********************************************************
+    @Override
+    public boolean is_trash()
+    //**********************************************************
+    {
+        return is_trash;
+    }
 
 
     //**********************************************************

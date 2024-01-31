@@ -164,7 +164,7 @@ public class Change_gang
     //**********************************************************
     {
         List<Old_and_new_Path> l = new ArrayList<>();
-        l.add(new Old_and_new_Path(path,null, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.before_command));
+        l.add(new Old_and_new_Path(path,null, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.before_command,false));
         Change_gang.report_changes(l);
     }
 

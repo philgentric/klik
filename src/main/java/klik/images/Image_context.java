@@ -249,7 +249,7 @@ public class Image_context
             Filesystem_modification_reporter reporter = () -> {
                 List<Old_and_new_Path> oanps = new ArrayList<>();
                 Command_old_and_new_Path cmd = Command_old_and_new_Path.command_edit;
-                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested);
+                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
                 oanps.add(oan);
                 Change_gang.report_changes(oanps);
             };
@@ -527,7 +527,7 @@ public class Image_context
                 path,
                 new_path,
                 Command_old_and_new_Path.command_copy,
-                Status_old_and_new_Path.copy_done));
+                Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l);
         Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;

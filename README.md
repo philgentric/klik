@@ -10,7 +10,7 @@ There are multiple ways to get klik running on your system.
 
 ### java binaries from zip
 
-The release folder: https://github.com/philgentric/klik/releases
+The release folder: https://github.com/philgentric/klik/tree/cda278707b8ff2af04eefc5389f40c551f4e25b1/releases
 contains zip files: unzip and go to the "bin" folder
 - on MacOS and linux: click on klik (shell script)
 - on Windows: click on klik.bat

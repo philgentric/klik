@@ -12,14 +12,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.files_and_paths.*;
 import klik.level2.deduplicate.My_File_and_status;
 import klik.level2.deduplicate.console.Deduplication_console_window;
-import klik.files_and_paths.Command_old_and_new_Path;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.files_and_paths.Status_old_and_new_Path;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.From_disk;
@@ -74,11 +72,13 @@ public class N_image_stage
 		image_views = new ImageView[file_of_the_images.length];
 		fxImages = new javafx.scene.image.Image[file_of_the_images.length];
 
+
 		Platform.runLater(() ->{
 				stage = new Stage();
 				hbox = new HBox();
 				Scene scene = new Scene(hbox);
 				stage.setScene(scene);//, W, H));
+				stage.setOnCloseRequest((e) -> aborter.abort());
 				stage.addEventHandler(MouseEvent.MOUSE_CLICKED,
 						new EventHandler<MouseEvent>()
 						{
@@ -174,7 +174,7 @@ public class N_image_stage
 				public void handle(ActionEvent event)
 				{
 					String title = f.my_file.file.getAbsolutePath();
-					Deduplication_console_window p = new Deduplication_console_window(title , 600, 600, false, new Aborter(), logger);
+					Deduplication_console_window p = new Deduplication_console_window(title , 600, 600, false, aborter, logger);
 				}
 			});
 
@@ -196,9 +196,8 @@ public class N_image_stage
 				public void handle(ActionEvent event)
 				{
 					List<Old_and_new_Path> l = new ArrayList<>();
-					l.add(new Old_and_new_Path(f.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command));
-					Files_and_Paths.safe_delete_files(the_Stage,l,new Aborter(),logger);
-
+					l.add(new Old_and_new_Path(f.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
+					Moving_files.safe_delete_files(the_Stage,l,aborter,logger);
 					againor.again(true);
 					the_Stage.close();
 				}

@@ -1252,7 +1252,7 @@ public class Browser_menus
             }
             logger.log("processing "+old_name+" as it is NOT conformant, will try: "+new_name);
             Path new_path = Paths.get(dir.toString(),new_name);
-            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command);
+            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             l.add(oandn);
         }
         Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, browser.aborter,true, logger);
@@ -1282,7 +1282,7 @@ public class Browser_menus
     }
 
     //**********************************************************
-    private void search_files_by_keyworks()
+    void search_files_by_keyworks()
     //**********************************************************
     {
         List<String> given = new ArrayList<>();

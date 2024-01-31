@@ -60,7 +60,7 @@ public class Ffmpeg_utils
                 return;
             }
             List<Old_and_new_Path> c = new ArrayList<>();
-            c.add(new Old_and_new_Path(null,dir.toPath(),Command_old_and_new_Path.command_move,Status_old_and_new_Path.before_command));
+            c.add(new Old_and_new_Path(null,dir.toPath(),Command_old_and_new_Path.command_move,Status_old_and_new_Path.before_command,false));
             Change_gang.report_changes(c);
         }
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
@@ -284,6 +284,7 @@ public class Ffmpeg_utils
             save_same.setDisable(true);
             vb.getChildren().add(save_same);
 
+            // reason to use SWING is because JFileChooser allows hidden folders
             save.setOnAction(actionEvent -> SwingUtilities.invokeLater(() -> {
                 JFileChooser  dir_chooser = new JFileChooser();
                 dir_chooser.setFileHidingEnabled(false);
@@ -301,9 +302,8 @@ public class Ffmpeg_utils
                 }
             }));
             save_same.setOnAction(actionEvent -> {
-
                 if (gif_saving_dir== null) return;
-                SwingUtilities.invokeLater(() -> save_now(new Aborter(),logger));
+                save_now(new Aborter(),logger);
             });
 
             {
@@ -393,8 +393,10 @@ public class Ffmpeg_utils
         String new_name = gif_full_path.getFileName().toString();
         //if (new_name.length() > 24) new_name = new_name.substring(new_name.length() - 12);
         Path new_path = Path.of(gif_saving_dir.getAbsolutePath().toString(), new_name);
-        Old_and_new_Path oandnp = new Old_and_new_Path(gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command);
-        Moving_files.perform_safe_move_in_a_thread(the_stage, oandnp, aborter, logger);
+        Old_and_new_Path oandnp = new Old_and_new_Path(gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command,false);
+        List<Old_and_new_Path> ll = new ArrayList<>();
+        ll.add(oandnp);
+        Moving_files.perform_safe_moves_in_a_thread(the_stage, ll, aborter, false,logger);
     }
 
     //**********************************************************

@@ -1,7 +1,10 @@
 package klik.change.undo;
 
 import klik.files_and_paths.Old_and_new_Path;
+import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -18,16 +21,17 @@ public class Undo_item
     public final List<Old_and_new_Path> oans;
     public final LocalDateTime time_stamp;
     public final UUID index;
+    public final Logger logger;
 
     //**********************************************************
-    public Undo_item(List<Old_and_new_Path> oans_, LocalDateTime time_stamp_, UUID index_)
+    public Undo_item(List<Old_and_new_Path> oans_, LocalDateTime time_stamp_, UUID index_, Logger logger_)
     //**********************************************************
     {
         oans = oans_;
         time_stamp = time_stamp_;
         index = index_;
+        logger = logger_;
     }
-
 
     //**********************************************************
     public String to_string()
@@ -50,12 +54,86 @@ public class Undo_item
     public String signature()
     //**********************************************************
     {
+        if ( !oans.isEmpty())
+        {
+            String ideal = detect_moving_several_files_from_one_folder_to_another();
+            if ( ideal != null) return ideal;
+        }
         StringBuilder sb = new StringBuilder();
         for ( Old_and_new_Path oan : oans)
         {
             sb.append(" ").append(oan.old_Path.toAbsolutePath());
             if ( oan.new_Path != null) sb.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
             else sb.append(" THIS ITEM CANNOT BE UNDONE: the file has been deleted forever?");
+        }
+        return sb.toString();
+    }
+
+    //**********************************************************
+    private String detect_moving_several_files_from_one_folder_to_another()
+    //**********************************************************
+    {
+        // if the list is about changes in the same folder pair ...
+        // i.e. several files from folder A moved to folder B
+        Path old_folder = null;
+        Path new_folder = null;
+        logger.log("ideal oans size "+oans.size());
+
+        for ( Old_and_new_Path oan : oans)
+        {
+            logger.log("ideal oan = "+oan.get_string());
+
+            if ( !oan.new_Path.getFileName().toString().equals(oan.old_Path.getFileName().toString()))
+            {
+                // the file names are different
+                return null;
+            }
+            if (old_folder == null)
+            {
+                old_folder = oan.old_Path.getParent();
+                logger.log("old_folder = "+old_folder);
+            }
+            else
+            {
+                if ( !old_folder.toAbsolutePath().toString().equals(oan.old_Path.getParent().toAbsolutePath().toString()))
+                {
+                    // different old_folders are present ! (weird!?)
+                    return null;
+                }
+            }
+            if (new_folder == null)
+            {
+                new_folder = oan.new_Path.getParent();
+            }
+            else
+            {
+                if ( !new_folder.toAbsolutePath().toString().equals(oan.new_Path.getParent().toAbsolutePath().toString()))
+                {
+                    // different old_folders are present ! (weird!?)
+                    return null;
+                }
+            }
+        }
+        if ( old_folder == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN1"));
+
+            return null;
+        }
+        if ( new_folder == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN2"));
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(old_folder.toAbsolutePath().toString());
+        sb.append(" ==> ");
+        sb.append(new_folder.toAbsolutePath().toString());
+        sb.append("\n");
+        for ( Old_and_new_Path oan : oans)
+        {
+            sb.append(oan.old_Path.getFileName().toString());
+            sb.append(" ");
         }
         return sb.toString();
     }

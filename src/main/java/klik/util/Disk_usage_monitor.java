@@ -37,20 +37,13 @@ public class Disk_usage_monitor
         monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger),true));
         monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(logger),true));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger),true));
-        monitored_folders.add(new Monitored_folder(TRASH_FOLDER,Static_application_properties.get_trash_dir(logger),false));
+
+        for ( Path t : Static_application_properties.get_existing_trash_dirs(logger))
+        {
+            monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
+        }
 
         warning_limit_bytes = Static_application_properties.get_cache_size_limit_warning_megabytes (logger);
-
-
-        /*
-        for (FileStore fileStore : FileSystems.getDefault().getFileStores())
-        {
-            try {
-                logger.log("fileStore: "+fileStore.name()+" "+fileStore.getUsableSpace());
-            } catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            }
-        }*/
 
 
     }

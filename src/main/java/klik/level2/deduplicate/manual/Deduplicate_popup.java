@@ -8,10 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.files_and_paths.Command_old_and_new_Path;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.files_and_paths.Status_old_and_new_Path;
+import klik.files_and_paths.*;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -75,8 +72,8 @@ public class Deduplicate_popup
 						{
 							List<Old_and_new_Path> l = new ArrayList<Old_and_new_Path>();
 							File old_file = new File(s);
-							l.add(new Old_and_new_Path(old_file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command));
-							Files_and_Paths.safe_delete_files(owner,l,new Aborter(),logger);
+							l.add(new Old_and_new_Path(old_file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
+							Moving_files.safe_delete_files(owner,l,new Aborter(),logger);
 							stage.close();
 							againor.again(true);
 						}

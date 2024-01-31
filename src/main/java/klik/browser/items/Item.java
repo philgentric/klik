@@ -124,6 +124,7 @@ public abstract class Item implements Icon_destination
 
     public abstract double get_Width();
     public abstract double get_Height();
+    public abstract boolean is_trash();
 
     // this is called asynchronously from Icon_factory, when the icon has been made
     //public abstract void set_Image(Image i, boolean real);
@@ -189,18 +190,26 @@ public abstract class Item implements Icon_destination
     }
 
 
-    void set_background_for_setOnDragEntered() {
+    //**********************************************************
+    void set_background_for_setOnDragEntered()
+    //**********************************************************
+    {
         BackgroundFill background_fill = Look_and_feel_manager.get_drag_fill();
         if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon OnDragOver color = "+background_fill);
         set_background(background_fill);
     }
 
+    //**********************************************************
     void set_background_for_setOnDragOver()
+    //**********************************************************
     {
         set_background_for_setOnDragEntered();
     }
 
-    void set_background_for_setOnDragExited() {
+    //**********************************************************
+    void set_background_for_setOnDragExited()
+    //**********************************************************
+    {
         Look_and_feel i = Look_and_feel_manager.get_instance();
         BackgroundFill color = i.get_background_fill();
         if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon setOnDragExited color = "+color);
@@ -211,7 +220,6 @@ public abstract class Item implements Icon_destination
     public void init_drag_and_drop_sender_side()
     //**********************************************************
     {
-
         get_Node().setOnDragDetected(drag_event -> {
             if (dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
             Dragboard db = get_Node().startDragAndDrop(TransferMode.MOVE);
@@ -270,6 +278,41 @@ public abstract class Item implements Icon_destination
                 browser.selection_handler.reset_selection();
                 browser.selection_handler.nothing_selected();
             }
+            drag_event.consume();
+        });
+    }
+
+
+    //**********************************************************
+    protected void init_drag_and_drop_receiver_side()
+    //**********************************************************
+    {
+        get_Node().setOnDragEntered(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
+            set_background_for_setOnDragEntered();
+            drag_event.consume();
+        });
+        get_Node().setOnDragExited(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
+            set_background_for_setOnDragExited();
+            drag_event.consume();
+        });
+        get_Node().setOnDragOver(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
+            drag_event.acceptTransferModes(TransferMode.MOVE);
+            set_background_for_setOnDragOver();
+            drag_event.consume();
+        });
+        get_Node().setOnDragDropped(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
+            Drag_and_drop.accept_drag_dropped_as_a_move_in(
+                    browser.my_Stage.the_Stage,
+                    drag_event,
+                    path,
+                    get_Node(),
+                    "Browser item",
+                    is_trash(),
+                    logger);
             drag_event.consume();
         });
     }

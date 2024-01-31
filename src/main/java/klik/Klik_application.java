@@ -13,6 +13,9 @@ import klik.properties.Static_application_properties;
 import klik.util.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -39,6 +42,8 @@ public class Klik_application extends Application
         setUserAgentStylesheet(STYLESHEET_MODENA);
 
         Logger logger = new System_out_logger();
+
+
         Language_manager.init_registered_languages(logger);
 
         new Monitor(new Aborter(),logger).start();

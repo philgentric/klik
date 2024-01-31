@@ -232,14 +232,14 @@ public class Undo_storage_to_disk
                     String new_path_string = properties_manager.get(generate_key_for_new_path(index,j));
                     if ( new_path_string == null)
                     {
-                        l.add(new Old_and_new_Path(Path.of(old_path_string),null,cmd,stt));
+                        l.add(new Old_and_new_Path(Path.of(old_path_string),null,cmd,stt,false));
                     }
                     else
                     {
-                        l.add(new Old_and_new_Path(Path.of(old_path_string), Path.of(new_path_string), cmd, stt));
+                        l.add(new Old_and_new_Path(Path.of(old_path_string), Path.of(new_path_string), cmd, stt,false));
                     }
                 }
-                Undo_item undo_item = new Undo_item(l,LocalDateTime.parse(datetime_string),index);
+                Undo_item undo_item = new Undo_item(l,LocalDateTime.parse(datetime_string),index,logger);
                 if ( dbg) logger.log("undo item:"+undo_item.to_string());
                 returned.add(undo_item);
             }

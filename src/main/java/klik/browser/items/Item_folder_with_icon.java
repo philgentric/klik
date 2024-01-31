@@ -325,38 +325,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         Look_and_feel_manager.give_button_a_selected_file_style(the_button);
     }
 
-    //**********************************************************
-    private void init_drag_and_drop_receiver_side()
-    //**********************************************************
-    {
-        the_button.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered for button RECEIVER SIDE" );
-            set_background_for_setOnDragEntered();
-            drag_event.consume();
-        });
-        the_button.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon::OnDragExited  RECEIVER SIDE");
-            set_background_for_setOnDragExited();
-            drag_event.consume();
-        });
-        the_button.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon OnDragOver  RECEIVER SIDE");
-            drag_event.acceptTransferModes(TransferMode.MOVE);
-            set_background_for_setOnDragOver();
-            drag_event.consume();
-        });
-        the_button.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped for button  RECEIVER SIDE");
-            Drag_and_drop.accept_drag_dropped_as_a_move_in(
-                    browser.my_Stage.the_Stage,
-                    drag_event,
-                    path,
-                    the_button,
-                    "button",
-                    logger);
-            drag_event.consume();
-        });
-    }
 
 
     //**********************************************************
@@ -564,6 +532,13 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         return the_button;
     }
 
+    //**********************************************************
+    @Override
+    public boolean is_trash()
+    //**********************************************************
+    {
+        return false;
+    }
 
 
     //**********************************************************

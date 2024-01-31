@@ -534,9 +534,12 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             if (keyEvent.isAltDown()) logger.log("isAltDown: true");
             if (keyEvent.isMetaDown()) logger.log("isMetaDown: true");
 
+            if (keyEvent.getCharacter().equals("k")) {
+                logger.log("character is k = keyword search");
+                browser_menus.search_files_by_keyworks();
+            }
             if (keyEvent.getCharacter().equals("s")) {
                 logger.log("character is s = start/stop scan");
-
                 handle_scan_switch();
             }
             if (keyEvent.getCharacter().equals("w")) {
@@ -613,7 +616,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Scene.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + displayed_folder_path);
-            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(my_Stage.the_Stage, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, logger);
+            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(my_Stage.the_Stage, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false,logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
             drag_event.setDropCompleted(true);
@@ -978,6 +981,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             logger.log("WARNING: no file in "+displayed_folder_path);
         }
         Map<Integer,Path> folders = new HashMap<>();
+        List<Old_and_new_Path> moves = new ArrayList<>();
         for( File f : files)
         {
             BasicFileAttributes x = null;
@@ -1004,17 +1008,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             }
             folders.put(year,folder);
             List<Old_and_new_Path> l = new ArrayList<>();
-            l.add(new Old_and_new_Path(displayed_folder_path,displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done));
+            l.add(new Old_and_new_Path(displayed_folder_path,displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done,false));
             Change_gang.report_changes(l);
 
             Old_and_new_Path oanp = new Old_and_new_Path(
                     f.toPath(),
                     Path.of(folder.toAbsolutePath().toString(),f.getName()),
                     Command_old_and_new_Path.command_move,
-                    Status_old_and_new_Path.before_command);
-            Moving_files.perform_safe_move_in_a_thread(this.my_Stage.the_Stage,oanp,aborter,logger);
+                    Status_old_and_new_Path.before_command,false);
+            moves.add(oanp);
 
         }
+        Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage,moves,aborter,true, logger);
 
     }
     //**********************************************************

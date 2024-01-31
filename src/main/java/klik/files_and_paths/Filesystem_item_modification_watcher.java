@@ -79,7 +79,7 @@ public class Filesystem_item_modification_watcher
         Filesystem_modification_reporter reporter = () -> {
             List<Old_and_new_Path> oanps = new ArrayList<>();
             Command_old_and_new_Path cmd = Command_old_and_new_Path.command_move;
-            Old_and_new_Path oan = new Old_and_new_Path(folder_path, folder_path, cmd, Status_old_and_new_Path.a_change_occured_in_this_folder);
+            Old_and_new_Path oan = new Old_and_new_Path(folder_path, folder_path, cmd, Status_old_and_new_Path.a_change_occured_in_this_folder,false);
             oanps.add(oan);
             if (dbg) logger.log("Filesystem_item_modification_watcher event:"+oan.get_string());
 

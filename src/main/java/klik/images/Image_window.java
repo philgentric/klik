@@ -643,7 +643,7 @@ public class Image_window
         // now do the actual renaming
         {
             List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command);
+            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             oandn.run_after = () -> Platform.runLater(() -> set_stage_title(local_new_image_context));
             l.add(oandn);
             Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, aborter,true, logger);

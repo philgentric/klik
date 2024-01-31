@@ -6,13 +6,12 @@ import klik.actor.Aborter;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.files_and_paths.Moving_files;
 import klik.files_and_paths.Old_and_new_Path;
-import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.change.active_list_stage.Active_list_stage;
+import klik.util.Stack_trace_getter;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.*;
@@ -22,7 +21,7 @@ import java.util.List;
 public class Undo_engine implements Datetime_to_signature_source
 //**********************************************************
 {
-    private static boolean dbg = false;
+    private static boolean dbg = true;
     private static Undo_engine instance =  null;
     private final Logger logger;
     public static List<Active_list_stage> undo_stages = new ArrayList<>();
@@ -53,7 +52,12 @@ public class Undo_engine implements Datetime_to_signature_source
     public static boolean add(List<Old_and_new_Path> l, Logger logger_)
     //**********************************************************
     {
-        //logger_.log(Stack_trace_getter.get_stack_trace("Undo_engine::add"));
+        if (dbg) logger_.log("Undo_engine::add"+l);
+        if (l.isEmpty())
+        {
+            return false;
+            // logger_.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: Undo_engine::add, empty list"));
+        }
         return get_instance(logger_).add_internal(l);
     }
     //**********************************************************
@@ -131,7 +135,7 @@ public class Undo_engine implements Datetime_to_signature_source
         int valid = 0;
         for (Old_and_new_Path e : undo_item.oans)
         {
-            Old_and_new_Path r = e.reverse();
+            Old_and_new_Path r = e.reverse_for_restore();
             if ( Files.exists(r.old_Path))
             {
                 valid++;
@@ -179,10 +183,10 @@ public class Undo_engine implements Datetime_to_signature_source
     private boolean add_internal(List<Old_and_new_Path> l)
     //**********************************************************
     {
-        Path trash = Static_application_properties.get_trash_dir(logger);
+        //Path trash = Static_application_properties.get_trash_dir(logger);
         for(Old_and_new_Path oan : l)
         {
-            if ( oan.old_Path.toAbsolutePath().getParent().equals(trash.toAbsolutePath()))
+            if ( oan.is_a_restore )
             {
                 if ( dbg) logger.log("not recording restore event: "+oan.get_string());
                 return false;
@@ -194,7 +198,7 @@ public class Undo_engine implements Datetime_to_signature_source
             }
         }
 
-        Undo_item ui = new Undo_item(l, LocalDateTime.now(), UUID.randomUUID());
+        Undo_item ui = new Undo_item(l, LocalDateTime.now(), UUID.randomUUID(),logger);
         if (Undo_storage_to_disk.dbg) logger.log("Undo_engine add:"+ui.to_string());
         store.add(ui);
         refresh_UI();
@@ -223,7 +227,7 @@ public class Undo_engine implements Datetime_to_signature_source
         List<Old_and_new_Path> reverse_last_move = new ArrayList<>();
         for (Old_and_new_Path e : undo_item.oans)
         {
-            Old_and_new_Path r = e.reverse();
+            Old_and_new_Path r = e.reverse_for_restore();
             if ( !Files.exists(r.old_Path))
             {
                 logger.log("\n\n\nIGNORED: this undo item is now invalid, as the source file is not where mentioned in the record... it was probably moved since?\n\n\n");
@@ -235,7 +239,7 @@ public class Undo_engine implements Datetime_to_signature_source
             }
         }
 
-        Moving_files.perform_safe_moves_in_a_thread(owner,reverse_last_move, new Aborter(), true, false, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner,reverse_last_move, new Aborter(), false, logger);
 
         store.remove_undo_item(undo_item);
         refresh_UI();

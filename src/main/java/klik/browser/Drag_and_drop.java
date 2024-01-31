@@ -33,6 +33,7 @@ public class Drag_and_drop
             Path destination_dir,
             Node excluded,
             String origin,
+            boolean destination_is_trash,
             Logger logger)
     //**********************************************************
     {
@@ -118,7 +119,7 @@ public class Drag_and_drop
         }
 
 
-        boolean destination_is_trash = Static_application_properties.is_this_trash(destination_dir,logger);
+        //boolean destination_is_trash = Static_application_properties.is_this_trash(destination_dir,logger);
         logger.log("\n\naccept_drag_dropped_as_a_move_in " + origin+" destination= "+destination_dir+" is_trash="+ destination_is_trash);
 
         Moving_files.safe_move_files_or_dirs(owner,

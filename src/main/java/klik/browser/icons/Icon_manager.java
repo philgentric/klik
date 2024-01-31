@@ -41,6 +41,7 @@ public class Icon_manager
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final boolean add_and_remove = true;
     public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
+    private static final double MARGIN_Y = 6;
 
     private final Logger logger;
     private Landscape_height_listener landscape_height_listener;
@@ -162,7 +163,9 @@ public class Icon_manager
         how_many_rows = 0;
         Point2D p = new Point2D(0, 0);
         p = process_folders(the_browser, single_column, row_increment_for_dirs, column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
+        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
         p = process_non_iconized_files(the_browser, single_column, column_increment_for_folders, scene_width, p);
+        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
         process_iconified_items(the_browser, single_column, icon_size, column_increment_for_icons, scene_width, p);
         compute_bounding_rectangle("map_buttons_and_icons() OK");
     }
@@ -413,7 +416,8 @@ public class Icon_manager
         double h = pane.getHeight();
         int icon_size = Static_application_properties.get_icon_size(logger);
         double min_y = Double.MAX_VALUE;
-        for (Item item : all_items_map.values()) {
+        for (Item item : all_items_map.values())
+        {
             //if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
             if (item.get_javafx_y() + item.get_Height() < current_vertical_offset -icon_size)
             {
@@ -422,7 +426,8 @@ public class Icon_manager
                 process_is_invisible(pane, item);
                 continue;
             }
-            if (item.get_javafx_y()  > h+current_vertical_offset+icon_size) {
+            if (item.get_javafx_y()  > h+current_vertical_offset+icon_size)
+            {
                 if (visible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 process_is_invisible(pane, item);
                 continue;
@@ -430,6 +435,7 @@ public class Icon_manager
             if (visible_dbg)
                 logger.log(item.get_item_path() + " visible  y=" + item.get_javafx_y() + " item height=" + item.get_Height());
             process_is_visible(pane, item);
+            // look for top left
             if ( item.get_javafx_x() > 0) continue;
             if ( item.get_javafx_y() < min_y)
             {
@@ -437,7 +443,6 @@ public class Icon_manager
                 top_left = item.get_item_path();
             }
         }
-
     }
 
 
@@ -445,17 +450,18 @@ public class Icon_manager
     private void process_is_visible(Pane pane, Item item)
     //**********************************************************
     {
-        //if (show_icons_instead_of_text == false) return;
-
         {
             item.visible_in_scene.set(true);
-            if (item instanceof Item_image ii) {
-                switch (ii.icon_status) {
+            if (item instanceof Item_image item_image)
+            {
+                switch (item_image.icon_status)
+                {
                     case no_icon:
-                        ii.load_default_icon();
-                    case default_icon: {
-                        if(dbg) logger.log("process_is_visible: making icon factory request for: "+ii.get_item_path());
-                        ii.request_icon_to_factory(owner);
+                        item_image.load_default_icon();
+                    case default_icon:
+                    {
+                        if(dbg) logger.log("process_is_visible: making icon factory request for: "+item_image.get_item_path());
+                        item_image.request_icon_to_factory(owner);
                     }
                     break;
                     case true_icon_requested:
@@ -466,7 +472,7 @@ public class Icon_manager
             }
             if (item.get_Node() == null)
             {
-                logger.log("item.get_Node() == null");
+                logger.log("SHOULD NOT HAPPEN item.get_Node() == null");
             }
             else
             {
@@ -478,8 +484,6 @@ public class Icon_manager
             }
             item.set_visible(true);
         }
-
-
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
     }
@@ -494,35 +498,37 @@ public class Icon_manager
             item.cancel();
             if (item.get_Node() == null) return;
             item.get_Node().setVisible(false);
-            if (add_and_remove) {
+            if (add_and_remove)
+            {
                 if (visible_dbg) logger.log("removing from pane invisible icon of: " + item.get_string());
                 pane.getChildren().remove(item.get_Node());
-
             }
-            if (item instanceof Item_image ii) {
+            if (item instanceof Item_image item_image)
+            {
                 // let us hope the GC might save us !
                 // i.e. in directories with very large number of images
                 // the icon manager can cause an OutOfMemory if we would keep invisible images in memory
-                ii.set_Image(null, false);//Static_image_utilities.get_default_icon(icon_size, logger), false);
+                item_image.set_Image(null, false);//Static_image_utilities.get_default_icon(icon_size, logger), false);
             }
         }
     }
-
-
 
     //**********************************************************
     public Item get_item_under(Pane pane, double x, double y)
     //**********************************************************
     {
-
-        for (Item item : all_items_map.values()) {
+        for (Item item : all_items_map.values())
+        {
             Node node = item.get_Node();
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
-            if (b.contains(x, y)) {
+            if (b.contains(x, y))
+            {
                 //logger.log("2YES ! for " + item.get_icon_path() + " we have bounds X= " + b.getMinX() + " " + b.getMaxX() + " Y= " + b.getMinY() + " " + b.getMaxY());
                 return item;
-            } else {
+            }
+            else
+            {
                 //logger.log("2NO ? for " + item.get_icon_path() + " we have bounds X= " + b.getMinX() + " " + b.getMaxX() + " Y= " + b.getMinY() + " " + b.getMaxY());
             }
         }

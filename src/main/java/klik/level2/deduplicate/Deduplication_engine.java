@@ -121,6 +121,7 @@ public class Deduplication_engine implements Againor
         logger.log("deduplicate ALL: starting, in its own thread");
 
         int erased = 0;
+        List<Old_and_new_Path> ll = new ArrayList<>();
         for (;;)
         {
             if (aborter.should_abort()) {
@@ -141,8 +142,8 @@ public class Deduplication_engine implements Againor
                 {
                     console_window.set_end_examined();
                     console_window.set_end_deleted();
-                    logger.log("Deletor: nothing left to delete");
-                    return;
+                    logger.log("going to actually delete!");
+                    break;
                 }
                 logger.log(remaining_threads.get() + " alive threads + empty queue, retrying");
                 continue;
@@ -170,20 +171,15 @@ public class Deduplication_engine implements Againor
                     + p.f2.my_file.file.getAbsolutePath() + "\n\t"
                     + "going to delete:\n\t" + to_be_deleted.getAbsolutePath());
 
-            boolean unsafe = true; // unsafe = we dont move the duplicate into the trash folder, we delete it for good
-            if (unsafe) {
-                Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.before_command);
-                Files_and_Paths.unsafe_delete_file(browser.my_Stage.the_Stage,oanp, aborter, logger);
-            } else {
-                Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command);
-                Files_and_Paths.safe_delete_file(browser.my_Stage.the_Stage, oanp, aborter, logger);
-            }
+            Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
+            ll.add(oanp);
             erased++;
             get_interface().increment_deleted();
 
             if (erased % 10 == 0) console_window.get_interface().set_status_text("Erased files =" + erased);
 
         }
+        Moving_files.safe_delete_files(browser.my_Stage.the_Stage, ll, aborter,logger);
 
         //Popups.popup_warning("End of automatic de-duplication for :" + target_dir.getAbsolutePath(), erased + " pairs de-duplicated", false, logger);
 

@@ -7,5 +7,7 @@ public enum Command_old_and_new_Path
 	command_move, // goes to different dir
 	command_rename, // same dir, new name
 	command_edit, // same name, different content
-    command_copy, command_unknown
+    command_copy,
+	command_restore,
+	command_unknown
 }

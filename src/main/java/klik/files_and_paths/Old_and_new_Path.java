@@ -1,8 +1,6 @@
 package klik.files_and_paths;
 
 
-import klik.util.Logger;
-
 import java.nio.file.Path;
 
 //**********************************************************
@@ -14,17 +12,19 @@ public 	class Old_and_new_Path
 	public final Path new_Path;
 	public final Command_old_and_new_Path cmd;
 	public final Status_old_and_new_Path status;
-	//public final boolean is_move_to_trash;
     public Runnable run_after;
+	public final boolean is_a_restore;
+
 
     //**********************************************************
 	public Old_and_new_Path(Path old_Path_, Path new_Path_,
 							//boolean is_move_to_trash_,
-							Command_old_and_new_Path cmd_, Status_old_and_new_Path status_)
+							Command_old_and_new_Path cmd_, Status_old_and_new_Path status_, boolean is_a_restore_)
 	//**********************************************************
 	{
 		old_Path = old_Path_;
 		new_Path = new_Path_;
+		is_a_restore = is_a_restore_;
 		//is_move_to_trash = is_move_to_trash_;
 		status = status_;
 		cmd = cmd_;
@@ -58,9 +58,9 @@ public 	class Old_and_new_Path
 		return old_Path.getParent().toAbsolutePath().equals(
 				new_Path.getParent().toAbsolutePath());
 	}*/
-	public Old_and_new_Path reverse() 
+	public Old_and_new_Path reverse_for_restore()
 	{
-		return new Old_and_new_Path(this.new_Path, this.old_Path, this.cmd, Status_old_and_new_Path.before_command);
+		return new Old_and_new_Path(this.new_Path, this.old_Path, this.cmd, Status_old_and_new_Path.before_command, true);
 	}
 	public Path get_new_Path() 
 	{
@@ -79,5 +79,6 @@ public 	class Old_and_new_Path
 	{
 		return "old Path="+old_Path+" new Path="+new_Path+" cmd="+cmd+" status="+status+"\n";
 	}
+
 
 }
