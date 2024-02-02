@@ -81,6 +81,16 @@ public class Undo_item
 
         for ( Old_and_new_Path oan : oans)
         {
+            if (oan.old_Path == null)
+            {
+                logger.log("WARNING:  oan.old_Path == null "+oan.get_string());
+                return null;
+            }
+            if (oan.new_Path == null)
+            {
+                logger.log("WARNING:  oan.new_Path == null "+oan.get_string());
+                return null;
+            }
             logger.log("ideal oan = "+oan.get_string());
 
             if ( oan.new_Path == null) return null;

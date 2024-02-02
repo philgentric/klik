@@ -74,6 +74,9 @@ public class Backup_engine
     private void launch_in_thread(boolean deep)
     //**********************************************************
     {
+        start = System.currentTimeMillis();
+        logger.log("Backup starts");
+
         Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
         actor_engine_based_on_workers.run(
                 new Backup_actor_for_one_folder(stats,deep,deep,reports,aborter,logger),
@@ -83,7 +86,6 @@ public class Backup_engine
         Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source,aborter, logger);
         stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");
-        start = System.currentTimeMillis();
         Runnable monitoring = () -> {
             if (aborter.should_abort())
             {
@@ -110,7 +112,7 @@ public class Backup_engine
                 }
                 else
                 {
-                    logger.log("monitoring, this is the END =");
+                    logger.log("monitoring, this is the END");
                     report_the_end("ended");
                     if (finalHandle != null) finalHandle.cancel(true);
                     return;

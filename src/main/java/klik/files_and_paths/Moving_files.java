@@ -495,12 +495,6 @@ public class Moving_files
                         Ding.play(logger);
                     }
                 }
-                /*
-                {
-                    List<Old_and_new_Path> l = new ArrayList<>();
-                    l.add(oandn);
-                    Undo_engine.add(l, logger);
-                }*/
             }
             return move_success(oandn, logger);
 
