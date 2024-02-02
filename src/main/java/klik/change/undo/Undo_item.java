@@ -83,6 +83,8 @@ public class Undo_item
         {
             logger.log("ideal oan = "+oan.get_string());
 
+            if ( oan.new_Path == null) return null;
+            if ( oan.old_Path == null) return null;
             if ( !oan.new_Path.getFileName().toString().equals(oan.old_Path.getFileName().toString()))
             {
                 // the file names are different

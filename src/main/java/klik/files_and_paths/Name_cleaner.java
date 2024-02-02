@@ -6,6 +6,7 @@ import klik.util.System_out_logger;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 //**********************************************************
 public class Name_cleaner
@@ -16,7 +17,18 @@ public class Name_cleaner
     public static String clean(String in, boolean check_extension, Logger logger)
     //**********************************************************
     {
-        
+        if ( in.endsWith(".JPG_original") )
+        {
+            logger.log(" detected "+in);
+            String returned = UUID.randomUUID().toString()+".jpg";
+            return returned;
+        }
+        if ( ( in.contains(".jpg.old."))||( in.contains("_Jpeg_Old.")))
+        {
+            logger.log(" detected "+in);
+            String returned = UUID.randomUUID().toString()+".jpg";
+            return returned;
+        }
         String extension = "";
         String base_name = in;
         if ( check_extension)

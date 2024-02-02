@@ -287,7 +287,7 @@ public class Moving_files
 
         }
 
-        if ( done.isEmpty())
+        if ( !done.isEmpty())
         {
             Change_gang.report_changes(done);
             if ( and_list_for_undo)
@@ -695,9 +695,18 @@ public class Moving_files
         if ( dbg) logger.log(base_name+" ends with a number of length "+lenght_of_trailing_numbers);
         String number =  base_name.substring(base_name.length()-lenght_of_trailing_numbers);
         if ( dbg) logger.log(base_name+" ends with a number = "+number);
-        long k = Long.parseLong(number);
+        long k = 0;
+        try
+        {
+            k = Long.parseLong(number);
+        }
+        catch (NumberFormatException e)
+        {
+            return null;
+        }
 
-        for(int i = 1; i< 10000; i++) {
+        for(int i = 1; i< 10000; i++)
+        {
             String new_integer_with_leading_zeroes = String.format("%0"+lenght_of_trailing_numbers+"d",(k+i));
             String new_name = base_name.substring(0, base_name.length() - lenght_of_trailing_numbers) + new_integer_with_leading_zeroes+ "." + extension;
             if ( dbg) logger.log("candidate new_name? ->" + new_name+"<-");

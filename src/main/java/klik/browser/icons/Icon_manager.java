@@ -41,7 +41,7 @@ public class Icon_manager
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final boolean add_and_remove = true;
     public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
-    private static final double MARGIN_Y = 6;
+    private static final double MARGIN_Y = 10;
 
     private final Logger logger;
     private Landscape_height_listener landscape_height_listener;
