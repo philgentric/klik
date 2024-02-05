@@ -45,7 +45,7 @@ public class Keyboard_handling_for_Image_window
             {
                 image_window.the_Stage.close();
                 logger.log("Image_stage closing on escape");
-                Change_gang.deregister(image_window.image_display_handler);
+                Change_gang.deregister(image_window.image_display_handler, the_browser.aborter);
             }
 
             return;
@@ -120,7 +120,7 @@ public class Keyboard_handling_for_Image_window
             }
             case "i" -> {
                 if (keyword_dbg) logger.log("i like information");
-                image_window.image_display_handler.get_image_context().show_exif_stage();
+                image_window.image_display_handler.get_image_context().show_exif_stage(image_window.aborter);
                 key_event.consume();
                 return;
             }

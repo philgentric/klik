@@ -14,17 +14,17 @@ public class Actor_engine // is a singleton
     public static final boolean use_virtual_threads = true;
 
     //**********************************************************
-    public static Actor_engine_interface get(Logger logger)
+    public static Actor_engine_interface get(Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( instance != null) return instance;
         if (use_virtual_threads)
         {
-            instance = new Actor_engine_with_virtual_threads(logger);
+            instance = new Actor_engine_with_virtual_threads(aborter,logger);
         }
         else
         {
-            instance = new Actor_engine_based_on_workers(logger);
+            instance = new Actor_engine_based_on_workers(aborter,logger);
         }
         return instance;
 
@@ -34,7 +34,7 @@ public class Actor_engine // is a singleton
     public static int how_many_threads_are_in_flight(Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = get(logger);
+        if ( instance == null) return 0;
         return instance.how_many_threads_are_in_flight();
     }
 
@@ -42,7 +42,7 @@ public class Actor_engine // is a singleton
     public static Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = get(logger);
+        if ( instance == null) return null;
         return instance.run(actor,message,tr,logger);
     }
 
@@ -63,10 +63,10 @@ public class Actor_engine // is a singleton
     }
 
     //**********************************************************
-    public static Job execute(Runnable r, Logger logger)
+    public static Job execute(Runnable r, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = get(logger);
-        return instance.execute_internal(r,logger);
+        if ( instance == null) instance = get(aborter,logger);
+        return instance.execute_internal(r, logger);
     }
 }

@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Guess_file_type;
 import klik.util.Logger;
@@ -20,6 +21,7 @@ public class Per_folder_mini_console
 //**********************************************************
 {
     final Logger logger;
+    final Aborter aborter;
     Directory_backup_job_request request;
     private String renamed_files_names="";
     private String last_news="";
@@ -47,9 +49,10 @@ public class Per_folder_mini_console
     private Scene the_scene;
     private TextArea the_text_area;
     //**********************************************************
-    public Per_folder_mini_console(Logger logger_)
+    public Per_folder_mini_console(Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         logger = logger_;
     }
 
@@ -220,7 +223,7 @@ public class Per_folder_mini_console
 
                 close();
             };
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,aborter, logger);
         }
 
     }

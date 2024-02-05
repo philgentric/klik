@@ -50,7 +50,7 @@ public class Finder_actor implements Actor
             {
                 logger.log("no keywords ? aborting search");
                 fm.callback.has_ended(Search_status.invalid, "no keywords");
-                Ding.play(logger);
+                Ding.play("Aborting file search: no keywords",logger);
                 return "no keywords ? aborting search";
             }
         }
@@ -222,7 +222,9 @@ public class Finder_actor implements Actor
         List<String> all_matched_keywords = new ArrayList<>();
         for ( String keyword : fm.search_config.keywords())
         {
-            if ( !name.contains(keyword) )
+            String k = keyword;
+            if (!fm.search_config.check_case()) k = keyword.toLowerCase();
+            if ( !name.contains(k) )
             {
                 // if one keyword is missing we give up
                 break;
@@ -240,7 +242,9 @@ public class Finder_actor implements Actor
             List<String> shorter_keyword_list = new ArrayList<>();
             for (String keyword : fm.search_config.keywords())
             {
-                if (name.contains(keyword))
+                String k = keyword;
+                if (!fm.search_config.check_case()) k = keyword.toLowerCase();
+                if (name.contains(k))
                 {
                     count_keyword(keyword);
                     shorter_keyword_list.add(keyword);

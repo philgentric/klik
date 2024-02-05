@@ -69,7 +69,7 @@ public class Folder_size {
         local_stage.setAlwaysOnTop(true);
         final boolean[] done = {false};
 
-        Aborter local = new Aborter();
+        Aborter local = new Aborter("get_folder_size",logger);
         local_stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
@@ -104,7 +104,7 @@ public class Folder_size {
             });
             done[0] =  true;
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter, logger);
 
         // use a scheduled thread to track the process...
         // not sure a sleep would not be just as good?

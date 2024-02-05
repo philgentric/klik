@@ -49,7 +49,7 @@ public class Monitor
                 }
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
 
     }
 }

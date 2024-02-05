@@ -18,7 +18,7 @@ import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Icon_status;
+import klik.browser.icons.Icon_fabrication;
 import klik.files_and_paths.Files_and_Paths;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
@@ -45,15 +45,15 @@ public abstract class Item implements Icon_destination
 
 
     protected final int icon_size;
-    //protected Double the_rotation = null; // cache
-    public Icon_status icon_status = Icon_status.no_icon;
-
+    //public Icon_fabrication icon_status = Icon_fabrication.no_icon;
+    public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);
+    public AtomicBoolean icon_available = new AtomicBoolean(false);
     protected Path path;
     protected final Browser browser;
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
     public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
-    public final Aborter aborter = new Aborter();
+    public final Aborter aborter;
 
     // virtual coordinates: will change whenever the window geometry changes
     // this is the (top-left) position if the square box containing the image
@@ -66,14 +66,15 @@ public abstract class Item implements Icon_destination
     private double screen_y_of_image = 0;
 
     //**********************************************************
-    public Item(Browser browser_,
-                Path path_,
-                Logger logger_)
+    public Item(Browser browser,
+                Path path,
+                Logger logger)
     //**********************************************************
     {
-        browser = browser_;
-        path = path_;
-        logger = logger_;
+        this.aborter = browser.aborter;
+        this.browser = browser;
+        this.path = path;
+        this.logger = logger;
         item_type = Iconifiable_item_type.from_extension(path);
         icon_size = Static_application_properties.get_icon_size(logger);
     }
@@ -126,19 +127,35 @@ public abstract class Item implements Icon_destination
     public abstract double get_Height();
     public abstract boolean is_trash();
 
-    // this is called asynchronously from Icon_factory, when the icon has been made
-    //public abstract void set_Image(Image i, boolean real);
-    public abstract void set_Image(Image_and_rotation i_and_r, boolean real);
 
-    @Override
-    public Icon_status get_icon_status() {
+    @Override // Icon_destination
+    public boolean icon_fabrication_requested() {
+        return icon_fabrication_requested.get();
+    }
+
+    @Override // Icon_destination
+    public boolean icon_available() {
+        return icon_available.get();
+    }
+
+    @Override // Icon_destination
+    public void set_icon_fabrication_requested() {
+        icon_fabrication_requested.set(true);
+    }
+
+
+    // this is called asynchronously from Icon_factory, when the icon has been made
+    public abstract void set_Image(Image_and_rotation i_and_r);
+
+    /*@Override
+    public Icon_fabrication get_icon_status() {
         return icon_status;
     }
 
-    @Override
-    public void set_icon_status(Icon_status s) {
+    //@Override
+    public void set_icon_status(Icon_fabrication s) {
         icon_status = s;
-    }
+    }*/
 
     @Override
     public Iconifiable_item_type get_item_type() {
@@ -412,7 +429,7 @@ public abstract class Item implements Icon_destination
     public void cancel()
     //**********************************************************
     {
-        aborter.abort();
+       // aborter.abort();
         cancel_custom();
     }
     public abstract void cancel_custom();

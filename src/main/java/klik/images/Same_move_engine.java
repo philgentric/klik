@@ -20,6 +20,6 @@ public class Same_move_engine {
         Old_and_new_Path oanp = new Old_and_new_Path(old_path,new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oanp);
-        Moving_files.perform_safe_moves_in_a_thread(the_stage,ll,new Aborter(), true, logger);
+        Moving_files.perform_safe_moves_in_a_thread(the_stage,ll, true,new Aborter("same move",logger), logger);
     }
 }

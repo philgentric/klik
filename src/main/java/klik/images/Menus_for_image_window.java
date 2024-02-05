@@ -182,7 +182,7 @@ public class Menus_for_image_window
         if ( Static_application_properties.get_level2(image_context_owner.logger))
         {
             if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
-                MenuItem gif_repair = get_gif_repair_menu_item(image_window, image_context_owner);
+                MenuItem gif_repair = get_gif_repair_menu_item(image_window, image_context_owner, image_window.aborter);
                 context_menu.getItems().add(gif_repair);
             }
         }
@@ -218,19 +218,19 @@ public class Menus_for_image_window
         MenuItem undo_move = new MenuItem(I18n.get_I18n_string("Undo_LAST_move_or_delete", image_window.logger));
         undo_move.setOnAction(e -> {
             image_window.logger.log("undoing last move");
-            Undo_engine.perform_last_undo(image_window.the_Stage, image_window.logger);
+            Undo_engine.perform_last_undo(image_window.the_Stage, image_window.aborter,image_window.logger);
         });
         return undo_move;
     }
 
     //**********************************************************
-    private static MenuItem get_gif_repair_menu_item(Image_window image_window, Image_display_handler image_context_owner)
+    private static MenuItem get_gif_repair_menu_item(Image_window image_window, Image_display_handler image_context_owner, Aborter aborter)
     //**********************************************************
     {
         MenuItem repair1 = new MenuItem(I18n.get_I18n_string("Repair_animated_gif", image_window.logger));
         repair1.setOnAction(e -> {
             image_context_owner.logger.log("GIF repair1");
-            Path tmp_dir = Gif_repair.extract_all_frames_in_animated_gif(image_window.the_Stage, image_context_owner.image_context, new Aborter(), image_window.logger);
+            Path tmp_dir = Gif_repair.extract_all_frames_in_animated_gif(image_window.the_Stage, image_context_owner.image_context, aborter, image_window.logger);
             if (tmp_dir == null) {
                 image_context_owner.logger.log("GIF repair1 failed!");
                 return;
@@ -418,7 +418,7 @@ public class Menus_for_image_window
     {
         MenuItem info = new MenuItem(I18n.get_I18n_string("Info_about", image_window.logger)
                 + image_context_owner.image_context.path.toAbsolutePath() + I18n.get_I18n_string("Info_about_file_shortcut", image_window.logger));
-        info.setOnAction(event -> image_context_owner.image_context.show_exif_stage());
+        info.setOnAction(event -> image_context_owner.image_context.show_exif_stage(image_window.aborter));
         return info;
     }
 

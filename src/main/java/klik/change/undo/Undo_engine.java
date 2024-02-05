@@ -26,30 +26,31 @@ public class Undo_engine implements Datetime_to_signature_source
     private final Logger logger;
     public static List<Active_list_stage> undo_stages = new ArrayList<>();
     private final Undo_storage_to_disk store;
+    private final Aborter aborter;
 
     //**********************************************************
-    public static Undo_engine get_instance(Logger logger)
+    public static Undo_engine get_instance(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (instance == null) instance = new Undo_engine(logger);
+        if (instance == null) instance = new Undo_engine(aborter,logger);
         return instance;
     }
     //**********************************************************
-    public static List<Undo_item> get_all_undo_items(Logger logger)
+    public static List<Undo_item> get_all_undo_items(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return get_instance(logger).store.read_all_undo_items_from_disk();
+        return get_instance(aborter, logger).store.read_all_undo_items_from_disk();
     }
 
     //**********************************************************
-    public static void perform_undo(Undo_item item, Stage owner, Logger logger)
+    public static void perform_undo(Undo_item item, Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        get_instance(logger).undo(item,owner);
+        get_instance(aborter, logger).undo(item,owner);
     }
 
     //**********************************************************
-    public static boolean add(List<Old_and_new_Path> l, Logger logger_)
+    public static boolean add(List<Old_and_new_Path> l, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         if (dbg) logger_.log("Undo_engine::add"+l);
@@ -58,34 +59,34 @@ public class Undo_engine implements Datetime_to_signature_source
             return false;
             // logger_.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: Undo_engine::add, empty list"));
         }
-        return get_instance(logger_).add_internal(l);
+        return get_instance(aborter, logger_).add_internal(l);
     }
     //**********************************************************
-    public static boolean perform_last_undo(Stage owner, Logger logger)
+    public static boolean perform_last_undo(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return get_instance(logger).undo_last_move(owner);
+        return get_instance(aborter, logger).undo_last_move(owner);
 
     }
     //**********************************************************
-    public static void remove_all_undo_items(Stage owner, Logger logger)
+    public static void remove_all_undo_items(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        get_instance(logger).remove_all_undo_items_internal(owner);
+        get_instance(aborter, logger).remove_all_undo_items_internal(owner);
     }
 
     //**********************************************************
-    public static boolean check_validity(Undo_item undo_item, Stage owner, Logger logger)
+    public static boolean check_validity(Undo_item undo_item, Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return get_instance(logger).check_validity_internal(undo_item, owner);
+        return get_instance(aborter, logger).check_validity_internal(undo_item, owner);
     }
 
     //**********************************************************
-    public static void erase_if_too_old(int max_count, int max_days, Logger logger)
+    public static void erase_if_too_old(int max_count, int max_days, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Map<LocalDateTime, String> map = get_instance(logger).get_map_of_date_to_signature();
+        Map<LocalDateTime, String> map = get_instance(aborter, logger).get_map_of_date_to_signature();
         if ( map.keySet().size() < max_count) return;
         LocalDateTime now = LocalDateTime.now();
         List<String> to_be_deleted = new ArrayList<>();
@@ -100,8 +101,8 @@ public class Undo_engine implements Datetime_to_signature_source
         }
         for ( String signature :to_be_deleted)
         {
-            Undo_item ui = get_instance(logger).get_undo_item_from_signature(signature);
-            get_instance(logger).store.remove_undo_item(ui);
+            Undo_item ui = get_instance(aborter,logger).get_undo_item_from_signature(signature);
+            get_instance(aborter,logger).store.remove_undo_item(ui);
             if ( dbg) logger.log("out of age undo item removed: "+ui.signature());
         }
 
@@ -111,7 +112,7 @@ public class Undo_engine implements Datetime_to_signature_source
     Undo_item get_undo_item_from_signature(String signature)
     //**********************************************************
     {
-        Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
+        Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(aborter, logger).get_signature_to_undo_item();
         return signature_to_undo_item.get(signature);
     }
 
@@ -120,9 +121,10 @@ public class Undo_engine implements Datetime_to_signature_source
 
 
     //**********************************************************
-    private Undo_engine(Logger logger_)
+    private Undo_engine(Aborter aborter,Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         logger  = logger_;
         store = new Undo_storage_to_disk(logger);
     }
@@ -239,7 +241,7 @@ public class Undo_engine implements Datetime_to_signature_source
             }
         }
 
-        Moving_files.perform_safe_moves_in_a_thread(owner,reverse_last_move, new Aborter(), false, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner,reverse_last_move,  false, aborter, logger);
 
         store.remove_undo_item(undo_item);
         refresh_UI();

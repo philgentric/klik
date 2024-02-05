@@ -47,8 +47,7 @@ public class Files_and_Paths {
     //**********************************************************
     {
         logger.log("unsafe_delete_all: perform_safe_moves_in_a_thread");
-        Moving_files.perform_safe_moves_in_a_thread(owner, l, aborter, false, logger);
-
+        Moving_files.perform_safe_moves_in_a_thread(owner, l,  false, aborter,logger);
     }
 
     /*
@@ -95,7 +94,7 @@ public class Files_and_Paths {
         Old_and_new_Path oanf2 = new Old_and_new_Path(f, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2, aborter, true, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner, l2, true, aborter, logger);
 
     }
 
@@ -213,24 +212,24 @@ public class Files_and_Paths {
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
 
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,aborter, logger);
     }
 
     //**********************************************************
-    public static void clear_icon_cache_on_disk_no_warning(Logger logger)
+    public static void clear_icon_cache_on_disk_no_warning(Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_icon_cache_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, aborter, logger);
     }
 
 
     //**********************************************************
-    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(Logger logger)
+    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_aspect_ratio_and_rotation_caches_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false,logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false,aborter, logger);
     }
 
     //**********************************************************
@@ -247,15 +246,15 @@ public class Files_and_Paths {
             s2 = size / 1000_000.0 + I18n.get_I18n_string("MB_deleted", logger);
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,aborter,logger);
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_no_warning(Logger logger)
+    public static void clear_folder_icon_cache_no_warning(Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, aborter,logger);
     }
 
 
@@ -278,7 +277,7 @@ public class Files_and_Paths {
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
         for (Path trash : trashes) {
-            delete_for_ever_all_files_in_dir_in_a_thread(trash, true, logger);
+            delete_for_ever_all_files_in_dir_in_a_thread(trash, true, aborter,logger);
         }
     }
 
@@ -564,7 +563,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Logger logger)
+    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Aborter aborter, Logger logger)
     //**********************************************************
     {
 
@@ -588,7 +587,7 @@ public class Files_and_Paths {
             }
         };
 
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
 
     }
 
@@ -721,7 +720,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static Path change_file_name(Path old_path, Logger logger, String new_name)
+    public static Path change_file_name(Path old_path, String new_name, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("change_file_name, new name: " + new_name);
@@ -735,7 +734,7 @@ public class Files_and_Paths {
             Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
             List<Old_and_new_Path> l = new ArrayList<>();
             l.add(oan);
-            Undo_engine.add(l,logger);
+            Undo_engine.add(l,aborter,logger);
             return new_path;
         } catch (FileExistsException e) {
             Popups.popup_Exception(e, 200, "File already exists", logger);
@@ -748,7 +747,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static Path change_dir_name(Path old_path, Logger logger, String new_name)
+    public static Path change_dir_name(Path old_path, String new_name,Aborter aborter , Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("change_dir_name, new name: " + new_name);
@@ -762,7 +761,7 @@ public class Files_and_Paths {
             Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
             List<Old_and_new_Path> l = new ArrayList<>();
             l.add(oan);
-            Undo_engine.add(l,logger);
+            Undo_engine.add(l,aborter, logger);
             return new_path;
         } catch (FileAlreadyExistsException e) {
             Popups.popup_Exception(e, 200, "File already exists", logger);
@@ -949,7 +948,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void copy_dir_in_a_thread(Stage owner, Path path, Path new_path, Logger logger)
+    public static void copy_dir_in_a_thread(Stage owner, Path path, Path new_path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("copy_dir_in_a_thread start");
@@ -963,7 +962,7 @@ public class Files_and_Paths {
             }
         };
         try {
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,aborter,logger);
             logger.log("copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
             logger.log("copy_dir_in_a_thread()" + ree);

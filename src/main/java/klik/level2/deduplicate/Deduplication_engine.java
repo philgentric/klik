@@ -51,7 +51,7 @@ public class Deduplication_engine implements Againor
         browser = b_;
         target_dir = target_dir_;
         logger = logger_;
-        aborter = new Aborter();
+        aborter = b_.aborter;
     }
 
 
@@ -70,7 +70,7 @@ public class Deduplication_engine implements Againor
                 runnable_deduplication(local_engine, auto);
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
         logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
 
@@ -97,7 +97,7 @@ public class Deduplication_engine implements Againor
         // launch actor (feeder) in another tread
         finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, same_file_pairs_input_queue, aborter, logger);
 
-        Actor_engine.execute(finder,logger);
+        Actor_engine.execute(finder,aborter,logger);
 
         logger.log("Deduplication::look_for_all_files() Duplicate_file_pairs_finder thread launched");
 
@@ -350,7 +350,7 @@ public class Deduplication_engine implements Againor
                 }
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
 
     }
 
@@ -368,7 +368,7 @@ public class Deduplication_engine implements Againor
                 just_count();
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
         logger.log("Deduplication::count() runnable_deduplication thread launched");
     }
 

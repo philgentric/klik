@@ -12,12 +12,12 @@ public class House_keeping_message implements Message
     public final Aborter aborter;
 
     //**********************************************************
-    public House_keeping_message(Change_receiver amh, House_keeping_message_type type_)
+    public House_keeping_message(Change_receiver amh, House_keeping_message_type type_, Aborter aborter)
     //**********************************************************
     {
         originator = amh;
         type = type_;
-        aborter = new Aborter();
+        this.aborter = aborter;
 
     }
 

@@ -57,7 +57,7 @@ public class Defusk_actor_for_one_folder implements Actor
                     if ( Actor_engine.use_virtual_threads)
                     {
                         Runnable r = () -> Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter,logger);
-                        Actor_engine.execute(r,logger);
+                        Actor_engine.execute(r,aborter,logger);
                     }
                     else {
                         Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
@@ -74,7 +74,7 @@ public class Defusk_actor_for_one_folder implements Actor
     {
         return Actor_engine.run(
                 new Defusk_actor_for_one_folder(aborter,logger), // need an instance for abort
-                new Fusk_message(target_dir, destination_folder),
+                new Fusk_message(target_dir, destination_folder,aborter),
                 null,
                 logger);
     }

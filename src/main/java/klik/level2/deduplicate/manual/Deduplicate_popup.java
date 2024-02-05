@@ -73,7 +73,7 @@ public class Deduplicate_popup
 							List<Old_and_new_Path> l = new ArrayList<Old_and_new_Path>();
 							File old_file = new File(s);
 							l.add(new Old_and_new_Path(old_file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
-							Moving_files.safe_delete_files(owner,l,new Aborter(),logger);
+							Moving_files.safe_delete_files(owner,l,new Aborter("Dupilcate popup",logger),logger);
 							stage.close();
 							againor.again(true);
 						}

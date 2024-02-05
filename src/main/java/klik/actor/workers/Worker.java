@@ -18,17 +18,18 @@ public class Worker
     LinkedBlockingQueue<Job> engine_input_queue;
     Logger logger;
     String name;
-    private final Aborter aborter = new Aborter();
+    private final Aborter aborter;
     private final AtomicInteger threads_in_flight;
 
     //**********************************************************
-    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, AtomicInteger threads_in_flight_, Logger logger_)
+    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, AtomicInteger threads_in_flight_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         engine_input_queue = input_queue_;
         threads_in_flight = threads_in_flight_;
         logger = logger_;
         name = name_;
+        this.aborter = aborter;
     }
 
     //**********************************************************

@@ -12,12 +12,12 @@ import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.util.Scheduled_thread_pool;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,17 +26,15 @@ public class Aspect_ratio_cache extends Cache_for_doubles
 //**********************************************************
 {
     private static final boolean dbg = false;
-    Map<String, Double> aspect_ratio_cache = new ConcurrentHashMap<>();
     private Aspect_ratio_actor aspect_ratio_actor;
 
     public AtomicInteger in_flight = new AtomicInteger(0);
-    Properties_manager pm;
     //**********************************************************
     public Aspect_ratio_cache(Path folder_path, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         super(folder_path,"aspect_ratio_cache",aborter_,logger_);
-        if(dbg) logger.log("Aspect_ratio_cache CONSTRUCTOR");
+        if(dbg) logger.log("Aspect_ratio_cache CONSTRUCTOR for: "+folder_path);
         aspect_ratio_actor = new Aspect_ratio_actor(in_flight);
     }
 
@@ -73,8 +71,9 @@ public class Aspect_ratio_cache extends Cache_for_doubles
 
     private AtomicBoolean done_look_for_end = new AtomicBoolean(false);
     private Runnable look_for_end_runnable = null;
+    ScheduledFuture<?>  the_scheduled_future = null;
     //**********************************************************
-    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Stage stage, Aborter aborter)
+    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Stage stage)
     //**********************************************************
     {
         if ( done_look_for_end.get()) return;
@@ -83,67 +82,54 @@ public class Aspect_ratio_cache extends Cache_for_doubles
             //already running;
             return;
         }
+
         long start = System.currentTimeMillis();
         look_for_end_runnable = new Runnable() {
             @Override
-            public void run() {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                for(;;)
+            public void run()
+            {
+
+                if ( aborter.should_abort())
                 {
-                    if ( aborter.should_abort()) return;
-                    if ( in_flight.get() == 0)
+                    logger.log("Aspect ratio cache look_for_end_runnable aborting");
+                    return;
+                }
+                if ( in_flight.get() > 0)
+                {
+                    //if ( dbg)
+                        logger.log("aspect ratios remaining: "+aspect_ratio_actor.in_flight.get());
+                    return;
+                }
+
+                // this is the end
+                the_scheduled_future.cancel(true);
+                done_look_for_end.set(true);
+                if ( System.currentTimeMillis()-start > 5_000)
+                {
+                    if (Static_application_properties.get_ding(logger))
                     {
-                        if ( System.currentTimeMillis()-start > 5_000)
-                        {
-                            if (Static_application_properties.get_ding(logger))
-                            {
-                                Ding.play(logger);
-                            }
-                        }
-                        done_look_for_end.set(true);
-                        Comparator<Path> local_file_comparator = null;
-                        if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
-                        {
-                            local_file_comparator = new Aspect_ratio_comparator_random();
-                        }
-                        else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO)
-                        {
-                            local_file_comparator = new Aspect_ratio_comparator();
-                        }
-                        if ( local_file_comparator != null)
-                        {
-                            paths_manager.image_file_comparator = local_file_comparator;
-                            paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
-                        }
-                        if ( dbg) logger.log("aspect ratios engine done, going to refresh");
-                        refresh_target.refresh();
-                        return;
-                    }
-
-
-                    if ( dbg) logger.log("aspect ratios remaining: "+aspect_ratio_actor.in_flight.get());
-                        /*Runnable r = new Runnable() {
-                            @Override
-                            public void run() {
-                                Popups.popup_warning(stage,"please wait!","Filling aspect ratio cache,"+aspect_ratio_actor.in_flight.get()+" files remaining",true,logger);
-                            }
-                        };
-                        Platform.runLater(r);
-                         */
-
-                    try {
-                        Thread.sleep(in_flight.get()/3);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                        Ding.play("Aspect_ratio_cache: done acquiring all aspect ratios",logger);
                     }
                 }
+                Comparator<Path> local_file_comparator = null;
+                if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
+                {
+                    local_file_comparator = new Aspect_ratio_comparator_random();
+                }
+                else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO)
+                {
+                    local_file_comparator = new Aspect_ratio_comparator();
+                }
+                if ( local_file_comparator != null)
+                {
+                    paths_manager.image_file_comparator = local_file_comparator;
+                    paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+                }
+                if ( dbg) logger.log("aspect ratios engine done, going to refresh");
+                refresh_target.refresh();
             }
         };
-        Actor_engine.execute(look_for_end_runnable,logger);
+        the_scheduled_future = Scheduled_thread_pool.execute(look_for_end_runnable, 100, TimeUnit.MILLISECONDS);
     }
 
 

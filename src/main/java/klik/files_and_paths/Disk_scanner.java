@@ -101,7 +101,7 @@ public class Disk_scanner implements Runnable
         folder_count_stop_counter.incrementAndGet();
 
         Runnable r = new Disk_scanner(path, origin, folder_count_stop_counter, file_payload_, dir_payload_, warning_payload_, aborter_, logger);
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter_,logger);
     }
     //**********************************************************
     private Disk_scanner(

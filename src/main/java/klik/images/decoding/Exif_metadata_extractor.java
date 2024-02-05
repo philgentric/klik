@@ -85,7 +85,7 @@ public class Exif_metadata_extractor
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
             if ( Static_application_properties.get_enable_fusk(logger)) {
-                if (Fusk_static_core.is_fusk(path, logger)) {
+                if (Fusk_static_core.is_fusk(path, aborter,logger)) {
                     String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
                     exif_metadata.add("... which is a fusk of: ->" + Fusk_strings.defusk_string(base, logger) + "<-");
                 } else {

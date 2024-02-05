@@ -30,7 +30,7 @@ public class Search_session implements Callback_for_file_found_publish
 	//**********************************************************
 	{
 		logger = logger_;
-		aborter = new Aborter();
+		aborter = browser.aborter;
 		status = Search_status.ready;
 		this.search_config = search_config;
 		this.search_receiver = search_receiver;

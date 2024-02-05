@@ -34,20 +34,22 @@ import java.util.Map;
 public class Icon_manager
 //**********************************************************
 {
+
     public static final boolean dbg = false;
+    public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
     public static final boolean scroll_dbg = false;
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final boolean add_and_remove = true;
     public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
-    private static final double MARGIN_Y = 10;
+    private static final double MARGIN_Y = 50;
 
+    private final Aborter aborter;
     private final Logger logger;
     private Landscape_height_listener landscape_height_listener;
     private final Stage owner;
-    public Paths_manager paths_manager;
-    Aborter aborter = new Aborter();
+    private final Paths_manager paths_manager;
 
     // state:
     private final Map<Path, Item> all_items_map = new HashMap<>();
@@ -58,13 +60,14 @@ public class Icon_manager
     public final double icon_height;
 
     //**********************************************************
-    public Icon_manager(Stage owner_, Refresh_target refreshTarget, Logger logger_)
+    public Icon_manager(Paths_manager paths_manager, Stage owner_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.paths_manager = paths_manager;
+        this.aborter = aborter;
         owner = owner_;
         logger = logger_;
-        //logger.log("WARNING Icon_manager::top_bar="+top_bar);
-        paths_manager = new Paths_manager(refreshTarget, aborter, logger);
+        if ( dbg) logger.log("Icon_manager constructor");
         double font_size = Static_application_properties.get_font_size(logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
     }
@@ -88,7 +91,7 @@ public class Icon_manager
         }
     }
 
-
+    long map_buttons_and_icons_elapsed = 0;
     //**********************************************************
     private void map_buttons_and_icons(Browser the_browser,
                                        Pane pane,
@@ -97,6 +100,9 @@ public class Icon_manager
                                        boolean rebuild_all_items)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
+         if ( dbg) logger.log("Icon_manager map_buttons_and_icons");
+
         double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
         int folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
         int column_width = Static_application_properties.get_column_width(logger);
@@ -148,13 +154,17 @@ public class Icon_manager
         }
 
 
-        if ( rebuild_all_items) all_items_map.clear();
-        else {
-            // check gones
+        if ( rebuild_all_items)
+        {
+            all_items_map.clear();
+        }
+        else
+        {
+            // check for possibly gone files
             List<Path> gones = new ArrayList<>();
             for ( Path p : all_items_map.keySet())
             {
-                if ( !paths_manager.do_have_still_have(p)){
+                if ( !paths_manager.do_we_still_have(p)){
                     gones.add(p);
                 }
             }
@@ -167,7 +177,9 @@ public class Icon_manager
         p = process_non_iconized_files(the_browser, single_column, column_increment_for_folders, scene_width, p);
         p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
         process_iconified_items(the_browser, single_column, icon_size, column_increment_for_icons, scene_width, p);
-        compute_bounding_rectangle("map_buttons_and_icons() OK");
+        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
+        map_buttons_and_icons_elapsed += (System.currentTimeMillis()-start);
+        logger.log("geometry_changed_elapsed= "+map_buttons_and_icons_elapsed);
     }
 
     //**********************************************************
@@ -188,6 +200,7 @@ public class Icon_manager
                 logger.log(Stack_trace_getter.get_stack_trace("BAD"));
                 continue;
             }
+            if ( dbg) logger.log("Icon_manager process_iconified_items "+path);
             Item item;
             if (show_icons_instead_of_text)
             {
@@ -243,7 +256,7 @@ public class Icon_manager
 
         for (Path path : paths_manager.non_iconized.keySet())
         {
-            //logger.log("process_non_iconized_files "+path.toAbsolutePath());
+            if (dbg) logger.log("Icon_manager process_non_iconized_files "+path.toAbsolutePath());
             String text = path.getFileName().toString();
             long size = path.toFile().length() / 1000_000L;
             if (Guess_file_type.is_this_path_a_video(path)) text = size + "MB VIDEO: " + text;
@@ -281,14 +294,16 @@ public class Icon_manager
     private Point2D process_folders(Browser the_browser, boolean single_column, double row_increment_for_dirs, double column_increment, double row_increment_for_dirs_with_picture, double scene_width, Point2D p)
     //**********************************************************
     {
+        if (dbg) logger.log("Icon_manager process_folders0 ");
+
         double actual_row_increment;
         if ( Static_application_properties.get_show_icons_for_folders(logger))
         {
             actual_row_increment = row_increment_for_dirs_with_picture;
-            //logger.log("column_increment: "+column_increment+", row_increment: "+actual_row_increment);
 
             for (Path folder_path : paths_manager.folders.keySet())
             {
+                if (dbg) logger.log("Icon_manager process_folders1 "+folder_path);
                 long start = System.currentTimeMillis();
                 if(dbg) logger.log("folder :"+folder_path+" took1 "+(System.currentTimeMillis()-start)+" milliseconds");
                 p = process_one_folder_with_picture(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
@@ -300,6 +315,7 @@ public class Icon_manager
             actual_row_increment = row_increment_for_dirs;
             for (Path folder_path : paths_manager.folders.keySet())
             {
+                if (dbg) logger.log("Icon_manager process_folders2 "+folder_path);
                 p = process_one_folder_plain(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
             }
         }
@@ -374,7 +390,6 @@ public class Icon_manager
         paths_manager.aspect_ratio_cache.clear_RAM_cache();
     }
 
-   // long geometry_changed_elapsed = 0;
     //**********************************************************
     public void geometry_changed(Browser b,
                                  Pane pane,
@@ -384,16 +399,13 @@ public class Icon_manager
     )
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
-        if (scroll_dbg)
+        //if (scroll_dbg)
             logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" rebuild_all_items="+rebuild_all_items);
         boolean single_column = Static_application_properties.get_single_column(logger);
         if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
         map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
-        //geometry_changed_elapsed += (System.currentTimeMillis()-start);
-        //logger.log("geometry_changed_elapsed= "+geometry_changed_elapsed);
     }
 
     //**********************************************************
@@ -421,19 +433,19 @@ public class Icon_manager
             //if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
             if (item.get_javafx_y() + item.get_Height() < current_vertical_offset -icon_size)
             {
-                if (visible_dbg)
+                if (invisible_dbg)
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
                 process_is_invisible(pane, item);
                 continue;
             }
             if (item.get_javafx_y()  > h+current_vertical_offset+icon_size)
             {
-                if (visible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
+                if (invisible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 process_is_invisible(pane, item);
                 continue;
             }
             if (visible_dbg)
-                logger.log(item.get_item_path() + " visible  y=" + item.get_javafx_y() + " item height=" + item.get_Height());
+                logger.log(item.get_item_path() + " Item is visible at y=" + item.get_javafx_y() + " item height=" + item.get_Height());
             process_is_visible(pane, item);
             // look for top left
             if ( item.get_javafx_x() > 0) continue;
@@ -450,40 +462,36 @@ public class Icon_manager
     private void process_is_visible(Pane pane, Item item)
     //**********************************************************
     {
+        item.visible_in_scene.set(true);
+        if (item instanceof Item_image item_image)
         {
-            item.visible_in_scene.set(true);
-            if (item instanceof Item_image item_image)
+            if (!item.icon_fabrication_requested.get())
             {
-                switch (item_image.icon_status)
-                {
-                    case no_icon:
-                        item_image.load_default_icon();
-                    case default_icon:
-                    {
-                        if(dbg) logger.log("process_is_visible: making icon factory request for: "+item_image.get_item_path());
-                        item_image.request_icon_to_factory(owner);
-                    }
-                    break;
-                    case true_icon_requested:
-                    case true_icon_in_the_making:
-                    case true_icon:
-                        break;
-                }
+                if (visible_dbg)
+                    logger.log("process_is_visible: making icon factory request for: " + item_image.get_item_path());
+                item_image.request_icon_to_factory();
             }
-            if (item.get_Node() == null)
+            if (!item.icon_available.get())
             {
-                logger.log("SHOULD NOT HAPPEN item.get_Node() == null");
+                if (visible_dbg)
+                    logger.log("process_is_visible: loading default icon for: " + item_image.get_item_path());
+                item_image.init_visible();
             }
-            else
-            {
-                if (!pane.getChildren().contains(item.get_Node()))
-                {
-                    if (visible_dbg) logger.log("adding item: " + item.get_string());
-                    pane.getChildren().add(item.get_Node());
-                }
-            }
-            item.set_visible(true);
+
         }
+        if (item.get_Node() == null)
+        {
+            logger.log("SHOULD NOT HAPPEN item.get_Node() == null");
+        }
+        else
+        {
+            if (!pane.getChildren().contains(item.get_Node()))
+            {
+                if (visible_dbg) logger.log("adding item: " + item.get_string());
+                pane.getChildren().add(item.get_Node());
+            }
+        }
+        item.set_visible(true);
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
     }
@@ -500,7 +508,7 @@ public class Icon_manager
             item.get_Node().setVisible(false);
             if (add_and_remove)
             {
-                if (visible_dbg) logger.log("removing from pane invisible icon of: " + item.get_string());
+                if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
                 pane.getChildren().remove(item.get_Node());
             }
             if (item instanceof Item_image item_image)
@@ -508,7 +516,8 @@ public class Icon_manager
                 // let us hope the GC might save us !
                 // i.e. in directories with very large number of images
                 // the icon manager can cause an OutOfMemory if we would keep invisible images in memory
-                item_image.set_Image(null, false);//Static_image_utilities.get_default_icon(icon_size, logger), false);
+                if (visible_dbg) logger.log("and setting image to null for: " + item.get_string());
+                item_image.process_invisible();//Static_image_utilities.get_default_icon(icon_size, logger), false);
             }
         }
     }
@@ -577,7 +586,7 @@ public class Icon_manager
     {
         return how_many_rows;
     }
-
+/*
     //**********************************************************
     public void cancel_all()
     //**********************************************************
@@ -591,7 +600,7 @@ public class Icon_manager
         }
         Icon_factory_actor.reset_videos_for_which_giffing_failed();
     }
-
+*/
     //**********************************************************
     public void show_how_many_files_deep_in_each_folder()
     //**********************************************************

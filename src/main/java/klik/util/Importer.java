@@ -35,7 +35,7 @@ public class Importer
 {
 
     //**********************************************************
-    public static void perform_import(Stage owner, Logger logger)
+    public static void perform_import(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path home = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
@@ -119,7 +119,7 @@ public class Importer
                 }
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter, logger);
 
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
@@ -128,7 +128,7 @@ public class Importer
                 file_payload,
                 null,
                 warnings,
-                new Aborter (),
+                aborter,
                 logger);
 
         done.set(true);
@@ -139,7 +139,7 @@ public class Importer
     }
 
     //**********************************************************
-    public static void estimate_size(Stage owner, Logger logger)
+    public static void estimate_size(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path home = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
@@ -191,7 +191,7 @@ public class Importer
                 file_payload,
                 null,
                 wp,
-                new Aborter (),
+                aborter,
                 logger);
 
         done.set(true);

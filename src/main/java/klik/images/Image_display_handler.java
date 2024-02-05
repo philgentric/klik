@@ -46,9 +46,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     // alternate rescaler:
     boolean alternate_rescaler = false;
     public static final boolean use_image_caching = true;
+    public final Aborter aborter;
 
     //**********************************************************
-    public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Aborter aborter, Comparator<? super Path> file_comparator, Logger logger_)
+    public static Image_display_handler get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         Image_context image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
@@ -57,7 +58,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
             return null;
         }
-        return new Image_display_handler(image_context_,v_,file_comparator,logger_);
+        return new Image_display_handler(image_context_,v_,file_comparator,aborter, logger_);
     }
 
     //**********************************************************
@@ -78,9 +79,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     }
 
     //**********************************************************
-    private Image_display_handler(Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Logger logger_)
+    private Image_display_handler(Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         image_context = image_context_;
         logger = logger_;
         image_window = v_;
@@ -88,7 +90,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
         image_indexer = Image_indexer.get_Image_indexer(image_context.path.toAbsolutePath().getParent(),file_comparator,logger);
 
-        Change_gang.register(this,logger); // image_context must be valid!
+        Change_gang.register(this,aborter,logger); // image_context must be valid!
 
 
         if ( use_image_caching)
@@ -107,7 +109,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 if ( forward_size > 10) forward_size = 10;//Image_decoding_actor_for_cache.CACHE_SIZE;
                 logger.log("forward_size="+forward_size);
 
-                image_cache = new Image_cache_cafeine(forward_size,logger);
+                image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
             }
         }
         else
@@ -226,7 +228,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         image_cache.evict(image_context.path);
                         Files_and_Paths.clear_one_icon_from_cache_on_disk(image_context.path,logger);
                         // reload the image
-                        image_context =   local_getImage_context(image_context.path,  new Aborter());
+                        image_context =   local_getImage_context(image_context.path,  aborter);
                         image_window.set_image(image_context);
                     });
                 }
@@ -261,7 +263,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Path to_be_deleted = image_context.path;
         change_image_relative(1, image_window.ultim_mode);
         Runnable r = () -> image_indexer.signal_deleted_file(to_be_deleted);
-        Files_and_Paths.move_to_trash(image_window.the_Stage,to_be_deleted, r, new Aborter(),logger);
+        Files_and_Paths.move_to_trash(image_window.the_Stage,to_be_deleted, r, aborter,logger);
     }
 
 
@@ -287,7 +289,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         }
 
         Image_context[] returned_new_image_context = new Image_context[1];
-        Change_image_message change_image_message = new Change_image_message(delta,image_context, image_window,ultimate,returned_new_image_context,logger);
+        Change_image_message change_image_message = new Change_image_message(delta,image_context, image_window,ultimate,returned_new_image_context,aborter, logger);
         // Job_termination_reporter will recover the NEW image_context
 
         Index_reporter index_reporter = index -> {

@@ -33,7 +33,7 @@ public class Backup_engine
     ConcurrentLinkedQueue<String> reports = new ConcurrentLinkedQueue<>();
     ScheduledFuture<?> finalHandle = null;
 
-    private final Aborter aborter = new Aborter();
+    final Aborter aborter;
     boolean is_finished = false;
     Backup_console_window backup_console_window;
 
@@ -47,6 +47,7 @@ public class Backup_engine
         this.source = source;
         this.destination = destination;
         logger = logger_;
+        aborter = new Aborter("backup engine",logger);
     }
 
 
@@ -67,7 +68,7 @@ public class Backup_engine
                 launch_in_thread(deep);
             }
         };
-        Actor_engine.execute(runnable,logger);
+        Actor_engine.execute(runnable,aborter,logger);
     }
 
     //**********************************************************
@@ -77,7 +78,7 @@ public class Backup_engine
         start = System.currentTimeMillis();
         logger.log("Backup starts");
 
-        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
+        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(aborter, logger);
         actor_engine_based_on_workers.run(
                 new Backup_actor_for_one_folder(stats,deep,deep,reports,aborter,logger),
                 new Directory_backup_job_request(source.toFile(), destination.toFile(), aborter,logger),

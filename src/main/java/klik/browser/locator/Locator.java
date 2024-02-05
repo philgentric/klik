@@ -33,7 +33,7 @@ public class Locator
     private final  List<String> final_choice = new ArrayList<>();
     private static final int MAX_WINDOWS = 10;
 
-    private final Aborter private_aborter = new Aborter();
+    private final Aborter private_aborter;
     private Monitor monitor = null;
 
     //**********************************************************
@@ -54,6 +54,7 @@ public class Locator
         this.min_bytes = min_bytes;
         this.browser = browser;
         this.logger = logger;
+        this.private_aborter = browser.aborter;
 
     }
 
@@ -96,7 +97,7 @@ public class Locator
                         logger.log(msg);
                         if ( monitor == null)
                         {
-                            monitor = new Monitor(top,locator,logger);
+                            monitor = new Monitor(top,locator,private_aborter,logger);
                             Runnable r = new Runnable() {
                                 @Override
                                 public void run() {
@@ -128,7 +129,7 @@ public class Locator
                 show();
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,private_aborter,logger);
     }
 
     //**********************************************************
@@ -203,7 +204,7 @@ public class Locator
                 };
                 if ( Threads.use_fibers)
                 {
-                    Actor_engine.execute(r,logger);
+                    Actor_engine.execute(r,browser.aborter,logger);
                 }
                 else
                 {

@@ -75,8 +75,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         column_width = column_width_;
         folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
         // launch content icon fabrication:
-        Icon_factory_request ifr = new Icon_factory_request(this, folder_icon_size);
-        job = Icon_factory_actor.get_icon_factory(this.browser.aborter, this.browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+        Icon_factory_request ifr = new Icon_factory_request(this, folder_icon_size, aborter);
+        job = browser.icon_factory_actor.make_icon(ifr);
 
         text = text_;
         //is_trash = is_trash_;
@@ -154,7 +154,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
     //**********************************************************
     @Override
-    public void set_Image(Image_and_rotation image_and_rotation, boolean real2)
+    public void set_Image(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
         if ( image_and_rotation.image() == null)
@@ -191,7 +191,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     //**********************************************************
     {
         Platform.runLater(() -> {
-            set_Image(image_and_rotation,true);
+            set_Image(image_and_rotation);
         });
     }
     //**********************************************************
@@ -465,7 +465,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Delete", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Deleting!");
-            Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, new Aborter(), logger);
+            Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, aborter, logger);
         });
         return menu_item;
     }
@@ -489,7 +489,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             text_edit.setOnAction(actionEvent -> {
                 String new_dir_name = text_edit.getText();
                 actionEvent.consume();
-                Path new_path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                Path new_path = Files_and_Paths.change_dir_name(path, new_dir_name, aborter, logger);
                 if ( new_path == null)
 
                 {
@@ -521,7 +521,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
                 Popups.popup_warning(browser.my_Stage.the_Stage,"copy of dir failed","names are same ?", false,logger);
                 return;
             }
-            Files_and_Paths.copy_dir_in_a_thread(browser.my_Stage.the_Stage, path, new_path, logger);
+            Files_and_Paths.copy_dir_in_a_thread(browser.my_Stage.the_Stage, path, new_path, aborter, logger);
         });
         return menu_item;
     }
@@ -635,7 +635,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
                 disk_foot_print_receiver.set_disk_foot_print_text(sizes);
             });
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
     }
 
 

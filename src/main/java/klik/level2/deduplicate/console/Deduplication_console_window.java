@@ -152,7 +152,7 @@ public class Deduplication_console_window
                 }
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
     }
 
     // returns true if the thread should stop

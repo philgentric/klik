@@ -174,14 +174,14 @@ public class Image_context
     }
 
     //**********************************************************
-    public void show_exif_stage()
+    public void show_exif_stage(Aborter aborter)
     //**********************************************************
     {
         TextFlow textFlow = new TextFlow();
         textFlow.setLayoutX(40);
         textFlow.setLayoutY(40);
         logger.log("$$$$$$ EXIF $$$$$$$$$$$");
-        for (String s : load_exif(new Aborter()))
+        for (String s : load_exif(new Aborter("EXIF",logger)))
         {
             logger.log(s);
             Text t = new Text(s);
@@ -206,7 +206,7 @@ public class Image_context
         String extension = FilenameUtils.getExtension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
-            if (Fusk_static_core.is_fusk(path,logger))
+            if (Fusk_static_core.is_fusk(path,aborter, logger))
             {
                 String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
                 local_stage.setTitle(Fusk_strings.defusk_string(base, logger));
@@ -520,7 +520,7 @@ public class Image_context
             logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
             return false;
         }
-        Actor_engine.execute(after,logger);
+        Actor_engine.execute(after,b.aborter,logger);
         //Popups.popup_text(I18n.get_I18n_string("Copy_done",logger),I18n.get_I18n_string("New_name",logger)+new_path.getFileName().toString(),false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(

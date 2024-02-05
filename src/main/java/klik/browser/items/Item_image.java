@@ -11,10 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.Job;
 import klik.browser.icons.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Browser;
@@ -37,14 +34,15 @@ import java.util.List;
 
 
 //**********************************************************
-public class Item_image extends Item implements Icon_destination
+public class Item_image extends Item
 //**********************************************************
 {
     protected ImageView image_view;
     Pane image_pane;
     private static final boolean visibility_dbg = false;
-    private Job job;
-    public Double aspect_ratio = null;
+    public Double aspect_ratio;
+    public static Image default_icon;
+    double actual_icon_size;
 
     //**********************************************************
     public Item_image(
@@ -55,24 +53,24 @@ public class Item_image extends Item implements Icon_destination
     {
         super(b,p, logger);
         this.aspect_ratio = aspect_ratio;
+        actual_icon_size = icon_size / 3.0;
+        if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
     }
 
     //**********************************************************
-    public void load_default_icon()
+    public void init_visible()
     //**********************************************************
     {
-        double actual_icon_size = icon_size / 3.0;
-        Image i = Look_and_feel_manager.get_default_icon(actual_icon_size);
-        if ( i == null)
+        if ( default_icon == null)
         {
             logger.log("BADBADBAD: item_image: loading default icon failed");
             return;
         }
-        if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +i.getWidth()+", h="+i.getHeight()+" FOR:  "+path);
+        if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
         if ( image_view == null) image_view = new ImageView();
-        image_pane = new StackPane(image_view);
+        if ( image_pane == null) image_pane = new StackPane(image_view);
 
-        image_view.setImage(i);
+        image_view.setImage(default_icon);
         image_view.setPreserveRatio(true);
         image_view.setSmooth(true);
         image_view.setFitWidth(actual_icon_size);
@@ -201,7 +199,7 @@ public class Item_image extends Item implements Icon_destination
                 List<Old_and_new_Path> l = new ArrayList<>();
                 Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
                 l.add(oandn);
-                Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, new Aborter(),true,logger);
+                Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, true,aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -209,7 +207,7 @@ public class Item_image extends Item implements Icon_destination
             javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
-                Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, new Aborter(), logger);
+                Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -287,11 +285,11 @@ public class Item_image extends Item implements Icon_destination
     //**********************************************************
     {
         //the_rotation = image_and_rotation.rotation();
-        set_Image(image_and_rotation,true);
+        set_Image(image_and_rotation);
     }
     //**********************************************************
     @Override
-    public void set_Image(Image_and_rotation image_and_rotation, boolean image_is_the_good_one)
+    public void set_Image(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
         if ( image_view == null)
@@ -300,11 +298,18 @@ public class Item_image extends Item implements Icon_destination
             return;
         }
 
+        if ( image_and_rotation == null)
+        {
+            if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+            image_view.setImage(null); // for garbage collecting reasons
+            return;
+        }
+
         if (!visible_in_scene.get())
         {
             //if ( dbg) g(0);
-            image_view.setImage(null);
-            icon_status = Icon_status.no_icon;
+            if ( dbg) logger.log("!visible_in_scene.get() : setting the image to null in the Image_view");
+            image_view.setImage(null); // for garbage collecting reasons
             return;
         }
         if ( (image_and_rotation.image().getHeight() == 0) && (image_and_rotation.image().getWidth() == 0))
@@ -321,7 +326,7 @@ public class Item_image extends Item implements Icon_destination
                 aspect_ratio = local;
             }
         }
-        Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation, image_is_the_good_one));
+        Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation));
     }
 
     //**********************************************************
@@ -329,23 +334,22 @@ public class Item_image extends Item implements Icon_destination
     public void cancel_custom()
     //**********************************************************
     {
-        Actor_engine.cancel_one(job);
-        job = null;
+        //Actor_engine.cancel_one(job);
+        //job = null;
         //logger.log("invisible icon => factory request canceled for "+path);
     }
 
     //**********************************************************
-    public void request_icon_to_factory(Stage owner)
+    public void request_icon_to_factory()
     //**********************************************************
     {
-
-        Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-        job = Icon_factory_actor.get_icon_factory(browser.aborter,browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, owner, logger).make_icon(ifr);
-        icon_status = Icon_status.true_icon_requested;
+        if ( dbg) logger.log("request_icon_to_factory for:"+path);
+        Icon_factory_request ifr = new Icon_factory_request(this, icon_size,aborter);
+        browser.icon_factory_actor.make_icon(ifr);
     }
 
     //**********************************************************
-    public void do_it_in_fx_thread(Image_and_rotation image_and_rotation, boolean image_is_the_good_one)
+    public void do_it_in_fx_thread(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
         if ( image_view == null)
@@ -360,13 +364,15 @@ public class Item_image extends Item implements Icon_destination
         }
         if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
         image_view.setImage(image_and_rotation.image());
+        icon_available.set(true);
+        /*
         if (!image_is_the_good_one)
         {
             logger.log(Stack_trace_getter.get_stack_trace("DEFAULT ICON"));
             icon_status = Icon_status.default_icon;
             if (visibility_dbg) log_visibility_state_number(3);
         }
-        else
+        else*/
         {
             Double local_rot = image_and_rotation.rotation();
             if (local_rot == null)
@@ -387,9 +393,8 @@ public class Item_image extends Item implements Icon_destination
                 }
                 else
                 {
-                    image_view.setImage(null);
-                    icon_status = Icon_status.no_icon;
-                    if (visibility_dbg) log_visibility_state_number(0);
+                    process_invisible();
+                     if (visibility_dbg) log_visibility_state_number(0);
                     return;
                 }
 
@@ -399,8 +404,7 @@ public class Item_image extends Item implements Icon_destination
             // and in the mean time the situation can change
             if (!visible_in_scene.get())
             {
-                image_view.setImage(null);
-                icon_status = Icon_status.no_icon;
+                process_invisible();
                 if (visibility_dbg) log_visibility_state_number(1);
                 return;
             }
@@ -447,9 +451,18 @@ public class Item_image extends Item implements Icon_destination
             if ( image_and_rotation.rotation() != null) {
                 image_pane.setRotate(image_and_rotation.rotation());
             }
-            icon_status = Icon_status.true_icon;
+            icon_available.set(true);
             if (visibility_dbg) log_visibility_state_number(2);
         }
+    }
+
+    //**********************************************************
+    public void process_invisible()
+    //**********************************************************
+    {
+        image_view.setImage(null);
+        icon_available.set(false);
+        icon_fabrication_requested.set(false);
     }
 
     //**********************************************************

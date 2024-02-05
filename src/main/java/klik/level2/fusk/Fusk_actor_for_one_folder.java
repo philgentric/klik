@@ -61,11 +61,11 @@ public class Fusk_actor_for_one_folder implements Actor
 
                 if ( Actor_engine.use_virtual_threads)
                 {
-                    Runnable r = () -> Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), logger);
-                    Actor_engine.execute(r,logger);
+                    Runnable r = () -> Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
+                    Actor_engine.execute(r,aborter,logger);
                 }
                 else {
-                    Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), logger);
+                    Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
                 }
             }
         }
@@ -79,7 +79,7 @@ public class Fusk_actor_for_one_folder implements Actor
         logger.log("going to fusk:"+target_dir);
         return Actor_engine.run(
                 new Fusk_actor_for_one_folder(aborter,logger),
-                new Fusk_message(target_dir,new File(destination_folder, target_dir.getName())),
+                new Fusk_message(target_dir,new File(destination_folder, target_dir.getName()), aborter),
                 null,
                 logger);
     }
@@ -89,6 +89,6 @@ public class Fusk_actor_for_one_folder implements Actor
     //**********************************************************
     {
         aborter.abort();
-        Actor_engine.get(logger).cancel_all(jobs);
+        Actor_engine.get(aborter,logger).cancel_all(jobs);
     }
 }

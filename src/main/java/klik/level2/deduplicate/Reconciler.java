@@ -30,7 +30,7 @@ public class Reconciler
         List<My_File> reference_files = Files_and_Paths.get_all_files_down(new File(reference), pinger, true, logger);
         List<My_File> target_files = Files_and_Paths.get_all_files_down(new File(target), pinger, true, logger);
 
-        Aborter stop = new Aborter();
+        Aborter stop = new Aborter("Reconciler",logger);
 
         //List<Old_and_new_Path> l = new ArrayList<>();
         List<File> missing = new ArrayList<>();

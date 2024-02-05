@@ -3,6 +3,7 @@ package klik.images.caching;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
@@ -22,11 +23,13 @@ public class Image_cache_cafeine implements Cache_interface
     Logger logger;
     Cache<String, Image_context> cache;
     private final int forward_size;
+    private final Aborter aborter;
 
     //**********************************************************
-    public Image_cache_cafeine(int forward_size_,Logger logger_)
+    public Image_cache_cafeine(int forward_size_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         forward_size = forward_size_;
         cache = Caffeine.newBuilder()
                 .maximumSize(2*forward_size+1)
@@ -76,7 +79,7 @@ public class Image_cache_cafeine implements Cache_interface
 
         for (Path path: kk)
         {
-            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, high_quality, this);
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, high_quality, this, aborter);
             if (ultra_dbg)
                 logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
@@ -118,7 +121,7 @@ public class Image_cache_cafeine implements Cache_interface
     public void evict(Path path)
     //**********************************************************
     {
-        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,false,null);
+        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,false,null, aborter);
         String key = request.make_key();
         cache.invalidate(key);
         if (ultra_dbg) logger.log("       Evicted:" + key );

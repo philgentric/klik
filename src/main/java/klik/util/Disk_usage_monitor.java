@@ -77,8 +77,8 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(logger);
-                        Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(aborter,logger);
+                        Files_and_Paths.clear_folder_icon_cache_no_warning(aborter,logger);
                         continue;
                     }
                 }
@@ -86,7 +86,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
+                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(aborter,logger);
                         continue;
                     }
                 }

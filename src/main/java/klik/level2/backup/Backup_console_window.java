@@ -26,7 +26,7 @@ public class Backup_console_window
     Backup_engine backup_engine;
     Backup_stats stats;
     Logger logger;
-    private final Aborter aborter = new Aborter();
+    private final Aborter aborter;
     TextField number_of_folders_processed;
     TextField number_of_files_processed;
     TextField number_of_files_skipped;
@@ -53,6 +53,7 @@ public class Backup_console_window
     public Backup_console_window(Backup_engine backup_engine_, Backup_stats stats_, Logger logger)
     //**********************************************************
     {
+        aborter =backup_engine_.aborter;
         backup_engine = backup_engine_;
         stats = stats_;
         this.logger = logger;

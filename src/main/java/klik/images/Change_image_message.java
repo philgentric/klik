@@ -17,7 +17,7 @@ public class Change_image_message implements Message
     public final Aborter aborter;
 
     //**********************************************************
-    public Change_image_message(int delta, Image_context image_context, Image_window image_stage, boolean ultimate, Image_context[] returned, Logger logger)
+    public Change_image_message(int delta, Image_context image_context, Image_window image_stage, boolean ultimate, Image_context[] returned, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
@@ -26,7 +26,7 @@ public class Change_image_message implements Message
         this.image_window = image_stage;
         this.ultimate = ultimate;
         this.output_image_context = returned;
-        aborter = new Aborter();
+        this.aborter = aborter;
     }
 
     @Override

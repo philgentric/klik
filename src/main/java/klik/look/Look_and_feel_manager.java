@@ -861,6 +861,38 @@ public class Look_and_feel_manager
         Font_size.apply_font_size(context_menu,logger);
     }
 
+
+    //**********************************************************
+    public static void set_CheckBox_look(CheckBox check_box)
+    //**********************************************************
+    {
+        //check_box.getStyleClass().clear();
+        //check_box.getStyleClass().add("check-box");
+        Font_size.apply_font_size(check_box,logger);
+        /*
+        Look_and_feel laf = Look_and_feel_manager.get_instance();
+        if (laf.style_sheet_url_string != null)
+        {
+            check_box.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
+        }
+        */
+    }
+
+
+    //**********************************************************
+    public static void set_TextField_look(TextField text_field)
+    //**********************************************************
+    {
+        Font_size.apply_font_size(text_field,logger);
+        Look_and_feel laf = Look_and_feel_manager.get_instance();
+        if (laf.style_sheet_url_string != null)
+        {
+            text_field.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
+        }
+
+    }
+
+
     //**********************************************************
     public static void set_button_and_image_look(Button button,
                                                  Image image,
@@ -972,7 +1004,6 @@ public class Look_and_feel_manager
         Look_and_feel laf = get_instance();
         return laf.get_drag_fill();
     }
-
 
 
 }

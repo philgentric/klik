@@ -126,7 +126,7 @@ public class Drag_and_drop
                 destination_dir,
                 destination_is_trash,
                 list,
-                new Aborter(),
+                new Aborter("safe_move_files_or_dirs",logger),
                 logger);
         //Popups.popup_text("Drag and Drop", list.size() + " file(s) moved!", true);
 

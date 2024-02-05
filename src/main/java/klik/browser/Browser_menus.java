@@ -3,6 +3,7 @@ package klik.browser;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 
+import klik.actor.Aborter;
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
 import klik.browser.meter.Meters_stage;
@@ -111,8 +112,8 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(browser.aborter, logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning(browser.aborter, logger);
             browser.icon_manager.clear_aspect_ratio_cache();
         });
         return item;
@@ -138,8 +139,8 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning(logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(browser.aborter, logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning(browser.aborter,logger);
         });
         return item;
     }
@@ -166,7 +167,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(browser.aborter,logger);
             browser.icon_manager.clear_aspect_ratio_cache();
             browser.icon_manager.clear_rotation_cache();
         });
@@ -391,7 +392,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Undo_engine.perform_last_undo(browser.my_Stage.the_Stage,logger));
+        item.setOnAction(event -> Undo_engine.perform_last_undo(browser.my_Stage.the_Stage,browser.aborter, logger));
         return item;
     }
 
@@ -456,7 +457,7 @@ public class Browser_menus
     public void remove_empty_folders(boolean recursively)
     //**********************************************************
     {
-        browser.icon_manager.paths_manager.remove_empty_folders(recursively);
+        browser.paths_manager.remove_empty_folders(recursively);
         // can be called from a thread which is NOT the FX event thread
         Platform.runLater(() -> browser.scene_geometry_changed("remove empty folder", true, false));
     }
@@ -800,13 +801,13 @@ public class Browser_menus
         {
             String text = I18n.get_I18n_string("Clear_Undos",logger);
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,logger));
+            item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,browser.aborter, logger));
             undos_menu.getItems().add(item);
         }
         {
             String text = I18n.get_I18n_string("Show_Undos",logger);
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> pop_up_whole_undo_history());
+            item.setOnAction(event -> pop_up_whole_undo_history(browser.aborter));
             undos_menu.getItems().add(item);
         }
     }
@@ -829,12 +830,12 @@ public class Browser_menus
     }
 
     //**********************************************************
-    private void pop_up_whole_undo_history()
+    private void pop_up_whole_undo_history(Aborter aborter)
     //**********************************************************
     {
         Active_list_stage_action action = signature ->
         {
-            Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(logger).get_signature_to_undo_item();
+            Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(aborter, logger).get_signature_to_undo_item();
             Undo_item item = signature_to_undo_item.get(signature);
             if ( item == null)
             {
@@ -842,7 +843,7 @@ public class Browser_menus
                 return;
             }
 
-            if ( !Undo_engine.check_validity(item, browser.my_Stage.the_Stage,logger))
+            if ( !Undo_engine.check_validity(item, browser.my_Stage.the_Stage,browser.aborter,logger))
             {
                 Popups.popup_warning(browser.my_Stage.the_Stage,"Invalid undo item ignored","The file was probably moved since?",true,logger);
                 return;
@@ -851,11 +852,11 @@ public class Browser_menus
             //String header = I18n.get_I18n_string("Going_To_Undo_This",logger);
             //if (Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage,header,signature,logger))
             {
-                Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,logger);
+                Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,aborter, logger);
             }
         };
         String title = I18n.get_I18n_string("Whole_Undo_History",logger);
-        Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_engine.get_instance(logger), action, logger));
+        Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_engine.get_instance(aborter, logger), action, logger));
     }
 
 
@@ -1255,7 +1256,7 @@ public class Browser_menus
             Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             l.add(oandn);
         }
-        Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, browser.aborter,true, logger);
+        Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, true, browser.aborter,logger);
 
     }
 

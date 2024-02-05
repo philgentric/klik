@@ -96,8 +96,10 @@ public class Item_button extends Item implements Icon_destination
                 {
                     logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN" + path));
                     if (dbg) logger.log("setting image tooltip");
-                    Icon_factory_request ifr = new Icon_factory_request(this, icon_size);
-                    job = Icon_factory_actor.get_icon_factory(browser.aborter, browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
+                    Icon_factory_request ifr = new Icon_factory_request(this, icon_size, aborter);
+                    Icon_factory_actor fac = browser.icon_factory_actor;
+                    job = fac.make_icon(ifr);
+                    //job = Icon_factory_actor.get_icon_factory(browser.aborter, browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
                 }
                 else
                 {
@@ -155,7 +157,7 @@ public class Item_button extends Item implements Icon_destination
     //ImageView the_tooltip_image_view;
 
     @Override
-    public void set_Image(Image_and_rotation image_and_rotation, boolean real)
+    public void set_Image(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
         logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
@@ -693,7 +695,7 @@ public class Item_button extends Item implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             });
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter, logger);
     }
 
 
@@ -729,7 +731,7 @@ public class Item_button extends Item implements Icon_destination
                 actionEvent.consume();
                 if ( path.toFile().isDirectory() )
                 {
-                    Path new_path = Files_and_Paths.change_dir_name(path, logger, new_dir_name);
+                    Path new_path = Files_and_Paths.change_dir_name(path, new_dir_name, aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");
@@ -743,7 +745,7 @@ public class Item_button extends Item implements Icon_destination
                 }
                 else
                 {
-                    Path new_path = Files_and_Paths.change_file_name(path, logger, new_dir_name);
+                    Path new_path = Files_and_Paths.change_file_name(path, new_dir_name, aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");
@@ -780,7 +782,7 @@ public class Item_button extends Item implements Icon_destination
                 Popups.popup_warning(browser.my_Stage.the_Stage,"copy of dir failed","names are same ?", false,logger);
                 return;
             }
-            Files_and_Paths.copy_dir_in_a_thread(browser.my_Stage.the_Stage, path, new_path, logger);
+            Files_and_Paths.copy_dir_in_a_thread(browser.my_Stage.the_Stage, path, new_path, aborter, logger);
         });
         return menu_item;
     }

@@ -22,13 +22,12 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.icons.JavaFX_to_Swing;
+import klik.browser.icons.*;
+import klik.browser.icons.caches.Aspect_ratio_cache;
+import klik.browser.icons.caches.Rotation_cache;
 import klik.browser.locator.Locator;
 import klik.files_and_paths.*;
 import klik.level2.backup.Backup_singleton;
-import klik.browser.icons.Error_type;
-import klik.browser.icons.Icon_manager;
-import klik.browser.icons.Refresh_target;
 import klik.browser.items.Item;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
@@ -70,6 +69,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public static final boolean dbg = false;
     private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
     public final Path top_left_in_parent;
+    public Icon_factory_actor icon_factory_actor;
 //    public double button_width;
 
 
@@ -85,6 +85,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public final Path displayed_folder_path;
     public final Selection_handler selection_handler;
     public final Aborter aborter;
+    public final Paths_manager paths_manager;
+    private final Rotation_cache rotation_cache;
+    private final Aspect_ratio_cache aspect_ratio_cache;
+
+
     TextField status;
     Vertical_slider vertical_slider;
     public double slider_width = 400;
@@ -104,7 +109,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void refresh()
     //**********************************************************
     {
-        Browser local = this;
+        //Browser local = this;
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -119,17 +124,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     //**********************************************************
     @Override // Refresh_target
-    public void refresh2()
+    public void refresh_no_scan_dir()
     //**********************************************************
     {
-        Browser local = this;
+        //Browser local = this;
         Runnable r = new Runnable() {
             @Override
             public void run() {
-
                 //logger.log("REFRESH");
-                scene_geometry_changed2("aspect ratio engine",true, true);
-                //Browser_creation_context.replace_same_folder(local,logger);
+                scene_geometry_changed_no_scan_dir("aspect ratio engine",true, true);
             }
         };
         Platform.runLater(r);
@@ -140,7 +143,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         logger.log("browser getting the current file comparator");
-        return icon_manager.paths_manager.image_file_comparator;
+        return paths_manager.image_file_comparator;
     }
 
     //**********************************************************
@@ -149,13 +152,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         if (!Popups.popup_ask_for_confirmation(my_Stage.the_Stage,"Importing photos will create COPIES","Please select a destination drive with enough space",logger) ) return;
 
-        Importer.perform_import(my_Stage.the_Stage,logger);
+        Importer.perform_import(my_Stage.the_Stage,aborter,logger);
     }
     //**********************************************************
     public void estimate_size_of_importing_apple_Photos()
     //**********************************************************
     {
-        Importer.estimate_size(my_Stage.the_Stage,logger);
+        Importer.estimate_size(my_Stage.the_Stage,aborter, logger);
     }
 
     //**********************************************************
@@ -216,7 +219,9 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
 
         logger = logger_;
-        aborter = new Aborter();
+        displayed_folder_path = context.folder_path;
+
+        aborter = new Aborter("Browser"+displayed_folder_path.toAbsolutePath().toString(),logger);
         ID = ID_generator.getAndIncrement();
         my_Stage = new My_Stage(new Stage(),logger);// context.stage;//new My_Stage(context.stage,logger);
 
@@ -289,14 +294,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         History_engine.get_instance(logger).add(context.folder_path);
 
-        displayed_folder_path = context.folder_path;
 
-        Change_gang.register(this, logger);
+        Change_gang.register(this, aborter,logger);
         set_title();
         the_Pane = new Pane();
 
 
-        icon_manager = new Icon_manager(my_Stage.the_Stage, this,logger);
+
+        aspect_ratio_cache = new Aspect_ratio_cache(displayed_folder_path,aborter,logger);
+        rotation_cache = new Rotation_cache(displayed_folder_path,aborter,logger);
+        icon_factory_actor = new Icon_factory_actor(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
+        paths_manager = new Paths_manager(aspect_ratio_cache,rotation_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
+        icon_manager = new Icon_manager(paths_manager, my_Stage.the_Stage,aborter,logger);
         selection_handler = new Selection_handler(the_Pane, icon_manager, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
         exit_on_escape_preference = Static_application_properties.get_escape(logger);
@@ -305,6 +314,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             browser_ui.define_UI();
         }
         icon_manager.set_Landscape_height_listener(vertical_slider);
+
+
         set_all_event_handlers();
 
         my_Stage.the_Stage.setScene(the_Scene);
@@ -379,16 +390,16 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     void cleanup()
     //**********************************************************
     {
-        //logger.log("cleanup " + signature());
+        aborter.abort();
+        logger.log("Browser cleanup " + signature());
         // when we change dir, we need to de-register the old browser
         // otherwise the list in the change_gang keeps growing
         // plus memory leak! ==> the RAM footprint keeps growing
-        aborter.abort();
-        Change_gang.deregister(this);
+        Change_gang.deregister(this, aborter);
         if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
         stop_scan();
         the_Pane.getChildren().clear();
-        if (icon_manager != null) icon_manager.cancel_all();
+        //if (icon_manager != null) icon_manager.cancel_all();
     }
 
     //**********************************************************
@@ -500,7 +511,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                     }
                 }
             };
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,browser_ui.browser.aborter, logger);
         }
         my_Stage.the_Stage.fullScreenProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -738,8 +749,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
             return;
         }
-        Fusk_singleton.set_source(fusk_source, logger);
-        Fusk_singleton.set_destination(fusk_destination, logger);
+        Fusk_singleton.set_source(fusk_source, aborter,logger);
+        Fusk_singleton.set_destination(fusk_destination, aborter, logger);
         Fusk_singleton.start_fusk(my_Stage.the_Stage);
 
     }
@@ -762,8 +773,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
             return;
         }
-        Fusk_singleton.set_source(defusk_source, logger);
-        Fusk_singleton.set_destination(defusk_destination, logger);
+        Fusk_singleton.set_source(defusk_source, aborter,logger);
+        Fusk_singleton.set_destination(defusk_destination, aborter, logger);
         Fusk_singleton.start_defusk(my_Stage.the_Stage);
 
     }
@@ -824,7 +835,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         {
             Fusk_bytes.reset(logger);
         }
-        Fusk_bytes.initialize(logger);
+        Fusk_bytes.initialize(aborter, logger);
     }
 
 
@@ -899,7 +910,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         if (dbg)
             logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
-        error_type = icon_manager.paths_manager.scan_dir(displayed_folder_path, my_Stage.the_Stage, from);
+        error_type = paths_manager.scan_dir(my_Stage.the_Stage, from);
         if (error_type != Error_type.OK) {
             logger.log(true, true, "scene_geometry_changed() scan dir failed for :" + displayed_folder_path + " error=" + status);
         }
@@ -927,15 +938,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    public void scene_geometry_changed2(String from, boolean rebuild_all_items, boolean keep_scroll)
+    public void scene_geometry_changed_no_scan_dir(String from, boolean rebuild_all_items, boolean keep_scroll)
     //**********************************************************
     {
         if (dbg)
-            logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
+            logger.log("the_pane scene_geometry_changed_no_scan_dir from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
 
         icon_manager.geometry_changed(this, the_Pane, mandatory_in_pane,
-                "scene_geometry_changed from: " + from + " keep_scroll=" + keep_scroll,
+                "scene_geometry_changed_no_scan_dir from: " + from + " keep_scroll=" + keep_scroll,
                 rebuild_all_items);
 
         if (dbg) logger.log("the_pane scene_geometry_changed adapt_slider_to_scene");
@@ -1019,7 +1030,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             moves.add(oanp);
 
         }
-        Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage,moves,aborter,true, logger);
+        Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage,moves,true, aborter,logger);
 
     }
     //**********************************************************
@@ -1095,14 +1106,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public List<File> get_file_list()
     //**********************************************************
     {
-        return icon_manager.paths_manager.get_file_list();
+        return paths_manager.get_file_list();
     }
 
     //**********************************************************
     public List<File> get_folder_list()
     //**********************************************************
     {
-        return icon_manager.paths_manager.get_folder_list();
+        return paths_manager.get_folder_list();
     }
 
 
@@ -1120,7 +1131,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private void start_scan()
     //**********************************************************
     {
-        the_scan_show = new Scan_show(this, vertical_slider, logger);
+        the_scan_show = new Scan_show(this, vertical_slider, aborter, logger);
     }
 
     //**********************************************************

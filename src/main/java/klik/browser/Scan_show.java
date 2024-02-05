@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
+import klik.actor.Aborter;
 import klik.util.Logger;
 
 //**********************************************************
@@ -19,12 +20,14 @@ public class Scan_show
     long inter_frame_ms = 3;
     private final Scan_show_slave scan_show_slave;
     private final Logger logger;
+    private final Aborter aborter;
     private double dy;
 
     //**********************************************************
-    Scan_show(Scan_show_slave scan_show_slave_, Vertical_slider slider, Logger logger_)
+    Scan_show(Scan_show_slave scan_show_slave_, Vertical_slider slider, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         scan_show_slave = scan_show_slave_;
         logger = logger_;
         int number_of_rows = scan_show_slave.how_many_rows();
@@ -48,12 +51,14 @@ public class Scan_show
     private void start_the_show()
     //**********************************************************
     {
+        if ( aborter.should_abort()) return;
         if (scan_show_animation_timeline != null)
         {
             scan_show_animation_timeline.stop();
         }
         EventHandler<ActionEvent> eventHandler = e ->
         {
+            if ( aborter.should_abort()) return;
             if ( scan_show_slave.scroll_a_bit(dy))
             {
                 if ( dbg) logger.log("scan scroll done = "+dy);

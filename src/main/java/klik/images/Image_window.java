@@ -134,9 +134,9 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
-        dir = first_image_path.getParent();
-        aborter = new Aborter();
         logger = logger_;
+        dir = first_image_path.getParent();
+        aborter = new Aborter("Image_window",logger);
         the_Stage = new Stage();
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane);
@@ -154,7 +154,7 @@ public class Image_window
         the_Stage.show();
 
         boolean high_quality = false;
-        image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.aborter, the_browser.get_file_comparator(), logger);
+        image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.get_file_comparator(),  the_browser.aborter, logger);
         if ( image_display_handler == null)
         {
             mouse_handling_for_image_window = null;
@@ -254,7 +254,7 @@ public class Image_window
         the_Stage.setOnCloseRequest(we -> {
             logger.log("Image_window is closing");
             aborter.abort();
-            Change_gang.deregister(image_display_handler);
+            Change_gang.deregister(image_display_handler, aborter);
         });
 
         the_Scene.setOnScroll(event -> {
@@ -646,7 +646,7 @@ public class Image_window
             Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             oandn.run_after = () -> Platform.runLater(() -> set_stage_title(local_new_image_context));
             l.add(oandn);
-            Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, aborter,true, logger);
+            Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, true, aborter,logger);
         }
 
         /*

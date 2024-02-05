@@ -93,7 +93,7 @@ public class Backup_actor_for_one_folder implements Actor
         if (( enable_check_for_same_file_different_name)||(enable_deep_byte_check))
         {
             slow = true;
-            mini_console = new Per_folder_mini_console(logger);
+            mini_console = new Per_folder_mini_console(aborter,logger);
             mini_console.create();
             mini_console.init(request);
         }

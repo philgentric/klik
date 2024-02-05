@@ -20,7 +20,7 @@ public class System_open_actor implements Actor
     {
     Actor_engine.run(
             System_open_actor.get(),
-            new System_open_message(browser.my_Stage.the_Stage, path, logger),null,logger);
+            new System_open_message(browser.my_Stage.the_Stage, path, browser.aborter,logger),null,logger);
     }
 
     private static System_open_actor instance;

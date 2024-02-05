@@ -18,13 +18,13 @@ public class System_open_message implements Message
     public final Aborter aborter;
 
     //**********************************************************
-    public System_open_message(Stage owner, Path path, Logger logger)
+    public System_open_message(Stage owner, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         the_Stage = owner;
         this.path = path;
         this.logger = logger;
-        aborter = new Aborter();
+       this.aborter = aborter;
     }
     //**********************************************************
     @Override

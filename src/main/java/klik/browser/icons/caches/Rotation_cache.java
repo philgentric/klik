@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Rotation_cache extends Cache_for_doubles
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     Properties_manager pm = new Properties_manager(cache_file_path,logger);
 
     //**********************************************************

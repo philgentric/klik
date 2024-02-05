@@ -13,6 +13,7 @@ public interface Actor_engine_interface
     void cancel_one(Job canceled);
     void stop();
     int how_many_threads_are_in_flight();
+    Aborter get_aborter();
 
     //**********************************************************
     default void cancel_all(ConcurrentLinkedQueue<Job> jobs)
@@ -25,7 +26,7 @@ public interface Actor_engine_interface
     }
 
     //**********************************************************
-    default Job execute_internal(Runnable r, Logger logger)
+    default Job execute_internal(Runnable r,  Logger logger)
     //**********************************************************
     {
         Actor actor = new Actor() {
@@ -38,7 +39,7 @@ public interface Actor_engine_interface
         Message message = new Message() {
             @Override
             public Aborter get_aborter() {
-                return new Aborter();
+                return new Aborter("defaut thread",logger);
             }
         };
         return run(actor,message,null,logger);

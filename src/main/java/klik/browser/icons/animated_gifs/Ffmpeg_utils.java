@@ -128,7 +128,7 @@ public class Ffmpeg_utils
             }
         };
         //Threads.execute(r,logger);
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
     }
 
     //**********************************************************
@@ -298,12 +298,12 @@ public class Ffmpeg_utils
                 {
                     gif_saving_dir = dir_chooser.getSelectedFile();
                     save_same.setDisable(false);
-                    save_now(new Aborter(),logger);
+                    save_now(new Aborter("interactive",logger),logger);
                 }
             }));
             save_same.setOnAction(actionEvent -> {
                 if (gif_saving_dir== null) return;
-                save_now(new Aborter(),logger);
+                save_now(new Aborter("interactive",logger),logger);
             });
 
             {
@@ -396,7 +396,7 @@ public class Ffmpeg_utils
         Old_and_new_Path oandnp = new Old_and_new_Path(gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oandnp);
-        Moving_files.perform_safe_moves_in_a_thread(the_stage, ll, aborter, false,logger);
+        Moving_files.perform_safe_moves_in_a_thread(the_stage, ll,false, aborter, logger);
     }
 
     //**********************************************************
@@ -455,7 +455,7 @@ public class Ffmpeg_utils
                 gif_full_path,
                 clip_duration,
                 start_time,
-                new Aborter(),
+                new Aborter("video_to_gif",logger),
                 logger);
 
 

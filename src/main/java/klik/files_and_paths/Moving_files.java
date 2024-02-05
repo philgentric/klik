@@ -58,7 +58,7 @@ public class Moving_files
         if (popup) {
             Popups.popup_warning(owner, "Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, logger);
         }
-        perform_safe_moves_in_a_thread(owner, oan_list, aborter, true, logger);
+                perform_safe_moves_in_a_thread(owner, oan_list,  true, aborter,logger);
     }
 
     //**********************************************************
@@ -71,13 +71,13 @@ public class Moving_files
         Command_old_and_new_Path cmd_ = Command_old_and_new_Path.command_move;
         Old_and_new_Path oan = new Old_and_new_Path(old_Path_, new_Path_, cmd_, Status_old_and_new_Path.move_done,false);
         oanl.add(oan);
-        perform_safe_moves_in_a_thread(owner, oanl, aborter, true, logger);
+        perform_safe_moves_in_a_thread(owner, oanl,  true, aborter,logger);
     }
 
 
 
     //**********************************************************
-    public static void perform_safe_moves_in_a_thread(Stage owner, List<Old_and_new_Path> the_list, Aborter aborter, boolean and_list_for_undo, Logger logger)
+    public static void perform_safe_moves_in_a_thread(Stage owner, List<Old_and_new_Path> the_list,  boolean and_list_for_undo, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (the_list == null) {
@@ -93,7 +93,7 @@ public class Moving_files
         if ( dbg) logger.log("perform_safe_moves_in_a_thread()");
         Runnable r = () -> actual_safe_moves(owner, the_list, aborter, and_list_for_undo, logger);
         try {
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,aborter, logger);
             if ( dbg) logger.log("perform_safe_moves_in_a_thread LAUNCHED, thread COUNT=" + Thread.activeCount());
         } catch (RejectedExecutionException ree) {
             logger.log("perform_safe_moves_in_a_thread()" + ree);
@@ -224,7 +224,7 @@ public class Moving_files
 
         logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
 
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2, aborter, true, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner, l2,  true,aborter, logger);
 
     }
 
@@ -292,7 +292,7 @@ public class Moving_files
             Change_gang.report_changes(done);
             if ( and_list_for_undo)
             {
-                Undo_engine.add(done, logger);
+                Undo_engine.add(done, aborter, logger);
             }
         }
 
@@ -492,7 +492,7 @@ public class Moving_files
                 {
                     if (Static_application_properties.get_ding(logger))
                     {
-                        Ding.play(logger);
+                        Ding.play("file moving takes more than 5s", logger);
                     }
                 }
             }

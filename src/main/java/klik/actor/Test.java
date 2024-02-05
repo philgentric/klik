@@ -20,7 +20,7 @@ public class Test
         class Message1 implements Message
         {
             String s;
-            Aborter aborter = new Aborter();
+            Aborter aborter = new Aborter("test",logger);
             public Message1(String s_) {
                 s = s_;
             }
@@ -86,6 +86,6 @@ public class Test
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        Actor_engine.get(logger).stop();
+        Actor_engine.get(new Aborter("test",logger), logger).stop();
     }
 }

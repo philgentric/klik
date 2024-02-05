@@ -19,11 +19,13 @@ public class Fusk_bytes implements Pin_code_client
     private static AtomicBoolean initialized = new AtomicBoolean(false);
     private static String pin_code = null;
     public final Logger logger;
+    public final Aborter aborter;
 
     //**********************************************************
-    private Fusk_bytes(Logger logger_)
+    private Fusk_bytes(Aborter aborter,Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         logger = logger_;
     }
 
@@ -46,7 +48,7 @@ public class Fusk_bytes implements Pin_code_client
     to get a new instance one must call RESET
      */
     //**********************************************************
-    synchronized public static boolean initialize(Logger logger)
+    synchronized public static boolean initialize(Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( is_initialized())
@@ -57,9 +59,9 @@ public class Fusk_bytes implements Pin_code_client
         if ( instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("creating instance"));
-            instance = new Fusk_bytes(logger);
+            instance = new Fusk_bytes(aborter,logger);
         }
-        return instance.init(logger);
+        return instance.init(aborter, logger);
     }
 
     //**********************************************************
@@ -81,10 +83,10 @@ public class Fusk_bytes implements Pin_code_client
     {
         pin_code = new_pin_code;
         logger.log("set_pin_code->"+new_pin_code+"<-");
-        init(logger);
+        init(aborter,logger);
     }
     //**********************************************************
-    private synchronized boolean init(Logger logger)
+    private synchronized boolean init(Aborter aborter,Logger logger)
     //**********************************************************
     {
 
@@ -97,7 +99,7 @@ public class Fusk_bytes implements Pin_code_client
         {
             logger.log("getting pin code from user");
 
-            Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage(logger);
+            Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage(aborter,logger);
             pin_code_getter_stage.ask_pin_code_in_a_thread(this,logger);
             return false; // not ready yet
         }
@@ -105,7 +107,7 @@ public class Fusk_bytes implements Pin_code_client
         //logger.log(Stack_trace_getter.get_stack_trace("fusk signature initialized as:->"+signature_text+"<-"));
         String local = pin_code+signature_text;
         signature_clear = local.getBytes(StandardCharsets.UTF_8);
-        signature_fusk = fusk(signature_clear, new Aborter());
+        signature_fusk = fusk(signature_clear);
         initialized.set(true);
         logger.log("fusk signature initialized: "+signature_clear.length+" bytes string ="+local);
         return true;
@@ -117,7 +119,7 @@ public class Fusk_bytes implements Pin_code_client
     private static final int LIMIT = 200;
 
     //**********************************************************
-    static byte[] fusk(byte[] in, Aborter aborter)
+    static byte[] fusk(byte[] in)
     //**********************************************************
     {
 
@@ -145,14 +147,14 @@ public class Fusk_bytes implements Pin_code_client
     }
 
     //**********************************************************
-    static byte[] obfusk_and_add_signature(byte[] clear, Logger logger)
+    static byte[] obfusk_and_add_signature(byte[] clear, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (check(logger)) return null;
+        if (check(aborter,logger)) return null;
 
         byte[] obfuscated = new byte[clear.length+signature_fusk.length];
         System.arraycopy(signature_fusk,0,obfuscated,0,signature_fusk.length);
-        byte[] fusk = Fusk_bytes.fusk(clear, new Aborter());
+        byte[] fusk = Fusk_bytes.fusk(clear);
         System.arraycopy(fusk,0,obfuscated,signature_fusk.length,fusk.length);
         return obfuscated;
     }
@@ -162,32 +164,32 @@ public class Fusk_bytes implements Pin_code_client
     static byte[] defusk_bytes_and_remove_signature(byte[] obfuscated, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (check(logger)) return null;
+        if (check(aborter,logger)) return null;
 
         byte[] fusk = new byte[obfuscated.length-signature_fusk.length];
         // skip signature
         System.arraycopy(obfuscated,signature_fusk.length,fusk,0,fusk.length);
         if ( aborter.should_abort()) return null;
-        return fusk(fusk, new Aborter());
+        return fusk(fusk);
     }
 
     //**********************************************************
-    public static boolean check_signature(byte[] obfuscated, Logger logger)
+    public static boolean check_signature(byte[] obfuscated, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        if (check(logger)) return false;
+        if (check(aborter,logger)) return false;
 
         if (Arrays.mismatch(obfuscated,signature_fusk) == signature_fusk.length) return true;
         return false;
     }
 
     //**********************************************************
-    private static boolean check(Logger logger)
+    private static boolean check(Aborter aborter,Logger logger)
     //**********************************************************
     {
         if ( instance == null)
         {
-            initialize(logger);
+            initialize(aborter,logger);
             return true;
         }
         if( !is_initialized()) return true;

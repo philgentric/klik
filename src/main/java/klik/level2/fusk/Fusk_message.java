@@ -13,12 +13,12 @@ public class Fusk_message implements Message
     public final File target_dir;
     public final Aborter aborter;
     //**********************************************************
-    public Fusk_message(File target_dir_, File destination_folder)
+    public Fusk_message(File target_dir_, File destination_folder, Aborter aborter)
     //**********************************************************
     {
         this.destination_folder = destination_folder;
         target_dir = target_dir_;
-        aborter = new Aborter();
+        this.aborter = aborter;
     }
     //**********************************************************
     @Override

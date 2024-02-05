@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.level2.backup.Backup_singleton;
 import klik.util.Logger;
@@ -28,17 +29,17 @@ public class Monitor
     Stage stage;
 
     //**********************************************************
-    public Monitor(Path top, Locator locator, Logger logger)
+    public Monitor(Path top, Locator locator, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.top = top;
         this.locator = locator;
         this.logger = logger;
-        start_monitoring();
+        start_monitoring(aborter);
     }
 
     //**********************************************************
-    private void start_monitoring()
+    private void start_monitoring(Aborter aborter)
     //**********************************************************
     {
         Runnable r = new Runnable() {
@@ -65,7 +66,7 @@ public class Monitor
 
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
     }
 
     //**********************************************************

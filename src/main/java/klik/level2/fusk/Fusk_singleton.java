@@ -17,12 +17,14 @@ public class Fusk_singleton
     public final Logger logger;
     Path source;
     Path destination;
-    Aborter aborter = new Aborter();
+    private Aborter aborter;
+    //Aborter aborter = new Aborter();
 
     //**********************************************************
-    public Fusk_singleton(Logger logger)
+    public Fusk_singleton(Aborter aborter, Logger logger)
     //**********************************************************
     {
+        this.aborter = aborter;
         this.logger = logger;
     }
 
@@ -35,29 +37,29 @@ public class Fusk_singleton
 
 
     //**********************************************************
-    public static void set_source(Path fusk_source, Logger logger)
+    public static void set_source(Path fusk_source, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Fusk_singleton b = get_instance(logger);
+        Fusk_singleton b = get_instance(aborter,logger);
         instance.source = fusk_source;
     }
 
     //**********************************************************
-    private static Fusk_singleton get_instance(Logger logger)
+    private static Fusk_singleton get_instance(Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( instance == null)
         {
-            instance = new Fusk_singleton(logger);
+            instance = new Fusk_singleton(aborter, logger);
         }
         return instance;
     }
 
     //**********************************************************
-    public static void set_destination(Path fusk_destination, Logger logger)
+    public static void set_destination(Path fusk_destination, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Fusk_singleton b = get_instance(logger);
+        Fusk_singleton b = get_instance(aborter, logger);
         instance.destination = fusk_destination;
     }
 
@@ -76,7 +78,7 @@ public class Fusk_singleton
     //**********************************************************
     {
         if ( instance == null) return false;
-        defusk_this_folder(instance.source.toFile(), instance.destination.toFile(), new Aborter(), instance.logger);
+        defusk_this_folder(instance.source.toFile(), instance.destination.toFile(), instance.aborter, instance.logger);
         return true;
     }
 }

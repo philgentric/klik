@@ -15,15 +15,24 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     (so we can have as many actors that sleep as you want, we never risk deadlock!)
      */
     private final Logger logger;
+    private final Aborter aborter;
     private final AtomicInteger threads_in_flight = new AtomicInteger(0);
     private int recent_max_threads = 0;
+
     //**********************************************************
-    public Actor_engine_with_virtual_threads(Logger logger_)
+    public Actor_engine_with_virtual_threads(Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         logger = logger_;
     }
-
+    //**********************************************************
+    @Override
+    public Aborter get_aborter()
+    //**********************************************************
+    {
+        return aborter;
+    }
     //**********************************************************
     @Override
     public Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)

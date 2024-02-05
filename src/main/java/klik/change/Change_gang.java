@@ -1,5 +1,6 @@
 package klik.change;
 
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Command_old_and_new_Path;
 import klik.files_and_paths.Files_and_Paths;
@@ -176,34 +177,34 @@ public class Change_gang
      */
 
     //**********************************************************
-    public static void register(Change_receiver wtdam, Logger logger)
+    public static void register(Change_receiver wtdam, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( instance ==  null) create_instance(logger);
-        instance.register_internal(wtdam);
+        instance.register_internal(wtdam, aborter);
     }
     //**********************************************************
-    private void register_internal(Change_receiver change_receiver)
+    private void register_internal(Change_receiver change_receiver, Aborter aborter)
     //**********************************************************
     {
-        House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.register);
+        House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.register, aborter);
         Actor_engine.run(house_keeping_actor,dr,null, dedicated_logger);
         if ( dbg) dedicated_logger.log("Change_gang: Register_internal " + change_receiver.get_string());
     }
 
     //**********************************************************
-    public static synchronized void deregister(Change_receiver wtdam)
+    public static synchronized void deregister(Change_receiver wtdam, Aborter aborter)
     //**********************************************************
     {
         if (instance == null) return;
-        instance.deregister_internal(wtdam);
+        instance.deregister_internal(wtdam, aborter);
     }
 
     //**********************************************************
-    private void deregister_internal(Change_receiver change_receiver)
+    private void deregister_internal(Change_receiver change_receiver, Aborter aborter)
     //**********************************************************
     {
-        House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.deregister);
+        House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.deregister, aborter);
         Actor_engine.run(house_keeping_actor,dr,null, dedicated_logger);
 
         if ( dbg) dedicated_logger.log("Change_gang: De-register_internal " + change_receiver.get_string());

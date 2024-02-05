@@ -5,9 +5,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Error_receiver;
-import klik.browser.icons.caches.Aspect_ratio_actor;
 import klik.browser.icons.caches.Aspect_ratio_cache;
-import klik.browser.icons.caches.Cache_for_doubles;
 import klik.browser.icons.caches.Rotation_cache;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
@@ -24,13 +22,11 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static klik.browser.icons.caches.Aspect_ratio_actor.movie_aspect_ratio;
-
 //**********************************************************
 public class Paths_manager
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public static final String OK = "OK";
     public double max_dir_text_length;
     private static Logger logger;
@@ -47,19 +43,25 @@ public class Paths_manager
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
     public final Aborter aborter;
-    public Aspect_ratio_cache aspect_ratio_cache;
-    public Rotation_cache rotation_cache;
+    public final Path folder_path;
+    final Aspect_ratio_cache aspect_ratio_cache;
+    final  Rotation_cache rotation_cache;
+    private final Icon_factory_actor icon_factory_actor;
 
     private Refresh_target refresh_target;
 
     //**********************************************************
-    public Paths_manager(Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
+    public Paths_manager(Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
+        this.aspect_ratio_cache = aspect_ratio_cache;
+        this.rotation_cache = rotation_cache;
+        folder_path = displayed_folder_path;
         logger = logger_;
         refresh_target = refresh_target_;
         ID = ig_gen.getAndIncrement();
         aborter = aborter_;
+        this.icon_factory_actor = icon_factory_actor;
 
         //boolean gif_first = Static_application_properties.get_show_gifs_first(logger);
         switch (Static_application_properties.get_sort_files_by(logger))
@@ -91,7 +93,7 @@ public class Paths_manager
 
 
     //**********************************************************
-    public boolean do_have_still_have(Path p)
+    public boolean do_we_still_have(Path p)
     //**********************************************************
     {
         if ( iconized.containsKey(p)) return true;
@@ -101,13 +103,13 @@ public class Paths_manager
     }
 
 
-    //long scan_dir_elapsed = 0;
+    long scan_dir_elapsed = 0;
     //**********************************************************
-    public Error_type scan_dir(Path folder_path, Stage stage, String from)
+    public Error_type scan_dir(Stage stage, String from)
     //**********************************************************
     {
-        //long start = System.currentTimeMillis();
-        //logger.log((from+" scan dir "+folder_path));
+        long start = System.currentTimeMillis();
+        logger.log((from+" scan dir "+folder_path));
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
@@ -120,28 +122,22 @@ public class Paths_manager
         non_iconized.clear();
         folders.clear();
 
-        {
-            if (aspect_ratio_cache == null) aspect_ratio_cache = new Aspect_ratio_cache(folder_path,aborter,logger);
-            aspect_ratio_cache.reload_cache_from_disk();
-            // start a thread that will refresh and switch the file_comparator
-            aspect_ratio_cache.look_for_end(this, refresh_target,stage,  aborter);
-        }
-        {
-            if (rotation_cache == null) rotation_cache = new Rotation_cache(folder_path,aborter,logger);
-            rotation_cache.reload_cache_from_disk();
+        aspect_ratio_cache.reload_cache_from_disk();
+        // start a thread that will refresh and switch the file_comparator
+        aspect_ratio_cache.look_for_end(this, refresh_target,stage);
+        rotation_cache.reload_cache_from_disk();
 
-        }
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 do_the_hard_work_of_scan_dir_in_a_thread(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-                refresh_target.refresh2();
+                refresh_target.refresh_no_scan_dir();
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,aborter,logger);
 
-        //scan_dir_elapsed += (System.currentTimeMillis()-start);
-        //logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
+        scan_dir_elapsed += (System.currentTimeMillis()-start);
+        logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
         return Error_type.OK;
     }
 
@@ -152,8 +148,8 @@ public class Paths_manager
     //**********************************************************
     {
         if ( hard_part_ongoing.get()) return;
+
         hard_part_ongoing.set(true);
-        //logger.log(Stack_trace_getter.get_stack_trace("hard part in a thread starting"));
         try
         {
             File files[] = folder_path.toFile().listFiles();
@@ -161,6 +157,7 @@ public class Paths_manager
             {
                 if ( aborter.should_abort())
                 {
+                    logger.log("path manager aborting1");
                     hard_part_ongoing.set(false);
                     return;
                 }
@@ -201,13 +198,17 @@ public class Paths_manager
                 return; // invisible
             }
         }
-        if ( aborter.should_abort()) return;
+        if ( aborter.should_abort())
+        {
+            logger.log("path manager aborting2");
+            return;
+        }
 
         if (Guess_file_type.is_this_path_a_video(path))
         {
             if (show_video_as_gif)
             {
-                if (Icon_factory_actor.videos_for_which_giffing_failed.contains(path))
+                if (icon_factory_actor.videos_for_which_giffing_failed.contains(path))
                 {
                     logger.log("Paths_manager: detected animated icon failure for video:"+path);
                     // if the giffing process failed a video becomes non-iconized
@@ -234,7 +235,11 @@ public class Paths_manager
             non_iconized.put(path,1);
             return;
         }
-        if ( aborter.should_abort()) return;
+        if ( aborter.should_abort())
+        {
+            logger.log("path manager aborting3");
+            return;
+        }
 
         if (Guess_file_type.is_this_path_a_pdf(path))
         {
@@ -249,7 +254,11 @@ public class Paths_manager
                 return;
             }
         }
-        if ( aborter.should_abort()) return;
+        if ( aborter.should_abort())
+        {
+            logger.log("path manager aborting4");
+            return;
+        }
 
         if (Guess_file_type.is_this_path_an_image(path))
         {

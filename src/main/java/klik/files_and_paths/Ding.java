@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class Ding {
-    public static void play(Logger logger) {
+    public static void play(String origin, Logger logger) {
 
         Media clip = load_audio_from_jar("ding.mp3",logger);
 
@@ -18,7 +18,7 @@ public class Ding {
         local.setCycleCount(1);
         local.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
         local.setOnReady(() -> {
-            logger.log("DING!");
+            logger.log("DING! from:"+origin);
             local.play();
         });
     }

@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.level2.fusk.Pin_code_client;
 import klik.properties.Static_application_properties;
@@ -24,15 +25,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Pin_code_getter_stage
 //**********************************************************
 {
+    public final Aborter aborter;
     public final Logger logger;
     private AtomicBoolean pin_code_validity = new AtomicBoolean(false);
     private String pin_code_string ="";
 
 
     //**********************************************************
-    public Pin_code_getter_stage(Logger logger_)
+    public Pin_code_getter_stage(Aborter aborter,Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         logger = logger_;
     }
 
@@ -64,7 +67,7 @@ public class Pin_code_getter_stage
                 logger.log("fusk signature init, pin_code="+get_pin_code());
             }
         };
-        Actor_engine.execute(get_pin_code,logger);
+        Actor_engine.execute(get_pin_code,aborter,logger);
     }
     //**********************************************************
     public String get_pin_code()

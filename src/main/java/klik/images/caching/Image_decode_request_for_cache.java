@@ -15,13 +15,13 @@ public class Image_decode_request_for_cache implements Message
     public final Aborter aborter;
 
     //**********************************************************
-    public Image_decode_request_for_cache(Path path_, boolean high_quality_, Cache_interface preloaded_)
+    public Image_decode_request_for_cache(Path path_, boolean high_quality_, Cache_interface preloaded_, Aborter aborter)
     //**********************************************************
     {
         path = path_;
         high_quality = high_quality_;
         cache = preloaded_;
-        aborter = new Aborter();
+        this.aborter = aborter;
     }
 
     //**********************************************************

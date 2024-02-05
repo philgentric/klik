@@ -27,7 +27,7 @@ public class History_auto_clean
     public boolean monitor()
     //**********************************************************
     {
-        Undo_engine.erase_if_too_old(1000,100,logger);
+        Undo_engine.erase_if_too_old(1000,100,aborter, logger);
         History_engine.erase_if_too_old(100,logger);
         return true;
     }

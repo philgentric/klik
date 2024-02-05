@@ -24,12 +24,12 @@ public class Fusk_static_core
     public static final String FUSK_EXTENSION_WITH_DOT = "."+FUSK_EXTENSION;
 
     //**********************************************************
-    public static boolean is_fusk(Path in, Logger logger)
+    public static boolean is_fusk(Path in, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( !Fusk_bytes.is_initialized() )
         {
-            Fusk_bytes.initialize(logger);
+            Fusk_bytes.initialize(aborter,logger);
             return false;
         }
         FileInputStream fis = null;
@@ -73,7 +73,7 @@ public class Fusk_static_core
                 logger.log("WARNING: obfuscated == null");
                 return null;
             }
-            if ( !Fusk_bytes.check_signature(obfuscated,logger))
+            if ( !Fusk_bytes.check_signature(obfuscated,aborter,logger))
             {
                 // happens a lot logger.log("WARNING: "+in.toAbsolutePath()+" is NOT fusked!");
                 return new byte[0]; // empty array to signal not fusked
@@ -86,12 +86,12 @@ public class Fusk_static_core
     }
 
     //**********************************************************
-    public static boolean fusk_file(Path in, Path destination_folder,Logger logger)
+    public static boolean fusk_file(Path in, Path destination_folder,Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( !Fusk_bytes.is_initialized())
         {
-            if (!Fusk_bytes.initialize(logger))
+            if (!Fusk_bytes.initialize(aborter,logger))
             {
                 logger.log("FATAL: fusk_file, Fusk_bytes not initialized " + in.toAbsolutePath());
                 return false;
@@ -100,7 +100,7 @@ public class Fusk_static_core
         Path out = get_fusk_path(in, destination_folder,logger);
         try {
             byte[] clear = Files.readAllBytes(in);
-            byte[] obfuskated = Fusk_bytes.obfusk_and_add_signature(clear, logger);
+            byte[] obfuskated = Fusk_bytes.obfusk_and_add_signature(clear, aborter, logger);
 
             Files.write(out,obfuskated);
 
@@ -167,8 +167,8 @@ public class Fusk_static_core
     //**********************************************************
     {
         Logger logger = new System_out_logger();
-        Aborter aborter = new Aborter();
-        Fusk_bytes.initialize(logger);
+        Aborter aborter = new Aborter("fusk core test",logger);
+        Fusk_bytes.initialize(aborter, logger);
         {
             String test = "The quick brown fox jumps over the lazy dog 372";
             String f = Fusk_strings.fusk_string(test,logger);
@@ -198,9 +198,9 @@ public class Fusk_static_core
             byte[] clear = new byte[size];
             r.nextBytes(clear);
 
-            byte[] fusk = Fusk_bytes.fusk(clear, new Aborter());
+            byte[] fusk = Fusk_bytes.fusk(clear);
 
-            byte[] check = Fusk_bytes.fusk(fusk, new Aborter());
+            byte[] check = Fusk_bytes.fusk(fusk);
 
             boolean ok = true;
             for ( int i = 0; i< size ;i++)
@@ -222,7 +222,7 @@ public class Fusk_static_core
             r.nextBytes(clear);
 
             logger.log("clear size"+clear.length);
-            byte[] fusk = Fusk_bytes.obfusk_and_add_signature(clear,logger);
+            byte[] fusk = Fusk_bytes.obfusk_and_add_signature(clear,aborter, logger);
             logger.log("fusk size"+fusk.length);
             logger.log("difference "+(fusk.length-clear.length) +" = "+ Fusk_bytes.signature_fusk.length);
 
@@ -247,7 +247,7 @@ public class Fusk_static_core
             int size =455;
             byte[] clear = new byte[size];
             r.nextBytes(clear);
-            if ( !Fusk_bytes.check_signature(clear,logger))
+            if ( !Fusk_bytes.check_signature(clear,aborter,logger))
             {
                 logger.log("check signature OK1");
             }
@@ -255,9 +255,9 @@ public class Fusk_static_core
             {
                 logger.log("OHO ? signature found ????"); // well, that coukd happen but proba is VERY low !-)
             }
-            byte[] fusk = Fusk_bytes.obfusk_and_add_signature(clear,logger);
+            byte[] fusk = Fusk_bytes.obfusk_and_add_signature(clear,aborter,logger);
 
-            if ( Fusk_bytes.check_signature(fusk,logger))
+            if ( Fusk_bytes.check_signature(fusk,aborter,logger))
             {
                 logger.log("check signature OK2");
             }
@@ -276,9 +276,9 @@ public class Fusk_static_core
                     byte[] clear = new byte[size];
                     r.nextBytes(clear);
 
-                    byte[] fusk = Fusk_bytes.fusk(clear, new Aborter());
+                    byte[] fusk = Fusk_bytes.fusk(clear);
 
-                    byte[] check = Fusk_bytes.fusk(fusk, new Aborter());
+                    byte[] check = Fusk_bytes.fusk(fusk);
 
                     boolean ok = true;
                     for ( int i = 0; i< size ;i++)

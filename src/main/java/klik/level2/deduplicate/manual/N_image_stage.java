@@ -43,7 +43,7 @@ public class N_image_stage
 	javafx.scene.image.Image fxImages[];
 	My_File_and_status file_of_the_images[];
 
-	Aborter aborter = new Aborter();
+	Aborter aborter;
 	HBox hbox;
 	File initial_dir =  null;
 	int N;
@@ -59,6 +59,8 @@ public class N_image_stage
 	//**********************************************************
 	{
 		logger = logger_;
+		aborter = new Aborter("N_image_stage",logger);
+
 
 		logger.log("N_image_stage !");
 

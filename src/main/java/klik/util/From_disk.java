@@ -221,7 +221,8 @@ public class From_disk
             // this happens the first time one visits a directory...
             // or when the icon cache dir content has been erased etc.
             // so quite a lot, so it is logged only in debug
-            if (dbg_local) logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            if (dbg_local)
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }

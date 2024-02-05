@@ -39,14 +39,14 @@ public class Klik_application extends Application
 
         Print_system_info.print();
 
-        setUserAgentStylesheet(STYLESHEET_MODENA);
+        //setUserAgentStylesheet(STYLESHEET_MODENA);
 
         Logger logger = new System_out_logger();
 
 
         Language_manager.init_registered_languages(logger);
 
-        new Monitor(new Aborter(),logger).start();
+        new Monitor(new Aborter("klik",logger),logger).start();
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);

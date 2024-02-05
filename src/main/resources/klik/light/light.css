@@ -58,6 +58,7 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
     -fx-padding: 0 2 0 2;
 }
 
+
 .context-menu {
     -fx-text-fill: #404040	; // color of text
     //-fx-alignment: top-left;
@@ -74,6 +75,28 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
 }
 
 
+
+
+.check-box .box {
+
+-fx-background-color: white;
+-fx-border-color:grey;
+-fx-border-radius:3px;
+-fx-mark-color:blue;
+
+}
+
+.check-box:selected .mark {
+
+-fx-background-color: white;
+-fx-mark-color:red;
+}
+
+.check-box:selected .box {
+
+-fx-background-color: blue;
+}
+
 /*
 failed attempt to use pseudoclass
 .menu_buttons:selected_item{
@@ -86,6 +109,7 @@ Button:selected_item{
 }
 
 */
+
 
 
 .menu_buttons:hover {

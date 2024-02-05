@@ -18,14 +18,14 @@ public class Icon_write_message implements Message
 
 
 	//**********************************************************
-    public Icon_write_message(Image smaller, int icon_size_, String extension_, Path p_)
+    public Icon_write_message(Image smaller, int icon_size_, String extension_, Path p_, Aborter aborter)
 	//**********************************************************
 	{
 		image = smaller;
 		icon_size = icon_size_;
 		original_path = p_;
 		extension = extension_;
-		aborter = new Aborter();
+		this.aborter = aborter;
 	}
 
 	//**********************************************************
