@@ -13,8 +13,6 @@ public class Finder
         Finder_frame popup = new Finder_frame(
                     path,
                     keywords,
-                    800,
-                    600,
                     browser,
                     logger);
             popup.start_search();

@@ -141,8 +141,12 @@ public class Menus_for_image_window
         MenuItem edit_menu_item = make_edit_menu_item(image_window, image_context_owner);
         context_menu.getItems().add(edit_menu_item);
 
-        CheckMenuItem quality = get_quality_check_menu_item(image_window, image_context_owner);
-        context_menu.getItems().add(quality);
+        if (Static_application_properties.get_level2(image_context_owner.logger))
+        {
+            image_window.logger.log("level2 is true");
+            CheckMenuItem quality = get_quality_check_menu_item(image_window, image_context_owner);
+            context_menu.getItems().add(quality);
+        }
 
         MenuItem open = get_open_menu_item(image_window, image_context_owner);
         context_menu.getItems().add(open);

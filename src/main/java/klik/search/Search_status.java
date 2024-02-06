@@ -4,5 +4,8 @@ public enum Search_status {
     undefined,
     ready,
     searching,
-    invalid, done, stopping
+    no_keywords,
+    invalid,
+    done,
+    interrupted
 }

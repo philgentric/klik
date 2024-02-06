@@ -648,15 +648,6 @@ public class Image_window
             l.add(oandn);
             Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, true, aborter,logger);
         }
-
-        /*
-        no need to report perform_safe_moves_in_a_thread will do it
-        {
-            List<Old_and_new_Path> l = new ArrayList<>();
-            l.add(new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.rename_done));
-            Change_gang.report_changes(l);
-        }
-        */
         return local_new_image_context;
     }
 

@@ -2,6 +2,7 @@ package klik.util;
 
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_writer_actor;
+import klik.browser.icons.JavaFX_to_Swing;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
@@ -9,6 +10,11 @@ import klik.properties.Static_application_properties;
 import klik.level2.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -86,7 +92,7 @@ public class From_disk
         }
         if(Guess_file_type.is_file_an_image(path.toFile()))
         {
-            Image i = load_image_from_disk( path,  true, aborter,  logger);
+            Image i = load_native_resolution_image_from_disk( path,  true, aborter,  logger);
             if ( i==null)
             {
                 logger.log("cannot load image to get aspect ratio(1)"+path);
@@ -104,7 +110,7 @@ public class From_disk
 
 
     //**********************************************************
-    public static Image load_image_from_disk(Path original_image_file, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static Image load_native_resolution_image_from_disk(Path original_image_file, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB) {
@@ -144,28 +150,94 @@ public class From_disk
         return image;
 
     }
+
+    private static boolean use_ImageIO = false;
     // this call RESIZES to the target icon size
+
+    private static long elapsed_read_original_image_from_disk_and_return_icon =0;
     //**********************************************************
     public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size,  boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
         InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, dbg, aborter,logger);
         if (input_stream == null) return null;
         if ( aborter.should_abort()) return null;
-        Image image = new Image(input_stream, icon_size, icon_size, true, true);
+
+
+        Image image = null;
+
+        if ( use_ImageIO)
+        {
+            //logger.log("using ImageIO");
+
+            try {
+                BufferedImage ii = ImageIO.read(input_stream);
+                if (ii == null)
+                {
+                    logger.log("ImageIO.read returned null for "+original_image_file);
+                    return null;
+                }
+                AffineTransform trans = new AffineTransform();
+                int target_width = (int)icon_size;
+                int target_height = (int)icon_size;
+                double s = 1.0;
+                if(ii.getHeight()>ii.getWidth())
+                {
+                    s = (double) target_height / ii.getHeight();
+                    target_width = (int) (ii.getWidth() * s);
+                }
+                else
+                {
+                    s = (double) target_width / ii.getWidth();
+                    target_height = (int) (ii.getHeight() * s);
+                }
+                trans.scale(s, s);
+
+                BufferedImage sink_bi = new BufferedImage(target_width,target_height, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g_for_returned_image = sink_bi.createGraphics();
+
+                g_for_returned_image.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g_for_returned_image.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                g_for_returned_image.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+                g_for_returned_image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                g_for_returned_image.drawRenderedImage(ii, trans);
+
+                image = JavaFX_to_Swing.toFXImage(sink_bi,null);
+
+
+            } catch (IOException e) {
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            }
+
+        }
+        else
+        {
+            logger.log("using javafx Image");
+            image = new Image(input_stream, icon_size, icon_size, true, true);
+
+        }
+
+
+
+
         try {
             input_stream.close();
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
 
-            e.printStackTrace();
         }
         if ( image.isError())
         {
             if ( dbg) logger.log("From_disk WARNING: an error occurred when reading: "+original_image_file.toAbsolutePath());
             return null;
         }
+        long now = System.currentTimeMillis();
+        elapsed_read_original_image_from_disk_and_return_icon += now-start;
+        logger.log("elapsed_read_original_image_from_disk_and_return_icon:"+elapsed_read_original_image_from_disk_and_return_icon);
         return image;
 
     }

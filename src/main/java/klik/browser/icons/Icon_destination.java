@@ -17,9 +17,9 @@ public interface Icon_destination
 
     Path get_item_path();
 
-    boolean icon_fabrication_requested();
+    boolean get_icon_fabrication_requested();
 
-    boolean icon_available();
+    boolean get_icon_available();
 
     void set_icon_fabrication_requested();
 }

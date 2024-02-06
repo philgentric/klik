@@ -12,7 +12,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.files_and_paths.*;
@@ -139,7 +138,7 @@ public class N_image_stage
 			}
 			title += local_file.my_file.file.getName()+"-";
 
-			Image image = From_disk.load_image_from_disk(local_file.my_file.file.toPath(),true, aborter, logger);
+			Image image = From_disk.load_native_resolution_image_from_disk(local_file.my_file.file.toPath(),true, aborter, logger);
 			ImageView image_view = new ImageView(image);
 			image_view.setPreserveRatio(true);
 			image_view.setSmooth(false);

@@ -462,7 +462,6 @@ public class Item_image extends Item
     {
         image_view.setImage(null);
         icon_available.set(false);
-        icon_fabrication_requested.set(false);
     }
 
     //**********************************************************

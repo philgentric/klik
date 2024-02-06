@@ -302,7 +302,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             image_context=returned_new_image_context[0];
             if ( image_context == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("Panic"));
+                logger.log(Stack_trace_getter.get_stack_trace("Panic, image_context == null in termination reporter"));
                 return;
             }
             if ( image_context.path == null)

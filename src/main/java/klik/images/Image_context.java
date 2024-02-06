@@ -19,7 +19,6 @@ import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.search.Finder;
-import klik.search.Finder_actor;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.level2.fusk.Fusk_static_core;
 import klik.level2.fusk.Fusk_strings;
@@ -67,7 +66,7 @@ public class Image_context
     //**********************************************************
     {
         if ( !Files.exists(path)) return null;
-        Image local_image = From_disk.load_image_from_disk(path, true, aborter,logger_);
+        Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, aborter,logger_);
         if ( local_image == null)
         {
             return null;

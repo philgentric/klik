@@ -914,7 +914,6 @@ public class Static_application_properties
         }
     }
     static boolean imagemagick_popup_done = false;
-
     //**********************************************************
     public static void manage_show_imagemagick_install_warning(Stage owner, Logger logger)
     //**********************************************************
@@ -935,27 +934,36 @@ public class Static_application_properties
         }
     }
 
+    static Boolean level2_cache = null;
     //**********************************************************
     public static boolean get_level2(Logger logger)
     //**********************************************************
     {
-        String s = Static_application_properties.get_properties_manager(logger).get(LEVEL2);
-        if (s == null) {
-            Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, "false", false);
-            return true;
-        }
-        else
+        if ( level2_cache == null)
         {
-            return Boolean.parseBoolean(s);
+            String s = Static_application_properties.get_properties_manager(logger).get(LEVEL2);
+            if (s == null) {
+                Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, "false", false);
+                level2_cache = false;
+            } else {
+                logger.log("LEVEL2=" + s);
+                level2_cache = Boolean.parseBoolean(s);
+            }
         }
+        return level2_cache;
     }
 
+    /*
+    // should never be used: the user should edit the properties file directly
     //**********************************************************
     public static void set_level2(boolean b, Logger logger)
     //**********************************************************
     {
+        level2_cache = b;
         Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, String.valueOf(b), false);
     }
+    */
+
 
         /*
     //**********************************************************

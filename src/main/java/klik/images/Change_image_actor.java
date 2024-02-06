@@ -69,7 +69,11 @@ public class Change_image_actor implements Actor
             return "Failed change_image_message.input_image_context.previous_path == null";
         }
 
-        if ( change_image_message.get_aborter().should_abort()) return "aborted";
+        if ( change_image_message.get_aborter().should_abort())
+        {
+            change_image_message.logger.log("Change_image_actor aborted from: " +change_image_message.get_aborter().name);
+            return "aborted";
+        }
         // the safe way is to get the index of the current image from its path
         // however, when renaming a sequence of image this is annoying
         // since when you press next, you are in the new name context...

@@ -9,23 +9,18 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
-import klik.browser.System_open_actor;
 import klik.files_and_paths.Ding;
-import klik.files_and_paths.Guess_file_type;
-import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
-import klik.level2.experimental.music.Audio_player;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -33,7 +28,6 @@ import java.util.*;
 public class Finder_frame implements Search_receiver
 //**********************************************************
 {
-	private ProgressBar progress_bar;
 	private Button start;
 	private Button stop;
 	Label visited_folders;
@@ -48,14 +42,13 @@ public class Finder_frame implements Search_receiver
 	private boolean check_case = false;
 	Search_session session;
 	Path target_path;
-	VBox the_result_vbox = new VBox();
 
 	Browser browser;
 	long start_time;
 	TextField extension_tf;
 
 	//**********************************************************
-	public Finder_frame(Path target_path, List<String> input_keywords, double w, double h, Browser browser, Logger logger_)
+	public Finder_frame(Path target_path, List<String> input_keywords, Browser browser, Logger logger_)
 	//**********************************************************
 	{
 		this.target_path = target_path;
@@ -70,11 +63,22 @@ public class Finder_frame implements Search_receiver
 				session.stop_search();
 			}
 		});
+
+		stage.addEventHandler(KeyEvent.KEY_PRESSED,
+				key_event -> {
+					if (key_event.getCode() == KeyCode.ESCAPE) {
+						stage.close();
+						session.stop_search();
+						key_event.consume();
+					}
+				});
+
 		Pane main_vbox = define_main_vbox(input_keywords);
-		Scene scene = new Scene(main_vbox, w, h);
+		Scene scene = new Scene(main_vbox);
 		Look_and_feel_manager.set_region_look(main_vbox);
 
 		stage.setTitle(I18n.get_I18n_string("Search_by_keywords", logger));
+		stage.setMinWidth(800);
 		stage.setScene(scene);
 		stage.show();
 	}
@@ -83,28 +87,18 @@ public class Finder_frame implements Search_receiver
 	private Pane define_main_vbox(List<String> input_keywords)
 	//**********************************************************
 	{
-		BorderPane the_main_pane = new BorderPane();
-		//the_main_pane.setAlignment(Pos.BASELINE_LEFT);
-
-		/*
-		the logic is:
-		always look for file and maybe also folders
-		only images means that we first check that the file is an image
-		extension is then checked
-		 */
-
+		VBox the_main_pane = new VBox();
 		Pane settings = define_settings_pane(input_keywords);
-		the_main_pane.setTop(settings);
+		the_main_pane.getChildren().add(settings);
 
-		/*
-		result section
-		 */
-
-		VBox results = define_results_vbox(input_keywords);
-		the_main_pane.setBottom(results);
-
-		//stage.setHeight(h);
-		//stage.setWidth(w);
+		{
+			visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
+			the_main_pane.getChildren().add(visited_folders);
+			Look_and_feel_manager.set_region_look(visited_folders);
+			visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
+			the_main_pane.getChildren().add(visited_files);
+			Look_and_feel_manager.set_region_look(visited_files);
+		}
 
 		return the_main_pane;
 	}
@@ -116,34 +110,7 @@ public class Finder_frame implements Search_receiver
 		VBox local_result_vbox = new VBox();
 		local_result_vbox.setAlignment(Pos.BASELINE_LEFT);
 
-		{
-			visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
-			local_result_vbox.getChildren().add(visited_folders);
-			Look_and_feel_manager.set_region_look(visited_folders);
-			visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
-			local_result_vbox.getChildren().add(visited_files);
-			Look_and_feel_manager.set_region_look(visited_files);
 
-		}
-		local_result_vbox.getChildren().add(vertical_spacer());
-
-		progress_bar = new ProgressBar();
-		Look_and_feel_manager.set_region_look(progress_bar);
-		progress_bar.prefWidthProperty().bind(stage.widthProperty().subtract(20));
-		progress_bar.setMinHeight(20);
-		local_result_vbox.getChildren().add(progress_bar);
-		local_result_vbox.getChildren().add(vertical_spacer());
-		local_result_vbox.getChildren().add(the_result_vbox);
-		the_result_vbox.setAlignment(Pos.BASELINE_LEFT);
-		ScrollPane scroll_pane = new ScrollPane(the_result_vbox);
-		scroll_pane.setMaxHeight(7400);
-		//Look_and_feel_manager.set_region_look(scrollpane);
-		//scrollpane.setPrefSize(w,h);
-		scroll_pane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-		scroll_pane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-
-		local_result_vbox.getChildren().add(scroll_pane);
-		VBox.setVgrow(scroll_pane,Priority.ALWAYS);
 
 		return local_result_vbox;
 	}
@@ -375,10 +342,6 @@ public class Finder_frame implements Search_receiver
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				double p = progress_bar.getProgress();
-				p += 1.0/100.0;
-				if ( p > 1.0) p = 0.0;
-				progress_bar.setProgress(p);
 
 				for (String input_keyword: keyword_to_Label.keySet())
 				{
@@ -395,8 +358,8 @@ public class Finder_frame implements Search_receiver
 						}
 					}
 				}
-				visited_files.setText(I18n.get_I18n_string("Visited_Files", logger)+": "+st.visited_files());
-				visited_folders.setText(I18n.get_I18n_string("Visited_Folders", logger)+": "+st.visited_folders());
+				visited_files.setText(I18n.get_I18n_string("Visited_Files", logger)+": \t\t"+st.visited_files());
+				visited_folders.setText(I18n.get_I18n_string("Visited_Folders", logger)+": \t\t"+st.visited_folders());
 
 			}
 		});
@@ -405,16 +368,17 @@ public class Finder_frame implements Search_receiver
 	}
 	//**********************************************************
 	@Override // Search_receiver
-	public void has_ended(Search_status search_status, String message)
+	public void has_ended(Search_status search_status)
 	//**********************************************************
 	{
-		logger.log("has_ended() "+search_status+" "+message);
-		long now = System.currentTimeMillis();
-		if ( now-start_time> 3000)
+		logger.log("has_ended() "+search_status);
+		if ( search_status != Search_status.interrupted)
 		{
-			if (Static_application_properties.get_ding(logger))
-			{
-				Ding.play("File finder took more than 3 seconds",logger);
+			long now = System.currentTimeMillis();
+			if (now - start_time > 3000) {
+				if (Static_application_properties.get_ding(logger)) {
+					Ding.play("File finder took more than 3 seconds", logger);
+				}
 			}
 		}
 		if ( search_status == Search_status.invalid)
@@ -422,11 +386,9 @@ public class Finder_frame implements Search_receiver
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
-					progress_bar.setProgress(0);
 					stop.setDisable(true);
 					start.setDisable(false);
-					the_result_vbox.getChildren().clear();
-					the_result_vbox.getChildren().add(new Label(search_status+" : "+message));
+
 				}
 			});
 			return;
@@ -434,10 +396,9 @@ public class Finder_frame implements Search_receiver
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				progress_bar.setProgress(1);
 				stop.setDisable(true);
 				start.setDisable(false);
-				show_search_results(browser,session.get_search_results(),"reason: ended");
+				Find_result_frame find_result_frame = new Find_result_frame(browser,session.get_search_results(),session,logger);
 			}
 		});
 
@@ -450,59 +411,6 @@ public class Finder_frame implements Search_receiver
 			return (Integer.valueOf(o2.length())).compareTo(Integer.valueOf(o1.length()));
 		}
 	};
-
-
-	//**********************************************************
-	private void show_search_results(Browser the_browser, HashMap<String, List<Path>> search_results, String reason)
-	//**********************************************************
-	{
-		logger.log("show_search_results "+search_results.size()+" items");
-
-		the_result_vbox.getChildren().clear();
-		List<String> keyset = new ArrayList<>(search_results.keySet());
-		keyset.sort(string_length_comparator);
-		for( String key : keyset)
-		{
-			Label label = new Label(I18n.get_I18n_string("Matched_Keywords", logger)+": "+key);
-			Look_and_feel_manager.set_region_look(label);
-			the_result_vbox.getChildren().add(label);
-			List<Path> path_set = search_results.get(key);
-			int count = 0;
-			for ( Path path : path_set)
-			{
-				Button b = new Button(key+" => "+path);
-				Look_and_feel_manager.set_button_look(b, true);
-				the_result_vbox.getChildren().add(b);
-				b.setOnAction(ee -> {
-					logger.log("going to open on menu select: " + key);
-
-					if (Files.isDirectory(path)) {
-						Browser_creation_context.additional_different_folder(path,browser,logger);
-					}
-					else if (Guess_file_type.is_file_an_image(path.toFile())) {
-						Image_window is = Image_window.get_Image_window(browser, path, logger);
-					} else if (Guess_file_type.is_this_path_a_music(path)) {
-						logger.log("opening audio file: " + path.toAbsolutePath());
-						Audio_player.play_song(path.toFile(), logger);
-					} else {
-						System_open_actor.open_with_system(browser, path, logger);
-					}
-				});
-				/*count++;
-				if ( count > 20)
-				{
-					logger.log("not showing more than 20 results");
-					break;
-				}*/
-			}
-			if(key.equals(session.get_max_key()))
-			{
-				// no need to list partial matches...
-				break;
-			}
-		}
-		logger.log("show_search_results done");
-	}
 
 
 	//**********************************************************

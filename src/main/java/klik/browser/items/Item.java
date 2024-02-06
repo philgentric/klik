@@ -129,12 +129,12 @@ public abstract class Item implements Icon_destination
 
 
     @Override // Icon_destination
-    public boolean icon_fabrication_requested() {
+    public boolean get_icon_fabrication_requested() {
         return icon_fabrication_requested.get();
     }
 
     @Override // Icon_destination
-    public boolean icon_available() {
+    public boolean get_icon_available() {
         return icon_available.get();
     }
 

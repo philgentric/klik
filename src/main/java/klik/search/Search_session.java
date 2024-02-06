@@ -20,7 +20,7 @@ public class Search_session implements Callback_for_file_found_publish
 	Logger logger;
 	Search_status status = Search_status.undefined;
 	Search_config search_config;
-	private final Aborter aborter;
+	private final Aborter local_aborter;
 	private final Search_receiver search_receiver;
 	private final Browser browser;
 
@@ -30,7 +30,7 @@ public class Search_session implements Callback_for_file_found_publish
 	//**********************************************************
 	{
 		logger = logger_;
-		aborter = browser.aborter;
+		local_aborter = new Aborter("Search_session",logger);
 		status = Search_status.ready;
 		this.search_config = search_config;
 		this.search_receiver = search_receiver;
@@ -43,7 +43,7 @@ public class Search_session implements Callback_for_file_found_publish
 	{
 		status = Search_status.searching;
 		if ( dbg) logger.log("launching search actor on path:"+search_config.path());
-		Actor_engine.run(new Finder_actor(logger),new Finder_message(search_config,this,aborter,browser),null,logger);
+		Actor_engine.run(new Finder_actor(logger),new Finder_message(search_config,this,local_aborter,browser),null,logger);
 	}
 
 	//**********************************************************
@@ -51,8 +51,8 @@ public class Search_session implements Callback_for_file_found_publish
 	//**********************************************************
 	{
 		if ( dbg) logger.log("stop_search()");
-		aborter.abort();
-		status = Search_status.stopping;
+		local_aborter.abort();
+		status = Search_status.interrupted;
 	}
 
 	//**********************************************************
@@ -150,11 +150,11 @@ public class Search_session implements Callback_for_file_found_publish
 
 	//**********************************************************
 	@Override // Callback_for_file_found_publish
-	public void has_ended(Search_status search_status, String message)
+	public void has_ended(Search_status search_status)
 	//**********************************************************
 	{
-		if ( dbg) logger.log("Search_session has_ended() called: "+search_status+" "+message );
-		search_receiver.has_ended(search_status, message);
+		if ( dbg) logger.log("Search_session has_ended() called: "+search_status );
+		search_receiver.has_ended(search_status);
 	}
 
 	private void ready()

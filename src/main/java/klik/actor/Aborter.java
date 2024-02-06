@@ -12,7 +12,7 @@ public class Aborter
 //**********************************************************
 {
     private final static boolean dbg = true;
-    private final String name;
+    public final String name;
     private AtomicBoolean abort = new AtomicBoolean(false);
     private final Logger logger;
 

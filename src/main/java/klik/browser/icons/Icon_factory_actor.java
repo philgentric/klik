@@ -89,9 +89,50 @@ public class Icon_factory_actor implements Actor
             return "no icon destination";
         }
 
+        Image_and_rotation image_and_rotation = null;
+        for(;;) {
+            image_and_rotation = try_once(destination, icon_factory_request);
+            if (image_and_rotation.image() == null) {
+                // must treat as non_image
+                if (dbg) logger.log("making an icon failed for : " + destination.get_item_path());
+                return "icon fabrication failed";
+            }
+            double w = image_and_rotation.image().getWidth();
+            double h = image_and_rotation.image().getHeight();
+            if ((w > 0.0)&&(h > 0.0)) {
+                break;
+            }
+            // retry a few times
+            if (icon_factory_request.retry_count < Icon_factory_request.max_retry) {
+                icon_factory_request.retry_count++;
+                logger.log("RETRYING again: " + icon_factory_request.retry_count + " times, after empty icon for : " + destination.get_item_path() + " w=" + w+ " h=" + h);
+                continue;
+            }
+            logger.log("too many retries after empty icon for : " + destination.get_item_path() + " w=" + w+ " h=" + h);
+            break;
+        }
+        destination.receive_icon(image_and_rotation);
+        if ( image_and_rotation.rotation()!=null)
+        {
+            double aspect_ratio = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
+            if (( image_and_rotation.rotation()==90)||(image_and_rotation.rotation()==270))
+            {
+                aspect_ratio = 1/aspect_ratio;
+            }
+            if(dbg) logger.log("Icon_factory_actor "+destination.get_item_path()+" "+aspect_ratio+" w="+image_and_rotation.image().getWidth()+" h="+image_and_rotation.image().getHeight());
+            if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(destination.get_item_path(),aspect_ratio,true);
+        }
+        return "icon done";
+    }
+
+    //**********************************************************
+    private Image_and_rotation try_once(Icon_destination destination, Icon_factory_request icon_factory_request)
+    //**********************************************************
+    {
         Image image = null;
         Double rotation = Double.valueOf(0.0);
-        switch (destination.get_item_type()) {
+        switch (destination.get_item_type())
+        {
             case video -> {
                 image = process_video(icon_factory_request, destination);
                 if (image == null) {
@@ -137,40 +178,8 @@ public class Icon_factory_actor implements Actor
             }
 
         }
-        if (image == null) {
-            // must treat as non_image
-            if (dbg) logger.log("making an icon failed for : " + destination.get_item_path());
-            return "icon fabrication failed";
-        }
-        if (( image.getWidth()==0)||(image.getHeight()==0))
-        {
-            // retry ONCE
-            if ( icon_factory_request.retry_count < Icon_factory_request.max_retry)
-            {
-                icon_factory_request.retry_count++;
-                logger.log("RETRYING again: "+icon_factory_request.retry_count+" times, after empty icon for : " + destination.get_item_path()+ " w="+image.getWidth()+" h="+image.getHeight());
-                return run(icon_factory_request);
-            }
-            else {
-                logger.log("too many retries after empty icon for : " + destination.get_item_path()+ " w="+image.getWidth()+" h="+image.getHeight());
-                return "icon fabrication failed";
-            }
-        }
-        Image_and_rotation image_and_rotation = new Image_and_rotation(image,rotation);
-        destination.receive_icon(image_and_rotation);
-        if ( rotation!=null)
-        {
-            double aspect_ratio = image.getWidth()/image.getHeight();
-            if (( rotation==90)||(rotation==270))
-            {
-                aspect_ratio = 1/aspect_ratio;
-            }
-            if(dbg) logger.log("Icon_factory_actor "+destination.get_item_path()+" "+aspect_ratio+" w="+image.getWidth()+" h="+image.getHeight());
-            if ( aspect_ratio_cache!=null) aspect_ratio_cache.inject(destination.get_item_path(),aspect_ratio,true);
-        }
-        return "icon done";
+        return new Image_and_rotation(image,rotation);
     }
-
 
 
     //**********************************************************
@@ -178,11 +187,11 @@ public class Icon_factory_actor implements Actor
     //**********************************************************
     {
         if (dbg) logger.log("icon request made ");
-        if (icon_factory_request.destination.icon_fabrication_requested() ) {
+        if (icon_factory_request.destination.get_icon_fabrication_requested() ) {
             if (dbg) logger.log("icon request : cancel, request already done ");
             return null;
         }
-        if (icon_factory_request.destination.icon_available() ) {
+        if (icon_factory_request.destination.get_icon_available() ) {
             if (dbg) logger.log("icon request : cancel, icon already done ");
             return null;
         }
@@ -196,7 +205,8 @@ public class Icon_factory_actor implements Actor
     private Image process_image(Icon_factory_request icon_factory_request, Icon_destination destination)
     //**********************************************************
     {
-        if ( dbg) logger.log("Icon_factory thread: process_image:" + destination.get_string());
+        //if ( dbg)
+            logger.log("Icon_factory thread: process_image:" + destination.get_string());
 
         Path path = destination.get_path_for_display_icon_destination();
         if (path == null)
@@ -226,43 +236,62 @@ public class Icon_factory_actor implements Actor
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting2");
             return null;
         }
-        if (image == null)
+        if (image != null)
         {
-            if (dbg)
+            //if (dbg)
+                logger.log("Icon_factory thread: found in cache: " + path.getFileName());
+                return image;
+        }
+
+        if (dbg)
                 logger.log("Icon_factory thread:  load from cache FAILED for " + path.getFileName());
 
-            image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, true, icon_factory_request.aborter, logger);
-            if (icon_factory_request.aborter.should_abort())
-            {
-                if ( aborting_dbg) logger.log("Icon_factory thread: aborting3");
-                return null;
-            }
-            if (image == null) {
-                if (dbg)
-                    logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
-                return null;
-            }
-
-            //long pixels = (long)(image.getHeight()* image.getWidth());
-            //sample_collector.add_sample(System.currentTimeMillis()-start,pixels);
-
-            switch (destination.get_item_type()) {
-                case image_gif:
-                    // dont try to disk-cache for gifs, they are either small or animated
-                case symbolic_link_on_folder:
-                case folder:
-                    // no need for folders
-                    break;
-                default:
-                    if (dbg)
-                        logger.log("Icon_factory thread: sending icon write to file in cache dir for " + path.getFileName());
-                    Icon_write_message iwm = new Icon_write_message(image, icon_factory_request.icon_size, png_extension, path,aborter);
-                    writer.push(iwm);
-                    break;
-            }
-        } else {
+        image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, true, icon_factory_request.aborter, logger);
+        if (icon_factory_request.aborter.should_abort())
+        {
+            if ( aborting_dbg) logger.log("Icon_factory thread: aborting3");
+            return null;
+        }
+        if (image == null) {
             if (dbg)
-                logger.log("Icon_factory thread: found in cache: " + path.getFileName());
+                logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
+            return null;
+        }
+        if (image .getWidth() ==0) {
+            //if (dbg)
+            logger.log("WARNING1: Icon_factory thread: load from file FAILED getWidth() ==0 for " + path.getFileName());
+            return null;
+        }
+        if (image .getHeight() ==0) {
+            //if (dbg)
+            logger.log("WARNING1: Icon_factory thread: load from file FAILED getHeight() ==0 for " + path.getFileName());
+            return null;
+        }
+
+        switch (destination.get_item_type()) {
+            case image_gif:
+                // dont try to disk-cache for gifs, they are either small or animated
+            case symbolic_link_on_folder:
+            case folder:
+                // no need for folders
+                break;
+            default:
+                if (dbg)
+                        logger.log("Icon_factory thread: sending icon write to file in cache dir for " + path.getFileName());
+                Icon_write_message iwm = new Icon_write_message(image, icon_factory_request.icon_size, png_extension, path,aborter);
+                writer.push(iwm);
+                break;
+        }
+
+        if (image .getWidth() ==0) {
+            //if (dbg)
+            logger.log("WARNING2: Icon_factory thread: load from file FAILED getWidth() ==0 for " + path.getFileName());
+            return null;
+        }
+        if (image .getHeight() ==0) {
+            //if (dbg)
+            logger.log("WARNING2: Icon_factory thread: load from file FAILED getHeight() ==0 for " + path.getFileName());
+            return null;
         }
         return image;
     }

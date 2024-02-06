@@ -49,7 +49,7 @@ public class Finder_actor implements Actor
             if (fm.search_config.extension() == null)
             {
                 logger.log("no keywords ? aborting search");
-                fm.callback.has_ended(Search_status.invalid, "no keywords");
+                fm.callback.has_ended(Search_status.no_keywords);
                 Ding.play("Aborting file search: no keywords",logger);
                 return "no keywords ? aborting search";
             }
@@ -59,15 +59,14 @@ public class Finder_actor implements Actor
         logger.log("Finder::search()");
         print_keywords(fm.search_config.keywords(),fm.extension);
 
-        String reason_to_stop = find_similar_files(fm);
-        fm.callback.has_ended(Search_status.done, reason_to_stop);
+        fm.callback.has_ended(find_similar_files(fm));
         return "search done";
     }
 
 
 
     //**********************************************************
-    private String find_similar_files(Finder_message fm)
+    private Search_status find_similar_files(Finder_message fm)
     //**********************************************************
     {
         //logger.log("find_similar_files()");
@@ -77,23 +76,25 @@ public class Finder_actor implements Actor
             dir = fm.search_config.path().getParent();
         }
         start = System.currentTimeMillis();
-        extract_dir( dir, fm);
-        return "end of search";
+        return extract_dir( dir, fm);
 
     }
 
 
     //**********************************************************
-    private void extract_dir(Path dir, Finder_message fm)
+    private Search_status extract_dir(Path dir, Finder_message fm)
     //**********************************************************
     {
         if ( ultra_dbg) logger.log("finder extract_dir");
         if ( fm.aborter.should_abort() )
         {
             if ( ultra_dbg) logger.log("finder abort");
-            return;
+            return Search_status.interrupted;
         }
-        if ( !Files.isDirectory(dir) ) return;
+        if ( !Files.isDirectory(dir) )
+        {
+            return Search_status.invalid;
+        }
 
         if ( dbg) logger.log("Now looking into dir:"+dir.toAbsolutePath());
         visited_folders++;
@@ -104,7 +105,7 @@ public class Finder_actor implements Actor
                 if ( fm.aborter.should_abort() )
                 {
                     if ( ultra_dbg) logger.log("finder abort");
-                    return;
+                    return Search_status.interrupted;
                 }
                 if ( Files.isDirectory(path))
                 {
@@ -117,7 +118,21 @@ public class Finder_actor implements Actor
                     else
                     {
                         if ( dbg) logger.log("going down? trying folder:"+path);
-                        extract_dir(path, fm);
+                        switch(extract_dir(path, fm))
+                        {
+                            case interrupted:
+                                return Search_status.interrupted;
+                            case invalid:
+                                break;
+                            case done:
+                                break;
+                            case searching:
+                                break;
+                            case ready:
+                                break;
+                            case undefined:
+                                break;
+                        }
                     }
                     if (fm.search_config.also_folders())
                     {
@@ -159,6 +174,7 @@ public class Finder_actor implements Actor
                 fm.callback.on_the_fly_stats(null,new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
             }
         }
+        return Search_status.done;
     }
 
     //**********************************************************

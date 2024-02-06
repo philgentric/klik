@@ -465,18 +465,20 @@ public class Icon_manager
         item.visible_in_scene.set(true);
         if (item instanceof Item_image item_image)
         {
-            if (!item.icon_fabrication_requested.get())
-            {
-                if (visible_dbg)
-                    logger.log("process_is_visible: making icon factory request for: " + item_image.get_item_path());
-                item_image.request_icon_to_factory();
-            }
             if (!item.icon_available.get())
             {
                 if (visible_dbg)
                     logger.log("process_is_visible: loading default icon for: " + item_image.get_item_path());
                 item_image.init_visible();
             }
+            if (!item.icon_fabrication_requested.get())
+            {
+                if (visible_dbg)
+                    logger.log("process_is_visible: making icon factory request for: " + item_image.get_item_path());
+                item.icon_fabrication_requested.set(true);
+                item_image.request_icon_to_factory();
+            }
+
 
         }
         if (item.get_Node() == null)
