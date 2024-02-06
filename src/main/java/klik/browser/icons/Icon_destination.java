@@ -21,5 +21,5 @@ public interface Icon_destination
 
     boolean get_icon_available();
 
-    void set_icon_fabrication_requested();
+    void set_icon_fabrication_requested(boolean b);
 }

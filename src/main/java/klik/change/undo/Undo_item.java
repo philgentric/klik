@@ -77,7 +77,7 @@ public class Undo_item
         // i.e. several files from folder A moved to folder B
         Path old_folder = null;
         Path new_folder = null;
-        logger.log("ideal oans size "+oans.size());
+        //logger.log("ideal oans size "+oans.size());
 
         for ( Old_and_new_Path oan : oans)
         {
@@ -91,7 +91,7 @@ public class Undo_item
                 logger.log("WARNING:  oan.new_Path == null "+oan.get_string());
                 return null;
             }
-            logger.log("ideal oan = "+oan.get_string());
+            //logger.log("ideal oan = "+oan.get_string());
 
             if ( oan.new_Path == null) return null;
             if ( oan.old_Path == null) return null;
@@ -103,7 +103,7 @@ public class Undo_item
             if (old_folder == null)
             {
                 old_folder = oan.old_Path.getParent();
-                logger.log("old_folder = "+old_folder);
+                //logger.log("old_folder = "+old_folder);
             }
             else
             {

@@ -91,7 +91,7 @@ public class Icon_manager
         }
     }
 
-    long map_buttons_and_icons_elapsed = 0;
+    //long map_buttons_and_icons_elapsed = 0;
     //**********************************************************
     private void map_buttons_and_icons(Browser the_browser,
                                        Pane pane,
@@ -100,7 +100,7 @@ public class Icon_manager
                                        boolean rebuild_all_items)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
          if ( dbg) logger.log("Icon_manager map_buttons_and_icons");
 
         double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
@@ -178,8 +178,8 @@ public class Icon_manager
         p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
         process_iconified_items(the_browser, single_column, icon_size, column_increment_for_icons, scene_width, p);
         compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
-        map_buttons_and_icons_elapsed += (System.currentTimeMillis()-start);
-        logger.log("geometry_changed_elapsed= "+map_buttons_and_icons_elapsed);
+        //map_buttons_and_icons_elapsed += (System.currentTimeMillis()-start);
+       // logger.log("map_buttons_and_icons_elapsed= "+map_buttons_and_icons_elapsed);
     }
 
     //**********************************************************
@@ -470,12 +470,8 @@ public class Icon_manager
                 if (visible_dbg)
                     logger.log("process_is_visible: loading default icon for: " + item_image.get_item_path());
                 item_image.init_visible();
-            }
-            if (!item.icon_fabrication_requested.get())
-            {
                 if (visible_dbg)
                     logger.log("process_is_visible: making icon factory request for: " + item_image.get_item_path());
-                item.icon_fabrication_requested.set(true);
                 item_image.request_icon_to_factory();
             }
 
@@ -519,7 +515,7 @@ public class Icon_manager
                 // i.e. in directories with very large number of images
                 // the icon manager can cause an OutOfMemory if we would keep invisible images in memory
                 if (visible_dbg) logger.log("and setting image to null for: " + item.get_string());
-                item_image.process_invisible();//Static_image_utilities.get_default_icon(icon_size, logger), false);
+                item_image.assume_invisible();//Static_image_utilities.get_default_icon(icon_size, logger), false);
             }
         }
     }

@@ -18,7 +18,6 @@ import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Icon_fabrication;
 import klik.files_and_paths.Files_and_Paths;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
@@ -45,7 +44,21 @@ public abstract class Item implements Icon_destination
 
 
     protected final int icon_size;
-    //public Icon_fabrication icon_status = Icon_fabrication.no_icon;
+    /* state machine for icons is:
+    before anything: icon_fabrication_requested = false & icon_available
+
+    when item becomes visible
+
+    if ( !icon_available) we launch request icon factory <<< this can occur a LOT of times
+
+    = actors are started and soon as one really starts icon_fabrication_requested == true
+    and other actors will fail fast
+
+    as soon as set_image occurs icon_available = true
+
+    as soon as the item becomes invisible icon_available = false
+
+     */
     public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);
     public AtomicBoolean icon_available = new AtomicBoolean(false);
     protected Path path;
@@ -139,7 +152,7 @@ public abstract class Item implements Icon_destination
     }
 
     @Override // Icon_destination
-    public void set_icon_fabrication_requested() {
+    public void set_icon_fabrication_requested(boolean b) {
         icon_fabrication_requested.set(true);
     }
 

@@ -85,9 +85,16 @@ public class Icon_factory_actor implements Actor
 
         Icon_destination destination = icon_factory_request.destination;
         if (destination == null) {
-            logger.log("icon factory : cancel! destination==null");
+            //logger.log("icon factory : cancel! destination==null");
             return "no icon destination";
         }
+
+        if (icon_factory_request.destination.get_icon_fabrication_requested())
+        {
+            //logger.log("icon factory : cancel! get_icon_fabrication_requested==true");
+            return "requested";
+        }
+        icon_factory_request.destination.set_icon_fabrication_requested(true);
 
         Image_and_rotation image_and_rotation = null;
         for(;;) {
@@ -186,18 +193,8 @@ public class Icon_factory_actor implements Actor
     public Job make_icon(Icon_factory_request icon_factory_request)
     //**********************************************************
     {
-        if (dbg) logger.log("icon request made ");
-        if (icon_factory_request.destination.get_icon_fabrication_requested() ) {
-            if (dbg) logger.log("icon request : cancel, request already done ");
-            return null;
-        }
-        if (icon_factory_request.destination.get_icon_available() ) {
-            if (dbg) logger.log("icon request : cancel, icon already done ");
-            return null;
-        }
         if (dbg) logger.log("icon request : queued! ");
 
-        icon_factory_request.destination.set_icon_fabrication_requested();
         Job job = Actor_engine.run(this, icon_factory_request, null,logger);
         return job;
     }
@@ -230,7 +227,7 @@ public class Icon_factory_actor implements Actor
         }
 
         //long start = System.currentTimeMillis();
-        Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg,logger);
+        Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting2");
@@ -439,7 +436,7 @@ public class Icon_factory_actor implements Actor
         // we are going to create the PNG using pdfbox!
 
         String tag = "";//+icon_factory_request.icon_size;
-        Image image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, dbg,logger);
+        Image image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, false,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting8");

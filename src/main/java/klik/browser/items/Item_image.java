@@ -298,23 +298,30 @@ public class Item_image extends Item
             return;
         }
 
-        if ( image_and_rotation == null)
-        {
-            if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
-            image_view.setImage(null); // for garbage collecting reasons
-            return;
-        }
-
         if (!visible_in_scene.get())
         {
             //if ( dbg) g(0);
             if ( dbg) logger.log("!visible_in_scene.get() : setting the image to null in the Image_view");
-            image_view.setImage(null); // for garbage collecting reasons
+            assume_invisible();
             return;
         }
-        if ( (image_and_rotation.image().getHeight() == 0) && (image_and_rotation.image().getWidth() == 0))
+        if ( image_and_rotation == null)
+        {
+            if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+            assume_invisible();
+            return;
+        }
+        if ( image_and_rotation.image() == null)
+        {
+            if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+            assume_invisible();
+            return;
+        }
+
+        if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
+            assume_invisible();
             return;
         }
         if ( item_type == Iconifiable_item_type.pdf)
@@ -352,16 +359,19 @@ public class Item_image extends Item
     public void do_it_in_fx_thread(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
+        /*
         if ( image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
             return;
         }
-        if (( image_and_rotation.image().getHeight() == 0) && (image_and_rotation.image().getWidth() ==0))
+        if (( image_and_rotation.image().getHeight() < 1) || (image_and_rotation.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("empty image"));
             return;
         }
+        */
+
         if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
         image_view.setImage(image_and_rotation.image());
         icon_available.set(true);
@@ -393,7 +403,7 @@ public class Item_image extends Item
                 }
                 else
                 {
-                    process_invisible();
+                    assume_invisible();
                      if (visibility_dbg) log_visibility_state_number(0);
                     return;
                 }
@@ -404,7 +414,7 @@ public class Item_image extends Item
             // and in the mean time the situation can change
             if (!visible_in_scene.get())
             {
-                process_invisible();
+                assume_invisible();
                 if (visibility_dbg) log_visibility_state_number(1);
                 return;
             }
@@ -457,11 +467,12 @@ public class Item_image extends Item
     }
 
     //**********************************************************
-    public void process_invisible()
+    public void assume_invisible()
     //**********************************************************
     {
         image_view.setImage(null);
         icon_available.set(false);
+        icon_fabrication_requested.set(false);
     }
 
     //**********************************************************

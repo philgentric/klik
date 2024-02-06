@@ -92,6 +92,7 @@ public class Aspect_ratio_cache extends Cache_for_doubles
                 if ( aborter.should_abort())
                 {
                     logger.log("Aspect ratio cache look_for_end_runnable aborting");
+                    the_scheduled_future.cancel(true);
                     return;
                 }
                 if ( in_flight.get() > 0)

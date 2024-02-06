@@ -154,26 +154,25 @@ public class From_disk
     private static boolean use_ImageIO = false;
     // this call RESIZES to the target icon size
 
-    private static long elapsed_read_original_image_from_disk_and_return_icon =0;
+    //private static long elapsed_read_original_image_from_disk_and_return_icon =0;
     //**********************************************************
     public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size,  boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, dbg, aborter,logger);
-        if (input_stream == null) return null;
-        if ( aborter.should_abort()) return null;
-
-
         Image image = null;
-
-        if ( use_ImageIO)
+        try(InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, dbg, aborter,logger))
         {
-            //logger.log("using ImageIO");
-
-            try {
+            if ( aborter.should_abort())
+            {
+                return null;
+            }
+            if ( use_ImageIO)
+            {
+                //logger.log("using ImageIO");
                 BufferedImage ii = ImageIO.read(input_stream);
+                input_stream.close();
                 if (ii == null)
                 {
                     logger.log("ImageIO.read returned null for "+original_image_file);
@@ -204,40 +203,26 @@ public class From_disk
                 g_for_returned_image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 g_for_returned_image.drawRenderedImage(ii, trans);
-
                 image = JavaFX_to_Swing.toFXImage(sink_bi,null);
-
-
-            } catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
             }
-
+            else
+            {
+                //logger.log("using javafx Image");
+                image = new Image(input_stream, icon_size, icon_size, true, true);
+                if ( image.isError())
+                {
+                    if ( dbg) logger.log("From_disk WARNING: an error occurred when reading: "+original_image_file.toAbsolutePath());
+                   image = null;
+                }
+            }
         }
-        else
-        {
-            logger.log("using javafx Image");
-            image = new Image(input_stream, icon_size, icon_size, true, true);
-
-        }
-
-
-
-
-        try {
-            input_stream.close();
-        } catch (IOException e)
-        {
+        catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        }
 
-        }
-        if ( image.isError())
-        {
-            if ( dbg) logger.log("From_disk WARNING: an error occurred when reading: "+original_image_file.toAbsolutePath());
-            return null;
-        }
-        long now = System.currentTimeMillis();
-        elapsed_read_original_image_from_disk_and_return_icon += now-start;
-        logger.log("elapsed_read_original_image_from_disk_and_return_icon:"+elapsed_read_original_image_from_disk_and_return_icon);
+        //long now = System.currentTimeMillis();
+        //elapsed_read_original_image_from_disk_and_return_icon += now-start;
+        //logger.log("elapsed_read_original_image_from_disk_and_return_icon:"+elapsed_read_original_image_from_disk_and_return_icon);
         return image;
 
     }
