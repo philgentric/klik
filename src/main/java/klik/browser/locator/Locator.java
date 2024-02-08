@@ -202,7 +202,7 @@ public class Locator
                         //logger.log("count after dec="+folders.get()+" size="+contanimated_directories.size());
                     }
                 };
-                if ( Threads.use_fibers)
+                if ( Threads.use_virtual_threads)
                 {
                     Actor_engine.execute(r,browser.aborter,logger);
                 }

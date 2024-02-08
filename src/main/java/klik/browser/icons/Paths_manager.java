@@ -144,7 +144,7 @@ public class Paths_manager
     private AtomicBoolean hard_part_ongoing = new AtomicBoolean(false);
 
     //**********************************************************
-    synchronized private void do_the_hard_work_of_scan_dir_in_a_thread(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
+    private void do_the_hard_work_of_scan_dir_in_a_thread(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
     //**********************************************************
     {
         if ( hard_part_ongoing.get()) return;
@@ -333,35 +333,10 @@ public class Paths_manager
         public int compare(Path p1, Path p2) {
             FileTime ldt1 = Fast_date_from_OS.get_date(p1,logger);
             FileTime ldt2 = Fast_date_from_OS.get_date(p2,logger);
-            int diff= ldt1.compareTo(ldt2);
+            int diff= ldt2.compareTo(ldt1); // most recent first
             if ( diff != 0) return diff;
             return (p1.toString().compareTo(p2.toString()));
         }
-    };
-
-    //**********************************************************
-    class Random_comparator implements Comparator<Path>
-            //**********************************************************
-    {
-
-        long seed;
-        public Random_comparator()
-        {
-            Random r = new Random();
-            seed = r.nextLong();
-        }
-        @Override
-        public int compare(Path p1, Path p2) {
-
-            // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
-            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l1 = new Random(seed*s1).nextLong();
-            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l2 = new Random(seed*s2).nextLong();
-            return l1.compareTo(l2);
-
-        }
-
     };
 
 

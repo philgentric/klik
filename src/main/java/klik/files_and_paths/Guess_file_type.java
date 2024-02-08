@@ -25,12 +25,13 @@ public class Guess_file_type
 //**********************************************************
 {
     private static final String GIF = "GIF";
+    private static final String PNG = "PNG";
     public static final String PDF = "PDF";
     private static final String[] supported_image_formats = ImageIO.getReaderFormatNames();
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};
     public static final String[] ignored_prefixes = {"._",".DS_Store"};
-    static String[] supported_non_gif_image_formats = null;
+    static String[] supported_non_gif_non_png_image_formats = null;
 
     //**********************************************************
     public static boolean is_file_an_image(File f)
@@ -267,29 +268,39 @@ public class Guess_file_type
         return false;
     }
 
+    //**********************************************************
+    public static boolean is_this_extension_a_png(String extension)
+    //**********************************************************
+    {
+        if (extension.equalsIgnoreCase(PNG) )return true;
+        return false;
+    }
+
 
     //**********************************************************
-    public static boolean is_this_extension_an_image_not_gif(String extension)
+    public static boolean is_this_extension_an_image_not_gif_not_png(String extension)
     //**********************************************************
     {
 
-        if ( supported_non_gif_image_formats == null)
+        if ( supported_non_gif_non_png_image_formats == null)
         {
             int size = 0;
             for ( String s : supported_image_formats)
             {
                 if ( ! s.equalsIgnoreCase(GIF)) size++;
+                if ( ! s.equalsIgnoreCase(PNG)) size++;
             }
             size++; // for fusk
-            supported_non_gif_image_formats = new String[size];
+            supported_non_gif_non_png_image_formats = new String[size];
             int i = 0;
             for ( String s : supported_image_formats)
             {
-                if ( ! s.equalsIgnoreCase(GIF)) supported_non_gif_image_formats[i++] = s.toUpperCase();
+                if ( ! s.equalsIgnoreCase(GIF)) supported_non_gif_non_png_image_formats[i++] = s.toUpperCase();
+                if ( ! s.equalsIgnoreCase(PNG)) supported_non_gif_non_png_image_formats[i++] = s.toUpperCase();
             }
-            supported_non_gif_image_formats[i] = Fusk_static_core.FUSK_EXTENSION.toUpperCase();
+            supported_non_gif_non_png_image_formats[i] = Fusk_static_core.FUSK_EXTENSION.toUpperCase();
         }
-        for (String supportedNonGifImageFormat : supported_non_gif_image_formats) {
+        for (String supportedNonGifImageFormat : supported_non_gif_non_png_image_formats) {
             if (extension.toUpperCase().equals(supportedNonGifImageFormat)) return true;
         }
         return false;

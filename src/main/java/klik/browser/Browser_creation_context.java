@@ -42,6 +42,9 @@ public class Browser_creation_context
         scroll_to = scrollTo;
         //System.out.println("scroll_to="+scroll_to);
         old_browser = oldBrowser;
+        this.folder_path = dir;
+/*
+// now that we DO NOT use the icon cache for PNG images anymore, we can browse it
         Path icon_cache_dir = Files_and_Paths.get_icon_cache_dir(new System_out_logger());
         if (dir.toAbsolutePath().equals(icon_cache_dir.toAbsolutePath()))
         {
@@ -64,6 +67,8 @@ public class Browser_creation_context
         {
             this.folder_path = dir;
         }
+
+ */
     }
 
     //**********************************************************

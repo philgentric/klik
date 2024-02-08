@@ -23,18 +23,18 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	BlockingQueue<File_pair> output_queue_of_same_in_pairs;
 	Deduplication_engine deduplication_engine;
 	private AtomicBoolean is_finished = new AtomicBoolean(false);
-	private final Aborter aborter;
+	private final Aborter private_aborter;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs(
 			Deduplication_engine deduplication_,
 			List<My_File> files_,
 			BlockingQueue<File_pair> output_queue,
-			Aborter aborter_,
+			Aborter private_aborter_,
 			Logger logger_)
 	//**********************************************************
 	{
 		logger = logger_;
-		aborter = aborter_;
+		private_aborter = private_aborter_;
 		for ( My_File mf: files_) files.add(new My_File_and_status(mf));
 		output_queue_of_same_in_pairs = output_queue;
 		deduplication_engine = deduplication_;
@@ -58,7 +58,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		{
 			logger.log("Runnable_for_finding_duplicate_file_pairs i="+i);
 
-			if ( aborter.should_abort())
+			if ( private_aborter.should_abort())
 			{
 				logger.log("Runnable_for_finding_duplicate_file_pairs abort");
 				is_finished.set(true);
@@ -80,7 +80,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			{
 				if ( ultra_dbg) logger.log("Runnable_for_finding_duplicate_file_pairs j="+j);
 
-				if ( aborter.should_abort())
+				if ( private_aborter.should_abort())
 				{
 					logger.log("Runnable_for_finding_duplicate_file_pairs abort");
 					is_finished.set(true);
@@ -97,7 +97,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				}
 				if ( ultra_dbg) logger.log("       considering "+files.size()+" files... i="+i+" j="+j);//+" name="+fj.my_file.file.getAbsolutePath());
 
-				if ( ! My_File.files_have_same_content(fi.my_file,fj.my_file, aborter, logger))
+				if ( ! My_File.files_have_same_content(fi.my_file,fj.my_file, private_aborter, logger))
 				{
 					if ( ultra_dbg) logger.log(" not same CONTENT:"+fi.my_file.file.getAbsolutePath()+" - "+fj.my_file.file.getAbsolutePath());
 				}
@@ -141,14 +141,6 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		is_finished.set(true);
 	}
 
-
-	//**********************************************************
-	public void abort()
-	//**********************************************************
-	{
-		aborter.abort();
-		logger.log("Runnable_for_finding_duplicate_file_pairs kill received");
-	}
 
 	//**********************************************************
 	private void decide_which_to_delete(My_File_and_status fi, My_File_and_status fj)

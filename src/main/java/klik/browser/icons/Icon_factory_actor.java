@@ -85,17 +85,9 @@ public class Icon_factory_actor implements Actor
 
         Icon_destination destination = icon_factory_request.destination;
         if (destination == null) {
-            //logger.log("icon factory : cancel! destination==null");
-            return "no icon destination";
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN icon factory : cancel! destination==null"));
+            return null;
         }
-
-        if (icon_factory_request.destination.get_icon_fabrication_requested())
-        {
-            //logger.log("icon factory : cancel! get_icon_fabrication_requested==true");
-            return "requested";
-        }
-        icon_factory_request.destination.set_icon_fabrication_requested(true);
-
         Image_and_rotation image_and_rotation = null;
         for(;;) {
             image_and_rotation = try_once(destination, icon_factory_request);
@@ -153,6 +145,7 @@ public class Icon_factory_actor implements Actor
 
             }
             case folder, symbolic_link_on_folder -> {
+                // for folder the path of the image chosen to represent the folder as an icon is needed
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
@@ -161,13 +154,22 @@ public class Icon_factory_actor implements Actor
                 }
             }
             case image_gif -> {
-                image = process_image_gif(icon_factory_request, destination);
+                image = process_image_with_no_cached_icon(icon_factory_request, destination);
                 if (image != null)
                 {
                     rotation = rotation_cache.get_rotation(destination.get_item_path());
                     //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
-            } case image_not_gif -> {
+            }
+            case image_png -> {
+                image = process_image_with_no_cached_icon(icon_factory_request, destination);
+                if (image != null)
+                {
+                    rotation = rotation_cache.get_rotation(destination.get_item_path());
+                    //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
+                }
+            }
+            case image_not_gif_not_png -> {
                 image = process_image(icon_factory_request, destination);
                 if (image != null)
                 {
@@ -190,19 +192,10 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    public Job make_icon(Icon_factory_request icon_factory_request)
-    //**********************************************************
-    {
-        if (dbg) logger.log("icon request : queued! ");
-
-        Job job = Actor_engine.run(this, icon_factory_request, null,logger);
-        return job;
-    }
-    //**********************************************************
     private Image process_image(Icon_factory_request icon_factory_request, Icon_destination destination)
     //**********************************************************
     {
-        //if ( dbg)
+        if ( dbg)
             logger.log("Icon_factory thread: process_image:" + destination.get_string());
 
         Path path = destination.get_path_for_display_icon_destination();
@@ -221,6 +214,8 @@ public class Icon_factory_actor implements Actor
         String tag = String.valueOf(icon_factory_request.icon_size);
         if ( icon_factory_request.destination.get_item_type() == Iconifiable_item_type.pdf)
         {
+            logger.log("SHOULD NOT HAPPEN: process_image: PDF");
+
             // for PDF we do not minimize the generated png, ImageView will do it
             // so a side effect is it is not necessary to regenerate it if the icon size was changed
             tag = "";
@@ -235,7 +230,7 @@ public class Icon_factory_actor implements Actor
         }
         if (image != null)
         {
-            //if (dbg)
+            if (dbg)
                 logger.log("Icon_factory thread: found in cache: " + path.getFileName());
                 return image;
         }
@@ -254,13 +249,13 @@ public class Icon_factory_actor implements Actor
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
             return null;
         }
-        if (image .getWidth() ==0) {
-            //if (dbg)
+        if (image.getWidth() < 1.0) {
+            // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
             logger.log("WARNING1: Icon_factory thread: load from file FAILED getWidth() ==0 for " + path.getFileName());
             return null;
         }
         if (image .getHeight() ==0) {
-            //if (dbg)
+            // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
             logger.log("WARNING1: Icon_factory thread: load from file FAILED getHeight() ==0 for " + path.getFileName());
             return null;
         }
@@ -280,21 +275,11 @@ public class Icon_factory_actor implements Actor
                 break;
         }
 
-        if (image .getWidth() ==0) {
-            //if (dbg)
-            logger.log("WARNING2: Icon_factory thread: load from file FAILED getWidth() ==0 for " + path.getFileName());
-            return null;
-        }
-        if (image .getHeight() ==0) {
-            //if (dbg)
-            logger.log("WARNING2: Icon_factory thread: load from file FAILED getHeight() ==0 for " + path.getFileName());
-            return null;
-        }
         return image;
     }
 
     //**********************************************************
-    private Image process_image_gif(Icon_factory_request icon_factory_request, Icon_destination destination)
+    private Image process_image_with_no_cached_icon(Icon_factory_request icon_factory_request, Icon_destination destination)
     //**********************************************************
     {
         if ( dbg) logger.log("Icon_factory thread: process_image_gif:" + destination.get_string());
@@ -315,6 +300,7 @@ public class Icon_factory_actor implements Actor
         String tag = String.valueOf(icon_factory_request.icon_size);
         if ( icon_factory_request.destination.get_item_type() == Iconifiable_item_type.pdf)
         {
+            logger.log("SHOULD NOT HAPPEN: process_image_gif: PDF");
             // for PDF we do not minimize the generated png, ImageView will do it
             // so a side effect is it is not necessary to regenerate it if the icon size was changed
             tag = "";

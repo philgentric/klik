@@ -287,7 +287,7 @@ public class Selection_handler
        // logger.log("open_item_at for" + item.get_item_path());
 
         switch (item.item_type) {
-            case image_gif, image_not_gif -> ((Item_image) item).open_an_image(logger);
+            case image_gif, image_png ,image_not_gif_not_png -> ((Item_image) item).open_an_image(logger);
             case symbolic_link_on_folder ,folder -> {
                 logger.log("Selection_handler calling replace_different_folder");
                 Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);

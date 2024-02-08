@@ -99,11 +99,11 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         if ( job == null) return;
         if ( input_queue_single.remove(job))
         {
-            if ( dbg) logger.log("Actor-Message canceled: "+job.to_string());
+            if ( Actor_engine.cancel_dbg) logger.log("Actor-Message removed from queue (canceled before start): "+job.to_string());
         }
         else
         {
-            if ( dbg) logger.log("Actor-Message NOT found (therefore not canceled): "+job.to_string());
+            if ( Actor_engine.cancel_dbg) logger.log("Actor-Message NOT found, actor canceled after start: "+job.to_string());
             job.cancel();
         }
         job.has_ended("Engine received cancel for "+job.to_string());

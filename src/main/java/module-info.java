@@ -8,6 +8,7 @@ module klikmodule {
     requires com.github.benmanes.caffeine;
     requires metadata.extractor;
     requires org.apache.pdfbox;
+    requires org.junit.jupiter.api;
 
     exports klik;
 }

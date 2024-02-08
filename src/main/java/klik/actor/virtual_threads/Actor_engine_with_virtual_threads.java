@@ -2,7 +2,10 @@ package klik.actor.virtual_threads;
 
 import klik.actor.*;
 import klik.util.Logger;
+import klik.util.Threads;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -16,8 +19,8 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
      */
     private final Logger logger;
     private final Aborter aborter;
-    private final AtomicInteger threads_in_flight = new AtomicInteger(0);
     private int recent_max_threads = 0;
+    //Thread.Builder builder = Thread.ofVirtual().name("Actor_engine_with_virtual_threads");
 
     //**********************************************************
     public Actor_engine_with_virtual_threads(Aborter aborter, Logger logger_)
@@ -40,13 +43,17 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     {
         Job job = new Job(actor,message,tr,logger);
         Runnable r = () -> {
-            int now = threads_in_flight.incrementAndGet();
+            int now = Actor_engine.threads_in_flight.incrementAndGet();
             if ( now > recent_max_threads) recent_max_threads = now;
             String msg = job.actor.run(job.message);
             if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
-            threads_in_flight.decrementAndGet();
+            Actor_engine.threads_in_flight.decrementAndGet();
         };
-        job.thread = Thread.ofVirtual().start(r);
+        //job.thread = builder.start(r);
+        ExecutorService executor_service = Threads.get_executor_service(logger);
+        executor_service.execute(r);
+        //executor_service.submit(r);
+
         return job;
     }
 
@@ -56,7 +63,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     public int how_many_threads_are_in_flight()
     //**********************************************************
     {
-        int returned = threads_in_flight.get();
+        int returned = Actor_engine.threads_in_flight.get();
         if ( returned != 0) return returned;
         returned = recent_max_threads;
         recent_max_threads = 0;
@@ -78,7 +85,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
          job.message.get_aborter().abort();
          if ( job.thread != null) job.thread.interrupt();
 
-         //logger.log("virtual threads engine has cancelled: "+job.to_string());
+         if( Actor_engine.cancel_dbg) logger.log("virtual threads engine has cancelled: "+job.to_string());
          job.has_ended("Engine received cancel for "+job.to_string()+" (virtual threads)");
     }
 

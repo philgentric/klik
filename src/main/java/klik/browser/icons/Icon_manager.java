@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
 import klik.browser.items.Item;
@@ -21,13 +22,18 @@ import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.Threads;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 
 //**********************************************************
@@ -41,7 +47,6 @@ public class Icon_manager
     public static final boolean scroll_dbg = false;
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
     public static final int MIN_COLUMN_WIDTH = 300;
-    public static final boolean add_and_remove = true;
     public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
     private static final double MARGIN_Y = 50;
 
@@ -70,6 +75,7 @@ public class Icon_manager
         if ( dbg) logger.log("Icon_manager constructor");
         double font_size = Static_application_properties.get_font_size(logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
+
     }
 
     //**********************************************************
@@ -462,34 +468,15 @@ public class Icon_manager
     private void process_is_visible(Pane pane, Item item)
     //**********************************************************
     {
-        item.visible_in_scene.set(true);
-        if (item instanceof Item_image item_image)
+        if (item.visible_in_scene.compareAndSet(false,true))
         {
-            if (!item.icon_available.get())
-            {
-                if (visible_dbg)
-                    logger.log("process_is_visible: loading default icon for: " + item_image.get_item_path());
-                item_image.init_visible();
-                if (visible_dbg)
-                    logger.log("process_is_visible: making icon factory request for: " + item_image.get_item_path());
-                item_image.request_icon_to_factory();
-            }
-
-
-        }
-        if (item.get_Node() == null)
-        {
-            logger.log("SHOULD NOT HAPPEN item.get_Node() == null");
-        }
-        else
-        {
+            item.you_are_visible();
             if (!pane.getChildren().contains(item.get_Node()))
             {
                 if (visible_dbg) logger.log("adding item: " + item.get_string());
                 pane.getChildren().add(item.get_Node());
             }
         }
-        item.set_visible(true);
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
     }
@@ -500,23 +487,9 @@ public class Icon_manager
     {
         if (item.visible_in_scene.compareAndSet(true,false))
         {
-            //item.visible_in_scene.false;
-            item.cancel();
-            if (item.get_Node() == null) return;
-            item.get_Node().setVisible(false);
-            if (add_and_remove)
-            {
-                if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
-                pane.getChildren().remove(item.get_Node());
-            }
-            if (item instanceof Item_image item_image)
-            {
-                // let us hope the GC might save us !
-                // i.e. in directories with very large number of images
-                // the icon manager can cause an OutOfMemory if we would keep invisible images in memory
-                if (visible_dbg) logger.log("and setting image to null for: " + item.get_string());
-                item_image.assume_invisible();//Static_image_utilities.get_default_icon(icon_size, logger), false);
-            }
+            item.you_are_invisible();
+            if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
+            pane.getChildren().remove(item.get_Node());
         }
     }
 

@@ -142,7 +142,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public Comparator<? super Path> get_file_comparator()
     //**********************************************************
     {
-        logger.log("browser getting the current file comparator");
+        logger.log("browser getting the current file comparator"+paths_manager.image_file_comparator.toString());
         return paths_manager.image_file_comparator;
     }
 

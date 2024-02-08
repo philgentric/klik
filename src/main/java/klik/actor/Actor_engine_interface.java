@@ -39,7 +39,7 @@ public interface Actor_engine_interface
         Message message = new Message() {
             @Override
             public Aborter get_aborter() {
-                return new Aborter("defaut thread",logger);
+                return new Aborter("default thread",logger);
             }
         };
         return run(actor,message,null,logger);

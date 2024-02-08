@@ -12,6 +12,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Browser;
@@ -56,63 +57,6 @@ public class Item_image extends Item
         actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
     }
-
-    //**********************************************************
-    public void init_visible()
-    //**********************************************************
-    {
-        if ( default_icon == null)
-        {
-            logger.log("BADBADBAD: item_image: loading default icon failed");
-            return;
-        }
-        if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
-        if ( image_view == null) image_view = new ImageView();
-        if ( image_pane == null) image_pane = new StackPane(image_view);
-
-        image_view.setImage(default_icon);
-        image_view.setPreserveRatio(true);
-        image_view.setSmooth(true);
-        image_view.setFitWidth(actual_icon_size);
-        image_view.setFitHeight(actual_icon_size);
-        //the_image_view.setManaged(false);
-        image_view.setCache(true);
-        image_view.setCacheHint(CacheHint.SPEED);
-        init_drag_and_drop_sender_side();
-
-
-        image_view.setOnMouseClicked(event ->
-        {
-            if (event.getButton() == MouseButton.SECONDARY)
-            {
-                //logger.log("\n\nItem_image isSecondaryButtonDown");
-                ContextMenu context_menu = define_a_menu_to_the_imageview();
-                context_menu.show(image_view, event.getScreenX(), event.getScreenY());
-                return;
-            }
-            if (event.isMetaDown())
-            {
-                Multiple_image_window s = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
-                if (s == null)
-                {
-                    // let us a bit of checking about why this failed
-                    Change_gang.report_anomaly(path);
-                }
-                return;
-            }
-            if (event.isControlDown())
-            {
-                if ( dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
-                set_is_selected();
-            }
-            else
-            {
-                if ( dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
-                on_mouse_clicked(logger);
-            }
-        });
-    }
-
 
     //**********************************************************
     private void on_mouse_clicked(Logger logger)
@@ -180,6 +124,15 @@ public class Item_image extends Item
         return false;
     }
 
+    //**********************************************************
+    @Override
+    public boolean is_parent()
+    //**********************************************************
+    {
+        return false;
+    }
+
+
 
     //**********************************************************
     public ContextMenu define_a_menu_to_the_imageview()
@@ -199,7 +152,7 @@ public class Item_image extends Item
                 List<Old_and_new_Path> l = new ArrayList<>();
                 Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
                 l.add(oandn);
-                Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, true,aborter, logger);
+                Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, true, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -207,7 +160,7 @@ public class Item_image extends Item
             javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
-                Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, aborter, logger);
+                Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -226,7 +179,7 @@ public class Item_image extends Item
 
         if ( this.item_type == Iconifiable_item_type.video)
         {
-            make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
+            make_menu_items_for_videos(path,browser,context_menu,dbg, browser_aborter,logger);
         }
         return context_menu;
 
@@ -284,14 +237,6 @@ public class Item_image extends Item
     public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
-        //the_rotation = image_and_rotation.rotation();
-        set_Image(image_and_rotation);
-    }
-    //**********************************************************
-    @Override
-    public void set_Image(Image_and_rotation image_and_rotation)
-    //**********************************************************
-    {
         if ( image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
@@ -300,28 +245,29 @@ public class Item_image extends Item
 
         if (!visible_in_scene.get())
         {
-            //if ( dbg) g(0);
+            // this happen if between the time the icon was request and now,
+            // the item is not visible anymore typically because the user scrolled away
             if ( dbg) logger.log("!visible_in_scene.get() : setting the image to null in the Image_view");
-            assume_invisible();
+            you_are_invisible();
             return;
         }
         if ( image_and_rotation == null)
         {
             if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
-            assume_invisible();
+            you_are_invisible();
             return;
         }
         if ( image_and_rotation.image() == null)
         {
             if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
-            assume_invisible();
+            you_are_invisible();
             return;
         }
 
         if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
-            assume_invisible();
+            you_are_invisible();
             return;
         }
         if ( item_type == Iconifiable_item_type.pdf)
@@ -341,48 +287,27 @@ public class Item_image extends Item
     public void cancel_custom()
     //**********************************************************
     {
-        //Actor_engine.cancel_one(job);
-        //job = null;
-        //logger.log("invisible icon => factory request canceled for "+path);
+        if (dbg) logger.log("cancel_custom for: " + get_string());
+        image_view.setImage(null); // for GC
     }
 
     //**********************************************************
-    public void request_icon_to_factory()
+    @Override
+    public boolean has_icon()
     //**********************************************************
     {
-        if ( dbg) logger.log("request_icon_to_factory for:"+path);
-        Icon_factory_request ifr = new Icon_factory_request(this, icon_size,aborter);
-        browser.icon_factory_actor.make_icon(ifr);
+        return true;
     }
+
 
     //**********************************************************
     public void do_it_in_fx_thread(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
-        /*
-        if ( image_view == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
-            return;
-        }
-        if (( image_and_rotation.image().getHeight() < 1) || (image_and_rotation.image().getWidth() < 1))
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("empty image"));
-            return;
-        }
-        */
-
         if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
         image_view.setImage(image_and_rotation.image());
         icon_available.set(true);
-        /*
-        if (!image_is_the_good_one)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("DEFAULT ICON"));
-            icon_status = Icon_status.default_icon;
-            if (visibility_dbg) log_visibility_state_number(3);
-        }
-        else*/
+
         {
             Double local_rot = image_and_rotation.rotation();
             if (local_rot == null)
@@ -398,12 +323,12 @@ public class Item_image extends Item
                     }
                     else
                     {
-                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
+                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, browser_aborter, logger);
                     }
                 }
                 else
                 {
-                    assume_invisible();
+                    you_are_invisible();
                      if (visibility_dbg) log_visibility_state_number(0);
                     return;
                 }
@@ -414,15 +339,17 @@ public class Item_image extends Item
             // and in the mean time the situation can change
             if (!visible_in_scene.get())
             {
-                assume_invisible();
+                you_are_invisible();
                 if (visibility_dbg) log_visibility_state_number(1);
                 return;
             }
 
-            image_pane.setPrefWidth(icon_size);
-            image_pane.setPrefHeight(icon_size);
-            image_pane.setMinWidth(icon_size);
-            image_pane.setMinHeight(icon_size);
+            //image_pane.setPrefWidth(icon_size);
+            //image_pane.setPrefHeight(icon_size);
+            //image_pane.setMinWidth(icon_size);
+            //image_pane.setMinHeight(icon_size);
+            //image_pane.setBorder(Look_and_feel_manager.get_border());
+            //image_pane.setStyle("-fx-border-insets: -1;");
 
             image_view.setSmooth(true);
 
@@ -467,13 +394,69 @@ public class Item_image extends Item
     }
 
     //**********************************************************
-    public void assume_invisible()
+    @Override // Item
+    public int get_icon_size()
     //**********************************************************
     {
-        image_view.setImage(null);
-        icon_available.set(false);
-        icon_fabrication_requested.set(false);
+        return icon_size;
     }
+
+    //**********************************************************
+    @Override // Item
+    public void you_are_visible_specific()
+    //**********************************************************
+    {
+        if ( default_icon == null)
+        {
+            logger.log("BADBADBAD: item_image: loading default icon failed");
+            return;
+        }
+        if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
+        if ( image_view == null) image_view = new ImageView();
+        if ( image_pane == null) image_pane = new StackPane(image_view);
+
+        image_view.setImage(default_icon);
+        image_view.setPreserveRatio(true);
+        image_view.setSmooth(true);
+        image_view.setFitWidth(actual_icon_size);
+        image_view.setFitHeight(actual_icon_size);
+        //the_image_view.setManaged(false);
+        image_view.setCache(true);
+        image_view.setCacheHint(CacheHint.SPEED);
+        init_drag_and_drop_sender_side();
+
+        image_view.setOnMouseClicked(event ->
+        {
+            if (event.getButton() == MouseButton.SECONDARY)
+            {
+                //logger.log("\n\nItem_image isSecondaryButtonDown");
+                ContextMenu context_menu = define_a_menu_to_the_imageview();
+                context_menu.show(image_view, event.getScreenX(), event.getScreenY());
+                return;
+            }
+            if (event.isMetaDown())
+            {
+                Multiple_image_window s = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
+                if (s == null)
+                {
+                    // let us a bit of checking about why this failed
+                    Change_gang.report_anomaly(path);
+                }
+                return;
+            }
+            if (event.isControlDown())
+            {
+                if ( dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
+                set_is_selected();
+            }
+            else
+            {
+                if ( dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
+                on_mouse_clicked(logger);
+            }
+        });
+    }
+
 
     //**********************************************************
     private void log_visibility_state_number(int i)

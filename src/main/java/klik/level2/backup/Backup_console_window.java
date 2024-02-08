@@ -53,7 +53,7 @@ public class Backup_console_window
     public Backup_console_window(Backup_engine backup_engine_, Backup_stats stats_, Logger logger)
     //**********************************************************
     {
-        aborter =backup_engine_.aborter;
+        aborter =backup_engine_.dedicated_backup_aborter;
         backup_engine = backup_engine_;
         stats = stats_;
         this.logger = logger;

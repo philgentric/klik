@@ -17,7 +17,7 @@ public interface Icon_destination
 
     Path get_item_path();
 
-    boolean get_icon_fabrication_requested();
+    boolean get_icon_fabrication_requested(); // this is to prevent more than 1 request per icon
 
     boolean get_icon_available();
 

@@ -12,9 +12,10 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.level2.deduplicate.Deduplication_engine;
+import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.util.Threads;
 
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -25,7 +26,8 @@ public class Deduplication_console_window
 {
     private static final boolean dbg = false;
     public static final String STATUS = "Status: ";
-    Aborter aborter;
+    Aborter private_aborter;
+    Aborter browser_aborter;
     int count_directory_examined;
     Label label_directory_examined;
     Label label_total_to_be_examined;
@@ -44,9 +46,11 @@ public class Deduplication_console_window
     Logger logger;
 
     Deduplication_console_interface the_console;
+    Deduplication_engine engine;
 
     //**********************************************************
     public Deduplication_console_window(
+            Deduplication_engine engine_,
             String title,
             double w, double h,
             boolean just_count_,
@@ -54,7 +58,9 @@ public class Deduplication_console_window
             Logger logger)
     //**********************************************************
     {
-        aborter = aborter_;
+        engine = engine_;
+        browser_aborter = aborter_;
+        private_aborter = new Aborter("Deduplication_console_window",logger);
         just_count = just_count_;
         this.logger = logger;
         the_console = new Deduplication_console_interface(this, logger);
@@ -77,6 +83,7 @@ public class Deduplication_console_window
             }
         });
         Button cancel = new Button("cancel");
+        Look_and_feel_manager.set_button_look(cancel,true);
         {
             cancel.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -84,23 +91,27 @@ public class Deduplication_console_window
                     logger.log("Deduplication_console_window: cancel button");
                     abort();
                     stage.close();
-
                 }
             });
         }
         vbox.getChildren().add(cancel);
         {
             label_status = new Label(STATUS);
+            Look_and_feel_manager.set_region_look(label_status);
             vbox.getChildren().add(label_status);
         }
         {
             label_directory_examined = new Label();
+            Look_and_feel_manager.set_region_look(label_directory_examined);
             vbox.getChildren().add(label_directory_examined);
             label_total_to_be_examined= new Label();
+            Look_and_feel_manager.set_region_look(label_total_to_be_examined);
             vbox.getChildren().add(label_total_to_be_examined);
         }
         {
             label_examined = new Label();
+            Look_and_feel_manager.set_region_look(label_examined);
+
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_examined);
             progress_bar_examined = new ProgressBar();
@@ -109,6 +120,8 @@ public class Deduplication_console_window
         }
         if ( !just_count) {
             label_count_to_be_deleted = new Label();
+            Look_and_feel_manager.set_region_look(label_count_to_be_deleted);
+
             //label_count_to_be_deleted.setWrapText(true);
             vbox.getChildren().add(label_count_to_be_deleted);
         }
@@ -116,6 +129,8 @@ public class Deduplication_console_window
         if ( !just_count)
         {
             label_count_deleted = new Label();
+            Look_and_feel_manager.set_region_look(label_count_deleted);
+
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_count_deleted);
             progress_bar_deleted = new ProgressBar();
@@ -131,9 +146,11 @@ public class Deduplication_console_window
     public void abort()
     //**********************************************************
     {
-        aborter.abort();
+        engine.abort();
+        private_aborter.abort();
         Thing_to_do thing_to_do = Thing_to_do.get_die_thing_to_do();
         the_console.add(thing_to_do);
+
     }
 
     //**********************************************************
@@ -147,12 +164,17 @@ public class Deduplication_console_window
             public void run() {
                 for (;;)
                 {
-                    if (aborter.should_abort()) return;
+                    if (browser_aborter.should_abort())
+                    {
+                        private_aborter.abort();
+                        return;
+                    }
+                    if (private_aborter.should_abort()) return;
                     process_event(queue);
                 }
             }
         };
-        Actor_engine.execute(r,aborter,logger);
+        Actor_engine.execute(r,private_aborter,logger);
     }
 
     // returns true if the thread should stop
@@ -167,7 +189,7 @@ public class Deduplication_console_window
 
             switch (thing_to_do.type) {
                 case die:
-                    aborter.abort();
+                    private_aborter.abort();
                     update_display();
                     return;
                 case add_to_status:
@@ -222,7 +244,9 @@ public class Deduplication_console_window
     //**********************************************************
     {
         Platform.runLater(() ->{
-                if (aborter.should_abort()) return;
+                if (browser_aborter.should_abort())
+                {private_aborter.abort(); return;}
+                if (private_aborter.should_abort()) return;
                 label_status.setText(STATUS+ text);
             });
     }

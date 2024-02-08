@@ -413,6 +413,11 @@ public class Mouse_handling_for_Image_window
             logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: image_display_handler is null"));
             return;
         }
+        if(image_stage.image_display_handler.get_image_context() == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: get_image_context is null"));
+            return;
+        }
         image_stage.image_display_handler.get_image_context().the_image_view.setViewport(null);
 
         image_stage.the_image_Pane.setOnDragDetected(event -> {

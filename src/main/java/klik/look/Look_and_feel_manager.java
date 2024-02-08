@@ -944,7 +944,7 @@ public class Look_and_feel_manager
             r.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
             if ( with_border)
             {
-                r.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
+                r.setBorder(get_border());
                 r.setStyle("-fx-padding: 0 2 0 2;");
             }
             //Font_size.set_preferred_font_size(button,logger);
@@ -1006,4 +1006,9 @@ public class Look_and_feel_manager
     }
 
 
+    public static Border get_border()
+    {
+        Look_and_feel laf = get_instance();
+        return new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
+    }
 }

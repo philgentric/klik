@@ -54,6 +54,7 @@ public class Job
     //**********************************************************
     {
         message.get_aborter().abort();
+        // for the worker-based engine, we do not have a thread to interrupt ...
         if ( thread != null) thread.interrupt();
     }
 }

@@ -5,7 +5,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
 import klik.actor.Aborter;
@@ -14,8 +13,6 @@ import klik.actor.Job;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.Icon_factory_request;
 import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Folder_size;
 import klik.level2.deduplicate.Deduplication_engine;
@@ -91,62 +88,16 @@ public class Item_button extends Item implements Icon_destination
         {
             is_dir = true;
             button_for_a_directory(text, button_width, height);
-            if((!is_parent)&&(!is_trash)) {
-                if (Static_application_properties.get_show_icons_for_folders(logger))
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN" + path));
-                    if (dbg) logger.log("setting image tooltip");
-                    Icon_factory_request ifr = new Icon_factory_request(this, icon_size, aborter);
-                    Icon_factory_actor fac = browser.icon_factory_actor;
-                    job = fac.make_icon(ifr);
-                    //job = Icon_factory_actor.get_icon_factory(browser.aborter, browser.icon_manager.paths_manager.aspect_ratio_cache, browser.icon_manager.paths_manager.rotation_cache, this.browser.my_Stage.the_Stage, logger).make_icon(ifr);
-                }
-                else
-                {
-                    //logger.log("normal path");
-                }
-            }
-            else
-            {
-                //logger.log("normal path for parent and trash");
-            }
         }
         else
         {
             is_dir = false;
             button_for_a_non_image_file( text,button_width);
-            //Look_and_feel.set_thin_border(button);
-            //button.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(2))));
-            //button.setPrefHeight(FILE_BUTTON_HEIGHT);
         }
         Look_and_feel_manager.set_button_look(button,false);
-        //button.setViewOrder(1);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
-/*
-        boolean wide = false;
-        if ( Static_application_properties.get_single_column(logger))
-        {
-            wide = true;
-        }
-        if ( path.toFile().isFile())
-        {
-            wide = true;
-        }
-        if (wide)
-        {
-            //logger.log("is wide:"+path.toAbsolutePath());
-            // leave some room for the scrollbar, does not work?
-            button.setPrefWidth(browser.my_Stage.the_Stage.getWidth()-50);
-            button.setMinWidth(browser.my_Stage.the_Stage.getWidth()-50);
-        }
-        else
-        {
-            button.setPrefWidth(button_width);
-            button.setMinWidth(button_width);
-        }
-*/
         init_drag_and_drop_sender_side();
     }
 
@@ -154,16 +105,29 @@ public class Item_button extends Item implements Icon_destination
     public ImageView get_image_view(){return null;}
     public Pane get_pane(){return null;}
 
-    //ImageView the_tooltip_image_view;
-
-    @Override
-    public void set_Image(Image_and_rotation image_and_rotation)
+    //**********************************************************
+    @Override // Item
+    public void you_are_visible_specific()
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
 
-        //if ( the_tooltip_image_view == null) the_tooltip_image_view = new ImageView();
-        //the_tooltip_image_view.setImage(image_and_rotation.image());
+    }
+
+    //**********************************************************
+    @Override // Item
+    public int get_icon_size()
+    //**********************************************************
+    {
+        return 0;
+    }
+
+
+    //**********************************************************
+    @Override
+    public boolean has_icon()
+    //**********************************************************
+    {
+        return false;
     }
     //**********************************************************
     @Override
@@ -414,7 +378,7 @@ public class Item_button extends Item implements Icon_destination
             System_open_actor.open_with_system(browser,path,logger);
         });
 
-        give_a_menu_to_the_button();
+        give_a_menu_to_the_button(button,label);
     }
 
     //**********************************************************
@@ -485,155 +449,12 @@ public class Item_button extends Item implements Icon_destination
         });
 
         init_drag_and_drop_receiver_side();
-        give_a_menu_to_the_button();
+        give_a_menu_to_the_button(button,label);
 
         //if ( Static_application_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
 
     }
 
-
-
-    //**********************************************************
-    public void give_a_menu_to_the_button()
-    //**********************************************************
-    {
-        ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu);
-        if (!Files.isDirectory(path))
-        {
-            if ( this.item_type == Iconifiable_item_type.video)
-            {
-                Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg,aborter,logger);
-            }
-            // is a "plain" file
-            context_menu.getItems().add(create_system_open_menu_item());
-            context_menu.getItems().add(create_rename_dir_menu_item());
-            context_menu.getItems().add(create_delete_dir_menu_item());
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
-            context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
-        }
-        else
-        {
-            // is a folder
-            context_menu.getItems().add(create_get_folder_size_menu_item(aborter));
-            if ( is_trash)
-            {
-                MenuItem menu_item = create_clear_trash_menu_item();
-                context_menu.getItems().add(menu_item);
-            }
-
-            if(!is_trash && !is_parent)
-            {
-                context_menu.getItems().add(create_browse_in_new_window_menu_item());
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
-                context_menu.getItems().add(create_rename_dir_menu_item());
-                context_menu.getItems().add(create_delete_dir_menu_item());
-                context_menu.getItems().add(create_copy_dir_menu_item());
-                if ( Static_application_properties.get_level2(logger))
-                {
-                    Menu sub = new Menu("File deduplication tool");
-                    context_menu.getItems().add(sub);
-                    sub.getItems().add(create_help_on_deduplication_menu_item());
-                    sub.getItems().add(create_deduplication_count_menu_item());
-                    sub.getItems().add(create_manual_deduplication_menu_item());
-                    sub.getItems().add(create_auto_deduplication_menu_item());
-                }
-            }
-        }
-
-        button.setOnContextMenuRequested((ContextMenuEvent event) -> {
-            if ( dbg) logger.log("show context menu of button:"+ path.toAbsolutePath());
-            context_menu.show(button, event.getScreenX(), event.getScreenY());
-        });
-    }
-
-    //**********************************************************
-    private MenuItem create_auto_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_auto",logger);
-        MenuItem menu_item = new MenuItem(text);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Deduplicate auto");
-
-            if ( !Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage, "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",logger)) return;
-            (new Deduplication_engine(browser, path.toFile(), logger)).do_your_job(true);
-        });
-        return menu_item;
-    }
-
-
-
-    //**********************************************************
-    private MenuItem create_manual_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_manual",logger);
-
-        MenuItem item0 = new MenuItem(text);
-        item0.setOnAction(event -> {
-            if (dbg) logger.log("Deduplicate manually");
-            (new Deduplication_engine(browser, path.toFile(), logger)).do_your_job(false);
-        });
-        return item0;
-    }
-    //**********************************************************
-    private MenuItem create_deduplication_count_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_count",logger);
-        MenuItem item0 = new MenuItem(text);
-        item0.setOnAction(event -> {
-            if (dbg) logger.log("count duplicates!");
-            (new Deduplication_engine(browser, path.toFile(), logger)).count(false);
-        });
-        return item0;
-    }
-
-
-    //**********************************************************
-    private MenuItem create_help_on_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_help",logger);
-        MenuItem itemhelp = new MenuItem(text);
-        itemhelp.setOnAction(event -> Popups.popup_warning(browser.my_Stage.the_Stage,
-                "Help on deduplication",
-                "The deduplication tool will look recursively down the path starting at:" + path.toAbsolutePath() +
-                        "\nLooking for identical files in terms of file content i.e. names/path are different but it IS the same file" +
-                        " Then you will be able to either:" +
-                        "\n  1. Review each pair of duplicate files one by one" +
-                        "\n  2. Or ask for automated deduplication (DANGER!)" +
-                        "\n  Beware: automated de-duplication may give unexpected results" +
-                        " since you do not choose which file in the pair is deleted." +
-                        "\n  However, the files are not actually deleted: they are MOVED to the klik_trash folder," +
-                        " which you can visit by clicking on the trash button." +
-                        "\n\n WARNING: On folders containing a lot of data, the search can take a long time!",
-     false,
-                logger));
-        return itemhelp;
-    }
-
-    //**********************************************************
-    private MenuItem create_browse_in_new_window_menu_item()
-    //**********************************************************
-    {
-        MenuItem browse = new MenuItem("Browse in new window");
-        browse.setOnAction(event -> {
-            if (dbg) logger.log("Browse in new window!");
-            Browser_creation_context.additional_different_folder(path,browser,logger);
-        });
-        return browse;
-    }
-
-    //**********************************************************
-    private MenuItem create_get_folder_size_menu_item(Aborter aborter)
-    //**********************************************************
-    {
-        MenuItem size = new MenuItem(I18n.get_I18n_string("Get_folder_size",logger));
-        size.setOnAction(event -> Folder_size.get_folder_size(path,browser,aborter, logger));
-        return size;
-    }
 
 
 /*
@@ -657,31 +478,6 @@ public class Item_button extends Item implements Icon_destination
 
  */
     //**********************************************************
-    private MenuItem create_clear_trash_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Clear_Trash_Folder",logger));
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("clearing trash!");
-            Files_and_Paths.clear_trash_with_warning(browser.my_Stage.the_Stage,aborter,logger);
-        });
-        return menu_item;
-    }
-
-    //**********************************************************
-    private MenuItem create_delete_dir_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Delete", logger));
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Deleting!");
-            Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, aborter,logger);
-        });
-        return menu_item;
-    }
-
-
-    //**********************************************************
     public static void show_how_many_files_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
@@ -698,94 +494,6 @@ public class Item_button extends Item implements Icon_destination
         Actor_engine.execute(r,aborter, logger);
     }
 
-
-    //**********************************************************
-    private MenuItem create_system_open_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Open_with_system", logger));
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item_button: System Open");
-            System_open_actor.open_with_system(browser,path,logger);
-        });
-        return menu_item;
-    }
-
-    //**********************************************************
-    private MenuItem create_rename_dir_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger));
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item_button: Renaming");
-            String original_name = path.getFileName().toString();
-            TextField text_edit = new TextField(original_name);
-            Node restored = button.getGraphic();
-            button.setGraphic(text_edit);
-            text_edit.setMinWidth(button.getWidth() * 0.9);
-            text_edit.requestFocus();
-            text_edit.positionCaret(original_name.length());
-            text_edit.setFocusTraversable(true);
-            text_edit.setOnAction(actionEvent -> {
-                String new_dir_name = text_edit.getText();
-                actionEvent.consume();
-                if ( path.toFile().isDirectory() )
-                {
-                    Path new_path = Files_and_Paths.change_dir_name(path, new_dir_name, aborter, logger);
-                    if ( new_path == null)
-                    {
-                        if (dbg) logger.log("rename failed");
-                        button.setText(original_name);
-                        button.setGraphic(restored);
-                        return;
-                    }
-                    path = new_path;
-                    button.setText(new_dir_name);
-                    button.setGraphic(restored);
-                }
-                else
-                {
-                    Path new_path = Files_and_Paths.change_file_name(path, new_dir_name, aborter, logger);
-                    if ( new_path == null)
-                    {
-                        if (dbg) logger.log("rename failed");
-                        button.setText(original_name);
-                        button.setGraphic(restored);
-                        return;
-                    }
-                    path = new_path;
-                    String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
-                    button.setText(size);
-                    label = new Label(new_dir_name);
-                    //Font_size.set_preferred_font_size(label,logger);
-                    Font_size.apply_font_size(label,logger);
-                    button.setGraphic(label);
-                }
-
-                if (dbg) logger.log("rename done");
-                // button.setOnAction(the_button_event_handler);
-            });
-        });
-        return menu_item;
-    }
-
-    //**********************************************************
-    private MenuItem create_copy_dir_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Copy", logger));
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Copying the directory");
-            Path new_path =  Files_and_Paths.ask_user_for_new_dir_name(browser.my_Stage.the_Stage,path,logger);
-            if ( new_path == null)
-            {
-                Popups.popup_warning(browser.my_Stage.the_Stage,"copy of dir failed","names are same ?", false,logger);
-                return;
-            }
-            Files_and_Paths.copy_dir_in_a_thread(browser.my_Stage.the_Stage, path, new_path, aborter, logger);
-        });
-        return menu_item;
-    }
 
 
     @Override
@@ -822,6 +530,14 @@ public class Item_button extends Item implements Icon_destination
         return is_trash;
     }
 
+
+    //**********************************************************
+    @Override
+    public boolean is_parent()
+    //**********************************************************
+    {
+        return is_parent;
+    }
 
     //**********************************************************
     @Override

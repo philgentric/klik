@@ -33,7 +33,7 @@ public class Backup_engine
     ConcurrentLinkedQueue<String> reports = new ConcurrentLinkedQueue<>();
     ScheduledFuture<?> finalHandle = null;
 
-    final Aborter aborter;
+    public final Aborter dedicated_backup_aborter;
     boolean is_finished = false;
     Backup_console_window backup_console_window;
 
@@ -47,7 +47,8 @@ public class Backup_engine
         this.source = source;
         this.destination = destination;
         logger = logger_;
-        aborter = new Aborter("backup engine",logger);
+        // we need a dedicated aborter for backup
+        dedicated_backup_aborter = new Aborter("backup engine",logger);
     }
 
 
@@ -68,7 +69,7 @@ public class Backup_engine
                 launch_in_thread(deep);
             }
         };
-        Actor_engine.execute(runnable,aborter,logger);
+        Actor_engine.execute(runnable, dedicated_backup_aborter,logger);
     }
 
     //**********************************************************
@@ -78,17 +79,17 @@ public class Backup_engine
         start = System.currentTimeMillis();
         logger.log("Backup starts");
 
-        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(aborter, logger);
+        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(dedicated_backup_aborter, logger);
         actor_engine_based_on_workers.run(
-                new Backup_actor_for_one_folder(stats,deep,deep,reports,aborter,logger),
-                new Directory_backup_job_request(source.toFile(), destination.toFile(), aborter,logger),
+                new Backup_actor_for_one_folder(stats,deep,deep,reports, dedicated_backup_aborter,logger),
+                new Directory_backup_job_request(source.toFile(), destination.toFile(), dedicated_backup_aborter,logger),
                         null,logger);
 
-        Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source,aborter, logger);
+        Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
         stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");
         Runnable monitoring = () -> {
-            if (aborter.should_abort())
+            if (dedicated_backup_aborter.should_abort())
             {
                 logger.log("monitoring = ABORT");
                 report_the_end("aborted");
@@ -384,7 +385,7 @@ public class Backup_engine
     public void abort()
     {
         logger.log("Backup_engine::abort()");
-        aborter.abort();
+        dedicated_backup_aborter.abort();
     }
 
     public boolean is_finished() {
