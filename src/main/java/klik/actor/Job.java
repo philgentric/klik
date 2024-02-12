@@ -3,6 +3,8 @@ package klik.actor;
 import klik.util.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 //**********************************************************
 public class Job
@@ -10,6 +12,7 @@ public class Job
 {
     public final Actor actor;
     public final Message message;
+    public final Logger logger;
     public final Job_termination_reporter termination_reporter; // is optional ie. maybe null
     public Thread thread = null; // depending on the engine, job don't get a thread, or late
 
@@ -17,6 +20,7 @@ public class Job
     public Job(Actor actor, Message message, Job_termination_reporter termination_reporter_, Logger logger)
     //**********************************************************
     {
+        this.logger = logger;
         if ( actor==null)
         {
             logger.log_stack_trace("FATAL actor cannot be null");
@@ -33,6 +37,11 @@ public class Job
         this.actor = actor;
         this.message = message;
         termination_reporter = termination_reporter_;
+
+        if ( Actor_engine.use_tickets)
+        {
+            Actor_engine.get_instance().register_job(this,message.is_high_priority());     // ticket system
+        }
     }
 
     //**********************************************************
@@ -47,6 +56,9 @@ public class Job
     //**********************************************************
     {
         if (termination_reporter !=null) termination_reporter.has_ended(message,this);
+        if( Actor_engine.use_tickets) {
+            Actor_engine.get_instance().remove_job(this);     // ticket system
+        }
     }
 
     //**********************************************************
@@ -57,4 +69,5 @@ public class Job
         // for the worker-based engine, we do not have a thread to interrupt ...
         if ( thread != null) thread.interrupt();
     }
+
 }

@@ -89,6 +89,6 @@ public class Fusk_actor_for_one_folder implements Actor
     //**********************************************************
     {
         aborter.abort();
-        Actor_engine.get(aborter,logger).cancel_all(jobs);
+        Actor_engine.get_instance().cancel_all(jobs);
     }
 }

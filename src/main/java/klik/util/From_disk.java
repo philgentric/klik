@@ -164,6 +164,12 @@ public class From_disk
         Image image = null;
         try(InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, dbg, aborter,logger))
         {
+            if ( input_stream == null)
+            {
+                //if ( dbg)
+                    logger.log(Stack_trace_getter.get_stack_trace("input_stream == null for"+original_image_file));
+                return null;
+            }
             if ( aborter.should_abort())
             {
                 return null;

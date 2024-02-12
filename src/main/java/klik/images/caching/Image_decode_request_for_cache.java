@@ -10,16 +10,18 @@ public class Image_decode_request_for_cache implements Message
 //**********************************************************
 {
     public final Path path;
-    public final boolean high_quality;
+    //public final boolean high_quality;
     public final Cache_interface cache;
     public final Aborter aborter;
 
     //**********************************************************
-    public Image_decode_request_for_cache(Path path_, boolean high_quality_, Cache_interface preloaded_, Aborter aborter)
+    public Image_decode_request_for_cache(Path path_,
+                                          //boolean high_quality_,
+                                          Cache_interface preloaded_, Aborter aborter)
     //**********************************************************
     {
         path = path_;
-        high_quality = high_quality_;
+        //high_quality = high_quality_;
         cache = preloaded_;
         this.aborter = aborter;
     }

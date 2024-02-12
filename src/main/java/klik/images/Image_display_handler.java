@@ -337,9 +337,9 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         return image_cache.get(skey);
     }
 
-    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, boolean high_quality)
+    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward)//, boolean high_quality)
     {
-        image_cache.preload(image_display_handler,ultimate,forward,high_quality);
+        image_cache.preload(image_display_handler,ultimate,forward);//,high_quality);
 
     }
 

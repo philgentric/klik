@@ -279,7 +279,15 @@ public class Item_image extends Item
                 aspect_ratio = local;
             }
         }
-        Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation));
+
+        if ( Browser.use_fx_injector)
+        {
+            browser.fx_injector.input.addFirst(new Item_image_target(this,image_and_rotation));
+        }
+        else
+        {
+            Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation));
+        }
     }
 
     //**********************************************************
@@ -480,4 +488,15 @@ public class Item_image extends Item
     {
         return "is Item_image for : " + path.toAbsolutePath();
     }
+
+    @Override
+    public boolean get_is_high_priority(){
+        switch(item_type) {
+            case video, pdf:
+                return false;
+            default:
+                return true;
+        }
+    }
+
 }

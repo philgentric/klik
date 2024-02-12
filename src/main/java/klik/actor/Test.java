@@ -86,6 +86,6 @@ public class Test
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        Actor_engine.get(new Aborter("test",logger), logger).stop();
+        Actor_engine.get_instance().stop();
     }
 }

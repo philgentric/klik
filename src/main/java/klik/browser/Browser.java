@@ -25,6 +25,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.*;
 import klik.browser.icons.caches.Aspect_ratio_cache;
 import klik.browser.icons.caches.Rotation_cache;
+import klik.browser.items.Fx_batch_injector;
 import klik.browser.locator.Locator;
 import klik.files_and_paths.*;
 import klik.level2.backup.Backup_singleton;
@@ -62,6 +63,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 //**********************************************************
 {
 
+    public static final boolean use_fx_injector = true;
     static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
@@ -70,6 +72,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
     public final Path top_left_in_parent;
     public Icon_factory_actor icon_factory_actor;
+    //public Icon_factory_actor_for_PDF icon_factory_actor_for_PDF;
+    public Fx_batch_injector fx_injector;
 //    public double button_width;
 
 
@@ -132,7 +136,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             @Override
             public void run() {
                 //logger.log("REFRESH");
-                scene_geometry_changed_no_scan_dir("aspect ratio engine",true, true);
+                scene_geometry_changed_no_scan_dir("aspect ratio engine REFRESH",true, true);
             }
         };
         Platform.runLater(r);
@@ -304,6 +308,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         aspect_ratio_cache = new Aspect_ratio_cache(displayed_folder_path,aborter,logger);
         rotation_cache = new Rotation_cache(displayed_folder_path,aborter,logger);
         icon_factory_actor = new Icon_factory_actor(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
+        //icon_factory_actor_for_PDF = new Icon_factory_actor_for_PDF(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
+        if( use_fx_injector) fx_injector = new Fx_batch_injector(aborter, logger);
         paths_manager = new Paths_manager(aspect_ratio_cache,rotation_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
         icon_manager = new Icon_manager(paths_manager, my_Stage.the_Stage,aborter,logger);
         selection_handler = new Selection_handler(the_Pane, icon_manager, this, logger);

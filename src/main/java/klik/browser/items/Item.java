@@ -169,13 +169,13 @@ public abstract class Item implements Icon_destination
     public abstract void set_is_unselected_internal();
 
 
-
     //**********************************************************
-    public void request_icon_to_factory(int target_icon_size)
+    public void request_icon_to_factory(int target_icon_size, boolean is_high_priority)
     //**********************************************************
     {
+
         if ( dbg) logger.log("request_icon_to_factory for:"+path);
-        Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,new Aborter("Icon creation for "+path,logger));
+        Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,is_high_priority, new Aborter("Icon creation for "+path,logger));
 
         if (dbg) logger.log("icon request : queued! ");
 
@@ -194,6 +194,8 @@ public abstract class Item implements Icon_destination
 
         icon_job = Actor_engine.run(browser.icon_factory_actor, icon_factory_request, null,logger);
     }
+
+
     //**********************************************************
     protected void cancel_icon()
     //**********************************************************
@@ -765,11 +767,15 @@ public abstract class Item implements Icon_destination
     {
         you_are_visible_specific();
         get_Node().setVisible(true);
-        if( has_icon()) request_icon_to_factory(get_icon_size());
+        if( has_icon()) request_icon_to_factory(get_icon_size(),get_is_high_priority());
     }
+
 
     abstract void you_are_visible_specific();
     abstract int get_icon_size();
     abstract boolean has_icon();
+
+
+    public boolean get_is_high_priority(){return true;}; // ticket
 
 }

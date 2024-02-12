@@ -3,9 +3,12 @@ package klik.actor;
 import klik.actor.virtual_threads.Actor_engine_with_virtual_threads;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.util.Logger;
+import klik.util.Scheduled_thread_pool;
 import klik.util.Threads;
 
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -16,14 +19,17 @@ public class Actor_engine // is a singleton
     private static Actor_engine_interface instance;
     public static final AtomicInteger threads_in_flight = new AtomicInteger(0);
 
+    public final static boolean use_tickets = true;
+
     //**********************************************************
-    public static Actor_engine_interface get(Aborter aborter, Logger logger)
+    public static Actor_engine_interface create(Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( instance != null) return instance;
         if (Threads.use_virtual_threads)
         {
             instance = new Actor_engine_with_virtual_threads(aborter,logger);
+            if ( use_tickets) instance.start_injector(logger);
         }
         else
         {
@@ -31,6 +37,12 @@ public class Actor_engine // is a singleton
         }
         return instance;
 
+    }
+    //**********************************************************
+    public static Actor_engine_interface get_instance()
+    //**********************************************************
+    {
+        return instance;
     }
 
     //**********************************************************
@@ -69,7 +81,7 @@ public class Actor_engine // is a singleton
     public static Job execute(Runnable r, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = get(aborter,logger);
+        if ( instance == null) instance = create(aborter,logger);
         return instance.execute_internal(r, logger);
     }
 }

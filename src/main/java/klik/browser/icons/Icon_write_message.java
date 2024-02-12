@@ -40,4 +40,10 @@ public class Icon_write_message implements Message
 	public Aborter get_aborter() {
 		return aborter;
 	}
+
+	@Override
+	public boolean is_high_priority()
+	{
+		return false;
+	}
 }

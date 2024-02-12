@@ -32,4 +32,5 @@ public class Aspect_ratio_message implements Message
     public Aborter get_aborter() {
         return aborter;
     }
+
 }

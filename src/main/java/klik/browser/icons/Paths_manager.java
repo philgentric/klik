@@ -85,7 +85,7 @@ public class Paths_manager
         image_file_comparator = other_file_comparator;
 
         // these MUST be mutually exclusive:
-        folders = new ConcurrentSkipListMap<>(other_file_comparator);
+        folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
         iconized = new ConcurrentSkipListMap<>(image_file_comparator);
 

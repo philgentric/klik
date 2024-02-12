@@ -4,6 +4,8 @@ import klik.actor.*;
 import klik.util.Logger;
 import klik.util.Threads;
 
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,7 +22,6 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     private final Logger logger;
     private final Aborter aborter;
     private int recent_max_threads = 0;
-    //Thread.Builder builder = Thread.ofVirtual().name("Actor_engine_with_virtual_threads");
 
     //**********************************************************
     public Actor_engine_with_virtual_threads(Aborter aborter, Logger logger_)
@@ -36,6 +37,8 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     {
         return aborter;
     }
+
+
     //**********************************************************
     @Override
     public Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
@@ -46,7 +49,8 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
             int now = Actor_engine.threads_in_flight.incrementAndGet();
             if ( now > recent_max_threads) recent_max_threads = now;
             String msg = job.actor.run(job.message);
-            if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
+            job.has_ended(msg);
+            //if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
             Actor_engine.threads_in_flight.decrementAndGet();
         };
         //job.thread = builder.start(r);
@@ -90,4 +94,13 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     }
 
 
+    // ticket system
+
+
+    ConcurrentLinkedDeque<Job> jobs = new ConcurrentLinkedDeque<>();
+
+    @Override
+    public ConcurrentLinkedDeque<Job> get_jobs() {
+        return jobs;
+    }
 }

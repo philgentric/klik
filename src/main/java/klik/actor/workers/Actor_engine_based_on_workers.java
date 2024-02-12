@@ -3,6 +3,7 @@ package klik.actor.workers;
 import klik.actor.*;
 import klik.util.Logger;
 
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,6 +49,11 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     //**********************************************************
     {
         return aborter;
+    }
+
+    @Override
+    public ConcurrentLinkedDeque<Job> get_jobs() {
+        return null;
     }
 
     //**********************************************************

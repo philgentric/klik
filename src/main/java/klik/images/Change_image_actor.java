@@ -113,7 +113,7 @@ public class Change_image_actor implements Actor
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
             Platform.runLater(() -> change_image_message.image_window.set_image(change_image_message.output_image_context[0]));
             //cim.image_stage.restore_cursor();
-            change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_window.image_display_handler.alternate_rescaler);
+            change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
             return "found in cache";
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
@@ -148,7 +148,7 @@ public class Change_image_actor implements Actor
 
         //cim.image_stage.restore_cursor();
 
-        change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward, change_image_message.image_window.image_display_handler.alternate_rescaler);
+        change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
         return "OK";
     }
 

@@ -47,7 +47,7 @@ public class Image_cache_dummy implements Cache_interface
 
     //**********************************************************
     @Override
-    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, boolean high_quality)//, int target_width)
+    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward)//, boolean high_quality)//, int target_width)
     //**********************************************************
     {
     }
