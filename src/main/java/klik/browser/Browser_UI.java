@@ -10,10 +10,12 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
+import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.util.Popups;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -310,10 +312,13 @@ public class Browser_UI
 
             view_menu.getItems().add(scan);
         }
-        if (level2) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
+        view_menu.getItems().add(browser_menus.make_show_how_many_files_menu_item());
+
+
         view_menu.getItems().add(browser_menus.make_about_menu_item(logger));
         if (level2) view_menu.getItems().add(browser_menus.make_refresh_menu_item());
         view_menu.getItems().add(browser_menus.make_meters_menu_item(logger));
+        if (level2) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
 
         return view_menu;
     }
@@ -325,15 +330,24 @@ public class Browser_UI
         ContextMenu files_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(files_menu);
 
-        files_menu.getItems().add(browser_menus.make_undo_menu_item(logger));
-        files_menu.getItems().add(browser_menus.make_create_empty_directory_menu_item());
-        files_menu.getItems().add(browser_menus.make_sort_by_year_menu_item());
+        //files_menu.getItems().add(browser_menus.make_undo_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_files_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
-        if (level2)
+
         {
-            files_menu.getItems().add(browser_menus.make_show_how_many_files_menu_item());
-            files_menu.getItems().add(browser_menus.make_search_by_keywords_menu_item());
+            String create_string = I18n.get_I18n_string("Create",logger);
+            Menu create = new Menu(create_string);
+            create.getItems().add(browser_menus.make_create_empty_directory_menu_item());
+            create.getItems().add(browser_menus.make_sort_by_year_menu_item());
+            create.getItems().add(browser_menus.make_import_menu());
+            files_menu.getItems().add(create);
+        }
+        {
+            String search_string = I18n.get_I18n_string("Search",logger);
+            Menu search = new Menu(search_string);
+            search.getItems().add(browser_menus.make_search_by_keywords_menu_item());
+            search.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
+            files_menu.getItems().add(search);
         }
         {
             String cleanup = I18n.get_I18n_string("Clean_Up",logger);
@@ -342,28 +356,34 @@ public class Browser_UI
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
-            if (level2) clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
-            if (level2) clean.getItems().add(browser_menus.make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(logger));
-            if (level2) clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
-            if (level2) clean.getItems().add(browser_menus.make_clean_names_menu_item());
-            if (level2) clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
+            if (level2)
+            {
+                clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
+                clean.getItems().add(browser_menus.make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(logger));
+                clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
+                clean.getItems().add(browser_menus.make_clean_names_menu_item());
+                clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
+
+                Menu deduplicate = new Menu("File deduplication tool");
+                deduplicate.getItems().add(create_help_on_deduplication_menu_item());
+                deduplicate.getItems().add(create_deduplication_count_menu_item());
+                deduplicate.getItems().add(create_manual_deduplication_menu_item());
+                deduplicate.getItems().add(create_auto_deduplication_menu_item());
+                clean.getItems().add(deduplicate);
+            }
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (level2) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
+            clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             files_menu.getItems().add(clean);
         }
 
         if (level2)
         {
-            files_menu.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
             files_menu.getItems().add(browser_menus.make_backup_menu());
-        }
-
-        if (level2)
-        {
             if (Static_application_properties.get_enable_fusk(logger))
             {
                 files_menu.getItems().add(browser_menus.make_fusk_menu());
             }
+
         }
         return files_menu;
     }
@@ -402,6 +422,75 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item(logger));
 
         return pref;
+    }
+
+
+
+    //**********************************************************
+    private MenuItem create_auto_deduplication_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Deduplicate_auto",logger);
+        MenuItem menu_item = new MenuItem(text);
+        menu_item.setOnAction(event -> {
+            //logger.log("Deduplicate auto");
+
+            if ( !Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage, "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",logger)) return;
+            (new Deduplication_engine(browser, browser.displayed_folder_path.toFile(), logger)).do_your_job(true);
+        });
+        return menu_item;
+    }
+
+
+
+    //**********************************************************
+    private MenuItem create_manual_deduplication_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Deduplicate_manual",logger);
+
+        MenuItem item0 = new MenuItem(text);
+        item0.setOnAction(event -> {
+            //logger.log("Deduplicate manually");
+            (new Deduplication_engine(browser, browser.displayed_folder_path.toFile(), logger)).do_your_job(false);
+        });
+        return item0;
+    }
+    //**********************************************************
+    private MenuItem create_deduplication_count_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Deduplicate_count",logger);
+        MenuItem item0 = new MenuItem(text);
+        item0.setOnAction(event -> {
+            //logger.log("count duplicates!");
+            (new Deduplication_engine(browser, browser.displayed_folder_path.toFile(), logger)).count(false);
+        });
+        return item0;
+    }
+
+
+    //**********************************************************
+    private MenuItem create_help_on_deduplication_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Deduplicate_help",logger);
+        MenuItem itemhelp = new MenuItem(text);
+        itemhelp.setOnAction(event -> Popups.popup_warning(browser.my_Stage.the_Stage,
+                "Help on deduplication",
+                "The deduplication tool will look recursively down the path starting at:" + browser.displayed_folder_path.toAbsolutePath() +
+                        "\nLooking for identical files in terms of file content i.e. names/path are different but it IS the same file" +
+                        " Then you will be able to either:" +
+                        "\n  1. Review each pair of duplicate files one by one" +
+                        "\n  2. Or ask for automated deduplication (DANGER!)" +
+                        "\n  Beware: automated de-duplication may give unexpected results" +
+                        " since you do not choose which file in the pair is deleted." +
+                        "\n  However, the files are not actually deleted: they are MOVED to the klik_trash folder," +
+                        " which you can visit by clicking on the trash button." +
+                        "\n\n WARNING: On folders containing a lot of data, the search can take a long time!",
+                false,
+                logger));
+        return itemhelp;
     }
 
 

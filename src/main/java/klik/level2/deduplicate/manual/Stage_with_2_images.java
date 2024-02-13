@@ -153,7 +153,8 @@ public class Stage_with_2_images
 				image_view.setFitWidth(w);
 				the_vbox.getChildren().add(image_view);
 			}
-			else {
+			//else
+			{
 				HBox hbox2 = new HBox();
 				Label label = new Label("File:"+local_file.my_file.file.getAbsolutePath());
 				Look_and_feel_manager.set_region_look(label);

@@ -201,7 +201,7 @@ public class Finder_actor implements Actor
             name = target_path.getFileName().toString();
             if ( !fm.search_config.check_case())
             {
-                name.toLowerCase();
+                name = name.toLowerCase();
             }
         }
         else
@@ -228,7 +228,7 @@ public class Finder_actor implements Actor
             name = FilenameUtils.getBaseName(target_path.getFileName().toString());
             if ( !fm.search_config.check_case())
             {
-                name.toLowerCase();
+                name = name.toLowerCase();
             }
         }
 

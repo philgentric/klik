@@ -248,15 +248,7 @@ public abstract class Item implements Icon_destination
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
-                if ( Static_application_properties.get_level2(logger))
-                {
-                    Menu sub = new Menu("File deduplication tool");
-                    context_menu.getItems().add(sub);
-                    sub.getItems().add(create_help_on_deduplication_menu_item());
-                    sub.getItems().add(create_deduplication_count_menu_item());
-                    sub.getItems().add(create_manual_deduplication_menu_item());
-                    sub.getItems().add(create_auto_deduplication_menu_item());
-                }
+
             }
         }
 
@@ -266,74 +258,6 @@ public abstract class Item implements Icon_destination
         });
     }
 
-
-
-    //**********************************************************
-    private MenuItem create_auto_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_auto",logger);
-        MenuItem menu_item = new MenuItem(text);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Deduplicate auto");
-
-            if ( !Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage, "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",logger)) return;
-            (new Deduplication_engine(browser, path.toFile(), logger)).do_your_job(true);
-        });
-        return menu_item;
-    }
-
-
-
-    //**********************************************************
-    private MenuItem create_manual_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_manual",logger);
-
-        MenuItem item0 = new MenuItem(text);
-        item0.setOnAction(event -> {
-            if (dbg) logger.log("Deduplicate manually");
-            (new Deduplication_engine(browser, path.toFile(), logger)).do_your_job(false);
-        });
-        return item0;
-    }
-    //**********************************************************
-    private MenuItem create_deduplication_count_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_count",logger);
-        MenuItem item0 = new MenuItem(text);
-        item0.setOnAction(event -> {
-            if (dbg) logger.log("count duplicates!");
-            (new Deduplication_engine(browser, path.toFile(), logger)).count(false);
-        });
-        return item0;
-    }
-
-
-    //**********************************************************
-    private MenuItem create_help_on_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = I18n.get_I18n_string("Deduplicate_help",logger);
-        MenuItem itemhelp = new MenuItem(text);
-        itemhelp.setOnAction(event -> Popups.popup_warning(browser.my_Stage.the_Stage,
-                "Help on deduplication",
-                "The deduplication tool will look recursively down the path starting at:" + path.toAbsolutePath() +
-                        "\nLooking for identical files in terms of file content i.e. names/path are different but it IS the same file" +
-                        " Then you will be able to either:" +
-                        "\n  1. Review each pair of duplicate files one by one" +
-                        "\n  2. Or ask for automated deduplication (DANGER!)" +
-                        "\n  Beware: automated de-duplication may give unexpected results" +
-                        " since you do not choose which file in the pair is deleted." +
-                        "\n  However, the files are not actually deleted: they are MOVED to the klik_trash folder," +
-                        " which you can visit by clicking on the trash button." +
-                        "\n\n WARNING: On folders containing a lot of data, the search can take a long time!",
-                false,
-                logger));
-        return itemhelp;
-    }
 
 
     //**********************************************************

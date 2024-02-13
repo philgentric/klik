@@ -50,17 +50,17 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		deduplication_engine.get_interface().set_total_files_to_be_examined(files.size());
 
 		//boolean[] stop = new boolean[1];
-		logger.log("Runnable_for_finding_duplicate_file_pairs RUN starts");
+		if ( dbg) logger.log("Runnable_for_finding_duplicate_file_pairs RUN starts");
 
 		int ignored = 0;
 		int target = (files.size()* files.size()-files.size())/2;
 		for ( int i = 0; i < files.size(); i++ )
 		{
-			logger.log("Runnable_for_finding_duplicate_file_pairs i="+i);
+			if (ultra_dbg) logger.log("Runnable_for_finding_duplicate_file_pairs i="+i);
 
 			if ( private_aborter.should_abort())
 			{
-				logger.log("Runnable_for_finding_duplicate_file_pairs abort");
+				if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");
 				is_finished.set(true);
 				return;
 			}
@@ -104,11 +104,11 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				else
 				{
 					duplicates_found_by_this_thread++;
-					logger.log("duplicate fond:\n     "+fi.my_file.file.getAbsolutePath()+"\n    "+fj.my_file.file.getAbsolutePath());
+					if ( dbg) logger.log("duplicate fond:\n     "+fi.my_file.file.getAbsolutePath()+"\n    "+fj.my_file.file.getAbsolutePath());
 
 					decide_which_to_delete(fi, fj);
 					deduplication_engine.get_interface().increment_to_be_deleted();
-					logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>finder 1 more TO_BE_DELETED = "+duplicates_found_by_this_thread);
+					//logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>finder 1 more TO_BE_DELETED = "+duplicates_found_by_this_thread);
 
 					if (dbg) logger.log(" SAME:\n" +
 							i+"= "+fi.my_file.file.getAbsolutePath()+" to be deleted: "+fi.to_be_deleted+"\n" +
