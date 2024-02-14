@@ -37,18 +37,18 @@ public class Stage_with_2_images
 //**********************************************************
 {
 	Stage stage;
-	public double W = 1200;
+	public double W = 1000;
 	//public double H = 800;
 	Logger logger;
 
-	File_pair the_pair;
+	public final Browser browser;
 	public final Aborter private_aborter;
 	VBox the_big_vbox;
 	Againor againor;
 
 	//**********************************************************
 	public Stage_with_2_images(
-			Browser browser,
+			Browser browser_,
 			File_pair pair,//My_File_and_status file_of_the_images_[],
 			Againor againor_,
 			Aborter private_aborter_,
@@ -56,6 +56,7 @@ public class Stage_with_2_images
 			)
 	//**********************************************************
 	{
+		browser = browser_;
 		logger = logger_;
 		private_aborter = private_aborter_;
 
@@ -68,7 +69,7 @@ public class Stage_with_2_images
 		logger.log("Stage_with_2_images !");
 
 		againor = againor_;
-		the_pair = pair;
+		//the_pair = pair;
 
 
 		Platform.runLater(() ->{
@@ -78,9 +79,9 @@ public class Stage_with_2_images
 				stage.setScene(scene);//, W, H));
 				stage.setOnCloseRequest((e) -> private_aborter.abort());
 
-				if (!set_images_by_files(browser))
+				if (!set_images_by_files(pair,browser))
 				{
-					stage.close();
+					stage.hide();
 					againor.again(true);
 					return;
 				}
@@ -101,7 +102,7 @@ public class Stage_with_2_images
 	};
 
 	//**********************************************************
-	protected boolean set_images_by_files(Browser browser)
+	protected boolean set_images_by_files(File_pair the_pair, Browser browser)
 	//**********************************************************
 	{
 		String title = "";
@@ -115,7 +116,7 @@ public class Stage_with_2_images
 			public void handle(ActionEvent event)
 			{
 				againor.again(false);
-				stage.close();
+				if ( stage != null) stage.hide();
 			}
 		});
 
@@ -142,30 +143,7 @@ public class Stage_with_2_images
 			}
 			title += local_file.my_file.file.getName()+"-";
 
-			int w = (int) (W / (double) 2);
-			if ( the_pair.is_image) {
-				Image image = From_disk.load_native_resolution_image_from_disk(local_file.my_file.file.toPath(), true, private_aborter, logger);
-				ImageView image_view = new ImageView(image);
-				image_view.setPreserveRatio(true);
-				image_view.setSmooth(false);
-				//image_view.setCache(true);
-				image_view.prefWidth(w);
-				image_view.setFitWidth(w);
-				the_vbox.getChildren().add(image_view);
-			}
-			//else
-			{
-				HBox hbox2 = new HBox();
-				Label label = new Label("File:"+local_file.my_file.file.getAbsolutePath());
-				Look_and_feel_manager.set_region_look(label);
-				label.setPrefWidth(w);
-				label.setWrapText(true);
-				hbox2.getChildren().add(label);
-				Region spacer = new Region();
-				HBox.setHgrow(spacer, Priority.ALWAYS);
-				hbox2.getChildren().add(spacer);
-				the_vbox.getChildren().add(hbox2);
-			}
+
 			Button view = new Button("View this one");
 			Look_and_feel_manager.set_button_look(view,true);
 			view.setOnAction(new EventHandler<ActionEvent>() {
@@ -193,10 +171,34 @@ public class Stage_with_2_images
 					l.add(new Old_and_new_Path(local_file.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
 					Moving_files.safe_delete_files(stage,l, private_aborter,logger);
 					againor.again(true);
-					stage.close();
+					if ( stage != null) stage.close();
 				}
 			});
 			the_vbox.getChildren().add(delete_button);
+			double w = W/2;
+			{
+				HBox hbox2 = new HBox();
+				Label label = new Label("File:"+local_file.my_file.file.getAbsolutePath());
+				Look_and_feel_manager.set_region_look(label);
+				label.setMaxWidth(w);
+				label.setWrapText(true);
+				hbox2.getChildren().add(label);
+				Region spacer = new Region();
+				HBox.setHgrow(spacer, Priority.ALWAYS);
+				hbox2.getChildren().add(spacer);
+				the_vbox.getChildren().add(hbox2);
+			}
+			if ( the_pair.is_image) {
+				Image image = From_disk.load_native_resolution_image_from_disk(local_file.my_file.file.toPath(), true, private_aborter, logger);
+				ImageView image_view = new ImageView(image);
+				image_view.setPreserveRatio(true);
+				image_view.setSmooth(true);
+				//image_view.setCache(true);
+				image_view.prefWidth(w);
+				image_view.setFitWidth(w);
+				the_vbox.getChildren().add(image_view);
+			}
+
 			hbox.getChildren().add(the_vbox);
 
 			if ( i == 0) {
@@ -213,7 +215,13 @@ public class Stage_with_2_images
 	}
 
 	public void close() {
-		stage.close();
+		if ( stage != null) stage.close();
+	}
+
+	public void set_pair(File_pair pair)
+	{
+		set_images_by_files(pair,browser);
+		stage.show();
 	}
 
 	/*

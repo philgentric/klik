@@ -282,7 +282,9 @@ public class Item_image extends Item
 
         if ( Browser.use_fx_injector)
         {
-            browser.fx_injector.input.addFirst(new Item_image_target(this,image_and_rotation));
+            //Item_image the_item_image = this;
+            Runnable r = () -> do_it_in_fx_thread(image_and_rotation);
+            browser.fx_injector.input.addFirst(r);
         }
         else
         {

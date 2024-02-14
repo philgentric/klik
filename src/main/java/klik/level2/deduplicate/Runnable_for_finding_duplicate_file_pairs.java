@@ -6,36 +6,41 @@ import klik.files_and_paths.My_File;
 import klik.files_and_paths.Name_cleaner;
 import klik.util.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
 public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 //**********************************************************
 {
-	private static final boolean dbg = false;
-	public static final boolean ultra_dbg = false;
+	private static final boolean dbg = true;
+	private static final boolean ultra_dbg = false;
 	Logger logger;
-	private final List<My_File_and_status> files  = new ArrayList<>();
+	private final List<My_File> all_files;
+	private final int i_min;
+	private final int i_max;
 	BlockingQueue<File_pair> output_queue_of_same_in_pairs;
 	Deduplication_engine deduplication_engine;
-	private AtomicBoolean is_finished = new AtomicBoolean(false);
+	private AtomicInteger is_finished = new AtomicInteger(0);
 	private final Aborter private_aborter;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs(
 			Deduplication_engine deduplication_,
-			List<My_File> files_,
+			List<My_File> all_files_,
+			int i_min_,
+			int i_max_,
 			BlockingQueue<File_pair> output_queue,
 			Aborter private_aborter_,
 			Logger logger_)
 	//**********************************************************
 	{
+		all_files = all_files_;
+		i_min = i_min_;
+		i_max = i_max_;
 		logger = logger_;
 		private_aborter = private_aborter_;
-		for ( My_File mf: files_) files.add(new My_File_and_status(mf));
 		output_queue_of_same_in_pairs = output_queue;
 		deduplication_engine = deduplication_;
 	}
@@ -45,186 +50,161 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	public void run()
 	//**********************************************************
 	{
+		is_finished.incrementAndGet();
 		deduplication_engine.remaining_threads.incrementAndGet();
 		int duplicates_found_by_this_thread = 0;
-		deduplication_engine.get_interface().set_total_files_to_be_examined(files.size());
 
 		//boolean[] stop = new boolean[1];
 		if ( dbg) logger.log("Runnable_for_finding_duplicate_file_pairs RUN starts");
 
 		int ignored = 0;
-		int target = (files.size()* files.size()-files.size())/2;
-		for ( int i = 0; i < files.size(); i++ )
+		for (int i = i_min; i < i_max; i++ )
 		{
-			if (ultra_dbg) logger.log("Runnable_for_finding_duplicate_file_pairs i="+i);
-
-			if ( private_aborter.should_abort())
+			for ( int j = i+1; j < all_files.size(); j++)
 			{
-				if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");
-				is_finished.set(true);
-				return;
-			}
 
-			My_File_and_status fi = files.get(i);
-
-			if ( fi.to_be_deleted )
-			{
-				if ( ultra_dbg) logger.log(" skipping1 file:i="+i);//+" name="+fi.my_file.file.getAbsolutePath()+" as it is already scheduled for deletion");
-				continue;
-			}
-			if ( ultra_dbg) logger.log(" considering file:i="+i);//+" name="+fi.my_file.file.getAbsolutePath()+" start = "+start+" end="+end);
-
-			deduplication_engine.get_interface().increment_examined();
-
-			for ( int j = i+1; j < files.size(); j++ )
-			{
-				if ( ultra_dbg) logger.log("Runnable_for_finding_duplicate_file_pairs j="+j);
-
-				if ( private_aborter.should_abort())
-				{
-					logger.log("Runnable_for_finding_duplicate_file_pairs abort");
-					is_finished.set(true);
+				if (private_aborter.should_abort()) {
+					if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");
+					is_finished.set(0);
 					return;
 				}
 
-				My_File_and_status fj = files.get(j);
-				target--;
-				if ( fj.to_be_deleted )
-				{
-					if ( ultra_dbg) logger.log(" skipping2 file:j="+j);//+" name="+fj.my_file.file.getAbsolutePath()+" as it is already scheduled for deletion");
-					//ignored++;
-					continue;
-				}
-				if ( ultra_dbg) logger.log("       considering "+files.size()+" files... i="+i+" j="+j);//+" name="+fj.my_file.file.getAbsolutePath());
+				deduplication_engine.console_window.count_pairs_examined.incrementAndGet ();
 
-				if ( ! My_File.files_have_same_content(fi.my_file,fj.my_file, private_aborter, logger))
-				{
-					if ( ultra_dbg) logger.log(" not same CONTENT:"+fi.my_file.file.getAbsolutePath()+" - "+fj.my_file.file.getAbsolutePath());
-				}
-				else
-				{
-					duplicates_found_by_this_thread++;
-					if ( dbg) logger.log("duplicate fond:\n     "+fi.my_file.file.getAbsolutePath()+"\n    "+fj.my_file.file.getAbsolutePath());
+				//File_pair2 pair = new File_pair2(i, j);
+				if (!My_File.files_have_same_content(all_files.get(i), all_files.get(j), private_aborter, logger)) {
+					if (ultra_dbg)
+						logger.log(" not same CONTENT:" + all_files.get(i).file.getAbsolutePath() + " - " + all_files.get(j).file.getAbsolutePath());
+				} else {
+					deduplication_engine.duplicates_found.incrementAndGet();
+					//if (dbg) logger.log("duplicate fond:\n     " + all_files.get(i).file.getAbsolutePath() + "\n    " + all_files.get(j).file.getAbsolutePath());
 
-					decide_which_to_delete(fi, fj);
-					deduplication_engine.get_interface().increment_to_be_deleted();
+					File_pair pair_after = decide_which_to_delete(i,j);
+					deduplication_engine.console_window.count_duplicates.incrementAndGet();
 					//logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>finder 1 more TO_BE_DELETED = "+duplicates_found_by_this_thread);
 
-					if (dbg) logger.log(" SAME:\n" +
-							i+"= "+fi.my_file.file.getAbsolutePath()+" to be deleted: "+fi.to_be_deleted+"\n" +
-							j+"= "+fj.my_file.file.getAbsolutePath()+" to be deleted: "+fj.to_be_deleted);
-					boolean is_image = Guess_file_type.is_this_path_an_image(fi.my_file.file.toPath());
-					output_queue_of_same_in_pairs.add(new File_pair(fi,fj, is_image));
-					target -= files.size()-1-j;
-
+					if (dbg) logger.log(" DUPLICATES:\n" +
+							pair_after.f1.my_file.file.getAbsolutePath() + " to be deleted: " + pair_after.f1.to_be_deleted + "\n" +
+							pair_after.f2.my_file.file.getAbsolutePath() + " to be deleted: " + pair_after.f2.to_be_deleted);
+					output_queue_of_same_in_pairs.add(pair_after);
 				}
-
 			}
 		}
 
-		logger.log("target is: "+target);
-		logger.log("to be deleted: "+duplicates_found_by_this_thread);
 
-
-		if ( dbg) logger.log(" total:"+duplicates_found_by_this_thread);
-		deduplication_engine.duplicates_found.addAndGet(duplicates_found_by_this_thread);
+		logger.log("found duplicates:  "+deduplication_engine.duplicates_found.get());
 		int remaining = deduplication_engine.remaining_threads.decrementAndGet();
 		if ( remaining != 0)
 		{
-			deduplication_engine.get_interface().set_status_text("Thread found "+duplicates_found_by_this_thread+" duplicated pairs ... Search continues on "+ remaining +" threads!");
+			deduplication_engine.console_window.set_status_text("Thread found "+duplicates_found_by_this_thread+" duplicated pairs ... Search continues on "+ remaining +" threads!");
 		}
 		else
 		{
-			deduplication_engine.get_interface().set_status_text("Total = "+ deduplication_engine.duplicates_found.get()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
+			deduplication_engine.console_window.set_status_text("Total = "+ deduplication_engine.duplicates_found.get()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
 		}
 
-		is_finished.set(true);
+		is_finished.decrementAndGet();
 	}
 
 
 	//**********************************************************
-	private void decide_which_to_delete(My_File_and_status fi, My_File_and_status fj)
+	private File_pair decide_which_to_delete(int i, int j)
 	//**********************************************************
 	{
+		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath());
+
 		// first we check if the one of the file names has been cleaned
-		if(Name_cleaner.clean(fi.my_file.file.getName(),true,logger).equals(fi.my_file.file.getName()))
+		if(Name_cleaner.clean(all_files.get(i).file.getName(),true,logger).equals(all_files.get(j).file.getName()))
 		{
 			// i name is clean
-			if(! Name_cleaner.clean(fj.my_file.file.getName(),true,logger).equals(fj.my_file.file.getName()))
+			if(! Name_cleaner.clean(all_files.get(j).file.getName(),true,logger).equals(all_files.get(i).file.getName()))
 			{
-				// i name is clean, and j is not ..
-				fi.to_be_deleted=false;
-				fj.to_be_deleted=true;
-				return;
+				// f1 name is clean, and f2 is not ..
+				return set_f2_to_be_deleted(i,j, is_image);
 			}
 		}
 		else
 		{
-			if(Name_cleaner.clean(fj.my_file.file.getName(),true,logger).equals(fj.my_file.file.getName()))
+			if(Name_cleaner.clean(all_files.get(j).file.getName(),true,logger).equals(all_files.get(i).file.getName()))
 			{
-				// j name is clean, and i is not ..
-				fi.to_be_deleted=true;
-				fj.to_be_deleted=false;
-				return;
-
+				// f2 name is clean, and f1 is not ..
+				return set_f1_to_be_deleted(i,j, is_image);
 			}
 		}
 
 		// in order to decide which file to delete we compare the path length
-		int lenght_of_path_for_i = fi.my_file.file.getAbsolutePath().length();
-		int lenght_of_path_for_j = fj.my_file.file.getAbsolutePath().length();
+		int lenght_of_path_for_i = all_files.get(i).file.getAbsolutePath().length();
+		int lenght_of_path_for_j = all_files.get(j).file.getAbsolutePath().length();
 
 		if ( lenght_of_path_for_i == lenght_of_path_for_j)
 		{
-			if (fi.my_file.file.getName().contains("_") )
+			// same length
+			if (all_files.get(i).file.getName().contains("_") )
 			{
-				if ( fj.my_file.file.getName().contains("_"))
+				if ( all_files.get(j).file.getName().contains("_"))
 				{
-					// both have underscore(s): delete i
-					fi.to_be_deleted=true;
-					logger.log("i to be deleted as both names have underscores");
+					// both have underscore(s): delete f1
+					logger.log("f1 to be deleted as both names have underscores");
+					return set_f1_to_be_deleted(i,j, is_image);
 				}
 				else
 				{
-					// no underscore in j's name: delete j
-					fj.to_be_deleted=true;
-					logger.log("j to be deleted as name has no underscores, and i has");
+					logger.log("f2 to be deleted as name has no underscores, and f1 has");
+					return set_f2_to_be_deleted(i,j, is_image);
 				}
 			}
 			else
 			{
 				// no underscore in i's name:
-				if ( fj.my_file.file.getName().contains("_"))
+				if ( all_files.get(j).file.getName().contains("_"))
 				{
-					// j has underscore(s): delete i
-					fi.to_be_deleted=true;
-					logger.log("i to be deleted as name has no underscores, and j has");
+					// f2 has underscore(s): delete f1
+					logger.log("f1 to be deleted as name has no underscores, and f2 has");
+					return set_f1_to_be_deleted(i,j, is_image);
 				}
 				else
 				{
 					// none have underscores  ... delete j
-					fj.to_be_deleted=true;
-					logger.log("j to be deleted as none have underscores");
+					logger.log("f2 to be deleted as none have underscores");
+					return set_f2_to_be_deleted(i,j, is_image);
 				}
 			}
 		}
 		else if ( lenght_of_path_for_i > lenght_of_path_for_j)
 		{
-			fi.to_be_deleted=true;
-			logger.log("i to be deleted as its path is longer");
+			logger.log("f1 to be deleted as its path is longer");
+			return set_f1_to_be_deleted(i,j, is_image);
 		}
 		else
 		{
-			logger.log("j to be deleted as its path is longer");
-			fj.to_be_deleted=true;
+			logger.log("f2 to be deleted as its path is longer");
+			return set_f2_to_be_deleted(i,j, is_image);
 		}
 	}
 
+	private File_pair make_pair(int i, int j, boolean is_image) {
+		My_File_and_status mf1 = new My_File_and_status(all_files.get(i));
+		My_File_and_status mf2 = new My_File_and_status(all_files.get(j));
+		return  new File_pair(mf1, mf2, is_image);
+	}
+
+	private  File_pair set_f1_to_be_deleted(int i, int j,  boolean is_image) {
+		File_pair out = make_pair(i,j,is_image);
+		out.f1.to_be_deleted = true;
+		return out;
+	}
+	private  File_pair set_f2_to_be_deleted(int i, int j,  boolean is_image) {
+		File_pair out = make_pair(i,j,is_image);
+		out.f2.to_be_deleted = true;
+		return out;
+	}
 
 	//**********************************************************
 	public boolean is_finished()
 	//**********************************************************
 	{
-		return is_finished.get();
+		if (is_finished.get() == 0) return true;
+
+		return false;
 	}
 }

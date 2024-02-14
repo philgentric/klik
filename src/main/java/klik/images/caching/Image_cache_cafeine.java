@@ -79,9 +79,7 @@ public class Image_cache_cafeine implements Cache_interface
 
         for (Path path: kk)
         {
-            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path,
-                    //high_quality,
-                    this, aborter);
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, aborter);
             if (ultra_dbg)
                 logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);

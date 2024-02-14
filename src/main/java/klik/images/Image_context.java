@@ -18,6 +18,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
+import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.search.Finder;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.level2.fusk.Fusk_static_core;
@@ -132,7 +133,8 @@ public class Image_context
     public double get_rotation(Aborter aborter)
     //**********************************************************
     {
-        load_exif(aborter);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path,true,aborter,logger);
+        //load_exif(aborter);
         return rotation;
     }
 

@@ -1,7 +1,6 @@
 package klik.files_and_paths;
 
 import klik.actor.Aborter;
-import klik.level2.deduplicate.Runnable_for_finding_duplicate_file_pairs;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -13,10 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 
+
 //**********************************************************
 public class My_File
 //**********************************************************
 {
+	private static final boolean ultra_dbg = false;
 	public final File file;
 	final long size; // if size differ ... different files
 	byte[] first_bytes = null; // if we looked once, we keep the first few bytes, because if the first N bytes differ = different files
@@ -69,7 +70,7 @@ public class My_File
 
 		if ( mf1.size != mf2.size )
 		{
-			if ( Runnable_for_finding_duplicate_file_pairs.ultra_dbg ) logger.log("sizes differ "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
+			if ( ultra_dbg ) logger.log("sizes differ "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
 			return false;
 		}
 
@@ -78,17 +79,17 @@ public class My_File
 		{
 			if ( mf1.first_bytes.length != mf2.first_bytes.length )
 			{
-				if ( Runnable_for_finding_duplicate_file_pairs.ultra_dbg ) logger.log("first bytes length differ "+ mf1.first_bytes.length+" v.s. "+ mf2.first_bytes.length);
+				if (ultra_dbg) logger.log("first bytes length differ "+ mf1.first_bytes.length+" v.s. "+ mf2.first_bytes.length);
 				return false;
 			}
 			if ( Arrays.mismatch(mf1.first_bytes,mf2.first_bytes) != -1)
 			{
-				if ( Runnable_for_finding_duplicate_file_pairs.ultra_dbg ) logger.log("BYTES differ "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
+				if (ultra_dbg) logger.log("BYTES differ "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
 				return false;
 			}
 		}
 
-		if ( Runnable_for_finding_duplicate_file_pairs.ultra_dbg ) logger.log("Starting TOTAL CHECK for: "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
+		if ( ultra_dbg ) logger.log("Starting TOTAL CHECK for: "+ mf1.file.getName()+" "+mf1.size+" v.s. "+ mf2.file.getName()+" "+mf2.size);
 
 		// let us check, block per block
 		// at the first sign of a difference, return false

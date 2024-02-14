@@ -28,7 +28,7 @@ public class Moving_files
 {
     public static final String SP_EZ_IA_L = "_copy_made_by_klik_";
 
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
 
     //**********************************************************
     public static void safe_move_files_or_dirs(Stage owner,
@@ -103,113 +103,6 @@ public class Moving_files
 
 
     }
-
-    /*
-
-    //**********************************************************
-    public static void perform_safe_move_in_a_thread(Stage owner, Old_and_new_Path oanp, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        if (oanp == null) {
-            logger.log("FATAL perform_safe_move_in_a_thread() oanp is null");
-            return;
-
-        }
-
-        logger.log("perform_safe_move_in_a_thread()");
-        Runnable r = () -> actual_safe_move(owner, oanp, aborter, logger);
-        try {
-            Actor_engine.execute(r,logger);
-            logger.log("actual_safe_move LAUNCHED, thread COUNT=" + Thread.activeCount());
-        } catch (RejectedExecutionException ree) {
-            logger.log("perform_safe_move_in_a_thread()" + ree);
-
-        }
-
-
-    }
-
-    //**********************************************************
-    private static void actual_safe_move(Stage owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        List<Old_and_new_Path> done = new ArrayList<>();
-        List<Old_and_new_Path> not_done = new ArrayList<>();
-
-        // we also move meta data
-        Path meta_old = Metadata_handler.make_metadata_path(oandn.old_Path);
-        if (meta_old.toFile().exists()) {
-            // if there is an associated metadata file, move it too
-            Path meta_new = Metadata_handler.make_metadata_path(oandn.new_Path);
-            process_one_move(owner, new Old_and_new_Path(meta_old, meta_new, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command), aborter, logger);
-        }
-
-        {
-            // we rename the icon to avoid remaking one
-            Path icon_cache_dir = Files_and_Paths.get_icon_cache_dir(logger);
-            int icon_size = Static_application_properties.get_icon_size(logger);
-            File current_icon = From_disk.file_for_icon_cache(icon_cache_dir, oandn.old_Path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
-            if (current_icon.exists()) {
-                File new_icon = From_disk.file_for_icon_cache(icon_cache_dir, oandn.new_Path,  String.valueOf(icon_size), Icon_factory_actor.png_extension);
-                if (new_icon == null) {
-                    logger.log("icon move failed: cannot make icon ?");
-                } else {
-                    try {
-                        //Files.move(current_icon.toPath(), new_icon.toPath());
-                        FileUtils.moveFile(current_icon, new_icon, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        logger.log("icon move failed: " + e);
-                    }
-                }
-            }
-            //logger.log("renaming icon :"+current_icon.getName()+"==>"+new_icon.getName());
-        }
-
-        // then we move the actual file
-        Old_and_new_Path actual = process_one_move(owner, oandn, aborter, logger);
-        if ( actual==null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("move has failed??"));
-            return;
-        }
-        if ( dbg) logger.log("A move has been completed and the status is: " + actual.status);
-
-        switch (actual.status) {
-            case move_done, rename_done, move_to_trash_done, identical_file_moved_to_klik_trash, identical_file_deleted, delete_forever_done, copy_done ->
-                    done.add(actual);
-            default -> {
-                not_done.add(actual);
-                logger.log("WARNING status is weird:" + actual.status);
-            }
-        }
-
-
-        Change_gang.report_changes(done);
-        {
-            Undo_engine.add(done, logger);
-        }
-        Change_gang.report_changes(not_done);
-
-        if (!not_done.isEmpty())
-        {
-            StringBuilder sb = new StringBuilder();
-            for (Old_and_new_Path i : not_done)
-            {
-                sb.append(i.old_Path.toAbsolutePath());
-                sb.append("  ==> ");
-                sb.append(i.new_Path.toAbsolutePath());
-                sb.append("   ");
-                sb.append(i.status);
-
-            }
-            boolean for_3seconds = true;
-            if (not_done.size() >= 2) for_3seconds = false;
-            Popups.popup_warning(owner, "Move not done?", sb.toString(), for_3seconds, logger);
-            logger.log(Stack_trace_getter.get_stack_trace("Move not done? " + sb));
-        }
-
-    }
-*/
 
     //**********************************************************
     public static void safe_delete_files(Stage owner, List<Old_and_new_Path> l, Aborter aborter, Logger logger)

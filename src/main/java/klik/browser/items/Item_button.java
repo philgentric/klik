@@ -479,7 +479,7 @@ public class Item_button extends Item implements Icon_destination
 
  */
     //**********************************************************
-    public static void show_how_many_files_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
+    public void show_how_many_files_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -487,7 +487,7 @@ public class Item_button extends Item implements Icon_destination
             s += " (" + Files_and_Paths.get_how_many_files_deep(path, aborter, logger) + " files)";
 
             String finalS = s;
-            Platform.runLater(() -> {
+            browser.fx_injector.input.addFirst(() -> {
                 button.setText(finalS);
                 //browser.scene_geometry_changed("number of files in button", true);
             });

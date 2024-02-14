@@ -8,9 +8,9 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.change.undo.Undo_engine;
+import klik.level2.deduplicate.console.Deduplication_console_window;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
-import klik.level2.deduplicate.console.Deduplication_console_interface;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.look.my_i18n.I18n;
@@ -920,7 +920,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static List<My_File> get_all_files_down(File cwd, Deduplication_console_interface popup, boolean consider_also_hidden_files, Logger logger)
+    public static List<My_File> get_all_files_down(File cwd, Deduplication_console_window popup, boolean consider_also_hidden_files, Logger logger)
     //**********************************************************
     {
         List<My_File> returned = new ArrayList<>();
@@ -929,7 +929,7 @@ public class Files_and_Paths {
         for (File f : files) {
             if (f.isDirectory())
             {
-                if (popup != null) if (!popup.increment_directory_examined()) return returned;
+                if (popup != null) popup.count_directory_examined.incrementAndGet();
                 returned.addAll(get_all_files_down(f, popup, consider_also_hidden_files, logger));
             }
             else

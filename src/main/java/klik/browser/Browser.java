@@ -62,13 +62,14 @@ import static java.awt.Taskbar.Feature.ICON_IMAGE;
 public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter, Refresh_target, Error_receiver
 //**********************************************************
 {
+    public static final boolean dbg = false;
+
 
     public static final boolean use_fx_injector = true;
     static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
 
-    public static final boolean dbg = false;
     private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
     public final Path top_left_in_parent;
     public Icon_factory_actor icon_factory_actor;
@@ -1080,15 +1081,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         {
             case more_changes:
             {
-                if (dbg) logger.log("Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-                Platform.runLater(() -> {
+               // if (dbg)
+                    logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+                fx_injector.input.addFirst(() -> {
                     scene_geometry_changed("change gang for dir: " + displayed_folder_path, true, true);
                 });
             };
             break;
             case one_new_file, one_file_gone:
             {
-                Platform.runLater(() -> {
+                logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+
+                fx_injector.input.addFirst(() -> {
                     scene_geometry_changed("change gang for dir: " + displayed_folder_path, false, true);
                 });
             }

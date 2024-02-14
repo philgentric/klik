@@ -10,14 +10,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 // rationale: it is not a good idea to call
-// Platform.runLater(()) too often e.g. once per icon
+// Platform.runLater(()) too often
 // so, we BATCH it here
 
 //**********************************************************
 public class Fx_batch_injector
 //**********************************************************
 {
-    LinkedBlockingDeque<Item_image_target> input = new LinkedBlockingDeque<>();
+    public LinkedBlockingDeque<Runnable> input = new LinkedBlockingDeque<>();
+   // LinkedBlockingDeque<Item_image_target> input = new LinkedBlockingDeque<>();
     Logger logger;
     //**********************************************************
     public Fx_batch_injector(Aborter aborter, Logger logger)
@@ -32,7 +33,7 @@ public class Fx_batch_injector
                 {
                     if ( aborter.should_abort()) return;
                     try {
-                        Item_image_target tmp = input.poll(1,TimeUnit.SECONDS);
+                        Runnable tmp = input.poll(1,TimeUnit.SECONDS);
                         if ( tmp != null) input.addFirst(tmp);
                         long now = System.nanoTime();
                         if (now-start >  10_000_000) // 10 milliseconds
@@ -72,13 +73,13 @@ public class Fx_batch_injector
             if ( aborter.should_abort()) return count;
             try
             {
-                Item_image_target item_image_target = input.pollLast(1, TimeUnit.MICROSECONDS);
-                if (item_image_target == null )
+                Runnable r = input.pollLast(1, TimeUnit.MICROSECONDS);
+                if (r == null )
                 {
                     // dont hold the fx thread too long
                     return count;
                 }
-                item_image_target.target().do_it_in_fx_thread(item_image_target.payload());
+                r.run();
                 count++;
             }
             catch (InterruptedException e)

@@ -160,7 +160,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
-        Platform.runLater(() -> {
+        browser.fx_injector.input.addFirst(() -> {
             set_icon(image_and_rotation);
         });
     }

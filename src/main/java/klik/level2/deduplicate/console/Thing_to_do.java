@@ -9,8 +9,8 @@ public class Thing_to_do {
         return new Thing_to_do(Type_of_thing_to_do.increment_examined, null);
     }
 
-    public static Thing_to_do get_increment_to_be_deleted_thing_to_do() {
-        return new Thing_to_do(Type_of_thing_to_do.increment_to_be_deleted, null);
+    public static Thing_to_do get_increment_duplicates_thing_to_do() {
+        return new Thing_to_do(Type_of_thing_to_do.increment_duplicates, null);
     }
 
     public static Thing_to_do get_increment_deleted_thing_to_do() {

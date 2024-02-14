@@ -613,6 +613,7 @@ public class Image_window
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
             set_stage_title(local_image_context);
+            /*
 
             boolean local_pix_for_pix =  false;
             if ( the_Scene.getHeight() > local_image_context.the_image_view.getImage().getHeight())
@@ -624,6 +625,8 @@ public class Image_window
             }
             final boolean local_pix_for_pix2 =  local_pix_for_pix;
             if (mouse_handling_for_image_window.mouse_mode == Mouse_mode.pix_for_pix || local_pix_for_pix2 ) mouse_handling_for_image_window.pix_for_pix();
+            */
+
         });
     }
 
