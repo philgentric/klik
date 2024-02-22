@@ -173,6 +173,7 @@ public class Look_and_feel_manager
         return folder_icon;
     }
 
+    /*
     //**********************************************************
     public static Image get_large_folder_icon(double icon_size)
     //**********************************************************
@@ -197,6 +198,8 @@ public class Look_and_feel_manager
         return large_folder_icon;
     }
 
+
+
     //**********************************************************
     public static Path get_folder_icon_path()
     //**********************************************************
@@ -213,6 +216,8 @@ public class Look_and_feel_manager
         }
         return Path.of(path);
     }
+    */
+
     //**********************************************************
     public static Image get_default_icon(double icon_size)
     //**********************************************************
@@ -809,7 +814,7 @@ public class Look_and_feel_manager
         Font_size.apply_font_size(region,logger);
     }
 
-
+/*
     //**********************************************************
     public static void set_label_look_for_folder(Label label) // Label is a Region
     //**********************************************************
@@ -818,6 +823,7 @@ public class Look_and_feel_manager
         //if (s == null) logger.log("WARNING: could not load folder icon");
         set_label_look(label);
     }
+*/
 
     //**********************************************************
     public static void set_label_look(Label label)
@@ -840,16 +846,20 @@ public class Look_and_feel_manager
 
      */
 
+
     //**********************************************************
     public static void set_button_look_as_folder(Button button, double icon_height) // Button is a region
     //**********************************************************
     {
-        //logger.log("set_button_look_as_folder = "+icon_height);
-        String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-        if (s == null) logger.log("WARNING: could not load folder icon");
-        Image icon = load_icon_fx_from_jar(s, icon_height);
-        if (icon == null) logger.log("WARNING: could not load " +s);
-        set_button_and_image_look(button, icon, icon_height, true);
+        if ( folder_icon == null) {
+            folder_icon = get_folder_icon(icon_height);
+            //logger.log("set_button_look_as_folder = "+icon_height);
+            //String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
+            //if (s == null) logger.log("WARNING: could not load folder icon");
+            //folder_icon = load_icon_fx_from_jar(s, icon_height);
+            //if (folder_icon == null) logger.log("WARNING: could not load " + s);
+        }
+        set_button_and_image_look(button, folder_icon, icon_height, true);
     }
 
     //**********************************************************

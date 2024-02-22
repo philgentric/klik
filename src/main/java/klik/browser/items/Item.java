@@ -66,6 +66,7 @@ public abstract class Item implements Icon_destination
 
 
 
+    protected Color color;
     protected Path path;
     protected final Browser browser;
     protected final Logger logger;
