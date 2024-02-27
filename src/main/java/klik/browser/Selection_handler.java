@@ -276,7 +276,7 @@ public class Selection_handler
         set_select_all_files_colors(false);
         set_select_all_folders(false);
     }
-
+/*
 
     //**********************************************************
     private boolean open_item_at(double x, double y, Browser browser)
@@ -296,6 +296,8 @@ public class Selection_handler
         }
         return true;
     }
+
+ */
 
     //**********************************************************
     private void extract_selected_files(double x, double y, double w, double h)

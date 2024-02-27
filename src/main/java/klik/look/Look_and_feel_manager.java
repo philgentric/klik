@@ -8,6 +8,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.stage.StageStyle;
 import klik.Klik_application;
 import klik.look.styles.*;
@@ -848,7 +850,7 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static void set_button_look_as_folder(Button button, double icon_height) // Button is a region
+    public static void set_button_look_as_folder(Button button, double icon_height, Color color) // Button is a region
     //**********************************************************
     {
         if ( folder_icon == null) {
@@ -859,7 +861,7 @@ public class Look_and_feel_manager
             //folder_icon = load_icon_fx_from_jar(s, icon_height);
             //if (folder_icon == null) logger.log("WARNING: could not load " + s);
         }
-        set_button_and_image_look(button, folder_icon, icon_height, true);
+        set_button_and_image_look(button, folder_icon, icon_height, color,true);
     }
 
     //**********************************************************
@@ -907,6 +909,7 @@ public class Look_and_feel_manager
     public static void set_button_and_image_look(Button button,
                                                  Image image,
                                                  double height,
+                                                 Color color,
                                                  boolean is_dir) // Button is a Region
     //**********************************************************
     {
@@ -925,9 +928,16 @@ public class Look_and_feel_manager
                 //if (H < Static_application_properties.get_font_size()) H = Static_application_properties.get_font_size();
                 image_view.setFitHeight(height);
             }
-            //if (node instanceof Button button)
-            {
+            if (color == null) {
                 button.setGraphic(image_view);
+            }
+            else
+            {
+                HBox hbox = new HBox();
+                Circle dot = new Circle(0,height,height/4,color);
+                hbox.getChildren().add(dot);
+                hbox.getChildren().add(image_view);
+                button.setGraphic(hbox);
             }
         }
 

@@ -1,11 +1,10 @@
 package klik.browser.items;
 
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -14,14 +13,11 @@ import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
-import klik.files_and_paths.Folder_size;
-import klik.level2.deduplicate.Deduplication_engine;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.level2.experimental.music.Audio_player;
-import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -61,13 +57,14 @@ public class Item_button extends Item implements Icon_destination
     public Item_button(
             Browser browser,
             Path path_,
+            Color color,
             String text_,
             double height,
             boolean is_trash_, boolean is_parent_,
             Logger logger)
     //**********************************************************
     {
-        super(browser, path_, logger);
+        super(browser, path_, color, logger);
         text = text_;
         is_trash = is_trash_;
         is_parent = is_parent_;
@@ -87,7 +84,7 @@ public class Item_button extends Item implements Icon_destination
         if (Files.isDirectory(path))
         {
             is_dir = true;
-            button_for_a_directory(text, button_width, height);
+            button_for_a_directory(text, button_width, height, color);
         }
         else
         {
@@ -135,14 +132,6 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
         logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
-        /*
-        Tooltip tooltip =new Tooltip();
-        button.setTooltip(tooltip);
-        if ( the_tooltip_image_view == null) the_tooltip_image_view = new ImageView();
-        tooltip.setGraphic(the_tooltip_image_view);
-        //the_rotation = image_and_rotation.rotation();
-        set_Image(image_and_rotation,true);
-         */
     }
 
 
@@ -383,7 +372,7 @@ public class Item_button extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void button_for_a_directory(String text, double width, double height)
+    public void button_for_a_directory(String text, double width, double height, Color color)
     //**********************************************************
     {
         String text2 = text;
@@ -396,7 +385,8 @@ public class Item_button extends Item implements Icon_destination
         }
         button = new Button(text2);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
-        Look_and_feel_manager.set_button_look_as_folder(button, height);
+
+        Look_and_feel_manager.set_button_look_as_folder(button, height, color);
         button.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
@@ -421,21 +411,14 @@ public class Item_button extends Item implements Icon_destination
                 logger.log("WARNING no action for folder:"+text);
                 return;
             }
-            /*
-            if ( ignore_next_mouse_clicked)
-            {
-                //logger.log("button action IGNORED! due to ignore_next_mouse_clicked="+ignore_next_mouse_clicked);
-                ignore_next_mouse_clicked = false;
-                return;
-            }
-            */
+
 
             Path scroll_to = null;
             if (is_parent)
             {
                 // special case when going back with the "Parent" button
-                scroll_to = browser.top_left_in_parent;
-                //logger.log("\n\n\nItem_non_image is parent, scroll_to=browser.top_left_in_parent = "+scroll_to);
+                //scroll_to = browser.was_top_left_in_parent;
+                logger.log("\n\n\nItem_non_image is parent, scroll_to=browser.top_left_in_parent = "+scroll_to);
             }
             else
             {
@@ -457,27 +440,6 @@ public class Item_button extends Item implements Icon_destination
     }
 
 
-
-/*
-    //**********************************************************
-    private MenuItem create_slide_show_random_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem("start a random slide show"); //I18n.get_I18n_string("Clear_Trash_Folder",logger));
-        menu_item.setOnAction(new EventHandler<ActionEvent>()
-        {
-            @Override
-            public void handle(ActionEvent event)
-            {
-                if (dbg) logger.log("random deep slide show");
-
-                // TODO
-            }
-        });
-        return menu_item;
-    }
-
- */
     //**********************************************************
     public void show_how_many_files_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
     //**********************************************************

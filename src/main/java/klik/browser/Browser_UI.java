@@ -73,7 +73,7 @@ public class Browser_UI
                 Image icon = Look_and_feel_manager.get_up_icon(height);
                 if (icon == null)
                     logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_up_icon_path());
-                Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, true);
+                Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, null,true);
 
             }
             browser.always_on_front_nodes.add(up_button);
@@ -96,7 +96,7 @@ public class Browser_UI
                 Image icon = Look_and_feel_manager.get_trash_icon(height);
                 if (icon == null)
                     logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_bookmarks_icon_path());
-                Look_and_feel_manager.set_button_and_image_look(trash, icon, height, true);
+                Look_and_feel_manager.set_button_and_image_look(trash, icon, height,null, true);
 
             }
             browser.always_on_front_nodes.add(trash);
@@ -182,7 +182,7 @@ public class Browser_UI
             top_buttons.add(bandh_button);
             browser.always_on_front_nodes.add(bandh_button);
             Image icon = Look_and_feel_manager.get_bookmarks_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(bandh_button, icon, height, false);
+            Look_and_feel_manager.set_button_and_image_look(bandh_button, icon, height,null, false);
         }
         {
             String files = I18n.get_I18n_string("Files", logger);
@@ -192,7 +192,7 @@ public class Browser_UI
             top_buttons.add(files_button);
             browser.always_on_front_nodes.add(files_button);
             Image icon = Look_and_feel_manager.get_folder_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(files_button, icon, height, false);
+            Look_and_feel_manager.set_button_and_image_look(files_button, icon, height,null, false);
         }
         {
             String view = I18n.get_I18n_string("View", logger);
@@ -202,7 +202,7 @@ public class Browser_UI
             top_buttons.add(view_button);
             browser.always_on_front_nodes.add(view_button);
             Image icon = Look_and_feel_manager.get_view_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(view_button, icon, height, false);
+            Look_and_feel_manager.set_button_and_image_look(view_button, icon, height,null, false);
         }
         {
             String preferences = I18n.get_I18n_string("Preferences", logger);
@@ -212,7 +212,7 @@ public class Browser_UI
             top_buttons.add(preferences_button);
             browser.always_on_front_nodes.add(preferences_button);
             Image icon = Look_and_feel_manager.get_preferences_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height, false);
+            Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height,null, false);
         }
     }
 

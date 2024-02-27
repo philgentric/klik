@@ -52,7 +52,7 @@ public class Item_image extends Item
             Double aspect_ratio, Logger logger)
     //**********************************************************
     {
-        super(b,p, logger);
+        super(b,p, null, logger);
         this.aspect_ratio = aspect_ratio;
         actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);

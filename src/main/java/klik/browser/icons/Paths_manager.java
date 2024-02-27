@@ -295,7 +295,7 @@ public class Paths_manager
 
     //**********************************************************
     public final static Comparator<Path> alphabetical_file_name_comparator_gifs_fist = new Comparator<>()
-            //**********************************************************
+    //**********************************************************
     {
         @Override
         public int compare(Path f1, Path f2)
@@ -311,7 +311,7 @@ public class Paths_manager
 
     //**********************************************************
     public final static Comparator<Path> alphabetical_file_name_comparator = new Comparator<>()
-            //**********************************************************
+    //**********************************************************
     {
         @Override
         public int compare(Path f1, Path f2)

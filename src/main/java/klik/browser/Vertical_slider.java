@@ -108,15 +108,15 @@ public class Vertical_slider implements Landscape_height_listener
         return new_slider;
     }
 
-
     //**********************************************************
     public void transform_pixel_value(double pixels, Icon_manager icon_manager)
     //**********************************************************
     {
         double pixel_height = get_pixel_height(icon_manager.get_landscape_height());
         if ( Icon_manager.scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
-        the_Slider.setValue(pixels_to_slider(pixels,pixel_height ));
-
+        double slider = pixels_to_slider(pixels,pixel_height);
+        //logger.log("new slider value 1 = "+slider);
+        the_Slider.setValue(slider);
     }
 
 
@@ -139,6 +139,8 @@ public class Vertical_slider implements Landscape_height_listener
 
         if (Icon_manager.scroll_dbg) logger.log("slider old val:"+old_val+" - scroll="+dy+" SETTING SLIDER VAL ="+new_val);
 
+
+        if ( Icon_manager.scroll_dbg) logger.log("new slider value (user has scrolled) = "+new_val);
         the_Slider.setValue(new_val);
 
         if ( (new_val < the_Slider.getMin()) || (new_val > the_Slider.getMax())  )
@@ -160,11 +162,12 @@ public class Vertical_slider implements Landscape_height_listener
     public void browsed_landscape_height_has_changed(double new_landscape_height, double current_vertical_offset)
     //**********************************************************
     {
-
         if ( Icon_manager.scroll_dbg)
             logger.log("browsed_landscape_height_has_changed = "+new_landscape_height);
         double pixel_height = get_pixel_height(new_landscape_height);
-        the_Slider.setValue(pixels_to_slider(current_vertical_offset,pixel_height));
+        double slider = pixels_to_slider(current_vertical_offset,pixel_height);
+        //logger.log("new slider value 3 = "+slider);
+        the_Slider.setValue(slider);
     }
 
     //**********************************************************

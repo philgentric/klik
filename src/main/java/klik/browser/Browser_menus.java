@@ -258,12 +258,13 @@ public class Browser_menus
         // we make a Item_button but are only interested in the button...
         Item_button dummy = new Item_button(browser,
                 path,
+                null,
                 text,
                 height,
                 is_trash,
                 is_parent,
                 logger);
-        dummy.button_for_a_directory(text, min_width, height);
+        dummy.button_for_a_directory(text, min_width, height, null);
         return dummy.button;
     }
 

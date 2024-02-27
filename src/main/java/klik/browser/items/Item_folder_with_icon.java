@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.paint.Color;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
@@ -63,12 +64,13 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     public Item_folder_with_icon(
             Browser browser,
             Path path_,
+            Color color,
             String text_,
             int column_width_,
             Logger logger)
     //**********************************************************
     {
-        super(browser, path_, logger);
+        super(browser, path_, color, logger);
         column_width = column_width_;
         folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
         // launch content icon fabrication:

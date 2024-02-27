@@ -6,17 +6,14 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
-import klik.browser.items.Item;
-import klik.browser.items.Item_button;
-import klik.browser.items.Item_folder_with_icon;
-import klik.browser.items.Item_image;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Guess_file_type;
+import klik.browser.items.*;
+import klik.files_and_paths.*;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
@@ -24,13 +21,12 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Threads;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
@@ -228,7 +224,7 @@ public class Icon_manager
                 item = all_items_map.get(path);
                 if ( item == null)
                 {
-                    item = new Item_button(the_browser, path, path.getFileName().toString()+"("+size+")",
+                    item = new Item_button(the_browser, path, null,path.getFileName().toString()+"("+size+")",
                             // TODO
                             icon_size/2,false,false, logger);
                     all_items_map.put(path,item);
@@ -269,8 +265,7 @@ public class Icon_manager
             Item item = all_items_map.get(path);
             if ( item == null)
             {
-                item = new Item_button(the_browser,path, text,
-                        // TODO MAGIC
+                item = new Item_button(the_browser,path, null, text,
                         icon_height, false, false, logger);
                 all_items_map.put(path,item);
             }
@@ -312,7 +307,7 @@ public class Icon_manager
                 if (dbg) logger.log("Icon_manager process_folders1 "+folder_path);
                 long start = System.currentTimeMillis();
                 if(dbg) logger.log("folder :"+folder_path+" took1 "+(System.currentTimeMillis()-start)+" milliseconds");
-                p = process_one_folder_with_picture(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
+                p = process_one_folder_with_picture(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path, Color.BEIGE);
                 if(dbg) logger.log("folder :"+folder_path+" took2 "+(System.currentTimeMillis()-start)+" milliseconds");
             }
         }
@@ -342,13 +337,14 @@ public class Icon_manager
             double row_increment,
             double scene_width,
             Point2D p,
-            Path folder_path)
+            Path folder_path,
+            Color color)
     //**********************************************************
     {
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-             folder_item = new Item_folder_with_icon(the_browser, folder_path, folder_path.getFileName().toString(), (int)column_increment, logger);
+             folder_item = new Item_folder_with_icon(the_browser, folder_path, color, folder_path.getFileName().toString(), (int)column_increment, logger);
             all_items_map.put(folder_path, folder_item);
         }
         //logger.log("column_increment: "+column_increment+", row_increment: "+row_increment);
@@ -372,9 +368,10 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
+            Color color = load_color(folder_path);
             // a "plain" folder is "like a file" from a layout point of view
             // the difference is: it will get a border
-            folder_item = new Item_button(the_browser,folder_path, folder_path.getFileName().toString(), icon_height, false, false, logger);
+            folder_item = new Item_button(the_browser,folder_path, color, folder_path.getFileName().toString(), icon_height, false, false, logger);
             all_items_map.put(folder_path, folder_item);
         }
 
@@ -385,6 +382,57 @@ public class Icon_manager
             ini.get_button().setMinWidth(column_increment);
         }
         return p;
+    }
+
+    //**********************************************************
+    private Color load_color(Path folderPath)
+    //**********************************************************
+    {
+        Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
+        try {
+            List<String> lines = Files.readAllLines(color_file);
+            Collection<My_color> all_colors = My_colors.get_all_colors(logger);
+            for ( My_color my_color: all_colors)
+            {
+                if ( my_color.java_name() == null) continue;
+                if ( my_color.java_name().equals(lines.get(0)))
+                {
+                    return Color.valueOf(my_color.java_name());
+                }
+            }
+            logger.log("warning color not found ??? "+lines.get(0));
+        } catch (IOException e) {
+            // this is OK, no file = no color
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+        return null;
+    }
+
+    //**********************************************************
+    public static void save_color(Path folderPath, String color_java_name, Logger logger)
+    //**********************************************************
+    {
+        Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
+        if ( color_java_name == null)
+        {
+            try {
+                Files.delete(color_file);
+            } catch (IOException e) {
+                logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            }
+            logger.log("removed "+color_file);
+            return;
+        }
+
+        try {
+            FileWriter writer = new FileWriter(color_file.toFile(), false);
+            writer.write(color_java_name);
+            writer.close();
+            logger.log("saved "+color_file+" "+color_java_name);
+
+        } catch(IOException e){
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
     }
 
 
@@ -410,9 +458,13 @@ public class Icon_manager
         boolean single_column = Static_application_properties.get_single_column(logger);
         if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
         map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
+
+        logger.log("geometry_changed sz="+all_items_map.values().size());
+
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
     }
+
 
     //**********************************************************
     public void move_absolute(
@@ -437,7 +489,8 @@ public class Icon_manager
         for (Item item : all_items_map.values())
         {
             //if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
-            if (item.get_javafx_y() + item.get_Height() < current_vertical_offset -icon_size)
+            //if (item.get_javafx_y() + item.get_Height() < current_vertical_offset -icon_size)
+            if (item.get_javafx_y() + item.get_Height() < current_vertical_offset )
             {
                 if (invisible_dbg)
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
@@ -459,8 +512,11 @@ public class Icon_manager
             {
                 min_y = item.get_javafx_y();
                 top_left = item.get_item_path();
+                //logger.log("       tmp........"+top_left + " is now top left at y=" + min_y);
             }
         }
+       // logger.log(top_left + " is now top left at y=" + min_y);
+
     }
 
 
@@ -601,19 +657,18 @@ public class Icon_manager
     public double get_y_offset_of(Path target)
     //**********************************************************
     {
-        //logger.log("\n\nIcon_manager::get_y_offset_of "+target);
+        //logger.log("\n\nIcon_manager::get_y_offset_of "+target.toAbsolutePath()+" size="+all_items_map.values().size());
         String t2 = target.toAbsolutePath().toString();
         for ( Item i : all_items_map.values())
         {
-            //logger.log("\n\nIcon_manager::get_y_offset_of ... looking at "+i.get_item_path());
-
+            //logger.log("\n\nIcon_manager::get_y_offset_of ... looking at "+i.get_item_path().toAbsolutePath());
             if ( i.get_item_path().toAbsolutePath().toString().equals(t2))
             {
-                //logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_y());
+                logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_javafx_y());
                 return i.get_javafx_y();
             }
         }
-        //logger.log("\n\nIcon_manager::get_y_offset_of "+target+" NOT FOUND");
+        logger.log("\n\nIcon_manager::get_y_offset_of "+target+" NOT FOUND");
 
         return 0;
     }

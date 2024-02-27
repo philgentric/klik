@@ -16,9 +16,9 @@ import klik.browser.Drag_and_drop;
 import klik.browser.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
+import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Folder_size;
-import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -33,6 +33,8 @@ import java.awt.Desktop;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -64,8 +66,6 @@ public abstract class Item implements Icon_destination
     Job icon_job; // this is needed to cancel the icon request when the item has become invisible
 
 
-
-
     protected Color color;
     protected Path path;
     protected final Browser browser;
@@ -87,6 +87,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     public Item(Browser browser,
                 Path path,
+                Color color,
                 Logger logger)
     //**********************************************************
     {
@@ -94,6 +95,7 @@ public abstract class Item implements Icon_destination
         this.browser = browser;
         this.path = path;
         this.logger = logger;
+        this.color = color;
         item_type = Iconifiable_item_type.from_extension(path);
         icon_size = Static_application_properties.get_icon_size(logger);
     }
@@ -249,7 +251,7 @@ public abstract class Item implements Icon_destination
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
-
+                context_menu.getItems().add(create_edit_color_menu_item(path, dbg,logger));
             }
         }
 
@@ -663,6 +665,71 @@ public abstract class Item implements Icon_destination
         return menu_item;
     }
 
+    //**********************************************************
+    public  MenuItem create_edit_color_menu_item(Path path, boolean dbg, Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Color",logger);
+        Menu menu = new Menu(text);
+        List<My_color> possible_colors = new ArrayList<>();
+        for (My_color candidate_color : My_colors.get_all_colors(logger))
+        {
+            possible_colors.add(candidate_color);
+        }
+        List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
+        for ( My_color color : possible_colors)
+        {
+            create_menu_item_for_one_color( menu, color, all_check_menu_items, logger);
+        }
+        return menu;
+    }
+
+    //**********************************************************
+    public void create_menu_item_for_one_color(Menu menu, My_color target_color, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    //**********************************************************
+    {
+        String txt = target_color.localized_name();
+        CheckMenuItem item = new CheckMenuItem(txt);
+        if ( color == null)
+        {
+            if ( target_color.java_name() == null)
+            {
+                item.setSelected(true);
+            }
+        }
+        else
+        {
+            item.setSelected(color.toString() == target_color.java_name());
+        }
+        //I18n.get_I18n_string("Font_size",logger) + " = " +target_size);
+
+        item.setOnAction(actionEvent -> {
+            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
+            if (local.isSelected())
+            {
+                for ( CheckMenuItem cmi : all_check_menu_items)
+                {
+                    if (cmi != local) cmi.setSelected(false);
+                }
+                String localized_name = local.getText();
+
+                My_color my_color = My_colors.my_color_from_localized_name(localized_name,logger);
+                logger.log("is selected: ->"+localized_name+"<-");
+                color = my_color.color();
+                Icon_manager.save_color(path,my_color.java_name(),logger);
+                if ( this instanceof Item_button)
+                {
+                    Item_button ib = (Item_button) this;
+                    double font_size = Static_application_properties.get_font_size(logger);
+                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+                    Look_and_feel_manager.set_button_look_as_folder(ib.button, icon_height, color);
+                }
+            }
+        });
+        menu.getItems().add(item);
+        all_check_menu_items.add(item);
+
+    }
 
     public Path get_item_path() {
         return path;

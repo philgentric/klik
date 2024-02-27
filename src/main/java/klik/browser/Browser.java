@@ -71,7 +71,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private final int ID;
 
     private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
-    public final Path top_left_in_parent;
     public Icon_factory_actor icon_factory_actor;
     //public Icon_factory_actor_for_PDF icon_factory_actor_for_PDF;
     public Fx_batch_injector fx_injector;
@@ -109,6 +108,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //static boolean was_escaped = false;
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
+    static Map<Path,Path> scroll_tos = new HashMap<>();
     //**********************************************************
     @Override // Refresh_target
     public void refresh()
@@ -122,6 +122,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 //logger.log("REFRESH");
                 scene_geometry_changed("aspect ratio engine",true, true);
                 //Browser_creation_context.replace_same_folder(local,logger);
+
             }
         };
         Platform.runLater(r);
@@ -138,6 +139,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             public void run() {
                 //logger.log("REFRESH");
                 scene_geometry_changed_no_scan_dir("aspect ratio engine REFRESH",true, true);
+                execute_scroll_to();
             }
         };
         Platform.runLater(r);
@@ -239,7 +241,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         {
             //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after dir change: " +context.folder_path +"\n"+ signature()));
         }
-        top_left_in_parent = context.top_left_in_parent;
         //logger.log("top_left_in_parent="+top_left_in_parent);
 
         double x = 0;
@@ -322,7 +323,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
         icon_manager.set_Landscape_height_listener(vertical_slider);
 
-
         set_all_event_handlers();
 
         my_Stage.the_Stage.setScene(the_Scene);
@@ -346,16 +346,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Platform.runLater(() -> {
 
             scene_geometry_changed("Browser constructor", true, false);
-            if (context.scroll_to != null) {
-                if (dbg) logger.log("got a scroll_to : " + context.scroll_to);
-                double y1 = icon_manager.get_y_offset_of(context.scroll_to);
-                vertical_slider.transform_pixel_value(y1, icon_manager);
-
-            } else {
-                if (dbg) logger.log((" scroll_to == null in context"));
-            }
+            //registered_scroll_to = context.scroll_to;
         });
     }
+
+
 
     //**********************************************************
     private void set_icon()
@@ -1196,4 +1191,19 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         set_status(s);
     }
 
+    //**********************************************************
+    private void execute_scroll_to()
+    //**********************************************************
+    {
+        Path scroll_to = scroll_tos.get(displayed_folder_path);
+        if ( scroll_to == null) {
+            if (dbg) logger.log((" scroll_to == null "));
+            return;
+        }
+
+        double y1 = icon_manager.get_y_offset_of(scroll_to);
+        if (dbg)
+            logger.log("got a scroll_to : " + scroll_to+" target y offset = "+y1);
+        vertical_slider.transform_pixel_value(y1, icon_manager);
+    }
 }
