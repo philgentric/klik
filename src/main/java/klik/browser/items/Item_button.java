@@ -17,7 +17,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.level2.experimental.music.Audio_player;
+import klik.level3.experimental.music.Audio_player;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -413,22 +413,11 @@ public class Item_button extends Item implements Icon_destination
             }
 
 
-            Path scroll_to = null;
-            if (is_parent)
-            {
-                // special case when going back with the "Parent" button
-                //scroll_to = browser.was_top_left_in_parent;
-                logger.log("\n\n\nItem_non_image is parent, scroll_to=browser.top_left_in_parent = "+scroll_to);
-            }
-            else
-            {
-                //logger.log("Item_button is NOT parent");
-            }
             // if the button represents a folder, clicking on it "opens" that folder
             // = we create a NEW browser, as a replacement
 
             if( dbg) logger.log("Item_button button setOnAction calling replace_different_folder");
-            Browser_creation_context.replace_different_folder(path,browser,scroll_to,logger);
+            Browser_creation_context.replace_different_folder(path,browser,logger);
 
         });
 

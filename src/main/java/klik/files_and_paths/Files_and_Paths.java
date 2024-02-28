@@ -864,7 +864,7 @@ public class Files_and_Paths {
         // Traditional way to get the response value.
         Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) {
-            logger.log("ask_user_for_new_dir_name no result? cancel I hope?");
+            //logger.log("ask_user_for_new_dir_name no result? cancel I hope?");
             return null;
         }
 
@@ -873,10 +873,10 @@ public class Files_and_Paths {
             logger.log("ask_user_for_new_dir_name: Rename not done as names are same ->" + old_name + "=" + new_name + "<-");
             return null;
         }
-        logger.log("ask_user_for_new_dir_name ->" + old_name + "<-   ==>   ->" + new_name + "<-");
+        //logger.log("ask_user_for_new_dir_name ->" + old_name + "<-   ==>   ->" + new_name + "<-");
 
         Path returned = Paths.get(path.getParent().toAbsolutePath().toString(), new_name);
-        logger.log("ask_user_for_new_dir_name returns ->" + returned + "<-");
+        //logger.log("ask_user_for_new_dir_name returns ->" + returned + "<-");
         return returned;
     }
 
@@ -919,39 +919,12 @@ public class Files_and_Paths {
     }
 
 
-    //**********************************************************
-    public static List<My_File> get_all_files_down(File cwd, Deduplication_console_window popup, boolean consider_also_hidden_files, Logger logger)
-    //**********************************************************
-    {
-        List<My_File> returned = new ArrayList<>();
-        File[] files = cwd.listFiles();
-        if (files == null) return returned;
-        for (File f : files) {
-            if (f.isDirectory())
-            {
-                if (popup != null) popup.count_directory_examined.incrementAndGet();
-                returned.addAll(get_all_files_down(f, popup, consider_also_hidden_files, logger));
-            }
-            else
-            {
-                if (!consider_also_hidden_files) if (Guess_file_type.ignore(f.toPath())) continue;
-                if (f.length() == 0) {
-                    logger.log("WARNING: empty file found:" + f.getAbsolutePath());
-                    continue;
-                }
-                My_File mf = new My_File(f, logger);
-                returned.add(mf);
-            }
-        }
-        return returned;
-    }
-
 
     //**********************************************************
     public static void copy_dir_in_a_thread(Stage owner, Path path, Path new_path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger.log("copy_dir_in_a_thread start");
+        if ( dbg) logger.log("copy_dir_in_a_thread start");
         Runnable r = () -> {
             boolean status = copy_dir(path, new_path, logger);
             if (status) {
@@ -963,7 +936,7 @@ public class Files_and_Paths {
         };
         try {
             Actor_engine.execute(r,aborter,logger);
-            logger.log("copy_dir_in_a_thread LAUNCHED");
+            if ( dbg) logger.log("copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
             logger.log("copy_dir_in_a_thread()" + ree);
         }

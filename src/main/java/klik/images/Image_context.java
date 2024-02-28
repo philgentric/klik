@@ -21,8 +21,8 @@ import klik.files_and_paths.*;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.search.Finder;
 import klik.images.decoding.Fast_date_from_OS;
-import klik.level2.fusk.Fusk_static_core;
-import klik.level2.fusk.Fusk_strings;
+import klik.level3.fusk.Fusk_static_core;
+import klik.level3.fusk.Fusk_strings;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
@@ -47,6 +47,7 @@ public class Image_context
 //**********************************************************
 {
     public static final boolean dbg = false;
+    public static final boolean exif_dbg = false;
 
     public final Path previous_path;
     public final Path path;
@@ -181,15 +182,15 @@ public class Image_context
         TextFlow textFlow = new TextFlow();
         textFlow.setLayoutX(40);
         textFlow.setLayoutY(40);
-        logger.log("$$$$$$ EXIF $$$$$$$$$$$");
+        if ( exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
         for (String s : load_exif(new Aborter("EXIF",logger)))
         {
-            logger.log(s);
+            if ( exif_dbg) logger.log(s);
             Text t = new Text(s);
             textFlow.getChildren().add(t);
             textFlow.getChildren().add(new Text(System.lineSeparator()));
         }
-        logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
+        if ( exif_dbg) logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
         ScrollPane sp = new ScrollPane();
         Look_and_feel_manager.set_region_look(sp);
         Look_and_feel_manager.set_region_look(textFlow);

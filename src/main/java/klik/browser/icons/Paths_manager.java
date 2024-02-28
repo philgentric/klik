@@ -109,7 +109,7 @@ public class Paths_manager
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
-        logger.log((from+" scan dir "+folder_path));
+        //logger.log((from+" scan dir "+folder_path));
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);

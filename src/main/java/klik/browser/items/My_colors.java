@@ -1,9 +1,15 @@
 package klik.browser.items;
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import klik.look.my_i18n.I18n;
 import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class My_colors {
@@ -14,6 +20,7 @@ public class My_colors {
 
     public static void init_My_colors(Logger logger)
     {
+        all_colors.clear();
         Color col;
         String localized_name;
         {
@@ -36,6 +43,39 @@ public class My_colors {
             col = Color.BLUE;
             all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
         }
+        {
+            localized_name = "Chartreuse";
+            col = Color.CHARTREUSE;
+            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        }
+        {
+            localized_name = "Cyan";
+            col = Color.CYAN;
+            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        }
+        {
+            localized_name = "Bisque";
+            col = Color.BISQUE;
+            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        }
+        {
+            localized_name = "Coral";
+            col = Color.CORAL;
+            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        }
+        {
+        localized_name = "Chocolate";
+        col = Color.CHOCOLATE;
+        all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        }
+    }
+
+
+    public static Circle get_circle(String localized_name, double radius, Logger logger)
+    {
+        My_color my_color = my_color_from_localized_name(localized_name,logger);
+        if ( my_color == null) return null;
+        return new Circle(radius, my_color.color());
     }
 
     public static Collection<My_color> get_all_colors(Logger logger)
@@ -52,4 +92,59 @@ public class My_colors {
         }
         return null;
     }
+
+
+
+    //**********************************************************
+    public static Color load_color(Path folderPath, Logger logger)
+    //**********************************************************
+    {
+        Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
+        try {
+            List<String> lines = Files.readAllLines(color_file);
+            Collection<My_color> all_colors = My_colors.get_all_colors(logger);
+            for ( My_color my_color: all_colors)
+            {
+                if ( my_color.java_name() == null) continue;
+                if ( my_color.java_name().equals(lines.get(0)))
+                {
+                    return Color.valueOf(my_color.java_name());
+                }
+            }
+            logger.log("warning color not found ??? "+lines.get(0));
+        } catch (IOException e) {
+            // this is OK, no file = no color
+            //logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+        return null;
+    }
+
+    //**********************************************************
+    public static void save_color(Path folderPath, String color_java_name, Logger logger)
+    //**********************************************************
+    {
+        Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
+        if ( color_java_name == null)
+        {
+            try {
+                Files.delete(color_file);
+            } catch (IOException e) {
+                logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            }
+            //logger.log("removed "+color_file);
+            return;
+        }
+
+        try {
+            FileWriter writer = new FileWriter(color_file.toFile(), false);
+            writer.write(color_java_name);
+            writer.close();
+            //logger.log("saved "+color_file+" "+color_java_name);
+
+        } catch(IOException e){
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+    }
+
+
 }

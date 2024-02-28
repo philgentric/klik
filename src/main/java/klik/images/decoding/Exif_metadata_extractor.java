@@ -12,8 +12,8 @@ import klik.properties.Static_application_properties;
 import klik.util.From_disk;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.level2.fusk.Fusk_static_core;
-import klik.level2.fusk.Fusk_strings;
+import klik.level3.fusk.Fusk_static_core;
+import klik.level3.fusk.Fusk_strings;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;

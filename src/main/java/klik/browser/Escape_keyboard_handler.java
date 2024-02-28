@@ -24,26 +24,26 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
     //**********************************************************
     {
 
-        if ( browser.dbg) browser.logger.log("KeyEvent="+key_event);
+        if ( browser.keyboard_dbg) browser.logger.log("KeyEvent="+key_event);
         if (key_event.getCode() == KeyCode.ESCAPE)
         {
-            browser.logger.log("\n\n\n\nWindow RECEIVED ESCAPE = "+browser.signature());
+            if ( browser.keyboard_dbg) browser.logger.log("\n\n\n\nWindow RECEIVED ESCAPE = "+browser.signature());
             if ( browser.my_Stage.escape>0) return;
             browser.my_Stage.escape++;
             key_event.consume();
 
             if ( browser.exit_on_escape_preference)
             {
-                browser.logger.log(" Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
+                if ( browser.keyboard_dbg) browser.logger.log(" Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
                 if ( browser.ignore_escape_as_the_stage_is_full_screen)
                 {
-                    browser.logger.log("ESCAPE is enabled by user preference, but frame is in fullscreen so ESCAPE => out of full-screen (press ESCAPE again if you want to exit)");
+                    if ( browser.keyboard_dbg) browser.logger.log("ESCAPE is enabled by user preference, but frame is in fullscreen so ESCAPE => out of full-screen (press ESCAPE again if you want to exit)");
                     browser.ignore_escape_as_the_stage_is_full_screen = false;
-                    browser.logger.log("Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
+                    if ( browser.keyboard_dbg) browser.logger.log("Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
                 }
                 else
                 {
-                    browser.logger.log("\n\nESCAPE is enabled by user preference, so ESCAPE => close "+browser.signature());
+                    if ( browser.keyboard_dbg) browser.logger.log("\n\nESCAPE is enabled by user preference, so ESCAPE => close "+browser.signature());
                     browser.close_window();
                     if (browser.windows_count.get() ==0)
                     {
@@ -55,7 +55,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
             }
             else
             {
-                browser.logger.log("ESCAPE ignored by user preference");
+                if ( browser.keyboard_dbg) browser.logger.log("ESCAPE ignored by user preference");
             }
         }
     }

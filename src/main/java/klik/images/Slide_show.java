@@ -11,6 +11,7 @@ import klik.util.Logger;
 public class Slide_show
 //**********************************************************
 {
+    private static final boolean dbg = false;
     private Timeline slide_show_animation_timeline;
     long inter_frame_ms = 2000;
     private final Slide_show_slave image_stage;
@@ -43,7 +44,7 @@ public class Slide_show
         slide_show_animation_timeline.getKeyFrames().add(new KeyFrame(Duration.millis(inter_frame_ms), eventHandler));
         slide_show_animation_timeline.setCycleCount(Timeline.INDEFINITE);
         slide_show_animation_timeline.play();
-        logger.log("slide show start " + inter_frame_ms);
+        if (dbg) logger.log("slide show start " + inter_frame_ms);
         image_stage.set_title();
 
     }
@@ -57,7 +58,7 @@ public class Slide_show
             slide_show_animation_timeline.stop();
             slide_show_animation_timeline = null;
 
-            logger.log("slide show stop");
+            if (dbg) logger.log("slide show stop");
         }
     }
 

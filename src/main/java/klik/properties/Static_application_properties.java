@@ -30,6 +30,7 @@ public class Static_application_properties
     public static Properties_manager the_properties_manager;
     public static final String SORT_FILES_BY = "sort_files_by";
     private static final String LEVEL2 = "LEVEL2";
+    private static final String LEVEL3 = "LEVEL3";
     private static final int DEFAULT_SIZE_WARNING_MEGABYTES = 100;
     private static final String DISK_CACHE_SIZE_WARNING_MEGABYTES = "DISK_CACHE_SIZE_WARNING_MEGABYTES";
     private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
@@ -951,6 +952,24 @@ public class Static_application_properties
             }
         }
         return level2_cache;
+    }
+    static Boolean level3_cache = null;
+    //**********************************************************
+    public static boolean get_level3(Logger logger)
+    //**********************************************************
+    {
+        if ( level3_cache == null)
+        {
+            String s = Static_application_properties.get_properties_manager(logger).get(LEVEL3);
+            if (s == null) {
+                Static_application_properties.get_properties_manager(logger).save_unico(LEVEL3, "false", false);
+                level3_cache = false;
+            } else {
+                logger.log("LEVEL3=" + s);
+                level3_cache = Boolean.parseBoolean(s);
+            }
+        }
+        return level3_cache;
     }
 
     /*

@@ -6,7 +6,7 @@ import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Static_application_properties;
 import klik.util.Execute_command;
 import klik.util.Logger;
-import klik.level2.fusk.Fusk_static_core;
+import klik.level3.fusk.Fusk_static_core;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.level2.experimental.music.Audio_player.PLAYLIST_EXTENSION;
+import static klik.level3.experimental.music.Audio_player.PLAYLIST_EXTENSION;
 
 /*
 static utilities to guess the file type from its extension

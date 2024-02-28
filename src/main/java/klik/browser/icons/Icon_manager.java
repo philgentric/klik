@@ -368,7 +368,7 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-            Color color = load_color(folder_path);
+            Color color = My_colors.load_color(folder_path,logger);
             // a "plain" folder is "like a file" from a layout point of view
             // the difference is: it will get a border
             folder_item = new Item_button(the_browser,folder_path, color, folder_path.getFileName().toString(), icon_height, false, false, logger);
@@ -383,58 +383,6 @@ public class Icon_manager
         }
         return p;
     }
-
-    //**********************************************************
-    private Color load_color(Path folderPath)
-    //**********************************************************
-    {
-        Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
-        try {
-            List<String> lines = Files.readAllLines(color_file);
-            Collection<My_color> all_colors = My_colors.get_all_colors(logger);
-            for ( My_color my_color: all_colors)
-            {
-                if ( my_color.java_name() == null) continue;
-                if ( my_color.java_name().equals(lines.get(0)))
-                {
-                    return Color.valueOf(my_color.java_name());
-                }
-            }
-            logger.log("warning color not found ??? "+lines.get(0));
-        } catch (IOException e) {
-            // this is OK, no file = no color
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
-        return null;
-    }
-
-    //**********************************************************
-    public static void save_color(Path folderPath, String color_java_name, Logger logger)
-    //**********************************************************
-    {
-        Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
-        if ( color_java_name == null)
-        {
-            try {
-                Files.delete(color_file);
-            } catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            }
-            logger.log("removed "+color_file);
-            return;
-        }
-
-        try {
-            FileWriter writer = new FileWriter(color_file.toFile(), false);
-            writer.write(color_java_name);
-            writer.close();
-            logger.log("saved "+color_file+" "+color_java_name);
-
-        } catch(IOException e){
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
-    }
-
 
     //**********************************************************
     public void clear_aspect_ratio_cache()
@@ -453,14 +401,11 @@ public class Icon_manager
     )
     //**********************************************************
     {
-        //if (scroll_dbg)
+        if (scroll_dbg)
             logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" rebuild_all_items="+rebuild_all_items);
         boolean single_column = Static_application_properties.get_single_column(logger);
         if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
         map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
-
-        logger.log("geometry_changed sz="+all_items_map.values().size());
-
         move_absolute(pane, current_vertical_offset, reason);
         b.update_slider(current_vertical_offset);
     }
@@ -664,11 +609,11 @@ public class Icon_manager
             //logger.log("\n\nIcon_manager::get_y_offset_of ... looking at "+i.get_item_path().toAbsolutePath());
             if ( i.get_item_path().toAbsolutePath().toString().equals(t2))
             {
-                logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_javafx_y());
+                //logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_javafx_y());
                 return i.get_javafx_y();
             }
         }
-        logger.log("\n\nIcon_manager::get_y_offset_of "+target+" NOT FOUND");
+        //logger.log("\n\nIcon_manager::get_y_offset_of "+target+" NOT FOUND");
 
         return 0;
     }

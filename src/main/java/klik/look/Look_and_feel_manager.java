@@ -934,7 +934,8 @@ public class Look_and_feel_manager
             else
             {
                 HBox hbox = new HBox();
-                Circle dot = new Circle(0,height,height/4,color);
+                Circle dot = new Circle(height/4,color);
+                dot.setTranslateY(height/4);
                 hbox.getChildren().add(dot);
                 hbox.getChildren().add(image_view);
                 button.setGraphic(hbox);

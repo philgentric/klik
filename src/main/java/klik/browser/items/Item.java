@@ -2,10 +2,20 @@ package klik.browser.items;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -16,25 +26,23 @@ import klik.browser.Drag_and_drop;
 import klik.browser.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
-import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Folder_size;
+import klik.level3.metadata.Tag_stage;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.level2.metadata.Tag_stage;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -669,7 +677,7 @@ public abstract class Item implements Icon_destination
     public  MenuItem create_edit_color_menu_item(Path path, boolean dbg, Logger logger)
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Color",logger);
+        String text = I18n.get_I18n_string("Color_Tag",logger);
         Menu menu = new Menu(text);
         List<My_color> possible_colors = new ArrayList<>();
         for (My_color candidate_color : My_colors.get_all_colors(logger))
@@ -690,6 +698,7 @@ public abstract class Item implements Icon_destination
     {
         String txt = target_color.localized_name();
         CheckMenuItem item = new CheckMenuItem(txt);
+        item.setGraphic(new Circle(10, target_color.color()));
         if ( color == null)
         {
             if ( target_color.java_name() == null)
@@ -714,9 +723,9 @@ public abstract class Item implements Icon_destination
                 String localized_name = local.getText();
 
                 My_color my_color = My_colors.my_color_from_localized_name(localized_name,logger);
-                logger.log("is selected: ->"+localized_name+"<-");
+                //logger.log("is selected: ->"+localized_name+"<-");
                 color = my_color.color();
-                Icon_manager.save_color(path,my_color.java_name(),logger);
+                My_colors.save_color(path,my_color.java_name(),logger);
                 if ( this instanceof Item_button)
                 {
                     Item_button ib = (Item_button) this;

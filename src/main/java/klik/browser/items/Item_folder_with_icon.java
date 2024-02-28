@@ -93,7 +93,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         the_button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Browser_creation_context.replace_different_folder(path,browser, null, logger);
+                Browser_creation_context.replace_different_folder(path,browser, logger);
             }
         });
 

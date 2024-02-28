@@ -8,7 +8,7 @@ import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.undo.Undo_engine;
 import klik.files_and_paths.Guess_file_type;
-import klik.level2.metadata.Tag_stage;
+import klik.level3.metadata.Tag_stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
@@ -143,7 +143,7 @@ public class Menus_for_image_window
 
         if (Static_application_properties.get_level2(image_context_owner.logger))
         {
-            image_window.logger.log("level2 is true");
+            //image_window.logger.log("level2 is true");
             CheckMenuItem quality = get_quality_check_menu_item(image_window, image_context_owner);
             context_menu.getItems().add(quality);
         }
@@ -164,14 +164,11 @@ public class Menus_for_image_window
         MenuItem print = get_print_menu_item(image_context_owner);
         context_menu.getItems().add(print);
 
-
         MenuItem search_k = get_search_by_autoextracted_keyword_menu_item(the_browser, image_window, image_context_owner);
         context_menu.getItems().add(search_k);
 
-
         MenuItem search_y = get_search_by_user_given_keywords_menu_item(the_browser, image_window, image_context_owner);
         context_menu.getItems().add(search_y);
-
 
         MenuItem click_to_zoom = get_set_zoom_mode_menu_item(image_window);
         context_menu.getItems().add(click_to_zoom);
@@ -182,14 +179,11 @@ public class Menus_for_image_window
         MenuItem pix_for_pix = get_set_pix_for_pix_menu_item(image_window);
         context_menu.getItems().add(pix_for_pix);
 
-
-        if ( Static_application_properties.get_level2(image_context_owner.logger))
-        {
-            if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
-                MenuItem gif_repair = get_gif_repair_menu_item(image_window, image_context_owner, image_window.aborter);
-                context_menu.getItems().add(gif_repair);
-            }
+        if (Guess_file_type.is_this_path_a_gif(image_context_owner.image_context.path)) {
+            MenuItem gif_repair = get_gif_repair_menu_item(image_window, image_context_owner, image_window.aborter);
+            context_menu.getItems().add(gif_repair);
         }
+
 
         MenuItem undo_move = get_undo_menu_item(image_window);
         context_menu.getItems().add(undo_move);

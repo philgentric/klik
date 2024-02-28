@@ -18,7 +18,7 @@ import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.level2.metadata.Tag_items_management_stage;
+import klik.level3.metadata.Tag_items_management_stage;
 import klik.look.my_i18n.I18n;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.*;
@@ -716,7 +716,7 @@ public class Browser_menus
                 {
                     item.setDisable(true);
                 }
-                item.setOnAction(event -> Browser_creation_context.replace_different_folder(Path.of(hi.path), browser,null,logger));
+                item.setOnAction(event -> Browser_creation_context.replace_different_folder(Path.of(hi.path), browser,logger));
                 path_already_done.put(hi.path,hi);
                 history_menu.getItems().add(item);
                 on_screen++;
@@ -748,7 +748,7 @@ public class Browser_menus
     private void pop_up_whole_history()
     //**********************************************************
     {
-        Active_list_stage_action action = text -> Browser_creation_context.replace_different_folder(Path.of(text),browser, null, logger);
+        Active_list_stage_action action = text -> Browser_creation_context.replace_different_folder(Path.of(text),browser, logger);
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
             @Override
             public Map<LocalDateTime, String> get_map_of_date_to_signature() {
@@ -783,7 +783,7 @@ public class Browser_menus
                 continue;
             }
             MenuItem item = new MenuItem(hi);
-            item.setOnAction(event -> Browser_creation_context.replace_different_folder(Path.of(hi), browser, null, logger));
+            item.setOnAction(event -> Browser_creation_context.replace_different_folder(Path.of(hi), browser, logger));
             bookmarks_menu.getItems().add(item);
 
         }
@@ -824,7 +824,7 @@ public class Browser_menus
             String text = f.getAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> {
-                    Browser_creation_context.replace_different_folder(f.toPath(),browser,null,logger);
+                    Browser_creation_context.replace_different_folder(f.toPath(),browser,logger);
             });
             roots_menu.getItems().add(item);
         }

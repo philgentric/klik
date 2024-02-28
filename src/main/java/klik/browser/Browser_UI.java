@@ -33,6 +33,7 @@ public class Browser_UI
     MenuItem start_full_screen_menu_item;
     List<Button> top_buttons = new ArrayList<>();
     private final boolean level2;
+    private final boolean level3;
 
     //**********************************************************
     public Browser_UI(Browser b)
@@ -42,6 +43,7 @@ public class Browser_UI
         logger = browser.logger;
         browser_menus = browser.browser_menus;
         level2 = Static_application_properties.get_level2(logger);
+        level3 = Static_application_properties.get_level3(logger);
 
     }
 
@@ -318,7 +320,7 @@ public class Browser_UI
         view_menu.getItems().add(browser_menus.make_about_menu_item(logger));
         if (level2) view_menu.getItems().add(browser_menus.make_refresh_menu_item());
         view_menu.getItems().add(browser_menus.make_meters_menu_item(logger));
-        if (level2) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
+        if (level3) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
 
         return view_menu;
     }
@@ -354,10 +356,10 @@ public class Browser_UI
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
-            clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
-            clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
             if (level2)
             {
+                clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
+                clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
@@ -372,18 +374,18 @@ public class Browser_UI
                 clean.getItems().add(deduplicate);
             }
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
+            if (level2) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             files_menu.getItems().add(clean);
         }
 
-        if (level2)
+        if (level2) files_menu.getItems().add(browser_menus.make_backup_menu());
+
+        if (level3)
         {
-            files_menu.getItems().add(browser_menus.make_backup_menu());
             if (Static_application_properties.get_enable_fusk(logger))
             {
                 files_menu.getItems().add(browser_menus.make_fusk_menu());
             }
-
         }
         return files_menu;
     }
@@ -418,7 +420,7 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_ding_menu_item());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
-        if (level2) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
+        if (level3) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
         pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item(logger));
 
         return pref;

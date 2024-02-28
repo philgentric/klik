@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -15,7 +14,7 @@ import klik.change.Change_receiver;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
 import klik.images.caching.Image_cache_dummy;
-import klik.level2.experimental.Static_image_utilities;
+import klik.level3.experimental.Static_image_utilities;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
@@ -179,9 +178,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     void handle_mouse_clicked_secondary(Browser the_browser, Stage stage, MouseEvent e, Logger logger)
     //**********************************************************
     {
-
-        logger.log("handle_mouse_clicked_secondary");
-
+        //logger.log("handle_mouse_clicked_secondary");
         ContextMenu contextMenu = Menus_for_image_window.make_context_menu(the_browser, image_window, this);
         contextMenu.show(stage, e.getScreenX(), e.getScreenY());
     }

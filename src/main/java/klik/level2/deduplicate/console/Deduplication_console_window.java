@@ -11,11 +11,16 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.files_and_paths.Guess_file_type;
+import klik.files_and_paths.My_File;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 import klik.util.Scheduled_thread_pool;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -212,11 +217,42 @@ public class Deduplication_console_window
         browser.fx_injector.input.addFirst(() -> { if ( !just_count) progress_bar_deleted.setProgress(1.0);});
     }
 
-    public void set_status_text(String status) {
+    //**********************************************************
+    public void set_status_text(String status)
+    //**********************************************************
+    {
         browser.fx_injector.input.addFirst(() ->{
 
             if (private_aborter.should_abort()) return;
             label_status.setText(STATUS+ status);
         });
     }
+
+    //**********************************************************
+    public static List<My_File> get_all_files_down(File cwd, Deduplication_console_window popup, boolean consider_also_hidden_files, Logger logger)
+    //**********************************************************
+    {
+        List<My_File> returned = new ArrayList<>();
+        File[] files = cwd.listFiles();
+        if (files == null) return returned;
+        for (File f : files) {
+            if (f.isDirectory())
+            {
+                if (popup != null) popup.count_directory_examined.incrementAndGet();
+                returned.addAll(get_all_files_down(f, popup, consider_also_hidden_files, logger));
+            }
+            else
+            {
+                if (!consider_also_hidden_files) if (Guess_file_type.ignore(f.toPath())) continue;
+                if (f.length() == 0) {
+                    logger.log("WARNING: empty file found:" + f.getAbsolutePath());
+                    continue;
+                }
+                My_File mf = new My_File(f, logger);
+                returned.add(mf);
+            }
+        }
+        return returned;
+    }
+
 }

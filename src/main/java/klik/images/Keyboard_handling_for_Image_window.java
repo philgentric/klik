@@ -5,7 +5,7 @@ import javafx.scene.input.KeyEvent;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.Change_gang;
-import klik.level2.metadata.Tag_stage;
+import klik.level3.metadata.Tag_stage;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -44,7 +44,7 @@ public class Keyboard_handling_for_Image_window
             else
             {
                 image_window.the_Stage.close();
-                logger.log("Image_stage closing on escape");
+                //logger.log("Image_stage closing on escape");
                 Change_gang.deregister(image_window.image_display_handler, the_browser.aborter);
             }
 

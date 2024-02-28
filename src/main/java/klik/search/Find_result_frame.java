@@ -1,12 +1,5 @@
 package klik.search;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -14,17 +7,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.System_open_actor;
-import klik.files_and_paths.Ding;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
-import klik.level2.experimental.music.Audio_player;
+import klik.level3.experimental.music.Audio_player;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
-import klik.properties.Static_application_properties;
 import klik.util.Logger;
 
 import java.nio.file.Files;

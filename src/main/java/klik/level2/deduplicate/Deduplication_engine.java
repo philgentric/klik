@@ -460,7 +460,7 @@ public class Deduplication_engine implements Againor
         console_window.set_status_text("Scanning directories");
         boolean also_hidden_files = Static_application_properties.get_show_hidden_files(logger);
 
-        List<My_File> files = Files_and_Paths.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
+        List<My_File> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
         //Collections.sort(files, by_path_length);
         return files;
     }

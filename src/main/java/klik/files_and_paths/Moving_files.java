@@ -7,7 +7,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_engine;
 import klik.images.Same_move_engine;
-import klik.level2.metadata.Metadata_handler;
+import klik.level3.metadata.Metadata_handler;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.*;

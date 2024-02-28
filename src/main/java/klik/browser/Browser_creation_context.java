@@ -17,15 +17,11 @@ public class Browser_creation_context
 {
     private static final boolean dbg = false;
     public final Path folder_path;
-
     public final Rectangle2D rectangle;
     public final boolean keep_offset;
     public final boolean additional_window; // if false, the old_browser is closed and de-registered, then a new one is used in the SAME window
     public final boolean move_a_bit; // if true the new instance is at the same location on screen s the old one
-    //public final Path top_left_in_parent;
-    //public final Path scroll_to;
     public final Browser old_browser; // if null, there is no previous guy
-    //public final My_Stage stage; // if null, there is no previous guy
 
     //**********************************************************
     Browser_creation_context(
@@ -35,21 +31,14 @@ public class Browser_creation_context
             boolean keepOffset,
             boolean additional_window,
             boolean move_a_bit_,
-            //Path was_previous_top_left_,
-            //Path scroll_to_,
             Browser oldBrowser)
     //**********************************************************
     {
-        //this.stage = stage;
         this.rectangle = rectangle;
         keep_offset = keepOffset;
         this.additional_window = additional_window;
         if ( !additional_window) previous_stage.the_Stage.close();
         move_a_bit = move_a_bit_;
-        //top_left_in_parent = was_previous_top_left_;
-        //System.out.println("top_left_in_parent="+top_left_in_parent);
-        //scroll_to = scroll_to_;
-        //System.out.println("scroll_to="+scroll_to);
         old_browser = oldBrowser;
         this.folder_path = dir;
     }
@@ -59,11 +48,6 @@ public class Browser_creation_context
     //**********************************************************
     {
         String returned = "keep_offset="+keep_offset+"\nadditional_window="+additional_window+"\nsame_place="+ move_a_bit;
-        /*if ( top_left_in_parent!=null) returned += "\ntop_left_in_parent="+top_left_in_parent.toAbsolutePath();
-        else returned += "\ntop_left_in_parent is NULL";
-        if ( scroll_to!=null) returned += "\nscroll_to="+scroll_to;
-        else returned += "\nscroll_to is NULL";
-        */
         return returned;
     }
 
@@ -188,7 +172,7 @@ public class Browser_creation_context
     }
 
     //**********************************************************
-    public static void replace_different_folder(Path path, Browser parent, Path scroll_to, Logger logger)
+    public static void replace_different_folder(Path path, Browser parent, Logger logger)
     //**********************************************************
     {
         Browser.scroll_tos.put(parent.displayed_folder_path,parent.get_top_left());

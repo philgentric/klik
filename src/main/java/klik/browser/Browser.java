@@ -32,9 +32,9 @@ import klik.level2.backup.Backup_singleton;
 import klik.browser.items.Item;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.level2.fusk.Fusk_bytes;
-import klik.level2.fusk.Fusk_singleton;
-import klik.level2.fusk.Static_fusk_paths;
+import klik.level3.fusk.Fusk_bytes;
+import klik.level3.fusk.Fusk_singleton;
+import klik.level3.fusk.Static_fusk_paths;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
@@ -63,6 +63,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 //**********************************************************
 {
     public static final boolean dbg = false;
+    public static final boolean keyboard_dbg = false;
 
 
     public static final boolean use_fx_injector = true;
@@ -109,6 +110,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
     static Map<Path,Path> scroll_tos = new HashMap<>();
+
     //**********************************************************
     @Override // Refresh_target
     public void refresh()
@@ -393,7 +395,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         aborter.abort();
-        logger.log("Browser cleanup " + signature());
+        if (dbg) logger.log("Browser cleanup " + signature());
         // when we change dir, we need to de-register the old browser
         // otherwise the list in the change_gang keeps growing
         // plus memory leak! ==> the RAM footprint keeps growing
@@ -542,50 +544,53 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Browser local = this;
         the_Scene.setOnKeyTyped(keyEvent -> {
 
-            logger.log(keyEvent + "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
-            if (keyEvent.isShiftDown()) logger.log("isShiftDown: true");
-            if (keyEvent.isAltDown()) logger.log("isAltDown: true");
-            if (keyEvent.isMetaDown()) logger.log("isMetaDown: true");
+            if (keyboard_dbg)
+            {
+                logger.log(keyEvent + "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
+                if (keyEvent.isShiftDown()) logger.log("isShiftDown: true");
+                if (keyEvent.isAltDown()) logger.log("isAltDown: true");
+                if (keyEvent.isMetaDown()) logger.log("isMetaDown: true");
+            }
 
             if (keyEvent.getCharacter().equals("k")) {
-                logger.log("character is k = keyword search");
+                if (keyboard_dbg) logger.log("character is k = keyword search");
                 browser_menus.search_files_by_keyworks();
             }
             if (keyEvent.getCharacter().equals("s")) {
-                logger.log("character is s = start/stop scan");
+                if (keyboard_dbg) logger.log("character is s = start/stop scan");
                 handle_scan_switch();
             }
             if (keyEvent.getCharacter().equals("w")) {
-                logger.log("character is w = slow down scan");
+                if (keyboard_dbg) logger.log("character is w = slow down scan");
                 slow_down_scan();
             }
             if (keyEvent.getCharacter().equals("x")) {
-                logger.log("character is x = speed up scan");
+                if (keyboard_dbg) logger.log("character is x = speed up scan");
                 speed_up_scan();
             }
 
             if (keyEvent.isMetaDown())
             {
                 if (keyEvent.getCharacter().equals("a")) {
-                    logger.log("character is a + meta = select all");
+                    if (keyboard_dbg) logger.log("character is a + meta = select all");
                     selection_handler.select_all_files_in_folder(local);
                 }
 
                 if (keyEvent.getCharacter().equals("+")) {
-                    logger.log("character is +meta = zoom +");
+                    if (keyboard_dbg) logger.log("character is +meta = zoom +");
                     zoom_plus();
                 }
                 if (keyEvent.getCharacter().equals("=")) {
-                    logger.log("character is  (meta & equal) +meta = zoom +");
+                    if (keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
                     zoom_plus();
                 }
                 if (keyEvent.getCharacter().equals("-")) {
-                    logger.log("character is -meta = zoom -");
+                    if (keyboard_dbg) logger.log("character is -meta = zoom -");
                     zoom_minus();
                 }
             }
             if (keyEvent.getCharacter().equals("n")) {
-                logger.log("character is n = new broser (clone)");
+                if (keyboard_dbg) logger.log("character is n = new broser (clone)");
                 Browser_creation_context.additional_same_folder(local, logger);
             }
         });
@@ -898,7 +903,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         int new_icon_size = (int) (Static_application_properties.get_icon_size(logger) * fac);
-        logger.log("new icon size = "+new_icon_size);
+        if ( new_icon_size < 20) new_icon_size = 20;
+        //logger.log("new icon size = "+new_icon_size);
         Static_application_properties.set_icon_size(new_icon_size, logger);
         //icon_manager.modify_button_fonts(fac);
         scene_geometry_changed("zoom", true, true);
@@ -1076,8 +1082,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         {
             case more_changes:
             {
-               // if (dbg)
-                    logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+               if (dbg) logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
                 fx_injector.input.addFirst(() -> {
                     scene_geometry_changed("change gang for dir: " + displayed_folder_path, true, true);
                 });
@@ -1085,7 +1090,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             break;
             case one_new_file, one_file_gone:
             {
-                logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+                if (dbg) logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
 
                 fx_injector.input.addFirst(() -> {
                     scene_geometry_changed("change gang for dir: " + displayed_folder_path, false, true);

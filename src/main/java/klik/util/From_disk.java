@@ -7,7 +7,7 @@ import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.level2.fusk.Fusk_static_core;
+import klik.level3.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
 

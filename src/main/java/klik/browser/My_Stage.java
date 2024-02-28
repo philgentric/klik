@@ -31,7 +31,7 @@ public class My_Stage
     //**********************************************************
     {
         the_Stage.close();
-        logger.log("My_Stage closing");
+        if (Browser.dbg) logger.log("My_Stage closing");
         //usage_count--;
     }
 
