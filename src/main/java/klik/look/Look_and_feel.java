@@ -94,6 +94,8 @@ public abstract class Look_and_feel
 
     abstract public URL get_CSS_URL();
 
+
+    abstract public String get_search_end_icon_path();
     abstract public String get_klik_image_path();
     abstract public String get_trash_icon_path();
     abstract public String get_up_icon_path();
@@ -247,6 +249,10 @@ public abstract class Look_and_feel
         double w =  text.getLayoutBounds().getWidth();
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
+    }
+
+    public String get_search_icon_path() {
+        return "running_man.gif";
     }
 
 }

@@ -20,7 +20,12 @@ public class Look_and_feel_dark extends Look_and_feel
         super("Dark",logger_);
     }
 
+
     @Override
+    public String get_search_end_icon_path() {
+        return "lazy_dark.png";
+    }
+
     public String get_broken_icon_path()
     {
         return "light/broken.png";

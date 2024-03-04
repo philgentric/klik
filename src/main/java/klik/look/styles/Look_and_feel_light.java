@@ -24,6 +24,11 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
+    public String get_search_end_icon_path() {
+        return "lazy.png";
+    }
+
+    @Override
     public URL get_CSS_URL() {
         return Klik_application.class.getResource("light/light.css");
     }

@@ -29,6 +29,32 @@
     //-fx-padding: -1 -1 -1 -1;
 }
 
+
+
+.check-box .box {
+-fx-text-fill: #fefcff	; // color of text
+-fx-background-color: #1a1f2c;
+-fx-border-color:white;
+-fx-border-radius:3px;
+-fx-mark-color:green;
+
+}
+
+.check-box:selected .mark {
+
+-fx-text-fill: #fefcff	; // color of text
+-fx-background-color: #1a1f2c;
+-fx-mark-color:green;
+}
+
+.check-box:selected .box {
+
+-fx-text-fill: #fefcff	; // color of text
+-fx-background-color: white;
+}
+
+
+
 .menu_buttons:hover {
   -fx-background-color: #606060;
 }

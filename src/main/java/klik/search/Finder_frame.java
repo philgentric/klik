@@ -326,7 +326,7 @@ public class Finder_frame implements Search_receiver
 
 	//**********************************************************
 	@Override // Search_receiver
-	public void receive_intermediary(Search_statistics st)
+	public void receive_intermediary_statistics(Search_statistics st)
 	//**********************************************************
 	{
 		Platform.runLater(new Runnable() {
@@ -378,7 +378,6 @@ public class Finder_frame implements Search_receiver
 				public void run() {
 					stop.setDisable(true);
 					start.setDisable(false);
-
 				}
 			});
 			return;
@@ -388,7 +387,6 @@ public class Finder_frame implements Search_receiver
 			public void run() {
 				stop.setDisable(true);
 				start.setDisable(false);
-				Find_result_frame find_result_frame = new Find_result_frame(browser,session.get_search_results(),session,logger);
 			}
 		});
 

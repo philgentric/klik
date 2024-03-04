@@ -25,6 +25,11 @@ public class Look_and_feel_wood extends Look_and_feel
     }
 
     @Override
+    public String get_search_end_icon_path() {
+        return "lazy_dark.png";
+    }
+
+    @Override
     public URL get_CSS_URL() {
         return Klik_application.class.getResource("wood/wood.css");
     }

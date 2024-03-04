@@ -878,6 +878,14 @@ public class Look_and_feel_manager
     public static void set_CheckBox_look(CheckBox check_box)
     //**********************************************************
     {
+
+        Look_and_feel laf = get_instance();
+        if (laf.style_sheet_url_string != null) {
+            check_box.getStylesheets().clear();
+            check_box.getStylesheets().add(laf.style_sheet_url_string);
+            check_box.getStyleClass().clear();
+            check_box.getStyleClass().add("check-box");
+        }
         //check_box.getStyleClass().clear();
         //check_box.getStyleClass().add("check-box");
         Font_size.apply_font_size(check_box,logger);
@@ -1027,9 +1035,50 @@ public class Look_and_feel_manager
     }
 
 
+    //**********************************************************
     public static Border get_border()
+    //**********************************************************
     {
         Look_and_feel laf = get_instance();
         return new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
+    }
+
+    //**********************************************************
+    public static Image get_search_icon()
+    //**********************************************************
+    {
+        Look_and_feel i = get_instance();
+        if (i == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: cannot get look and feel instance"));
+            return null;
+        }
+        String path = i.get_search_icon_path();
+        if (path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: cannot get seach icon path"));
+            return null;
+        }
+        return load_icon_fx_from_jar(path, 600);
+    }
+
+
+    //**********************************************************
+    public static Image get_search_end_icon()
+    //**********************************************************
+    {
+        Look_and_feel i = get_instance();
+        if (i == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: cannot get look and feel instance"));
+            return null;
+        }
+        String path = i.get_search_end_icon_path();
+        if (path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: cannot get search_end_icon icon path"));
+            return null;
+        }
+        return load_icon_fx_from_jar(path, 600);
     }
 }
