@@ -16,7 +16,7 @@ import klik.files_and_paths.My_File;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
-import klik.util.Scheduled_thread_pool;
+import klik.util.execute.Scheduled_thread_pool;
 
 import java.io.File;
 import java.util.ArrayList;

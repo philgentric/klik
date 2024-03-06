@@ -19,7 +19,7 @@ import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
 import klik.properties.Static_application_properties;
-import klik.util.Execute_command;
+import klik.util.execute.Execute_command;
 import klik.util.From_disk;
 import klik.util.Logger;
 import org.apache.commons.io.FilenameUtils;

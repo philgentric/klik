@@ -5,7 +5,7 @@ import klik.actor.Aborter;
 import klik.files_and_paths.Moving_files;
 import klik.images.Image_context;
 import klik.properties.Static_application_properties;
-import klik.util.Execute_command;
+import klik.util.execute.Execute_command;
 import klik.util.Logger;
 import klik.util.Popups;
 

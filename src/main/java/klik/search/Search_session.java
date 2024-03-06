@@ -130,10 +130,13 @@ public class Search_session implements Callback_for_file_found_publish
 				List<String> ll = new ArrayList<>();
 				ll.add(search_config.extension());
 				String key = list_of_keywords_to_key(ll,false);
-				List<Path> list = search_results.get(key);
-				if ( list == null) list = new ArrayList<>();
-				if (!list.contains(sr.path())) list.add(sr.path());
-				search_results.put(key,list);
+				if ( search_results != null)
+				{
+					List<Path> list = search_results.get(key);
+					if ( list == null) list = new ArrayList<>();
+					if (!list.contains(sr.path())) list.add(sr.path());
+					search_results.put(key,list);
+				}
 			}
 		}
 		else

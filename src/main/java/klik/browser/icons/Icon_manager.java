@@ -9,7 +9,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
 import klik.browser.items.*;
@@ -19,17 +18,10 @@ import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import klik.util.Threads;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.IntStream;
 
 
 //**********************************************************

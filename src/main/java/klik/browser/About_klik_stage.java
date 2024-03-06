@@ -33,14 +33,13 @@ public class About_klik_stage
         l.add(new Line_for_info_stage(false,"    Klik only uses 100% transparent file system operations"));
         l.add(new Line_for_info_stage(false,"    Klik never modifies a file, it only creates folders at your will"));
         l.add(new Line_for_info_stage(false,"    and enables you to move files from folder to folder"));
-        l.add(new Line_for_info_stage(false,"    (But Klik has an experimental explicit obfuscation feature;-)"));
         l.add(new Line_for_info_stage(true,"Safety"));
         l.add(new Line_for_info_stage(false,"    Klik has UNDO, and it is stored on file i.e. it survives crashes and closing the application"));
         l.add(new Line_for_info_stage(false,"    Klik never deletes a file without asking you for confirmation"));
         l.add(new Line_for_info_stage(false,"    In Klik, \"delete\" actually means moving the file into the \"klik_trash\" folder"));
         l.add(new Line_for_info_stage(false,"    (ultimately, you can visit the \"klik_trash\" folder and recover any \"deleted\" file or folder)"));
         l.add(new Line_for_info_stage(false,"    Only clearing the \"klik_trash\" folder is final, and you will be asked for confirmation"));
-        l.add(new Line_for_info_stage(false,"    If you are really sure you want to delete something forever, fast, the short cut \"SHIFT D\" will do that."));
+ //       l.add(new Line_for_info_stage(false,"    If you are really sure you want to delete something forever, fast, the short cut \"SHIFT D\" will do that."));
         l.add(new Line_for_info_stage(true,"Windows"));
         l.add(new Line_for_info_stage(false,"     Klik has 2 types of windows: \"Browser\" and \"Image\" "));
         l.add(new Line_for_info_stage(false,"     You can open has many windows as you want, the limit is your machine's RAM"));
@@ -57,10 +56,10 @@ public class About_klik_stage
         l.add(new Line_for_info_stage(false,"    Has a slideshow mode (press s) with variable direction & speed (press w/x for slower/faster)"));
         l.add(new Line_for_info_stage(true,"Top Buttons"));
         l.add(new Line_for_info_stage(false,"    Klik \"Browser window\" has 6 top buttons"));
-        l.add(new Line_for_info_stage(false,"        Up button: will open the parent directory"));
+        l.add(new Line_for_info_stage(false,"        Up (Parent Folder) button: will open the parent directory"));
         l.add(new Line_for_info_stage(false,"        Bookmark & History: for faster navigation"));
         l.add(new Line_for_info_stage(false,"        Files: everything related to files, for example: create an empty folder"));
-        l.add(new Line_for_info_stage(false,"        View: visualize things, for example: open a new browser video"));
+        l.add(new Line_for_info_stage(false,"        View: visualize things, for example: open a new browser window"));
         l.add(new Line_for_info_stage(false,"        Preferences: all settings"));
         l.add(new Line_for_info_stage(false,"        Trash button: drop trash on it, or click it and see the \"klik_trash\" folder"));
         l.add(new Line_for_info_stage(true,"Drag & drop (D&D)"));

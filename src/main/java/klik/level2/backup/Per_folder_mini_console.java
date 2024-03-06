@@ -10,7 +10,6 @@ import klik.files_and_paths.Guess_file_type;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Strings;
-import klik.util.Threads;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;

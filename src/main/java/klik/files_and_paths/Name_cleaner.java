@@ -12,6 +12,7 @@ import java.util.UUID;
 public class Name_cleaner
 //**********************************************************
 {
+    public static final String SP_EZ_IA_L = "_copy_made_by_klik_";
     private static final boolean dbg = false;
     //**********************************************************
     public static String clean(String in, boolean check_extension, Logger logger)
@@ -90,11 +91,11 @@ public class Name_cleaner
 
         // try to remove SP_EZ_IA_L
         {
-            int i = result.lastIndexOf(Moving_files.SP_EZ_IA_L);
+            int i = result.lastIndexOf(SP_EZ_IA_L);
             if ( i > 0 )
             {
                 String pruned_name = base_name.substring(0, i);
-                String remainer = base_name.substring(i + Moving_files.SP_EZ_IA_L.length());
+                String remainer = base_name.substring(i + SP_EZ_IA_L.length());
                 logger.log("remainer->" + remainer + "<-");
                 try {
                     int N = Integer.parseInt(remainer);
@@ -128,14 +129,14 @@ public class Name_cleaner
         String result = base_name;
         for(;;)
         {
-            int i = result.lastIndexOf(Moving_files.SP_EZ_IA_L);
+            int i = result.lastIndexOf(SP_EZ_IA_L);
             if (i < 0) break;
             String pruned_name = result.substring(0, i);
             if ( pruned_name.endsWith("_"))
             {
                 pruned_name = pruned_name.substring(0,pruned_name.length()-1);
             }
-            String remainer = result.substring(i + Moving_files.SP_EZ_IA_L.length());
+            String remainer = result.substring(i + SP_EZ_IA_L.length());
             logger.log("remainer->" + remainer + "<-");
             logger.log("pruned_name->" + pruned_name + "<-");
             try {
@@ -186,7 +187,7 @@ public class Name_cleaner
         logger.log("\n\n\n\n\n");
 
         {
-            String test ="xxxxxxx"+Moving_files.SP_EZ_IA_L+"0_"+Moving_files.SP_EZ_IA_L+"1";
+            String test ="xxxxxxx"+ SP_EZ_IA_L+"0_"+ SP_EZ_IA_L+"1";
 
             logger.log(test+" ==> "+attempt_to_simplify(test,logger));
 

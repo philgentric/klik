@@ -9,3 +9,4 @@ settings.gradle.old
 *.log
 out/*
 nohup.out
+.aider*

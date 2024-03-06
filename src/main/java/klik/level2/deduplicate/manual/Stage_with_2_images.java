@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
-import klik.browser.System_open_actor;
+import klik.util.execute.System_open_actor;
 import klik.files_and_paths.*;
 import klik.level2.deduplicate.File_pair;
 import klik.level2.deduplicate.My_File_and_status;

@@ -1,9 +1,8 @@
 package klik.actor;
 
 import klik.util.Logger;
-import klik.util.Scheduled_thread_pool;
+import klik.util.execute.Scheduled_thread_pool;
 
-import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;

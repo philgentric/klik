@@ -1,4 +1,4 @@
-package klik.browser;
+package klik.util.execute;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
@@ -16,16 +16,18 @@ public class System_open_message implements Message
     public final Path path;
     public final Logger logger;
     public final Aborter aborter;
-
+    public final boolean special;
     //**********************************************************
-    public System_open_message(Stage owner, Path path, Aborter aborter, Logger logger)
+    public System_open_message(boolean special, Stage owner, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        this.special = special;
         the_Stage = owner;
         this.path = path;
         this.logger = logger;
        this.aborter = aborter;
     }
+
     //**********************************************************
     @Override
     public String to_string()

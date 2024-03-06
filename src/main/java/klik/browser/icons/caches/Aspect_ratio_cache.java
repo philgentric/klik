@@ -6,13 +6,11 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Paths_manager;
 import klik.browser.icons.Refresh_target;
 import klik.files_and_paths.Ding;
-import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.File_sort_by;
-import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
-import klik.util.Scheduled_thread_pool;
+import klik.util.execute.Scheduled_thread_pool;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;

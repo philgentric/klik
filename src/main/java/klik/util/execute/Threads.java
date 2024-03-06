@@ -1,4 +1,6 @@
-package klik.util;
+package klik.util.execute;
+
+import klik.util.Logger;
 
 import java.util.concurrent.*;
 

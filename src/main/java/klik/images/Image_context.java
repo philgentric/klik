@@ -479,32 +479,35 @@ public class Image_context
         //if (Popups.popup_ask_for_confirmation(I18n.get_I18n_string("Warning", logger),
         //        I18n.get_I18n_string("Copy_are_you_sure", logger), logger) == false) return;
 
+        // to get a good (long) prefix, add 2 levels of folders names
+        // since a copy is usually moved afterward and you  want to get a good name for the copy
+
+        String prefix = "";
+        if ( path.getParent() != null)
+        {
+            prefix = path.getParent().getFileName()+"_";
+            if ( prefix.startsWith(".")) prefix = prefix.substring(1); // avoid to make hidden files in hidden folders
+            if (path.getParent().getParent() != null)
+            {
+                prefix = path.getParent().getParent().getFileName()+"_"+prefix;
+            }
+        }
+        if (path.getFileName().toString().startsWith(prefix)) prefix = ""; // no "recursive" prefix_prefix_prefix ... !!!
+        logger.log("Image_context COPY prefix ="+prefix);
+
         Path new_path = null;
         for (int i = 0; i < 40000; i++)
         {
-            // add 2 levels of folders names as prefix since a copy is usually moved afterward
-            String prefix = "";
-            if ( path.getParent() != null)
-            {
-                prefix = path.getParent().getFileName()+"_";
-                if ( prefix.startsWith(".")) prefix = prefix.substring(1); // avoid to make hidden files in hidden folders
-                if (path.getParent().getParent() != null)
-                {
-                    prefix = path.getParent().getParent().getFileName()+"_"+prefix;
-                }
-            }
-            if (path.getFileName().toString().startsWith(prefix)) prefix = ""; // no "recursive" prefix_prefix_prefix ... !!!
-            logger.log("prefix for copy ="+prefix);
+
             new_path = Moving_files.generate_new_candidate_name_special(path,prefix,i, logger);
             if (!Files.exists(new_path))
             {
-                logger.log("new_path" + new_path+" does not exist");
-
+                logger.log("new_path ->" + new_path+"<- does not exist");
                 break;
             }
-            else {
+            else
+            {
                 logger.log("new_path" + new_path+" exists, retrying");
-
             }
         }
         if (new_path == null)

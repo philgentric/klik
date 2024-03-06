@@ -4,18 +4,15 @@ import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
-import klik.actor.virtual_threads.Concurency_limiter;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.util.Logger;
-import klik.util.Threads;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Backup_actor_for_one_folder implements Actor

@@ -23,7 +23,7 @@ import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
-import klik.browser.System_open_actor;
+import klik.util.execute.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
 import klik.files_and_paths.Files_and_Paths;
@@ -38,8 +38,8 @@ import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 
-import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -236,11 +236,13 @@ public abstract class Item implements Icon_destination
                 Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg, browser_aborter,logger);
             }
             // is a "plain" file
-            context_menu.getItems().add(create_system_open_menu_item());
+            context_menu.getItems().add(create_open_with_system_menu_item(path,logger));
+            context_menu.getItems().add(create_open_with_special_app_item(path,logger));
             context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
+            context_menu.getItems().add(create_copy_menu_item());
             context_menu.getItems().add(create_delete_menu_item());
             context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
-            context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
         }
         else
         {
@@ -255,11 +257,14 @@ public abstract class Item implements Icon_destination
             if(!is_trash() && !is_parent())
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
+                context_menu.getItems().add(create_open_with_system_menu_item(path,logger));
+                if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
                 context_menu.getItems().add(create_edit_color_menu_item(path, dbg,logger));
+
+
             }
         }
 
@@ -305,6 +310,29 @@ public abstract class Item implements Icon_destination
         return menu_item;
     }
 
+
+    //**********************************************************
+    private MenuItem create_copy_menu_item()
+    //**********************************************************
+    {
+
+        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Copy", logger));
+        menu_item.setOnAction(event -> {
+            if (dbg) logger.log("copying!");
+
+            Path new_path = Files_and_Paths.ask_user_for_new_file_name(browser.my_Stage.the_Stage,path,logger);
+            try
+            {
+                Files.copy(path, new_path);
+            } catch (IOException e)
+            {
+                logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
+                return;
+            }
+        });
+        return menu_item;
+    }
+
     //**********************************************************
     private MenuItem create_delete_menu_item()
     //**********************************************************
@@ -313,20 +341,6 @@ public abstract class Item implements Icon_destination
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Deleting!");
             Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter,logger);
-        });
-        return menu_item;
-    }
-
-
-
-    //**********************************************************
-    private MenuItem create_system_open_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Open_with_system", logger));
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("button in item: System Open");
-            System_open_actor.open_with_system(browser,path,logger);
         });
         return menu_item;
     }
@@ -595,33 +609,6 @@ public abstract class Item implements Icon_destination
     }
 
 
-    //**********************************************************
-    public void open_with_system(Logger logger)
-    //**********************************************************
-    {
-        logger.log("open_with_system for path:" + path.toString());
-        // try to open it with the system
-        try
-        {
-            Desktop.getDesktop().open(path.toAbsolutePath().toFile());
-        }
-        catch (Exception e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("open failed :" + e));
-
-            if (e.toString().contains("doesn't exist."))
-            {
-                String error = "Your OS/GUI could not open this file";
-                Popups.popup_warning(browser.my_Stage.the_Stage, "Open failed", error+", the error is:\n" + e, true,logger);
-                browser.set_status(error);
-            }
-            else
-            {
-                Popups.popup_warning(browser.my_Stage.the_Stage,"Open failed", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?", false,logger);
-            }
-        }
-    }
-
     static double xxx = 200;
     static double yyy = 200;
     //**********************************************************
@@ -739,6 +726,42 @@ public abstract class Item implements Icon_destination
         all_check_menu_items.add(item);
 
     }
+
+
+    //**********************************************************
+    public  MenuItem create_open_with_system_menu_item(Path path, Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Open_with_system",logger);
+        MenuItem menu_item = new MenuItem(text);
+        menu_item.setOnAction(actionEvent -> {
+            if (dbg) logger.log("button in item: System Open");
+            System_open_actor.open_with_system(browser,path,logger);
+        });
+
+        return menu_item;
+    }
+
+
+
+
+    //**********************************************************
+    public  MenuItem create_open_with_special_app_item(Path path, Logger logger)
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Open_With_Registered_Application",logger);
+        MenuItem menu_item = new MenuItem(text);
+        menu_item.setOnAction(actionEvent -> {
+            if (dbg) logger.log("button in item: Open_With_Registered_Application");
+            System_open_actor.open_special(browser,path,logger);
+        });
+
+        return menu_item;
+    }
+
+
+
+
 
     public Path get_item_path() {
         return path;

@@ -15,7 +15,8 @@ import klik.actor.Aborter;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Browser;
 import klik.browser.Image_and_rotation;
-import klik.browser.System_open_actor;
+import klik.properties.Static_application_properties;
+import klik.util.execute.System_open_actor;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
@@ -69,7 +70,7 @@ public class Item_image extends Item
         else
         {
             System_open_actor.open_with_system(browser,path,logger);
-            open_with_system(logger);
+            //open_with_system(logger);
         }
     }
 
@@ -171,8 +172,16 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Open_With_Registered_Application", logger));
+            menu_item.setOnAction(event -> {
+                if (dbg) logger.log("Opening with registered app: "+path);
+                System_open_actor.open_special(browser,path,logger);
+            });
+            context_menu.getItems().add(menu_item);
+        }
+        {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(browser,path, dbg, logger));
-            context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            if (Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
         }
 
         if ( this.item_type == Iconifiable_item_type.video)

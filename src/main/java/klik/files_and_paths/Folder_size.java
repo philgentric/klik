@@ -15,8 +15,7 @@ import klik.browser.items.Item_button;
 import klik.look.Font_size;
 import klik.look.my_i18n.I18n;
 import klik.util.Logger;
-import klik.util.Scheduled_thread_pool;
-import klik.util.Threads;
+import klik.util.execute.Scheduled_thread_pool;
 
 import java.nio.file.Path;
 import java.util.concurrent.ScheduledFuture;

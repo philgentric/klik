@@ -26,7 +26,6 @@ import java.util.concurrent.RejectedExecutionException;
 public class Moving_files
 //**********************************************************
 {
-    public static final String SP_EZ_IA_L = "_copy_made_by_klik_";
 
     private static final boolean dbg = false;
 
@@ -540,32 +539,23 @@ public class Moving_files
         String extension = FilenameUtils.getExtension(old_path.getFileName().toString());
 
         {
-            Path path = name_is_alredy_a_count(old_path,base_name,extension,logger);
+            Path path = name_is_alredy_a_count(old_path,prefix,base_name,extension,logger);
             if ( path != null)
             {
                 return path;
             }
 
         }
-        int k = base_name.lastIndexOf(SP_EZ_IA_L);
-        if ( k <0)
-        {
-            String new_name = prefix + base_name + SP_EZ_IA_L + index + "." + extension;
-            if (dbg) logger.log("generate_new_candidate_name=" + new_name);
-            return Paths.get(old_path.getParent().toString(), new_name);
+        String new_name = prefix + base_name + index + "." + extension;
+        //if (dbg)
+            logger.log("generate_new_candidate_name_special=" + new_name);
+        return Paths.get(old_path.getParent().toString(), new_name);
 
-        }
-        else
-        {
-            String new_name = prefix + base_name.substring(0, k) + SP_EZ_IA_L + index + "." + extension;
-            if (dbg) logger.log("generate_new_candidate_name=" + new_name);
-            return Paths.get(old_path.getParent().toString(), new_name);
-        }
     }
 
     private static Random r = new Random();
     //**********************************************************
-    private static Path name_is_alredy_a_count(Path old_path, String base_name, String extension, Logger logger)
+    private static Path name_is_alredy_a_count(Path old_path, String prefix, String base_name, String extension, Logger logger)
     //**********************************************************
     {
         int lenght_of_trailing_numbers = 0;
@@ -599,10 +589,14 @@ public class Moving_files
             int ii = i;
             if (i > 500) ii = r.nextInt(10000000);
             String new_integer_with_leading_zeroes = String.format("%0"+lenght_of_trailing_numbers+"d",(k+ii));
-            String new_name = base_name.substring(0, base_name.length() - lenght_of_trailing_numbers) + new_integer_with_leading_zeroes+ "." + extension;
+            String new_name = prefix+base_name.substring(0, base_name.length() - lenght_of_trailing_numbers) + new_integer_with_leading_zeroes+ "." + extension;
             if ( dbg) logger.log("candidate new_name? ->" + new_name+"<-");
             Path path = Paths.get(old_path.getParent().toString(), new_name);
-            if ( !path.toFile().exists()) return path;
+            if ( !path.toFile().exists())
+            {
+                logger.log("NEW NAME ->"+path.toAbsolutePath()+"<-");
+                return path;
+            }
         }
         return null;
     }

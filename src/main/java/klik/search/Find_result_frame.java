@@ -17,7 +17,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.browser.System_open_actor;
+import klik.util.execute.System_open_actor;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
 import klik.level3.experimental.music.Audio_player;
