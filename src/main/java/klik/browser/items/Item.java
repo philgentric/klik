@@ -402,7 +402,7 @@ public abstract class Item implements Icon_destination
                     {
                         // the item is a Item_button
 
-                        String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
+                        String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(),logger);
                         local_button.setText(size);
                         local_label.setText(new_dir_name);
                         //Font_size.set_preferred_font_size(label,logger);

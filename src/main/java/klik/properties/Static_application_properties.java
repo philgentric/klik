@@ -5,7 +5,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 
 import klik.browser.icons.Icon_manager;
-import klik.files_and_paths.Files_and_Paths;
+import klik.audio.Audio_player;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.styles.Look_and_feel_light;
@@ -27,6 +27,11 @@ public class Static_application_properties
 //**********************************************************
 {
     private static final boolean dbg = false;
+    private static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
+    public static final String SCREEN_TOP_LEFT_X = "_SCREEN_TOP_LEFT_X";
+    public static final String SCREEN_TOP_LEFT_Y = "_SCREEN_TOP_LEFT_Y";
+    public static final String SCREEN_WIDTH = "_SCREEN_WIDTH";
+    public static final String SCREEN_HEIGHT = "_SCREEN_HEIGHT";
     public static Properties_manager the_properties_manager;
     public static final String SORT_FILES_BY = "sort_files_by";
     private static final String LEVEL2 = "LEVEL2";
@@ -71,6 +76,7 @@ public class Static_application_properties
     public static final String SINGLE_COLUMN = "single_column";
     public static final String ICONS_FOR_FOLDERS = "icons_for_folders";
     public static final String MONITOR_BROWSED_FOLDERS = "monitor_browsed_folders";
+    /*
     public static final String IMAGE_WINDOW_SCREEN_TOP_LEFT_X = "IMAGE_WINDOW_SCREEN_TOP_LEFT_X";
     public static final String IMAGE_WINDOW_SCREEN_TOP_LEFT_Y = "IMAGE_WINDOW_SCREEN_TOP_LEFT_Y";
     public static final String IMAGE_WINDOW_SCREEN_WIDTH = "IMAGE_WINDOW_SCREEN_WIDTH";
@@ -79,7 +85,11 @@ public class Static_application_properties
     public static final String BROWSER_SCREEN_TOP_LEFT_Y = "BROWSER_SCREEN_TOP_LEFT_Y";
     public static final String BROWSER_SCREEN_WIDTH = "BROWSER_SCREEN_WIDTH";
     public static final String BROWSER_SCREEN_HEIGHT = "BROWSER_SCREEN_HEIGHT";
-
+    public static final String AUDIO_PLAYER_SCREEN_TOP_LEFT_X = "AUDIO_PLAYER_SCREEN_TOP_LEFT_X";
+    public static final String AUDIO_PLAYER_SCREEN_TOP_LEFT_Y = "AUDIO_PLAYER_SCREEN_TOP_LEFT_Y";
+    public static final String AUDIO_PLAYER_SCREEN_WIDTH = "AUDIO_PLAYER_SCREEN_WIDTH";
+    public static final String AUDIO_PLAYER_SCREEN_HEIGHT = "AUDIO_PLAYER_SCREEN_HEIGHT";
+*/
 
     //**********************************************************
     public static Properties_manager get_properties_manager(Logger logger)
@@ -95,6 +105,31 @@ public class Static_application_properties
         return the_properties_manager;
     }
 
+    //**********************************************************
+    public static File get_playlist_file(Logger logger)
+    //**********************************************************
+    {
+        String playlist_file_name = Static_application_properties.get_properties_manager(logger).get(PLAYLIST_FILE_NAME);
+        if ( playlist_file_name == null)
+        {
+            playlist_file_name = "playlist."+ Audio_player.PLAYLIST_EXTENSION;
+            Static_application_properties.get_properties_manager(logger).save_unico(PLAYLIST_FILE_NAME,playlist_file_name,false);
+        }
+        else
+        {
+           Path p = Path.of(playlist_file_name);
+           if (p.isAbsolute()) return p.toFile();
+        }
+        String home = System.getProperty(USER_HOME);
+        Path p = Paths.get(home, CONF_DIR, playlist_file_name);
+        return p.toFile();
+    }
+    //**********************************************************
+    public static void set_playlist_file_name(String playlist_file_name, Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_properties_manager(logger).save_unico(PLAYLIST_FILE_NAME,playlist_file_name,false);
+    }
     //**********************************************************
     public static Look_and_feel read_look_and_feel_from_properties_file(Logger logger)
     //**********************************************************
@@ -258,46 +293,40 @@ public class Static_application_properties
         get_properties_manager(logger).save_unico(SHOW_HIDDEN_DIRECTORIES, String.valueOf(b), false);
     }
 
-
     //**********************************************************
-    public static Rectangle2D get_image_window_stored_bounds(Logger logger)
+    public static Rectangle2D get_window_bounds(String key, Logger logger)
     //**********************************************************
     {
         Properties_manager pm = get_properties_manager(logger);
-        String x_s = pm.get(IMAGE_WINDOW_SCREEN_TOP_LEFT_X);
+        String x_s = pm.get(key+SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
-        String y_s = pm.get(IMAGE_WINDOW_SCREEN_TOP_LEFT_Y);
+        String y_s = pm.get(key+SCREEN_TOP_LEFT_Y);
         if (y_s == null) return default_rectangle();
         double y = Double.parseDouble(y_s);
-        String w_s = pm.get(IMAGE_WINDOW_SCREEN_WIDTH);
+        String w_s = pm.get(key+SCREEN_WIDTH);
         if (w_s == null) return default_rectangle();
         double w = Double.parseDouble(w_s);
-        String h_s = pm.get(IMAGE_WINDOW_SCREEN_HEIGHT);
+        String h_s = pm.get(key+SCREEN_HEIGHT);
         if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
         return new Rectangle2D(x, y, w, h);
     }
 
     //**********************************************************
-    public static Rectangle2D get_browser_stored_bounds(Logger logger)
+    public static void save_window_bounds(Stage stage, String key, Logger logger)
     //**********************************************************
     {
+        Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+        if ( dbg) logger.log("saving bounds="+r);
         Properties_manager pm = get_properties_manager(logger);
-        String x_s = pm.get(BROWSER_SCREEN_TOP_LEFT_X);
-        if (x_s == null) return default_rectangle();
-        double x = Double.parseDouble(x_s);
-        String y_s = pm.get(BROWSER_SCREEN_TOP_LEFT_Y);
-        if (y_s == null) return default_rectangle();
-        double y = Double.parseDouble(y_s);
-        String w_s = pm.get(BROWSER_SCREEN_WIDTH);
-        if (w_s == null) return default_rectangle();
-        double w = Double.parseDouble(w_s);
-        String h_s = pm.get(BROWSER_SCREEN_HEIGHT);
-        if (h_s == null) return default_rectangle();
-        double h = Double.parseDouble(h_s);
-        return new Rectangle2D(x, y, w, h);
+        pm.save_unico(key+ SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
+        pm.save_unico(key+ SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
+        pm.save_unico(key+ SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
+        pm.save_unico(key+ SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
     }
+
+
 
     //**********************************************************
     private static Rectangle2D default_rectangle()
@@ -305,31 +334,6 @@ public class Static_application_properties
     {
         return new Rectangle2D(0, 0, 800, 600);
     }
-
-    //**********************************************************
-    public static void save_image_window_bounds(Rectangle2D r, Logger logger)
-    //**********************************************************
-    {
-        if ( dbg) logger.log("saving bounds="+r);
-        Properties_manager pm = get_properties_manager(logger);
-        pm.save_unico(IMAGE_WINDOW_SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
-        pm.save_unico(IMAGE_WINDOW_SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
-        pm.save_unico(IMAGE_WINDOW_SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
-        pm.save_unico(IMAGE_WINDOW_SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
-    }
-
-    //**********************************************************
-    public static void save_browser_bounds(Rectangle2D r, Logger logger)
-    //**********************************************************
-    {
-        if ( dbg) logger.log("saving bounds="+r);
-        Properties_manager pm = get_properties_manager(logger);
-        pm.save_unico(BROWSER_SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
-        pm.save_unico(BROWSER_SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
-        pm.save_unico(BROWSER_SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
-        pm.save_unico(BROWSER_SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
-    }
-
 
     //**********************************************************
     public static int get_animated_gif_duration_for_a_video(Logger logger)
@@ -971,6 +975,8 @@ public class Static_application_properties
         }
         return level3_cache;
     }
+
+
 
     /*
     // should never be used: the user should edit the properties file directly

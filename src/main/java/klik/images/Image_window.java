@@ -35,6 +35,7 @@ import java.util.List;
 public class Image_window
 //**********************************************************
 {
+    public static final String IMAGE_WINDOW = "IMAGE_WINDOW";
     double progress;
     static boolean dbg = false;
     public final Scene the_Scene;
@@ -72,7 +73,7 @@ public class Image_window
             double y = 0;
             double w = 800;
             double h = 600;
-            Rectangle2D bounds = Static_application_properties.get_image_window_stored_bounds(logger_);
+            Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
             logger_.log("got bounds from properties="+bounds);
             if (bounds != null)
             {
@@ -110,7 +111,7 @@ public class Image_window
         // often there is only one ...
         Screen current = intersecting_screens.get(0);
         */
-        Rectangle2D bounds = Static_application_properties.get_image_window_stored_bounds(logger_);
+        Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
@@ -239,8 +240,7 @@ public class Image_window
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            Rectangle2D b = new Rectangle2D(the_Stage.getX(), the_Stage.getY(), the_Stage.getWidth(), the_Stage.getHeight());
-            Static_application_properties.save_image_window_bounds(b,logger);
+            Static_application_properties.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
         };
         the_Stage.xProperty().addListener(change_listener);
         the_Stage.yProperty().addListener(change_listener);

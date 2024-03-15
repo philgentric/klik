@@ -1,21 +1,29 @@
-package klik.level3.experimental.music;
+package klik.audio;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import klik.look.Look_and_feel_manager;
+import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
+import klik.util.Stack_trace_getter;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import java.io.*;
@@ -29,30 +37,27 @@ public class Audio_player
 //**********************************************************
 {
 
+
     private static final boolean dbg =  false;
-    public static final String PLAYLIST_EXTENSION = "playlist";
+    public static final String PLAYLIST_EXTENSION = "klik_playlist";
     public static final int WIDTH = 500;
-
-    private  String playlist_name = null;
-     File saving_dir = null;
-     Stage stage;
-     Button save_this_playlist;
-     Button save_new_playlist;
-     Button add_to_playlist;
-     Button next;
-     Button previous;
-     Slider slider;
-     Label now_value;
-     Label duration_value;
-     ObservableList<File> observable_playlist = FXCollections.observableArrayList();
-     ListView<File> the_playlist_view;
-     Logger logger;
-     File the_song_file;
-     private volatile MediaPlayer the_media_player;
-     static Audio_player instance = null;
-
-
-
+    public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
+    private static File playlist_file = null;
+    File saving_dir = null;
+    Stage stage;
+    Button save_as_new_playlist;
+    Button next;
+    Button previous;
+    Slider slider;
+    Label now_value;
+    Label duration_value;
+    ObservableList<File> observable_playlist = FXCollections.observableArrayList();
+    ListView<File> the_playlist_view;
+    Logger logger;
+    File the_song_file;
+    private volatile MediaPlayer the_media_player;
+    static Audio_player instance = null;
+    Label play_list_name;
     //**********************************************************
     public static void play_song(File the_song_file, Logger logger)
     //**********************************************************
@@ -61,7 +66,12 @@ public class Audio_player
         {
             instance = new Audio_player(logger);
         }
-        instance.play(the_song_file);
+        if ( playlist_file == null)
+        {
+            playlist_file = Static_application_properties.get_playlist_file(logger);
+        }
+        instance.load_playlist(playlist_file);
+        instance.play_song(the_song_file);
 
     }
     //**********************************************************
@@ -72,20 +82,23 @@ public class Audio_player
         {
             instance = new Audio_player(logger);
         }
-        instance.play_playlist_innernal(file);
+        playlist_file = file;
+        Static_application_properties.set_playlist_file_name(file.getAbsolutePath(),logger);
+
+        instance.play_playlist_internal(file);
     }
 
     //**********************************************************
-    private void play(File the_song_file_)
+    private void play_song(File the_song_file_)
     //**********************************************************
     {
         logger.log("play() "+the_song_file_.getAbsolutePath());
 
         clean_up();
         the_song_file = the_song_file_;
+        add_and_save_if_needed();
 
         stage.setTitle(the_song_file.getName());
-
 
         String encoded;
         try {
@@ -97,31 +110,54 @@ public class Audio_player
         encoded = encoded.replaceAll(" ","%20");
         //UrlEscapers.urlFragmentEscaper().escape("file://"+f.getCanonicalPath());
 
-        Media sound;
         try
         {
-            sound = new Media(encoded);
+            Media sound = new Media(encoded);
+
+            MediaPlayer tmp_media_player = new MediaPlayer(sound);
+            tmp_media_player.setCycleCount(1);
+            tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
+            tmp_media_player.setOnReady(() -> {
+                logger.log("player READY!");
+                on_player_ready(tmp_media_player);
+            });
+
+        }
+        catch (MediaException me)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(me.toString()));
+            remove_from_playlist();
         }
         catch (IllegalArgumentException e)
         {
             Popups.popup_Exception(e,256,"Fatal",logger);
-            return;
+            remove_from_playlist();
         }
 
-        MediaPlayer local = new MediaPlayer(sound);
-        local.setCycleCount(1);
-        local.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
-        local.setOnReady(() -> {
-            logger.log("player READY!");
-            on_player_ready(local);
-        });
-
         stage.show();
-        //stage.setAlwaysOnTop(true);
     }
 
-    private void on_player_ready(MediaPlayer local_) {
+    //**********************************************************
+    private void add_and_save_if_needed()
+    //**********************************************************
+    {
+        for (File file : observable_playlist)
+        {
+            if (file.getAbsolutePath().equals(the_song_file.getAbsolutePath()))
+            {
+                the_playlist_view.getSelectionModel().select(the_song_file);
+                return;
+            }
+        }
+        observable_playlist.add(the_song_file);
+        the_playlist_view.getSelectionModel().select(the_song_file);
+        save();
+    }
 
+    //**********************************************************
+    private void on_player_ready(MediaPlayer local_)
+    //**********************************************************
+    {
         the_media_player = local_;
         the_media_player.setOnEndOfMedia(() -> {
             logger.log("EndOfMedia");
@@ -142,28 +178,50 @@ public class Audio_player
         slider.setValue(0);
         slider.setMax(seconds);
         the_media_player.play();
-        duration_value.setText((int)seconds+" seconds");
-
-        if (observable_playlist.isEmpty())
+        String s = (int)seconds+" seconds";
+        if ( seconds > 3600)
         {
-            add_to_playlist.setDisable(false);
-            return;
+            int h = (int)seconds/3600;
+            int m = (int)seconds- h*3600;
+            double ss = seconds- h*3600 - m*60;
+            ss *= 10;
+            ss = (double)((int)ss)/10.0;
+            s = h+ " hours, "+m+" minutes, "+ ss+ " seconds";
         }
-        for (File file : observable_playlist) {
-            if (file.getAbsolutePath().equals(the_song_file.getAbsolutePath())) {
-                add_to_playlist.setDisable(true);
-                return;
-            }
+        else if ( seconds > 60)
+        {
+            int m = (int)seconds/60;
+            double ss = seconds - m*60;
+            ss *= 10;
+            ss = (double)((int)ss)/10.0;
+            s = m+" minutes, "+ ss+ " seconds";
         }
-        add_to_playlist.setDisable(false);
+        duration_value.setText(s);
+
+
     }
 
     //**********************************************************
-    public Audio_player(Logger logger_)
+    private Audio_player(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
         stage = new Stage();
+        Rectangle2D r = Static_application_properties.get_window_bounds(AUDIO_PLAYER,logger);
+        stage.setX(r.getMinX());
+        stage.setY(r.getMinY());
+        stage.setWidth(r.getWidth());
+        stage.setHeight(r.getHeight());
+        ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
+            if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
+            Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+            Static_application_properties.save_window_bounds(stage,AUDIO_PLAYER,logger);
+        };
+        stage.xProperty().addListener(change_listener);
+        stage.yProperty().addListener(change_listener);
+        stage.widthProperty().addListener(change_listener);
+        stage.heightProperty().addListener(change_listener);
+
         stage.setMinWidth(WIDTH);
         VBox vbox = new VBox();
         HBox hb1 = new HBox();
@@ -171,14 +229,16 @@ public class Audio_player
         hb1.getChildren().add(duration_text);
         duration_value = new Label("0.0s");
         hb1.getChildren().add(duration_value);
-        vbox.getChildren().add(hb1);
 
-        HBox hb2 = new HBox();
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        hb1.getChildren().add(spacer);
+
         Label now_text = new Label("Now: ");
-        hb2.getChildren().add(now_text);
+        hb1.getChildren().add(now_text);
         now_value = new Label("0.0s");
-        hb2.getChildren().add(now_value);
-        vbox.getChildren().add(hb2);
+        hb1.getChildren().add(now_value);
+        vbox.getChildren().add(hb1);
 
         slider = new Slider();
         slider.setMinWidth(WIDTH);
@@ -214,6 +274,8 @@ public class Audio_player
         hb3.getChildren().add(rewind);
         next = new Button("Jump to next ");
         hb3.getChildren().add(next);
+        Button delete = new Button("Remove from playlist ");
+        hb3.getChildren().add(delete);
 
         {
             previous.setOnAction(actionEvent -> jump_to_previous(the_song_file, logger));
@@ -242,6 +304,8 @@ public class Audio_player
             });
             next.setOnAction(actionEvent -> jump_to_next(the_song_file, logger));
             if ( observable_playlist.isEmpty()) next.setDisable(true);
+
+            delete.setOnAction(actionEvent -> remove_from_playlist());
         }
 
         Button cancel = new Button("Stop & close");
@@ -257,27 +321,20 @@ public class Audio_player
         HBox hb4 = new HBox();
         vbox.getChildren().add(hb4);
 
-        String add_to_playlist_button_text = "Add to play list: "+playlist_name;
-        if (playlist_name == null) add_to_playlist_button_text = "Add to play list";
-        add_to_playlist = new Button(add_to_playlist_button_text);
-        add_to_playlist.setDisable(true);
-        {
-            add_to_playlist.setOnAction(actionEvent -> add_to_playlist(the_song_file));
-        }
-        hb4.getChildren().add(add_to_playlist);
-        save_this_playlist = new Button("Save current playlist");
-        save_this_playlist.setDisable(true);
-        {
-            save_this_playlist.setOnAction(actionEvent -> save_this_playlist(stage,logger));
-        }
-        hb4.getChildren().add(save_this_playlist);
-        save_new_playlist = new Button("Save as new playlist");
-        {
-            save_new_playlist.setOnAction(actionEvent -> save_playlist(stage,logger));
-        }
-        if( observable_playlist.isEmpty()) save_new_playlist.setDisable(true);
-        hb4.getChildren().add(save_new_playlist);
+        playlist_file = Static_application_properties.get_playlist_file(logger);
+        logger.log("playlist_file="+playlist_file.getAbsolutePath());
+        String play_list_name_s = extract_playlist_name();
+        logger.log("playlist_name="+play_list_name_s);
 
+        play_list_name = new Label(play_list_name_s);
+        hb4.getChildren().add(play_list_name);
+
+
+        save_as_new_playlist = new Button("Save as new playlist");
+        {
+            save_as_new_playlist.setOnAction(actionEvent -> save_new_playlist());
+        }
+        hb4.getChildren().add(save_as_new_playlist);
 
 
 
@@ -320,20 +377,28 @@ public class Audio_player
         the_playlist_view.getSelectionModel().selectedItemProperty().addListener((observableValue, old_file, new_file) -> {
             if ( new_file==null) logger.log("PANIC event +new_file.==null ???");
             logger.log("list item selected: "+ Objects.requireNonNull(new_file).getAbsolutePath());
-            play(new_file);
+            play_song(new_file);
         });
 
-        /*
-        the_playlist_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                File item = the_playlist_view.getSelectionModel().getSelectedItem();
-            }
-        });
-*/
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
         stage.show();
+
+    }
+
+    //**********************************************************
+    private void remove_from_playlist()
+    //**********************************************************
+    {
+        observable_playlist.remove(the_song_file);
+        save();
+    }
+
+    //**********************************************************
+    private String extract_playlist_name()
+    //**********************************************************
+    {
+        return FilenameUtils.getBaseName(playlist_file.getName());
     }
 
     //**********************************************************
@@ -399,40 +464,23 @@ public class Audio_player
     }
 
     //**********************************************************
-    private  void add_to_playlist(File f)
+    private void save_new_playlist()
     //**********************************************************
     {
-        observable_playlist.add(f);
-        if (playlist_name != null) {
-            save_this_playlist.setDisable(false);
-        }
-        save_new_playlist.setDisable(false);
-        previous.setDisable(false);
-        next.setDisable(false);
-    }
-    //**********************************************************
-    private  void save_playlist(Stage stage, Logger logger)
-    //**********************************************************
-    {
-        Runnable r = () -> run_on_swing_event_thread(stage, logger);
-        SwingUtilities.invokeLater(r);
-    }
-    //**********************************************************
-    private  void save_this_playlist(Stage stage, Logger logger)
-    //**********************************************************
-    {
-        Runnable r = () -> save(playlist_name,logger);
+        // need to do it on swing event thread
+        // as we use fileChooser to be able to display hidden folders
+        Runnable r = () -> choose_playlist_file_name();
         SwingUtilities.invokeLater(r);
     }
 
     //**********************************************************
-     void run_on_swing_event_thread(Stage stage, Logger logger)
+    private void choose_playlist_file_name()
     //**********************************************************
     {
         logger.log("save_playlist");
 
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileHidingEnabled(false); // ONLY reason to use SWING !!!
+        chooser.setFileHidingEnabled(false); // reason to use SWING !!!
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if ( saving_dir == null)
         {
@@ -451,11 +499,11 @@ public class Audio_player
         int status = chooser.showOpenDialog(null);
         if (status != JFileChooser.APPROVE_OPTION) return;
         saving_dir = chooser.getSelectedFile();
-        Platform.runLater(() -> run_on_javafx_thread(logger));
+        Platform.runLater(() -> choose_playlist_name());
     }
 
     //**********************************************************
-    private  void run_on_javafx_thread(Logger logger)
+    private  void choose_playlist_name()
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog("playlistname");
@@ -474,21 +522,29 @@ public class Audio_player
             return;
         }
 
-        String new_name = result.get();
-        save(new_name, logger);
+        String playlist_name = result.get();
+        play_list_name.setText(playlist_name);
+
+        if ( !playlist_name.endsWith(PLAYLIST_EXTENSION)) playlist_name += "."+PLAYLIST_EXTENSION;
+
+        playlist_file = new File(saving_dir,playlist_name);
+        save();
     }
 
     //**********************************************************
-    private  void save(String new_name,Logger logger)
+    private void save()
     //**********************************************************
     {
-        if ( !new_name.endsWith(PLAYLIST_EXTENSION)) new_name += "."+PLAYLIST_EXTENSION;
-        logger.log("Saving playlist as:" + new_name);
+        if ( playlist_file == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            return;
+        }
+        logger.log("Saving playlist as:" + playlist_file.getAbsolutePath());
 
-        File savior = new File(saving_dir, new_name);
         try
         {
-            FileWriter fw = new FileWriter(savior);
+            FileWriter fw = new FileWriter(playlist_file);
             for (File f : observable_playlist)
             {
                 fw.write(f.getAbsolutePath() + "\n");
@@ -497,7 +553,7 @@ public class Audio_player
         }
         catch (IOException e)
         {
-            logger.log(e.toString());
+            logger.log(Stack_trace_getter.get_stack_trace("not saved"+e.toString()));
         }
     }
 
@@ -505,27 +561,13 @@ public class Audio_player
 
 
     //**********************************************************
-    public void play_playlist_innernal(File playlist_file)
+    public void play_playlist_internal(File playlist_file_)
     //**********************************************************
     {
 
         logger.log("Going to play list: "+playlist_file.getAbsolutePath());
 
-        playlist_name = playlist_file.getName();
-        try {
-            BufferedReader br = new BufferedReader( new FileReader(playlist_file));
-            observable_playlist.clear();
-            for(;;)
-            {
-                String song = br.readLine();
-                if ( song == null ) break;
-                observable_playlist.add(new File(song));
-            }
-        } catch (FileNotFoundException e) {
-            logger.log(e.toString());
-        } catch (IOException e) {
-            logger.log(e.toString());
-        }
+        load_playlist(playlist_file_);
 
         if ( observable_playlist.isEmpty())
         {
@@ -534,9 +576,46 @@ public class Audio_player
         }
         previous.setDisable(false);
         next.setDisable(false);
-        save_new_playlist.setDisable(false);
         File first = observable_playlist.get(0);
         play_song(first,logger);
 
+    }
+
+    //**********************************************************
+    private void load_playlist(File playlist_file_)
+    //**********************************************************
+    {
+        if ( playlist_file_ == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            return;
+        }
+        try {
+            BufferedReader br = new BufferedReader( new FileReader(playlist_file_));
+            observable_playlist.clear();
+            for(;;)
+            {
+                String song = br.readLine();
+                if ( song == null ) break;
+                observable_playlist.add(new File(song));
+            }
+            playlist_file = playlist_file_;
+        } catch (FileNotFoundException e) {
+            try {
+                playlist_file.createNewFile();
+            } catch (IOException ex) {
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            }
+            if (playlist_file.canWrite())
+            {
+                play_list_name.setText(extract_playlist_name());
+                return;
+            }
+            playlist_file = null;
+            logger.log(Stack_trace_getter.get_stack_trace("cannot write"+e.toString()));
+        } catch (IOException e) {
+            playlist_file = null;
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        }
     }
 }

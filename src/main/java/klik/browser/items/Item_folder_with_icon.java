@@ -607,16 +607,20 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             label_for_sizes.setWrapText(true);
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes()));
+        sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes(),logger));
         intercalaire(on_one_line, sb);
         sb.append(sizes.folders());
-        sb.append(" folders");
+        String folders = I18n.get_I18n_string("Folders",logger);
+        sb.append(folders);
         intercalaire(on_one_line, sb);
         sb.append(sizes.files());
-        sb.append(" files");
+        String files = I18n.get_I18n_string("Files",logger);
+        sb.append(files);
         intercalaire(on_one_line, sb);
         sb.append(sizes.images());
-        sb.append(" images");
+        String images = I18n.get_I18n_string("Images",logger);
+
+        sb.append(images);
         label_for_sizes.setText(sb.toString());
 
     }

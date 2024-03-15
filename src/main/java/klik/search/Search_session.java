@@ -23,7 +23,7 @@ public class Search_session implements Callback_for_file_found_publish
 	private final Aborter local_aborter;
 	private final Search_receiver search_receiver;
 	private final Browser the_browser;
-	private final Find_result_frame find_result_frame;
+	private final Results_frame find_result_frame;
 
 
 	//**********************************************************
@@ -36,7 +36,7 @@ public class Search_session implements Callback_for_file_found_publish
 		this.search_config = search_config;
 		this.search_receiver = search_receiver;
 		this.the_browser = browser;
-		this.find_result_frame = new Find_result_frame(browser, search_results, this, logger);
+		this.find_result_frame = new Results_frame(browser, search_results, this, logger);
 	}
 
 	//**********************************************************

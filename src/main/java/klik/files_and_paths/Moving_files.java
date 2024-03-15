@@ -10,6 +10,7 @@ import klik.images.Same_move_engine;
 import klik.level3.metadata.Metadata_handler;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
+import klik.search.Show_running_man_frame;
 import klik.util.*;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
@@ -20,6 +21,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionException;
 
 //**********************************************************
@@ -126,6 +128,8 @@ public class Moving_files
                                           boolean and_list_for_undo, Logger logger)
     //**********************************************************
     {
+        LinkedBlockingDeque x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
         for (Old_and_new_Path oandn : the_list) {
@@ -163,8 +167,8 @@ public class Moving_files
             Old_and_new_Path actual = process_one_move(owner, oandn, aborter, logger);
             if ( actual==null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("move has failed??"));
-                return done;
+                logger.log(Stack_trace_getter.get_stack_trace("move has failed for "+oandn.get_old_Path()));
+                continue;
             }
             if (dbg) logger.log("A move has been completed and the status is: " + actual.status);
 
@@ -205,6 +209,9 @@ public class Moving_files
             Popups.popup_warning(owner, "Moves not done?", sb.toString(), for_3seconds, logger);
             logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
         }
+
+        x.add("done");
+
 
         return done;
     }
@@ -392,12 +399,17 @@ public class Moving_files
             return move_success(oandn, logger);
 
         }
+        catch (AccessDeniedException x)
+        {
+            logger.log("WARNING1: move failed " + oandn.get_old_Path() + " ACCESS DENIED exception ");
+            return move_failed(owner, oandn, x, logger);
+        }
         catch (FileExistsException x) {
-            logger.log("WARNING: move failed " + oandn.get_old_Path() + " file exists exception, the destination already exists"+oandn.get_new_Path());
+            logger.log("WARNING2: move failed " + oandn.get_old_Path() + " file exists exception, the destination already exists"+oandn.get_new_Path());
             return move_failed(owner, oandn, x, logger);
         }
         catch (FileNotFoundException x) {
-            logger.log("WARNING: move failed " + oandn.get_old_Path() + " file not found exception, the source does not exists?"+oandn.get_old_Path());
+            logger.log("WARNING3: move failed " + oandn.get_old_Path() + " file not found exception, the source does not exists?"+oandn.get_old_Path());
             return move_failed(owner, oandn, x, logger);
         }
         catch (DirectoryNotEmptyException x)
@@ -409,7 +421,7 @@ public class Moving_files
                 // hypothesis: Files.move(x) is implemented as first a copy (which succeeds!)
                 // and then when a delete of the source folder is attempted... DirectoryNotEmptyException
                 //
-                logger.log("WARNING: move failed " + oandn.get_old_Path() + " directory not empty exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
+                logger.log("WARNING4: move failed " + oandn.get_old_Path() + " directory not empty exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
                 Popups.popup_warning(owner, "Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, logger);
                 return move_failed(owner, oandn, x, logger);
             }
@@ -418,7 +430,13 @@ public class Moving_files
             Popups.popup_Exception(x, 200, "Directory is not empty", logger);
             return move_failed(owner, oandn, x, logger);
         } catch (IOException e) {
-            logger.log(oandn.get_old_Path() + " " + e);
+            logger.log("WARNING5 "+oandn.get_old_Path() + " " + e);
+            if ( !oandn.get_old_Path().toFile().canWrite())
+            {
+                logger.log("cannot write "+oandn.get_old_Path() + " " + e);
+                Popups.popup_warning(owner, "File is not writeable:"+oandn.get_old_Path(), "This file cannot be moved because its file-system properties do not allow it", false, logger);
+
+            }
             return move_failed(owner, oandn, e, logger);
         }
     }

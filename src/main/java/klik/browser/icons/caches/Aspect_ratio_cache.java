@@ -9,6 +9,7 @@ import klik.files_and_paths.Ding;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
+import klik.search.Show_running_man_frame;
 import klik.util.Logger;
 import klik.util.execute.Scheduled_thread_pool;
 import org.apache.commons.io.FilenameUtils;
@@ -81,6 +82,8 @@ public class Aspect_ratio_cache extends Cache_for_doubles
             return;
         }
 
+        LinkedBlockingDeque x = Show_running_man_frame.show_running_man("Aspect ratios are being computed", 20000,  aborter, logger);
+
         long start = System.currentTimeMillis();
         look_for_end_runnable = new Runnable() {
             @Override
@@ -100,7 +103,9 @@ public class Aspect_ratio_cache extends Cache_for_doubles
                     return;
                 }
 
+                logger.log("aspect ratios done! ");
                 // this is the end
+                x.add("aspect ratios done");
                 the_scheduled_future.cancel(true);
                 done_look_for_end.set(true);
                 if ( System.currentTimeMillis()-start > 5_000)
@@ -124,7 +129,8 @@ public class Aspect_ratio_cache extends Cache_for_doubles
                     paths_manager.image_file_comparator = local_file_comparator;
                     paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
                 }
-                if ( dbg) logger.log("aspect ratios engine done, going to refresh");
+                //if ( dbg)
+                    logger.log("aspect ratios engine done, going to refresh");
                 refresh_target.refresh();
             }
         };

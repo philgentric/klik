@@ -36,8 +36,8 @@ public class Icon_factory_actor implements Actor
 {
     private static final boolean verbose_dbg = false;
     private static final boolean dbg = false;
-    private static final boolean pdf_dbg = false;
-    private static final boolean aborting_dbg = false;
+    private static final boolean pdf_dbg = true;
+    private static final boolean aborting_dbg = true;
     private final Aspect_ratio_cache aspect_ratio_cache;
     private final Rotation_cache rotation_cache;
 

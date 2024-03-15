@@ -212,7 +212,7 @@ public class Icon_manager
             {
                 // this is an item that could have an image but the user prefers
                 // to see it as a text: we use an Item_button
-                String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length());
+                String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(),logger);
                 item = all_items_map.get(path);
                 if ( item == null)
                 {

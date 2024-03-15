@@ -20,7 +20,7 @@ import klik.browser.Browser_creation_context;
 import klik.util.execute.System_open_actor;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
-import klik.level3.experimental.music.Audio_player;
+import klik.audio.Audio_player;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.util.Logger;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 //**********************************************************
-public class Find_result_frame
+public class Results_frame
 //**********************************************************
 {
 	Logger logger;
@@ -43,7 +43,7 @@ public class Find_result_frame
 	ImageView iv;
 
 	//**********************************************************
-	public Find_result_frame(Browser the_browser, HashMap<String, List<Path>> search_results, Search_session session, Logger logger_)
+	public Results_frame(Browser the_browser, HashMap<String, List<Path>> search_results, Search_session session, Logger logger_)
 	//**********************************************************
 	{
 		logger = logger_;
@@ -65,6 +65,8 @@ public class Find_result_frame
 
 		stage.setTitle(I18n.get_I18n_string("Search_Results", logger));
 		stage.setScene(scene);
+		stage.setX(Finder_frame.MIN_WIDTH);
+		stage.setY(0);
 		stage.show();
 
 		stage.addEventHandler(KeyEvent.KEY_PRESSED,
@@ -156,15 +158,27 @@ public class Find_result_frame
 		ContextMenu context_menu = new ContextMenu();
 		Look_and_feel_manager.set_context_menu_look(context_menu);
 
-		MenuItem browse = new MenuItem("Browse in new window");
+
+		MenuItem browse = new MenuItem( I18n.get_I18n_string("Browse",logger));
 		browse.setOnAction(event -> {
-			logger.log("Browse in new window!");
+			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
 			Browser_creation_context.additional_different_folder(local,the_browser,logger);
 		});
-
 		context_menu.getItems().add(browse);
+
+		if (! path.toFile().isDirectory())
+		{
+			String text = I18n.get_I18n_string("Open_With_Registered_Application",logger);
+			MenuItem open_special = new MenuItem(text);
+			open_special.setOnAction(event -> {
+				logger.log("Open_With_Registered_Application");
+				System_open_actor.open_special(the_browser,path,logger);
+			});
+			context_menu.getItems().add(open_special);
+
+		}
 
 		b.setOnContextMenuRequested((ContextMenuEvent event) -> {
 			logger.log("show context menu of button:"+ path.toAbsolutePath());

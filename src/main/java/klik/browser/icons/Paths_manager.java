@@ -37,7 +37,7 @@ public class Paths_manager
     public ConcurrentSkipListMap<Path, Boolean> iconized;
 
 
-    public Comparator<? super Path> image_file_comparator;
+    public Comparator<? super Path> image_file_comparator = null;
     public Comparator<? super Path> other_file_comparator;
     private static final boolean show_video_as_gif = true;
     AtomicInteger ig_gen = new AtomicInteger(0);
@@ -84,6 +84,7 @@ public class Paths_manager
        }
         image_file_comparator = other_file_comparator;
 
+        logger.log("Path_manager image_file_comparator init\n\n"+image_file_comparator.toString());
         // these MUST be mutually exclusive:
         folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);

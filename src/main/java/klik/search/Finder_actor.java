@@ -187,9 +187,11 @@ public class Finder_actor implements Actor
             {
                 // no keywords but an extension
                 String ext = FilenameUtils.getExtension(target_path.getFileName().toString()).toLowerCase();
+                logger.log("ext="+ext+" vs "+fm.search_config.extension());
                 if(ext.equals(fm.search_config.extension()))
                 {
                     List<String> empty_keyword_list = new ArrayList<>();
+                    empty_keyword_list.add(ext);
                     record_found(target_path, empty_keyword_list, fm);
                 }
             }

@@ -1,4 +1,4 @@
-package klik.level3.experimental.music;
+package klik.level3.experimental.video;
 
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;

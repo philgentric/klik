@@ -15,6 +15,9 @@ public class Undo_item
 //**********************************************************
 {
 
+    public static final String THIS_ITEM_CANNOT_BE_UNDONE_THE_FILE_HAS_BEEN_DELETED_FOREVER = "\nTHIS ITEM CANNOT BE UNDONE: the file has been deleted forever";
+    public static final String THIS_ITEM_CANNOT_BE_UNDONE = "\nTHIS ITEM CANNOT BE UNDONE: ";
+    public static final String FILES_HAVE_BEEN_DELETED_FOREVER = " file(s) have been deleted forever";
     public static Comparator<? super Undo_item> comparator_by_date = (Comparator<Undo_item>) (o1, o2) -> o2.time_stamp.compareTo(o1.time_stamp);
 
     // most recent first
@@ -45,7 +48,7 @@ public class Undo_item
         for ( Old_and_new_Path oan : oans)
         {
             returned.append(" ").append(oan.old_Path.toAbsolutePath());
-            if ( oan.new_Path != null) returned.append("=>").append(oan.new_Path.toAbsolutePath());
+            if ( oan.new_Path != null) returned.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
         }
         return returned.toString();
     }
@@ -60,13 +63,24 @@ public class Undo_item
             if ( ideal != null) return ideal;
         }
         StringBuilder sb = new StringBuilder();
+        boolean at_least_one_can_be_undone = false;
+        int count = 0;
         for ( Old_and_new_Path oan : oans)
         {
-            sb.append(" ").append(oan.old_Path.toAbsolutePath());
-            if ( oan.new_Path != null) sb.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
-            else sb.append(" THIS ITEM CANNOT BE UNDONE: the file has been deleted forever?");
+            sb.append("\n").append(oan.old_Path.toAbsolutePath());
+            if ( oan.new_Path != null)
+            {
+                at_least_one_can_be_undone = true;
+                sb.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
+            }
+            else
+            {
+                sb.append(THIS_ITEM_CANNOT_BE_UNDONE_THE_FILE_HAS_BEEN_DELETED_FOREVER);
+                count++;
+            }
         }
-        return sb.toString();
+        if ( at_least_one_can_be_undone) return sb.toString();
+        else return THIS_ITEM_CANNOT_BE_UNDONE+count+FILES_HAVE_BEEN_DELETED_FOREVER;
     }
 
     //**********************************************************
@@ -139,7 +153,7 @@ public class Undo_item
         }
         StringBuilder sb = new StringBuilder();
         sb.append(old_folder.toAbsolutePath().toString());
-        sb.append(" ==> ");
+        sb.append("\n==> ");
         sb.append(new_folder.toAbsolutePath().toString());
         sb.append("\n");
         for ( Old_and_new_Path oan : oans)

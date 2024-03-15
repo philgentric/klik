@@ -67,6 +67,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
     public static final boolean use_fx_injector = true;
+    public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
     static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
@@ -151,7 +152,17 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public Comparator<? super Path> get_file_comparator()
     //**********************************************************
     {
-        logger.log("browser getting the current file comparator"+paths_manager.image_file_comparator.toString());
+        if ( paths_manager == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC browser getting the current file comparator paths_manager==null"));
+            return null;
+        }
+        if ( paths_manager.image_file_comparator == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC browser getting the current file comparator paths_manager.image_file_comparator==null"));
+            return null;
+        }
+        //logger.log(Stack_trace_getter.get_stack_trace("browser getting the current file comparator"+paths_manager.image_file_comparator.toString()));
         return paths_manager.image_file_comparator;
     }
 
@@ -253,7 +264,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         if ( windows_count.get() ==1)
         {
-            Rectangle2D r = Static_application_properties.get_browser_stored_bounds(logger);
+            Rectangle2D r = Static_application_properties.get_window_bounds(BROWSER_WINDOW,logger);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -337,7 +348,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             }
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(my_Stage.the_Stage.getX(), my_Stage.the_Stage.getY(), my_Stage.the_Stage.getWidth(), my_Stage.the_Stage.getHeight());
-            Static_application_properties.save_browser_bounds(b,logger);
+            Static_application_properties.save_window_bounds(my_Stage.the_Stage,BROWSER_WINDOW,logger);
         };
         my_Stage.the_Stage.xProperty().addListener(change_listener);
         my_Stage.the_Stage.yProperty().addListener(change_listener);

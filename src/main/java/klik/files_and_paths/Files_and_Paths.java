@@ -8,7 +8,6 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.change.undo.Undo_engine;
-import klik.level2.deduplicate.console.Deduplication_console_window;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
 import klik.browser.icons.Icon_factory_actor;
@@ -81,17 +80,17 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void move_to_trash(Stage owner, Path f, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash(Stage owner, Path path, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Static_application_properties.get_trash_dir(f,logger);
-        if (f.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
+        Path trash_dir = Static_application_properties.get_trash_dir(path,logger);
+        if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, I18n.get_I18n_string("Nothing_done", logger), I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
-        Path new_Path = (Paths.get(trash_dir.toString(), f.getFileName().toString()));
-        Old_and_new_Path oanf2 = new Old_and_new_Path(f, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
+        Path new_Path = (Paths.get(trash_dir.toString(), path.getFileName().toString()));
+        Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
         Moving_files.perform_safe_moves_in_a_thread(owner, l2, true, aborter, logger);
@@ -508,25 +507,30 @@ public class Files_and_Paths {
     }
      */
 
+
     //**********************************************************
-    public static String get_1_line_string_for_byte_data_size(double size)
+    public static String get_1_line_string_for_byte_data_size(double size,Logger logger)
     //**********************************************************
     {
         String returned;
         if (size < 1000) {
-            returned = size + " B";
+            String bytes = I18n.get_I18n_string("Bytes", logger);
+            returned = size + " "+bytes;
         } else if (size < 1000_000) {
-            returned = String.format("%.1f", size / 1000.0) + " kB";
+            String kBytes = I18n.get_I18n_string("kBytes", logger);
+            returned = String.format("%.1f", size / 1000.0) + " "+kBytes;
         } else if (size < 1000_000_000) {
-            returned = String.format("%.1f", size / 1000_000.0) + " MB";
+            String MBytes = I18n.get_I18n_string("MBytes", logger);
+            returned = String.format("%.1f", size / 1000_000.0) + " "+MBytes;
         } else if (size < 1000_000_000_000.0) {
-            returned = String.format("%.1f", size / 1000_000_000.0) + " GB";
+            String GBytes = I18n.get_I18n_string("GBytes", logger);
+            returned = String.format("%.1f", size / 1000_000_000.0) + " "+GBytes;
         } else {
-            returned = String.format("%.1f", size / 1000_000_000_000.0) + " TB";
+            String TBytes = I18n.get_I18n_string("TBytes", logger);
+            returned = String.format("%.1f", size / 1000_000_000_000.0) + " "+TBytes;
         }
         return returned;
     }
-
 
     //**********************************************************
     public static String get_1_line_string_with_size(Path path, Logger logger)
@@ -548,7 +552,7 @@ public class Files_and_Paths {
         }
         else if (BYTES > 1000)
         {
-            String kBytes = I18n.get_I18n_string("KBytes", logger);
+            String kBytes = I18n.get_I18n_string("kBytes", logger);
             sb.append(String.format("%.1f", (double) BYTES / 1000.0)).append(" ").append(kBytes);
         }
         else

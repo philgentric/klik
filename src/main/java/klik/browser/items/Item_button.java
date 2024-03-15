@@ -17,7 +17,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.level3.experimental.music.Audio_player;
+import klik.audio.Audio_player;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -324,8 +324,12 @@ public class Item_button extends Item implements Icon_destination
                 LocalDateTime ldt = x.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 sb.append(ldt.format(date_time_formatter));
                 sb.append("                 ");
-                sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length()));
+                sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(),logger));
                 sb.append("                 ");
+                if (!path.toFile().canWrite())
+                {
+                    sb.append("Not Writable!                 ");
+                }
             } catch (IOException e) {
                 logger.log_exception("",e);
             }

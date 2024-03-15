@@ -30,6 +30,7 @@ import java.util.*;
 public class Finder_frame implements Search_receiver
 //**********************************************************
 {
+	public static final int MIN_WIDTH = 600;
 	private Button start;
 	private Button stop;
 	Label visited_folders;
@@ -80,7 +81,8 @@ public class Finder_frame implements Search_receiver
 		Look_and_feel_manager.set_region_look(main_vbox);
 
 		stage.setTitle(I18n.get_I18n_string("Search_by_keywords", logger));
-		stage.setMinWidth(800);
+		stage.setMinWidth(MIN_WIDTH);
+		stage.setX(0);
 		stage.setScene(scene);
 		stage.show();
 	}
