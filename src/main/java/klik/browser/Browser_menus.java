@@ -1307,6 +1307,17 @@ public class Browser_menus
         return item;
     }
 
+
+    //**********************************************************
+    public MenuItem make_show_folder_size_menu_item()
+    //**********************************************************
+    {
+        String text = I18n.get_I18n_string("Show_How_Each_Folder_Total_Size",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.show_total_size_deep_in_each_folder());
+        return item;
+    }
+
     //**********************************************************
     public Menu make_backup_menu()
     //**********************************************************

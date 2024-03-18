@@ -15,9 +15,11 @@ import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
+import klik.files_and_paths.Sizes;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.audio.Audio_player;
+import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -254,35 +256,6 @@ public class Item_button extends Item implements Icon_destination
         return null; // no image found
     }
 
-    /*
-    //**********************************************************
-    Path get_an_image_down_in_the_tree_folders(Path local_path)
-    //**********************************************************
-    {
-        File dir = local_path.toFile();
-        File files[] = dir.listFiles();
-        Arrays.sort(files);
-        if ( files == null)
-        {
-            if (dbg) logger.log("WARNING dir is access denied: "+local_path);
-            return null;
-        }
-        if ( files.length == 0)
-        {
-            if ( dbg) logger.log("dir is empty: "+local_path);
-            return null;
-        }
-        for ( File f : files)
-        {
-            if (f.isDirectory())
-            {
-                Path p = get_an_image_down_in_the_tree_files(f.toPath());
-                if ( p != null) return p;
-            }
-        }
-        return null; // no image found
-    }
-*/
 
     //**********************************************************
     @Override // Item
@@ -450,6 +423,33 @@ public class Item_button extends Item implements Icon_destination
         };
         Actor_engine.execute(r,aborter, logger);
     }
+
+
+    //**********************************************************
+    public void show_total_size_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        Runnable r = () -> {
+            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter, logger);
+
+            StringBuilder sb =  new StringBuilder();
+            sb.append(text);
+            sb.append("       ");
+            sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes(),logger));
+
+            //sb.append(", ");
+            //sb.append(sizes.files());
+            //sb.append(" ");
+            //sb.append(I18n.get_I18n_string("Files",logger));
+            String finalS = sb.toString();
+            browser.fx_injector.input.addFirst(() -> {
+                button.setText(finalS);
+                //browser.scene_geometry_changed("number of files in button", true);
+            });
+        };
+        Actor_engine.execute(r,aborter, logger);
+    }
+
 
 
 

@@ -32,6 +32,8 @@ public class Folder_size {
     private static double stage_x = stage_x_start;
     private static double stage_y = stage_y_start;
 
+
+
     //**********************************************************
     public static void get_folder_size(Path path, Browser browser, Aborter aborter, Logger logger)
     //**********************************************************
@@ -108,9 +110,9 @@ public class Folder_size {
                 String bytes_s = I18n.get_I18n_string("Bytes", logger);
 
                 textarea2.setText(folders_s+":\t\t\t"+ sizes.folders() + "\n"+
-                                files_s+":\t\t\t" + sizes.files() + "\n" +
-                                image_s+":\t\t\t"+sizes.images()+ "\n" +
-                                bytes_s+":\t\t\t"+bytes);
+                        files_s+":\t\t\t" + sizes.files() + "\n" +
+                        image_s+":\t\t\t"+sizes.images()+ "\n" +
+                        bytes_s+":\t\t\t"+bytes);
                 logger.log(path + " :  " + sizes.folders() + " " + folders_s + " , " + sizes.files() + " " + files_s + " , " + sizes.images() + " " + image_s+" , "+bytes+" "+bytes_s);
 
             });

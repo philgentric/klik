@@ -582,6 +582,23 @@ public class Icon_manager
     }
 
     //**********************************************************
+    public void show_total_size_deep_in_each_folder()
+    //**********************************************************
+    {
+        for ( Item i : all_items_map.values())
+        {
+            if (i instanceof Item_button ini)
+            {
+                if(Files.isDirectory(ini.get_true_path()))
+                {
+                    ini.show_total_size_deep_folder(ini.get_button(), ini.text, ini.get_true_path(), aborter, logger);
+                }
+            }
+        }
+    }
+
+
+    //**********************************************************
     public Path get_top_left(Pane pane)
     //**********************************************************
     {

@@ -315,6 +315,7 @@ public class Browser_UI
             view_menu.getItems().add(scan);
         }
         view_menu.getItems().add(browser_menus.make_show_how_many_files_menu_item());
+        view_menu.getItems().add(browser_menus.make_show_folder_size_menu_item());
 
 
         view_menu.getItems().add(browser_menus.make_about_menu_item(logger));

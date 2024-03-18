@@ -474,9 +474,16 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         icon_manager.show_how_many_files_deep_in_each_folder();
-
-
     }
+
+    //**********************************************************
+    public void show_total_size_deep_in_each_folder()
+    //**********************************************************
+    {
+        icon_manager.show_total_size_deep_in_each_folder();
+    }
+
+
 
     //**********************************************************
     public void update_slider(double pixels)
