@@ -52,27 +52,10 @@ public abstract class Item implements Icon_destination
 {
     protected final boolean dbg = false;
     public static final boolean layout_dbg = false;
-
     public final int icon_size;
-    /* state machine for icons is:
-    before anything: icon_fabrication_requested = false & icon_available
-
-    when item becomes visible
-
-    if ( !icon_available) we launch request icon factory <<< this can occur a LOT of times
-
-    = actors are started and soon as one really starts icon_fabrication_requested == true
-    and other actors will fail fast
-
-    as soon as set_image occurs icon_available = true
-
-    as soon as the item becomes invisible icon_available = false
-
-     */
     public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);
     public AtomicBoolean icon_available = new AtomicBoolean(false);
     Job icon_job; // this is needed to cancel the icon request when the item has become invisible
-
 
     protected Color color;
     protected Path path;

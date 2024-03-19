@@ -1,5 +1,6 @@
 package klik.browser.icons;
 
+import javafx.application.Platform;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -9,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
 import klik.browser.items.*;
@@ -16,12 +18,16 @@ import klik.files_and_paths.*;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
+import klik.search.Show_running_man_frame;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
@@ -51,6 +57,13 @@ public class Icon_manager
     private int how_many_rows;
     private Path top_left;
     public final double icon_height;
+
+
+    boolean show_how_many_files_deep_in_each_folder = false;
+    boolean show_total_size_deep_in_each_folder = false;
+
+    Map<Path,Long> folder_total_sizes_cache;
+    Map<Path,Long> folder_file_count_cache;
 
     //**********************************************************
     public Icon_manager(Paths_manager paths_manager, Stage owner_, Aborter aborter, Logger logger_)
@@ -306,7 +319,20 @@ public class Icon_manager
         else
         {
             actual_row_increment = row_increment_for_dirs;
-            for (Path folder_path : paths_manager.folders.keySet())
+            List<Path> keyset = new ArrayList<>(paths_manager.folders.keySet());
+            if ( show_total_size_deep_in_each_folder)
+            {
+                Comparator<Path> comp = new Comparator<>() {
+                    @Override
+                    public int compare(Path p1, Path p2) {
+                        Long l1 = folder_total_sizes_cache.get(p1);
+                        Long l2 = folder_total_sizes_cache.get(p2);
+                        return l2.compareTo(l1);
+                    }
+                };
+                Collections.sort(keyset,comp);
+            }
+            for (Path folder_path : keyset)
             {
                 if (dbg) logger.log("Icon_manager process_folders2 "+folder_path);
                 p = process_one_folder_plain(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
@@ -363,7 +389,35 @@ public class Icon_manager
             Color color = My_colors.load_color(folder_path,logger);
             // a "plain" folder is "like a file" from a layout point of view
             // the difference is: it will get a border
-            folder_item = new Item_button(the_browser,folder_path, color, folder_path.getFileName().toString(), icon_height, false, false, logger);
+
+            String tmp = folder_path.getFileName().toString();
+
+            if ( show_how_many_files_deep_in_each_folder)
+            {
+                Long how_many_files_deep = folder_file_count_cache.get(folder_path);
+                if ( how_many_files_deep == null)
+                {
+                    logger.log("WARNING: folder_file_count_cache not found for "+folder_path);
+                }
+                else
+                {
+                    tmp +=   " (" + how_many_files_deep + " files)";
+                }
+            }
+            else if ( show_total_size_deep_in_each_folder)
+            {
+                Long bytes = folder_total_sizes_cache.get(folder_path);
+                if ( bytes == null)
+                {
+                    logger.log("WARNING: folder_total_sizes_cache not found for "+folder_path);
+                }
+                else
+                {
+                    tmp += "       ";
+                    tmp += Files_and_Paths.get_1_line_string_for_byte_data_size(bytes,logger);
+                }
+            }
+            folder_item = new Item_button(the_browser,folder_path, color, tmp, icon_height, false, false, logger);
             all_items_map.put(folder_path, folder_item);
         }
 
@@ -486,27 +540,7 @@ public class Icon_manager
         }
     }
 
-    //**********************************************************
-    public Item get_item_under(Pane pane, double x, double y)
-    //**********************************************************
-    {
-        for (Item item : all_items_map.values())
-        {
-            Node node = item.get_Node();
-            if (!pane.getChildren().contains(node)) continue;
-            Bounds b = node.getBoundsInParent();
-            if (b.contains(x, y))
-            {
-                //logger.log("2YES ! for " + item.get_icon_path() + " we have bounds X= " + b.getMinX() + " " + b.getMaxX() + " Y= " + b.getMinY() + " " + b.getMaxY());
-                return item;
-            }
-            else
-            {
-                //logger.log("2NO ? for " + item.get_icon_path() + " we have bounds X= " + b.getMinX() + " " + b.getMaxX() + " Y= " + b.getMinY() + " " + b.getMaxY());
-            }
-        }
-        return null;
-    }
+
 
     private static final double margin = 20;
     private static final double dmargin = 2*margin;
@@ -550,51 +584,73 @@ public class Icon_manager
     {
         return how_many_rows;
     }
-/*
-    //**********************************************************
-    public void cancel_all()
-    //**********************************************************
-    {
-        //logger.log(("Icon_manager cancel all"));
-        aborter.abort();
-        //Icon_factory_actor.get_icon_factory(aborter,paths_manager.aspect_ratio_cache,paths_manager.rotation_cache, owner, logger).cancel_all();
-        for ( Item i : all_items_map.values())
-        {
-            i.cancel();
-        }
-        Icon_factory_actor.reset_videos_for_which_giffing_failed();
-    }
-*/
+
     //**********************************************************
     public void show_how_many_files_deep_in_each_folder()
     //**********************************************************
     {
+        show_how_many_files_deep_in_each_folder = true;
+        show_total_size_deep_in_each_folder = false;
+        folder_file_count_cache = new HashMap<>();
+
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button ini)
             {
                 if(Files.isDirectory(ini.get_true_path()))
                 {
-                    ini.show_how_many_files_deep_folder(ini.get_button(), ini.text, ini.get_true_path(), aborter, logger);
+                    ini.add_how_many_files_deep_folder(ini.get_button(), ini.text, ini.get_true_path(), folder_file_count_cache,aborter, logger);
                 }
             }
         }
     }
 
     //**********************************************************
-    public void show_total_size_deep_in_each_folder()
+    public void show_total_size_deep_in_each_folder(Browser browser,
+                                                    Pane pane,
+                                                    List<Node> mandatory)
     //**********************************************************
     {
+        show_total_size_deep_in_each_folder = true;
+        show_how_many_files_deep_in_each_folder = false;
+        folder_total_sizes_cache = new HashMap<>();
+        logger.log("Icon_manager: show_total_size_deep_in_each_folder");
+        AtomicInteger count = new AtomicInteger(0);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button ini)
             {
                 if(Files.isDirectory(ini.get_true_path()))
                 {
-                    ini.show_total_size_deep_folder(ini.get_button(), ini.text, ini.get_true_path(), aborter, logger);
+                    ini.add_total_size_deep_folder(count, ini.get_button(), ini.text, ini.get_true_path(), folder_total_sizes_cache, aborter, logger);
                 }
             }
         }
+        Runnable monitor = new Runnable() {
+            @Override
+            public void run() {
+                long start = System.currentTimeMillis();
+                LinkedBlockingDeque x = Show_running_man_frame.show_running_man("Computing folder sizes", 300, aborter, logger);
+                for(;;) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        logger.log("" + e);
+                    }
+                    if (count.get() == 0)
+                    {
+                        x.add("ding");
+                        Platform.runLater(()-> geometry_changed(browser,pane,mandatory,"sort by size",true));
+                        if ( System.currentTimeMillis()-start > 3000) {
+                            Ding.play("display all folder sizes", logger);
+                        }
+                        return;
+                    }
+                }
+
+            }
+        };
+        Actor_engine.execute(monitor,aborter,logger);
     }
 
 

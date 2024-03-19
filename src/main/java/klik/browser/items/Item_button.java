@@ -1,7 +1,10 @@
 package klik.browser.items;
 
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -9,17 +12,18 @@ import javafx.scene.text.TextAlignment;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
-import klik.browser.*;
+import klik.audio.Audio_player;
+import klik.browser.Browser;
+import klik.browser.Browser_creation_context;
+import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
+import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Sizes;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.audio.Audio_player;
-import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
@@ -35,10 +39,8 @@ import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
@@ -51,9 +53,9 @@ public class Item_button extends Item implements Icon_destination
     public final boolean is_dir;
     public final boolean is_trash;
     public final boolean is_parent;
-    public final String text;
-    //private boolean ignore_next_mouse_clicked = false;
+    public String text;
     private Job job;
+
 
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     //**********************************************************
@@ -353,15 +355,15 @@ public class Item_button extends Item implements Icon_destination
     public void button_for_a_directory(String text, double width, double height, Color color)
     //**********************************************************
     {
-        String text2 = text;
+        String extended_text = text;
         //if ( Static_application_properties.get_show_folder_size(logger)) {    text2 += "..."; // room reservation since the size will be added later}
         if ( path != null)
         {
             if (Files.isSymbolicLink(path)) {
-                text2 += " **Symbolic link** ";
+                extended_text += " **Symbolic link** ";
             }
         }
-        button = new Button(text2);
+        button = new Button(extended_text);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
         Look_and_feel_manager.set_button_look_as_folder(button, height, color);
@@ -408,16 +410,22 @@ public class Item_button extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void show_how_many_files_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
+    public void add_how_many_files_deep_folder(Button button, String text, Path path, Map<Path, Long> folder_file_count_cache, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Runnable r = () -> {
-            String s = text;
-            s += " (" + Files_and_Paths.get_how_many_files_deep(path, aborter, logger) + " files)";
 
-            String finalS = s;
+        Runnable r = () -> {
+            Long how_many_files_deep = folder_file_count_cache.get(path);
+            if ( how_many_files_deep == null)
+            {
+                how_many_files_deep = Files_and_Paths.get_how_many_files_deep(path, aborter, logger);
+                folder_file_count_cache.put(path,how_many_files_deep);
+            }
+            String extended_text =  text + " (" + how_many_files_deep + " files)";
+
+            String finalExtended_text = extended_text;
             browser.fx_injector.input.addFirst(() -> {
-                button.setText(finalS);
+                button.setText(finalExtended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
             });
         };
@@ -426,24 +434,38 @@ public class Item_button extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void show_total_size_deep_folder(Button button, String text, Path path, Aborter aborter, Logger logger)
+    public void add_total_size_deep_folder(AtomicInteger count, Button button, String text, Path path, Map<Path, Long> folder_total_sizes, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        count.incrementAndGet();
         Runnable r = () -> {
-            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter, logger);
+
+            Long bytes = folder_total_sizes.get(path);
+            if ( bytes == null)
+            {
+                logger.log(path+" size not found in cache");
+                Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter, logger);
+                bytes = sizes.bytes();
+                folder_total_sizes.put(path,bytes);
+            }
+            else
+            {
+                logger.log(path+" size  found in cache "+bytes);
+            }
+            count.decrementAndGet();
 
             StringBuilder sb =  new StringBuilder();
             sb.append(text);
             sb.append("       ");
-            sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes(),logger));
+            sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(bytes,logger));
 
             //sb.append(", ");
             //sb.append(sizes.files());
             //sb.append(" ");
             //sb.append(I18n.get_I18n_string("Files",logger));
-            String finalS = sb.toString();
+            String extended_text = sb.toString();
             browser.fx_injector.input.addFirst(() -> {
-                button.setText(finalS);
+                button.setText(extended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
             });
         };

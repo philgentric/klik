@@ -29,7 +29,7 @@ public class Show_running_man_frame
 	private final LinkedBlockingDeque<String> in = new LinkedBlockingDeque<>();
 
 	//**********************************************************
-	public static LinkedBlockingDeque show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
+	public static LinkedBlockingDeque <String> show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
 		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s, logger);
@@ -80,27 +80,33 @@ public class Show_running_man_frame
 					}
 				});
 
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-                try {
-					int count = 0;
-					for(;;) {
-						String x = in.poll(1, TimeUnit.SECONDS);
-						if (x == null) {
-							if (aborter.should_abort()) return;
-							else count++;
-
-							if ( count > timeout_s) timeout();
+		Runnable r = () -> {
+			try {
+                int count = 0;
+                for(;;)
+				{
+                    String x = in.poll(1, TimeUnit.SECONDS);
+                    if (x == null)
+					{
+                        if (aborter.should_abort())
+						{
+							has_ended("aborted",false);
 							return;
 						}
-						has_ended(wait_message + "... finished!", true);
-						return;
-					}
-                } catch (InterruptedException e) {
-					logger.log("Show running man wait interrupted");
-				}
-            }
+                        else count++;
+                        if ( count > timeout_s)
+						{
+							timeout();
+							return;
+						}
+						continue;
+                    }
+                    has_ended(wait_message + "... finished!", true);
+                    return;
+                }
+			} catch (InterruptedException e) {
+				logger.log("Show running man wait interrupted");
+			}
 		};
 		Actor_engine.execute(r,new Aborter("Show running man",logger),logger);
 	}

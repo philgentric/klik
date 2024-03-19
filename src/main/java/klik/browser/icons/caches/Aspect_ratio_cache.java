@@ -82,7 +82,7 @@ public class Aspect_ratio_cache extends Cache_for_doubles
             return;
         }
 
-        LinkedBlockingDeque x = Show_running_man_frame.show_running_man("Aspect ratios are being computed", 20000,  aborter, logger);
+        LinkedBlockingDeque<String> x = Show_running_man_frame.show_running_man("Aspect ratios are being computed", 20000,  aborter, logger);
 
         long start = System.currentTimeMillis();
         look_for_end_runnable = new Runnable() {

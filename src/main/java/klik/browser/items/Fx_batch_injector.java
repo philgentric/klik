@@ -18,7 +18,6 @@ public class Fx_batch_injector
 //**********************************************************
 {
     public LinkedBlockingDeque<Runnable> input = new LinkedBlockingDeque<>();
-   // LinkedBlockingDeque<Item_image_target> input = new LinkedBlockingDeque<>();
     Logger logger;
     //**********************************************************
     public Fx_batch_injector(Aborter aborter, Logger logger)
@@ -31,7 +30,11 @@ public class Fx_batch_injector
                 Long start =  System.nanoTime();
                 for(;;)
                 {
-                    if ( aborter.should_abort()) return;
+                    if ( aborter.should_abort())
+                    {
+                        logger.log("Fx_batch_injector aborting");
+                        return;
+                    }
                     try {
                         Runnable tmp = input.poll(1,TimeUnit.SECONDS);
                         if ( tmp != null) input.addFirst(tmp);
@@ -58,7 +61,7 @@ public class Fx_batch_injector
     {
         if ( input.size() == 0) return;
         Platform.runLater(()->{
-            //logger.log("batch size was: "+do_it_in_fx_thread(aborter));
+            logger.log("Fx_batch_injector, batch size was: "+do_it_in_fx_thread(aborter));
             do_it_in_fx_thread(aborter);
         });
     }

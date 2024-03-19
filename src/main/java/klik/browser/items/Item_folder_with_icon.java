@@ -331,7 +331,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         Look_and_feel_manager.give_button_a_selected_file_style(the_button);
     }
 
-   
+
     @Override
     public Node get_Node() {
         return the_button;

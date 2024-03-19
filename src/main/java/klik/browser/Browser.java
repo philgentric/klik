@@ -24,6 +24,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.*;
 import klik.browser.icons.caches.Aspect_ratio_cache;
+import klik.browser.icons.caches.Cache_for_doubles;
 import klik.browser.icons.caches.Rotation_cache;
 import klik.browser.items.Fx_batch_injector;
 import klik.browser.locator.Locator;
@@ -111,6 +112,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
     static Map<Path,Path> scroll_tos = new HashMap<>();
+
 
     //**********************************************************
     @Override // Refresh_target
@@ -480,7 +482,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_total_size_deep_in_each_folder()
     //**********************************************************
     {
-        icon_manager.show_total_size_deep_in_each_folder();
+
+        icon_manager.show_total_size_deep_in_each_folder(this,the_Pane,mandatory_in_pane);
+    }
+    //**********************************************************
+    public void show_total_size_deep_in_each_folder2()
+    //**********************************************************
+    {
     }
 
 
@@ -933,7 +941,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void scene_geometry_changed(String from, boolean rebuild_all_items, boolean keep_scroll)
     //**********************************************************
     {
-        if (dbg)
+        //if (dbg)
             logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
 
         error_type = paths_manager.scan_dir(my_Stage.the_Stage, from);

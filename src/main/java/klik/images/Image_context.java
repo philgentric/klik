@@ -134,7 +134,14 @@ public class Image_context
     public double get_rotation(Aborter aborter)
     //**********************************************************
     {
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path,true,aborter,logger);
+        Double tmp = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
+        if ( tmp == null)
+        {
+            rotation = 0.0;
+        }
+        else {
+            rotation = tmp;
+        }
         //load_exif(aborter);
         return rotation;
     }
