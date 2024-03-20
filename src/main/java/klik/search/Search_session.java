@@ -16,14 +16,15 @@ public class Search_session implements Callback_for_file_found_publish
 //**********************************************************
 {
 	private static final boolean dbg = false;
-	private HashMap<String, List<Path>> search_results;// = new HashMap<>(); // the key is a string composed of the concatenated keywords
+	// the key is a string composed of the concatenated keywords
+	private HashMap<String, List<Path>> search_results;
 	Logger logger;
 	Search_status status = Search_status.undefined;
-	Search_config search_config;
+	public final Search_config search_config;
 	private final Aborter local_aborter;
 	private final Search_receiver search_receiver;
 	private final Browser the_browser;
-	private final Results_frame find_result_frame;
+	final Results_frame find_result_frame;
 
 
 	//**********************************************************
@@ -79,7 +80,12 @@ public class Search_session implements Callback_for_file_found_publish
 	public String get_max_key()
 	//**********************************************************
 	{
-		return list_of_keywords_to_key(search_config.keywords(),search_config.check_case());
+		List<String> local = new ArrayList<>(search_config.keywords());
+		if ( search_config.extension() != null)
+		{
+			local.add(search_config.extension());
+		}
+		return list_of_keywords_to_key(local,search_config.check_case());
 	}
 
 	//**********************************************************
@@ -129,7 +135,7 @@ public class Search_session implements Callback_for_file_found_publish
 				// this is a search by extension
 				List<String> ll = new ArrayList<>();
 				ll.add(search_config.extension());
-				String key = list_of_keywords_to_key(ll,false);
+				String key = list_of_keywords_to_key(sr.matched_keywords(), search_config.check_case());
 				if ( search_results != null)
 				{
 					List<Path> list = search_results.get(key);
@@ -142,7 +148,7 @@ public class Search_session implements Callback_for_file_found_publish
 		else
 		{
 			if (dbg)
-				logger.log("Search_session add_one_Search_result matched keyword: " + sr.matched_keywords() + " =>" + sr.path());
+				logger.log("Search_session on_the_fly_stats, matched keyword: " + sr.matched_keywords() + " =>" + sr.path());
 			String keys = list_of_keywords_to_key(sr.matched_keywords(),search_config.check_case());
 			if ( search_results != null)
 			{

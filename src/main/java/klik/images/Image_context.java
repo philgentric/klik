@@ -397,18 +397,18 @@ public class Image_context
         }
         logger.log("--------------------------------");
 
-        Finder.find(path,b,keywords,logger);
+        Finder.find(path,b,keywords,true,logger);
     }
 
 
 
     List<String> given_keywords = new ArrayList<>();
     //**********************************************************
-    void search_using_keywords_given_by_the_user(Browser b)
+    void search_using_keywords_given_by_the_user(Browser b, boolean search_only_for_images)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find(b, path, given_keywords, logger);
+        ask_user_and_find(b, path, given_keywords, search_only_for_images,logger);
     }
 
 
@@ -417,6 +417,7 @@ public class Image_context
             Browser browser,
             Path target,
             List<String> keywords,
+            boolean search_only_for_images,
             Logger logger
     )
     //**********************************************************
@@ -448,7 +449,7 @@ public class Image_context
                         keywords.add(s);
                     }
 
-                    Finder.find(target,browser,keywords,logger);
+                    Finder.find(target,browser,keywords,search_only_for_images,logger);
                 }
             }
 

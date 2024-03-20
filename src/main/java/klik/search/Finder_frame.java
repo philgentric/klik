@@ -31,13 +31,14 @@ public class Finder_frame implements Search_receiver
 //**********************************************************
 {
 	public static final int MIN_WIDTH = 600;
+	private static final String BASE_ = "<type new keyword>";
 	private Button start;
 	private Button stop;
 	Label visited_folders;
 	Label visited_files;
 	Logger logger;
 
-	private final Map<String, Label> keyword_to_Label =  new HashMap<>(); // this is the textfield to report the number of matches
+	final private Map<String, Keyword_slot> keyword_to_slot =  new HashMap<>(); // this is the textfield to report the number of matches
 	private final Stage stage;
 	private boolean look_only_for_images = false;
 	private boolean use_extension = false;
@@ -49,12 +50,18 @@ public class Finder_frame implements Search_receiver
 	Browser browser;
 	long start_time;
 	TextField extension_tf;
+	VBox top_keyword_vbox;
+	VBox bottom_keyword_vbox;
+	private boolean extension_textfield_is_red = false;
+	private boolean new_keyword_textfield_is_red = false;
 
 	//**********************************************************
-	public Finder_frame(Path target_path, List<String> input_keywords, Browser browser, Logger logger_)
+	public Finder_frame(Path target_path_, List<String> input_keywords, boolean look_only_for_images_, Browser browser, Logger logger_)
 	//**********************************************************
 	{
-		this.target_path = target_path;
+		this.target_path = target_path_;
+		if ( !target_path.toFile().isDirectory()) target_path = target_path.getParent();
+		look_only_for_images = look_only_for_images_;
 		this.browser = browser;
 		logger = logger_;
 		stage = new Stage();
@@ -81,10 +88,11 @@ public class Finder_frame implements Search_receiver
 		Look_and_feel_manager.set_region_look(main_vbox);
 
 		stage.setTitle(I18n.get_I18n_string("Search_by_keywords", logger));
-		stage.setMinWidth(MIN_WIDTH);
+		//stage.setMinWidth(MIN_WIDTH);
 		stage.setX(0);
 		stage.setScene(scene);
 		stage.show();
+		stage.sizeToScene();
 	}
 
 	//**********************************************************
@@ -96,12 +104,35 @@ public class Finder_frame implements Search_receiver
 		the_main_pane.getChildren().add(settings);
 
 		{
-			visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
-			the_main_pane.getChildren().add(visited_folders);
+			HBox hbox = new HBox();
+
+			Label static_visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
+			hbox.getChildren().add(static_visited_folders);
+			Look_and_feel_manager.set_region_look(static_visited_folders);
+
+			hbox.getChildren().add(horizontal_spacer());
+
+			visited_folders = new Label();
+			hbox.getChildren().add(visited_folders);
 			Look_and_feel_manager.set_region_look(visited_folders);
-			visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
-			the_main_pane.getChildren().add(visited_files);
+
+			the_main_pane.getChildren().add(hbox);
+
+		}
+		{
+			HBox hbox = new HBox();
+
+			Label static_visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
+			hbox.getChildren().add(static_visited_files);
+			Look_and_feel_manager.set_region_look(static_visited_files);
+
+			hbox.getChildren().add(horizontal_spacer());
+
+			visited_files = new Label();
+			hbox.getChildren().add(visited_files);
 			Look_and_feel_manager.set_region_look(visited_files);
+
+			the_main_pane.getChildren().add(hbox);
 		}
 
 		return the_main_pane;
@@ -112,6 +143,28 @@ public class Finder_frame implements Search_receiver
 	//**********************************************************
 	{
 		VBox settings_vbox = new VBox();
+		{
+			Label target_folder_label = new Label(target_path.toAbsolutePath().toString());
+			settings_vbox.getChildren().add(target_folder_label);
+			Button up = new Button(I18n.get_I18n_string("Search_Parent_Folder", logger));
+			Look_and_feel_manager.set_button_look(up,true);
+
+			settings_vbox.getChildren().add(up);
+
+			up.setOnAction(new EventHandler<>() {
+				@Override
+				public void handle(ActionEvent actionEvent) {
+					session.stop_search();
+					Path parent = target_path.getParent();
+					if (parent != null)
+					{
+						target_path = parent;
+						target_folder_label.setText(target_path.toAbsolutePath().toString());
+						start_search();
+					}
+				}
+			});
+		}
 		{
 			CheckBox search_also_folders = new CheckBox(I18n.get_I18n_string("Search_Also_Folders", logger));
 			search_also_folders.setSelected(also_folders);
@@ -163,11 +216,47 @@ public class Finder_frame implements Search_receiver
 				@Override
 				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
 					use_extension = new_value;
+					if (use_extension)
+					{
+						if(!extension_tf.getText().isBlank())
+						{
+							session.stop_search();
+							add_keyword_slot(extension_tf.getText().trim(), true);
+							start_search();
+						}
+					}
+					else
+					{
+						session.stop_search();
+						Keyword_slot kts = keyword_to_slot.get(extension_tf.getText());
+						top_keyword_vbox.getChildren().remove(kts.hbox1);
+						bottom_keyword_vbox.getChildren().remove(kts.hbox2);
+						keyword_to_slot.remove(extension_tf.getText());
+						start_search();
+					}
 				}
 			});
 			hb.getChildren().add(use_extension_cb);
 			extension_tf = new TextField("");
 			extension_tf.setMaxWidth(100);
+			extension_tf.setOnAction(actionEvent -> {
+				extension_textfield_is_red = false;
+				extension_tf.setStyle("-fx-text-inner-color: blue;");
+				use_extension = true;
+				use_extension_cb.setSelected(true);
+				session.stop_search();
+				add_keyword_slot(extension_tf.getText().trim(), true);
+				start_search();
+			});
+
+			extension_tf.textProperty().addListener((observableValue, old_val, new_val) -> {
+				if ( !extension_textfield_is_red)
+				{
+					extension_tf.setStyle("-fx-text-inner-color: red;");
+					extension_textfield_is_red = true;
+				}
+				logger.log("extension_tf  old_val:"+old_val+" new_val:"+new_val);
+			});
 
 			Look_and_feel_manager.set_TextField_look(extension_tf);
 			hb.getChildren().add(extension_tf);
@@ -178,30 +267,40 @@ public class Finder_frame implements Search_receiver
 		settings_vbox.getChildren().add(vertical_spacer());
 
 
-		VBox top_keyword_vbox = new VBox();
+		top_keyword_vbox = new VBox();
 		settings_vbox.getChildren().add(top_keyword_vbox);
 
-		VBox bottom_keyword_vbox = new VBox();
+		bottom_keyword_vbox = new VBox();
 		settings_vbox.getChildren().add(bottom_keyword_vbox);
 
 
 		{
 			HBox hbox = new HBox();
-			TextField new_keyword = new TextField("<enter new keyword here>");
-			new_keyword.setMinWidth(300);
-			Look_and_feel_manager.set_TextField_look(new_keyword);
-			hbox.getChildren().add(new_keyword);
+			TextField new_keyword_textfield = new TextField(BASE_);
+			new_keyword_textfield.setStyle("-fx-text-inner-color: blue;");
+			new_keyword_textfield.textProperty().addListener((observableValue, old_val, new_val) -> {
+				if ( !new_keyword_textfield_is_red)
+				{
+					new_keyword_textfield.setStyle("-fx-text-inner-color: red;");
+					new_keyword_textfield_is_red = true;
+				}
+				logger.log("new_keyword_textfield  old_val:"+old_val+" new_val:"+new_val);
+			});
+
+			new_keyword_textfield.setMinWidth(300);
+			Look_and_feel_manager.set_TextField_look(new_keyword_textfield);
+			new_keyword_textfield.setStyle("-fx-text-inner-color: darkgrey;");
+			new_keyword_textfield.setOnAction(actionEvent ->
+					{
+						new_keyword_action(new_keyword_textfield);
+					});
+			hbox.getChildren().add(new_keyword_textfield);
 			hbox.getChildren().add(horizontal_spacer());
 
 			Button add_keyword = new Button(I18n.get_I18n_string("Add_Keyword", logger));
 			Look_and_feel_manager.set_button_look(add_keyword,true);
 			add_keyword.setOnAction(actionEvent -> {
-				if (new_keyword.getText().trim().isBlank()) return;
-				if (keyword_to_Label.containsKey(new_keyword.getText().trim())) return;
-				session.stop_search();
-				//the_result_vbox.getChildren().clear();
-				if ( !new_keyword.getText().trim().isEmpty()) add_keyword(new_keyword.getText().trim(), top_keyword_vbox, bottom_keyword_vbox);
-				new_keyword.setText("");
+				new_keyword_action(new_keyword_textfield);
 			});
 			hbox.getChildren().add(add_keyword);
 			top_keyword_vbox.getChildren().add(hbox);
@@ -210,7 +309,7 @@ public class Finder_frame implements Search_receiver
 		for(String keyword : input_keywords )
 		{
 			if ( keyword.trim().isBlank()) continue;
-			add_keyword(keyword.trim(),top_keyword_vbox,bottom_keyword_vbox);
+			add_keyword_slot(keyword.trim(),false);
 		}
 		top_keyword_vbox.getChildren().add(vertical_spacer());
 
@@ -244,66 +343,38 @@ public class Finder_frame implements Search_receiver
 
 
 	//**********************************************************
-	private void add_keyword(String local_keyword, VBox top_keyword_vbox, VBox bottom_keyword_vbox)
+	private void new_keyword_action(TextField new_keyword_textfield)
 	//**********************************************************
 	{
-		HBox local_hbox2 = new HBox();
-
-		{
-			// first part is the keyword line showing the "delete" button, in the top panel
-			HBox local_hbox1 = new HBox();
-			top_keyword_vbox.getChildren().add(local_hbox1);
-			TextField l1 = new TextField(I18n.get_I18n_string("Keyword", logger));
-			local_hbox1.getChildren().add(l1);
-			Look_and_feel_manager.set_region_look(l1);
-			local_hbox1.getChildren().add(horizontal_spacer());
-
-			TextField t1 = new TextField("->"+local_keyword+"<-");
-			local_hbox1.getChildren().add(t1);
-			Look_and_feel_manager.set_region_look(t1);
-			local_hbox1.getChildren().add(horizontal_spacer());
-
-			Button t4 = new Button(I18n.get_I18n_string("Remove_This_Keyword", logger));
-			Look_and_feel_manager.set_button_look(t4, true);
-			t4.setOnAction(new EventHandler<>() {
-				@Override
-				public void handle(ActionEvent actionEvent) {
-					session.stop_search();
-					top_keyword_vbox.getChildren().remove(local_hbox1);
-					bottom_keyword_vbox.getChildren().remove(local_hbox2);
-					keyword_to_Label.remove(local_keyword);
-				}
-			});
-			local_hbox1.getChildren().add(t4);
-		}
-
-		// second part is in the result section
-		{
-			Label t1 = new Label("->"+local_keyword+"<- ");
-			Look_and_feel_manager.set_region_look(t1);
-			local_hbox2.getChildren().add(t1);
-			local_hbox2.getChildren().add(horizontal_spacer());
-
-			Label t2 = new Label(I18n.get_I18n_string("Was_Found_In", logger));
-			Look_and_feel_manager.set_region_look(t2);
-			local_hbox2.getChildren().add(t2);
-			local_hbox2.getChildren().add(horizontal_spacer());
-
-			Label t3 = new Label(""); // this is the label that will be updated during search with the match count
-			Look_and_feel_manager.set_region_look(t3);
-			keyword_to_Label.put(local_keyword,t3);
-			local_hbox2.getChildren().add(t3);
-			local_hbox2.getChildren().add(horizontal_spacer());
-
-			Label t4 = new Label( I18n.get_I18n_string("File_Names",logger));
-			Look_and_feel_manager.set_region_look(t4);
-			local_hbox2.getChildren().add(t4);
-			bottom_keyword_vbox.getChildren().add(local_hbox2);
-		}
+		introduce_new_keyword(new_keyword_textfield.getText().trim());
+		new_keyword_textfield.setText(BASE_);
+		new_keyword_textfield.setStyle("-fx-text-inner-color: blue;");
+		new_keyword_textfield_is_red = false;
 	}
 
 	//**********************************************************
-	private Node horizontal_spacer()
+	private void introduce_new_keyword(String new_keyword)
+	//**********************************************************
+	{
+		if (new_keyword.isBlank()) return;
+		if (keyword_to_slot.containsKey(new_keyword)) return;
+		session.stop_search();
+		add_keyword_slot(new_keyword,false);
+		stage.sizeToScene();
+		start_search();
+	}
+
+
+	//**********************************************************
+	private void add_keyword_slot(String local_keyword, boolean is_extension)
+	//**********************************************************
+	{
+		Keyword_slot ks = new Keyword_slot(local_keyword,this,is_extension,logger);
+		keyword_to_slot.put(local_keyword,ks);
+	}
+
+	//**********************************************************
+	public static Node horizontal_spacer()
 	//**********************************************************
 	{
 		final Region spacer = new Region();
@@ -328,30 +399,31 @@ public class Finder_frame implements Search_receiver
 
 	//**********************************************************
 	@Override // Search_receiver
-	public void receive_intermediary_statistics(Search_statistics st)
+	public void receive_intermediary_statistics(Search_statistics search_statistics)
 	//**********************************************************
 	{
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 
-				for (String input_keyword: keyword_to_Label.keySet())
+				for (String input_keyword: keyword_to_slot.keySet())
 				{
-					Label t = keyword_to_Label.get(input_keyword);
+					Keyword_slot ks = keyword_to_slot.get(input_keyword);
+					Label t = ks.get_result_label();
 					if (t == null) {
 						System.out.println("SHOULD NOT HAPPEN: no Text component in UI for keyword ->" + input_keyword + "<-");
 					} else {
-						if (st.matched_keyword_counts().get(input_keyword) == null )
+						if (search_statistics.matched_keyword_counts().get(input_keyword) == null )
 						{
 							t.setText(String.valueOf( 0));
 						}
 						else {
-							t.setText(String.valueOf( st.matched_keyword_counts().get(input_keyword)));
+							t.setText(String.valueOf( search_statistics.matched_keyword_counts().get(input_keyword)));
 						}
 					}
 				}
-				visited_files.setText(I18n.get_I18n_string("Visited_Files", logger)+": \t\t"+st.visited_files());
-				visited_folders.setText(I18n.get_I18n_string("Visited_Folders", logger)+": \t\t"+st.visited_folders());
+				visited_files.setText(""+search_statistics.visited_files());
+				visited_folders.setText(""+search_statistics.visited_folders());
 
 			}
 		});
@@ -407,7 +479,8 @@ public class Finder_frame implements Search_receiver
 	void start_search()
 	//**********************************************************
 	{
-		List<String> keywords = new ArrayList<>(keyword_to_Label.keySet());
+		List<String> keywords = new ArrayList<>(keyword_to_slot.keySet());
+
 		String local_extension = null;
 		if ( use_extension)
 		{
@@ -418,6 +491,7 @@ public class Finder_frame implements Search_receiver
 				{
 					local_extension = extension.trim().toLowerCase();
 					logger.log("extension="+local_extension);
+					keywords.remove(local_extension);
 				}
 			}
 		}
@@ -427,5 +501,9 @@ public class Finder_frame implements Search_receiver
 		stop.setDisable(false);
 		start.setDisable(true);
 		start_time = System.currentTimeMillis();
+	}
+
+	public Map<String, Keyword_slot> get_keyword_to_slot() {
+		return keyword_to_slot;
 	}
 }

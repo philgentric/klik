@@ -302,7 +302,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem search_y = new MenuItem(I18n.get_I18n_string("Choose_keywords", image_window.logger));
-        search_y.setOnAction(event -> image_context_owner.image_context.search_using_keywords_given_by_the_user(the_browser));
+        search_y.setOnAction(event -> image_context_owner.image_context.search_using_keywords_given_by_the_user(the_browser,false));
         return search_y;
     }
 

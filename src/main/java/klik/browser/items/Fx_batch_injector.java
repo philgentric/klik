@@ -61,7 +61,7 @@ public class Fx_batch_injector
     {
         if ( input.size() == 0) return;
         Platform.runLater(()->{
-            logger.log("Fx_batch_injector, batch size was: "+do_it_in_fx_thread(aborter));
+            //logger.log("Fx_batch_injector, batch size was: "+do_it_in_fx_thread(aborter));
             do_it_in_fx_thread(aborter);
         });
     }

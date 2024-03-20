@@ -4,10 +4,8 @@ import klik.actor.Actor;
 import klik.actor.Message;
 import klik.files_and_paths.Ding;
 import klik.files_and_paths.Guess_file_type;
-import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
@@ -136,7 +134,7 @@ public class Finder_actor implements Actor
                     }
                     if (fm.search_config.also_folders())
                     {
-                        check_if_file_name_matches_keywords(path, fm);
+                        check_if_name_matches_keywords(path, fm);
                     }
                 }
                 else
@@ -146,12 +144,12 @@ public class Finder_actor implements Actor
                     {
                         if (Guess_file_type.is_this_path_an_image(path))
                         {
-                            check_if_file_name_matches_keywords(path, fm);
+                            check_if_name_matches_keywords(path, fm);
                         }
                     }
                     else
                     {
-                        check_if_file_name_matches_keywords(path, fm);
+                        check_if_name_matches_keywords(path, fm);
                     }
                 }
                 long now = System.currentTimeMillis();
@@ -178,25 +176,16 @@ public class Finder_actor implements Actor
     }
 
     //**********************************************************
-    private void check_if_file_name_matches_keywords(Path target_path, Finder_message fm)
+    private void check_if_name_matches_keywords(Path target_path, Finder_message fm)
     //**********************************************************
     {
         if ( fm.search_config.keywords().isEmpty())
         {
-            if ( fm.search_config.extension()!=null)
-            {
-                // no keywords but an extension
-                String ext = FilenameUtils.getExtension(target_path.getFileName().toString()).toLowerCase();
-                logger.log("ext="+ext+" vs "+fm.search_config.extension());
-                if(ext.equals(fm.search_config.extension()))
-                {
-                    List<String> empty_keyword_list = new ArrayList<>();
-                    empty_keyword_list.add(ext);
-                    record_found(target_path, empty_keyword_list, fm);
-                }
-            }
+            search_with_extension(target_path, fm);
             return;
         }
+
+        List<String> all_matched_keywords = new ArrayList<>();
         String name;
         if ( Files.isDirectory(target_path))
         {
@@ -208,6 +197,7 @@ public class Finder_actor implements Actor
         }
         else
         {
+            // is a file
             if ( fm.search_config.look_only_for_images())
             {
                 if (!Guess_file_type.is_this_path_an_image(target_path))
@@ -220,7 +210,12 @@ public class Finder_actor implements Actor
                 if (!fm.extension.isBlank())
                 {
                     String ext = FilenameUtils.getExtension(target_path.getFileName().toString()).toLowerCase();
-                    if (!ext.equals(fm.extension))
+                    if (ext.equals(fm.extension))
+                    {
+                        count_keyword(ext);
+                        all_matched_keywords.add(ext);
+                    }
+                    else
                     {
                         if (ultra_dbg) logger.log("extensions dont match" + ext + " vs " + fm.extension);
                         return;
@@ -235,14 +230,14 @@ public class Finder_actor implements Actor
         }
 
 
-        if ( ultra_dbg) logger.log("checking if all keywords are present for: "+name);
+        if ( ultra_dbg) logger.log(target_path.toAbsolutePath()+" checking if all keywords are present for: "+name);
         // look for ALL of them
-        List<String> all_matched_keywords = new ArrayList<>();
         for ( String keyword : fm.search_config.keywords())
         {
-            String k = keyword;
-            if (!fm.search_config.check_case()) k = keyword.toLowerCase();
-            if ( !name.contains(k) )
+            String kk = keyword;
+            if (!fm.search_config.check_case()) kk = keyword.toLowerCase();
+            if ( ultra_dbg) logger.log(target_path.toAbsolutePath()+" checking if all keywords are present for: "+name+" keyword="+kk);
+            if ( !name.contains(kk) )
             {
                 // if one keyword is missing we give up
                 break;
@@ -277,6 +272,24 @@ public class Finder_actor implements Actor
         {
             if ( dbg) logger.log("all keywords "+all_matched_keywords+" found for "+target_path.getFileName());
             record_found(target_path, all_matched_keywords, fm);
+        }
+    }
+
+    //**********************************************************
+    private void search_with_extension(Path target_path, Finder_message fm)
+    //**********************************************************
+    {
+        if ( fm.search_config.extension()!=null)
+        {
+            // no keywords but an extension
+            String ext = FilenameUtils.getExtension(target_path.getFileName().toString()).toLowerCase();
+            //logger.log("ext="+ext+" vs "+fm.search_config.extension());
+            if(ext.equals(fm.search_config.extension()))
+            {
+                List<String> empty_keyword_list = new ArrayList<>();
+                empty_keyword_list.add(ext);
+                record_found(target_path, empty_keyword_list, fm);
+            }
         }
     }
 

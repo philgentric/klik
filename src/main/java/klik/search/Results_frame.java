@@ -1,6 +1,7 @@
 package klik.search;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
@@ -82,49 +83,8 @@ public class Results_frame
 		scroll_pane.setFitToWidth(true);
 		scroll_pane.setFitToHeight(true);
 		the_result_vbox.getChildren().clear();
-		//if ( search_results != null) show_search_results(the_browser, search_results, session);
-
-		//scene.getRoot().setCursor(Cursor.WAIT);
-
-
 	}
-/*
-	//**********************************************************
-	@Deprecated // use inject_search_results
-	private void show_search_results(Browser the_browser, HashMap<String, List<Path>> search_results_, Search_session session)
-	//**********************************************************
-	{
-		List<String> keyset = new ArrayList<>(search_results.keySet());
-		if ( keyset.isEmpty())
-		{
-			Label label = new Label(I18n.get_I18n_string("No_Match", logger));
-			Look_and_feel_manager.set_region_look(label);
-			the_result_vbox.getChildren().add(label);
-			return;
-		}
-		keyset.sort(string_length_comparator);
-		for( String key : keyset)
-		{
-			boolean is_max = key.equals(session.get_max_key());
-			Label label = new Label(I18n.get_I18n_string("Matched_Keywords", logger)+": "+key);
-			Look_and_feel_manager.set_region_look(label);
-			the_result_vbox.getChildren().add(label);
-			List<Path> path_set = search_results.get(key);
-			int count = 0;
-			for ( Path path : path_set)
-			{
-				make_one_button(the_browser, key, is_max, path);
 
-			}
-			if(key.equals(session.get_max_key()))
-			{
-				// no need to list partial matches...
-				break;
-			}
-		}
-		logger.log("show_search_results done");
-	}
-*/
 	//**********************************************************
 	private void make_one_button(Browser the_browser, String key, boolean is_max, Path path)
 	//**********************************************************
@@ -217,14 +177,33 @@ public class Results_frame
 
 	}
 
-	public void has_ended() {
+	//**********************************************************
+	public void has_ended()
+	//**********************************************************
+	{
 
 		Platform.runLater(() -> {
 			stage.setTitle(I18n.get_I18n_string("Search_Results_Ended", logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
 			iv.setImage(Look_and_feel_manager.get_search_end_icon());
 
+			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
+			all_results.sort((o1, o2) -> {
+				Button b1 = (Button) o1;
+				Button b2 = (Button) o2;
+				if (b1.getGraphic() != null && b2.getGraphic() == null) return -1;
+				if (b1.getGraphic() == null && b2.getGraphic() != null) return 1;
+				return string_length_comparator.compare(b1.getText(), b2.getText());
+			});
+			the_result_vbox.getChildren().clear();
+			the_result_vbox.getChildren().addAll(all_results);
+
 		});
 
+
+	}
+
+	public void sort()
+	{
 	}
 }

@@ -1292,6 +1292,7 @@ public class Browser_menus
                 browser,
                 browser.displayed_folder_path,
                 given,
+                false,
                 logger
         );
 

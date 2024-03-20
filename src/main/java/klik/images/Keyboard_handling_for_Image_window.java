@@ -114,7 +114,7 @@ public class Keyboard_handling_for_Image_window
             }
             case "f" -> {
                 if (keyword_dbg) logger.log("f like find = search_using_keywords_given_by_the_user");
-                image_window.image_display_handler.get_image_context().search_using_keywords_given_by_the_user(the_browser);
+                image_window.image_display_handler.get_image_context().search_using_keywords_given_by_the_user(the_browser,true);
                 key_event.consume();
                 return;
             }
