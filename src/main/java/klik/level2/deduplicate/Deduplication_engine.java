@@ -462,6 +462,9 @@ public class Deduplication_engine implements Againor
 
         List<My_File> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
         //Collections.sort(files, by_path_length);
+
+
+
         return files;
     }
 

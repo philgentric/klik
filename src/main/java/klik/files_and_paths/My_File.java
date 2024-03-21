@@ -54,6 +54,7 @@ public class My_File
 	public static boolean files_have_same_content(My_File mf1, My_File mf2, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
+
 		// note we absolutely do NOT look at the file name: we look at the content
 		if ( mf1.size == 0)
 		{

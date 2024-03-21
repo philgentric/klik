@@ -30,7 +30,7 @@ public class Guess_file_type
     private static final String[] supported_image_formats = ImageIO.getReaderFormatNames();
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};
-    public static final String[] ignored_prefixes = {"._",".DS_Store"};
+    public static final String[] ignored_prefixes = {"._",".DS_Store",".color"};
     static String[] supported_non_gif_non_png_image_formats = null;
 
     //**********************************************************
