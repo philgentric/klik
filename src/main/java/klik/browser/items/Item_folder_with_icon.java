@@ -34,10 +34,7 @@ import klik.util.Stack_trace_getter;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 //**********************************************************
@@ -194,7 +191,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             Path local = get_path_for_display(false);
             local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, browser_aborter, logger);
-            //image_and_rotation = new Image_and_rotation(image_and_rotation.image(),local_rot);
         }
         the_image_pane.setRotate(local_rot);
         resize_the_box(the_button);

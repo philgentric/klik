@@ -17,9 +17,11 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 //**********************************************************
 public class Mouse_handling_for_Image_window
@@ -97,8 +99,8 @@ public class Mouse_handling_for_Image_window
     private void move_image_internal(double dx, double dy)
     //**********************************************************
     {
-        Image_context local = Objects.requireNonNull(image_window.image_display_handler).get_image_context();
-        if (local == null) return;
+        Optional<Image_context> local = image_window.image_display_handler.get_image_context();
+        if (local.isEmpty()) return;
         //if (local.the_image_view == null) return;
         /*
         this is for moving the imageview in the scene
@@ -106,7 +108,7 @@ public class Mouse_handling_for_Image_window
         local.imageView.setTranslateY(local.imageView.getTranslateY()+dy);
          what we want is to move the image INSIDE the viewport
          */
-        local.move_viewport(dx,dy);
+        local.get().move_viewport(dx,dy);
 
     }
 
@@ -144,7 +146,9 @@ public class Mouse_handling_for_Image_window
     void mouse_released_click_to_zoom(Pane pane)
     //**********************************************************
     {
-        Image_context local = image_window.image_display_handler.get_image_context();
+        if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+
+        Image_context local = image_window.image_display_handler.get_image_context().get();
 
         logger.log("mouse_released_local_zoom:");
         pane.getChildren().remove(user_defined_zoom_area);
@@ -301,7 +305,8 @@ public class Mouse_handling_for_Image_window
             logger.log("pix_for_pix weird = Image_display_handler is null?");
             return;
         }
-        Image_context local = tmp.get_image_context();
+        if ( tmp.get_image_context().isEmpty()) return;
+        Image_context local = tmp.get_image_context().get();
         local.the_image_view.fitWidthProperty().unbind();
         local.the_image_view.fitHeightProperty().unbind();
         local.the_image_view.setFitWidth(local.image.getWidth());
@@ -331,21 +336,22 @@ public class Mouse_handling_for_Image_window
 
 
     //**********************************************************
-    void set_mouse_mode(Image_window image_stage, Mouse_mode new_mode)
+    void set_mouse_mode(Image_window image_window, Mouse_mode new_mode)
     //**********************************************************
     {
+        if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
         Mouse_mode old_mode = mouse_mode;
         mouse_mode = new_mode;
         switch (mouse_mode) {
             case drag_and_drop -> {
                 if (old_mode == Mouse_mode.drag_and_drop) return;
-                if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_stage.the_image_Pane);
-                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_stage.the_Stage);
-                enable_drag_and_drop(image_stage);
+                if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_window.the_image_Pane);
+                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.the_Stage);
+                enable_drag_and_drop(image_window);
                 // REFRESH i.e. especially when going out of pix-for-pix
                 if(!something_is_wrong_with_image_size())
                 {
-                    image_stage.set_image(Objects.requireNonNull(image_stage.image_display_handler).get_image_context());
+                    image_window.set_image(image_window.image_display_handler.get_image_context().get());
                 }
             }
             case pix_for_pix -> {
@@ -354,27 +360,28 @@ public class Mouse_handling_for_Image_window
                     pix_for_pix();
                     return;
                 }
-                if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_stage.the_image_Pane);
-                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_image_Pane);
-                enable_pix_for_pix(image_stage.the_Stage);
+                if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_window.the_image_Pane);
+                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_window.the_image_Pane);
+                enable_pix_for_pix(image_window.the_Stage);
                 pix_for_pix();
             }
             case click_to_zoom -> {
                 if (old_mode == Mouse_mode.click_to_zoom) return;
-                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_stage.the_image_Pane);
-                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_stage.the_Stage);
-                enable_click_to_zoom(image_stage.the_image_Pane);
+                if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_window.the_image_Pane);
+                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.the_Stage);
+                enable_click_to_zoom(image_window.the_image_Pane);
             }
         }
 
-        image_stage.set_stage_title(Objects.requireNonNull(image_stage.image_display_handler).get_image_context());
+        image_window.set_stage_title(image_window.image_display_handler.get_image_context().get());
     }
 
     //**********************************************************
     boolean something_is_wrong_with_image_size()
     //****************************************y******************
     {
-        Image_context local = Objects.requireNonNull(image_window.image_display_handler).get_image_context();
+        if ( image_window.image_display_handler.get_image_context().isEmpty()) return true;
+        Image_context local = image_window.image_display_handler.get_image_context().get();
         if (local == null)
         {
             logger.log("image_context is null");
@@ -405,47 +412,44 @@ public class Mouse_handling_for_Image_window
 
 
     //**********************************************************
-    private void enable_drag_and_drop(Image_window image_stage)
+    private void enable_drag_and_drop(Image_window image_window)
     //**********************************************************
     {
-        if(image_stage.image_display_handler == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: image_display_handler is null"));
-            return;
-        }
-        if(image_stage.image_display_handler.get_image_context() == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: get_image_context is null"));
-            return;
-        }
-        image_stage.image_display_handler.get_image_context().the_image_view.setViewport(null);
 
-        image_stage.the_image_Pane.setOnDragDetected(event -> {
+        if(image_window.image_display_handler.get_image_context().isEmpty())
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: get_image_context is empty"));
+            return;
+        }
+        image_window.image_display_handler.get_image_context().get().the_image_view.setViewport(null);
+
+        image_window.the_image_Pane.setOnDragDetected(event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
 
-            Dragboard db = image_stage.the_image_Pane.startDragAndDrop(TransferMode.MOVE);
+            Dragboard db = image_window.the_image_Pane.startDragAndDrop(TransferMode.MOVE);
 
             ClipboardContent content = new ClipboardContent();
             List<File> possibly_moved = new ArrayList<>();
 
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("going to drag and drop: "+ Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).toFile().getAbsolutePath());
-            possibly_moved.add(Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).toFile());
-
-            content.putFiles(possibly_moved);
-            db.setContent(content);
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("going to drag and drop: "+ Objects.requireNonNull(image_window.image_display_handler.get_image_context().get().path).toFile().getAbsolutePath());
+            Path p = image_window.image_display_handler.get_image_context().get().path;
+            if ( p !=null)
+            {
+                possibly_moved.add(p.toFile());
+                content.putFiles(possibly_moved);
+                db.setContent(content);
+            }
             event.consume();
-
-
         });
 
-        image_stage.the_image_Pane.setOnDragDone(drag_event -> {
+        image_window.the_image_Pane.setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
                 if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDone");
                 //image is gone, replace it with the next one
 
-                image_stage.image_display_handler.change_image_relative(1,false);
-                image_stage.the_Stage.requestFocus();
+                image_window.image_display_handler.change_image_relative(1,false);
+                image_window.the_Stage.requestFocus();
             }
             drag_event.consume();
         });
@@ -454,25 +458,28 @@ public class Mouse_handling_for_Image_window
      // when an image it dropped we display it
     // and the side effect is that the current directory will change
 
-        image_stage.the_image_Pane.setOnDragDropped(drag_event -> {
+        image_window.the_image_Pane.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
 
             Dragboard db = drag_event.getDragboard();
             List<File> l = db.getFiles();
             // take one
-            for (File fff : l)
+            for (File file : l)
             {
-                if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + fff.getAbsolutePath());
+                if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
 
-                image_stage.show_wait_cursor();
-                Image_context ic2 = Image_context.get_Image_context(fff.toPath(), image_stage.aborter, logger);
+                image_window.show_wait_cursor();
+                Optional<Image_context> option = Image_context.get_Image_context(file.toPath(), image_window.aborter, logger);
                 //image_file_source =  Image_indexer.get_Image_file_source(fff.getParentFile().toPath(), logger);
-                if ( ic2 != null)
+                if ( option.isPresent())
                 {
-                    image_stage.image_display_handler.set_image_context(ic2);
-                    image_stage.set_image(ic2);
+                    image_window.image_display_handler.set_image_context(option.get());
+                    image_window.set_image(option.get());
                 }
-                image_stage.restore_cursor();
+                else {
+                    logger.log(Stack_trace_getter.get_stack_trace("loading image failed for: "+file));
+                }
+                image_window.restore_cursor();
                 break;
             }
 
@@ -481,21 +488,22 @@ public class Mouse_handling_for_Image_window
             drag_event.consume();
         });
 
-        image_stage.the_image_Pane.setOnDragOver(drag_event -> {
+        image_window.the_image_Pane.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             drag_event.consume();
-            image_stage.the_Stage.requestFocus();
+            image_window.the_Stage.requestFocus();
         });
-        image_stage.the_image_Pane.setOnDragEntered(drag_event -> {
+        image_window.the_image_Pane.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
-            Look_and_feel_manager.set_drag_look_for_pane(image_stage.the_image_Pane);
+            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane);
             drag_event.consume();
         });
-        image_stage.the_image_Pane.setOnDragExited(drag_event -> {
+        image_window.the_image_Pane.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
-            if (image_stage.image_display_handler.get_image_context() != null) {
-                image_stage.set_background(image_stage.the_image_Pane,Objects.requireNonNull(image_stage.image_display_handler.get_image_context().path).getFileName().toString());
+            if (image_window.image_display_handler.get_image_context().isPresent())
+            {
+                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString());
             }
             drag_event.consume();
         });

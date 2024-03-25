@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 //**********************************************************
 public class Keyboard_handling_for_Image_window
@@ -61,7 +62,8 @@ public class Keyboard_handling_for_Image_window
             if (Static_application_properties.get_level2(logger))
             {
                 // shift d is "sure delete"
-                Path path = image_window.image_display_handler.get_image_context().path;
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                Path path = image_window.image_display_handler.get_image_context().get().path;
                 try {
                     Files.delete(path);
                 } catch (NoSuchFileException x) {
@@ -89,44 +91,59 @@ public class Keyboard_handling_for_Image_window
 
             case "b" -> {
                 if (keyword_dbg) logger.log("b like browse");
-                Browser_creation_context.additional_different_folder(image_window.image_display_handler.get_image_context().path.getParent(), the_browser, logger);
+
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+
+                Browser_creation_context.additional_different_folder(image_window.image_display_handler.get_image_context().get().path.getParent(), the_browser, logger);
                 key_event.consume();
                 return;
             }
             case "c" -> {
                 if (keyword_dbg) logger.log("c like copy");
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 Runnable after = image_window.image_display_handler.image_indexer::signal_file_copied;
-                image_window.image_display_handler.get_image_context().copy(the_browser, after);
+                image_window.image_display_handler.get_image_context().get().copy(the_browser, after);
                 key_event.consume();
                 return;
             }
             case "d" -> {
                 if (keyword_dbg) logger.log("d like delete, move to trash");
+
                 image_window.image_display_handler.delete();
                 key_event.consume();
                 return;
             }
             case "e" -> {
                 if (keyword_dbg) logger.log("e like edit");
-                image_window.image_display_handler.get_image_context().edit();
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().edit();
                 key_event.consume();
                 return;
             }
             case "f" -> {
                 if (keyword_dbg) logger.log("f like find = search_using_keywords_given_by_the_user");
-                image_window.image_display_handler.get_image_context().search_using_keywords_given_by_the_user(the_browser,true);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(the_browser,true);
                 key_event.consume();
                 return;
             }
             case "i" -> {
                 if (keyword_dbg) logger.log("i like information");
-                image_window.image_display_handler.get_image_context().show_exif_stage(image_window.aborter);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().show_exif_stage(image_window.aborter);
                 key_event.consume();
                 return;
             }
             case "k" -> {
                 if (keyword_dbg) logger.log("k like search_using_keywords_from_the_name");
-                image_window.image_display_handler.get_image_context().search_using_keywords_from_the_name(the_browser);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(the_browser);
                 key_event.consume();
                 return;
             }
@@ -138,13 +155,17 @@ public class Keyboard_handling_for_Image_window
             }
             case "o" -> {
                 if (keyword_dbg) logger.log("o like open ");
-                image_window.image_display_handler.get_image_context().open();
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().open();
                 key_event.consume();
                 return;
             }
             case "r" -> {
                 if (keyword_dbg) logger.log("r like rename");
-                image_window.image_display_handler.get_image_context().rename_file_for_an_image_window(image_window);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
                 key_event.consume();
                 return;
             }
@@ -156,13 +177,17 @@ public class Keyboard_handling_for_Image_window
             }
             case "t" -> {
                 if (keyword_dbg) logger.log("t like tag");
-                Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().path, true, logger);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, logger);
                 key_event.consume();
                 return;
             }
             case "u" -> {
                 if (keyword_dbg) logger.log("u like next ultim");
-                image_window.image_display_handler.get_next_u(image_window.image_display_handler.get_image_context().path);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_next_u(image_window.image_display_handler.get_image_context().get().path);
                 key_event.consume();
                 return;
             }
@@ -174,9 +199,11 @@ public class Keyboard_handling_for_Image_window
             }
             case "v" -> {
                 if (keyword_dbg) logger.log("v like up Vote");
-                Image_context ic = image_window.image_display_handler.get_image_context();
-                Image_context new_ic = ic.ultim(image_window);
-                if (new_ic != null) image_window.image_display_handler.set_image_context(new_ic);
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                Image_context ic = image_window.image_display_handler.get_image_context().get();
+                Optional<Image_context> new_ic = ic.ultim(image_window);
+                if (new_ic.isPresent()) image_window.image_display_handler.set_image_context(new_ic.get());
                 key_event.consume();
                 return;
             }
@@ -211,16 +238,24 @@ public class Keyboard_handling_for_Image_window
         {
             case UP:
                 if ( keyword_dbg) logger.log("zoom up/in:");
-                image_window.image_display_handler.get_image_context().change_zoom_factor(image_window,1.05);
+
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().change_zoom_factor(image_window,1.05);
                 break;
 
             case DOWN:
                 if ( keyword_dbg) logger.log("zoom down/out:");
-                image_window.image_display_handler.get_image_context().change_zoom_factor(image_window,0.95);
+
+
+                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.image_display_handler.get_image_context().get().change_zoom_factor(image_window,0.95);
                 break;
 
             case LEFT:
                 if ( keyword_dbg) logger.log("left");
+
+
                 image_window.image_display_handler.change_image_relative(-1, image_window.ultim_mode);
                 break;
 
@@ -228,6 +263,8 @@ public class Keyboard_handling_for_Image_window
                 if ( keyword_dbg) logger.log("space");
             case RIGHT:
                 if ( keyword_dbg) logger.log("right");
+
+
                 image_window.image_display_handler.change_image_relative(1, image_window.ultim_mode);
                 break;
 

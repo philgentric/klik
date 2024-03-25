@@ -14,6 +14,7 @@ import klik.util.Stack_trace_getter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 
 //**********************************************************
 public class Fast_rotation_from_exif_metadata_extractor
@@ -22,7 +23,7 @@ public class Fast_rotation_from_exif_metadata_extractor
     public static final boolean dbg = false;
 
     //**********************************************************
-    public static Double get_rotation(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static double get_rotation(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
 
@@ -30,7 +31,8 @@ public class Fast_rotation_from_exif_metadata_extractor
         InputStream is = From_disk.get_image_InputStream(path, enable_fusk, report_if_not_found, aborter, logger);
         if ( is == null)
         {
-            return null;
+            logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file "+path));
+            return 0.0;
         }
 
         try
@@ -73,17 +75,19 @@ public class Fast_rotation_from_exif_metadata_extractor
         catch (ImageProcessingException e)
         {
             if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
-            if ( e.toString().contains("File format could not be determined"))  return null;
+            if ( e.toString().contains("File format could not be determined"))
+            {
+                logger.log("Warning:"+e);
+                return 0.0;
+            }
         }
         catch (IOException e)
         {
             if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return null;
         }
         catch (Exception e)
         {
             if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return null;
         }
 
         return 0.0;

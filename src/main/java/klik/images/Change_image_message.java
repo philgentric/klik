@@ -4,6 +4,9 @@ import klik.actor.Aborter;
 import klik.actor.Message;
 import klik.util.Logger;
 
+import java.util.Objects;
+import java.util.Optional;
+
 //**********************************************************
 public class Change_image_message implements Message
 //**********************************************************
@@ -22,7 +25,7 @@ public class Change_image_message implements Message
     {
         this.logger = logger;
         this.delta = delta;
-        this.input_image_context = image_context;
+        this.input_image_context = Objects.requireNonNull(image_context);
         this.image_window = image_stage;
         this.ultimate = ultimate;
         this.output_image_context = returned;

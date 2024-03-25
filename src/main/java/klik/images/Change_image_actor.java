@@ -7,6 +7,7 @@ import klik.change.Change_gang;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 //**********************************************************
 public class Change_image_actor implements Actor
@@ -113,25 +114,25 @@ public class Change_image_actor implements Actor
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
             Platform.runLater(() -> change_image_message.image_window.set_image(change_image_message.output_image_context[0]));
             //cim.image_stage.restore_cursor();
-            change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
+            change_image_message.image_window.image_display_handler.preload( change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
             return "found in cache";
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
         if ( dbg) change_image_message.logger.log("\n image NOT found in cache: " + full_path);
-        image_context = change_image_message.image_window.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
-        if (image_context == null)
+        Optional<Image_context> option = change_image_message.image_window.image_display_handler.local_getImage_context(target_image_path, change_image_message.aborter);
+        if (option.isEmpty())
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor null image (1) in change_image_relative");
             Change_gang.report_anomaly(Objects.requireNonNull(change_image_message.input_image_context.path).getParent());
             //cim.image_stage.restore_cursor();
             return "Failed";
         }
+        image_context = option.get();
+        change_image_message.image_window.image_display_handler.save_in_cache(full_path,option.get());
+        change_image_message.output_image_context[0] = option.get();
 
-        change_image_message.image_window.image_display_handler.save_in_cache(full_path,image_context);
-        change_image_message.output_image_context[0] = image_context;
-
-        if (Objects.requireNonNull(change_image_message.image_window.mouse_handling_for_image_window).something_is_wrong_with_image_size())
+        if (change_image_message.image_window.mouse_handling_for_image_window.something_is_wrong_with_image_size())
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor something_is_wrong_with_image_size in change_image_relative");
             //image_stage.restore_cursor();
@@ -139,16 +140,19 @@ public class Change_image_actor implements Actor
         }
         else
         {
-            if ( dbg) change_image_message.logger.log(
-                    "Change_image_actor change_image_relative OK! target_image_path is:" + target_image_path
-                            +" image_context.path :"+image_context.path
-                    + " for file:" + Objects.requireNonNull(change_image_message.input_image_context.path).getFileName());
+            if ( dbg)
+            {
+                change_image_message.logger.log(
+                        "Change_image_actor change_image_relative OK! target_image_path is:" + target_image_path
+                                +" image_context.path :"+image_context.path
+                                + " for file:" + change_image_message.input_image_context.path.getFileName());
+            }
             change_image_message.image_window.set_image(image_context);
         }
 
         //cim.image_stage.restore_cursor();
 
-        change_image_message.image_window.image_display_handler.preload(change_image_message.image_window.image_display_handler, change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
+        change_image_message.image_window.image_display_handler.preload(change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
         return "OK";
     }
 

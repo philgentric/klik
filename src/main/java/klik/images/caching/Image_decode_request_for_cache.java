@@ -4,6 +4,7 @@ import klik.actor.Aborter;
 import klik.actor.Message;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 //**********************************************************
 public class Image_decode_request_for_cache implements Message
@@ -16,12 +17,10 @@ public class Image_decode_request_for_cache implements Message
 
     //**********************************************************
     public Image_decode_request_for_cache(Path path_,
-                                          //boolean high_quality_,
                                           Cache_interface preloaded_, Aborter aborter)
     //**********************************************************
     {
-        path = path_;
-        //high_quality = high_quality_;
+        path = Objects.requireNonNull(path_);
         cache = preloaded_;
         this.aborter = aborter;
     }
@@ -30,7 +29,6 @@ public class Image_decode_request_for_cache implements Message
     public static String get_key(Path path)
     //**********************************************************
     {
-        if (path == null) return null;
         return path.toAbsolutePath().toString();
     }
 

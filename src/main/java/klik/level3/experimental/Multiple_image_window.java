@@ -25,6 +25,7 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -47,7 +48,7 @@ public class Multiple_image_window
     private Image_context ic;
     public final Aborter aborter;
     //**********************************************************
-    public static Multiple_image_window get_Multiple_image_window(
+    public static Optional<Multiple_image_window> get_Multiple_image_window(
             Stage from_stage, // for on same screen
             Path path,
             boolean smaller,
@@ -55,14 +56,14 @@ public class Multiple_image_window
     //**********************************************************
     {
         Aborter aborter = new Aborter("Multiple_image_window",logger_);
-        Image_context local_ic = Image_context.get_Image_context(path, aborter, logger_);
-        if (local_ic == null) {
+        Optional<Image_context> option = Image_context.get_Image_context(path, aborter, logger_);
+        if (option.isEmpty()) {
             logger_.log(Stack_trace_getter.get_stack_trace("Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
-            return null;
+            return Optional.empty();
         }
         logger_.log("Multiple_image_stage OK: image loaded" + path.toAbsolutePath());
         if (from_stage == null) {
-            return new Multiple_image_window(local_ic, smaller, 800, 600, aborter, logger_);//, tpe_);
+            return Optional.of(new Multiple_image_window(option.get(), smaller, 800, 600, aborter, logger_));
         }
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
@@ -98,11 +99,11 @@ public class Multiple_image_window
             y += 100;
 
         }
-        Multiple_image_window returned = new Multiple_image_window(local_ic, smaller, w, h, aborter, logger_);//, tpe_);
+        Multiple_image_window returned = new Multiple_image_window(option.get(), smaller, w, h, aborter, logger_);//, tpe_);
 
         returned.the_stage.setX(x);
         returned.the_stage.setY(y);
-        return returned;
+        return Optional.of(returned);
     }
 
     //**********************************************************
@@ -199,26 +200,26 @@ public class Multiple_image_window
 
     private void method_2(double size)
     {
-        Image_context ic2 = get_Image_context_with_alternate_rescaler((int) size);
-        if (ic2 == null) return;
-        ic2.the_image_view.fitWidthProperty().bind(scene.widthProperty().divide(2));
-        ic2.the_image_view.fitHeightProperty().bind(scene.heightProperty());
-        ic2.the_image_view.setPreserveRatio(true);
-        tile_pane.getChildren().add(ic2.the_image_view);
-        logger.log("added:" + ic2.path.getFileName());
+        Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) size);
+        if (option.isEmpty()) return;
+        option.get().the_image_view.fitWidthProperty().bind(scene.widthProperty().divide(2));
+        option.get().the_image_view.fitHeightProperty().bind(scene.heightProperty());
+        option.get().the_image_view.setPreserveRatio(true);
+        tile_pane.getChildren().add(option.get().the_image_view);
+        logger.log("added:" + option.get().path.getFileName());
     }
 
 
     //**********************************************************
-    private Image_context get_Image_context_with_alternate_rescaler(int width)
+    private Optional<Image_context> get_Image_context_with_alternate_rescaler(int width)
     //**********************************************************
     {
         if (image_indexer == null)
         {
             image_indexer = Image_indexer.get_Image_indexer(ic.path.getParent(),Paths_manager.alphabetical_file_name_comparator,logger);
         }
-        Image_context iai = Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path,width,aborter, logger);
-        return iai;
+        return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, aborter, logger);
+
     }
 
 

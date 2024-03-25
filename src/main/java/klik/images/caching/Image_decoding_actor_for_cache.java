@@ -7,6 +7,8 @@ import klik.images.Image_context;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
+import java.util.Optional;
+
 //**********************************************************
 public class Image_decoding_actor_for_cache implements Actor
 //**********************************************************
@@ -41,14 +43,15 @@ public class Image_decoding_actor_for_cache implements Actor
         if ( m.get_aborter().should_abort()) return "aborted";
 
         // this is the expensive operation:
-        Image_context image_context = Image_context.get_Image_context(request.path,request.aborter, logger);
-        if (image_context != null)
+        Optional<Image_context> option = Image_context.get_Image_context(request.path, request.aborter, logger);
+        if (option.isPresent())
         {
+            Image_context image_context = option.get();
             // OutOfMemory can manisfest either as an exception, and then we get a null
             // or the image is of size zero (!)
             if ( (image_context.image.getWidth() > 1) && (image_context.image.getHeight() > 1))
             {
-                Object o = request.cache.put(request.make_key(), image_context);
+                request.cache.put(request.make_key(), image_context);
                 if (dbg) logger.log("image decoded ok is now in cache: " + image_context.path.getFileName() );
             }
             else

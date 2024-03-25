@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -56,8 +57,13 @@ public class Properties_manager
         {
             try {
                 Files.createFile(f);
-            } catch (IOException e) {
-                logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
+            }
+            catch (FileAlreadyExistsException e)
+            {
+                if (dbg) logger.log("Warning: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
+            }
+            catch (IOException e) {
+                logger.log("FATAL: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
                 return;
             }
             if (dbg) logger.log("created file:"+f);

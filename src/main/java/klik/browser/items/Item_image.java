@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -453,8 +454,8 @@ public class Item_image extends Item
             }
             if (event.isMetaDown())
             {
-                Multiple_image_window s = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
-                if (s == null)
+                Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
+                if (option.isEmpty())
                 {
                     // let us a bit of checking about why this failed
                     Change_gang.report_anomaly(path);

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /*
 The role of the indexer is to always display files in a given order (e.g. alphabetic, or file size etc)
@@ -58,11 +59,8 @@ public class Image_indexer
     public static Image_indexer get_Image_indexer(Path dir_, Comparator<? super Path> file_comparator, Logger logger_)
     //**********************************************************
     {
-        if (dir_ == null) {
-            logger_.log_stack_trace("PANIC dir_ == null ");
-            return null;
-        }
-        return new Image_indexer(dir_, file_comparator, logger_);
+        Path d = Objects.requireNonNull(dir_);
+        return new Image_indexer(d, file_comparator, logger_);
     }
 
 
@@ -268,4 +266,9 @@ public class Image_indexer
     public int get_max() {
         return state.how_many_images();
     }
+
+    public Path path_from_index(int i) {
+        return state.path_from_index(i);
+    }
+
 }

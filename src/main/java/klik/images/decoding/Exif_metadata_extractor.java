@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public class Exif_metadata_extractor
@@ -50,11 +51,9 @@ public class Exif_metadata_extractor
     //**********************************************************
     {
         if ( exif_metadata != null ) return rotation;
-        logger.log("Not a good idea");
-        return Fast_rotation_from_exif_metadata_extractor.get_rotation(path,report_if_not_found,aborter,logger);
-
-        //get_exif_metadata(how_many_pixels, aborter,false);
-        //return rotation;
+        logger.log(Stack_trace_getter.get_stack_trace("WARNING"));
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, aborter, logger);
+        return rotation;
     }
 
     //**********************************************************
@@ -135,7 +134,7 @@ public class Exif_metadata_extractor
             {
                 logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (1)->"+e+"<- for:"+ path.toAbsolutePath()));
             }
-            return null;
+            return exif_metadata;
         }
 
         image_is_damaged = false;
@@ -145,7 +144,7 @@ public class Exif_metadata_extractor
         if ( is == null)
         {
             image_is_damaged = true;
-            return null;
+            return exif_metadata;
         }
 
         try

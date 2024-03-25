@@ -35,13 +35,12 @@ public class Image_cache_dummy implements Cache_interface
 
     //**********************************************************
     @Override
-    public Object put(String key_, Image_context value)
+    public void put(String key_, Image_context value)
     //**********************************************************
     {
         logger.log("writing in dummy image cache:" + value.path.getFileName());
         key = key_;
         image_context = value;
-        return null;
     }
 
 

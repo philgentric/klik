@@ -26,9 +26,11 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
+import javax.swing.text.html.Option;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -153,90 +155,23 @@ public class Image_window
         the_Stage.show();
 
         boolean high_quality = false;
-        image_display_handler = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path,this, the_browser.get_file_comparator(),  the_browser.aborter, logger);
-        if ( image_display_handler == null)
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, the_browser.get_file_comparator(), the_browser.aborter, logger);
+        if ( option.isEmpty())
         {
+            image_display_handler = null;
             mouse_handling_for_image_window = null;
             set_nothing_to_display(first_image_path);
             return;
         }
-
-        //Pane top_pane = new HBox();
-        //main_vbox.getChildren().add(top_pane);
-
-
-        //main_vbox.getChildren().add(special_pane);
-
-        {
-/*
-            {
-                Pane forward_button_pane = new Pane();
-                forward_button = new Button(">>");
-                forward_button_pane.getChildren().add(forward_button);
-
-                forward_button.setFocusTraversable(false);
-                forward_button_pane.setManaged(false);
-                Font_size.set_font_size(forward_button, 24, logger);
-                forward_button.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        image_display_handler.change_image_relative(1, ultim_mode);
-                    }
-                });
-                main_vbox.getChildren().add(forward_button_pane);
-                forward_button.setLayoutX(the_Stage.getWidth()-55);
-                // forward_button.getWidth() is zero before the button is drawn
-                //forward_button.setLayoutX(the_Stage.getWidth()-forward_button.getWidth()-1);
-                forward_button.setLayoutY(the_Stage.getHeight()/2);
-            }
-            {
-                Pane back_button_pane = new Pane();
-                back_button = new Button("<<");
-                back_button_pane.getChildren().add(back_button);
-
-                back_button.setFocusTraversable(false);
-                back_button_pane.setManaged(false);
-                Font_size.set_font_size(back_button, 24, logger);
-                back_button.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        image_display_handler.change_image_relative(-1, ultim_mode);
-                    }
-                });
-                main_vbox.getChildren().add(back_button_pane);
-                back_button.setLayoutX(0);
-                back_button.setLayoutY(the_Stage.getHeight()/2);
-                //back_button.setViewOrder(0);
-                //the_image_Pane.setViewOrder(10);
-            }
-*/
-        }
-
-        /*
-        {
-
-            the_menu_bar = Menu_for_image_window.make_menu_bar(the_browser,this, image_display_handler);
-            the_menu_bar.setFocusTraversable(true);
-            main_vbox.setFocusTraversable(true);
-
-            top_pane.getChildren().add(the_menu_bar);
-
-
-            the_progress_bar = new ProgressBar();// new Slider(0,1,0); //
-            //the_progress_bar.setOrientation(Orientation.HORIZONTAL);
-
-            the_progress_bar.setPrefWidth(1000);
-            top_pane.getChildren().add(the_progress_bar);
-
-        }
-        */
-
+        image_display_handler = option.get();
         mouse_handling_for_image_window = new Mouse_handling_for_Image_window(this, logger);
 
         //boolean white_background = mouse_handling_for_image_stage.something_is_wrong_with_image_size();
 
         image_display_handler.change_image_relative(0,false);
-        //set_image(image_context_owner.get_image_context(), white_background);
+
+
+            //set_image(image_context_owner.get_image_context(), white_background);
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
@@ -299,6 +234,7 @@ public class Image_window
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
 
     }
+
 
     //**********************************************************
     void set_progress(Path dir, double p)
@@ -511,16 +447,17 @@ public class Image_window
         budjet -= local_title.toString().length();
         budjet -= 4;
         if ( budjet < 10) budjet = 10;
-        int max_progress_bar = image_display_handler.image_indexer.get_max();
-        if ( max_progress_bar > budjet) max_progress_bar = budjet;
-        int filler = budjet-max_progress_bar;
-        for(int j = 0; j< filler;j++) local_title.append(" ");
-        local_title.append("   ");
-        int i = 0;
-        for ( ; i < max_progress_bar*progress;i++) local_title.append("_");
-        local_title.append("*");
-        for ( ; i < max_progress_bar;i++) local_title.append("_");
-
+        {
+            int max_progress_bar = image_display_handler.image_indexer.get_max();
+            if (max_progress_bar > budjet) max_progress_bar = budjet;
+            int filler = budjet - max_progress_bar;
+            for (int j = 0; j < filler; j++) local_title.append(" ");
+            local_title.append("   ");
+            int i = 0;
+            for (; i < max_progress_bar * progress; i++) local_title.append("_");
+            local_title.append("*");
+            for (; i < max_progress_bar; i++) local_title.append("_");
+        }
         the_Stage.setTitle(local_title.toString());
     }
 
@@ -538,7 +475,7 @@ public class Image_window
             //the_BorderPane.getChildren().clear();
             the_image_Pane.getChildren().clear();//setCenter(null);
             if( dir_ != null) the_Stage.setTitle("No image to display in: " + dir_.toAbsolutePath());
-            else the_Stage.setTitle("No image to display in");
+            else the_Stage.setTitle("No image to display");
             restore_cursor();
         });
 
@@ -629,15 +566,16 @@ public class Image_window
     }
 
     //**********************************************************
-    public Image_context change_name_of_file(Path new_path)
+    public Optional<Image_context> change_name_of_file(Path new_path)
     //**********************************************************
     {
+        if ( image_display_handler.get_image_context().isEmpty()) return Optional.empty();
         // remember the true file name
-        Path old_path = image_display_handler.get_image_context().path;
+        Path old_path = image_display_handler.get_image_context().get().path;
 
         // set the new context: keep the previous path so that multiple renames can be performed
         // and the indexer will find the right "unchanged" index
-        Image_context local_new_image_context = new Image_context(new_path, image_display_handler.get_image_context().previous_path, image_display_handler.get_image_context().image, logger);
+        Image_context local_new_image_context = new Image_context(new_path, old_path, image_display_handler.get_image_context().get().image, logger);
         logger.log("change_name_of_file local_new_image_context\n      previous="+local_new_image_context.previous_path+"\n      path="+local_new_image_context.previous_path);
         image_display_handler.set_image_context(local_new_image_context);
 
@@ -649,7 +587,7 @@ public class Image_window
             l.add(oandn);
             Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, true, aborter,logger);
         }
-        return local_new_image_context;
+        return Optional.of(local_new_image_context);
     }
 
 

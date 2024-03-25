@@ -15,6 +15,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -25,21 +26,21 @@ public class Static_image_utilities
     private static final boolean dbg = false;
 
     //**********************************************************
-    public static Image_context get_Image_context_with_alternate_rescaler(Path path_, int width, Aborter aborter,Logger logger_)
+    public static Optional<Image_context> get_Image_context_with_alternate_rescaler(Path path_, double width, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        if (!Files.exists(path_)) return null;
+        if (!Files.exists(path_)) return Optional.empty();
         javafx.scene.image.Image local_image = From_disk.load_native_resolution_image_from_disk(path_, true, aborter, logger_);
-        if ( local_image == null) return null;
+        if ( local_image == null) return Optional.empty();
         if ( local_image.isError())
         {
             javafx.scene.image.Image broken = Look_and_feel_manager.get_broken_icon(300);
 
-            new Image_context(path_,path_, broken,logger_);
+            return Optional.of(new Image_context(path_,path_, broken,logger_));
         }
 
-        WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,width,true,logger_);
-        return new Image_context(path_,path_,resized_image,logger_);
+        WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,(int)width,true,logger_);
+        return Optional.of(new Image_context(path_,path_,resized_image,logger_));
     }
     //**********************************************************
     public static WritableImage transform_with_alternate_rescaler(

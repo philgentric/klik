@@ -193,11 +193,11 @@ public class Change_gang
     }
 
     //**********************************************************
-    public static synchronized void deregister(Change_receiver wtdam, Aborter aborter)
+    public static synchronized void deregister(Change_receiver change_receiver, Aborter aborter)
     //**********************************************************
     {
         if (instance == null) return;
-        instance.deregister_internal(wtdam, aborter);
+        instance.deregister_internal(change_receiver, aborter);
     }
 
     //**********************************************************

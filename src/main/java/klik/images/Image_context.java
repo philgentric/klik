@@ -64,22 +64,22 @@ public class Image_context
     public final FileTime creation_time;
 
     //**********************************************************
-    public static Image_context get_Image_context(Path path, Aborter aborter,Logger logger_)
+    public static Optional<Image_context> get_Image_context(Path path, Aborter aborter,Logger logger_)
     //**********************************************************
     {
-        if ( !Files.exists(path)) return null;
+        if ( !Files.exists(path)) return Optional.empty();
         Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, aborter,logger_);
         if ( local_image == null)
         {
-            return null;
+            return Optional.empty();
         }
         if ( local_image.isError())
         {
             Image broken = Look_and_feel_manager.get_broken_icon(300);
-            return new Image_context(path,path,broken,logger_);
+            return Optional.of(new Image_context(path,path,broken,logger_));
         }
 
-        return new Image_context(path,path, local_image,logger_);
+        return Optional.of(new Image_context(path,path, local_image,logger_));
     }
 
 
@@ -134,15 +134,7 @@ public class Image_context
     public double get_rotation(Aborter aborter)
     //**********************************************************
     {
-        Double tmp = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
-        if ( tmp == null)
-        {
-            rotation = 0.0;
-        }
-        else {
-            rotation = tmp;
-        }
-        //load_exif(aborter);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
         return rotation;
     }
 
@@ -550,23 +542,23 @@ public class Image_context
 
 
     //**********************************************************
-    public Image_context rename_file_for_an_image_window(Image_window image_window)
+    public Optional<Image_context> rename_file_for_an_image_window(Image_window image_window)
     //**********************************************************
     {
         Path new_path =  Files_and_Paths.ask_user_for_new_file_name(image_window.the_Stage, path,logger);
-        if ( new_path == null) return null;
+        if ( new_path == null) return Optional.empty();
         return image_window.change_name_of_file(new_path);
     }
 
     //**********************************************************
-    Image_context ultim(Image_window image_stage)
+    Optional<Image_context> ultim(Image_window image_stage)
     //**********************************************************
     {
         String old_file_name = path.getFileName().toString().toLowerCase();
         if (old_file_name.contains(Static_application_properties.ULTIM))
         {
             logger.log("no vote, name already contains " + Static_application_properties.ULTIM);
-            return null;
+            return Optional.empty();
         }
 
         Path new_path = Moving_files.generate_new_candidate_name(path,"",Static_application_properties.ULTIM, logger);
