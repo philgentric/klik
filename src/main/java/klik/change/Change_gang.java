@@ -58,6 +58,7 @@ public class Change_gang
         more_changes
     }
 
+    // when you receive a change event, utility to help understand how it is impacting you
     //**********************************************************
     public static Possible_outcome is_my_directory_impacted(Path dir, List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
@@ -209,58 +210,6 @@ public class Change_gang
 
         if ( dbg) dedicated_logger.log("Change_gang: De-register_internal " + change_receiver.get_string());
     }
-
-    /*
-    //**********************************************************
-    private void house_keeping()
-    //**********************************************************
-    {
-        for (;;)
-        {
-            House_keeping_message amhm = null;
-            try {
-                amhm = house_keeping_input_message_queue.take();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            switch (amhm.type) {
-                case register:
-                    current_change_gang.add(amhm.originator);
-                    break;
-                case deregister:
-                    current_change_gang.remove(amhm.originator);
-                    break;
-            }
-        }
-
-    }
-
-
-    //**********************************************************
-    void list_future(String reason)
-    //**********************************************************
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("*********FUTURE: " + reason + "****\n");
-        for (House_keeping_message cc : house_keeping_input_message_queue) {
-            sb.append("        ");
-            sb.append(cc.originator.get_string());
-            sb.append(" ");
-            sb.append(cc.type);
-            sb.append("\n");
-        }
-        sb.append("*********CURRENT: *************\n");
-        for (Change_receiver cc : current_change_gang) {
-            sb.append("       ");
-            sb.append(cc.get_string());
-            sb.append("\n");
-        }
-        sb.append("*******************************\n");
-
-        dedicated_logger.log(sb.toString());
-    }
-*/
-
 
 
 

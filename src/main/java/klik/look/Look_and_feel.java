@@ -104,6 +104,7 @@ public abstract class Look_and_feel
     abstract public String get_preferences_icon_path();
     abstract public String get_broken_icon_path();
     abstract public String get_default_icon_path();
+    public String get_speaker_icon_path(){return "speaker.png";}
     abstract public String get_folder_icon_path();
     abstract public String get_selected_text_color();
     abstract public Color get_selection_box_color();

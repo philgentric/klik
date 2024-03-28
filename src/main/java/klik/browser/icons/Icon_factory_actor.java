@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -121,10 +122,10 @@ public class Icon_factory_actor implements Actor
             break;
         }
         destination.receive_icon(image_and_rotation);
-        if ( image_and_rotation.rotation()!=null)
+        if ( image_and_rotation.rotation().isPresent())
         {
             double aspect_ratio = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
-            if (( image_and_rotation.rotation()==90)||(image_and_rotation.rotation()==270))
+            if (( image_and_rotation.rotation().get()==90)||(image_and_rotation.rotation().get()==270))
             {
                 aspect_ratio = 1/aspect_ratio;
             }
@@ -219,7 +220,11 @@ public class Icon_factory_actor implements Actor
             }
 
         }
-        return new Image_and_rotation(image,rotation);
+
+        Optional<Double> rotation_o = null;
+        if ( rotation == null) rotation_o = Optional.empty();
+        else rotation_o= Optional.of(rotation);
+        return new Image_and_rotation(image,rotation_o);
     }
 
 

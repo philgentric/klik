@@ -1021,10 +1021,20 @@ public class Browser_menus
 
     }
     //**********************************************************
-    public void create_menu_item_for_one_icon_size(Browser browser, Menu menu, int target_size, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    public void create_menu_item_for_one_icon_size(Browser browser, Menu menu, Icon_size icon_size, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
     {
-        CheckMenuItem item = new CheckMenuItem(I18n.get_I18n_string("Icon_Size",logger) + " = " +target_size);
+        int target_size = icon_size.size();
+        String txt = "";
+        if (icon_size.is_divider())
+        {
+            txt = icon_size.divider()+" icons per row";
+        }
+        else
+        {
+            txt = I18n.get_I18n_string("Icon_Size",logger) + " = " +target_size;
+        }
+        CheckMenuItem item = new CheckMenuItem(txt);
         int actual_size = Static_application_properties.get_icon_size(logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
@@ -1035,6 +1045,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_icon_size(target_size,logger);
+                logger.log("icon size changed to "+target_size);
                 browser.scene_geometry_changed("icon size changed",true,false);
             }
         });
@@ -1166,24 +1177,54 @@ public class Browser_menus
         all_check_menu_items.add(item);
 
     }
+
     //**********************************************************
     public Menu make_icon_size_menu()
     //**********************************************************
     {
         String text = I18n.get_I18n_string("Icon_Size",logger);
-
         Menu menu = new Menu(text);
-
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-
-        int[] possible_sizes ={32,64,128, Static_application_properties.DEFAULT_ICON_SIZE,300,400,512,600,700,800,900,1024};
-        for ( int size : possible_sizes)
+        List<Icon_size> icon_sizes = get_icon_sizes();
+        for ( Icon_size icon_size : icon_sizes)
         {
-            create_menu_item_for_one_icon_size(browser, menu, size, all_check_menu_items, logger);
+            create_menu_item_for_one_icon_size(browser, menu, icon_size, all_check_menu_items, logger);
         }
-
         return menu;
     }
+
+    //**********************************************************
+    private List<Icon_size> get_icon_sizes()
+    //**********************************************************
+    {
+        List<Icon_size> icon_sizes = new ArrayList<>();
+        {
+            int[] possible_sizes = {32, 64, 128, Static_application_properties.DEFAULT_ICON_SIZE, 512, 1024};
+            for (int size : possible_sizes)
+            {
+                icon_sizes.add(new Icon_size(size, false, 0));
+            }
+        }
+        {
+            //compute icon size for N icons in a row
+            double W = browser.my_Stage.the_Stage.getWidth()- browser.slider_width;
+            int[] possible_dividers = {3,4,5,10};
+            for ( int divider : possible_dividers)
+            {
+                int size = (int) (W/divider);
+                icon_sizes.add(new Icon_size(size, true, divider));
+            }
+        }
+        Comparator<? super Icon_size> comp = new Comparator<Icon_size>() {
+            @Override
+            public int compare(Icon_size o1, Icon_size o2) {
+                return Integer.valueOf(o1.size()).compareTo(Integer.valueOf(o2.size()));
+            }
+        };
+        Collections.sort(icon_sizes,comp);
+        return icon_sizes;
+    }
+
     //**********************************************************
     public Menu make_folder_icon_size_menu()
     //**********************************************************

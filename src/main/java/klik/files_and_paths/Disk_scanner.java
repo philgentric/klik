@@ -4,6 +4,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.util.*;
+import klik.util.execute.Threads;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -143,7 +144,7 @@ public class Disk_scanner implements Runnable
         File[] all_files = path.toFile().listFiles();
         if ( all_files == null)
         {
-            if ( dbg)
+            //if ( dbg)
             {
                 logger.log (origin+ " Disk_scanner: listFiles() returns null for: "+path);
                 Error_type error = Files_and_Paths.explain_error(path,logger);
@@ -166,7 +167,6 @@ public class Disk_scanner implements Runnable
                     String x = origin+" warning: disk scanner not following symbolic link folder:" + f;
                     if ( dbg) logger.log(x);
                     if ( warning_payload!=null) warning_payload.add(x);
-
                 }
                 else
                 {
@@ -176,7 +176,22 @@ public class Disk_scanner implements Runnable
             }
             else
             {
-                if ( file_payload!= null) file_payload.process_file(f);
+                if ( file_payload!= null)
+                {
+                    if (Threads.use_virtual_threads)
+                    {
+                        Runnable r = new Runnable() {
+                            @Override
+                            public void run() {
+                                file_payload.process_file(f);
+                            }
+                        };
+                        Actor_engine.execute(r, aborter, logger);
+                    }
+                    else {
+                        file_payload.process_file(f);
+                    }
+                }
             }
         }
         folder_count_stop_counter.decrementAndGet();

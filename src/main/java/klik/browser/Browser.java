@@ -486,6 +486,27 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_total_size_deep_in_each_folder()
     //**********************************************************
     {
+        /*
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                for (long i = 0; i < 10_000_000; i++) {
+                    Runnable r2 = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+                    Actor_engine.execute(r2, aborter, logger);
+                }
+            }
+        };
+        Actor_engine.execute(r, aborter, logger);
+        */
 
         icon_manager.show_total_size_deep_in_each_folder(this,the_Pane,mandatory_in_pane);
     }
@@ -898,18 +919,28 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         if (displayed_folder_path == null) return;
-        //if (displayed_folder_path.toFile() == null) return;
-        File[] x = displayed_folder_path.toFile().listFiles();
-        if (x == null) return;
-        long how_many_files = x.length;
-        if (!Static_application_properties.get_show_hidden_files(logger)) {
-            for (File f : x) {
-                if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath())) {
-                    how_many_files--;
+        my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath().toString());// fast temporary
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                //listFiles can be super slow on network drives or slow drives  (e.g. USB)  ==> run in a thread
+
+                File[] x = displayed_folder_path.toFile().listFiles();
+                if (x == null) return;
+                long how_many_files = x.length;
+                if (!Static_application_properties.get_show_hidden_files(logger)) {
+                    for (File f : x) {
+                        if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath())) {
+                            how_many_files--;
+                        }
+                    }
                 }
+                long finalHow_many_files = how_many_files;
+                Platform.runLater(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + finalHow_many_files + " files & folders"));
+
             }
-        }
-        my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + how_many_files + " files & folders");
+        };
+        Actor_engine.execute(r, aborter, logger);
 
 
     }
@@ -1018,6 +1049,19 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     //**********************************************************
     public void sort_by_year()
+    //**********************************************************
+    {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                sort_by_year_internal();
+            }
+        };
+        Actor_engine.execute(r, aborter, logger);
+    }
+
+    //**********************************************************
+    public void sort_by_year_internal()
     //**********************************************************
     {
         File[] files = displayed_folder_path.toFile().listFiles();

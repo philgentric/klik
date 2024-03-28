@@ -954,7 +954,7 @@ public class Files_and_Paths {
         try
         {
             BasicFileAttributes x = Files.readAttributes(dir, BasicFileAttributes.class);
-            logger.log(dir.toAbsolutePath()+": "+ BasicFileAttributes_to_string(x));
+            logger.log(dir.toAbsolutePath()+", BasicFileAttributes: "+ BasicFileAttributes_to_string(x));
         }
         catch (AccessDeniedException e2)
         {

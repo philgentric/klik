@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -55,7 +56,8 @@ public class Audio_player
     ListView<File> the_playlist_view;
     Logger logger;
     File the_song_file;
-    private volatile MediaPlayer the_media_player;
+    private volatile Optional<MediaPlayer> the_media_player_option = Optional.empty();
+    double volume = 0.5;
     static Audio_player instance = null;
     Label play_list_name;
     //**********************************************************
@@ -92,7 +94,7 @@ public class Audio_player
     private void play_song(File the_song_file_)
     //**********************************************************
     {
-        logger.log("play() "+the_song_file_.getAbsolutePath());
+        //logger.log("play() "+the_song_file_.getAbsolutePath());
 
         clean_up();
         the_song_file = the_song_file_;
@@ -118,7 +120,7 @@ public class Audio_player
             tmp_media_player.setCycleCount(1);
             tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
             tmp_media_player.setOnReady(() -> {
-                logger.log("player READY!");
+                //logger.log("player READY!");
                 on_player_ready(tmp_media_player);
             });
 
@@ -158,14 +160,14 @@ public class Audio_player
     private void on_player_ready(MediaPlayer local_)
     //**********************************************************
     {
-        the_media_player = local_;
-        the_media_player.setOnEndOfMedia(() -> {
-            logger.log("EndOfMedia");
+        the_media_player_option = Optional.of(local_);
+        the_media_player_option.get().setOnEndOfMedia(() -> {
+            //logger.log("EndOfMedia");
             jump_to_next(the_song_file, logger);
         });
 
         // the player pilots how the slider moves during playback
-        the_media_player.currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
+        the_media_player_option.get().currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
             if (dbg) logger.log("player changing current time:"+newValue.toSeconds());
             double seconds = newValue.toSeconds();
             slider.setValue(seconds);
@@ -174,10 +176,11 @@ public class Audio_player
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
         //logger.log("song stop:"+ player.getStopTime().toSeconds());
-        double seconds = the_media_player.getStopTime().toSeconds();
+        double seconds = the_media_player_option.get().getStopTime().toSeconds();
         slider.setValue(0);
         slider.setMax(seconds);
-        the_media_player.play();
+        the_media_player_option.get().setVolume(volume);
+        the_media_player_option.get().play();
         String s = (int)seconds+" seconds";
         if ( seconds > 3600)
         {
@@ -250,14 +253,14 @@ public class Audio_player
 
         // but the user may click/slide the slider
         slider.setOnMouseReleased(event -> {
-            if ( the_media_player == null) return;
+            if ( the_media_player_option.isEmpty()) return;
             slider.setValueChanging(true);
             double v = event.getX()/slider.getWidth()*slider.getMax();
             slider.setValue(v);
-            logger.log("player seeking: slider new value = "+slider.getValue());
+            //logger.log("player seeking: slider new value = "+slider.getValue());
             Duration target = Duration.seconds(v);
-            logger.log("player seeking:"+target);
-            the_media_player.seek(target);
+            //logger.log("player seeking:"+target);
+            the_media_player_option.get().seek(target);
             slider.setValueChanging(false);
         });
 
@@ -276,29 +279,44 @@ public class Audio_player
         hb3.getChildren().add(next);
         Button delete = new Button("Remove from playlist ");
         hb3.getChildren().add(delete);
+        {
+            ImageView iv = new ImageView(Look_and_feel_manager.get_speaker_icon());
+            iv.setFitHeight(20);
+            iv.setFitWidth(20);
+            hb3.getChildren().add(iv);
+        }
+
+        Slider volume_slider = new Slider(0,1, 0.5);
+        hb3.getChildren().add(volume_slider);
+
+        volume_slider.valueProperty().addListener((observableValue, number, t1) -> {
+            if ( the_media_player_option.isEmpty()) return;
+            volume = volume_slider.getValue();
+            the_media_player_option.get().setVolume(volume);
+        });
 
         {
             previous.setOnAction(actionEvent -> jump_to_previous(the_song_file, logger));
             if ( observable_playlist.isEmpty()) previous.setDisable(true);
 
             pause.setOnAction(actionEvent -> {
-                if ( the_media_player == null) return;
-                the_media_player.pause();
+                if ( the_media_player_option.isEmpty()) return;
+                the_media_player_option.get().pause();
                 pause.setDisable(true);
                 restart.setDisable(false);
             });
 
             restart.setOnAction(actionEvent -> {
-                if ( the_media_player == null) return;
-                the_media_player.play();
+                if (the_media_player_option.isEmpty()) return;
+                the_media_player_option.get().play();
                 pause.setDisable(false);
                 restart.setDisable(true);
             });
 
             rewind.setOnAction(actionEvent -> {
-                if ( the_media_player == null) return;
-                the_media_player.stop();
-                the_media_player.play();
+                if (the_media_player_option.isEmpty()) return;
+                the_media_player_option.get().stop();
+                the_media_player_option.get().play();
                 pause.setDisable(false);
                 restart.setDisable(true);
             });
@@ -322,9 +340,9 @@ public class Audio_player
         vbox.getChildren().add(hb4);
 
         playlist_file = Static_application_properties.get_playlist_file(logger);
-        logger.log("playlist_file="+playlist_file.getAbsolutePath());
+        //logger.log("playlist_file="+playlist_file.getAbsolutePath());
         String play_list_name_s = extract_playlist_name();
-        logger.log("playlist_name="+play_list_name_s);
+        //logger.log("playlist_name="+play_list_name_s);
 
         play_list_name = new Label(play_list_name_s);
         hb4.getChildren().add(play_list_name);
@@ -341,7 +359,7 @@ public class Audio_player
         // this one is called only on EXTERNAL close requests
         // i.e. hitting the cross in the title
         stage.setOnCloseRequest(windowEvent -> {
-            logger.log("stage setOnCloseRequest");
+            logger.log("Audio player closing");
             clean_up();
             stage.close();
             instance = null;
@@ -364,8 +382,7 @@ public class Audio_player
                             logger.log("shit happens 2");
                             setText(null);
                         } else {
-                            logger.log("setting style for " + item.getAbsolutePath());
-
+                            //logger.log("setting style for " + item.getAbsolutePath());
                             setText(item.getAbsolutePath());
                             setStyle("-fx-control-inner-background: derive(#add8e6,15%)");
                         }
@@ -375,8 +392,12 @@ public class Audio_player
         });
 
         the_playlist_view.getSelectionModel().selectedItemProperty().addListener((observableValue, old_file, new_file) -> {
-            if ( new_file==null) logger.log("PANIC event +new_file.==null ???");
-            logger.log("list item selected: "+ Objects.requireNonNull(new_file).getAbsolutePath());
+            if ( new_file==null)
+            {
+                logger.log("PANIC event +new_file.==null ???");
+                return;
+            }
+            //logger.log("list item selected: "+ Objects.requireNonNull(new_file).getAbsolutePath());
             play_song(new_file);
         });
 
@@ -405,12 +426,13 @@ public class Audio_player
     private void clean_up()
     //**********************************************************
     {
-        if ( the_media_player != null)
+        if (the_media_player_option.isPresent())
         {
-            the_media_player.stop();
-            the_media_player.dispose();
-            the_media_player = null;
+            the_media_player_option.get().stop();
+            the_media_player_option.get().dispose();
+            the_media_player_option = Optional.empty();
         }
+
     }
 
     //**********************************************************
@@ -438,7 +460,7 @@ public class Audio_player
                 if (k >= observable_playlist.size()) k = 0;
                 //play(observable_playlist.get(k), logger);
                 the_playlist_view.scrollTo(k);
-                logger.log("setting selection at "+k+" for "+f.getAbsolutePath());
+                //logger.log("setting selection at "+k+" for "+f.getAbsolutePath());
                 the_playlist_view.getSelectionModel().select(k);
             }
         }
@@ -457,7 +479,7 @@ public class Audio_player
                 if (k < 0 ) k = observable_playlist.size()-1;
                 //play(observable_playlist.get(k), logger);
                 the_playlist_view.scrollTo(k);
-                logger.log("setting selection at "+k+" for "+f.getAbsolutePath());
+                //logger.log("setting selection at "+k+" for "+f.getAbsolutePath());
                 the_playlist_view.getSelectionModel().select(k);
             }
         }
@@ -477,7 +499,7 @@ public class Audio_player
     private void choose_playlist_file_name()
     //**********************************************************
     {
-        logger.log("save_playlist");
+        //logger.log("save_playlist");
 
         JFileChooser chooser = new JFileChooser();
         chooser.setFileHidingEnabled(false); // reason to use SWING !!!
@@ -540,8 +562,7 @@ public class Audio_player
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             return;
         }
-        logger.log("Saving playlist as:" + playlist_file.getAbsolutePath());
-
+        //logger.log("Saving playlist as:" + playlist_file.getAbsolutePath());
         try
         {
             FileWriter fw = new FileWriter(playlist_file);
@@ -564,11 +585,8 @@ public class Audio_player
     public void play_playlist_internal(File playlist_file_)
     //**********************************************************
     {
-
-        logger.log("Going to play list: "+playlist_file.getAbsolutePath());
-
+        //logger.log("Going to play list: "+playlist_file.getAbsolutePath());
         load_playlist(playlist_file_);
-
         if ( observable_playlist.isEmpty())
         {
             logger.log("WARNING: playlist is empty !?");

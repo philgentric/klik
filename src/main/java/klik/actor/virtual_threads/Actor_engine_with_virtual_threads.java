@@ -18,7 +18,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
      */
     private final Logger logger;
     private final Aborter aborter;
-    private int recent_max_threads = 0;
+    //private int recent_max_threads = 0;
 
     //**********************************************************
     public Actor_engine_with_virtual_threads(Aborter aborter, Logger logger_)
@@ -44,7 +44,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
         Job job = new Job(actor,message,tr,logger);
         Runnable r = () -> {
             int now = Actor_engine.threads_in_flight.incrementAndGet();
-            if ( now > recent_max_threads) recent_max_threads = now;
+            //if ( now > recent_max_threads) recent_max_threads = now;
             String msg = job.actor.run(job.message);
             job.has_ended(msg);
             //if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
@@ -64,11 +64,16 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     public int how_many_threads_are_in_flight()
     //**********************************************************
     {
+        //return recent_max_threads;
+        return Actor_engine.threads_in_flight.get();
+/*
         int returned = Actor_engine.threads_in_flight.get();
         if ( returned != 0) return returned;
         returned = recent_max_threads;
         recent_max_threads = 0;
         return returned;
+
+ */
     }
     //**********************************************************
     public void stop()

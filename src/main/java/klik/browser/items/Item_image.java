@@ -326,33 +326,27 @@ public class Item_image extends Item
         image_view.setImage(image_and_rotation.image());
         icon_available.set(true);
 
+        double local_rot = 0;
         {
-            Double local_rot = image_and_rotation.rotation();
-            if (local_rot == null)
-            {
-                if (Files.exists(path))
-                {
+            Optional<Double> local_rot_op = image_and_rotation.rotation();
+            if (local_rot_op.isEmpty()) {
+                if (Files.exists(path)) {
                     if (
                             (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
-                    )
-                    {
-                        if ( dbg) logger.log("PDF => rot=0");
+                    ) {
+                        if (dbg) logger.log("PDF => rot=0");
                         local_rot = Double.valueOf(0);
-                    }
-                    else
-                    {
+                    } else {
                         local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, browser_aborter, logger);
                     }
-                }
-                else
-                {
+                } else {
                     you_are_invisible();
-                     if (visibility_dbg) log_visibility_state_number(0);
+                    if (visibility_dbg) log_visibility_state_number(0);
                     return;
                 }
 
             }
-
+        }
             // the above operation can take some time...
             // and in the mean time the situation can change
             if (!visible_in_scene.get())
@@ -362,22 +356,18 @@ public class Item_image extends Item
                 return;
             }
 
-            //image_pane.setPrefWidth(icon_size);
-            //image_pane.setPrefHeight(icon_size);
-            //image_pane.setMinWidth(icon_size);
-            //image_pane.setMinHeight(icon_size);
-            //image_pane.setBorder(Look_and_feel_manager.get_border());
-            //image_pane.setStyle("-fx-border-insets: -1;");
-
             image_view.setSmooth(true);
 
             if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
             {
+                // this happens when the icon is PDF as we dont scale PDF icons
+                if (dbg) logger.log("HAPPENS1 for: "+path);
                 image_view.setFitWidth(icon_size);
                 image_view.setFitHeight(icon_size);
                 if ((local_rot == 90) || (local_rot == 270))
                 {
-                    logger.log("HAPPENS for: "+path);
+                    // this actually NEVER HAPPENS now since a PDF icon is never rotated
+                    if (dbg) logger.log("HAPPENS2 for: "+path);
                     image_view.setFitWidth(image_and_rotation.image().getHeight());
                     image_view.setFitHeight(image_and_rotation.image().getWidth());
                 }
@@ -386,29 +376,35 @@ public class Item_image extends Item
             {
                 if ((local_rot == 90) || (local_rot == 270))
                 {
+
                     if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
                     {
+                        if (dbg) logger.log("HAPPENS3A for: "+path);
                         image_view.setFitWidth(icon_size);
                         image_view.setFitHeight(-1);
                     }
                     else
                     {
+                        // this happens rarely as it is an image that is rotated AND wider than high after rotation
+                        //(most of the rotated images are portrait shot by turning the camera
+                        if (dbg) logger.log("HAPPENS3B for: "+path);
                         image_view.setFitWidth(-1);
                         image_view.setFitHeight(icon_size);
                     }
                 }
                 else
                 {
+                    if (dbg) logger.log("HAPPENS4 for: "+path);
                     image_view.setFitWidth(image_and_rotation.image().getWidth());
                     image_view.setFitHeight(image_and_rotation.image().getHeight());
                 }
             }
-            if ( image_and_rotation.rotation() != null) {
-                image_pane.setRotate(image_and_rotation.rotation());
+            if ( image_and_rotation.rotation().isPresent()) {
+                image_pane.setRotate(image_and_rotation.rotation().get());
             }
             icon_available.set(true);
             if (visibility_dbg) log_visibility_state_number(2);
-        }
+
     }
 
     //**********************************************************

@@ -326,7 +326,9 @@ public class Icon_manager
                     @Override
                     public int compare(Path p1, Path p2) {
                         Long l1 = folder_total_sizes_cache.get(p1);
+                        if (l1==null) return 1;
                         Long l2 = folder_total_sizes_cache.get(p2);
+                        if (l2==null) return 1;
                         return l2.compareTo(l1);
                     }
                 };
@@ -618,11 +620,11 @@ public class Icon_manager
         AtomicInteger count = new AtomicInteger(0);
         for ( Item i : all_items_map.values())
         {
-            if (i instanceof Item_button ini)
+            if (i instanceof Item_button item_button)
             {
-                if(Files.isDirectory(ini.get_true_path()))
+                if(Files.isDirectory(item_button.get_true_path()))
                 {
-                    ini.add_total_size_deep_folder(count, ini.get_button(), ini.text, ini.get_true_path(), folder_total_sizes_cache, aborter, logger);
+                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(), folder_total_sizes_cache, aborter, logger);
                 }
             }
         }

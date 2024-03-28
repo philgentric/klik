@@ -175,6 +175,26 @@ public class Look_and_feel_manager
         return folder_icon;
     }
 
+    //**********************************************************
+    public static Image get_speaker_icon()
+    //**********************************************************
+    {
+        Look_and_feel i = get_instance();
+        if (i == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: cannot get look and feel instance"));
+            return null;
+        }
+        String path = i.get_speaker_icon_path();
+        if (path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD: cannot get folder icon path"));
+            return null;
+        }
+        return load_icon_fx_from_jar(path, 256);
+    }
+
+
     /*
     //**********************************************************
     public static Image get_large_folder_icon(double icon_size)
