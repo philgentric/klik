@@ -299,6 +299,8 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.drag_and_drop);
         }
 
+        if ( image_context.isEmpty()) return;
+        
         Image_context[] returned_new_image_context = new Image_context[1];
         Change_image_message change_image_message = new Change_image_message(delta,image_context.get(), image_window,ultimate,returned_new_image_context,aborter, logger);
         // Job_termination_reporter will recover the NEW image_context
