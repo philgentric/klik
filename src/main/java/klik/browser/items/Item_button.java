@@ -28,6 +28,7 @@ import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
+import klik.util.Text_frame;
 import klik.util.execute.System_open_actor;
 
 import java.io.File;
@@ -55,9 +56,8 @@ public class Item_button extends Item implements Icon_destination
     public final boolean is_parent;
     public String text;
     private Job job;
-
-
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
     //**********************************************************
     public Item_button(
             Browser browser,
@@ -328,6 +328,12 @@ public class Item_button extends Item implements Icon_destination
         button.setTextAlignment(TextAlignment.RIGHT);
 
         button.setOnAction(event -> {
+            if ( Guess_file_type.is_this_path_a_text(path))
+            {
+                logger.log("opening text: " + path.toAbsolutePath());
+                Text_frame.show(path,logger);
+                return;
+            }
             if ( Guess_file_type.is_this_path_a_playlist(path))
             {
                 logger.log("opening audio playlist: " + path.toAbsolutePath());

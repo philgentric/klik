@@ -18,6 +18,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.util.Text_frame;
 import klik.util.execute.System_open_actor;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
@@ -109,6 +110,9 @@ public class Results_frame
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
 				Audio_player.play_song(path.toFile(), logger);
+			} else if (Guess_file_type.is_this_path_a_text(path)) {
+				logger.log("opening text file: " + path.toAbsolutePath());
+				Text_frame.show(path, logger);
 			} else {
 				System_open_actor.open_with_system(the_browser, path, logger);
 			}

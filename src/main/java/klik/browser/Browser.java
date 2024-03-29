@@ -115,7 +115,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //static boolean was_escaped = false;
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
-    static Map<Path,Path> scroll_tos = new HashMap<>();
+    // make sure we go gain at the same scroll point when we enter a given folder
+    static Map<Path,Path> scroll_memory = new HashMap<>();
 
 
     //**********************************************************
@@ -715,8 +716,17 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         the_Scene.setOnScroll(event -> {
             double dy = event.getDeltaY();
-            vertical_slider.scroll(dy);
+            scroll_a_bit(dy);
         });
+    }
+
+    //**********************************************************
+    @Override
+    public boolean scroll_a_bit(double dy)
+    //**********************************************************
+    {
+        record_scroll_to();
+        return vertical_slider.scroll(dy);
     }
 
 
@@ -1201,13 +1211,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
 
-    //**********************************************************
-    @Override
-    public boolean scroll_a_bit(double dy)
-    //**********************************************************
-    {
-        return vertical_slider.scroll(dy);
-    }
 
     Scan_show the_scan_show;
 
@@ -1271,10 +1274,16 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
+    private void record_scroll_to()
+    //**********************************************************
+    {
+        scroll_memory.put(displayed_folder_path, get_top_left());
+    }
+    //**********************************************************
     private void execute_scroll_to()
     //**********************************************************
     {
-        Path scroll_to = scroll_tos.get(displayed_folder_path);
+        Path scroll_to = scroll_memory.get(displayed_folder_path);
         if ( scroll_to == null) {
             if (dbg) logger.log((" scroll_to == null "));
             return;

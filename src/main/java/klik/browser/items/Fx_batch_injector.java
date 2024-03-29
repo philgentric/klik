@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class Fx_batch_injector
 //**********************************************************
 {
+    private static final boolean dbg = false;
     public LinkedBlockingDeque<Runnable> input = new LinkedBlockingDeque<>();
     Logger logger;
     //**********************************************************
@@ -32,7 +33,7 @@ public class Fx_batch_injector
                 {
                     if ( aborter.should_abort())
                     {
-                        logger.log("Fx_batch_injector aborting");
+                        if ( dbg) logger.log("Fx_batch_injector aborting");
                         return;
                     }
                     try {

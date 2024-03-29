@@ -28,6 +28,7 @@ public class Guess_file_type
     private static final String PNG = "PNG";
     public static final String PDF = "PDF";
     private static final String[] supported_image_formats = ImageIO.getReaderFormatNames();
+    private static final String[] supported_text_formats = {"TXT","NFO","RTF","MD","PY","C","C++","CPP","JAVA","JS","HTML"};
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};
     public static final String[] ignored_prefixes = {"._",".DS_Store",".color"};
@@ -58,6 +59,15 @@ public class Guess_file_type
     }
 
 
+
+    //**********************************************************
+    public static boolean is_this_path_a_text(Path path)
+    //**********************************************************
+    {
+        if (ignore(path)) return false;
+        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        return is_this_extension_a_text(extension);
+    }
     //**********************************************************
     public static boolean is_this_path_an_image(Path path)
     //**********************************************************
@@ -216,6 +226,18 @@ public class Guess_file_type
         if (extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
             return true;
+        }
+        return false;
+    }
+
+
+    //**********************************************************
+    public static boolean is_this_extension_a_text(String extension)
+    //**********************************************************
+    {
+        for (String e : supported_text_formats)
+        {
+            if (extension.toUpperCase().equals(e) )return true;
         }
         return false;
     }

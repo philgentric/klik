@@ -4,10 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import klik.files_and_paths.Files_and_Paths;
 import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.System_out_logger;
 
 import java.nio.file.Path;
 
@@ -89,7 +86,7 @@ public class Browser_creation_context
     //**********************************************************
     {
         My_Stage stage = new My_Stage(new Stage(),logger);
-        Browser.scroll_tos.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
         Browser_creation_context context =  new Browser_creation_context(
                 stage,
                 parent.displayed_folder_path,
@@ -104,7 +101,7 @@ public class Browser_creation_context
     public static void additional_same_folder_twin(Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_tos.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
 
         Stage parent_stage = parent.my_Stage.the_Stage;
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(parent_stage.getX(), parent_stage.getY(), parent_stage.getWidth(), parent_stage.getHeight());
@@ -138,7 +135,7 @@ public class Browser_creation_context
     public static void additional_different_folder(Path path, Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_tos.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
 
         My_Stage stage = new My_Stage(new Stage(),logger);
         Browser_creation_context context =  new Browser_creation_context(
@@ -157,7 +154,7 @@ public class Browser_creation_context
     public static void replace_same_folder(Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_tos.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
 
         Browser_creation_context context =  new Browser_creation_context(
                 parent.my_Stage,
@@ -175,7 +172,7 @@ public class Browser_creation_context
     public static void replace_different_folder(Path path, Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_tos.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
 
 
         Browser_creation_context context =  new Browser_creation_context(

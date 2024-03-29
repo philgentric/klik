@@ -155,7 +155,7 @@ public class Image_window
         the_Stage.show();
 
         boolean high_quality = false;
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, the_browser.get_file_comparator(), the_browser.aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, the_browser.get_file_comparator(), aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;

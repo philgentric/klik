@@ -2,7 +2,7 @@ package klik.util;
 
 public class Exceptions_in_threads_catcher
 {
-	public static volatile boolean oops = false;
+	public static volatile int oops = 0;
 
 	public static void set_exceptions_in_threads_catcher(Logger logger)
 	{
@@ -16,7 +16,12 @@ public class Exceptions_in_threads_catcher
 				if ( e.toString().contains("IndexOutOfBoundsException: Index -1 out of bounds for length"))
 				{
 					logger.log("THREAD PANIC **no stack**:"+e);
-					oops = true;
+					oops++;
+					if ( oops > 100)
+					{
+						logger.log("THREAD PANIC exiting the application");
+						System.exit(-1);
+					}
 					return;
 
 				}

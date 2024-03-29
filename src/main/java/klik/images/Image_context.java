@@ -195,7 +195,7 @@ public class Image_context
         Look_and_feel_manager.set_region_look(textFlow);
         sp.setPrefSize(1000, 600);
         sp.setContent(textFlow);
-        sp.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS);
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         Stage local_stage = new Stage();

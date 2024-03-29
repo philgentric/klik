@@ -26,7 +26,7 @@ public class Backup_actor_for_one_file implements Actor
     long last;
 
     public static AtomicInteger ongoing = new AtomicInteger(0);
-    static Concurency_limiter file_concurency_limiter;
+    //static Concurency_limiter file_concurency_limiter;
 
 
     //**********************************************************
@@ -35,7 +35,7 @@ public class Backup_actor_for_one_file implements Actor
     {
         this.logger = logger;
         this.stats = stats;
-        if ( file_concurency_limiter == null)
+        //if ( file_concurency_limiter == null)
         {
             //file_concurency_limiter = new Concurency_limiter("Backup_actor_for_one_file",40,logger);
         }

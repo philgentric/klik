@@ -53,9 +53,9 @@ application {
     //-XX:+UseZGC -XX:+ZGenerational
 
     // Java VM RAM size options:
-    applicationDefaultJvmArgs = ["-XX:MaxRAMPercentage=90.0"]
+    //applicationDefaultJvmArgs = ["-XX:MaxRAMPercentage=90.0"]
     // if you have 16GB or more and want to give a lot of RAM to klik to be able to maintain a lot of open windows:
-    //applicationDefaultJvmArgs = ["-Xms10G","-Xmx10G"]
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational"]
     // if you have only 2GB or not much more:
     //applicationDefaultJvmArgs = ["-Xms1G"]
 }

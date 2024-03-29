@@ -154,6 +154,7 @@ public class Vertical_slider implements Landscape_height_listener
             //if (Vertical_slider.dbg) logger.log("scroll dy=" + dy+" min="+slider.getMin()+ " old="+old_val+ "new="+new_val+" max="+slider.getMax());
             return true;
         }
+
     }
 
 
