@@ -20,6 +20,7 @@ import klik.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
 import klik.look.Look_and_feel_manager;
 import klik.util.From_disk;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -220,7 +221,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 if (image_indexer.exists(oanf.new_Path))
                 {
                     if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.get_string());
-                    Platform.runLater(() -> {
+                    Fx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path);
                         Files_and_Paths.clear_one_icon_from_cache_on_disk(local.path,logger);
@@ -234,7 +235,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         else {
                             logger.log(Stack_trace_getter.get_stack_trace("RE-loading image failed "+local.path));
                         }
-                    });
+                    },logger);
                 }
                 else
                 {

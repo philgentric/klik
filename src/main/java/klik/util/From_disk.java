@@ -172,6 +172,7 @@ public class From_disk
             }
             if ( aborter.should_abort())
             {
+                logger.log("read_original_image_from_disk_and_return_icon aborted");
                 return null;
             }
             if ( use_ImageIO)
@@ -217,7 +218,8 @@ public class From_disk
                 image = new Image(input_stream, icon_size, icon_size, true, true);
                 if ( image.isError())
                 {
-                    if ( dbg) logger.log("From_disk WARNING: an error occurred when reading: "+original_image_file.toAbsolutePath());
+                    //if ( dbg)
+                        logger.log("From_disk WARNING: an error occurred when reading: "+original_image_file.toAbsolutePath());
                    image = null;
                 }
             }

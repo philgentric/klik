@@ -18,6 +18,7 @@ import klik.browser.items.Item_button;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 
 import java.nio.file.Path;
@@ -94,7 +95,7 @@ public class Folder_size {
             // this call is blocking until tree has been explored
             Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path,local_aborter, logger);
 
-            Platform.runLater(() -> {
+            Fx_batch_injector.inject(() -> {
                 String bytes = Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes(),logger);
 
                 iv.setImage(Look_and_feel_manager.get_search_end_icon());
@@ -115,7 +116,7 @@ public class Folder_size {
                         bytes_s+":\t\t\t"+bytes);
                 logger.log(path + " :  " + sizes.folders() + " " + folders_s + " , " + sizes.files() + " " + files_s + " , " + sizes.images() + " " + image_s+" , "+bytes+" "+bytes_s);
 
-            });
+            },logger);
         };
         Actor_engine.execute(r,aborter, logger);
 

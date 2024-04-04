@@ -98,7 +98,8 @@ public class Icon_factory_actor implements Actor
             image_and_rotation = try_once(destination, icon_factory_request);
             if (image_and_rotation.image() == null) {
                 // must treat as non_image
-                if (dbg) logger.log("making an icon failed for : " + destination.get_item_path());
+                //if (dbg)
+                    logger.log("\n\nmaking an icon failed for : " + destination.get_item_path());
                 //instance.decrementAndGet();
                 return "icon fabrication failed";
             }
@@ -208,6 +209,9 @@ public class Icon_factory_actor implements Actor
                     rotation = rotation_cache.get_rotation(destination.get_item_path());
                     //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
+                else {
+                    logger.log("WARNING process_image() is null for "+destination.get_item_path());
+                }
             }
             case no_path -> {
                 logger.log("HAPPENS?????: no path for icon destination???"+icon_factory_request.destination);
@@ -221,6 +225,10 @@ public class Icon_factory_actor implements Actor
 
         }
 
+        if (image == null)
+        {
+            logger.log("WARNING icon is null for "+destination.get_item_path());
+        }
         Optional<Double> rotation_o = null;
         if ( rotation == null) rotation_o = Optional.empty();
         else rotation_o= Optional.of(rotation);
@@ -238,14 +246,15 @@ public class Icon_factory_actor implements Actor
         Path path = destination.get_path_for_display_icon_destination();
         if (path == null)
         {
-            if (dbg)
+            //if (dbg)
                 logger.log("Icon_factory thread: returning null icon because icon path is null for item:" + destination.get_string() + "\ntypically happens when there is no image to use as a icon in that folder");
 
             return null;//Look_and_feel_manager.get_large_folder_icon(icon_factory_request.icon_size);
         }
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( aborting_dbg) logger.log("Icon_factory thread: aborting0");
+            //if ( aborting_dbg)
+                logger.log("Icon_factory thread: aborting0");
             return null;
         }
         String tag = String.valueOf(icon_factory_request.icon_size);
@@ -262,7 +271,8 @@ public class Icon_factory_actor implements Actor
         Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false,logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( aborting_dbg) logger.log("Icon_factory thread: aborting2");
+            //if ( aborting_dbg)
+                logger.log("Icon_factory thread: aborting2");
             return null;
         }
         if (image != null)
@@ -279,11 +289,12 @@ public class Icon_factory_actor implements Actor
         image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, true, icon_factory_request.aborter, logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            if ( aborting_dbg) logger.log("Icon_factory thread: aborting3");
+            //if ( aborting_dbg)
+                logger.log("Icon_factory thread: aborting3");
             return null;
         }
         if (image == null) {
-            if (dbg)
+            //if (dbg)
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
             return null;
         }

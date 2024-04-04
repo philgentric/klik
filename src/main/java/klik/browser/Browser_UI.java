@@ -355,9 +355,11 @@ public class Browser_UI
         {
             String cleanup = I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
+            clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
+            if (level3) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
-            if (level2)
+            if (level3)
             {
                 clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
@@ -374,8 +376,6 @@ public class Browser_UI
                 deduplicate.getItems().add(create_auto_deduplication_menu_item());
                 clean.getItems().add(deduplicate);
             }
-            clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (level2) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             files_menu.getItems().add(clean);
         }
 

@@ -77,7 +77,7 @@ public class Text_frame {
             vbox.getChildren().add(new Label(" ======= CANNOT READ THIS FILE (IS NOT UTF-8 TEXT?)  ========="));
 
         }
-        AtomicInteger size = new AtomicInteger(12);
+        AtomicInteger size = new AtomicInteger(20);
         set_font_size(vbox, size.get());
 
         vbox.getChildren().add(new Label("                                                                   "));

@@ -25,7 +25,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.*;
 import klik.browser.icons.caches.Aspect_ratio_cache;
 import klik.browser.icons.caches.Rotation_cache;
-import klik.browser.items.Fx_batch_injector;
+import klik.util.Fx_batch_injector;
 import klik.browser.items.Item;
 import klik.browser.locator.Locator;
 import klik.change.Change_gang;
@@ -79,10 +79,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
     public Icon_factory_actor icon_factory_actor;
-    //public Icon_factory_actor_for_PDF icon_factory_actor_for_PDF;
-    public Fx_batch_injector fx_injector;
-//    public double button_width;
-
 
     List<Node> mandatory_in_pane = new ArrayList<>();
     List<Node> always_on_front_nodes = new ArrayList<>();
@@ -135,7 +131,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
             }
         };
-        Platform.runLater(r);
+        Fx_batch_injector.inject(r,logger);
     }
 
     //**********************************************************
@@ -152,7 +148,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 execute_scroll_to();
             }
         };
-        Platform.runLater(r);
+        Fx_batch_injector.inject(r,logger);
     }
 
     //**********************************************************
@@ -223,8 +219,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                         break;
                 }
             }
-    };
-    Platform.runLater(r);
+        };
+        Fx_batch_injector.inject(r,logger);
     }
 
 
@@ -331,7 +327,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         rotation_cache = new Rotation_cache(displayed_folder_path,aborter,logger);
         icon_factory_actor = new Icon_factory_actor(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
         //icon_factory_actor_for_PDF = new Icon_factory_actor_for_PDF(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
-        if( use_fx_injector) fx_injector = new Fx_batch_injector(aborter, logger);
+        //if( use_fx_injector) fx_injector = new Fx_batch_injector(aborter, logger);
         paths_manager = new Paths_manager(aspect_ratio_cache,rotation_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
         icon_manager = new Icon_manager(paths_manager, my_Stage.the_Stage,aborter,logger);
         selection_handler = new Selection_handler(the_Pane, icon_manager, this, logger);
@@ -363,11 +359,9 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         my_Stage.the_Stage.heightProperty().addListener(change_listener);
 
 
-        Platform.runLater(() -> {
-
+        Fx_batch_injector.inject(() -> {
             scene_geometry_changed("Browser constructor", true, false);
-            //registered_scroll_to = context.scroll_to;
-        });
+        },logger);
     }
 
 
@@ -946,7 +940,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                     }
                 }
                 long finalHow_many_files = how_many_files;
-                Platform.runLater(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + finalHow_many_files + " files & folders"));
+                Fx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + finalHow_many_files + " files & folders"),logger);
 
             }
         };
@@ -987,34 +981,50 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         //if (dbg)
-            logger.log("the_pane scene_geometry_changed from:" + from+ " rebuild_all_items="+ rebuild_all_items);
+        logger.log("the_pane scene_geometry_changed from:" + from + " rebuild_all_items=" + rebuild_all_items);
 
         error_type = paths_manager.scan_dir(my_Stage.the_Stage, from);
         if (error_type != Error_type.OK) {
             logger.log(true, true, "scene_geometry_changed() scan dir failed for :" + displayed_folder_path + " error=" + status);
         }
+        if ( Platform.isFxApplicationThread())
+        {
+            scene_geometry_changed_no_scan_dir(from, keep_scroll, rebuild_all_items);
+        }
+        else
+        {
+            Fx_batch_injector.inject(()->scene_geometry_changed_no_scan_dir(from,keep_scroll,rebuild_all_items),logger);
+        }
+    }
+
+    //**********************************************************
+    private void scene_geometry_changed_no_scan_dir(String from, boolean keep_scroll, boolean rebuild_all_items)
+    //**********************************************************
+    {
+
         icon_manager.geometry_changed(this, the_Pane, mandatory_in_pane,
                 "scene_geometry_changed from: " + from + " keep_scroll=" + keep_scroll,
                 rebuild_all_items);
 
         if (dbg) logger.log("the_pane scene_geometry_changed adapt_slider_to_scene");
+        {
+            vertical_slider.adapt_slider_to_scene(the_Scene, the_Pane);
+        }
         if (keep_scroll)
         {
             vertical_slider.transform_pixel_value(0,icon_manager);
         }
-        else
-        {
-            vertical_slider.adapt_slider_to_scene(the_Scene, the_Pane);
-        }
+
         set_title();
         {
             double title_height = my_Stage.the_Stage.getHeight() - the_Scene.getHeight();
-            for (Button b : browser_ui.top_buttons)
-            {
+            for (Button b : browser_ui.top_buttons) {
                 b.setMinHeight(title_height);
             }
         }
     }
+
+    /*
 
     //**********************************************************
     public void scene_geometry_changed_no_scan_dir(String from, boolean rebuild_all_items, boolean keep_scroll)
@@ -1032,16 +1042,9 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         if (!keep_scroll) {
             vertical_slider.adapt_slider_to_scene(the_Scene, the_Pane);
         }
-        set_title();
-        {
-            double title_height = my_Stage.the_Stage.getHeight() - the_Scene.getHeight();
-            for (Button b : browser_ui.top_buttons)
-            {
-                b.setMinHeight(title_height);
-            }
-        }
+        set_top_part();
     }
-
+*/
 
     //**********************************************************
     public void apply_font()
@@ -1167,18 +1170,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             case more_changes:
             {
                if (dbg) logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-                fx_injector.input.addFirst(() -> {
+                //fx_injector.inject(() -> {
                     scene_geometry_changed("change gang for dir: " + displayed_folder_path, true, true);
-                });
+                //});
             };
             break;
             case one_new_file, one_file_gone:
             {
                 if (dbg) logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
 
-                fx_injector.input.addFirst(() -> {
-                    scene_geometry_changed("change gang for dir: " + displayed_folder_path, false, true);
-                });
+                //fx_injector.inject(() -> {
+                    scene_geometry_changed("change gang for dir: " + displayed_folder_path, true, true);
+                //});
             }
             break;
             default:

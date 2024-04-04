@@ -45,7 +45,8 @@ public class Aborter
     public boolean should_abort()
     //**********************************************************
     {
-        if ( dbg) if( abort.get()) logger.log(Stack_trace_getter.get_stack_trace("should abort "+name));
+        //if ( dbg) if( abort.get()) logger.log(Stack_trace_getter.get_stack_trace("should abort "+name));
+        if ( dbg) if( abort.get()) logger.log(("should abort "+name));
         return abort.get();
     }
 }

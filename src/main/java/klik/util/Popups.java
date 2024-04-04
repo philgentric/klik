@@ -23,7 +23,7 @@ public class Popups
     //**********************************************************
     {
         logger.log(Stack_trace_getter.get_stack_trace("Going to popup exception(1): " + e));
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.getDialogPane().setMinWidth(1000);
             alert.setTitle(title);
@@ -34,14 +34,14 @@ public class Popups
             logger.log("Going to popup exception(2): " + e);
             alert.setGraphic(new ImageView(Look_and_feel_manager.get_denied_icon(icon_size)));
             alert.showAndWait();
-        });
+        },logger);
     }
 
     //**********************************************************
     public static void popup_warning(Stage owner, String header, String content, boolean for_3_seconds_only, Logger logger)
     //**********************************************************
     {
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             logger.log("Warning Popup: "+header+" "+content);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle(I18n.get_I18n_string("Warning", logger));
@@ -57,7 +57,7 @@ public class Popups
             } else {
                 alert.showAndWait();
             }
-        });
+        },logger);
     }
 
     //**********************************************************

@@ -21,6 +21,7 @@ import klik.browser.icons.Paths_manager;
 import klik.image_indexer.Image_indexer;
 import klik.images.Image_context;
 import klik.look.Look_and_feel_manager;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -160,7 +161,7 @@ public class Multiple_image_window
     {
         set_background();
 
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
                 double size = 1000;
                 //ic = get_next_GIF();
                 if (ic == null) return;
@@ -180,7 +181,7 @@ public class Multiple_image_window
                     method_1(size);
                 }
                 method++;
-            });
+            },logger);
     }
 
     private void method_1(double size)

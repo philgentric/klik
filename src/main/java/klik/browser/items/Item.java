@@ -1,5 +1,6 @@
 package klik.browser.items;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,6 +24,7 @@ import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
+import klik.util.Fx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
@@ -54,7 +56,6 @@ public abstract class Item implements Icon_destination
     public static final boolean layout_dbg = false;
     public final int icon_size;
     public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);
-    public AtomicBoolean icon_available = new AtomicBoolean(false);
     Job icon_job; // this is needed to cancel the icon request when the item has become invisible
 
     protected Color color;
@@ -142,11 +143,6 @@ public abstract class Item implements Icon_destination
     }
 
     @Override // Icon_destination
-    public boolean get_icon_available() {
-        return icon_available.get();
-    }
-
-    @Override // Icon_destination
     public void set_icon_fabrication_requested(boolean b) {
         icon_fabrication_requested.set(true);
     }
@@ -194,7 +190,6 @@ public abstract class Item implements Icon_destination
     protected void cancel_icon()
     //**********************************************************
     {
-        icon_available.set(false);
         icon_fabrication_requested.set(false);
         if ( icon_job!= null)
         {
@@ -736,7 +731,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: Open_With_Registered_Application");
-            System_open_actor.open_special(browser,path,logger);
+            System_open_actor.open_special(browser.my_Stage.the_Stage,path,browser_aborter,logger);
         });
 
         return menu_item;
@@ -761,7 +756,7 @@ public abstract class Item implements Icon_destination
     public void you_are_invisible()
     //**********************************************************
     {
-        if (get_Node() == null) return;
+        //if (get_Node() == null) return;
         get_Node().setVisible(false);
         cancel_icon();
         cancel_custom();
@@ -772,6 +767,8 @@ public abstract class Item implements Icon_destination
     public void you_are_visible()
     //**********************************************************
     {
+        //if( !Platform.isFxApplicationThread())  logger.log(Stack_trace_getter.get_stack_trace("PANIC not on Fx thread"));
+
         you_are_visible_specific();
         get_Node().setVisible(true);
         if( has_icon()) request_icon_to_factory(get_icon_size(),get_is_high_priority());

@@ -13,6 +13,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Strings;
 
@@ -185,7 +186,7 @@ public class Backup_console_window
     //**********************************************************
     {
 
-        Platform.runLater(this::update_);
+        Fx_batch_injector.inject(this::update_,logger);
     }
 
 

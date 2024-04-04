@@ -28,6 +28,7 @@ import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -158,9 +159,9 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
-        browser.fx_injector.input.addFirst(() -> {
+        Fx_batch_injector.inject(() -> {
             set_icon(image_and_rotation);
-        });
+        },logger);
     }
 
     //**********************************************************
@@ -310,10 +311,10 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     {
         label_for_sizes = new Label(s);
         Look_and_feel_manager.set_label_look(label_for_sizes);
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             the_image_pane.getChildren().clear();
             the_image_pane.getChildren().add(label_for_sizes);
-        });
+        },logger);
     }
 
     //**********************************************************
@@ -449,9 +450,9 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             }
             if ( aborter.should_abort()) return;
             Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter,logger);
-            Platform.runLater(() -> {
+            Fx_batch_injector.inject(() -> {
                 disk_foot_print_receiver.set_disk_foot_print_text(sizes);
-            });
+            },logger);
         };
         Actor_engine.execute(r,aborter,logger);
     }

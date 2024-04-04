@@ -49,15 +49,14 @@ application {
     mainModule = 'klikmodule'
     mainClass = main_class_name
 
-    // Java VM option for ZGC garbage collector:
-    //-XX:+UseZGC -XX:+ZGenerational
-
     // Java VM RAM size options:
-    //applicationDefaultJvmArgs = ["-XX:MaxRAMPercentage=90.0"]
-    // if you have 16GB or more and want to give a lot of RAM to klik to be able to maintain a lot of open windows:
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational"]
+
     // if you have only 2GB or not much more:
     //applicationDefaultJvmArgs = ["-Xms1G"]
+
+    // if you have a lot of RAM say 64GB or more
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational"]
+
 }
 
 javafx {

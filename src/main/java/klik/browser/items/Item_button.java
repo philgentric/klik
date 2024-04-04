@@ -25,10 +25,7 @@ import klik.files_and_paths.Sizes;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.Stack_trace_getter;
-import klik.util.Text_frame;
+import klik.util.*;
 import klik.util.execute.System_open_actor;
 
 import java.io.File;
@@ -430,10 +427,10 @@ public class Item_button extends Item implements Icon_destination
             String extended_text =  text + " (" + how_many_files_deep + " files)";
 
             String finalExtended_text = extended_text;
-            browser.fx_injector.input.addFirst(() -> {
+            Fx_batch_injector.inject(() -> {
                 button.setText(finalExtended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
-            });
+            },logger);
         };
         Actor_engine.execute(r,aborter, logger);
     }
@@ -470,10 +467,10 @@ public class Item_button extends Item implements Icon_destination
             //sb.append(" ");
             //sb.append(I18n.get_I18n_string("Files",logger));
             String extended_text = sb.toString();
-            browser.fx_injector.input.addFirst(() -> {
+            Fx_batch_injector.inject(() -> {
                 button.setText(extended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
-            });
+            },logger);
         };
         Actor_engine.execute(r,aborter, logger);
     }

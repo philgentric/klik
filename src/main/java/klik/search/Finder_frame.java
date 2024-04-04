@@ -21,6 +21,7 @@ import klik.files_and_paths.Ding;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 
 import java.nio.file.Path;
@@ -402,31 +403,28 @@ public class Finder_frame implements Search_receiver
 	public void receive_intermediary_statistics(Search_statistics search_statistics)
 	//**********************************************************
 	{
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
+		Fx_batch_injector.inject(() -> {
 
-				for (String input_keyword: keyword_to_slot.keySet())
-				{
-					Keyword_slot ks = keyword_to_slot.get(input_keyword);
-					Label t = ks.get_result_label();
-					if (t == null) {
-						System.out.println("SHOULD NOT HAPPEN: no Text component in UI for keyword ->" + input_keyword + "<-");
-					} else {
-						if (search_statistics.matched_keyword_counts().get(input_keyword) == null )
-						{
-							t.setText(String.valueOf( 0));
-						}
-						else {
-							t.setText(String.valueOf( search_statistics.matched_keyword_counts().get(input_keyword)));
-						}
-					}
-				}
-				visited_files.setText(""+search_statistics.visited_files());
-				visited_folders.setText(""+search_statistics.visited_folders());
+            for (String input_keyword: keyword_to_slot.keySet())
+            {
+                Keyword_slot ks = keyword_to_slot.get(input_keyword);
+                Label t = ks.get_result_label();
+                if (t == null) {
+                    System.out.println("SHOULD NOT HAPPEN: no Text component in UI for keyword ->" + input_keyword + "<-");
+                } else {
+                    if (search_statistics.matched_keyword_counts().get(input_keyword) == null )
+                    {
+                        t.setText(String.valueOf( 0));
+                    }
+                    else {
+                        t.setText(String.valueOf( search_statistics.matched_keyword_counts().get(input_keyword)));
+                    }
+                }
+            }
+            visited_files.setText(""+search_statistics.visited_files());
+            visited_folders.setText(""+search_statistics.visited_folders());
 
-			}
-		});
+        },logger);
 
 
 	}
@@ -447,22 +445,16 @@ public class Finder_frame implements Search_receiver
 		}
 		if ( search_status == Search_status.invalid)
 		{
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					stop.setDisable(true);
-					start.setDisable(false);
-				}
-			});
+			Fx_batch_injector.inject(() -> {
+                stop.setDisable(true);
+                start.setDisable(false);
+            },logger);
 			return;
 		}
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				stop.setDisable(true);
-				start.setDisable(false);
-			}
-		});
+		Fx_batch_injector.inject(() -> {
+            stop.setDisable(true);
+            start.setDisable(false);
+        },logger);
 
 	}
 

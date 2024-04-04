@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.level2.backup.Backup_singleton;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 
 import java.nio.file.Path;
@@ -48,13 +49,7 @@ public class Monitor
                 {
                     try {
                         String x = input_queue.poll(10, TimeUnit.MINUTES);
-                        Runnable r2 = new Runnable() {
-                            @Override
-                            public void run() {
-                                textArea.setText(textArea.getText()+"\n"+x);
-                            }
-                        };
-                        Platform.runLater(r2);
+                        Fx_batch_injector.inject(()->textArea.setText(textArea.getText()+"\n"+x),logger);
                     } catch (InterruptedException e) {
                         logger.log_exception("",e);
                         return;
@@ -107,12 +102,6 @@ public class Monitor
     }
 
     public void close() {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                stage.close();
-            }
-        };
-        Platform.runLater(r);
+        Fx_batch_injector.inject(()->stage.close(),logger);
     }
 }

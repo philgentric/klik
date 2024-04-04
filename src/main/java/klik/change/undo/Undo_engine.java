@@ -6,6 +6,7 @@ import klik.actor.Aborter;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.files_and_paths.Moving_files;
 import klik.files_and_paths.Old_and_new_Path;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.change.active_list_stage.Active_list_stage;
@@ -263,10 +264,11 @@ public class Undo_engine implements Datetime_to_signature_source
     private static void refresh_UI()
     //**********************************************************
     {
-        for ( Active_list_stage s : undo_stages)
-        {
-            Platform.runLater(() ->s.define());
-        }
+        Fx_batch_injector.inject(()-> {
+            for (Active_list_stage s : undo_stages) {
+                s.define();
+            }
+        }, instance.logger);
     }
 
 }

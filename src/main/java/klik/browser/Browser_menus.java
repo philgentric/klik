@@ -22,6 +22,7 @@ import klik.level3.metadata.Tag_items_management_stage;
 import klik.look.my_i18n.I18n;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.*;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -460,7 +461,7 @@ public class Browser_menus
     {
         browser.paths_manager.remove_empty_folders(recursively);
         // can be called from a thread which is NOT the FX event thread
-        Platform.runLater(() -> browser.scene_geometry_changed("remove empty folder", true, false));
+        Fx_batch_injector.inject(() -> browser.scene_geometry_changed("remove empty folder", true, false),logger);
     }
 
     //**********************************************************

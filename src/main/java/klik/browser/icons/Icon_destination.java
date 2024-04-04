@@ -19,7 +19,5 @@ public interface Icon_destination
 
     boolean get_icon_fabrication_requested(); // this is to prevent more than 1 request per icon
 
-    boolean get_icon_available();
-
     void set_icon_fabrication_requested(boolean b);
 }

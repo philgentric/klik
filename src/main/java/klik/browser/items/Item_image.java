@@ -1,8 +1,6 @@
 package klik.browser.items;
 
-import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -12,11 +10,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import klik.actor.Aborter;
-import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Browser;
 import klik.browser.Image_and_rotation;
-import klik.properties.Static_application_properties;
-import klik.util.execute.System_open_actor;
+import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
@@ -24,8 +20,11 @@ import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.level3.experimental.Multiple_image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
+import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.execute.System_open_actor;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -176,7 +175,7 @@ public class Item_image extends Item
             javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Open_With_Registered_Application", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening with registered app: "+path);
-                System_open_actor.open_special(browser,path,logger);
+                System_open_actor.open_special(browser.my_Stage.the_Stage,path,browser_aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -245,6 +244,8 @@ public class Item_image extends Item
     public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
+        //logger.log("RECEIVING icon");
+        // this is NOT on the FX thread
         if ( image_view == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
@@ -255,49 +256,36 @@ public class Item_image extends Item
         {
             // this happen if between the time the icon was request and now,
             // the item is not visible anymore typically because the user scrolled away
-            if ( dbg) logger.log("!visible_in_scene.get() : setting the image to null in the Image_view");
-            you_are_invisible();
+            if ( dbg)
+                logger.log("!visible_in_scene.get() : calling you_are_invisible");
+            Fx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( image_and_rotation == null)
         {
-            if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
-            you_are_invisible();
+            if ( dbg)
+                logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+            Fx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( image_and_rotation.image() == null)
         {
-            if ( dbg) logger.log("image_and_rotation == null : setting the image to null in the Image_view");
-            you_are_invisible();
+            if ( dbg)
+                logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+            Fx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
 
         if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
-            you_are_invisible();
+            Fx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
-        if ( item_type == Iconifiable_item_type.pdf)
-        {
-            if (aspect_ratio == null)
-            {
-                double local = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
-                if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
-                aspect_ratio = local;
-            }
-        }
 
-        if ( Browser.use_fx_injector)
-        {
-            //Item_image the_item_image = this;
-            Runnable r = () -> do_it_in_fx_thread(image_and_rotation);
-            browser.fx_injector.input.addFirst(r);
-        }
-        else
-        {
-            Platform.runLater(() -> do_it_in_fx_thread(image_and_rotation));
-        }
+
+        Fx_batch_injector.inject(() -> receive_icon_in_fx_thread(image_and_rotation),logger);
+
     }
 
     //**********************************************************
@@ -305,7 +293,8 @@ public class Item_image extends Item
     public void cancel_custom()
     //**********************************************************
     {
-        if (dbg) logger.log("cancel_custom for: " + get_string());
+        if (dbg)
+            logger.log("cancel_custom for: " + get_string());
         image_view.setImage(null); // for GC
     }
 
@@ -319,18 +308,19 @@ public class Item_image extends Item
 
 
     //**********************************************************
-    public void do_it_in_fx_thread(Image_and_rotation image_and_rotation)
+    public void receive_icon_in_fx_thread(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
-        if ( dbg) logger.log("item_image: setting the icon in the image view, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
-        image_view.setImage(image_and_rotation.image());
-        icon_available.set(true);
+        if ( dbg) logger.log("receive_icon_in_fx_thread, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
+
 
         double local_rot = 0;
         {
             Optional<Double> local_rot_op = image_and_rotation.rotation();
             if (local_rot_op.isEmpty()) {
                 if (Files.exists(path)) {
+
+                    logger.log("WTF");
                     if (
                             (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
                     ) {
@@ -347,63 +337,76 @@ public class Item_image extends Item
 
             }
         }
-            // the above operation can take some time...
-            // and in the mean time the situation can change
-            if (!visible_in_scene.get())
+        if ( item_type == Iconifiable_item_type.pdf)
+        {
+            if (aspect_ratio == null)
             {
-                you_are_invisible();
-                if (visibility_dbg) log_visibility_state_number(1);
-                return;
+                double local = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
+                if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
+                aspect_ratio = local;
             }
+        }
+        // the above operation can take some time...
+        // and in the mean time the situation can change
+        if (!visible_in_scene.get())
+        {
+            you_are_invisible();
+            if (visibility_dbg) log_visibility_state_number(1);
+            return;
+        }
 
-            image_view.setSmooth(true);
+        image_view.setSmooth(true);
 
-            if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
+        if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
+        {
+            // this happens when the icon is PDF as we dont scale PDF icons
+            if (dbg)
+                logger.log("HAPPENS1 for: "+path);
+            image_view.setFitWidth(icon_size);
+            image_view.setFitHeight(icon_size);
+            if ((local_rot == 90) || (local_rot == 270))
             {
-                // this happens when the icon is PDF as we dont scale PDF icons
-                if (dbg) logger.log("HAPPENS1 for: "+path);
-                image_view.setFitWidth(icon_size);
-                image_view.setFitHeight(icon_size);
-                if ((local_rot == 90) || (local_rot == 270))
+                // this actually NEVER HAPPENS now since a PDF icon is never rotated
+                if (dbg) logger.log("HAPPENS2 for: "+path);
+                image_view.setFitWidth(image_and_rotation.image().getHeight());
+                image_view.setFitHeight(image_and_rotation.image().getWidth());
+            }
+        }
+        else
+        {
+            if ((local_rot == 90) || (local_rot == 270))
+            {
+
+                if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
                 {
-                    // this actually NEVER HAPPENS now since a PDF icon is never rotated
-                    if (dbg) logger.log("HAPPENS2 for: "+path);
-                    image_view.setFitWidth(image_and_rotation.image().getHeight());
-                    image_view.setFitHeight(image_and_rotation.image().getWidth());
+                    if (dbg)
+                        logger.log("HAPPENS3A for: "+path);
+                    image_view.setFitWidth(icon_size);
+                    image_view.setFitHeight(-1);
+                }
+                else
+                {
+                    // this happens rarely as it is an image that is rotated AND wider than high after rotation
+                    //(most of the rotated images are portrait shot by turning the camera
+                    if (dbg)
+                        logger.log("HAPPENS3B for: "+path);
+                    image_view.setFitWidth(-1);
+                    image_view.setFitHeight(icon_size);
                 }
             }
             else
             {
-                if ((local_rot == 90) || (local_rot == 270))
-                {
-
-                    if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
-                    {
-                        if (dbg) logger.log("HAPPENS3A for: "+path);
-                        image_view.setFitWidth(icon_size);
-                        image_view.setFitHeight(-1);
-                    }
-                    else
-                    {
-                        // this happens rarely as it is an image that is rotated AND wider than high after rotation
-                        //(most of the rotated images are portrait shot by turning the camera
-                        if (dbg) logger.log("HAPPENS3B for: "+path);
-                        image_view.setFitWidth(-1);
-                        image_view.setFitHeight(icon_size);
-                    }
-                }
-                else
-                {
-                    if (dbg) logger.log("HAPPENS4 for: "+path);
-                    image_view.setFitWidth(image_and_rotation.image().getWidth());
-                    image_view.setFitHeight(image_and_rotation.image().getHeight());
-                }
+                if (dbg)
+                    logger.log("HAPPENS4 for: "+path);
+                image_view.setFitWidth(image_and_rotation.image().getWidth());
+                image_view.setFitHeight(image_and_rotation.image().getHeight());
             }
-            if ( image_and_rotation.rotation().isPresent()) {
-                image_pane.setRotate(image_and_rotation.rotation().get());
-            }
-            icon_available.set(true);
-            if (visibility_dbg) log_visibility_state_number(2);
+        }
+        if ( image_and_rotation.rotation().isPresent()) {
+            image_pane.setRotate(image_and_rotation.rotation().get());
+        }
+        if (visibility_dbg) log_visibility_state_number(2);
+        image_view.setImage(image_and_rotation.image());
 
     }
 
@@ -420,55 +423,55 @@ public class Item_image extends Item
     public void you_are_visible_specific()
     //**********************************************************
     {
+        //logger.log("Item_image::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
-            logger.log("BADBADBAD: item_image: loading default icon failed");
+            logger.log("BADBADBAD: item_image: loading default icon NOT THERE");
             return;
         }
-        if ( dbg) logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
-        if ( image_view == null) image_view = new ImageView();
-        if ( image_pane == null) image_pane = new StackPane(image_view);
+        if ( image_view == null) {
+            // firt time
+            image_view = new ImageView();
+            if (image_pane == null) image_pane = new StackPane(image_view);
 
-        image_view.setImage(default_icon);
-        image_view.setPreserveRatio(true);
-        image_view.setSmooth(true);
-        image_view.setFitWidth(actual_icon_size);
-        image_view.setFitHeight(actual_icon_size);
-        //the_image_view.setManaged(false);
-        image_view.setCache(true);
-        image_view.setCacheHint(CacheHint.SPEED);
-        init_drag_and_drop_sender_side();
+            if ( dbg)
+                logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
+            image_view.setPreserveRatio(true);
+            image_view.setSmooth(true);
+            image_view.setFitWidth(actual_icon_size);
+            image_view.setFitHeight(actual_icon_size);
+            //the_image_view.setManaged(false);
+            image_view.setCache(false);
+            //image_view.setCacheHint(CacheHint.SPEED);
+            init_drag_and_drop_sender_side();
 
-        image_view.setOnMouseClicked(event ->
-        {
-            if (event.getButton() == MouseButton.SECONDARY)
+            image_view.setOnMouseClicked(event ->
             {
-                //logger.log("\n\nItem_image isSecondaryButtonDown");
-                ContextMenu context_menu = define_a_menu_to_the_imageview();
-                context_menu.show(image_view, event.getScreenX(), event.getScreenY());
-                return;
-            }
-            if (event.isMetaDown())
-            {
-                Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
-                if (option.isEmpty())
-                {
-                    // let us a bit of checking about why this failed
-                    Change_gang.report_anomaly(path);
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    //logger.log("\n\nItem_image isSecondaryButtonDown");
+                    ContextMenu context_menu = define_a_menu_to_the_imageview();
+                    context_menu.show(image_view, event.getScreenX(), event.getScreenY());
+                    return;
                 }
-                return;
-            }
-            if (event.isControlDown())
-            {
-                if ( dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
-                set_is_selected();
-            }
-            else
-            {
-                if ( dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
-                on_mouse_clicked(logger);
-            }
-        });
+                if (event.isMetaDown()) {
+                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
+                    if (option.isEmpty()) {
+                        // let us a bit of checking about why this failed
+                        Change_gang.report_anomaly(path);
+                    }
+                    return;
+                }
+                if (event.isControlDown()) {
+                    if (dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
+                    set_is_selected();
+                } else {
+                    if (dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
+                    on_mouse_clicked(logger);
+                }
+            });
+        }
+        image_view.setImage(default_icon);
+
     }
 
 

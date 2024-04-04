@@ -18,6 +18,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.util.Fx_batch_injector;
 import klik.util.Text_frame;
 import klik.util.execute.System_open_actor;
 import klik.files_and_paths.Guess_file_type;
@@ -138,7 +139,7 @@ public class Results_frame
 			MenuItem open_special = new MenuItem(text);
 			open_special.setOnAction(event -> {
 				logger.log("Open_With_Registered_Application");
-				System_open_actor.open_special(the_browser,path,logger);
+				System_open_actor.open_special(the_browser.my_Stage.the_Stage,path,the_browser.aborter,logger);
 			});
 			context_menu.getItems().add(open_special);
 
@@ -173,11 +174,7 @@ public class Results_frame
 
 		path_set.add(sr.path());
 
-		Platform.runLater(() ->
-		{
-			make_one_button(the_browser, keys, is_max, sr.path());
-			//stage.getScene().getRoot().setCursor(Cursor.WAIT);
-		} );
+		Fx_batch_injector.inject(() -> make_one_button(the_browser, keys, is_max, sr.path()),logger);
 
 	}
 
@@ -186,7 +183,7 @@ public class Results_frame
 	//**********************************************************
 	{
 
-		Platform.runLater(() -> {
+		Fx_batch_injector.inject(() -> {
 			stage.setTitle(I18n.get_I18n_string("Search_Results_Ended", logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
 			iv.setImage(Look_and_feel_manager.get_search_end_icon());
@@ -202,7 +199,7 @@ public class Results_frame
 			the_result_vbox.getChildren().clear();
 			the_result_vbox.getChildren().addAll(all_results);
 
-		});
+		},logger);
 
 
 	}

@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.files_and_paths.Guess_file_type;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import klik.util.Strings;
@@ -63,7 +64,7 @@ public class Per_folder_mini_console
     {
         int H = Mini_console_height;
         int W = Mini_console_width;
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             the_stage = new Stage();
             the_stage.setTitle("Backup console ");
             the_stage.setMinWidth(W);
@@ -83,7 +84,7 @@ public class Per_folder_mini_console
                 }
             }
             the_stage.show();
-        });
+        },logger);
     }
     //**********************************************************
     public void init(Directory_backup_job_request request_)
@@ -91,10 +92,10 @@ public class Per_folder_mini_console
     {
         start_time = System.currentTimeMillis();
         request = request_;
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
                     the_stage.setTitle("Backing up : " + request.source_dir.getName());
                     the_text_area.setText("Source:"+request.source_dir);
-                });
+                },logger);
         last_news = "";
         renamed_files_names = "";
         estimate(request.source_dir);
@@ -198,19 +199,19 @@ public class Per_folder_mini_console
     {
 
         String report = make_current_report();
-        Platform.runLater(() -> the_text_area.setText(report));
+        Fx_batch_injector.inject(() -> the_text_area.setText(report),logger);
 
         if ( processed_file_count.get() == target_file_count)
         {
             Runnable r = () -> {
 
-                        Platform.runLater(() -> {
+                        Fx_batch_injector.inject(() -> {
                             the_text_area.setStyle("-fx-control-inner-background: green;");
 
                             //the_text_area.setStyle("-fx-base: white; "+ "-fx-font-weight: bold; ");
                             //"text-area-background: green;");
                             //the_text_area.setBackground(new Background(new BackgroundFill(Color.PINK, CornerRadii.EMPTY, Insets.EMPTY)));
-                        });
+                        },logger);
 
 
                 try {
@@ -288,9 +289,9 @@ public class Per_folder_mini_console
     //**********************************************************
     {
 
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             if ( the_stage != null) the_stage.close();
-        });
+        },logger);
 
     }
 

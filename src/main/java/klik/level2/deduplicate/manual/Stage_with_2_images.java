@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.util.Fx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.files_and_paths.*;
 import klik.level2.deduplicate.File_pair;
@@ -72,7 +73,7 @@ public class Stage_with_2_images
 		//the_pair = pair;
 
 
-		Platform.runLater(() ->{
+		Fx_batch_injector.inject(() ->{
 				stage = new Stage();
 				the_big_vbox = new VBox();
 				Scene scene = new Scene(the_big_vbox);
@@ -87,7 +88,7 @@ public class Stage_with_2_images
 				}
 				stage.show();
 				//set_stage_size_to_fullscreen(stage);
-			});
+			},logger);
 
 
 	}

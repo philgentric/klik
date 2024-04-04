@@ -14,6 +14,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -587,7 +588,7 @@ public class Files_and_Paths {
                         }
                     }
                 };
-                Platform.runLater(rr);
+                Fx_batch_injector.inject(rr,logger);
             }
         };
 
@@ -935,7 +936,7 @@ public class Files_and_Paths {
                 if (dbg) logger.log("Folder copy done: " + new_path);
             } else {
                 logger.log("Folder copy error!");
-                Platform.runLater(() -> Popups.popup_warning(owner, "copy of dir failed", "see the logs", false, logger));
+                Fx_batch_injector.inject(() -> Popups.popup_warning(owner, "copy of dir failed", "see the logs", false, logger),logger);
             }
         };
         try {

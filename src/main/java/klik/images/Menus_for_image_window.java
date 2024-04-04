@@ -387,6 +387,20 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
+    private static MenuItem make_edit2_menu_item(Image_window image_window)
+    //**********************************************************
+    {
+        MenuItem edit = new MenuItem(I18n.get_I18n_string("Open_With_Registered_Application", image_window.logger));
+        edit.setOnAction(event -> {
+
+            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            image_window.image_display_handler.get_image_context().get().edit2(image_window.the_Stage,image_window.aborter);
+        });
+        return edit;
+    }
+
+
+    //**********************************************************
     private static MenuItem make_info_menu_item(Image_window image_window)
     //**********************************************************
     {
@@ -547,6 +561,10 @@ public class Menus_for_image_window
 
         MenuItem edit_menu_item = make_edit_menu_item(image_window);
         context_menu.getItems().add(edit_menu_item);
+
+        MenuItem edit2_menu_item = make_edit2_menu_item(image_window);
+        context_menu.getItems().add(edit2_menu_item);
+
 
         if (Static_application_properties.get_level2(image_window.logger)) {
             //image_window.logger.log("level2 is true");

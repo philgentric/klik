@@ -211,7 +211,7 @@ public class Importer
                 String s = "Importation size estimation: "+size.get()/1_000_000+" MBytes";
                 for ( String w : wp) s+="\n"+w;
                 String final_s = s;
-                Platform.runLater(() -> textarea1.setText(final_s));
+                Fx_batch_injector.inject(() -> textarea1.setText(final_s),logger);
                 logger.log(s);
                 return;
             }

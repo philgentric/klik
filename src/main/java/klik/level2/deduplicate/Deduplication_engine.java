@@ -9,6 +9,7 @@ import klik.browser.Browser;
 import klik.level2.deduplicate.console.Deduplication_console_window;
 import klik.level2.deduplicate.manual.Againor;
 import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -341,10 +342,10 @@ public class Deduplication_engine implements Againor
         logger.log("deduplicate:" + file_pair.f1.my_file.file.getAbsolutePath() + "-" + file_pair.f2.my_file.file.getAbsolutePath() + " is_image=" + file_pair.is_image);
 
         Againor local_againor = this;
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(browser, file_pair, local_againor, private_aborter, logger);
             else stage_with_2_images.set_pair(file_pair);
-        });
+        },logger);
     }
 /*
 

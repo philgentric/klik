@@ -28,8 +28,10 @@ import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.search.Keyword_extractor;
 import klik.util.From_disk;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.execute.System_open_actor;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
@@ -237,11 +239,11 @@ public class Image_context
     void edit()
     //**********************************************************
     {
-        Desktop d = Desktop.getDesktop();
+        Desktop desktop = Desktop.getDesktop();
         logger.log("asking desktop to EDIT: " + path.getFileName());
         try
         {
-            d.edit(path.toFile());
+            desktop.edit(path.toFile());
 
             // we want the UI to refresh if the file is modified
             // we do not know when the edition will end so we need to start a watcher
@@ -265,6 +267,34 @@ public class Image_context
             logger.log_stack_trace(e.toString());
         }
     }
+
+    //**********************************************************
+    void edit2(Stage the_stage, Aborter aborter)
+    //**********************************************************
+    {
+        System_open_actor.open_special(the_stage,path,aborter,logger);
+
+            // we want the UI to refresh if the file is modified
+            // we do not know when the edition will end so we need to start a watcher
+            // with a 10 minute timer
+
+            Filesystem_modification_reporter reporter = () -> {
+                List<Old_and_new_Path> oanps = new ArrayList<>();
+                Command_old_and_new_Path cmd = Command_old_and_new_Path.command_edit;
+                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
+                oanps.add(oan);
+                Change_gang.report_changes(oanps);
+            };
+            Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
+            // will die after 10 minutes
+            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,logger))
+            {
+                logger.log("Warning: cannot start monitoring: "+path);
+            }
+
+    }
+
+
 
 
     //**********************************************************
@@ -416,7 +446,7 @@ public class Image_context
     {
         logger.log("ask_user_and_find()");
 
-        Platform.runLater( () -> {
+        Fx_batch_injector.inject( () -> {
             StringBuilder ttt = new StringBuilder();
             for (String ss : keywords) ttt.append(ss).append(" ");
             TextInputDialog dialog = new TextInputDialog(ttt.toString());
@@ -445,7 +475,7 @@ public class Image_context
                 }
             }
 
-        });
+        },logger);
     }
 
     /*

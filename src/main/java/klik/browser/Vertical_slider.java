@@ -140,7 +140,8 @@ public class Vertical_slider implements Landscape_height_listener
         if (Icon_manager.scroll_dbg) logger.log("slider old val:"+old_val+" - scroll="+dy+" SETTING SLIDER VAL ="+new_val);
 
 
-        if ( Icon_manager.scroll_dbg) logger.log("new slider value (user has scrolled) = "+new_val);
+        if ( Icon_manager.scroll_dbg)
+            logger.log("new slider value (user has scrolled) = "+new_val);
         the_Slider.setValue(new_val);
 
         if ( (new_val < the_Slider.getMin()) || (new_val > the_Slider.getMax())  )
@@ -182,6 +183,7 @@ public class Vertical_slider implements Landscape_height_listener
     public void adapt_slider_to_scene(Scene scene, Pane pane)
     //**********************************************************
     {
+        logger.log("scene.getWidth() "+scene.getWidth());
         the_Slider.setTranslateX(scene.getWidth() - half_slider_width);//vertical.getWidth());
         the_Slider.setTranslateY(half_slider_width);//vertical.getWidth());
         double height = pane.getHeight() - 200;

@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import klik.look.Look_and_feel_manager;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 
 import java.util.ArrayList;
@@ -194,7 +195,7 @@ public class Graph
                 }
             }
         };
-        Platform.runLater(rr);
+        Fx_batch_injector.inject(rr,logger);
     }
 
     public double get_width() {

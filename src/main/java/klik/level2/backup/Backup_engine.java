@@ -8,6 +8,7 @@ import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Sizes;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.execute.Scheduled_thread_pool;
 
@@ -139,7 +140,7 @@ public class Backup_engine
         is_finished = true;
         //Static_application_properties.get_properties_manager(logger).store_properties();
 
-        Platform.runLater(() -> {
+        Fx_batch_injector.inject(() -> {
             StringBuilder sbb = new StringBuilder();
             for ( String r : reports)
             {
@@ -174,7 +175,7 @@ public class Backup_engine
 
             }
             backup_console_window.remaining_time.setText(local);
-        });
+        },logger);
     }
 
     //**********************************************************

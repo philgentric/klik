@@ -6,6 +6,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.files_and_paths.*;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.execute.Threads;
 
@@ -98,13 +99,7 @@ public class Locator
                         if ( monitor == null)
                         {
                             monitor = new Monitor(top,locator,private_aborter,logger);
-                            Runnable r = new Runnable() {
-                                @Override
-                                public void run() {
-                                    monitor.realize();
-                                }
-                            };
-                            Platform.runLater(r);
+                            Fx_batch_injector.inject(()->monitor.realize(),logger);
                         }
                         else
                         {
@@ -376,13 +371,7 @@ public class Locator
             if ( count < MAX_WINDOWS)
             {
                 String final_S = s;
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        Browser_creation_context.additional_no_past(key_to_path(final_S), logger);
-                    }
-                };
-                Platform.runLater(r);
+                Fx_batch_injector.inject(()->Browser_creation_context.additional_no_past(key_to_path(final_S), logger),logger);
                 count++;
             }
             else {

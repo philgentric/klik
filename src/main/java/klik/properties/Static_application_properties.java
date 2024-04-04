@@ -9,6 +9,7 @@ import klik.audio.Audio_player;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.styles.Look_and_feel_light;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
@@ -910,11 +911,11 @@ public class Static_application_properties
                 ffmpeg_popup_done = true;
                 String msg = "klik uses ffmpeg to support several features. It is easy and free to install ffmpeg (google it!)";
                 logger.log("WARNING: " + msg);
-                Platform.runLater(() -> {
+                Fx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing ffmepg again, click OK", logger)) {
                         Static_application_properties.set_show_ffmpeg_install_warning(false,logger);
                     }
-                });
+                },logger);
             }
         }
     }
@@ -930,11 +931,11 @@ public class Static_application_properties
                 imagemagick_popup_done = true;
                 String msg = "klik uses the convert utility of imagemagick.org to support some features. It is easy and free to install (google it!)";
                 logger.log("WARNING: " + msg);
-                Platform.runLater(() -> {
+                Fx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing imagemagick again, click OK", logger)) {
                         Static_application_properties.set_show_imagemagick_install_warning(false,logger);
                     }
-                });
+                },logger);
             }
         }
     }

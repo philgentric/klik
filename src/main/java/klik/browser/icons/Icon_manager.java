@@ -19,6 +19,7 @@ import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.search.Show_running_man_frame;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -26,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -57,7 +57,6 @@ public class Icon_manager
     private int how_many_rows;
     private Path top_left;
     public final double icon_height;
-
 
     boolean show_how_many_files_deep_in_each_folder = false;
     boolean show_total_size_deep_in_each_folder = false;
@@ -129,34 +128,31 @@ public class Icon_manager
         double row_increment_for_dirs_with_picture = row_increment_for_dirs + folder_icon_size;
 
         double scene_width = the_browser.the_Scene.getWidth();
-        pane.getChildren().clear();
-        pane.getChildren().addAll(mandatory);
+        if ( Platform.isFxApplicationThread())
+        {
+            pane.getChildren().clear();
+            pane.getChildren().addAll(mandatory);
+        }
+        else {
+            Fx_batch_injector.inject(() -> {
+                pane.getChildren().clear();
+                pane.getChildren().addAll(mandatory);
+            },logger);
+        }
         double top_delta_y = 2 * Static_application_properties.get_font_size(logger);
         if (the_browser.error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
-            iv_denied.setPreserveRatio(true);
-            iv_denied.setSmooth(true);
-            iv_denied.setY(top_delta_y);
-            pane.getChildren().add(iv_denied);
-            compute_bounding_rectangle(the_browser.error_type.toString());
+            show_error_icon(the_browser, pane, iv_denied, top_delta_y);
             return;
         }
         if (the_browser.error_type == Error_type.NOT_FOUND) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
-            iv_denied.setPreserveRatio(true);
-            iv_denied.setSmooth(true);
-            iv_denied.setY(top_delta_y);
-            pane.getChildren().add(iv_denied);
-            compute_bounding_rectangle(the_browser.error_type.toString());
+            show_error_icon(the_browser, pane, iv_denied, top_delta_y);
             return;
         }
         if (the_browser.error_type == Error_type.ERROR) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
-            iv_denied.setPreserveRatio(true);
-            iv_denied.setSmooth(true);
-            iv_denied.setY(top_delta_y);
-            pane.getChildren().add(iv_denied);
-            compute_bounding_rectangle(the_browser.error_type.toString());
+            show_error_icon(the_browser, pane, iv_denied, top_delta_y);
             return;
         }
 
@@ -187,6 +183,22 @@ public class Icon_manager
         compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
         //map_buttons_and_icons_elapsed += (System.currentTimeMillis()-start);
        // logger.log("map_buttons_and_icons_elapsed= "+map_buttons_and_icons_elapsed);
+    }
+
+    private void show_error_icon(Browser the_browser, Pane pane, ImageView iv_denied, double top_delta_y)
+    {
+        iv_denied.setPreserveRatio(true);
+        iv_denied.setSmooth(true);
+        iv_denied.setY(top_delta_y);
+        if ( Platform.isFxApplicationThread())
+        {
+            pane.getChildren().add(iv_denied);
+        }
+        else
+        {
+            Fx_batch_injector.inject(()-> pane.getChildren().add(iv_denied),logger);
+        }
+        compute_bounding_rectangle(the_browser.error_type.toString());
     }
 
     //**********************************************************
@@ -514,28 +526,52 @@ public class Icon_manager
 
 
     //**********************************************************
-    private void process_is_visible(Pane pane, Item item)
+    private synchronized void process_is_visible(Pane pane, Item item)
     //**********************************************************
     {
-        if (item.visible_in_scene.compareAndSet(false,true))
+        if ( !Platform.isFxApplicationThread())
         {
-            item.you_are_visible();
-            if (!pane.getChildren().contains(item.get_Node()))
-            {
-                if (visible_dbg) logger.log("adding item: " + item.get_string());
-                pane.getChildren().add(item.get_Node());
-            }
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC not on FX thread"));
         }
+
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
+
+        if (item.visible_in_scene.get())
+        {
+            //logger.log(("no need to do anything as item is ALREADY visible"));
+            return;
+        }
+        //logger.log("item is not visible, will make it visible");
+
+        {
+            item.visible_in_scene.set(true);
+            item.you_are_visible();
+            if ( item.get_Node() == null)
+            {
+                logger.log("process_is_visible no node");
+            }
+            else
+            {
+                //if (!pane.getChildren().contains(item.get_Node()))
+                {
+                    if (visible_dbg)
+                        logger.log("adding item: " + item.get_string());
+                    pane.getChildren().add(item.get_Node());
+                }
+            }
+        }
+
     }
 
     //**********************************************************
     private void process_is_invisible(Pane pane, Item item)
     //**********************************************************
     {
-        if (item.visible_in_scene.compareAndSet(true,false))
+        //if ( !Platform.isFxApplicationThread())logger.log(Stack_trace_getter.get_stack_trace("PANIC process_is_invisible "+Platform.isFxApplicationThread()));
+        if (item.visible_in_scene.get())
         {
+            item.visible_in_scene.set(false);
             item.you_are_invisible();
             if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
             pane.getChildren().remove(item.get_Node());
@@ -642,7 +678,7 @@ public class Icon_manager
                     if (count.get() == 0)
                     {
                         x.add("ding");
-                        Platform.runLater(()-> geometry_changed(browser,pane,mandatory,"sort by size",true));
+                        Fx_batch_injector.inject(()-> geometry_changed(browser,pane,mandatory,"sort by size",true),logger);
                         if ( System.currentTimeMillis()-start > 3000) {
                             Ding.play("display all folder sizes", logger);
                         }
@@ -660,7 +696,7 @@ public class Icon_manager
     public Path get_top_left(Pane pane)
     //**********************************************************
     {
-        check_visibility(pane);
+        if ( top_left== null) check_visibility(pane);
         //logger.log("Icon_manager::get_top_left"+top_left);
         return top_left;
     }

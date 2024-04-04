@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.properties.Static_application_properties;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -80,14 +81,7 @@ public class Pin_code_getter_stage
     private void show()
     //**********************************************************
     {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                define();
-            }
-        };
-        Platform.runLater(r);
-
+        Fx_batch_injector.inject(()->define(),logger);
     }
 
     //**********************************************************

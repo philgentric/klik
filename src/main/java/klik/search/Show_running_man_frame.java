@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
@@ -33,9 +34,7 @@ public class Show_running_man_frame
 	//**********************************************************
 	{
 		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s, logger);
-		Platform.runLater(()-> {
-			local.define_fx(wait_message);
-		});
+		Fx_batch_injector.inject(()->local.define_fx(wait_message),logger);
 		return local.in;
 	}
 
@@ -127,10 +126,10 @@ public class Show_running_man_frame
 
 		long sleep_time = System.currentTimeMillis()-start;
 		if ( sleep_time > 3000) sleep_time = 3000;
-		Platform.runLater(() -> {
+		Fx_batch_injector.inject(() -> {
 			stage.setTitle(message);//I18n.get_I18n_string("Search_Results_Ended", logger));
 			iv.setImage(Look_and_feel_manager.get_search_end_icon());
-		});
+		},logger);
 
 		if ( sleep) {
 			long finalSleep_time = sleep_time;
@@ -139,14 +138,14 @@ public class Show_running_man_frame
 					Thread.sleep(finalSleep_time);
 				} catch (InterruptedException e) {
 				}
-				Platform.runLater(() -> stage.close());
+				Fx_batch_injector.inject(() -> stage.close(),logger);
 			};
 
 			Actor_engine.execute(r, new Aborter("wait!", logger), logger);
 		}
 		else
 		{
-			Platform.runLater(() -> stage.close());
+			Fx_batch_injector.inject(() -> stage.close(),logger);
 		}
 	}
 }

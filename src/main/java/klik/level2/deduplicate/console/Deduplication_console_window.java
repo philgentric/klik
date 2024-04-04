@@ -15,6 +15,7 @@ import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.My_File;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.execute.Scheduled_thread_pool;
 
@@ -198,7 +199,7 @@ public class Deduplication_console_window
             }
         });
 
-        browser.fx_injector.input.addFirst(r);
+        Fx_batch_injector.inject(r,logger);
     }
 
 
@@ -208,24 +209,24 @@ public class Deduplication_console_window
     public void set_end_examined()
     //**********************************************************
     {
-        browser.fx_injector.input.addFirst(() -> progress_bar_examined.setProgress(1.0));
+        Fx_batch_injector.inject(() -> progress_bar_examined.setProgress(1.0),logger);
     }
     //**********************************************************
     public void set_end_deleted()
     //**********************************************************
     {
-        browser.fx_injector.input.addFirst(() -> { if ( !just_count) progress_bar_deleted.setProgress(1.0);});
+        Fx_batch_injector.inject(() -> { if ( !just_count) progress_bar_deleted.setProgress(1.0);},logger);
     }
 
     //**********************************************************
     public void set_status_text(String status)
     //**********************************************************
     {
-        browser.fx_injector.input.addFirst(() ->{
+        Fx_batch_injector.inject(() ->{
 
             if (private_aborter.should_abort()) return;
             label_status.setText(STATUS+ status);
-        });
+        },logger);
     }
 
     //**********************************************************
