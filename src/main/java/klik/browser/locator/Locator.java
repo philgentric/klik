@@ -390,6 +390,6 @@ public class Locator
     }
 
     public void cancel() {
-        private_aborter.abort();
+        private_aborter.abort("locator cancel");
     }
 }

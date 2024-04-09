@@ -1,6 +1,5 @@
 package klik.browser;
 
-import javafx.application.Platform;
 import javafx.scene.control.*;
 
 import klik.actor.Aborter;
@@ -210,7 +209,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true, false);
+            browser.redraw("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
         });
         return item;
     }
@@ -226,7 +225,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons_for_folders(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons_for_folders(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true, false);
+            browser.redraw("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
         });
         return item;
     }
@@ -239,7 +238,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_single_column(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_single_column(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true, false);
+            browser.redraw("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
         });
         return item;
     }
@@ -281,7 +280,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_hidden_directories(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_hidden_directories(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show hidden file boolean changed",true,false);
+            browser.redraw("show hidden file boolean changed",true);
         });
         return item;
     }
@@ -351,7 +350,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_enable_fusk(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("enable fusk boolean changed",true,false);
+            browser.redraw("enable fusk boolean changed",true);
 
         });
         return item;
@@ -382,7 +381,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_hidden_files(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_hidden_files(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.scene_geometry_changed("show hidden file boolean changed",true,false);
+            browser.redraw("show hidden file boolean changed",true);
         });
         return item;
     }
@@ -461,7 +460,7 @@ public class Browser_menus
     {
         browser.paths_manager.remove_empty_folders(recursively);
         // can be called from a thread which is NOT the FX event thread
-        Fx_batch_injector.inject(() -> browser.scene_geometry_changed("remove empty folder", true, false),logger);
+        Fx_batch_injector.inject(() -> browser.redraw("remove empty folder", true),logger);
     }
 
     //**********************************************************
@@ -626,7 +625,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Refresh",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.scene_geometry_changed("refresh",false, false));
+        item.setOnAction(event -> browser.redraw("refresh",true));
         return item;
     }
 
@@ -1014,7 +1013,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_column_width(length,logger);
-                browser.scene_geometry_changed("column width changed",true,false);
+                browser.redraw("column width changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1047,7 +1046,7 @@ public class Browser_menus
                 }
                 Static_application_properties.set_icon_size(target_size,logger);
                 logger.log("icon size changed to "+target_size);
-                browser.scene_geometry_changed("icon size changed",true,false);
+                browser.redraw("icon size changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1071,7 +1070,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_folder_icon_size(target_size,logger);
-                browser.scene_geometry_changed("folder icon size changed",true,false);
+                browser.redraw("folder icon size changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1095,7 +1094,7 @@ public class Browser_menus
                     if (cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_font_size(target_size,logger);
-                browser.scene_geometry_changed("font size changed", true, false);
+                browser.redraw("font size changed", true);
             }
         });
         menu.getItems().add(item);

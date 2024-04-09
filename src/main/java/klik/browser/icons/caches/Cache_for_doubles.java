@@ -61,7 +61,9 @@ public class Cache_for_doubles
     private static String key_from_path(Path p)
     //**********************************************************
     {
-        return p.getFileName().toString();
+        String local = p.getFileName().toString();
+        //String local = p.toAbsolutePath().toString();
+        return local;//UUID.nameUUIDFromBytes(local.getBytes()).toString();
     }
     //**********************************************************
     public void inject(Path path, double val, boolean and_save)

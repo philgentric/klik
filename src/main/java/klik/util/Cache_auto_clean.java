@@ -74,13 +74,14 @@ public class Cache_auto_clean
             try {
                 Files.delete(f.toPath());
             } catch (NoSuchFileException e) {
-                logger.log(Stack_trace_getter.get_stack_trace("too old: "+e.toString()));
+                logger.log(("delete_if_too_old: "+e.toString()));
+                //logger.log(Stack_trace_getter.get_stack_trace("delete_if_too_old: "+e.toString()));
             }
             catch (DirectoryNotEmptyException e) {
-                logger.log(Stack_trace_getter.get_stack_trace("too old: "+e.toString()));
+                logger.log(Stack_trace_getter.get_stack_trace("delete_if_too_old: "+e.toString()));
             }
             catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace("too old: "+e.toString()));
+                logger.log(Stack_trace_getter.get_stack_trace("delete_if_too_old: "+e.toString()));
             }
         }
     }

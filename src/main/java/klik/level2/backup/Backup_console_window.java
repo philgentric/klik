@@ -177,7 +177,7 @@ public class Backup_console_window
     public void die()
     //**********************************************************
     {
-        aborter.abort();
+        aborter.abort("Backup_console::abort()");
         stage.close();
     }
 

@@ -37,9 +37,4 @@ public class Animated_gif_generation_message implements Message {
         return aborter;
     }
 
-    @Override
-    public boolean is_high_priority()
-    {
-        return false;
-    }
 }

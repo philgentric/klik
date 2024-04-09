@@ -1,7 +1,5 @@
 package klik.actor;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 //**********************************************************
 public interface Message
 //**********************************************************
@@ -10,7 +8,4 @@ public interface Message
 
     Aborter get_aborter(); // only one instance per Message = job, cannot be null
 
-    default LinkedBlockingQueue<Boolean>  get_ticket_queue() {return null;}
-
-    default boolean is_high_priority(){return true;};
 }

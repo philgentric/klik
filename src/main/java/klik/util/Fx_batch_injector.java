@@ -3,14 +3,10 @@ package klik.util;
 import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 // rationale: it is not a good idea to call
 // Platform.runLater(()) too often
@@ -20,12 +16,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Fx_batch_injector
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean enable = true;
+    private static final boolean dbg = false;
     private final LinkedBlockingQueue<Runnable> input = new LinkedBlockingQueue<>();
     private final ConcurrentLinkedQueue<Runnable> batch = new ConcurrentLinkedQueue<>();
     private final Logger logger;
     private static Fx_batch_injector instance;
     private final Aborter aborter;
+
     //**********************************************************
     public static void inject(Runnable r, Logger logger)
     //**********************************************************
@@ -38,8 +36,13 @@ public class Fx_batch_injector
     private void inject(Runnable r)
     //**********************************************************
     {
-//        Platform.runLater(r);
-        input.add(r);
+        if ( enable)
+        {
+            input.add(r);
+        }
+        else {
+            Platform.runLater(r);
+        }
     }
 
     //**********************************************************

@@ -30,7 +30,7 @@ public class File_comparator_NIO
     public void abort()
     //**********************************************************
     {
-        aborter.abort();
+        aborter.abort("File comparator NIO");
     }
 
     //**********************************************************

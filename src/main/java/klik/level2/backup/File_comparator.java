@@ -39,7 +39,7 @@ public class File_comparator
     public void abort()
     //**********************************************************
     {
-        aborter.abort();
+        aborter.abort("File_comparator abort");
     }
     //**********************************************************
     public  Similarity_result files_are_same(File file_to_be_copied, File destination_file, long[] bytes_read, boolean deep)

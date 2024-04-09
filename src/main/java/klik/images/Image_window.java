@@ -187,7 +187,7 @@ public class Image_window
 
         the_Stage.setOnCloseRequest(we -> {
             logger.log("Image_window is closing");
-            aborter.abort();
+            aborter.abort("Image_window is closing");
             Change_gang.deregister(image_display_handler, aborter);
         });
 

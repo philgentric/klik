@@ -141,7 +141,7 @@ public class Menus_for_image_window
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
         image_window.logger.log("moving image to same folder as previous move");
-        Same_move_engine.same_move(image_window.image_display_handler.get_image_context().get().path, image_window.the_Stage, image_window.logger);
+        Redo_same_move_engine.same_move(image_window.image_display_handler.get_image_context().get().path, image_window.the_Stage, image_window.logger);
         image_window.image_display_handler.change_image_relative(1, image_window.ultim_mode);
 
     }

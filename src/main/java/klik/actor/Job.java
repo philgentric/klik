@@ -38,10 +38,6 @@ public class Job
         this.message = message;
         termination_reporter = termination_reporter_;
 
-        if ( Actor_engine.use_tickets)
-        {
-            Actor_engine.get_instance().register_job(this,message.is_high_priority());     // ticket system
-        }
     }
 
     //**********************************************************
@@ -56,16 +52,13 @@ public class Job
     //**********************************************************
     {
         if (termination_reporter !=null) termination_reporter.has_ended(message,this);
-        if( Actor_engine.use_tickets) {
-            Actor_engine.get_instance().remove_job(this);     // ticket system
-        }
     }
 
     //**********************************************************
     public void cancel()
     //**********************************************************
     {
-        message.get_aborter().abort();
+        message.get_aborter().abort("cancelling job");
         // for the worker-based engine, we do not have a thread to interrupt ...
         if ( thread != null) thread.interrupt();
     }

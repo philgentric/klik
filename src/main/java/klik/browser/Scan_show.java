@@ -125,4 +125,9 @@ public class Scan_show
         if ( dbg) logger.log("new scan show speed:"+dy);
         start_the_show();
     }
+
+    public int get_speed()
+    {
+        return (int)(dy*100.0);
+    }
 }

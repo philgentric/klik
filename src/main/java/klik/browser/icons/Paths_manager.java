@@ -1,5 +1,6 @@
 package klik.browser.icons;
 
+import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
@@ -10,8 +11,10 @@ import klik.browser.icons.caches.Rotation_cache;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
+import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -32,8 +35,8 @@ public class Paths_manager
     private static Logger logger;
 
     // these MUST be mutually exclusive:
-    public ConcurrentSkipListMap<Path,Integer> folders;
-    public ConcurrentSkipListMap<Path,Integer> non_iconized;
+    public ConcurrentSkipListMap<Path,Boolean> folders;
+    public ConcurrentSkipListMap<Path,Boolean> non_iconized;
     public ConcurrentSkipListMap<Path, Boolean> iconized;
 
 
@@ -112,31 +115,34 @@ public class Paths_manager
         //long start = System.currentTimeMillis();
         //logger.log((from+" scan dir "+folder_path));
 
-        boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
-        boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
-        max_dir_text_length = 0;
+        {
+            Runnable r = () -> {
+                boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
+                boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
+                max_dir_text_length = 0;
 
-        boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
-        boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
+                boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
+                boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
 
-        iconized.clear();
-        non_iconized.clear();
-        folders.clear();
+                iconized.clear();
+                non_iconized.clear();
+                folders.clear();
 
-        aspect_ratio_cache.reload_cache_from_disk();
-        // start a thread that will refresh and switch the file_comparator
-        aspect_ratio_cache.look_for_end(this, refresh_target,stage);
-        rotation_cache.reload_cache_from_disk();
+                rotation_cache.reload_cache_from_disk();
+                if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
+                        (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) )
+                {
+                    aspect_ratio_cache.reload_cache_from_disk();
+                    // start a thread that will refresh when ALL the aspect ratios are available
+                    // and switch the file_comparator
+                    aspect_ratio_cache.look_for_end(this, refresh_target);
+                }
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                do_the_hard_work_of_scan_dir_in_a_thread(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-                refresh_target.refresh_no_scan_dir();
-            }
-        };
-        Actor_engine.execute(r,aborter,logger);
-
+                do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
+                refresh_target.refresh_no_scan_dir("scan dir in a thread end");
+            };
+            Actor_engine.execute(r, aborter, logger);
+        }
         //scan_dir_elapsed += (System.currentTimeMillis()-start);
         //logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
         return Error_type.OK;
@@ -145,9 +151,13 @@ public class Paths_manager
     private AtomicBoolean hard_part_ongoing = new AtomicBoolean(false);
 
     //**********************************************************
-    private void do_the_hard_work_of_scan_dir_in_a_thread(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
+    private void do_the_hard_work_of_scan_dir(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
     //**********************************************************
     {
+        if (Platform.isFxApplicationThread())
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        }
         if ( hard_part_ongoing.get()) return;
 
         hard_part_ongoing.set(true);
@@ -213,7 +223,7 @@ public class Paths_manager
                 {
                     logger.log("Paths_manager: detected animated icon failure for video:"+path);
                     // if the giffing process failed a video becomes non-iconized
-                    non_iconized.put(path,1);
+                    non_iconized.put(path,true);
                     return;
                 }
                 String extension = FilenameUtils.getExtension(path.getFileName().toString());
@@ -226,14 +236,14 @@ public class Paths_manager
                     }
                     else
                     {
-                        non_iconized.put(path,1);
+                        non_iconized.put(path,true);
                     }
                     return;
                 }
                 iconized.put(path,true);//movie_aspect_ratio);
                 return;
             }
-            non_iconized.put(path,1);
+            non_iconized.put(path,true);
             return;
         }
         if ( aborter.should_abort())
@@ -251,7 +261,7 @@ public class Paths_manager
             }
             else
             {
-                non_iconized.put(path,1);
+                non_iconized.put(path,true);
                 return;
             }
         }
@@ -270,12 +280,12 @@ public class Paths_manager
             }
             else
             {
-                non_iconized.put(path,1);
+                non_iconized.put(path,true);
                 return;
             }
         }
         // non-image, non-directory
-        non_iconized.put(path,1);
+        non_iconized.put(path,true);
     }
 
     //**********************************************************
@@ -286,7 +296,7 @@ public class Paths_manager
         {
             if (Guess_file_type.is_this_path_invisible_when_browsing(path)) return; // invisible
         }
-        folders.put(path,1);
+        folders.put(path,true);
 
         Text t = new Text(path.getFileName().toString());
         double l = t.getLayoutBounds().getWidth();

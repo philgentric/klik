@@ -28,13 +28,14 @@ public class Aspect_ratio_cache extends Cache_for_doubles
     private Aspect_ratio_actor aspect_ratio_actor;
 
     public AtomicInteger in_flight = new AtomicInteger(0);
+    LinkedBlockingQueue<String> end = new LinkedBlockingQueue<>();
     //**********************************************************
     public Aspect_ratio_cache(Path folder_path, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         super(folder_path,"aspect_ratio_cache",aborter_,logger_);
         if(dbg) logger.log("Aspect_ratio_cache CONSTRUCTOR for: "+folder_path);
-        aspect_ratio_actor = new Aspect_ratio_actor(in_flight);
+        aspect_ratio_actor = new Aspect_ratio_actor(in_flight,end);
     }
 
 
@@ -46,18 +47,19 @@ public class Aspect_ratio_cache extends Cache_for_doubles
         Double aspect_ratio = get_from_cache(path);
         if ( aspect_ratio == null)
         {
-            if(dbg) logger.log("not in RAM for: "+path.toAbsolutePath());
+            if(dbg)
+                logger.log("aspect ratio not in RAM for: "+path.toAbsolutePath());
             Double guess;
             if (Guess_file_type.is_this_extension_a_pdf(FilenameUtils.getExtension(path.getFileName().toString())))
             {
-                if(dbg) logger.log("not in RAM for: "+path.toAbsolutePath()+" setting ISO "+ Aspect_ratio_actor.ISO_A4_aspect_ratio);
+                if(dbg) logger.log("aspect ratio  for: "+path.toAbsolutePath()+" setting ISO "+ Aspect_ratio_actor.ISO_A4_aspect_ratio);
                 guess = Aspect_ratio_actor.ISO_A4_aspect_ratio;
             }
             else
             {
                 guess = 1.0;
             }
-            put_in_cache(path, guess);// store it, but it will be soon replaced by the actor
+            put_in_cache(path, guess);// store the temporary guess, that will be soon replaced by the actor
             in_flight.incrementAndGet();
             Actor_engine.run(aspect_ratio_actor, new Aspect_ratio_message(path,this,aborter,logger),null,logger);
             return guess;
@@ -66,13 +68,10 @@ public class Aspect_ratio_cache extends Cache_for_doubles
     }
 
 
-
-
     private AtomicBoolean done_look_for_end = new AtomicBoolean(false);
     private Runnable look_for_end_runnable = null;
-    ScheduledFuture<?>  the_scheduled_future = null;
     //**********************************************************
-    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target, Stage stage)
+    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target)
     //**********************************************************
     {
         if ( done_look_for_end.get()) return;
@@ -82,59 +81,75 @@ public class Aspect_ratio_cache extends Cache_for_doubles
             return;
         }
 
-        LinkedBlockingDeque<String> x = Show_running_man_frame.show_running_man("Aspect ratios are being computed", 20000,  aborter, logger);
+        CountDownLatch running_man = Show_running_man_frame.show_running_man("Aspect ratios are being computed", 20000,  aborter, logger);
 
         long start = System.currentTimeMillis();
         look_for_end_runnable = new Runnable() {
             @Override
             public void run()
             {
-
-                if ( aborter.should_abort())
+                for(;;)
                 {
-                    logger.log("Aspect ratio cache look_for_end_runnable aborting");
-                    the_scheduled_future.cancel(true);
-                    return;
-                }
-                if ( in_flight.get() > 0)
-                {
-                    //if ( dbg)
-                        logger.log("aspect ratios remaining: "+aspect_ratio_actor.in_flight.get());
-                    return;
-                }
-
-                logger.log("aspect ratios done! ");
-                // this is the end
-                x.add("aspect ratios done");
-                the_scheduled_future.cancel(true);
-                done_look_for_end.set(true);
-                if ( System.currentTimeMillis()-start > 5_000)
-                {
-                    if (Static_application_properties.get_ding(logger))
+                    String s = null;
+                    try {
+                        s = end.poll(100, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (s == null)
                     {
-                        Ding.play("Aspect_ratio_cache: done acquiring all aspect ratios",logger);
+                        logger.log("look_for_end timeout");
+
+                        if (aborter.should_abort()) {
+                            logger.log("Aspect ratio cache look_for_end_runnable aborting");
+                            process_end(paths_manager,refresh_target,start,running_man);
+                            return;
+                        }
+                        if (in_flight.get() == 0)
+                        {
+                            process_end(paths_manager,refresh_target,start,running_man);
+                            return;
+                        }
+                        logger.log("aspect ratios remaining: " + aspect_ratio_actor.in_flight.get());
+                    }
+                    else
+                    {
+                        process_end(paths_manager,refresh_target,start, running_man);
+                        return;
                     }
                 }
-                Comparator<Path> local_file_comparator = null;
-                if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.RANDOM_ASPECT_RATIO)
-                {
-                    local_file_comparator = new Aspect_ratio_comparator_random();
-                }
-                else if (Static_application_properties.get_sort_files_by(logger)== File_sort_by.ASPECT_RATIO)
-                {
-                    local_file_comparator = new Aspect_ratio_comparator();
-                }
-                if ( local_file_comparator != null)
-                {
-                    paths_manager.image_file_comparator = local_file_comparator;
-                    paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
-                }
-                //if ( dbg)
-                    logger.log("aspect ratios engine done, going to refresh");
-                refresh_target.refresh();
             }
         };
-        the_scheduled_future = Scheduled_thread_pool.execute(look_for_end_runnable, 100, TimeUnit.MILLISECONDS);
+        Actor_engine.execute(look_for_end_runnable,aborter,logger);
+    }
+
+    //**********************************************************
+    private void process_end(Paths_manager paths_manager, Refresh_target refresh_target, long start, CountDownLatch running_man)
+    //**********************************************************
+    {
+        logger.log("aspect ratios done! ");
+        // this is the end
+        running_man.countDown();
+        done_look_for_end.set(true);
+        if (System.currentTimeMillis() - start > 5_000) {
+            if (Static_application_properties.get_ding(logger)) {
+                Ding.play("Aspect_ratio_cache: done acquiring all aspect ratios", logger);
+            }
+        }
+        Comparator<Path> local_file_comparator = null;
+        if (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) {
+            local_file_comparator = new Aspect_ratio_comparator_random();
+        } else if (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) {
+            local_file_comparator = new Aspect_ratio_comparator();
+        }
+        if (local_file_comparator != null) {
+            paths_manager.image_file_comparator = local_file_comparator;
+            paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+
+            // now that we changed the iconized container we must do a scan dir
+            logger.log("aspect ratios engine done, going to FULL refresh");
+            refresh_target.refresh_all("aspect ratio cache");
+        }
     }
 
 

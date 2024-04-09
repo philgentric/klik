@@ -41,9 +41,5 @@ public class Icon_write_message implements Message
 		return aborter;
 	}
 
-	@Override
-	public boolean is_high_priority()
-	{
-		return false;
-	}
+
 }

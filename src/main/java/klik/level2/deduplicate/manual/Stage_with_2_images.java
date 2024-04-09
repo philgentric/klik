@@ -78,7 +78,7 @@ public class Stage_with_2_images
 				the_big_vbox = new VBox();
 				Scene scene = new Scene(the_big_vbox);
 				stage.setScene(scene);//, W, H));
-				stage.setOnCloseRequest((e) -> private_aborter.abort());
+				stage.setOnCloseRequest((e) -> private_aborter.abort("Stage_with_2_images closing"));
 
 				if (!set_images_by_files(pair,browser))
 				{

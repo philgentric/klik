@@ -32,7 +32,7 @@ public class Fusk_singleton
     public static void abort()
     //**********************************************************
     {
-        instance.aborter.abort();
+        instance.aborter.abort("fusk instance abort");
     }
 
 

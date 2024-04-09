@@ -71,8 +71,8 @@ public class Worker
 
     public void stop()
     {
-        aborter.abort();
-        logger.log("Worker "+name+" abort requested");
+        aborter.abort("Worker "+name+" stop");
+        logger.log("Worker "+name+" stop");
 
     }
 

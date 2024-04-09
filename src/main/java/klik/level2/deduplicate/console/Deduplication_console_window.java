@@ -160,7 +160,7 @@ public class Deduplication_console_window
     //**********************************************************
     {
         engine.abort();
-        private_aborter.abort();
+        private_aborter.abort("Deduplication_console_window::abort()");
     }
 
     //**********************************************************

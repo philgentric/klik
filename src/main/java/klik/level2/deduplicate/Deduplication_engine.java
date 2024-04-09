@@ -79,7 +79,7 @@ public class Deduplication_engine implements Againor
     {
         logger.log("Deduplication::abort()");
         console_window.set_end_deleted();
-        private_aborter.abort();
+        private_aborter.abort("Deduplication::abort()");
         if ( stage_with_2_images!=null) stage_with_2_images.close();
     }
     /*

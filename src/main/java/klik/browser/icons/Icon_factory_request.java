@@ -15,18 +15,14 @@ public class Icon_factory_request implements Message
     public final Aborter aborter;
     public int retry_count = 0;
     public final static int max_retry = 42;
-    private final boolean is_high_priority;
-    LinkedBlockingQueue<Boolean> ticket_queue;
 
     //**********************************************************
-    public Icon_factory_request(Icon_destination destination_, int icon_size_, boolean is_high_priority,Aborter aborter)
+    public Icon_factory_request(Icon_destination destination_, int icon_size_,Aborter aborter)
     //**********************************************************
     {
         icon_size = icon_size_;
         destination = destination_;
         this.aborter = aborter;
-        this.is_high_priority = is_high_priority;
-        if (Actor_engine.use_tickets) ticket_queue = new LinkedBlockingQueue();
     }
 
     @Override
@@ -40,18 +36,4 @@ public class Icon_factory_request implements Message
     }
 
 
-
-
-
-    @Override
-    public LinkedBlockingQueue<Boolean> get_ticket_queue()
-    {
-        return ticket_queue;
-    }
-
-    @Override
-    public boolean is_high_priority()
-    {
-        return is_high_priority;
-    }
 }

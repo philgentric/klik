@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 // an actor-style asynchronous icon factory
@@ -96,32 +95,32 @@ public class Icon_factory_actor implements Actor
         Image_and_rotation image_and_rotation = null;
         for(;;) {
             image_and_rotation = try_once(destination, icon_factory_request);
-            if (image_and_rotation.image() == null) {
-                // must treat as non_image
-                //if (dbg)
-                    logger.log("\n\nmaking an icon failed for : " + destination.get_item_path());
-                //instance.decrementAndGet();
-                return "icon fabrication failed";
+            if ( image_and_rotation == null)
+            {
+                // DONT RETRY
+                return "no icon";
             }
-            double w = image_and_rotation.image().getWidth();
-            double h = image_and_rotation.image().getHeight();
-            if ((w > 0.0)&&(h > 0.0)) {
-                // SUCCESS!!
-                break;
+            if (image_and_rotation.image() != null) {
+                double w = image_and_rotation.image().getWidth();
+                double h = image_and_rotation.image().getHeight();
+                if ((w > 0.0)&&(h > 0.0)) {
+                    // SUCCESS!!
+                    break;
+                }
             }
-
-            // will retry, but let us yield before retrying
-            get_ticket(icon_factory_request);
 
             // retry a few times
             if (icon_factory_request.retry_count < Icon_factory_request.max_retry) {
                 icon_factory_request.retry_count++;
-                logger.log("RETRYING again: " + icon_factory_request.retry_count + " times, after empty icon for : " + destination.get_item_path() + " w=" + w+ " h=" + h);
+                logger.log("RETRYING : " + icon_factory_request.retry_count + " times, after empty icon for : " + destination.get_item_path() );
                 continue;
             }
-            logger.log("too many retries after empty icon for : " + destination.get_item_path() + " w=" + w+ " h=" + h);
-            break;
+            logger.log("too many retries after empty icon for : " + destination.get_item_path() );
+            return "icon failed";
         }
+
+
+
         destination.receive_icon(image_and_rotation);
         if ( image_and_rotation.rotation().isPresent())
         {
@@ -138,25 +137,6 @@ public class Icon_factory_actor implements Actor
         return "icon done";
     }
 
-    //**********************************************************
-    private void get_ticket(Icon_factory_request icon_factory_request)
-    //**********************************************************
-    {
-        if ( !Actor_engine.use_tickets) return;
-        //if( icon_factory_request.ticket_queue.peek() ==null) logger.log("will block "+ icon_factory_request.to_string());
-        try {
-            // if there are no tickets, this will block the thread
-            // if the thread is virtual, another one will step in
-            // thus jobs that need a lot of tickets will be blocked more often
-            // than those that need zero or only one
-            // thus we have a priority system ...
-            // the implementer just has to add "get_ticket"
-            // it is a bit like YIELD
-            icon_factory_request.ticket_queue.take();
-        } catch (InterruptedException e) {
-            logger.log("ticket queue take interrupted");
-        }
-    }
 
     //**********************************************************
     private Image_and_rotation try_once(Icon_destination destination, Icon_factory_request icon_factory_request)
@@ -174,18 +154,28 @@ public class Icon_factory_actor implements Actor
             case video -> {
                 if (dbg) logger.log(destination.get_item_path() + " type is VIDEO");
                 image = process_video(icon_factory_request, destination);
-
+                if ( image == null)
+                {
+                    logger.log("process_video returns null");
+                    return null;//new Image_and_rotation(null,Optional.of(0.0));
+                }
             }
 
             case folder, symbolic_link_on_folder -> {
                 // for folder the path of the image chosen to represent the folder as an icon is needed
-                image = process_image(icon_factory_request, destination);
-                if (image != null)
+                Image_result res = process_image(icon_factory_request, destination);
+                if (res.image() == null)
                 {
+                    return null; // dont retry, no icon was found in that folder
+                }
+                else
+                {
+                    image = res.image();
                     rotation = rotation_cache.get_rotation(destination.get_path_for_display_icon_destination());
                     //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_path_for_display_icon_destination(), false, aborter, logger);
                 }
             }
+            /*
             case image_gif -> {
                 image = process_image_with_no_cached_icon(icon_factory_request, destination);
                 if (image != null)
@@ -202,22 +192,26 @@ public class Icon_factory_actor implements Actor
                     //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
             }
-            case image_not_gif_not_png -> {
-                image = process_image(icon_factory_request, destination);
-                if (image != null)
+            */
+            case image_gif ,image_png , image_not_gif_not_png -> {
+                Image_result res = process_image(icon_factory_request, destination);
+                if ( res == null) return null; // dont retry
+                if (res.image() != null)
                 {
+                    image = res.image();
                     rotation = rotation_cache.get_rotation(destination.get_item_path());
                     //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
                 else {
-                    logger.log("WARNING process_image() is null for "+destination.get_item_path());
+                    logger.log("WARNING process_image() is null for "+destination.get_item_path()+" "+res.reason());
                 }
             }
             case no_path -> {
                 logger.log("HAPPENS?????: no path for icon destination???"+icon_factory_request.destination);
-                image = process_image(icon_factory_request, destination);
-                if (image != null)
+                Image_result res = process_image(icon_factory_request, destination);
+                if (res.image() != null)
                 {
+                    image = res.image();
                     rotation = rotation_cache.get_rotation(destination.get_item_path());
                     //rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(destination.get_item_path(), false, aborter, logger);
                 }
@@ -227,7 +221,7 @@ public class Icon_factory_actor implements Actor
 
         if (image == null)
         {
-            logger.log("WARNING icon is null for "+destination.get_item_path());
+            //logger.log("WARNING icon is null for "+destination.get_item_path());
         }
         Optional<Double> rotation_o = null;
         if ( rotation == null) rotation_o = Optional.empty();
@@ -235,9 +229,10 @@ public class Icon_factory_actor implements Actor
         return new Image_and_rotation(image,rotation_o);
     }
 
+    record Image_result(Image image, String reason) {}
 
     //**********************************************************
-    private Image process_image(Icon_factory_request icon_factory_request, Icon_destination destination)
+    private Image_result process_image(Icon_factory_request icon_factory_request, Icon_destination destination)
     //**********************************************************
     {
         if ( dbg)
@@ -246,18 +241,19 @@ public class Icon_factory_actor implements Actor
         Path path = destination.get_path_for_display_icon_destination();
         if (path == null)
         {
-            //if (dbg)
+            if (dbg)
                 logger.log("Icon_factory thread: returning null icon because icon path is null for item:" + destination.get_string() + "\ntypically happens when there is no image to use as a icon in that folder");
-
-            return null;//Look_and_feel_manager.get_large_folder_icon(icon_factory_request.icon_size);
+            return null; // dont retry
+            //return new Image_result(null,true,"get_path_for_display_icon_destination is null" );//Look_and_feel_manager.get_large_folder_icon(icon_factory_request.icon_size);
         }
         if (icon_factory_request.aborter.should_abort())
         {
-            //if ( aborting_dbg)
-                logger.log("Icon_factory thread: aborting0");
-            return null;
+            if ( aborting_dbg)
+                logger.log("Icon_factory thread: aborting0 "+icon_factory_request.aborter.reason);
+            return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
         }
         String tag = String.valueOf(icon_factory_request.icon_size);
+        /*
         if ( icon_factory_request.destination.get_item_type() == Iconifiable_item_type.pdf)
         {
             logger.log("SHOULD NOT HAPPEN: process_image: PDF");
@@ -266,20 +262,20 @@ public class Icon_factory_actor implements Actor
             // so a side effect is it is not necessary to regenerate it if the icon size was changed
             tag = "";
         }
-
+        */
         //long start = System.currentTimeMillis();
         Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false,logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            //if ( aborting_dbg)
-                logger.log("Icon_factory thread: aborting2");
-            return null;
+            if ( aborting_dbg)
+                logger.log("Icon_factory thread: aborting2 "+icon_factory_request.aborter.name+" reason: "+icon_factory_request.aborter.reason);
+            return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
         }
         if (image != null)
         {
             if (dbg)
                 logger.log("Icon_factory thread: found in cache: " + path.getFileName());
-                return image;
+            return new Image_result(image,"found in cache");
         }
 
         if (dbg)
@@ -289,24 +285,24 @@ public class Icon_factory_actor implements Actor
         image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, true, icon_factory_request.aborter, logger);
         if (icon_factory_request.aborter.should_abort())
         {
-            //if ( aborting_dbg)
+            if ( aborting_dbg)
                 logger.log("Icon_factory thread: aborting3");
-            return null;
+            return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
         }
         if (image == null) {
             //if (dbg)
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
-            return null;
+            return new Image_result(null,"reading from disk failed");
         }
         if (image.getWidth() < 1.0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
             logger.log("WARNING1: Icon_factory thread: load from file FAILED getWidth() ==0 for " + path.getFileName());
-            return null;
+            return new Image_result(null,"width is too small");
         }
         if (image .getHeight() ==0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
             logger.log("WARNING1: Icon_factory thread: load from file FAILED getHeight() ==0 for " + path.getFileName());
-            return null;
+            return new Image_result(null,"height is too small");
         }
 
         switch (destination.get_item_type()) {
@@ -324,7 +320,7 @@ public class Icon_factory_actor implements Actor
                 break;
         }
 
-        return image;
+        return new Image_result(image,"");
     }
 
     //**********************************************************
@@ -353,6 +349,7 @@ public class Icon_factory_actor implements Actor
 
         //long start = System.currentTimeMillis();
         Image image = From_disk.read_original_image_from_disk_and_return_icon(path, icon_factory_request.icon_size, true, icon_factory_request.aborter, logger);
+        //Image image = From_disk.load_native_resolution_image_from_disk(path, true, icon_factory_request.aborter, logger);
         if (image == null) {
             if (dbg)
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
@@ -385,7 +382,6 @@ public class Icon_factory_actor implements Actor
             return image;
         }
 
-        get_ticket(icon_factory_request);
 
         if (dbg)
             logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
@@ -424,7 +420,6 @@ public class Icon_factory_actor implements Actor
             skip = duration_in_seconds / 2 - length;
         }
 
-        get_ticket(icon_factory_request);
 
         Ffmpeg_utils.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, icon_factory_request.get_aborter(),logger);
         if (icon_factory_request.aborter.should_abort())
@@ -467,7 +462,6 @@ public class Icon_factory_actor implements Actor
     private Image process_pdf(Icon_factory_request icon_factory_request, Icon_destination icon_destination)
     //**********************************************************
     {
-        get_ticket(icon_factory_request);
 
         if (pdf_dbg) logger.log("Icon_factory thread:  process_pdf " + icon_destination.get_item_path().toAbsolutePath());
 
@@ -500,7 +494,6 @@ public class Icon_factory_actor implements Actor
         String deb = null;
         try (PDDocument document = Loader.loadPDF(file_in, deb))
         {
-            get_ticket(icon_factory_request);
 
             if (icon_factory_request.aborter.should_abort())
             {
@@ -528,7 +521,6 @@ public class Icon_factory_actor implements Actor
                     if ( aborting_dbg) logger.log("Icon_factory thread: aborting11");
                     return null;
                 }
-                get_ticket(icon_factory_request);
 
                 try (OutputStream output = new BufferedOutputStream(new FileOutputStream(resulting_png_name))) {
                     ImageOutputStream imageOutput = null;
@@ -580,7 +572,6 @@ public class Icon_factory_actor implements Actor
                             return null;
                         }
                         writer.setOutput(imageOutput);
-                        get_ticket(icon_factory_request);
 
                         writer.write(null, new IIOImage(image, null, metadata), param);
                         if (pdf_dbg) logger.log("image of PDF write done (1) " + resulting_png_name);
@@ -598,7 +589,6 @@ public class Icon_factory_actor implements Actor
             logger.log("Error converting document [" + ioe.getClass().getSimpleName() + "]: " + ioe.getMessage());
             return null;
         }
-        get_ticket(icon_factory_request);
 
         if (pdf_dbg) logger.log("image of PDF write done (2)" + resulting_png_name);
         image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg, logger);

@@ -160,6 +160,11 @@ public class Audio_player
     private void on_player_ready(MediaPlayer local_)
     //**********************************************************
     {
+        if ( the_media_player_option.isPresent())
+        {
+            the_media_player_option.get().stop();
+            the_media_player_option.get().dispose();
+        }
         the_media_player_option = Optional.of(local_);
         the_media_player_option.get().setOnEndOfMedia(() -> {
             //logger.log("EndOfMedia");

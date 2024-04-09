@@ -1009,7 +1009,7 @@ public class Files_and_Paths {
         try {
             x = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
         } catch (IOException e) {
-            logger.log_exception("file age",e);
+            logger.log_exception("get_file_age",e);
             return null;
         }
         FileTime creation= x.creationTime();

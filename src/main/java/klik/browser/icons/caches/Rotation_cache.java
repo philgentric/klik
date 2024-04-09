@@ -25,7 +25,7 @@ public class Rotation_cache extends Cache_for_doubles
     public Rotation_cache(Path folder_path, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
-        super(folder_path, "rotation_cache.properties",aborter_,logger_);
+        super(folder_path, "rotation_cache",aborter_,logger_);
     }
 
 
@@ -37,10 +37,10 @@ public class Rotation_cache extends Cache_for_doubles
         Double rotation = get_from_cache(path);
         if ( rotation != null) return rotation;
 
-        if(dbg) logger.log("not in RAM for: "+path.toAbsolutePath());
+        if(dbg) logger.log("rotation not in RAM for: "+path.toAbsolutePath());
         if (Guess_file_type.is_this_extension_a_pdf(FilenameUtils.getExtension(path.getFileName().toString())))
         {
-            if(dbg) logger.log("not in RAM for: "+path.toAbsolutePath()+" setting 0 ");
+            if(dbg) logger.log("rotation for: "+path.toAbsolutePath()+" setting 0 ");
             rotation = 0.0;
             put_in_cache(path,rotation);
             return rotation;

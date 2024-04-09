@@ -6,7 +6,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_engine;
-import klik.images.Same_move_engine;
+import klik.images.Redo_same_move_engine;
 import klik.level3.metadata.Metadata_handler;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
@@ -21,6 +21,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -128,13 +129,13 @@ public class Moving_files
                                           boolean and_list_for_undo, Logger logger)
     //**********************************************************
     {
-        LinkedBlockingDeque x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+        CountDownLatch x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
 
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
         for (Old_and_new_Path oandn : the_list) {
             // record (last) move destination folder
-            Same_move_engine.last_destination_folder = oandn.new_Path.getParent();
+            Redo_same_move_engine.last_destination_folder = oandn.new_Path.getParent();
             // we also move meta data
             Path meta_old = Metadata_handler.make_metadata_path(oandn.old_Path);
             if (meta_old.toFile().exists()) {
@@ -210,7 +211,7 @@ public class Moving_files
             logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
         }
 
-        x.add("done");
+        x.countDown();
 
 
         return done;

@@ -51,10 +51,6 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         return aborter;
     }
 
-    @Override
-    public ConcurrentLinkedDeque<Job> get_jobs() {
-        return null;
-    }
 
     //**********************************************************
     @Override

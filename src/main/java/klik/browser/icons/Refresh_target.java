@@ -1,6 +1,6 @@
 package klik.browser.icons;
 
 public interface Refresh_target {
-    void refresh();
-    void refresh_no_scan_dir();
+    void refresh_all(String from);
+    void refresh_no_scan_dir(String from);
 }

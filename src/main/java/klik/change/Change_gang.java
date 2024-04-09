@@ -153,7 +153,7 @@ public class Change_gang
     //**********************************************************
     {
         if (l.isEmpty()) return;
-        if (dbg) dedicated_logger.log("Change_gang.event_internal()" + l.get(0).get_old_Path().getFileName());
+        if (dbg) dedicated_logger.log(Stack_trace_getter.get_stack_trace("Change_gang.event_internal()\n   old path ->" + l.get(0).get_old_Path().toAbsolutePath()+"<-\n   new path ->"+l.get(0).get_new_Path().toAbsolutePath()+"<-"));
         for (Change_receiver w : change_gang_receivers)
         {
             if ( dbg) dedicated_logger.log("Change_gang.event_internal(), SENDING to gang member:" + w.get_string());

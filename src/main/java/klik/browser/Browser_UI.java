@@ -280,10 +280,10 @@ public class Browser_UI
         ContextMenu bandh_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(bandh_menu);
 
+        bandh_menu.getItems().add(browser_menus.make_undos_menu());
         bandh_menu.getItems().add(browser_menus.make_bookmarks_menu());
         bandh_menu.getItems().add(browser_menus.make_history_menu());
         bandh_menu.getItems().add(browser_menus.make_roots_menu());
-        bandh_menu.getItems().add(browser_menus.make_undos_menu());
         return bandh_menu;
     }
 
@@ -319,7 +319,7 @@ public class Browser_UI
 
 
         view_menu.getItems().add(browser_menus.make_about_menu_item(logger));
-        if (level2) view_menu.getItems().add(browser_menus.make_refresh_menu_item());
+        view_menu.getItems().add(browser_menus.make_refresh_menu_item());
         view_menu.getItems().add(browser_menus.make_meters_menu_item(logger));
         if (level3) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
 
@@ -359,8 +359,7 @@ public class Browser_UI
             if (level3) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
             clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
-            if (level3)
-            {
+            if (level3) {
                 clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
@@ -368,7 +367,9 @@ public class Browser_UI
                 clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clean_names_menu_item());
                 clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
-
+            }
+            if (level2)
+            {
                 Menu deduplicate = new Menu("File deduplication tool");
                 deduplicate.getItems().add(create_help_on_deduplication_menu_item());
                 deduplicate.getItems().add(create_deduplication_count_menu_item());

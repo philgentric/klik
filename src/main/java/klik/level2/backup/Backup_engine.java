@@ -386,7 +386,7 @@ public class Backup_engine
     public void abort()
     {
         logger.log("Backup_engine::abort()");
-        dedicated_backup_aborter.abort();
+        dedicated_backup_aborter.abort("Backup_engine::abort()");
     }
 
     public boolean is_finished() {

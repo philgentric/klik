@@ -23,6 +23,7 @@ public class Aborter
     public final String name;
     private AtomicBoolean abort = new AtomicBoolean(false);
     private final Logger logger;
+    public String reason;
 
     //**********************************************************
     public Aborter(String name, Logger logger)
@@ -34,11 +35,12 @@ public class Aborter
 
 
     //**********************************************************
-    public void abort()
+    public void abort(String reason_)
     //**********************************************************
     {
+        reason = reason_;
         //if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("abort "+name));
-        if ( dbg) logger.log(("Aborter, aborting this: "+name));
+        if ( dbg) logger.log(("Aborter, aborting this: "+name+" because: "+reason));
         abort.set(true);
     }
     //**********************************************************
@@ -46,7 +48,7 @@ public class Aborter
     //**********************************************************
     {
         //if ( dbg) if( abort.get()) logger.log(Stack_trace_getter.get_stack_trace("should abort "+name));
-        if ( dbg) if( abort.get()) logger.log(("should abort "+name));
+        if ( dbg) if( abort.get()) logger.log(("should abort "+name+" because: "+reason));
         return abort.get();
     }
 }

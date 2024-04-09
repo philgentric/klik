@@ -84,7 +84,7 @@ public class Defusk_actor_for_one_folder implements Actor
     public void abort()
     //**********************************************************
     {
-        aborter.abort();
+        aborter.abort("defusk job aborting");
         Actor_engine.cancel_all(jobs);
     }
 

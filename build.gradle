@@ -54,13 +54,15 @@ application {
     // if you have only 2GB or not much more:
     //applicationDefaultJvmArgs = ["-Xms1G"]
 
+    //applicationDefaultJvmArgs = ["-Xms10G","-Xmx10G","-XX:+UseZGC","-XX:+ZGenerational"]
+
     // if you have a lot of RAM say 64GB or more
     applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational"]
 
 }
 
 javafx {
-    version = "21"
+    version = "23-ea+3"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media' ]
 }
 

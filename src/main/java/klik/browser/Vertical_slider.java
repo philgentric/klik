@@ -7,7 +7,6 @@ import javafx.scene.layout.Pane;
 import klik.browser.icons.Icon_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
-import klik.util.Stack_trace_getter;
 
 //**********************************************************
 public class Vertical_slider implements Landscape_height_listener
@@ -28,7 +27,7 @@ public class Vertical_slider implements Landscape_height_listener
 
         // we set 1000 as pixel_height is not known at slider creation time
         double min = 0;
-        double max = 1000;
+        double max = 100000;
         double val = 0;
         the_Slider = new Slider(min,max,val);//icon_manager.landscape_height);
 
@@ -109,11 +108,13 @@ public class Vertical_slider implements Landscape_height_listener
     }
 
     //**********************************************************
-    public void transform_pixel_value(double pixels, Icon_manager icon_manager)
+    public void scroll_absolute(double pixels, Icon_manager icon_manager)
     //**********************************************************
     {
         double pixel_height = get_pixel_height(icon_manager.get_landscape_height());
-        if ( Icon_manager.scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
+        //if ( Icon_manager.scroll_dbg)
+        //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
+        logger.log(("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
         double slider = pixels_to_slider(pixels,pixel_height);
         //logger.log("new slider value 1 = "+slider);
         the_Slider.setValue(slider);
@@ -121,7 +122,7 @@ public class Vertical_slider implements Landscape_height_listener
 
 
     //**********************************************************
-    public boolean scroll(double dy)
+    public boolean scroll_relative(double dy)
     //**********************************************************
     {
         boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);

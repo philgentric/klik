@@ -55,6 +55,48 @@ public class Item_image extends Item
         this.aspect_ratio = aspect_ratio;
         actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
+
+
+            // firt time
+            image_view = new ImageView();
+            image_pane = new StackPane(image_view);
+
+            if ( dbg)
+                logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
+            image_view.setPreserveRatio(true);
+            image_view.setSmooth(true);
+            image_view.setFitWidth(actual_icon_size);
+            image_view.setFitHeight(actual_icon_size);
+            //the_image_view.setManaged(false);
+            image_view.setCache(false);
+            //image_view.setCacheHint(CacheHint.SPEED);
+            init_drag_and_drop_sender_side();
+
+            image_view.setOnMouseClicked(event ->
+            {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    //logger.log("\n\nItem_image isSecondaryButtonDown");
+                    ContextMenu context_menu = define_a_menu_to_the_imageview();
+                    context_menu.show(image_view, event.getScreenX(), event.getScreenY());
+                    return;
+                }
+                if (event.isMetaDown()) {
+                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
+                    if (option.isEmpty()) {
+                        // let us a bit of checking about why this failed
+                        Change_gang.report_anomaly(path);
+                    }
+                    return;
+                }
+                if (event.isControlDown()) {
+                    if (dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
+                    set_is_selected();
+                } else {
+                    if (dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
+                    on_mouse_clicked(logger);
+                }
+            });
+
     }
 
     //**********************************************************
@@ -303,6 +345,7 @@ public class Item_image extends Item
     public boolean has_icon()
     //**********************************************************
     {
+
         return true;
     }
 
@@ -312,7 +355,6 @@ public class Item_image extends Item
     //**********************************************************
     {
         if ( dbg) logger.log("receive_icon_in_fx_thread, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
-
 
         double local_rot = 0;
         {
@@ -356,6 +398,7 @@ public class Item_image extends Item
         }
 
         image_view.setSmooth(true);
+        image_view.setImage(image_and_rotation.image());
 
         if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
         {
@@ -406,7 +449,6 @@ public class Item_image extends Item
             image_pane.setRotate(image_and_rotation.rotation().get());
         }
         if (visibility_dbg) log_visibility_state_number(2);
-        image_view.setImage(image_and_rotation.image());
 
     }
 
@@ -429,47 +471,7 @@ public class Item_image extends Item
             logger.log("BADBADBAD: item_image: loading default icon NOT THERE");
             return;
         }
-        if ( image_view == null) {
-            // firt time
-            image_view = new ImageView();
-            if (image_pane == null) image_pane = new StackPane(image_view);
 
-            if ( dbg)
-                logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
-            image_view.setPreserveRatio(true);
-            image_view.setSmooth(true);
-            image_view.setFitWidth(actual_icon_size);
-            image_view.setFitHeight(actual_icon_size);
-            //the_image_view.setManaged(false);
-            image_view.setCache(false);
-            //image_view.setCacheHint(CacheHint.SPEED);
-            init_drag_and_drop_sender_side();
-
-            image_view.setOnMouseClicked(event ->
-            {
-                if (event.getButton() == MouseButton.SECONDARY) {
-                    //logger.log("\n\nItem_image isSecondaryButtonDown");
-                    ContextMenu context_menu = define_a_menu_to_the_imageview();
-                    context_menu.show(image_view, event.getScreenX(), event.getScreenY());
-                    return;
-                }
-                if (event.isMetaDown()) {
-                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
-                    if (option.isEmpty()) {
-                        // let us a bit of checking about why this failed
-                        Change_gang.report_anomaly(path);
-                    }
-                    return;
-                }
-                if (event.isControlDown()) {
-                    if (dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
-                    set_is_selected();
-                } else {
-                    if (dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
-                    on_mouse_clicked(logger);
-                }
-            });
-        }
         image_view.setImage(default_icon);
 
     }
@@ -498,14 +500,6 @@ public class Item_image extends Item
         return "is Item_image for : " + path.toAbsolutePath();
     }
 
-    @Override
-    public boolean get_is_high_priority(){
-        switch(item_type) {
-            case video, pdf:
-                return false;
-            default:
-                return true;
-        }
-    }
+
 
 }

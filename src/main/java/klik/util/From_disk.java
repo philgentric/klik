@@ -78,7 +78,7 @@ public class From_disk
     }
 
     //**********************************************************
-    public static double get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static double determine_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("\n\nFrom_disk get_aspect_ratio "+path);

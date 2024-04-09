@@ -160,12 +160,13 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    public void request_icon_to_factory(int target_icon_size, boolean is_high_priority)
+    public void request_icon_to_factory(int target_icon_size)
     //**********************************************************
     {
 
         if ( dbg) logger.log("request_icon_to_factory for:"+path);
-        Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,is_high_priority, new Aborter("Icon creation for "+path,logger));
+        Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,
+                new Aborter("Icon creation for "+path,logger));
 
         if (dbg) logger.log("icon request : queued! ");
 
@@ -756,8 +757,8 @@ public abstract class Item implements Icon_destination
     public void you_are_invisible()
     //**********************************************************
     {
-        //if (get_Node() == null) return;
-        get_Node().setVisible(false);
+        //logger.log("Invisible: "+path.getFileName());
+        //get_Node().setVisible(false);
         cancel_icon();
         cancel_custom();
     }
@@ -767,11 +768,12 @@ public abstract class Item implements Icon_destination
     public void you_are_visible()
     //**********************************************************
     {
+        //logger.log("Visible: "+path.getFileName());
         //if( !Platform.isFxApplicationThread())  logger.log(Stack_trace_getter.get_stack_trace("PANIC not on Fx thread"));
 
         you_are_visible_specific();
         get_Node().setVisible(true);
-        if( has_icon()) request_icon_to_factory(get_icon_size(),get_is_high_priority());
+        if( has_icon()) request_icon_to_factory(get_icon_size());
     }
 
 
@@ -779,7 +781,5 @@ public abstract class Item implements Icon_destination
     abstract int get_icon_size();
     abstract boolean has_icon();
 
-
-    public boolean get_is_high_priority(){return true;}; // ticket
 
 }

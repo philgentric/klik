@@ -88,7 +88,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     //**********************************************************
      {
          if (job==null) return;
-         job.message.get_aborter().abort();
+         job.message.get_aborter().abort("virtual thread job cancelled");
          if ( job.thread != null) job.thread.interrupt();
 
          if( Actor_engine.cancel_dbg) logger.log("virtual threads engine has cancelled: "+job.to_string());
@@ -96,13 +96,4 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     }
 
 
-    // ticket system
-
-
-    ConcurrentLinkedDeque<Job> jobs = new ConcurrentLinkedDeque<>();
-
-    @Override
-    public ConcurrentLinkedDeque<Job> get_jobs() {
-        return jobs;
-    }
 }

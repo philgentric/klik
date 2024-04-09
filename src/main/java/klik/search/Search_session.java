@@ -54,7 +54,7 @@ public class Search_session implements Callback_for_file_found_publish
 	//**********************************************************
 	{
 		if ( dbg) logger.log("stop_search()");
-		local_aborter.abort();
+		local_aborter.abort("stop search");
 		status = Search_status.interrupted;
 	}
 

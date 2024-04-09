@@ -14,6 +14,7 @@ import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -27,15 +28,24 @@ public class Show_running_man_frame
 	Stage stage;
 	ImageView iv;
 	long start;
-	private final LinkedBlockingDeque<String> in = new LinkedBlockingDeque<>();
+	//private final LinkedBlockingDeque<String> in = new LinkedBlockingDeque<>();
+	private final CountDownLatch latch = new CountDownLatch(1);
 
 	//**********************************************************
-	public static LinkedBlockingDeque <String> show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
+	//public static LinkedBlockingDeque <String> show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
+	public static CountDownLatch show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
 		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s, logger);
-		Fx_batch_injector.inject(()->local.define_fx(wait_message),logger);
-		return local.in;
+		if ( Platform.isFxApplicationThread())
+		{
+			local.define_fx(wait_message);
+		}
+		else {
+			Fx_batch_injector.inject(()->local.define_fx(wait_message),logger);
+		}
+		//return local.in;
+		return local.latch;
 	}
 
 	//**********************************************************
@@ -84,8 +94,10 @@ public class Show_running_man_frame
                 int count = 0;
                 for(;;)
 				{
-                    String x = in.poll(1, TimeUnit.SECONDS);
-                    if (x == null)
+					//String x = in.poll(1, TimeUnit.SECONDS);
+					boolean x = latch.await(1, TimeUnit.SECONDS);
+					//if (x == null)
+					if (!x)
 					{
                         if (aborter.should_abort())
 						{
@@ -114,7 +126,7 @@ public class Show_running_man_frame
 	private void timeout()
 	//**********************************************************
 	{
-		logger.log(Stack_trace_getter.get_stack_trace("Show running man, time out"));
+		//logger.log(Stack_trace_getter.get_stack_trace("Show running man, time out"));
 		has_ended("Time out", false);
 	}
 
@@ -123,6 +135,7 @@ public class Show_running_man_frame
 	public void has_ended(String message, boolean sleep)
 	//**********************************************************
 	{
+		//logger.log("running man has ended "+message);
 
 		long sleep_time = System.currentTimeMillis()-start;
 		if ( sleep_time > 3000) sleep_time = 3000;
@@ -139,6 +152,7 @@ public class Show_running_man_frame
 				} catch (InterruptedException e) {
 				}
 				Fx_batch_injector.inject(() -> stage.close(),logger);
+
 			};
 
 			Actor_engine.execute(r, new Aborter("wait!", logger), logger);
