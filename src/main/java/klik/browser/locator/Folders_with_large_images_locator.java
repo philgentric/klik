@@ -1,11 +1,11 @@
 package klik.browser.locator;
 
-import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.files_and_paths.*;
+import klik.search.Show_running_man_frame;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.execute.Threads;
@@ -16,14 +16,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Locator
+public class Folders_with_large_images_locator
 //**********************************************************
 {
     private static boolean dbg = false;
-    private static Locator instance = null;
+    private static Folders_with_large_images_locator instance = null;
     private final Path top;
     private final int minimum_count;
     private final int min_bytes;
@@ -41,13 +42,13 @@ public class Locator
     public static void locate(Path top, int minimum_count, int min_bytes, Browser browser, Logger logger)
     //**********************************************************
     {
-        instance = new Locator(top,minimum_count,min_bytes, browser,logger);
+        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, browser,logger);
         instance.search();
     }
 
 
     //**********************************************************
-    private Locator(Path top, int minimum_count, int min_bytes, Browser browser, Logger logger)
+    private Folders_with_large_images_locator(Path top, int minimum_count, int min_bytes, Browser browser, Logger logger)
     //**********************************************************
     {
         this.top = top;
@@ -63,13 +64,13 @@ public class Locator
     private void search()
     //**********************************************************
     {
-        Locator locator = this;
+        Folders_with_large_images_locator locator = this;
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 explore(top.toFile());
 
-
+                CountDownLatch show_running_man = Show_running_man_frame.show_running_man("Looking for folders with large images", 10 * 60, private_aborter, logger);
                 // wait for exploration to end
                 long start = System.currentTimeMillis();
                 for(;;)
@@ -87,7 +88,7 @@ public class Locator
                     }
                     if ( (browser.aborter.should_abort())||(private_aborter.should_abort()))
                     {
-                        logger.log("Locator thread aborting");
+                        logger.log("Folders_with_large_images_locator thread aborting");
                         if ( monitor!=null) monitor.close();
                         return;
                     }
@@ -109,6 +110,8 @@ public class Locator
                     }
 
                 }
+                show_running_man.countDown();
+
                 if ( dbg) print_all_contaminated();
 
                 {
@@ -134,7 +137,7 @@ public class Locator
         if (!dir.isDirectory()) return;
         if (Files.isSymbolicLink(dir.toPath())) return;
 
-        //logger.log("Locator looking at folder: "+dir);
+        //logger.log("Folders_with_large_images_locator looking at folder: "+dir);
         if (contanimated_directories.get(file_to_key(dir)) != null) {
             if ( dbg) logger.log("explore folder: " + dir + " already done");
             return;
@@ -148,7 +151,7 @@ public class Locator
         for (File f : all_files) {
             if ((browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
-                if ( dbg) logger.log("Locator thread aborting");
+                if ( dbg) logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
                 return;
             }
@@ -176,7 +179,7 @@ public class Locator
 
         if ((browser.aborter.should_abort())||(private_aborter.should_abort()))
         {
-            logger.log("Locator thread aborting");
+            logger.log("Folders_with_large_images_locator thread aborting");
             if ( monitor!=null) monitor.close();
             return;
         }
@@ -209,7 +212,7 @@ public class Locator
             }
             if ((browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
-                logger.log("Locator thread aborting");
+                logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
                 return;
             }
@@ -262,7 +265,7 @@ public class Locator
             }
             if ( (browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
-                logger.log("Locator thread aborting");
+                logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
                 return;
             }
@@ -304,7 +307,7 @@ public class Locator
             }
             if ( (browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
-                logger.log("Locator thread aborting");
+                logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
                 return false;
             }
@@ -351,7 +354,7 @@ public class Locator
             }
             if ( (browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
-                logger.log("Locator thread aborting");
+                logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
                 return;
             }
@@ -382,7 +385,7 @@ public class Locator
 
              if ( (browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
-                logger.log("Locator thread aborting");
+                logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
                 return;
             }

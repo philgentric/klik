@@ -19,7 +19,7 @@ public class Finder_actor implements Actor
 //**********************************************************
 {
 
-    static final boolean dbg = false;
+    static final boolean dbg = true;
     private static final boolean ultra_dbg = false;
     private int visited_folders;
     private int visited_files;

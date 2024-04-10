@@ -63,7 +63,7 @@ public abstract class Item implements Icon_destination
     protected final Browser browser;
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
-    public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
+    public AtomicBoolean visible_in_scene = new AtomicBoolean(true);
     public final Aborter browser_aborter;
 
     // virtual coordinates: will change whenever the window geometry changes
@@ -758,7 +758,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         //logger.log("Invisible: "+path.getFileName());
-        //get_Node().setVisible(false);
+        get_Node().setVisible(false);
         cancel_icon();
         cancel_custom();
     }

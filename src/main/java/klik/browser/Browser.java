@@ -25,10 +25,10 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.*;
 import klik.browser.icons.caches.Aspect_ratio_cache;
 import klik.browser.icons.caches.Rotation_cache;
+import klik.browser.locator.Folders_with_large_images_locator;
 import klik.search.Show_running_man_frame;
 import klik.util.Fx_batch_injector;
 import klik.browser.items.Item;
-import klik.browser.locator.Locator;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
@@ -60,7 +60,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.awt.Taskbar.Feature.ICON_IMAGE;
@@ -197,7 +196,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_where_are_images()
     //**********************************************************
     {
-        Locator.locate(displayed_folder_path,10,200_000,this,logger);
+        Folders_with_large_images_locator.locate(displayed_folder_path,10,200_000,this,logger);
     }
 
     //**********************************************************

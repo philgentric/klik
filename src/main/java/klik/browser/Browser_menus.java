@@ -799,16 +799,17 @@ public class Browser_menus
             undos_menu.getItems().add(item);
         }
 
-        {
-            String text = I18n.get_I18n_string("Clear_Undos",logger);
-            MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,browser.aborter, logger));
-            undos_menu.getItems().add(item);
-        }
+
         {
             String text = I18n.get_I18n_string("Show_Undos",logger);
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> pop_up_whole_undo_history(browser.aborter));
+            undos_menu.getItems().add(item);
+        }
+        {
+            String text = I18n.get_I18n_string("Clear_Undos",logger);
+            MenuItem item = new MenuItem(text);
+            item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,browser.aborter, logger));
             undos_menu.getItems().add(item);
         }
     }

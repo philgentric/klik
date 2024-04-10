@@ -541,10 +541,10 @@ public class Icon_manager
 
         if (item.visible_in_scene.get())
         {
-            //logger.log(("no need to do anything as item is ALREADY visible"));
+            //logger.log(("no need to do anything as item is ALREADY visible: "+item.get_item_path()));
             return;
         }
-        //logger.log("item is not visible, will make it visible");
+        //logger.log("item is not visible, will make it visible"+item.get_item_path());
 
         {
             item.visible_in_scene.set(true);
@@ -576,7 +576,7 @@ public class Icon_manager
         {
             item.visible_in_scene.set(false);
             item.you_are_invisible();
-            if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
+            //if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
             //pane.getChildren().remove(item.get_Node());
         }
     }

@@ -113,6 +113,11 @@ public class Icon_factory_actor implements Actor
             if (icon_factory_request.retry_count < Icon_factory_request.max_retry) {
                 icon_factory_request.retry_count++;
                 logger.log("RETRYING : " + icon_factory_request.retry_count + " times, after empty icon for : " + destination.get_item_path() );
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 continue;
             }
             logger.log("too many retries after empty icon for : " + destination.get_item_path() );

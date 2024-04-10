@@ -1,6 +1,5 @@
 package klik.browser.locator;
 
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -23,13 +22,13 @@ public class Monitor
 
     private LinkedBlockingQueue<String> input_queue = new LinkedBlockingQueue<>();
     private final Path top;
-    private final Locator locator;
+    private final Folders_with_large_images_locator locator;
     private final Logger logger;
     private TextArea textArea;
     Stage stage;
 
     //**********************************************************
-    public Monitor(Path top, Locator locator, Aborter aborter, Logger logger)
+    public Monitor(Path top, Folders_with_large_images_locator locator, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.top = top;
@@ -82,7 +81,7 @@ public class Monitor
         Button cancel = new Button("cancel");
         {
             cancel.setOnAction(actionEvent -> {
-                logger.log("Locator CANCEL!");
+                logger.log("Folders_with_large_images_locator CANCEL!");
                 locator.cancel();
                 stage.close();
                 Backup_singleton.abort();

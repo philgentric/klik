@@ -14,7 +14,7 @@ public class Icon_factory_request implements Message
     public final Icon_destination destination;
     public final Aborter aborter;
     public int retry_count = 0;
-    public final static int max_retry = 42;
+    public final static int max_retry = 3;
 
     //**********************************************************
     public Icon_factory_request(Icon_destination destination_, int icon_size_,Aborter aborter)
