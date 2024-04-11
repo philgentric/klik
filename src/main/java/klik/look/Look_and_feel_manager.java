@@ -12,6 +12,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.StageStyle;
 import klik.Klik_application;
+import klik.browser.Drag_and_drop;
 import klik.look.styles.*;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
@@ -1011,7 +1012,51 @@ public class Look_and_feel_manager
 
         }
     }
+    //**********************************************************
+    public static void set_background_for_setOnDragEntered(Node node, Logger logger)
+    //**********************************************************
+    {
+        BackgroundFill background_fill = Look_and_feel_manager.get_drag_fill();
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon OnDragOver color = "+background_fill);
+        Look_and_feel_manager.set_background(node, background_fill);
+    }
 
+    //**********************************************************
+    public static void set_background_for_setOnDragOver(Node node, Logger logger)
+    //**********************************************************
+    {
+        set_background_for_setOnDragEntered(node, logger);
+    }
+
+    //**********************************************************
+    public static void set_background_for_setOnDragExited(Node node, Logger logger)
+    //**********************************************************
+    {
+        Look_and_feel i = Look_and_feel_manager.get_instance();
+        BackgroundFill color = i.get_background_fill();
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon setOnDragExited color = "+color);
+        Look_and_feel_manager.set_background(node, color);
+
+    }
+    //**********************************************************
+    public static void set_background(Node n, BackgroundFill background_fill)
+    //**********************************************************
+    {
+        if ( n instanceof Button)
+        {
+            Button button = (Button)n;
+            button.setBackground(new Background(background_fill));
+            Node node = button.getGraphic();
+            if (node instanceof Label)
+            {
+                Look_and_feel_manager.set_label_look((Label) node);
+            }
+        }
+        else if ( n instanceof FlowPane)
+        {
+            ((FlowPane)n).setBackground(new Background(background_fill));
+        }
+    }
 
     //**********************************************************
     public static void set_box_look(Region r) // VBox is a region

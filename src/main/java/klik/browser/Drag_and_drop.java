@@ -3,12 +3,14 @@ package klik.browser;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
+import javafx.scene.input.*;
+import javafx.scene.layout.BackgroundFill;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.items.Item;
 import klik.files_and_paths.Moving_files;
+import klik.look.Look_and_feel;
+import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 
@@ -25,6 +27,13 @@ public class Drag_and_drop
 //**********************************************************
 {
     public static boolean drag_and_drop_dbg = false;
+
+
+
+
+
+
+
 
     //**********************************************************
     public static int accept_drag_dropped_as_a_move_in(
@@ -134,6 +143,103 @@ public class Drag_and_drop
         drag_event.setDropCompleted(true);
         drag_event.consume();
         return list.size();
+    }
+
+
+    public static void init_drag_and_drop_receiver_side(Node node, Browser browser, Path path, boolean is_trash, Logger logger)
+    {
+        node.setOnDragEntered(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
+            Look_and_feel_manager.set_background_for_setOnDragEntered(node,logger);
+            drag_event.consume();
+        });
+        node.setOnDragExited(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
+            Look_and_feel_manager.set_background_for_setOnDragExited(node,logger);
+            drag_event.consume();
+        });
+        node.setOnDragOver(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
+            drag_event.acceptTransferModes(TransferMode.MOVE);
+            Look_and_feel_manager.set_background_for_setOnDragOver(node,logger);
+            drag_event.consume();
+        });
+        node.setOnDragDropped(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
+            Drag_and_drop.accept_drag_dropped_as_a_move_in(
+                    browser.my_Stage.the_Stage,
+                    drag_event,
+                    path,
+                    node,
+                    "Browser item",
+                    is_trash,
+                    logger);
+            drag_event.consume();
+        });
+    }
+
+
+    public static void init_drag_and_drop_sender_side(Node node, Browser browser, Path path, Logger logger) {
+        node.setOnDragDetected(drag_event -> {
+            if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
+            Dragboard db = node.startDragAndDrop(TransferMode.MOVE);
+            ClipboardContent content = new ClipboardContent();
+/*
+            if (browser.selection_handler.get_select_all_folders())
+            {
+                logger.log("Item.init_drag_and_drop() drag detected, adding ALL folders");
+                // the browser is in select all mode so this means we dont take just this 1 folder
+                List<File> tmp = browser.get_folder_list();
+                browser.selection_handler.set_select_all_folders(false);
+                browser.selection_handler.reset_selection();
+                browser.selection_handler.add_into_selected_files(tmp);
+            }
+            if (browser.selection_handler.get_select_all_files())
+            {
+                logger.log("Item.init_drag_and_drop() drag detected, adding ALL files");
+                // the browser is in select all mode so this means we dont take just this 1 file
+                List<File> tmp = browser.get_file_list();
+                browser.selection_handler.set_select_all_files(false);
+                browser.selection_handler.reset_selection();
+                browser.selection_handler.add_into_selected_files(tmp);
+            }
+*/
+            List<File> ll = browser.selection_handler.get_selected_files();
+            // if we are here it is because the user is dragging an item
+            if (!ll.contains(path.toFile())) {
+                ll.add(path.toFile());
+            }
+            // this crashes the VM !!?? content.putFiles(ll);
+            StringBuilder sb = new StringBuilder();
+            for (File f : ll)
+            {
+                sb.append("\n").append(f.getAbsolutePath());
+            }
+            if ( Drag_and_drop.drag_and_drop_dbg) logger.log(" selected files: " + sb);
+            content.put(DataFormat.PLAIN_TEXT, sb.toString());
+            db.setContent(content);
+            drag_event.consume();
+        });
+
+        node.setOnDragDone(drag_event -> {
+            if (drag_event.getTransferMode() == TransferMode.MOVE)
+            {
+                if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
+                /*
+                DO NOT report it: it will be reported by the receiver Browser scene
+                List<Old_and_new_Path> l = new ArrayList<>();
+                Command_old_and_new_Path k = Command_old_and_new_Path.command_move;
+                Old_and_new_Path oan = new Old_and_new_Path(null,f,k);
+                oan.set_status(Status_old_and_new_Path.status_moved);
+                l.add(oan);
+                Change_gang.report_event(l);*/
+
+                browser.set_status(browser.selection_handler.get_selected_files_count()+ " files have been dragged out");
+                browser.selection_handler.reset_selection();
+                browser.selection_handler.nothing_selected();
+            }
+            drag_event.consume();
+        });
     }
 
 

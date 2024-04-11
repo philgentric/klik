@@ -63,7 +63,7 @@ public abstract class Item implements Icon_destination
     protected final Browser browser;
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
-    public AtomicBoolean visible_in_scene = new AtomicBoolean(true);
+    public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
     public final Aborter browser_aborter;
 
     // virtual coordinates: will change whenever the window geometry changes
@@ -144,7 +144,7 @@ public abstract class Item implements Icon_destination
 
     @Override // Icon_destination
     public void set_icon_fabrication_requested(boolean b) {
-        icon_fabrication_requested.set(true);
+        icon_fabrication_requested.set(b);
     }
 
     @Override
@@ -178,7 +178,7 @@ public abstract class Item implements Icon_destination
 
         if (icon_factory_request.destination.get_icon_fabrication_requested())
         {
-            logger.log("cancel icon request, another one is in flight");
+            logger.log("dont do another icon request, another one is in flight");
             return;
         }
         icon_factory_request.destination.set_icon_fabrication_requested(true);
@@ -438,154 +438,6 @@ public abstract class Item implements Icon_destination
         }
     }
 
-    //**********************************************************
-    private void set_background(BackgroundFill background_fill)
-    //**********************************************************
-    {
-        Node n = get_Node();
-        if ( n instanceof Button)
-        {
-            Button button = (Button)n;
-            button.setBackground(new Background(background_fill));
-            Node node = button.getGraphic();
-            if (node instanceof Label)
-            {
-                Look_and_feel_manager.set_label_look((Label) node);
-            }
-        }
-        else if ( n instanceof FlowPane)
-        {
-            ((FlowPane)n).setBackground(new Background(background_fill));
-        }
-    }
-
-
-    //**********************************************************
-    void set_background_for_setOnDragEntered()
-    //**********************************************************
-    {
-        BackgroundFill background_fill = Look_and_feel_manager.get_drag_fill();
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon OnDragOver color = "+background_fill);
-        set_background(background_fill);
-    }
-
-    //**********************************************************
-    void set_background_for_setOnDragOver()
-    //**********************************************************
-    {
-        set_background_for_setOnDragEntered();
-    }
-
-    //**********************************************************
-    void set_background_for_setOnDragExited()
-    //**********************************************************
-    {
-        Look_and_feel i = Look_and_feel_manager.get_instance();
-        BackgroundFill color = i.get_background_fill();
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item_folder_with_icon setOnDragExited color = "+color);
-        set_background(color);
-
-    }
-    //**********************************************************
-    public void init_drag_and_drop_sender_side()
-    //**********************************************************
-    {
-        get_Node().setOnDragDetected(drag_event -> {
-            if (dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
-            Dragboard db = get_Node().startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
-/*
-            if (browser.selection_handler.get_select_all_folders())
-            {
-                logger.log("Item.init_drag_and_drop() drag detected, adding ALL folders");
-                // the browser is in select all mode so this means we dont take just this 1 folder
-                List<File> tmp = browser.get_folder_list();
-                browser.selection_handler.set_select_all_folders(false);
-                browser.selection_handler.reset_selection();
-                browser.selection_handler.add_into_selected_files(tmp);
-            }
-            if (browser.selection_handler.get_select_all_files())
-            {
-                logger.log("Item.init_drag_and_drop() drag detected, adding ALL files");
-                // the browser is in select all mode so this means we dont take just this 1 file
-                List<File> tmp = browser.get_file_list();
-                browser.selection_handler.set_select_all_files(false);
-                browser.selection_handler.reset_selection();
-                browser.selection_handler.add_into_selected_files(tmp);
-            }
-*/
-            List<File> ll = browser.selection_handler.get_selected_files();
-            // if we are here it is because the user is dragging an item
-            if (!ll.contains(path.toFile())) {
-                ll.add(path.toFile());
-            }
-            // this crashes the VM !!?? content.putFiles(ll);
-            StringBuilder sb = new StringBuilder();
-            for (File f : ll)
-            {
-                sb.append("\n").append(f.getAbsolutePath());
-            }
-            if ( Drag_and_drop.drag_and_drop_dbg) logger.log(" selected files: " + sb);
-            content.put(DataFormat.PLAIN_TEXT, sb.toString());
-            db.setContent(content);
-            drag_event.consume();
-        });
-
-        get_Node().setOnDragDone(drag_event -> {
-            if (drag_event.getTransferMode() == TransferMode.MOVE)
-            {
-                if (dbg) logger.log("Item.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
-                /*
-                DO NOT report it: it will be reported by the receiver Browser scene
-                List<Old_and_new_Path> l = new ArrayList<>();
-                Command_old_and_new_Path k = Command_old_and_new_Path.command_move;
-                Old_and_new_Path oan = new Old_and_new_Path(null,f,k);
-                oan.set_status(Status_old_and_new_Path.status_moved);
-                l.add(oan);
-                Change_gang.report_event(l);*/
-
-                browser.set_status(browser.selection_handler.get_selected_files_count()+ " files have been dragged out");
-                browser.selection_handler.reset_selection();
-                browser.selection_handler.nothing_selected();
-            }
-            drag_event.consume();
-        });
-    }
-
-
-    //**********************************************************
-    protected void init_drag_and_drop_receiver_side()
-    //**********************************************************
-    {
-        get_Node().setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
-            set_background_for_setOnDragEntered();
-            drag_event.consume();
-        });
-        get_Node().setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
-            set_background_for_setOnDragExited();
-            drag_event.consume();
-        });
-        get_Node().setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
-            drag_event.acceptTransferModes(TransferMode.MOVE);
-            set_background_for_setOnDragOver();
-            drag_event.consume();
-        });
-        get_Node().setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
-            Drag_and_drop.accept_drag_dropped_as_a_move_in(
-                    browser.my_Stage.the_Stage,
-                    drag_event,
-                    path,
-                    get_Node(),
-                    "Browser item",
-                    is_trash(),
-                    logger);
-            drag_event.consume();
-        });
-    }
 
 
     static double xxx = 200;
@@ -773,7 +625,8 @@ public abstract class Item implements Icon_destination
 
         you_are_visible_specific();
         get_Node().setVisible(true);
-        if( has_icon()) request_icon_to_factory(get_icon_size());
+        if( has_icon())
+            request_icon_to_factory(get_icon_size());
     }
 
 

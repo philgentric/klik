@@ -9,6 +9,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import klik.look.Font_size;
+import klik.look.Look_and_feel_manager;
 import klik.util.Logger;
 
 import java.time.LocalDateTime;
@@ -98,6 +100,9 @@ public class Active_list_stage
             b.setAlignment(Pos.BASELINE_LEFT);
             b.setTextAlignment(TextAlignment.LEFT);
             b.setPrefWidth(WIDTH);
+            //Font_size.apply_font_size(b,logger);
+            Look_and_feel_manager.set_button_look(b, true);
+
             if (on_action != null) b.setOnAction(actionEvent ->
             {
                 String signature = map.get(local_date_time_as_key);

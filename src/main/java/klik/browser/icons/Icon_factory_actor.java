@@ -154,7 +154,11 @@ public class Icon_factory_actor implements Actor
             case pdf -> {
                 if (dbg) logger.log(destination.get_item_path() + " type is PDF");
                 image = process_pdf(icon_factory_request, destination);
-
+                if ( image == null)
+                {
+                    logger.log("process_pdf returns null");
+                    return null;//new Image_and_rotation(null,Optional.of(0.0));
+                }
             }
             case video -> {
                 if (dbg) logger.log(destination.get_item_path() + " type is VIDEO");

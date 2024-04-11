@@ -17,6 +17,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
@@ -96,8 +97,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
         resize_the_box(the_button);
 
-        init_drag_and_drop_receiver_side();
-        init_drag_and_drop_sender_side();
+        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),browser,path,is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
         give_a_menu_to_the_button(the_button,null);
 
     }

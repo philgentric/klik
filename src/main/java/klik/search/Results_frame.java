@@ -18,6 +18,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.browser.Drag_and_drop;
+import klik.look.Font_size;
 import klik.util.Fx_batch_injector;
 import klik.util.Text_frame;
 import klik.util.execute.System_open_actor;
@@ -101,7 +103,7 @@ public class Results_frame
 		Look_and_feel_manager.set_button_look(b, true);
 		the_result_vbox.getChildren().add(b);
 		b.setOnAction(ee -> {
-			logger.log("going to open on menu select: " + key);
+			//logger.log("going to open on menu select: " + key);
 
 			if (Files.isDirectory(path)) {
 				Browser_creation_context.additional_different_folder(path, the_browser,logger);
@@ -148,7 +150,13 @@ public class Results_frame
 		b.setOnContextMenuRequested((ContextMenuEvent event) -> {
 			logger.log("show context menu of button:"+ path.toAbsolutePath());
 			context_menu.show(b, event.getScreenX(), event.getScreenY());
-		});	}
+		});
+
+
+		Drag_and_drop.init_drag_and_drop_sender_side(b,the_browser,path,logger);
+
+
+	}
 
 
 	//**********************************************************

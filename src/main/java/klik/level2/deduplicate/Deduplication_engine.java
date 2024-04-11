@@ -82,37 +82,6 @@ public class Deduplication_engine implements Againor
         private_aborter.abort("Deduplication::abort()");
         if ( stage_with_2_images!=null) stage_with_2_images.close();
     }
-    /*
-    //**********************************************************
-    private void runnable_deduplication(Deduplication_engine local_deduplication, boolean auto)
-    //**********************************************************
-    {
-        List<My_File> files = scan();
-        //for(My_File mf : files) logger.log(mf.file.getAbsolutePath());
-        logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
-
-        console_window.get_interface().set_status_text("Found " + files.size() + " files ... comparison for identity started...");
-
-         {
-            // launch actor (feeder) in another tread
-            finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, same_file_pairs_input_queue, browser_aborter, logger);
-            Actor_engine.execute(finder, browser_aborter,logger);
-
-            logger.log("Deduplication::runnable_deduplication thread launched on "+files.size()+ " files");
-
-        }
-
-        if (!wait_for_finder_to_find_something()) return;
-
-        if (auto) {
-            logger.log("\n\n\nAUTO MODE!\n\n\n");
-            deduplicate_auto();
-        } else {
-            logger.log("\n\n\nMANUAL MODE: ask_user_about_each_pair\n\n\n");
-            again(false);
-        }
-
-    }*/
 
     //**********************************************************
     private void runnable_deduplication2(Deduplication_engine local_deduplication, boolean auto)
@@ -150,6 +119,7 @@ public class Deduplication_engine implements Againor
         int n = Runtime.getRuntime().availableProcessors()-1;
         if (n < 1) n = 1;
         int inc = files.size()/n;
+        if ( inc == 0) inc = 1;
         int i_min = 0;
         boolean end = false;
         for(;;)

@@ -15,6 +15,7 @@ import klik.actor.Job;
 import klik.audio.Audio_player;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
@@ -97,7 +98,8 @@ public class Item_button extends Item implements Icon_destination
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
-        init_drag_and_drop_sender_side();
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
+
     }
 
 
@@ -404,7 +406,8 @@ public class Item_button extends Item implements Icon_destination
 
         });
 
-        init_drag_and_drop_receiver_side();
+        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),browser,path,is_trash(),logger);
+
         give_a_menu_to_the_button(button,label);
 
         //if ( Static_application_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);

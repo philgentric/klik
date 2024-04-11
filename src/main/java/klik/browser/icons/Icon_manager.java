@@ -512,7 +512,8 @@ public class Icon_manager
             }
             if (visible_dbg)
                 logger.log(item.get_item_path() + " Item is visible at y=" + item.get_javafx_y() + " item height=" + item.get_Height());
-            process_is_visible(pane, item);
+            process_is_visible(item);
+
             // look for top left
             if ( item.get_javafx_x() > 0) continue;
             if ( item.get_javafx_y() < min_y)
@@ -527,50 +528,30 @@ public class Icon_manager
     }
 
 
+    // this is called SUPER intensively when scrolling
     //**********************************************************
-    private synchronized void process_is_visible(Pane pane, Item item)
+    private synchronized void process_is_visible(Item item)
     //**********************************************************
     {
-        if ( !Platform.isFxApplicationThread())
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("PANIC not on FX thread"));
-        }
 
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
 
-        if (item.visible_in_scene.get())
-        {
-            //logger.log(("no need to do anything as item is ALREADY visible: "+item.get_item_path()));
-            return;
-        }
-        //logger.log("item is not visible, will make it visible"+item.get_item_path());
-
+        // this is essential: dont call item.you_are_visible() unless needed
+        if (!item.visible_in_scene.get())
         {
             item.visible_in_scene.set(true);
             item.you_are_visible();
-            if ( item.get_Node() == null)
-            {
-                logger.log("process_is_visible no node");
-            }
-            else
-            {
-
-                /*if (!pane.getChildren().contains(item.get_Node()))
-                {
-                    if (visible_dbg)
-                        logger.log("adding item: " + item.get_string());
-                    pane.getChildren().add(item.get_Node());
-                }*/
-            }
         }
-
     }
 
     //**********************************************************
     private void process_is_invisible(Pane pane, Item item)
     //**********************************************************
     {
+        item.set_translate_X(item.get_javafx_x());
+        item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
+
         //if ( !Platform.isFxApplicationThread())logger.log(Stack_trace_getter.get_stack_trace("PANIC process_is_invisible "+Platform.isFxApplicationThread()));
         if (item.visible_in_scene.get())
         {
