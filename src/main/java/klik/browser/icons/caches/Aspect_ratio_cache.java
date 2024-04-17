@@ -144,11 +144,14 @@ public class Aspect_ratio_cache extends Cache_for_doubles
         }
         if (local_file_comparator != null) {
             paths_manager.image_file_comparator = local_file_comparator;
-            paths_manager.iconized = new ConcurrentSkipListMap<>(local_file_comparator);
+            paths_manager.iconized_sorted = new ConcurrentSkipListMap<>(local_file_comparator);
 
             // now that we changed the iconized container we must do a scan dir
-            logger.log("aspect ratios engine done, going to FULL refresh");
-            refresh_target.refresh_all("aspect ratio cache");
+            logger.log("aspect ratios engine done, going to FULL refresh as iconized is empty");
+
+            paths_manager.redo_iconized_sorted();
+            refresh_target.refresh_UI_after_scan_dir("aspect ratio done");
+            //refresh_target.refresh_all("aspect ratio cache");
         }
     }
 
@@ -169,10 +172,10 @@ public class Aspect_ratio_cache extends Cache_for_doubles
         @Override
         public int compare(Path p1, Path p2) {
             Double d1 = get_aspect_ratio(p1);
-            Double d1r= round_to_one_decimal(d1);
+            //Double d1r= round_to_one_decimal(d1);
             Double d2 = get_aspect_ratio(p2);
-            Double d2r= round_to_one_decimal(d2);
-            int diff =  d1r.compareTo(d2r);
+            //Double d2r= round_to_one_decimal(d2);
+            int diff =  d1.compareTo(d2);
             if ( diff != 0) return diff;
             return (p1.toString().compareTo(p2.toString()));
         }

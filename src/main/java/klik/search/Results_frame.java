@@ -1,6 +1,7 @@
 package klik.search;
 
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,7 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
@@ -99,8 +100,13 @@ public class Results_frame
 		{
 			b.setGraphic(new Circle(10, Color.RED));
 		}
+
 		b.setMnemonicParsing(false); // avoid removal of first underscore
 		Look_and_feel_manager.set_button_look(b, true);
+		if (Files.isDirectory(path)) {
+			Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
+			b.setBorder(border);
+		}
 		the_result_vbox.getChildren().add(b);
 		b.setOnAction(ee -> {
 			//logger.log("going to open on menu select: " + key);

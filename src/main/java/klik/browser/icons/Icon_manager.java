@@ -104,7 +104,7 @@ public class Icon_manager
     //**********************************************************
     {
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
          if ( dbg) logger.log("Icon_manager map_buttons_and_icons");
 
         double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
@@ -174,8 +174,8 @@ public class Icon_manager
         p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
         process_iconified_items(the_browser, pane, single_column, icon_size, column_increment_for_icons, scene_width, p);
         compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
-        map_buttons_and_icons_elapsed += (System.currentTimeMillis()-start);
-        logger.log("map_buttons_and_icons_elapsed= "+map_buttons_and_icons_elapsed);
+        map_buttons_and_icons_elapsed += (System.nanoTime()-start);
+        logger.log("map_buttons_and_icons_elapsed= "+map_buttons_and_icons_elapsed+" ns");
     }
 
     private void show_error_icon(Browser the_browser, Pane pane, ImageView iv_denied, double top_delta_y)
@@ -205,8 +205,10 @@ public class Icon_manager
         max_y_in_row[0] = 0;
         List<Item> current_row = new ArrayList<>();
         // manage iconized items
-        for (Path path : paths_manager.get_iconized().keySet())
+        logger.log("paths_manager.get_iconized().keySet().size()="+ paths_manager.get_iconized_sorted().keySet().size());
+        for (Iterator<Path> it = paths_manager.get_iconized_sorted().keySet().iterator(); it.hasNext(); )
         {
+            Path path = it.next();
             if ( path == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("BAD"));
@@ -224,6 +226,8 @@ public class Icon_manager
                     all_items_map.put(path,item);
                     pane.getChildren().add(item.get_Node());
                 }
+
+
             }
             else
             {
@@ -899,7 +903,7 @@ public class Icon_manager
             if (item.get_javafx_y() + h > landscape_height) landscape_height = item.get_javafx_y() + h;
         }
 
-        if (paths_manager.get_iconized().isEmpty()) {
+        if (paths_manager.get_iconized_sorted().isEmpty()) {
             // when there is no iconized items in the folder
             // it may happen that the height of the last row of buttons at the bottom is underestimated
             landscape_height += 100;

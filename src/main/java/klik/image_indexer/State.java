@@ -72,7 +72,14 @@ class State
             return;
         }
 
-        path_list.sort(file_comparator);
+        try{
+            path_list.sort(file_comparator);
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.log(""+e);
+        }
+
         int index = 0;
         index_to_path.clear();
         path_to_index.clear();

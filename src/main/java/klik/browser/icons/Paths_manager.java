@@ -37,7 +37,8 @@ public class Paths_manager
     // these MUST be mutually exclusive:
     public ConcurrentSkipListMap<Path,Boolean> folders;
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
-    public ConcurrentSkipListMap<Path, Boolean> iconized;
+    public ConcurrentSkipListMap<Path, Boolean> iconized_sorted;
+    public List<Path> iconized_paths = new ArrayList<>();
 
 
     public Comparator<? super Path> image_file_comparator = null;
@@ -91,7 +92,7 @@ public class Paths_manager
         // these MUST be mutually exclusive:
         folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
-        iconized = new ConcurrentSkipListMap<>(image_file_comparator);
+        iconized_sorted = new ConcurrentSkipListMap<>(image_file_comparator);
 
     }
 
@@ -100,7 +101,7 @@ public class Paths_manager
     public boolean do_we_still_have(Path p)
     //**********************************************************
     {
-        if ( iconized.containsKey(p)) return true;
+        if ( iconized_sorted.containsKey(p)) return true;
         if ( non_iconized.containsKey(p)) return true;
         if ( folders.containsKey(p)) return true;
         return false;
@@ -124,7 +125,8 @@ public class Paths_manager
                 boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
                 boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
 
-                iconized.clear();
+                iconized_paths.clear();
+                iconized_sorted.clear();
                 non_iconized.clear();
                 folders.clear();
 
@@ -139,7 +141,7 @@ public class Paths_manager
                 }
 
                 do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-                refresh_target.refresh_no_scan_dir("scan dir in a thread end");
+                refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
             };
             Actor_engine.execute(r, aborter, logger);
         }
@@ -147,6 +149,24 @@ public class Paths_manager
         //logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
         return Error_type.OK;
     }
+
+
+    //**********************************************************
+    public Error_type redo_iconized_sorted()
+    //**********************************************************
+    {
+        Runnable r = () -> {
+            iconized_sorted.clear();
+            for ( Path path : iconized_paths)
+            {
+                iconized_sorted.put(path,true);
+            }
+            refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
+        };
+        Actor_engine.execute(r, aborter, logger);
+        return Error_type.OK;
+    }
+
 
     private AtomicBoolean hard_part_ongoing = new AtomicBoolean(false);
 
@@ -232,7 +252,8 @@ public class Paths_manager
                     // special dirty case: MKV can be audio OR video ...
                     if ( Guess_file_type.is_this_a_video_or_audio_file(stage,path,logger))
                     {
-                        iconized.put(path,true);//movie_aspect_ratio);
+                        iconized_paths.add(path);
+                        iconized_sorted.put(path,true);
                     }
                     else
                     {
@@ -240,7 +261,8 @@ public class Paths_manager
                     }
                     return;
                 }
-                iconized.put(path,true);//movie_aspect_ratio);
+                iconized_paths.add(path);
+                iconized_sorted.put(path,true);
                 return;
             }
             non_iconized.put(path,true);
@@ -256,7 +278,8 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
-                iconized.put(path,true);//Aspect_ratio_actor.ISO_A4_aspect_ratio);
+                iconized_paths.add(path);
+                iconized_sorted.put(path,true);
                 return;
             }
             else
@@ -275,7 +298,8 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
-                iconized.put(path,true);//1.0);
+                iconized_paths.add(path);
+                iconized_sorted.put(path,true);
                 return;
             }
             else
@@ -333,6 +357,7 @@ public class Paths_manager
             return f1.getFileName().toString().compareTo(f2.getFileName().toString());
         }
     };
+
 
 
     //**********************************************************
@@ -417,7 +442,7 @@ public class Paths_manager
     //**********************************************************
     {
         List<File> returned = new ArrayList<>();
-        for (Path p : iconized.keySet())
+        for (Path p : iconized_paths)
         {
             returned.add(p.toFile());
         }
@@ -454,9 +479,9 @@ public class Paths_manager
     }
 
     //**********************************************************
-    public ConcurrentSkipListMap<Path, Boolean> get_iconized()
+    public ConcurrentSkipListMap<Path, Boolean> get_iconized_sorted()
     //**********************************************************
     {
-        return iconized;
+        return iconized_sorted;
     }
 }

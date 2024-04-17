@@ -123,9 +123,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         //Browser local = this;
         Runnable r = () -> {
-
-            logger.log("REFRESH-1 "+from);
-
+            logger.log("REFRESH_ALL "+from);
             redraw("aspect ratio engine "+from,false);
             //Browser_creation_context.replace_same_folder(local,logger);
 
@@ -137,23 +135,28 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     //**********************************************************
     @Override // Refresh_target
-    public void refresh_no_scan_dir(String from)
+    public void refresh_UI_after_scan_dir(String from)
     //**********************************************************
     {
+        if ( x_redraw !=null)
+        {
+            x_redraw.countDown();
+            x_redraw = null;
+        }
         //Browser local = this;
         Runnable r = () -> {
-            logger.log("REFRESH-2 "+from);
-            update_UI("refresh_no_scan_dir ... "+from,true);
+            logger.log("refresh_UI_after_scan_dir "+from);
+            update_UI("refresh_UI_after_scan_dir ... "+from,true);
             execute_scroll_to();
         };
         if (Platform.isFxApplicationThread())
         {
-            logger.log("refresh_no_scan_dir WAS on FX thread");
+            logger.log("refresh_UI_after_scan_dir WAS on FX thread");
             r.run();
         }
         else
         {
-            logger.log("refresh_no_scan_dir was NOT on FX thread, injected");
+            logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected");
             Fx_batch_injector.inject(r,logger);
         }
 

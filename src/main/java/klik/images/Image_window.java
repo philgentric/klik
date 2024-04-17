@@ -88,32 +88,7 @@ public class Image_window
 
             return new Image_window(b, path, x,y, w,h, logger_);
         }
-        /*
-        // make sure the image opens on the same window as the caller
-        ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
-        if (dbg)
-        {
-            ObservableList<Screen> screens = Screen.getScreens();
 
-            for (int i = 0; i < screens.size(); i++)
-            {
-                Screen s = screens.get(i);
-                logger_.log("screen#" + i);
-                logger_.log("    getBounds" + s.getBounds());
-                logger_.log("    getVisualBounds" + s.getVisualBounds());
-            }
-
-
-            for (Screen s : intersecting_screens)
-            {
-                logger_.log("intersecting screen:" + s);
-                logger_.log("    getBounds" + s.getBounds());
-                logger_.log("    getVisualBounds" + s.getVisualBounds());
-            }
-        }
-        // often there is only one ...
-        Screen current = intersecting_screens.get(0);
-        */
         Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
@@ -154,6 +129,11 @@ public class Image_window
         the_Stage.setWidth(w);
         the_Stage.setHeight(h);
         the_Stage.show();
+        {
+            Image_window local = this;
+            the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(the_browser,local, keyEvent, logger));
+        }
 
         boolean high_quality = false;
         Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, the_browser.get_file_comparator(), aborter, logger);
@@ -205,11 +185,7 @@ public class Image_window
             image_display_handler.change_image_relative(yy, false);
         });
 
-        {
-            Image_window local = this;
-            the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(the_browser,local, keyEvent, logger));
-        }
+
 
         // event handler if window is hidden (or closed, I hope?): stop animation
         the_Stage.setOnHiding(event -> {

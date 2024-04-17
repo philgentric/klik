@@ -172,7 +172,7 @@ public class From_disk
             }
             if ( aborter.should_abort())
             {
-                logger.log("read_original_image_from_disk_and_return_icon aborted");
+                if ( dbg) logger.log("read_original_image_from_disk_and_return_icon aborted");
                 return null;
             }
             if ( use_ImageIO)
