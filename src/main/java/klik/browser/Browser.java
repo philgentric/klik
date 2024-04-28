@@ -74,6 +74,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
     public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
+    public static Aborter monitoring_aborter;
     static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
@@ -124,7 +125,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         //Browser local = this;
         Runnable r = () -> {
             logger.log("REFRESH_ALL "+from);
-            redraw("aspect ratio engine "+from,false);
+            redraw_fx("aspect ratio engine "+from,false);
             //Browser_creation_context.replace_same_folder(local,logger);
 
         };
@@ -151,16 +152,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         };
         if (Platform.isFxApplicationThread())
         {
-            logger.log("refresh_UI_after_scan_dir WAS on FX thread");
+            logger.log("refresh_UI_after_scan_dir WAS on FX thread from="+from);
             r.run();
         }
         else
         {
-            logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected");
+            logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected, from="+from);
             Fx_batch_injector.inject(r,logger);
         }
 
     }
+
+
 
     //**********************************************************
     public Comparator<? super Path> get_file_comparator()
@@ -368,7 +371,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         my_Stage.the_Stage.heightProperty().addListener(change_listener);
 
 
-        redraw("Browser constructor", true);
+        redraw_fx("Browser constructor", true);
     }
 
 
@@ -430,6 +433,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         cleanup();
+        if ( x_redraw != null)
+        {
+            x_redraw.countDown();
+            x_redraw = null;
+        }
         //logger.log("close_window BEFORE close" + signature());
         my_Stage.close();
         windows_count.decrementAndGet();
@@ -601,7 +609,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
             if (keyEvent.getCharacter().equals("k")) {
                 if (keyboard_dbg) logger.log("character is k = keyword search");
-                browser_menus.search_files_by_keyworks();
+                browser_menus.search_files_by_keyworks_fx();
             }
             if (keyEvent.getCharacter().equals("s")) {
                 if (keyboard_dbg) logger.log("character is s = start/stop scan");
@@ -705,9 +713,9 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         //the_stage.setMinWidth(860);
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (dbg) logger.log("new browser width =" + newValue.doubleValue());
-            redraw("width changed by user", false);
+            redraw_fx("width changed by user", false);
         });
-        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> redraw("height changed by user", false));
+        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> redraw_fx("height changed by user", false));
 
         the_Scene.setOnScroll(event -> {
             double dy = event.getDeltaY();
@@ -973,23 +981,24 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         //logger.log("new icon size = "+new_icon_size);
         Static_application_properties.set_icon_size(new_icon_size, logger);
         //icon_manager.modify_button_fonts(fac);
-        redraw("zoom", true);
+        redraw_fx("zoom", true);
     }
 
 
     private CountDownLatch x_redraw;
     //**********************************************************
-    public void redraw(String from, boolean rebuild_all_items)
+    public void redraw_fx(String from, boolean rebuild_all_items)
     //**********************************************************
     {
         //if (dbg)
         logger.log("Browser redraw from:" + from
                 + " rebuild_all_items=" + rebuild_all_items
         );
-        if ( x_redraw == null) {
-            x_redraw = Show_running_man_frame.show_running_man("Scanning folder", 10 * 60, aborter, logger);
-        }
-        error_type = paths_manager.scan_dir(my_Stage.the_Stage, from);
+        if ( x_redraw != null) x_redraw.countDown();
+        x_redraw = Show_running_man_frame.show_running_man("Scanning folder", 10 * 60, aborter, logger);
+
+
+        error_type = paths_manager.scan_dir_fx(my_Stage.the_Stage, from);
         if (error_type != Error_type.OK) {
             logger.log(true, true, "scene_geometry_changed() scan dir failed for :" + displayed_folder_path + " error=" + status);
         }
@@ -1163,7 +1172,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                     Path new_dir = displayed_folder_path.resolve(new_name);
                     Files.createDirectory(new_dir);
                     scroll_memory.put(displayed_folder_path,new_dir);
-                    redraw("created new empty dir", true);
+                    redraw_fx("created new empty dir", true);
                     break;
                 } catch (IOException e) {
                     logger.log("new directory creation FAILED: " + e);
@@ -1180,13 +1189,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
     {
+        if( !my_Stage.the_Stage.isShowing())
+        {
+            logger.log("you_receive_this_because_a_file_event_occurred_somewhere event ignored");
+            return;
+        }
         switch (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger))
         {
             case more_changes:
             {
                if (dbg) logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
                 //fx_injector.inject(() -> {
-                    redraw("change gang for dir: " + displayed_folder_path, true);
+                    redraw_fx("change gang for dir: " + displayed_folder_path, true);
                 //});
             };
             break;
@@ -1195,7 +1209,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 if (dbg) logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
 
                 //fx_injector.inject(() -> {
-                    redraw("change gang for dir: " + displayed_folder_path, true);
+                    redraw_fx("change gang for dir: " + displayed_folder_path, true);
                 //});
             }
             break;

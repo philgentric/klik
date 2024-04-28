@@ -84,7 +84,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
 
     //**********************************************************
     @Override
-    public void cancel_one(Job job)
+    public void cancel_job(Job job)
     //**********************************************************
      {
          if (job==null) return;

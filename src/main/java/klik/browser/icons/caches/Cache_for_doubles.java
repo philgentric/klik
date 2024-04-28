@@ -75,7 +75,7 @@ public class Cache_for_doubles
     }
 
     //**********************************************************
-    public void clear_RAM_cache()
+    public void clear_RAM_cache_fx()
     //**********************************************************
     {
         cache.clear();

@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 //**********************************************************
@@ -243,7 +244,8 @@ public class Item_image extends Item
             javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("Convert to mp4");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("convert to mp4");
-                Ffmpeg_utils.video_to_mp4_in_a_thread(browser.my_Stage.the_Stage,path,aborter, logger);
+                AtomicBoolean abort_reported = new AtomicBoolean(false);
+                Ffmpeg_utils.video_to_mp4_in_a_thread(browser.my_Stage.the_Stage,path,aborter, abort_reported, logger);
             });
             context_menu.getItems().add(menu_item);
         }

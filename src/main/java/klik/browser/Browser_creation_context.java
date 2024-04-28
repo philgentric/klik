@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.util.Logger;
 
 import java.nio.file.Path;
@@ -19,7 +20,6 @@ public class Browser_creation_context
     public final boolean additional_window; // if false, the old_browser is closed and de-registered, then a new one is used in the SAME window
     public final boolean move_a_bit; // if true the new instance is at the same location on screen s the old one
     public final Browser old_browser; // if null, there is no previous guy
-
     //**********************************************************
     Browser_creation_context(
             My_Stage previous_stage,

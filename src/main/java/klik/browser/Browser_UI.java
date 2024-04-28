@@ -350,6 +350,10 @@ public class Browser_UI
             Menu search = new Menu(search_string);
             search.getItems().add(browser_menus.make_search_by_keywords_menu_item());
             search.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
+            search.getItems().add(browser_menus.make_add_to_face_recognition_training_set_menu_item());
+            search.getItems().add(browser_menus.make_train_menu_item());
+            search.getItems().add(browser_menus.make_reset_train_menu_item());
+
             files_menu.getItems().add(search);
         }
         {
@@ -367,6 +371,8 @@ public class Browser_UI
                 clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
                 clean.getItems().add(browser_menus.make_clean_names_menu_item());
                 clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
+
+
             }
             if (level2)
             {
@@ -404,8 +410,12 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_directories_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
-        if (level2) pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
-        if (level2) pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
+        if (level2)
+        {
+            pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
+            pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
+            pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
+        }
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
         //pref.getItems().add(browser_menus.make_sort_files_by_name_vs_decreasing_size_check_menu_item());

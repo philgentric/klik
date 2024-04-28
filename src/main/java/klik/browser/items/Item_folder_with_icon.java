@@ -1,8 +1,5 @@
 package klik.browser.items;
 
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -14,7 +11,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
@@ -53,9 +49,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     ImageView the_image_view;
     FlowPane the_image_pane;
     Label label_for_sizes;
-    Job job;
     Button the_button;
-    String disk_footprint_text;
     private final int folder_icon_size;
     private final int column_width; // as set by the icon manager
     //**********************************************************
@@ -88,12 +82,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         the_button.setContentDisplay(ContentDisplay.BOTTOM);
 
         Look_and_feel_manager.set_button_look(the_button,true);
-        the_button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                Browser_creation_context.replace_different_folder(path,browser, logger);
-            }
-        });
+        the_button.setOnAction(actionEvent -> Browser_creation_context.replace_different_folder(path,browser, logger));
 
         resize_the_box(the_button);
 
@@ -130,8 +119,6 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     public void cancel_custom()
     //**********************************************************
     {
-        Actor_engine.cancel_one(job);
-        job = null;
     }
 
     //**********************************************************
@@ -160,9 +147,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     public void receive_icon(Image_and_rotation image_and_rotation)
     //**********************************************************
     {
-        Fx_batch_injector.inject(() -> {
-            set_icon(image_and_rotation);
-        },logger);
+        Fx_batch_injector.inject(() -> set_icon(image_and_rotation),logger);
     }
 
     //**********************************************************
@@ -223,15 +208,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             return null;
         }
 
-        // for a folder we have 3 ways to provide an icon
-        // 1) an image is taken from the folder and used as icon
-        // 2) multiple images are taken from the folder to form an animated gif icon
-        // 3) if there are no documents that we know how to iconify, use defaalt
-        // this is "TRY DEEP", it takes time so it should be called ONLY from the icon factory
-        // i.e. in a separste thread
-
         // try to find an icon for the folder
-
         File dir = path.toFile();
         File[] files = dir.listFiles();
         if ( files == null)
@@ -302,7 +279,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         else
         {
             if (dbg) logger.log("picking first image");
-            return images_in_folder.get(0).toPath();
+            return images_in_folder.getFirst().toPath();
         }
     }
 
@@ -451,9 +428,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             }
             if ( aborter.should_abort()) return;
             Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter,logger);
-            Fx_batch_injector.inject(() -> {
-                disk_foot_print_receiver.set_disk_foot_print_text(sizes);
-            },logger);
+            Fx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
         Actor_engine.execute(r,aborter,logger);
     }

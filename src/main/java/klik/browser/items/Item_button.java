@@ -53,7 +53,7 @@ public class Item_button extends Item implements Icon_destination
     public final boolean is_trash;
     public final boolean is_parent;
     public String text;
-    private Job job;
+    //private Job job;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     //**********************************************************
@@ -190,8 +190,8 @@ public class Item_button extends Item implements Icon_destination
     public void cancel_custom()
     //**********************************************************
     {
-        Actor_engine.cancel_one(job);
-        job = null;
+        //Actor_engine.cancel_job(job);
+        //job = null;
     }
 
     boolean make_animated_gif = true;

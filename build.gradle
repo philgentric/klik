@@ -8,19 +8,32 @@ plugins {
     //id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.22'
     //id 'org.graalvm.buildtools.native' version '0.9.28'
 
+    // for opencv
+    //id 'java-library'
+    //id 'org.bytedeco.gradle-javacpp-build' version "1.5.10"
+    id 'org.bytedeco.gradle-javacpp-platform' version "1.5.10"
+
 }
 
+ext {
+    javacppPlatform = 'macosx-arm64'
+}
 group = 'klik'
 version = '1.0.0'
 
 repositories {
+    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
+    jcenter()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+
 }
 
 compileJava {
     // this is needed to enable the virtual threads preview feature in java20
     //options.compilerArgs += ['--enable-preview']
+    options.compilerArgs += ['-Xlint:-options']
 }
 
 java {
@@ -32,12 +45,23 @@ java {
 dependencies {
     // EXIF reader
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
-    // Cache
+      // Cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
     // files etc
     implementation group: 'commons-io', name: 'commons-io', version: '2.15.1'
     // PDF icons
     implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '3.0.1'
+
+
+    implementation group: 'org.bytedeco', name: 'opencv', version: '4.9.0-1.5.10'
+    //implementation "org.bytedeco:javacv-platform:1.5.10"
+    //implementation 'org.bytedeco:opencv:4.9.0-1.5.10:macosx-arm64'
+    //implementation 'org.bytedeco:openblas:0.3.9-1.5.3:macosx-arm64'
+    //implementation("org.bytedeco:javacv:1.5.10")
+    //implementation("org.bytedeco:javacv-platform:1.5.10")
+    //implementation("org.bytedeco:opencv:4.9.0-1.5.10")
+    //implementation group: 'org.bytedeco', name: 'flandmark-platform', version: '1.07-1.5.8'
+    //implementation group: 'org.bytedeco', name: 'openblas-platform', version: '0.3.6-1.5.1'
 
 }
 
@@ -57,7 +81,8 @@ application {
     //applicationDefaultJvmArgs = ["-Xms10G","-Xmx10G","-XX:+UseZGC","-XX:+ZGenerational"]
 
     // if you have a lot of RAM say 64GB or more
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational"]
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational",
+                                 "-Djava.library.path=/usr/local/lib"]
 
 }
 

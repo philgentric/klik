@@ -37,6 +37,7 @@ public class Paths_manager
     // these MUST be mutually exclusive:
     public ConcurrentSkipListMap<Path,Boolean> folders;
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
+
     public ConcurrentSkipListMap<Path, Boolean> iconized_sorted;
     public List<Path> iconized_paths = new ArrayList<>();
 
@@ -109,62 +110,72 @@ public class Paths_manager
 
 
     //long scan_dir_elapsed = 0;
+
+    AtomicBoolean scan_dir_in_flight = new AtomicBoolean(false);
     //**********************************************************
-    public Error_type scan_dir(Stage stage, String from)
+    public Error_type scan_dir_fx(Stage stage, String from)
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
         //logger.log((from+" scan dir "+folder_path));
+        Runnable r = () -> {
+            if ( scan_dir_in_flight.get()) return;
+            scan_dir_in_flight.set(true);
+            scan_dir_in_a_thread(stage, from);
+            scan_dir_in_flight.set(false);
 
-        {
-            Runnable r = () -> {
-                boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
-                boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
-                max_dir_text_length = 0;
-
-                boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
-                boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
-
-                iconized_paths.clear();
-                iconized_sorted.clear();
-                non_iconized.clear();
-                folders.clear();
-
-                rotation_cache.reload_cache_from_disk();
-                if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
-                        (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) )
-                {
-                    aspect_ratio_cache.reload_cache_from_disk();
-                    // start a thread that will refresh when ALL the aspect ratios are available
-                    // and switch the file_comparator
-                    aspect_ratio_cache.look_for_end(this, refresh_target);
-                }
-
-                do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-                refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
-            };
-            Actor_engine.execute(r, aborter, logger);
-        }
-        //scan_dir_elapsed += (System.currentTimeMillis()-start);
-        //logger.log("scan_dir_elapsed: "+scan_dir_elapsed);
+        };
+        Actor_engine.execute(r, aborter, logger);
         return Error_type.OK;
+    }
+    //**********************************************************
+    private void scan_dir_in_a_thread(Stage stage, String from)
+    //**********************************************************
+    {
+
+        boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
+        boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
+        max_dir_text_length = 0;
+
+        boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
+        boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
+
+        iconized_paths.clear();
+        iconized_sorted.clear();
+        non_iconized.clear();
+        folders.clear();
+
+        rotation_cache.reload_cache_from_disk();
+        boolean use_aspect_ratios = false;
+        if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
+                (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ) {
+            use_aspect_ratios = true;
+            aspect_ratio_cache.reload_cache_from_disk();
+            // start a thread that will refresh when ALL the aspect ratios are available
+            // and switch the file_comparator
+            aspect_ratio_cache.look_for_end(this, refresh_target);
+        }
+
+
+        do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
+        //if ( !use_aspect_ratios)
+        {
+            redo_iconized_sorted();
+        }
+        refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
     }
 
 
     //**********************************************************
-    public Error_type redo_iconized_sorted()
+    public void redo_iconized_sorted()
     //**********************************************************
     {
-        Runnable r = () -> {
-            iconized_sorted.clear();
-            for ( Path path : iconized_paths)
-            {
-                iconized_sorted.put(path,true);
-            }
-            refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
-        };
-        Actor_engine.execute(r, aborter, logger);
-        return Error_type.OK;
+        iconized_sorted.clear();
+        for ( Path path : iconized_paths)
+        {
+            iconized_sorted.put(path,true);
+        }
+        logger.log("redo_iconized_sorted; iconized_paths="+iconized_paths.size()+" iconized_sorted="+iconized_sorted.size());
     }
 
 
@@ -253,7 +264,7 @@ public class Paths_manager
                     if ( Guess_file_type.is_this_a_video_or_audio_file(stage,path,logger))
                     {
                         iconized_paths.add(path);
-                        iconized_sorted.put(path,true);
+                        //iconized_sorted.put(path,true);
                     }
                     else
                     {
@@ -262,7 +273,7 @@ public class Paths_manager
                     return;
                 }
                 iconized_paths.add(path);
-                iconized_sorted.put(path,true);
+                //iconized_sorted.put(path,true);
                 return;
             }
             non_iconized.put(path,true);
@@ -279,7 +290,7 @@ public class Paths_manager
             if (show_icons_instead_of_text)
             {
                 iconized_paths.add(path);
-                iconized_sorted.put(path,true);
+                //iconized_sorted.put(path,true);
                 return;
             }
             else
@@ -299,7 +310,7 @@ public class Paths_manager
             if (show_icons_instead_of_text)
             {
                 iconized_paths.add(path);
-                iconized_sorted.put(path,true);
+                //iconized_sorted.put(path,true);
                 return;
             }
             else
@@ -468,7 +479,7 @@ public class Paths_manager
     }
 
     //**********************************************************
-    public void remove_empty_folders(boolean recursively)
+    public void remove_empty_folders_fx(boolean recursively)
     //**********************************************************
     {
         for (Path p : folders.keySet())

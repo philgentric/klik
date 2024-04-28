@@ -3,7 +3,9 @@ package klik.browser.icons.animated_gifs;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.actor.virtual_threads.Concurency_limiter;
+import klik.util.Fx_batch_injector;
 import klik.util.Logger;
+import klik.util.Popups;
 
 //**********************************************************
 public class Animated_gif_generation_actor implements Actor
@@ -26,7 +28,7 @@ public class Animated_gif_generation_actor implements Actor
             throw new RuntimeException(e);
         }
         Animated_gif_generation_message mm = (Animated_gif_generation_message) m;
-        Ffmpeg_utils.video_to_gif(
+        boolean ok = Ffmpeg_utils.video_to_gif(
                 mm.owner,
                 mm.video_path,
                 mm.destination_gif_full_path,
@@ -35,6 +37,15 @@ public class Animated_gif_generation_actor implements Actor
                 mm.get_aborter(),
                 mm.logger);
         cl.release();
+        if ( !ok)
+        {
+            if (! mm.abort_reported.get())
+            {
+                mm.abort_reported.set(true);
+                Fx_batch_injector.inject(() -> Popups.popup_warning(mm.owner, "Massive animated gif generation for "+mm.video_path+" was ABORTED!", "Did you change dir ?",false,mm.logger), mm.logger);
+
+            }
+        }
 
         return null;
     }

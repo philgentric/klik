@@ -11,7 +11,10 @@ import klik.files_and_paths.Guess_file_type;
 import klik.level3.metadata.Tag_stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
+import klik.facerecognition.MyFaceRecognizer;
 import klik.properties.Static_application_properties;
+import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -153,7 +156,7 @@ public class Menus_for_image_window
         MenuItem undo_move = new MenuItem(I18n.get_I18n_string("Undo_LAST_move_or_delete", image_window.logger));
         undo_move.setOnAction(e -> {
             image_window.logger.log("undoing last move");
-            Undo_engine.perform_last_undo(image_window.the_Stage, image_window.aborter,image_window.logger);
+            Undo_engine.perform_last_undo_fx(image_window.the_Stage, image_window.aborter,image_window.logger);
         });
         return undo_move;
     }
@@ -353,6 +356,43 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
+    private static MenuItem get_set_as_reference_face_menu_item(Image_window image_window)
+    //**********************************************************
+    {
+        MenuItem mi = new MenuItem("Set_as_reference_face");//I18n.get_I18n_string("Open", image_window.logger));
+        mi.setOnAction(event ->
+        {
+            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            Path reference_face = image_window.image_display_handler.get_image_context().get().path;
+            MyFaceRecognizer.get_instance(image_window.logger).add_to_training_set(reference_face,reference_face.getParent().getFileName().toString());
+        });
+        return mi;
+    }
+    //**********************************************************
+    private static MenuItem get_compare_to_reference_face_menu_item(Image_window image_window)
+    //**********************************************************
+    {
+        MenuItem mi = new MenuItem("Compare to reference face");//I18n.get_I18n_string("Open", image_window.logger));
+        mi.setOnAction(event ->
+        {
+
+            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            Path tested = image_window.image_display_handler.get_image_context().get().path;
+
+            try {
+                String res = MyFaceRecognizer.get_instance(image_window.logger).eval(tested);
+                image_window.logger.log("result = "+res);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+        return mi;
+    }
+
+
+
+    //**********************************************************
     private static CheckMenuItem get_quality_check_menu_item(Image_window image_window)
     //**********************************************************
     {
@@ -387,13 +427,17 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static MenuItem make_edit2_menu_item(Image_window image_window)
+    private static MenuItem make_edit2_menu_item(Image_window image_window, Logger logger)
     //**********************************************************
     {
         MenuItem edit = new MenuItem(I18n.get_I18n_string("Open_With_Registered_Application", image_window.logger));
         edit.setOnAction(event -> {
 
-            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            if ( image_window.image_display_handler.get_image_context().isEmpty())
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL no context"));
+                return;
+            }
             image_window.image_display_handler.get_image_context().get().edit2(image_window.the_Stage,image_window.aborter);
         });
         return edit;
@@ -544,7 +588,7 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    public static ContextMenu make_context_menu(Browser the_browser, Image_window image_window)
+    public static ContextMenu make_context_menu(Browser the_browser, Image_window image_window, Logger logger)
     //**********************************************************
     {
 
@@ -562,7 +606,7 @@ public class Menus_for_image_window
         MenuItem edit_menu_item = make_edit_menu_item(image_window);
         context_menu.getItems().add(edit_menu_item);
 
-        MenuItem edit2_menu_item = make_edit2_menu_item(image_window);
+        MenuItem edit2_menu_item = make_edit2_menu_item(image_window,logger);
         context_menu.getItems().add(edit2_menu_item);
 
 
@@ -571,6 +615,13 @@ public class Menus_for_image_window
             CheckMenuItem quality = get_quality_check_menu_item(image_window);
             context_menu.getItems().add(quality);
         }
+
+
+        MenuItem set_as_reference_face = get_set_as_reference_face_menu_item(image_window);
+        context_menu.getItems().add(set_as_reference_face);
+
+        MenuItem compare_to_reference_face = get_compare_to_reference_face_menu_item(image_window);
+        context_menu.getItems().add(compare_to_reference_face);
 
         MenuItem open = get_open_menu_item(image_window);
         context_menu.getItems().add(open);

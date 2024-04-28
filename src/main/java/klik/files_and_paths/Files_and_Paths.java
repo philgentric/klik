@@ -1,7 +1,6 @@
 package klik.files_and_paths;
 
 
-import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
@@ -199,7 +198,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void clear_icon_cache_on_disk_with_warning(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_icon_cache_on_disk_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_icon_cache_dir(logger);
@@ -225,7 +224,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(Aborter aborter, Logger logger)
+    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_aspect_ratio_and_rotation_caches_dir(logger);
@@ -233,7 +232,7 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_on_disk_with_warning(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_folder_icon_cache_on_disk_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);
@@ -250,7 +249,7 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_no_warning(Aborter aborter, Logger logger)
+    public static void clear_folder_icon_cache_no_warning_fx(Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);
@@ -259,26 +258,37 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void clear_trash_with_warning(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_trash_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        List<Path> trashes = Static_application_properties.get_existing_trash_dirs(logger);
-        String s1 = I18n.get_I18n_string("Warning_delete", logger);
-        double size = 0;
-        for (Path trash : trashes) {
-            size += get_size_on_disk(trash, aborter, logger);
-        }
-        String s2 = (int) (size / 1000_000.0) + I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
-        if (size > 1000_000_000) {
-            double r = Math.round(size / 1000_000_00);
-            double s = r / 10.0;
-            s2 = (s) + I18n.get_I18n_string("GB_deleted", logger);//"MB of files will be truly deleted";
+        Runnable r = () -> {
+            List<Path> trashes = Static_application_properties.get_existing_trash_dirs(logger);
+            String s1 = I18n.get_I18n_string("Warning_delete", logger);
+            double size = 0;
+            for (Path trash : trashes) {
+                long tmp = get_size_on_disk(trash, aborter, logger);
+                logger.log("trash dir: "+trash+" "+tmp+" bytes");
+                size += tmp;
+            }
+            String s2 = (int) (size / 1000_000.0) + I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
+            if (size > 1000_000_000) {
+                double r1 = Math.round(size / 1000_000_00);
+                double s = r1 / 10.0;
+                s2 = (s) + I18n.get_I18n_string("GB_deleted", logger);//"MB of files will be truly deleted";
 
-        }
-        if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-        for (Path trash : trashes) {
-            delete_for_ever_all_files_in_dir_in_a_thread(trash, true, aborter,logger);
-        }
+            }
+            String finalS = s2;
+            Runnable r2 = () -> {
+                if (!Popups.popup_ask_for_confirmation(owner, s1, finalS, logger)) return;
+                for (Path trash : trashes) {
+                    delete_for_ever_all_files_in_dir_in_a_thread(trash, true, aborter,logger);
+                    logger.log("deletion ongoing: "+trash);
+                }
+            };
+            Fx_batch_injector.inject(r2,logger);
+        };
+        Actor_engine.execute(r,new Aborter("clean trash",logger),logger);
+
     }
 
 
@@ -565,13 +575,10 @@ public class Files_and_Paths {
         return sb.toString();
     }
 
-
-
     //**********************************************************
     private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Aborter aborter, Logger logger)
     //**********************************************************
     {
-
         Runnable r = () -> {
             String s = delete_for_ever_all_files_in_dir(dir, also_folders,logger);
             if ( s != null)
@@ -603,19 +610,20 @@ public class Files_and_Paths {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))//, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
         {
+
             List<Old_and_new_Path> l = new ArrayList<>();
             for (Path p : stream)
             {
                 if (Files.isDirectory(p))
                 {
                     String s = delete_for_ever_all_files_in_dir(p, also_folders, logger);
-                    if ( s != null) return s;
+                    if ( s != null) logger.log(s);
                     if (also_folders) Files.delete(p);
                 }
                 else
                 {
                     String s = delete_for_ever_a_file(p,l,logger);
-                    if ( s != null) return s;
+                    if ( s != null) logger.log(s);
 
                 }
 

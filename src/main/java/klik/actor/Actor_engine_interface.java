@@ -1,12 +1,8 @@
 package klik.actor;
 
 import klik.util.Logger;
-import klik.util.execute.Scheduled_thread_pool;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 //**********************************************************
 public interface Actor_engine_interface
@@ -14,7 +10,7 @@ public interface Actor_engine_interface
 {
 
     Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger); // message and/or tr may be null
-    void cancel_one(Job canceled);
+    void cancel_job(Job canceled);
     void stop();
     int how_many_threads_are_in_flight();
     Aborter get_aborter();
@@ -23,7 +19,7 @@ public interface Actor_engine_interface
     default void cancel_all(ConcurrentLinkedQueue<Job> jobs)
     //**********************************************************
     {
-        for ( Job j : jobs)  cancel_one(j);
+        for ( Job j : jobs)  cancel_job(j);
     }
 
     //**********************************************************

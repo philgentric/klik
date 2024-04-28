@@ -1,6 +1,5 @@
 package klik.properties;
 
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 
@@ -207,7 +206,7 @@ public class Static_application_properties
 
 
     //**********************************************************
-    public static void set_monitor_browsed_folders(boolean b, Logger logger)
+    public static void set_monitor_browsed_folders_fx(boolean b, Logger logger)
     //**********************************************************
     {
         get_properties_manager(logger).save_unico(MONITOR_BROWSED_FOLDERS, String.valueOf(b), false);
@@ -431,14 +430,14 @@ public class Static_application_properties
 
 
     //**********************************************************
-    public static void set_cache_size_limit_warning_megabytes(int warning_megabytes, Logger logger)
+    public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes, Logger logger)
     //**********************************************************
     {
         get_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes), false);
     }
 
     //**********************************************************
-    public static int get_cache_size_limit_warning_megabytes(Logger logger)
+    public static int fx(Logger logger)
     //**********************************************************
     {
         int warning_megabytes = DEFAULT_SIZE_WARNING_MEGABYTES;

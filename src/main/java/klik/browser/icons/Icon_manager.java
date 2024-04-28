@@ -25,7 +25,6 @@ import klik.util.Stack_trace_getter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -449,11 +448,11 @@ public class Icon_manager
     }
 
     //**********************************************************
-    public void clear_aspect_ratio_cache()
+    public void clear_aspect_ratio_cache_fx()
     //**********************************************************
     {
         if ( paths_manager.aspect_ratio_cache == null) return;
-        paths_manager.aspect_ratio_cache.clear_RAM_cache();
+        paths_manager.aspect_ratio_cache.clear_RAM_cache_fx();
     }
 
     //**********************************************************
@@ -642,13 +641,14 @@ public class Icon_manager
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Icon_manager: show_total_size_deep_in_each_folder");
         AtomicInteger count = new AtomicInteger(0);
+        Show_running_man_frame show_running_man_frame = Show_running_man_frame.show_running_man_with_cancel_button("Computing folder sizes", 300, logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button item_button)
             {
                 if(Files.isDirectory(item_button.get_true_path()))
                 {
-                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(), folder_total_sizes_cache, aborter, logger);
+                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(), folder_total_sizes_cache, show_running_man_frame.aborter, logger);
                 }
             }
         }
@@ -656,7 +656,6 @@ public class Icon_manager
             @Override
             public void run() {
                 long start = System.currentTimeMillis();
-                CountDownLatch x = Show_running_man_frame.show_running_man("Computing folder sizes", 300, aborter, logger);
                 for(;;) {
                     try {
                         Thread.sleep(100);
@@ -665,7 +664,7 @@ public class Icon_manager
                     }
                     if (count.get() == 0)
                     {
-                        x.countDown();
+                        show_running_man_frame.close();
                         Fx_batch_injector.inject(()-> geometry_changed(browser,pane,mandatory,"sort by size",false),logger);
                         if ( System.currentTimeMillis()-start > 3000) {
                             Ding.play("display all folder sizes", logger);
@@ -917,11 +916,11 @@ public class Icon_manager
     }
 
     //**********************************************************
-    public void clear_rotation_cache()
+    public void clear_rotation_cache_fx()
     //**********************************************************
     {
         if ( paths_manager.rotation_cache == null) return;
-        paths_manager.rotation_cache.clear_RAM_cache();
+        paths_manager.rotation_cache.clear_RAM_cache_fx();
     }
 
 }

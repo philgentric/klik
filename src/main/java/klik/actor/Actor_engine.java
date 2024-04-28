@@ -65,11 +65,11 @@ public class Actor_engine // is a singleton
     }
 
     //**********************************************************
-    public static void cancel_one(Job job)
+    public static void cancel_job(Job job)
     //**********************************************************
     {
         if ( instance == null) return;
-        instance.cancel_one(job);
+        instance.cancel_job(job);
     }
 
     //**********************************************************

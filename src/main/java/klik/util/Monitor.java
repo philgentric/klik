@@ -37,15 +37,17 @@ public class Monitor
                 {
                     if ( aborter.should_abort()) return;
 
-                    if ( !disk_usage_monitor.monitor()) break;
-                    if ( !cache_auto_clean.monitor()) break;
-                    if ( !history_auto_clean.monitor()) break;
-
                     try {
                         Thread.sleep(10*60*1000);
                     } catch (InterruptedException e) {
                         logger.log(""+e);
                     }
+
+                    if ( !disk_usage_monitor.monitor()) break;
+                    if ( !cache_auto_clean.monitor()) break;
+                    if ( !history_auto_clean.monitor()) break;
+
+
                 }
             }
         };

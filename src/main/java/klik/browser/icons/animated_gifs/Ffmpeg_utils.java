@@ -15,10 +15,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.actor.Job_termination_reporter;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
 import klik.properties.Static_application_properties;
+import klik.search.Show_running_man_frame;
+import klik.util.Fx_batch_injector;
+import klik.util.Popups;
 import klik.util.execute.Execute_command;
 import klik.util.From_disk;
 import klik.util.Logger;
@@ -30,20 +34,21 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Ffmpeg_utils
 //**********************************************************
 {
+    private static final boolean dbg = false;
     private static final int HUNDRED =100;
     private static final Locale us_locale = new Locale("en");
-
 
     //**********************************************************
     public static void generate_many_gifs(Stage owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
     //**********************************************************
     {
-
         int duration_in_seconds = get_video_duration(owner, video_path, logger);
         if ( duration_in_seconds > 3*3600)
         {
@@ -63,18 +68,49 @@ public class Ffmpeg_utils
             c.add(new Old_and_new_Path(null,dir.toPath(),Command_old_and_new_Path.command_move,Status_old_and_new_Path.before_command,false));
             Change_gang.report_changes(c);
         }
+        AtomicBoolean abort_reported = new AtomicBoolean(false);
+        Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
+        AtomicInteger in_flight = new AtomicInteger(0);
+        Show_running_man_frame running_man = Show_running_man_frame.show_running_man_with_cancel_button("Wait for animated gifs to be generated",20*60,logger);
+        aborter = running_man.aborter;
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
-            if (aborter.should_abort()) return;
+            if (running_man.aborter.should_abort())
+            {
+                Fx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,logger), logger);
+                return;
+            }
             String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",start)+".gif";
             Path destination_gif_full_path = Path.of(dir.getAbsolutePath(),name);
 
-            Actor_engine.run(
-                    new Animated_gif_generation_actor(logger), // need on actor instance per task because we want to be able to abort
-                    new Animated_gif_generation_message(owner,video_path,destination_gif_full_path,clip_lenght,start,aborter,logger),
-                    null,
+            Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
+            in_flight.incrementAndGet();
+            Actor_engine.run(actor,
+                    new Animated_gif_generation_message(owner,video_path,destination_gif_full_path,clip_lenght,start,running_man.aborter,abort_reported,logger),
+                    tr,
                     logger);
         }
+
+        Runnable tracker =  new Runnable() {
+            @Override
+            public void run() {
+                for(;;)
+                {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    if( in_flight.get() == 0)
+                    {
+                        running_man.close();
+                        return;
+                    }
+                }
+            }
+        };
+        Actor_engine.execute(tracker,running_man.aborter,logger);
     }
 
 
@@ -106,7 +142,7 @@ public class Ffmpeg_utils
                 String sub = l.substring(9);
                 double dd = Double.parseDouble(sub);
                 duration = (int) dd;
-                logger.log("FOUND DURATION" + duration + "seconds");
+                if (dbg) logger.log("FOUND DURATION" + duration + "seconds");
                 break;
             }
         }
@@ -118,13 +154,14 @@ public class Ffmpeg_utils
             Stage owner,
             Path video_path,
             Aborter aborter,
+            AtomicBoolean aborted_reported,
             Logger logger)
     //**********************************************************
     {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                video_to_mp4(owner, video_path, aborter, logger);
+                video_to_mp4(owner, video_path, aborter, aborted_reported,logger);
             }
         };
         //Threads.execute(r,logger);
@@ -136,6 +173,7 @@ public class Ffmpeg_utils
             Stage owner,
             Path video_path,
             Aborter aborter,
+            AtomicBoolean aborted_reported,
             Logger logger)
     //**********************************************************
     {
@@ -152,6 +190,12 @@ public class Ffmpeg_utils
         if (aborter.should_abort())
         {
             logger.log("video_to_gif aborted");
+            if ( !aborted_reported.get())
+            {
+                aborted_reported.set(true);
+                logger.log("video_to_gif abort reported");
+                Fx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false, logger), logger);
+            }
             return;
         }
         // Output file is empty
@@ -165,7 +209,7 @@ public class Ffmpeg_utils
     }
 
     //**********************************************************
-    public static void video_to_gif(
+    public static boolean video_to_gif(
             Stage owner,
             Path video_path,
             Path destination_gif_full_path,
@@ -199,7 +243,7 @@ public class Ffmpeg_utils
         if (aborter.should_abort())
         {
             logger.log("video_to_gif aborted");
-            return;
+            return false;
         }
         // Output file is empty
         StringBuilder sb = new StringBuilder();
@@ -214,9 +258,10 @@ public class Ffmpeg_utils
         if (sb.toString().contains("Output file is empty"))
         {
             //retry without delay
-            video_to_gif(owner, video_path, destination_gif_full_path, clip_duration_in_seconds, 0, aborter,logger);
+            return video_to_gif(owner, video_path, destination_gif_full_path, clip_duration_in_seconds, 0, aborter,logger);
 
         }
+        return true;
     }
 
     //**********************************************************

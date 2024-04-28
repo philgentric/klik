@@ -43,7 +43,7 @@ public class Disk_usage_monitor
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Static_application_properties.get_cache_size_limit_warning_megabytes (logger);
+        warning_limit_bytes = Static_application_properties.fx(logger);
 
 
     }
@@ -61,7 +61,11 @@ public class Disk_usage_monitor
         for( Monitored_folder monitored_folder : monitored_folders)
         {
             long tmp = Files_and_Paths.get_size_on_disk_concurrent(monitored_folder.path,aborter,logger);
+
+            if ( aborter.should_abort()) return false;
+
             tmp = tmp/1_000_000; // mega bytes!
+
 
             if ( tmp > warning_limit_bytes)
             {
@@ -78,7 +82,7 @@ public class Disk_usage_monitor
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
                         Files_and_Paths.clear_icon_cache_on_disk_no_warning(aborter,logger);
-                        Files_and_Paths.clear_folder_icon_cache_no_warning(aborter,logger);
+                        Files_and_Paths.clear_folder_icon_cache_no_warning_fx(aborter,logger);
                         continue;
                     }
                 }
@@ -86,7 +90,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(aborter,logger);
+                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(aborter,logger);
                         continue;
                     }
                 }

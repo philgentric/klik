@@ -2,6 +2,7 @@ package klik.search;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -12,49 +13,69 @@ import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
-import klik.util.Stack_trace_getter;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 //**********************************************************
 public class Show_running_man_frame
 //**********************************************************
 {
-	private final Aborter aborter;
+	public final Aborter aborter;
 	private final int timeout_s;
+	private final boolean with_abort_button;
 	Logger logger;
 	Stage stage;
 	ImageView iv;
 	long start;
-	//private final LinkedBlockingDeque<String> in = new LinkedBlockingDeque<>();
 	private final CountDownLatch latch = new CountDownLatch(1);
 
 	//**********************************************************
-	//public static LinkedBlockingDeque <String> show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	public static CountDownLatch show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
-		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s, logger);
+		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s, false,logger);
+		launch(local, wait_message, logger);
+		return local.latch;
+	}
+	//**********************************************************
+	public static Show_running_man_frame show_running_man_with_cancel_button(String wait_message, int timeout_s, Logger logger)
+	//**********************************************************
+	{
+		Show_running_man_frame local = new Show_running_man_frame(null, timeout_s, true, logger);
+		launch(local, wait_message,logger);
+		return local;
+	}
+	//**********************************************************
+	private static CountDownLatch launch(Show_running_man_frame local, String wait_message, Logger logger)
+	//**********************************************************
+	{
 		if ( Platform.isFxApplicationThread())
 		{
 			local.define_fx(wait_message);
 		}
-		else {
+		else
+		{
 			Fx_batch_injector.inject(()->local.define_fx(wait_message),logger);
 		}
-		//return local.in;
 		return local.latch;
 	}
 
 	//**********************************************************
-	private Show_running_man_frame(Aborter aborter_, int timeout_s_, Logger logger_)
+	private Show_running_man_frame(Aborter aborter_, int timeout_s_, boolean with_abort_button_, Logger logger_)
 	//**********************************************************
 	{
-		aborter = aborter_;
-        timeout_s = timeout_s_;
+		if ( with_abort_button_)
+		{
+			aborter = new Aborter("Show_running_man_frame",logger_);
+		}
+		else
+		{
+			aborter = aborter_;
+		}
+		timeout_s = timeout_s_;
         logger = logger_;
+		with_abort_button = with_abort_button_;
 	}
 
 	//**********************************************************
@@ -73,6 +94,15 @@ public class Show_running_man_frame
 		stage.setMinWidth(600);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
+
+		if ( with_abort_button)
+		{
+			Button abort = new Button("Abort");
+			vbox.getChildren().add(abort);
+			abort.setOnAction(e -> aborter.abort("aborted by user"));
+		}
+
+
 		Scene scene = new Scene(vbox);
 
 		stage.setTitle(wait_message);//I18n.get_I18n_string("Wait", logger));
@@ -161,5 +191,9 @@ public class Show_running_man_frame
 		{
 			Fx_batch_injector.inject(() -> stage.close(),logger);
 		}
+	}
+
+	public void close() {
+		latch.countDown();
 	}
 }

@@ -60,7 +60,6 @@ public class System_open_actor implements Actor
     {
         System_open_message som = (System_open_message) m;
 
-        Fx_batch_injector.inject(() -> Popups.popup_warning(som.the_Stage, "Opening....", "Please wait " + som.path,true,som.logger), som.logger);
 
         if (som.special) return special(som);
 
@@ -99,6 +98,8 @@ public class System_open_actor implements Actor
             return null;
         }
         som.logger.log("special open for " + som.path + " with " + app);
+        Fx_batch_injector.inject(() -> Popups.popup_warning(som.the_Stage, "Calling MacOS open for: ", "Please wait " + som.path,true,som.logger), som.logger);
+
         call_MACOS_open(som, app);
         //call_exec(som, app));
 

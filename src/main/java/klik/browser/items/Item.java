@@ -1,6 +1,5 @@
 package klik.browser.items;
 
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,9 +10,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -23,8 +19,6 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.browser.Drag_and_drop;
-import klik.util.Fx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
@@ -40,7 +34,6 @@ import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -194,7 +187,7 @@ public abstract class Item implements Icon_destination
         icon_fabrication_requested.set(false);
         if ( icon_job!= null)
         {
-            Actor_engine.cancel_one(icon_job); // will trigger the aborter and if there is an associated thread, will interrupt it
+            Actor_engine.cancel_job(icon_job); // will trigger the aborter and if there is an associated thread, will interrupt it
             icon_job = null;
         }
     }
@@ -241,7 +234,7 @@ public abstract class Item implements Icon_destination
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
-                context_menu.getItems().add(create_edit_color_menu_item(path, dbg,logger));
+                context_menu.getItems().add(create_edit_color_menu_item(logger));
 
 
             }
@@ -284,7 +277,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Clear_Trash_Folder",logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("clearing trash!");
-            Files_and_Paths.clear_trash_with_warning(browser.my_Stage.the_Stage, browser_aborter,logger);
+            Files_and_Paths.clear_trash_with_warning_fx(browser.my_Stage.the_Stage, browser_aborter,logger);
         });
         return menu_item;
     }
@@ -306,7 +299,6 @@ public abstract class Item implements Icon_destination
             } catch (IOException e)
             {
                 logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
-                return;
             }
         });
         return menu_item;
@@ -492,7 +484,7 @@ public abstract class Item implements Icon_destination
     }
 
     //**********************************************************
-    public  MenuItem create_edit_color_menu_item(Path path, boolean dbg, Logger logger)
+    public  MenuItem create_edit_color_menu_item(Logger logger)
     //**********************************************************
     {
         String text = I18n.get_I18n_string("Color_Tag",logger);

@@ -1,10 +1,7 @@
 package klik.browser;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.WindowEvent;
 
 //**********************************************************
 public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEvent>

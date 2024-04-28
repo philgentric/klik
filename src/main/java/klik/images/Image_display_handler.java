@@ -182,7 +182,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     {
         //logger.log("handle_mouse_clicked_secondary");
-        ContextMenu contextMenu = Menus_for_image_window.make_context_menu(the_browser, image_window);
+        ContextMenu contextMenu = Menus_for_image_window.make_context_menu(the_browser, image_window, logger);
         contextMenu.show(stage, e.getScreenX(), e.getScreenY());
     }
 

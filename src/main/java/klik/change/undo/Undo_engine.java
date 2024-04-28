@@ -1,6 +1,5 @@
 package klik.change.undo;
 
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.change.active_list_stage.Datetime_to_signature_source;
@@ -10,7 +9,6 @@ import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.change.active_list_stage.Active_list_stage;
-import klik.util.Stack_trace_getter;
 
 import java.nio.file.Files;
 import java.time.LocalDateTime;
@@ -63,7 +61,7 @@ public class Undo_engine implements Datetime_to_signature_source
         return get_instance(aborter, logger_).add_internal(l);
     }
     //**********************************************************
-    public static boolean perform_last_undo(Stage owner, Aborter aborter, Logger logger)
+    public static boolean perform_last_undo_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         return get_instance(aborter, logger).undo_last_move(owner);

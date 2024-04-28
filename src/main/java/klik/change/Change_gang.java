@@ -63,8 +63,6 @@ public class Change_gang
     public static Possible_outcome is_my_directory_impacted(Path dir, List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
     {
-        if (l.size() > 1 ) return Possible_outcome.more_changes;
-        //String ref = dir.toAbsolutePath().toString();
         for (Old_and_new_Path oan : l)
         {
             if (oan.get_old_Path() == null)

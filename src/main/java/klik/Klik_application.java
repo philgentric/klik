@@ -46,7 +46,8 @@ public class Klik_application extends Application
 
         Language_manager.init_registered_languages(logger);
 
-        new Monitor(new Aborter("klik",logger),logger).start();
+        Browser.monitoring_aborter = new Aborter("Monitoring", logger);
+        new Monitor(Browser.monitoring_aborter,logger).start();
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);

@@ -12,6 +12,7 @@ import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
+import klik.facerecognition.MyFaceRecognizer;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -29,6 +30,7 @@ import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Active_list_stage_action;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
+import org.opencv.face.FaceRecognizer;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -89,7 +91,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Clear_Trash_Folder",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Files_and_Paths.clear_trash_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
+        item.setOnAction(event -> Files_and_Paths.clear_trash_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger));
         return item;
     }
     //**********************************************************
@@ -111,10 +113,10 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(browser.aborter, logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning(browser.aborter, logger);
-            browser.icon_manager.clear_aspect_ratio_cache();
+            Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter, logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter, logger);
+            browser.icon_manager.clear_aspect_ratio_cache_fx();
         });
         return item;
     }
@@ -126,7 +128,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            browser.icon_manager.clear_aspect_ratio_cache();
+            browser.icon_manager.clear_aspect_ratio_cache_fx();
         });
         return item;
     }
@@ -138,9 +140,9 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_Disk_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(browser.aborter, logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning(browser.aborter,logger);
+            Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter, logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter,logger);
         });
         return item;
     }
@@ -153,8 +155,8 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger);
-            browser.icon_manager.clear_aspect_ratio_cache();
+            Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            browser.icon_manager.clear_aspect_ratio_cache_fx();
         });
         return item;
     }
@@ -167,9 +169,9 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning(browser.aborter,logger);
-            browser.icon_manager.clear_aspect_ratio_cache();
-            browser.icon_manager.clear_rotation_cache();
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter,logger);
+            browser.icon_manager.clear_aspect_ratio_cache_fx();
+            browser.icon_manager.clear_rotation_cache_fx();
         });
         return item;
     }
@@ -184,7 +186,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Folder_Icon_Cache_Folder",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Files_and_Paths.clear_folder_icon_cache_on_disk_with_warning(browser.my_Stage.the_Stage,browser.aborter,logger));
+        item.setOnAction(event -> Files_and_Paths.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger));
         return item;
     }
 
@@ -209,7 +211,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
+            browser.redraw_fx("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
         });
         return item;
     }
@@ -225,7 +227,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons_for_folders(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons_for_folders(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
+            browser.redraw_fx("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
         });
         return item;
     }
@@ -238,7 +240,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_single_column(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_single_column(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
+            browser.redraw_fx("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),true);
         });
         return item;
     }
@@ -280,11 +282,21 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_hidden_directories(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_hidden_directories(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw("show hidden file boolean changed",true);
+            browser.redraw_fx("show hidden file boolean changed",true);
         });
         return item;
     }
 
+
+    //**********************************************************
+    public MenuItem make_stop_monitoring_menu_item()
+    //**********************************************************
+    {
+        String text = "Stop monitoring";// I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(actionEvent->Browser.monitoring_aborter.abort("user stops monitoring"));
+        return item;
+    }
     //**********************************************************
     public MenuItem make_monitor_browsed_folders_check_menu_item()
     //**********************************************************
@@ -293,7 +305,7 @@ public class Browser_menus
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_monitor_browsed_folders(logger));
-        item.setOnAction(actionEvent -> Static_application_properties.set_monitor_browsed_folders(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        item.setOnAction(actionEvent -> Static_application_properties.set_monitor_browsed_folders_fx(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
         return item;
     }
 
@@ -310,7 +322,7 @@ public class Browser_menus
 
         item.setOnAction(actionEvent -> {
             //Static_application_properties.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.get_cache_size_limit_warning_megabytes (logger));
+            TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.fx(logger));
             Look_and_feel_manager.set_dialog_look(dialog);
             dialog.initOwner(browser.my_Stage.the_Stage);
             dialog.setWidth(800);
@@ -325,7 +337,7 @@ public class Browser_menus
                 try
                 {
                     int val = Integer.parseInt(new_val);
-                    Static_application_properties.set_cache_size_limit_warning_megabytes(val,logger);
+                    Static_application_properties.set_cache_size_limit_warning_megabytes_fx(val,logger);
 
                 }
                 catch (NumberFormatException e)
@@ -350,7 +362,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_enable_fusk(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw("enable fusk boolean changed",true);
+            browser.redraw_fx("enable fusk boolean changed",true);
 
         });
         return item;
@@ -381,7 +393,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_hidden_files(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_hidden_files(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw("show hidden file boolean changed",true);
+            browser.redraw_fx("show hidden file boolean changed",true);
         });
         return item;
     }
@@ -393,7 +405,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Undo_engine.perform_last_undo(browser.my_Stage.the_Stage,browser.aborter, logger));
+        item.setOnAction(event -> Undo_engine.perform_last_undo_fx(browser.my_Stage.the_Stage,browser.aborter, logger));
         return item;
     }
 
@@ -404,7 +416,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Remove_corrupted_images",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> remove_corrupted_images());
+        item.setOnAction(event -> remove_corrupted_images_fx());
         return item;
     }
     //**********************************************************
@@ -414,7 +426,40 @@ public class Browser_menus
         String text = "Clean up names (experimental)";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> clean_up_names());
+        item.setOnAction(event -> clean_up_names_fx());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_add_to_face_recognition_training_set_menu_item()
+    //**********************************************************
+    {
+        String text = "Add all images to face recognition training set";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> MyFaceRecognizer.get_instance(logger).add_all_pictures_to_training_set(browser.displayed_folder_path));
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_train_menu_item()
+    //**********************************************************
+    {
+        String text = "Train face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> MyFaceRecognizer.get_instance(logger).train());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_reset_train_menu_item()
+    //**********************************************************
+    {
+        String text = "Reset face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> MyFaceRecognizer.reset());
         return item;
     }
 
@@ -425,7 +470,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Search_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> search_files_by_keyworks());
+        item.setOnAction(event -> search_files_by_keyworks_fx());
         return item;
     }
 
@@ -436,31 +481,31 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Remove_empty_folders_recursively",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> remove_empty_folders_recursively());
+        item.setOnAction(event -> remove_empty_folders_recursively_fx());
         return item;
     }
 
     //**********************************************************
-    public void remove_empty_folders()
+    public void remove_empty_folders_fx()
     //**********************************************************
     {
-        remove_empty_folders(false);
+        remove_empty_folders_fx(false);
     }
 
     //**********************************************************
-    public void remove_empty_folders_recursively()
+    public void remove_empty_folders_recursively_fx()
     //**********************************************************
     {
-        remove_empty_folders(true);
+        remove_empty_folders_fx(true);
     }
 
     //**********************************************************
-    public void remove_empty_folders(boolean recursively)
+    public void remove_empty_folders_fx(boolean recursively)
     //**********************************************************
     {
-        browser.paths_manager.remove_empty_folders(recursively);
+        browser.paths_manager.remove_empty_folders_fx(recursively);
         // can be called from a thread which is NOT the FX event thread
-        Fx_batch_injector.inject(() -> browser.redraw("remove empty folder", true),logger);
+        Fx_batch_injector.inject(() -> browser.redraw_fx("remove empty folder", true),logger);
     }
 
     //**********************************************************
@@ -469,7 +514,7 @@ public class Browser_menus
     {
         String text = I18n.get_I18n_string("Remove_empty_folders",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> remove_empty_folders());
+        item.setOnAction(event -> remove_empty_folders_fx());
         return item;
     }
 
@@ -625,7 +670,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Refresh",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.redraw("refresh",true));
+        item.setOnAction(event -> browser.redraw_fx("refresh",true));
         return item;
     }
 
@@ -1014,7 +1059,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_column_width(length,logger);
-                browser.redraw("column width changed",true);
+                browser.redraw_fx("column width changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1047,7 +1092,7 @@ public class Browser_menus
                 }
                 Static_application_properties.set_icon_size(target_size,logger);
                 logger.log("icon size changed to "+target_size);
-                browser.redraw("icon size changed",true);
+                browser.redraw_fx("icon size changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1071,7 +1116,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_folder_icon_size(target_size,logger);
-                browser.redraw("folder icon size changed",true);
+                browser.redraw_fx("folder icon size changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1095,7 +1140,7 @@ public class Browser_menus
                     if (cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_font_size(target_size,logger);
-                browser.redraw("font size changed", true);
+                browser.redraw_fx("font size changed", true);
             }
         });
         menu.getItems().add(item);
@@ -1271,7 +1316,7 @@ public class Browser_menus
 
 
     //**********************************************************
-    private void clean_up_names()
+    private void clean_up_names_fx()
     //**********************************************************
     {
         if ( !Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage, "EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",logger)) return;
@@ -1306,7 +1351,7 @@ public class Browser_menus
 
 
     //**********************************************************
-    private void remove_corrupted_images()
+    private void remove_corrupted_images_fx()
     //**********************************************************
     {
         Path dir = browser.displayed_folder_path;
@@ -1326,7 +1371,7 @@ public class Browser_menus
     }
 
     //**********************************************************
-    void search_files_by_keyworks()
+    void search_files_by_keyworks_fx()
     //**********************************************************
     {
         List<String> given = new ArrayList<>();
