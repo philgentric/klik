@@ -132,36 +132,26 @@ public class Paths_manager
     private void scan_dir_in_a_thread(Stage stage, String from)
     //**********************************************************
     {
-
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
         max_dir_text_length = 0;
-
         boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
         boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
-
         iconized_paths.clear();
         iconized_sorted.clear();
         non_iconized.clear();
         folders.clear();
 
         rotation_cache.reload_cache_from_disk();
-        boolean use_aspect_ratios = false;
         if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
                 (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ) {
-            use_aspect_ratios = true;
             aspect_ratio_cache.reload_cache_from_disk();
             // start a thread that will refresh when ALL the aspect ratios are available
             // and switch the file_comparator
             aspect_ratio_cache.look_for_end(this, refresh_target);
         }
-
-
         do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-        //if ( !use_aspect_ratios)
-        {
-            redo_iconized_sorted();
-        }
+        redo_iconized_sorted();
         refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
     }
 

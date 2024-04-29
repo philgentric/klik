@@ -129,6 +129,7 @@ public class Show_running_man_frame
 					//if (x == null)
 					if (!x)
 					{
+						// timeout
                         if (aborter.should_abort())
 						{
 							has_ended("aborted",false);
@@ -137,7 +138,7 @@ public class Show_running_man_frame
                         else count++;
                         if ( count > timeout_s)
 						{
-							timeout();
+							has_ended("Time count out", false);
 							return;
 						}
 						continue;
@@ -151,16 +152,7 @@ public class Show_running_man_frame
 		};
 		Actor_engine.execute(r,new Aborter("Show running man",logger),logger);
 	}
-
-	//**********************************************************
-	private void timeout()
-	//**********************************************************
-	{
-		//logger.log(Stack_trace_getter.get_stack_trace("Show running man, time out"));
-		has_ended("Time out", false);
-	}
-
-
+	
 	//**********************************************************
 	public void has_ended(String message, boolean sleep)
 	//**********************************************************

@@ -1,5 +1,6 @@
 package klik.facerecognition;
 
+import javafx.geometry.Rectangle2D;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.facerecognition.violajones.Viola_Jones_detector;
@@ -121,7 +122,7 @@ public class MyFaceRecognizer
         try {
             if ( !trainer.train()) return;
         } catch (Exception e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("train failed: "+e));
         }
         trained = true;
     }
@@ -215,6 +216,7 @@ public class MyFaceRecognizer
         return vector;
     }
 
+<<<<<<< Updated upstream
     //**********************************************************
     private Matrix image_to_vector2(Path p)
     //**********************************************************
@@ -227,6 +229,9 @@ public class MyFaceRecognizer
         return matrix;
     }
 
+=======
+    public static Rectangle2D face_rec =null;
+>>>>>>> Stashed changes
 
     //**********************************************************
     private static Mat extract_face(Mat gray,
@@ -237,7 +242,12 @@ public class MyFaceRecognizer
         MatOfRect faceRects = detect_face(gray,faceDetector);
         if (faceRects.toArray().length == 0) { // No faces detected
             logger.log("No faces detected in the image.");
-            return null; // or throw an exception, depending on your requirements
+            return null;
+        }
+        else {
+            Rect[] r = faceRects.toArray();
+            face_rec= new Rectangle2D(r[0].x,r[0].y,r[0].width,r[0].height);
+            logger.log("rect "+r[0].x+" "+r[0].y);
         }
         Mat face = new Mat(gray.rows(), gray.cols(), CvType.CV_8U);
         gray.submat(faceRects.toArray()[0]).copyTo(face);

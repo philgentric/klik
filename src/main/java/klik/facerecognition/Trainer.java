@@ -63,6 +63,10 @@ public class Trainer {
     }
 
     public String recognize(Matrix matrix) {
+        if ( featureExtraction == null)
+        {
+            return null;
+        }
         Matrix testCase = featureExtraction.getW().transpose().times(matrix.minus(featureExtraction.getMeanMatrix()));
         String result = KNN.assignLabel(model.toArray(new ProjectedTrainingMatrix[0]), testCase, k, metric);
         return result;
