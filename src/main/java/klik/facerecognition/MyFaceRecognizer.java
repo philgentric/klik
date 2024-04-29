@@ -2,16 +2,27 @@ package klik.facerecognition;
 
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.facerecognition.violajones.Viola_Jones_detector;
 import klik.files_and_paths.Guess_file_type;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import org.opencv.core.*;
+import org.opencv.core.Core.MinMaxLocResult;
+
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -20,8 +31,10 @@ public class MyFaceRecognizer
 //**********************************************************
 {
 
+    private static final int SMALL_SIZE = 64;
     private static MyFaceRecognizer instance;
     private CascadeClassifier faceDetector;
+    private Viola_Jones_detector faceDetector2;
     Trainer trainer;
     public final Logger logger;
     private boolean trained = false;
@@ -59,8 +72,11 @@ public class MyFaceRecognizer
     {
         try
         {
+            System.setProperty("java.library.path","/opt/homebrew/lib");
+            logger.log("\"java.library.path\"="+ System.getProperty("java.library.path"));
             logger.log("NATIVE_LIBRARY_NAME="+ Core.NATIVE_LIBRARY_NAME);
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+            //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+            System.loadLibrary("opencv_coremake clean");
         }
         catch (UnsatisfiedLinkError e)
         {
@@ -68,6 +84,9 @@ public class MyFaceRecognizer
             return false;
         }
         faceDetector = new CascadeClassifier("haarcascade_frontalface_default.xml");
+        InputStream haarXml = Viola_Jones_detector.class.getResourceAsStream("haarcascade_frontalface_default.xml");
+        faceDetector2 = new Viola_Jones_detector(haarXml);
+
 
         trainer = Trainer.builder()
                 .metric(new CosineDissimilarity())
@@ -196,9 +215,23 @@ public class MyFaceRecognizer
         return vector;
     }
 
+    //**********************************************************
+    private Matrix image_to_vector2(Path p)
+    //**********************************************************
+    {
+        BufferedImage gray = to_grey2(p);
+        BufferedImage face = extract_face2(gray);
+        if ( face == null) return null;
+        Matrix matrix = make_matrix_vectorized_2(face);
+        if ( matrix == null) return null;
+        return matrix;
+    }
+
 
     //**********************************************************
-    private static Mat extract_face(Mat gray, CascadeClassifier faceDetector, Logger logger)
+    private static Mat extract_face(Mat gray,
+                                    CascadeClassifier faceDetector,
+                                    Logger logger)
     //**********************************************************
     {
         MatOfRect faceRects = detect_face(gray,faceDetector);
@@ -225,6 +258,20 @@ public class MyFaceRecognizer
     }
 
     //**********************************************************
+    private BufferedImage extract_face2(BufferedImage gray)
+    //**********************************************************
+    {
+        List<Rectangle> list = detect_face2(gray);
+        if (list.size() == 0) { // No faces detected
+            logger.log("No faces detected in the image.");
+            return null; // or throw an exception, depending on your requirements
+        }
+        Rectangle r = list.get(0);
+        BufferedImage extracted = gray.getSubimage(r.x,r.y,r.width,r.height);
+        return extracted;
+    }
+
+    //**********************************************************
     private static MatOfRect detect_face(Mat gray, CascadeClassifier faceDetector)
     //**********************************************************
     {
@@ -236,6 +283,18 @@ public class MyFaceRecognizer
     }
 
     //**********************************************************
+    private List<Rectangle> detect_face2(BufferedImage img)
+    //**********************************************************
+    {
+        List<Rectangle> res = null;
+        synchronized (faceDetector2) {
+             res = faceDetector2.getFaces(img, 1, 1.25f, 0.1f,1,true);
+        }
+        return res;
+    }
+
+
+    //**********************************************************
     static Mat to_grey(Path path)
     //**********************************************************
     {
@@ -243,7 +302,44 @@ public class MyFaceRecognizer
         // Convert images to grayscale
         Mat grey = new Mat();//image.rows(), image.cols(), CvType.CV_8U);
         Imgproc.cvtColor(image, grey, Imgproc.COLOR_BGR2GRAY);
+
+        grey = normalize_min_max(grey);
         return grey;
+    }
+
+    //**********************************************************
+     BufferedImage to_grey2(Path path)
+    //**********************************************************
+    {
+        BufferedImage originalImage = null;
+        try {
+            originalImage = ImageIO.read(new FileInputStream(path.toFile()));
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+        BufferedImage gray = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(),
+                BufferedImage.TYPE_BYTE_GRAY);
+        Graphics g = gray.getGraphics();
+        g.drawImage(originalImage, 0, 0, null);
+        g.dispose();
+
+        return gray;
+    }
+
+
+    private static Mat normalize_min_max(Mat grey) {
+        MinMaxLocResult minMaxLocResult = Core.minMaxLoc(grey);
+
+        double minVal = minMaxLocResult.minVal;
+        double maxVal = minMaxLocResult.maxVal;
+        // Calculate the scaling factor
+        double scale = 255.0 / (maxVal - minVal);
+
+        // Apply the normalization
+        Mat normalizedImage = new Mat();
+        grey.convertTo(normalizedImage, -1, scale, -minVal + maxVal);
+
+        return normalizedImage;
     }
 
 
@@ -259,6 +355,32 @@ public class MyFaceRecognizer
         double[][] data2D = new double[picHeight][picWidth];
         byte[] pixels = new byte[picHeight * picWidth];
         face.get(0, 0, pixels); // Get all pixels at once
+        int idx = 0;
+        for (int row = 0; row < picHeight; row++) {
+            for (int col = 0; col < picWidth; col++) {
+                data2D[row][col] = (double) pixels[idx++] / 255.0;
+            }
+        }
+        return new Matrix(data2D);
+    }
+
+
+
+    private Matrix make_matrix_vectorized_2(BufferedImage face)
+    {
+        BufferedImage resized = new BufferedImage(SMALL_SIZE, SMALL_SIZE, BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = resized.createGraphics();
+        g.drawImage(face, 0, 0, SMALL_SIZE, SMALL_SIZE, null);
+        g.dispose();
+
+        byte[] pixels = ((DataBufferByte) resized.getRaster().getDataBuffer()).getData();
+
+        int picHeight = resized.getHeight();
+        logger.log("picHeight"+picHeight);
+        int picWidth = resized.getWidth();
+        logger.log("picWidth"+picWidth);
+        double[][] data2D = new double[picHeight][picWidth];
         int idx = 0;
         for (int row = 0; row < picHeight; row++) {
             for (int col = 0; col < picWidth; col++) {

@@ -7,15 +7,18 @@ import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.undo.Undo_engine;
+import klik.facerecognition.MyFaceRecognizer_noOpenCV;
 import klik.files_and_paths.Guess_file_type;
 import klik.level3.metadata.Tag_stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
-import klik.facerecognition.MyFaceRecognizer;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -364,12 +367,14 @@ public class Menus_for_image_window
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             Path reference_face = image_window.image_display_handler.get_image_context().get().path;
-            MyFaceRecognizer.get_instance(image_window.logger).add_to_training_set(reference_face,reference_face.getParent().getFileName().toString());
+            MyFaceRecognizer_noOpenCV i = MyFaceRecognizer_noOpenCV.get_instance(image_window.logger);
+            if ( i == null) return;
+            i.add_to_training_set(reference_face,reference_face.getParent().getFileName().toString());
         });
         return mi;
     }
     //**********************************************************
-    private static MenuItem get_compare_to_reference_face_menu_item(Image_window image_window)
+    private static MenuItem get_compare_to_reference_face_menu_item(Image_window image_window, Browser browser,Logger logger)
     //**********************************************************
     {
         MenuItem mi = new MenuItem("Compare to reference face");//I18n.get_I18n_string("Open", image_window.logger));
@@ -380,7 +385,20 @@ public class Menus_for_image_window
             Path tested = image_window.image_display_handler.get_image_context().get().path;
 
             try {
-                String res = MyFaceRecognizer.get_instance(image_window.logger).eval(tested);
+                MyFaceRecognizer_noOpenCV i = MyFaceRecognizer_noOpenCV.get_instance(image_window.logger);
+                if ( i == null) return;
+
+                BufferedImage face = i.extract_face(tested);
+                if ( face != null)
+                {
+                    if ( face.getWidth() > 0)
+                    {
+                        display(face, browser,logger);
+                    }
+                }
+
+
+                String res = i.eval(tested);
                 image_window.logger.log("result = "+res);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -390,6 +408,19 @@ public class Menus_for_image_window
         return mi;
     }
 
+    private static void display(BufferedImage face, Browser b, Logger logger) {
+
+        List<Path> trashes = Static_application_properties.get_existing_trash_dirs(logger);
+
+        Path path =  Path.of(trashes.get(0).toString(),"tmp.png");
+        try {
+            ImageIO.write(face, "png", path.toFile());
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return;
+        }
+        Image_window s = Image_window.get_Image_window(b, path, logger);
+    }
 
 
     //**********************************************************
@@ -620,7 +651,7 @@ public class Menus_for_image_window
         MenuItem set_as_reference_face = get_set_as_reference_face_menu_item(image_window);
         context_menu.getItems().add(set_as_reference_face);
 
-        MenuItem compare_to_reference_face = get_compare_to_reference_face_menu_item(image_window);
+        MenuItem compare_to_reference_face = get_compare_to_reference_face_menu_item(image_window, the_browser,logger);
         context_menu.getItems().add(compare_to_reference_face);
 
         MenuItem open = get_open_menu_item(image_window);

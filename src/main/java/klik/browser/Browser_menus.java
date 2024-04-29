@@ -13,6 +13,7 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.facerecognition.MyFaceRecognizer;
+import klik.facerecognition.MyFaceRecognizer_noOpenCV;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -437,7 +438,17 @@ public class Browser_menus
         String text = "Add all images to face recognition training set";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> MyFaceRecognizer.get_instance(logger).add_all_pictures_to_training_set(browser.displayed_folder_path));
+        item.setOnAction(event -> {
+            MyFaceRecognizer_noOpenCV i = MyFaceRecognizer_noOpenCV.get_instance(logger);
+            if ( i == null)
+            {
+                logger.log("failed: MyFaceRecognizer_noOpenCV instance is null");
+                return;
+            }
+            i.add_all_pictures_to_training_set(browser.displayed_folder_path);
+            logger.log("done: MyFaceRecognizer_noOpenCV add_all_pictures_to_training_set for "+browser.displayed_folder_path);
+
+        });
         return item;
     }
 
@@ -448,7 +459,15 @@ public class Browser_menus
         String text = "Train face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> MyFaceRecognizer.get_instance(logger).train());
+        item.setOnAction(event -> {
+            MyFaceRecognizer_noOpenCV i = MyFaceRecognizer_noOpenCV.get_instance(logger);
+            if ( i == null)
+            {
+                logger.log("failed: MyFaceRecognizer_noOpenCV instance is null");
+                return;
+            }
+            i.train();
+        });
         return item;
     }
 
@@ -459,7 +478,7 @@ public class Browser_menus
         String text = "Reset face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> MyFaceRecognizer.reset());
+        item.setOnAction(event -> MyFaceRecognizer_noOpenCV.reset());
         return item;
     }
 

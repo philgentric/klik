@@ -19,8 +19,7 @@ public class PCA extends FeatureExtraction {
 		}
 		return new PCA(trainingSet,labels,numOfComponents);
 	}
-	private PCA(ArrayList<Matrix> trainingSet, ArrayList<String> labels,
-	int numOfComponents) throws Exception
+	private PCA(ArrayList<Matrix> trainingSet, ArrayList<String> labels, int numOfComponents)
 	{
 		
 		this.trainingSet = trainingSet;
