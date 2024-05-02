@@ -1,0 +1,77 @@
+package klik.browser.icons.caches;
+
+
+import klik.browser.Image_and_rotation;
+
+public record Image_properties(double w, double h, Rotation rotation) {
+
+    public static Image_properties from(Image_and_rotation image_and_rotation)
+    {
+        double w = image_and_rotation.image().getWidth();
+        double h = image_and_rotation.image().getHeight();
+        Rotation rotation = image_and_rotation.rotation();
+        return new Image_properties(w,h, rotation);
+    }
+
+    public String to_string()
+    {
+        return w() + " "+ h()+ " " + rotation();
+    }
+
+    public static Image_properties from_string(String value) {
+        int first_space = value.indexOf(" ");
+        int second_space = value.indexOf(" ",first_space+1);
+        String ws = value.substring(0,first_space);
+        double w = Double.valueOf(ws.trim());
+        String hs = value.substring(first_space, second_space);
+        double h = Double.valueOf(hs.trim());
+        String rots = value.substring(second_space+1);
+        Rotation rotation = Rotation.valueOf(rots.trim());
+        return new Image_properties(w,h, rotation);
+    }
+
+    public double get_aspect_ratio()
+    {
+        switch (rotation())
+        {
+            case normal,upsidedown ->
+            {
+                return w/h;
+            }
+            case rot_90_clockwise, rot_90_anticlockwise -> {
+            return  h/w;
+        }
+        }
+        return 1.0;
+    }
+
+    public Double get_image_width() {
+        switch (rotation())
+        {
+            case normal,upsidedown ->
+            {
+                return w;
+            }
+            case rot_90_clockwise, rot_90_anticlockwise -> {
+                return  h;
+            }
+        }
+        return null;
+    }
+
+    public Double get_image_height() {
+        switch (rotation())
+        {
+            case normal,upsidedown ->
+            {
+                return h;
+            }
+            case rot_90_clockwise, rot_90_anticlockwise -> {
+                return  w;
+            }
+        }
+        return null;
+    }
+
+
+}

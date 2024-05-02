@@ -6,12 +6,10 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Error_receiver;
-import klik.browser.icons.caches.Aspect_ratio_cache;
-import klik.browser.icons.caches.Rotation_cache;
+import klik.browser.icons.caches.Image_properties_cache;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
-import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -21,6 +19,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +38,7 @@ public class Paths_manager
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
 
     public ConcurrentSkipListMap<Path, Boolean> iconized_sorted;
-    public List<Path> iconized_paths = new ArrayList<>();
+    public ConcurrentLinkedQueue<Path> iconized_paths = new ConcurrentLinkedQueue<>();
 
 
     public Comparator<? super Path> image_file_comparator = null;
@@ -49,18 +48,23 @@ public class Paths_manager
     public final int ID;
     public final Aborter aborter;
     public final Path folder_path;
-    final Aspect_ratio_cache aspect_ratio_cache;
-    final  Rotation_cache rotation_cache;
+    //final Aspect_ratio_cache aspect_ratio_cache;
+    //final Image_width_cache image_sizes_cache;
+    //final  Rotation_cache rotation_cache;
+    final Image_properties_cache image_properties_cache;
     private final Icon_factory_actor icon_factory_actor;
 
     private Refresh_target refresh_target;
 
     //**********************************************************
-    public Paths_manager(Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
+    //public Paths_manager(Image_width_cache image_sizes_cache, Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
+    public Paths_manager(Image_properties_cache image_properties_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
-        this.aspect_ratio_cache = aspect_ratio_cache;
-        this.rotation_cache = rotation_cache;
+        //this.image_sizes_cache = image_sizes_cache;
+        //this.aspect_ratio_cache = aspect_ratio_cache;
+        //this.rotation_cache = rotation_cache;
+        this.image_properties_cache = image_properties_cache;
         folder_path = displayed_folder_path;
         logger = logger_;
         refresh_target = refresh_target_;
@@ -71,7 +75,7 @@ public class Paths_manager
         //boolean gif_first = Static_application_properties.get_show_gifs_first(logger);
         switch (Static_application_properties.get_sort_files_by(logger))
         {
-            case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO:
+            case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
                 other_file_comparator = alphabetical_file_name_comparator;
                 break;
             case RANDOM:
@@ -142,14 +146,32 @@ public class Paths_manager
         non_iconized.clear();
         folders.clear();
 
-        rotation_cache.reload_cache_from_disk();
-        if ((Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
-                (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO) ) {
+        image_properties_cache.reload_cache_from_disk();
+        image_properties_cache.look_for_end(this, refresh_target);
+
+/*        rotation_cache.reload_cache_from_disk();
+        if (
+            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
+            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO)
+        )
+        {
             aspect_ratio_cache.reload_cache_from_disk();
             // start a thread that will refresh when ALL the aspect ratios are available
             // and switch the file_comparator
             aspect_ratio_cache.look_for_end(this, refresh_target);
         }
+        if (
+            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.IMAGE_HEIGHT) ||
+            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.IMAGE_WIDTH)
+        )
+        {
+            image_sizes_cache.reload_cache_from_disk();
+            // start a thread that will refresh when ALL the aspect ratios are available
+            // and switch the file_comparator
+            image_sizes_cache.look_for_end(this, refresh_target);
+        }
+        */
+
         do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
         redo_iconized_sorted();
         refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
@@ -161,6 +183,7 @@ public class Paths_manager
     //**********************************************************
     {
         iconized_sorted.clear();
+
         for ( Path path : iconized_paths)
         {
             iconized_sorted.put(path,true);
@@ -214,7 +237,7 @@ public class Paths_manager
             return;
         }
         //logger.log("hard part in a thread done!");
-        aspect_ratio_cache.save_whole_cache_to_disk();
+        image_properties_cache.save_whole_cache_to_disk();
         hard_part_ongoing.set(false);
     }
 

@@ -1,37 +1,36 @@
 package klik.browser;
 
 import javafx.scene.control.*;
-
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
 import klik.browser.meter.Meters_stage;
-import klik.change.*;
+import klik.change.Change_receiver;
+import klik.change.active_list_stage.Active_list_stage;
+import klik.change.active_list_stage.Active_list_stage_action;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
-import klik.facerecognition.MyFaceRecognizer;
 import klik.facerecognition.MyFaceRecognizer_noOpenCV;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
+import klik.level3.metadata.Tag_items_management_stage;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.level3.metadata.Tag_items_management_stage;
 import klik.look.my_i18n.I18n;
 import klik.look.my_i18n.Language_manager;
-import klik.properties.*;
+import klik.properties.Bookmarks;
+import klik.properties.File_sort_by;
+import klik.properties.Static_application_properties;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Popups;
 import klik.util.Stack_trace_getter;
-import klik.change.active_list_stage.Active_list_stage;
-import klik.change.active_list_stage.Active_list_stage_action;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
-import org.opencv.face.FaceRecognizer;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -61,7 +60,6 @@ public class Browser_menus
         change_receiver = b_;
         logger = logger_;
     }
-
 
     //**********************************************************
     public MenuItem make_about_menu_item(Logger logger)
@@ -117,7 +115,7 @@ public class Browser_menus
             Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
             Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter, logger);
             Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter, logger);
-            browser.icon_manager.clear_aspect_ratio_cache_fx();
+            browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
     }
@@ -129,7 +127,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            browser.icon_manager.clear_aspect_ratio_cache_fx();
+            browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
     }
@@ -157,7 +155,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            browser.icon_manager.clear_aspect_ratio_cache_fx();
+            browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
     }
@@ -171,8 +169,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter,logger);
-            browser.icon_manager.clear_aspect_ratio_cache_fx();
-            browser.icon_manager.clear_rotation_cache_fx();
+            browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
     }

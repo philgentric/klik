@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static klik.images.Image_display_handler.build_Image_context;
 
@@ -165,36 +166,66 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static MenuItem get_gif_repair_menu_item(Image_window image_window, Image_display_handler image_display_handler, Aborter aborter)
+    private static MenuItem get_gif_repair_menu_item(boolean faster, Image_window image_window, Image_display_handler image_display_handler, Aborter aborter)
     //**********************************************************
     {
-        MenuItem repair1 = new MenuItem(I18n.get_I18n_string("Repair_animated_gif", image_window.logger));
-        repair1.setOnAction(e -> {
-            if (image_display_handler.get_image_context().isEmpty()) return;
-            image_display_handler.logger.log("GIF repair1");
-            Path tmp_dir = Gif_repair.extract_all_frames_in_animated_gif(image_window.the_Stage, image_display_handler.get_image_context().get(), aborter, image_window.logger);
-            if (tmp_dir == null) {
-                image_display_handler.logger.log("GIF repair1 failed!");
-                return;
-            }
-            image_display_handler.logger.log("GIF repair1 OK");
-            Path local_path = Gif_repair.reassemble_all_frames(image_window.the_Stage, image_display_handler.get_image_context().get(), tmp_dir, image_window.logger);
-            if (local_path == null) {
-                image_display_handler.logger.log("GIF repair2 failed!");
-                return;
-            }
-            image_display_handler.logger.log("GIF repair2 OK");
-            Optional<Image_context> option = Image_context.get_Image_context(local_path, image_window.aborter, image_window.logger);
-            if (option.isEmpty()) {
-                image_display_handler.logger.log("getting a new image context failed after gif repair");
-            } else {
-                image_display_handler.set_image_context( option.get());
-                image_window.set_image(image_display_handler.get_image_context().get());
-            }
-        });
-        return repair1;
+        String tag = " slower";
+        if ( faster) tag = " faster";
+        MenuItem repair = new MenuItem(I18n.get_I18n_string("Repair_animated_gif", image_window.logger)+ tag);
+        repair.setOnAction(e -> repair(faster, image_window, image_display_handler, aborter));
+        return repair;
     }
 
+
+
+    //**********************************************************
+    private static void repair(boolean faster, Image_window image_window, Image_display_handler image_display_handler, Aborter aborter)
+    //**********************************************************
+    {
+        if (image_display_handler.get_image_context().isEmpty()) return;
+
+        String uuid = UUID.randomUUID().toString();
+
+        double current_delay = image_display_handler.get_image_context().get().get_animated_gif_delay();
+        double fac = 1.2;
+        if ( faster) fac = 0.8;
+        double new_delay = current_delay*fac;
+        if ( !faster)
+        {
+            // fix strange bug that GraphicsMagic does apply delay change like 1 ==> 1.2
+            if ( (int)new_delay == (int)current_delay) new_delay = (int)current_delay+1.1;
+        }
+        image_display_handler.logger.log("GIF repair, faster="+faster+" old_delay="+current_delay+" new_delay="+new_delay);
+
+        image_display_handler.logger.log("GIF repair1");
+        Path tmp_dir = Gif_repair.extract_all_frames_in_animated_gif(image_window.the_Stage, image_display_handler.get_image_context().get(), uuid, aborter, image_window.logger);
+        if (tmp_dir == null) {
+            image_display_handler.logger.log("GIF repair1 failed!");
+            return;
+        }
+        image_display_handler.logger.log("GIF repair1 OK");
+
+        Path p = image_display_handler.get_image_context().get().path;
+
+        // for debug:
+        //Path final_dest = Path.of(p.getParent().toAbsolutePath().toString(),"mod_"+p.getFileName().toString());
+        Path final_dest = p;
+
+        Path local_path = Gif_repair.reassemble_all_frames(new_delay, image_window.the_Stage, image_display_handler.get_image_context().get(), tmp_dir, final_dest, uuid, image_window.logger);
+        if (local_path == null) {
+            image_display_handler.logger.log("GIF repair2 failed!");
+            return;
+        }
+
+        image_display_handler.logger.log("GIF repair2 OK");
+        Optional<Image_context> option = Image_context.get_Image_context(local_path, image_window.aborter, image_window.logger);
+        if (option.isEmpty()) {
+            image_display_handler.logger.log("getting a new image context failed after gif repair");
+        } else {
+            image_display_handler.set_image_context( option.get());
+            image_window.set_image(image_display_handler.get_image_context().get());
+        }
+    }
 
 
     //**********************************************************
@@ -687,9 +718,17 @@ public class Menus_for_image_window
 
 
         if (image_window.image_display_handler.get_image_context().isPresent()) {
-            if (Guess_file_type.is_this_path_a_gif(image_window.image_display_handler.get_image_context().get().path)) {
-                MenuItem gif_repair = get_gif_repair_menu_item(image_window, image_window.image_display_handler, image_window.aborter);
-                context_menu.getItems().add(gif_repair);
+            if (Guess_file_type.is_this_path_a_gif(image_window.image_display_handler.get_image_context().get().path))
+            {
+                {
+                    MenuItem gif_repair = get_gif_repair_menu_item(true,image_window, image_window.image_display_handler, image_window.aborter);
+                    context_menu.getItems().add(gif_repair);
+                }
+                {
+                    MenuItem gif_repair = get_gif_repair_menu_item(false,image_window, image_window.image_display_handler, image_window.aborter);
+                    context_menu.getItems().add(gif_repair);
+                }
+
             }
         }
 

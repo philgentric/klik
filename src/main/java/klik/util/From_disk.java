@@ -5,6 +5,7 @@ import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
+import klik.images.decoding.Fast_width_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.level3.fusk.Fusk_static_core;
@@ -77,6 +78,38 @@ public class From_disk
 
     }
 
+
+    //**********************************************************
+    public static Double determine_width(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        if (dbg) logger.log("\n\nFrom_disk determine_width "+path);
+        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found,aborter, null, logger);
+        // the only other way is to load the image!
+        if ( returned > 0) return returned;
+        if (aborter.should_abort())
+        {
+            //logger.log("determine_width aborting");
+            return null;
+        }
+        if(Guess_file_type.is_file_an_image(path.toFile()))
+        {
+            Image i = load_native_resolution_image_from_disk( path,  true, aborter,  logger);
+            if ( i==null)
+            {
+                logger.log("cannot load image to get aspect ratio(1)"+path);
+                return null;
+            }
+            if (i.isError())
+            {
+                logger.log("cannot load image to get aspect ratio(2)"+path);
+                return null;
+            }
+            return i.getWidth();
+        }
+        return null;
+
+    }
     //**********************************************************
     public static double determine_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
@@ -293,6 +326,7 @@ public class From_disk
         }
         return null;
     }
+
 
     /*
         // this call loads the image in the native size

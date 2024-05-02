@@ -18,6 +18,7 @@ import klik.browser.Image_and_rotation;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.caches.Rotation;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.files_and_paths.Sizes;
@@ -172,18 +173,18 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
         // normally we already have the rotation
         double local_rot = 0;
-        Optional<Double> local_rot_op = image_and_rotation.rotation();
-        if (local_rot_op.isEmpty())
+        Rotation rotation = image_and_rotation.rotation();
+        if (rotation == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             Path local = get_path_for_display(false);
             local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, browser_aborter, logger);
+            the_image_pane.setRotate(local_rot);
         }
         else
         {
-            local_rot = local_rot_op.get();
+            the_image_pane.setRotate(Rotation.to_angle(image_and_rotation.rotation()));
         }
-        the_image_pane.setRotate(local_rot);
         resize_the_box(the_button);
     }
 

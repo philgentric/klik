@@ -140,7 +140,7 @@ Point size;
 	 */
 	public List<java.awt.Rectangle> getFaces(BufferedImage image, float baseScale, float scale_inc,float increment, int min_neighbors,boolean doCannyPruning)
 	{
-    List<Rectangle> ret=new ArrayList<Rectangle>();
+    List<Rectangle> ret = new ArrayList<Rectangle>();
     int width=image.getWidth();
     int height=image.getHeight();
     float maxScale = (Math.min((width+0.f)/size.x,(height+0.0f)/size.y));
@@ -167,7 +167,9 @@ Point size;
     }
     int[][] canny = null;
     if(doCannyPruning)
-      canny = getIntegralCanny(img);
+	{
+		canny = getIntegralCanny(img);
+	}
     for(float scale=baseScale;scale<maxScale;scale*=scale_inc)
     {
       int step=(int) (scale*24*increment);
@@ -189,9 +191,11 @@ Point size;
           {
             
             if(!s.pass(grayImage,squares,i,j,scale))
-              {pass=false;
-              //System.out.println("Failed at Stage "+k);
-              break;}
+			{
+				pass=false;
+				//System.out.println("Failed at Stage "+k);
+				break;
+			}
             k++;
           }
           if(pass) ret.add(new Rectangle(i,j,size,size));
@@ -209,33 +213,33 @@ Point size;
 			{
 				int sum =0;
 				sum+=2*grayImage[i-2][j-2];
-				                      sum+=4*grayImage[i-2][j-1];
-				                      sum+=5*grayImage[i-2][j+0];
-				                      sum+=4*grayImage[i-2][j+1];
-				                      sum+=2*grayImage[i-2][j+2];
-				                      sum+=4*grayImage[i-1][j-2];
-				                      sum+=9*grayImage[i-1][j-1];
-				                      sum+=12*grayImage[i-1][j+0];
-				                      sum+=9*grayImage[i-1][j+1];
-				                      sum+=4*grayImage[i-1][j+2];
-				                      sum+=5*grayImage[i+0][j-2];
-				                      sum+=12*grayImage[i+0][j-1];
-				                      sum+=15*grayImage[i+0][j+0];
-				                      sum+=12*grayImage[i+0][j+1];
-				                      sum+=5*grayImage[i+0][j+2];
-				                      sum+=4*grayImage[i+1][j-2];
-				                      sum+=9*grayImage[i+1][j-1];
-				                      sum+=12*grayImage[i+1][j+0];
-				                      sum+=9*grayImage[i+1][j+1];
-				                      sum+=4*grayImage[i+1][j+2];
-				                      sum+=2*grayImage[i+2][j-2];
-				                      sum+=4*grayImage[i+2][j-1];
-				                      sum+=5*grayImage[i+2][j+0];
-				                      sum+=4*grayImage[i+2][j+1];
-				                      sum+=2*grayImage[i+2][j+2];
+				sum+=4*grayImage[i-2][j-1];
+				sum+=5*grayImage[i-2][j+0];
+				sum+=4*grayImage[i-2][j+1];
+				sum+=2*grayImage[i-2][j+2];
+				sum+=4*grayImage[i-1][j-2];
+				sum+=9*grayImage[i-1][j-1];
+				sum+=12*grayImage[i-1][j+0];
+				sum+=9*grayImage[i-1][j+1];
+				sum+=4*grayImage[i-1][j+2];
+				sum+=5*grayImage[i+0][j-2];
+				sum+=12*grayImage[i+0][j-1];
+				sum+=15*grayImage[i+0][j+0];
+				sum+=12*grayImage[i+0][j+1];
+				sum+=5*grayImage[i+0][j+2];
+				sum+=4*grayImage[i+1][j-2];
+				sum+=9*grayImage[i+1][j-1];
+				sum+=12*grayImage[i+1][j+0];
+				sum+=9*grayImage[i+1][j+1];
+				sum+=4*grayImage[i+1][j+2];
+				sum+=2*grayImage[i+2][j-2];
+				sum+=4*grayImage[i+2][j-1];
+				sum+=5*grayImage[i+2][j+0];
+				sum+=4*grayImage[i+2][j+1];
+				sum+=2*grayImage[i+2][j+2];
 
-				      				canny[i][j]=sum/159;
-				      				//System.out.println(canny[i][j]);
+				canny[i][j]=sum/159;
+				//System.out.println(canny[i][j]);
 			}
 		int[][] grad = new int[grayImage.length][grayImage[0].length];
 		for(int i=1;i<canny.length-1;i++)

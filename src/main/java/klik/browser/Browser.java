@@ -23,12 +23,9 @@ import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.*;
-import klik.browser.icons.caches.Aspect_ratio_cache;
-import klik.browser.icons.caches.Rotation_cache;
-import klik.browser.locator.Folders_with_large_images_locator;
-import klik.search.Show_running_man_frame;
-import klik.util.Fx_batch_injector;
+import klik.browser.icons.caches.Image_properties_cache;
 import klik.browser.items.Item;
+import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
@@ -41,10 +38,8 @@ import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
-import klik.util.Importer;
-import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.Stack_trace_getter;
+import klik.search.Show_running_man_frame;
+import klik.util.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -95,8 +90,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public final Selection_handler selection_handler;
     public final Aborter aborter;
     public final Paths_manager paths_manager;
-    private final Rotation_cache rotation_cache;
-    private final Aspect_ratio_cache aspect_ratio_cache;
+
+    //private final Rotation_cache rotation_cache;
+    //private final Aspect_ratio_cache aspect_ratio_cache;
+    //private final Image_width_cache image_width_cache;
+    private final Image_properties_cache image_properties_cache;
 
 
     TextField status;
@@ -336,11 +334,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Pane = new Pane();
 
 
-
-        aspect_ratio_cache = new Aspect_ratio_cache(displayed_folder_path,aborter,logger);
-        rotation_cache = new Rotation_cache(displayed_folder_path,aborter,logger);
-        icon_factory_actor = new Icon_factory_actor(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
-        paths_manager = new Paths_manager(aspect_ratio_cache,rotation_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
+        image_properties_cache = new Image_properties_cache(displayed_folder_path,"Image properties cache",aborter,logger);
+        //image_width_cache = new Image_width_cache(displayed_folder_path,aborter,logger);
+        //aspect_ratio_cache = new Aspect_ratio_cache(displayed_folder_path,aborter,logger);
+        //rotation_cache = new Rotation_cache(displayed_folder_path,aborter,logger);
+        //icon_factory_actor = new Icon_factory_actor(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
+        icon_factory_actor = new Icon_factory_actor(image_properties_cache, my_Stage.the_Stage, aborter, logger);
+        paths_manager = new Paths_manager(image_properties_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
+        //paths_manager = new Paths_manager(image_width_cache, aspect_ratio_cache,rotation_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
         icon_manager = new Icon_manager(paths_manager,aborter,logger);
         selection_handler = new Selection_handler(the_Pane, icon_manager, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);

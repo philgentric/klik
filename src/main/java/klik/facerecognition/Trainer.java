@@ -1,15 +1,15 @@
 package klik.facerecognition;
 
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import org.bytedeco.opencv.opencv_stitching.ProjectorBase;
-
 import java.util.ArrayList;
 import java.util.Objects;
 
 import static klik.facerecognition.PCA.get_PCA;
 
-public class Trainer {
+//**********************************************************
+public class Trainer
+//**********************************************************
+{
     Metric metric;
     FeatureType featureType;
     FeatureExtraction featureExtraction;
@@ -18,14 +18,17 @@ public class Trainer {
 
     ArrayList<Matrix> trainingSet;
     ArrayList<String> trainingLabels;
-
     ArrayList<ProjectedTrainingMatrix> model;
 
+    //**********************************************************
     public static Trainer builder() {
         return new Trainer();
     }
 
-    public void add(Matrix matrix, String label) {
+    //**********************************************************
+    public void add(Matrix matrix, String label)
+    //**********************************************************
+    {
         if (Objects.isNull(trainingSet)) {
             trainingSet = new ArrayList<>();
             trainingLabels = new ArrayList<>();
@@ -35,11 +38,15 @@ public class Trainer {
         trainingLabels.add(label);
     }
 
+    //**********************************************************
     public void addFaceAfterTraining(Matrix matrix, String label) {
         featureExtraction.addFace(matrix, label);
     }
 
-    public boolean train() throws Exception {
+    //**********************************************************
+    public boolean train() throws Exception
+    //**********************************************************
+    {
 
         switch (featureType) {
             case PCA:
@@ -62,7 +69,10 @@ public class Trainer {
         return true;
     }
 
-    public String recognize(Matrix matrix) {
+    //**********************************************************
+    public String recognize(Matrix matrix)
+    //**********************************************************
+    {
         if ( featureExtraction == null)
         {
             return null;
@@ -72,22 +82,34 @@ public class Trainer {
         return result;
     }
 
-    public Trainer metric(CosineDissimilarity cosineDissimilarity) {
+    //**********************************************************
+    public Trainer metric(CosineDissimilarity cosineDissimilarity)
+    //**********************************************************
+    {
         metric = cosineDissimilarity;
         return this;
     }
 
-    public Trainer featureType(FeatureType featureType) {
+    //**********************************************************
+    public Trainer featureType(FeatureType featureType)
+    //**********************************************************
+    {
         this.featureType = featureType;
         return this;
     }
 
-    public Trainer numberOfComponents(int i) {
+    //**********************************************************
+    public Trainer numberOfComponents(int i)
+    //**********************************************************
+    {
         this.numberOfComponents = i;
         return this;
     }
 
-    public Trainer k(int i) {
+    //**********************************************************
+    public Trainer k(int i)
+    //**********************************************************
+    {
         this.k = i;
         return this;
     }

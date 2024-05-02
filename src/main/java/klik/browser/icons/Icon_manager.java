@@ -12,6 +12,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
+import klik.browser.icons.caches.Image_properties;
 import klik.browser.items.*;
 import klik.files_and_paths.*;
 import klik.look.Look_and_feel;
@@ -220,7 +221,12 @@ public class Icon_manager
                 item = all_items_map.get(path);
                 if ( item == null)
                 {
-                    Double cache_aspect_ratio = paths_manager.aspect_ratio_cache.get_aspect_ratio(path);
+                    Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path);
+                    Double cache_aspect_ratio = 1.0;
+                    if ( ip != null)
+                    {
+                        cache_aspect_ratio = ip.get_aspect_ratio();
+                    }
                     item = new Item_image(the_browser,path, cache_aspect_ratio, logger);
                     all_items_map.put(path,item);
                     pane.getChildren().add(item.get_Node());
@@ -448,11 +454,11 @@ public class Icon_manager
     }
 
     //**********************************************************
-    public void clear_aspect_ratio_cache_fx()
+    public void clear_image_properties_cache_fx()
     //**********************************************************
     {
-        if ( paths_manager.aspect_ratio_cache == null) return;
-        paths_manager.aspect_ratio_cache.clear_RAM_cache_fx();
+        if ( paths_manager.image_properties_cache == null) return;
+        paths_manager.image_properties_cache.clear_RAM_cache_fx();
     }
 
     //**********************************************************
@@ -915,12 +921,5 @@ public class Icon_manager
         }
     }
 
-    //**********************************************************
-    public void clear_rotation_cache_fx()
-    //**********************************************************
-    {
-        if ( paths_manager.rotation_cache == null) return;
-        paths_manager.rotation_cache.clear_RAM_cache_fx();
-    }
 
 }

@@ -1,7 +1,6 @@
 package klik.browser;
 
 import javafx.scene.image.Image;
+import klik.browser.icons.caches.Rotation;
 
-import java.util.Optional;
-
-public record Image_and_rotation(Image image, Optional<Double> rotation){}
+public record Image_and_rotation(Image image, Rotation rotation){}

@@ -17,9 +17,9 @@ module klikmodule {
     requires java.desktop;
     requires com.github.benmanes.caffeine;
     requires metadata.extractor;
-    requires org.apache.pdfbox;
-    requires org.junit.jupiter.api;
-    requires org.bytedeco.opencv;
+   //requires org.apache.pdfbox;
+    //requires org.junit.jupiter.api;
+    //requires org.bytedeco.opencv;
     //requires jdom;
     requires org.jdom2;
 

@@ -31,6 +31,7 @@ import klik.util.From_disk;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import org.apache.commons.io.FilenameUtils;
 
@@ -43,6 +44,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 //**********************************************************
 public class Image_context
@@ -50,17 +55,15 @@ public class Image_context
 {
     public static final boolean dbg = false;
     public static final boolean exif_dbg = false;
+    public static final String DELAY = "Delay: ";
 
     public final Path previous_path;
     public final Path path;
     public final Image image;
     public final ImageView the_image_view;
-    //private List<String> exifs_tags_list = null;
     private double rotation = 0;
     Logger logger;
     double zoom_factor = 1.0;
-    //double scroll_x;
-    //double scroll_y;
     public boolean image_is_damaged;
     public String title="";
     public final FileTime creation_time;
@@ -191,6 +194,13 @@ public class Image_context
             textFlow.getChildren().add(t);
             textFlow.getChildren().add(new Text(System.lineSeparator()));
         }
+        {
+            StringBuilder sb = get_GraphicsMagick_info();
+            if (sb == null) return;
+            Text t = new Text(sb.toString());
+            textFlow.getChildren().add(t);
+            textFlow.getChildren().add(new Text(System.lineSeparator()));
+        }
         if ( exif_dbg) logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
         ScrollPane sp = new ScrollPane();
         Look_and_feel_manager.set_region_look(sp);
@@ -232,6 +242,48 @@ public class Image_context
                         key_event.consume();
                     }
                 });
+    }
+
+    double get_animated_gif_delay()
+    {
+        StringBuilder sb = get_GraphicsMagick_info();
+        String s = sb.toString();
+
+        String[] lines = s.split("\\R");
+        for (String line : lines) {
+            line = line.trim();
+            logger.log("line ->"+line+"<-");
+            if (line.startsWith(DELAY)) {
+                String delayValue = line.substring(DELAY.length()).trim(); // extract the value after "Delay: "
+                logger.log(DELAY + delayValue);
+                double delay = Double.parseDouble(delayValue);
+                logger.log(DELAY + delay);
+                return delay;
+            }
+        }
+        logger.log("no delay found, assuming 10");
+
+        return 10;
+    }
+
+    //**********************************************************
+    private StringBuilder get_GraphicsMagick_info()
+    //**********************************************************
+    {
+        List<String> graphicsMagick_command_line = new ArrayList<>();
+        graphicsMagick_command_line.add("gm");
+        graphicsMagick_command_line.add("identify");
+        graphicsMagick_command_line.add("-verbose");
+        graphicsMagick_command_line.add(path.toAbsolutePath().toString());
+
+        StringBuilder sb = new StringBuilder();
+        if ( ! Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger))
+        {
+            logger.log(warning_GraphicsMagick);
+            return null;
+        }
+        logger.log(sb.toString());
+        return sb;
     }
 
 

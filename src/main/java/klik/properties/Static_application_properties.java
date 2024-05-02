@@ -53,7 +53,7 @@ public class Static_application_properties
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
     private static final String ENABLE_FUSK = "enable_fusk";
     private static final String SHOW_FFMPEG_INSTALL_WARNING = "SHOW_FFMPEG_INSTALL_WARNING";
-    private static final String SHOW_IMAGEMAGICK_INSTALL_WARNING = "SHOW_IMAGEMAGICK_INSTALL_WARNING";
+    private static final String SHOW_GraphicsMagick_INSTALL_WARNING = "SHOW_GraphicsMagick_INSTALL_WARNING";
     private static final String MAX_EXCLUDED_KEYWORDS = "max_number_of_excluded_keywords";
     public static final String EXCLUDED_KEYWORD_PREFIX = "excluded_keyword_";
     public static final String ICON_SIZE = "ICON_SIZE";
@@ -878,12 +878,12 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static boolean get_show_imagemagick_install_warning(Logger logger)
+    public static boolean get_show_GraphicsMagick_install_warning(Logger logger)
     //**********************************************************
     {
-        String s = Static_application_properties.get_properties_manager(logger).get(SHOW_IMAGEMAGICK_INSTALL_WARNING);
+        String s = Static_application_properties.get_properties_manager(logger).get(SHOW_GraphicsMagick_INSTALL_WARNING);
         if (s == null) {
-            Static_application_properties.get_properties_manager(logger).save_unico(SHOW_IMAGEMAGICK_INSTALL_WARNING, "true", false);
+            Static_application_properties.get_properties_manager(logger).save_unico(SHOW_GraphicsMagick_INSTALL_WARNING, "true", false);
             return true;
         }
         else
@@ -892,10 +892,10 @@ public class Static_application_properties
         }
     }
     //**********************************************************
-    public static void set_show_imagemagick_install_warning(boolean b, Logger logger)
+    public static void set_show_GraphicsMagick_install_warning(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_properties_manager(logger).save_unico(SHOW_IMAGEMAGICK_INSTALL_WARNING, String.valueOf(b), false);
+        Static_application_properties.get_properties_manager(logger).save_unico(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b), false);
     }
 
     static boolean ffmpeg_popup_done = false;
@@ -918,21 +918,21 @@ public class Static_application_properties
             }
         }
     }
-    static boolean imagemagick_popup_done = false;
+    static boolean GraphicsMagick_popup_done = false;
     //**********************************************************
-    public static void manage_show_imagemagick_install_warning(Stage owner, Logger logger)
+    public static void manage_show_GraphicsMagick_install_warning(Stage owner, Logger logger)
     //**********************************************************
     {
-        if ( Static_application_properties.get_show_imagemagick_install_warning(logger))
+        if ( Static_application_properties.get_show_GraphicsMagick_install_warning(logger))
         {
-            if(!imagemagick_popup_done)
+            if(!GraphicsMagick_popup_done)
             {
-                imagemagick_popup_done = true;
-                String msg = "klik uses the convert utility of imagemagick.org to support some features. It is easy and free to install (google it!)";
+                GraphicsMagick_popup_done = true;
+                String msg = "klik uses the gm convert utility of GraphicsMagick.org to support some features. It is easy and free to install (google GraphicsMagick)";
                 logger.log("WARNING: " + msg);
                 Fx_batch_injector.inject(() -> {
-                    if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing imagemagick again, click OK", logger)) {
-                        Static_application_properties.set_show_imagemagick_install_warning(false,logger);
+                    if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing GraphicsMagick again, click OK", logger)) {
+                        Static_application_properties.set_show_GraphicsMagick_install_warning(false,logger);
                     }
                 },logger);
             }

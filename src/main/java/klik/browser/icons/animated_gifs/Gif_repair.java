@@ -5,18 +5,16 @@ import klik.actor.Aborter;
 import klik.files_and_paths.Moving_files;
 import klik.images.Image_context;
 import klik.properties.Static_application_properties;
+import klik.util.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.Logger;
 import klik.util.Popups;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_IMAGEMAGIC;
+import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 /*
 animated-GIF repairing utility: recover the frames and re-assemble them in a "more standard" format
@@ -27,58 +25,51 @@ because the format is weird/wrong
 
 public class Gif_repair
 {
-    private static final boolean dbg = false;
-    private static final boolean cleanup = true;
+    private static final boolean dbg = true;
+    private static final boolean cleanup = false;
 
     //**********************************************************
-    public static Path extract_all_frames_in_animated_gif(Stage owner, Image_context image_context, Aborter aborter, Logger logger)
+    public static Path extract_all_frames_in_animated_gif(Stage owner, Image_context image_context,
+                                                          String uuid,
+                                                          Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path target = image_context.path;
         Path this_dir = target.getParent();
-        Path new_dir = Path.of(this_dir.toString(), "tmp_" + target.getFileName().toString());
-        Path tmp_dir = null;
-        for(int safe = 0; safe < 3; safe++) {
-            try {
-                tmp_dir = Files.createDirectory(new_dir);
-            } catch (IOException e) {
-                new_dir = Path.of(this_dir.toString(), "tmp_"+UUID.randomUUID()+"_"+ target.getFileName().toString());
-                continue;
-            }
-            break;
-        }
+
+        Path tmp_dir = Static_application_properties.get_trash_dir(this_dir,logger);
         if ( tmp_dir == null)
         {
-            logger.log("Weird! could not create directory:"+new_dir);
+            logger.log(Stack_trace_getter.get_stack_trace("Weird! could not use tmp directory:"));
             return null;
         }
 
-        Moving_files.safe_move_a_file_or_dir(owner, tmp_dir, target.toFile(), aborter, logger);
+        Path old_path_for_restore = target;
 
-        List<String> l = new ArrayList<>();
-        // convert XXX -scene 1 +adjoin frame_%03d.gif
-        l.add("convert");
-        l.add(image_context.path.getFileName().toString());
-        l.add("-scene");
-        l.add("1");
-        l.add("+adjoin");
-        l.add("frame_%03d.gif");
+        // move with a unique name into the trash folder
+        Path new_path = Path.of(tmp_dir.toAbsolutePath().toString(),uuid+"_"+target.getFileName().toString());
+        Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, new_path, target.toFile(), aborter, logger);
+
+
+        List<String> graphicsMagick_commad_line = new ArrayList<>();
+        // user GraphicsMagick to extract all gif frames
+        graphicsMagick_commad_line.add("gm");
+        graphicsMagick_commad_line.add("convert");
+        graphicsMagick_commad_line.add(new_path.toAbsolutePath().toString());//+"[0--1]");
+        //l.add("-scene");
+        //l.add("1");
+        graphicsMagick_commad_line.add("+adjoin");
+        graphicsMagick_commad_line.add(uuid+"_frame_%03d.gif");
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
-        if ( !Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, sb, logger))
+        if ( !Execute_command.execute_command_list(graphicsMagick_commad_line, tmp_dir.toFile(), 2000, sb, logger))
         {
 
-            Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
+            Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
 
-            Popups.popup_warning(owner, "Repair part1 command failed:",warning_IMAGEMAGIC,false,logger);
-            // and restore the file !
-            Path to_be_restored = Path.of(new_dir.toString(),target.getFileName().toString());
-            Moving_files.safe_move_a_file_or_dir(owner, this_dir, to_be_restored.toFile(), aborter, logger);
-
-            if (!remove_tmp_dir(this_dir, tmp_dir.toFile().toString(),logger) )
-            {
-                logger.log("warming: tmp directory not removed: "+tmp_dir);
-            }
+            Popups.popup_warning(owner, "Repair part1 command failed:", warning_GraphicsMagick,false,logger);
+            // and restore the file
+            Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, old_path_for_restore,new_path.toFile(), aborter, logger);
             return null;
         }
         if ( dbg) logger.log(sb.toString());
@@ -86,49 +77,30 @@ public class Gif_repair
     }
 
     //**********************************************************
-    private static boolean remove_tmp_dir(Path this_dir, String target_tmp_dir, Logger logger)
-    //**********************************************************
-    {
-        List<String> l2 = new ArrayList<>();
-        // rm XXX
-        l2.add("rm");
-        l2.add("-R");
-        l2.add(target_tmp_dir);
-        if (!Execute_command.execute_command_list(l2, this_dir.toFile(), 2000, null,logger))
-        {
-            return false;
-        }
-        logger.log("remove_tmp_dir: ");
-        return true;
-    }
-
-    //**********************************************************
-    public static Path reassemble_all_frames(Stage owner, Image_context image_context, Path tmp_dir, Logger logger)
+    // new_delay is inter-frame delay in hundredths of second : 10 means 10fps, 1 means 100 fps, 50 means 2fps
+    public static Path reassemble_all_frames(double new_delay, Stage owner, Image_context image_context, Path tmp_dir, Path final_dest, String uuid, Logger logger)
     //**********************************************************
     {
         Path target = image_context.path;
-        Path this_dir = target.getParent();
-/*
-        if (perform_rm)
-        {
-            List<String> l = new ArrayList<>();
-            // remove the (supposedly) damaged file
-            Files_and_Paths.move_to_trash(image_context.path,null,logger);
-        }
-*/
-        {
-            List<String> l = new ArrayList<>();
-            // convert frame_0??.gif rebuilt.gif
-            l.add("convert");
-            l.add("frame_0??.gif");
-            l.add("../" + image_context.path.getFileName().toString());
-            if ( ! Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null,logger))
-            {
-                Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
 
-                logger.log(warning_IMAGEMAGIC);
+        {
+            List<String> graphicsMagick_command_line = new ArrayList<>();
+            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add("convert");
+            graphicsMagick_command_line.add("-delay");
+            graphicsMagick_command_line.add(""+new_delay);
+            // -delay is in hundredths of second : 10 means 10fps, 1 means 100 fps, 50 means 2fps
+            graphicsMagick_command_line.add(uuid+"_frame_*?.gif");
+            graphicsMagick_command_line.add(final_dest.toAbsolutePath().toString());
+            StringBuilder sb = null;
+            if ( dbg) sb = new StringBuilder();
+            if ( ! Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger))
+            {
+                Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
+                logger.log(warning_GraphicsMagick);
                 return null;
             }
+            if ( dbg) logger.log(sb.toString());
         }
         if (cleanup)
         {
@@ -139,13 +111,12 @@ public class Gif_repair
             l.add(image_context.path.getFileName().toString());
             if ( ! Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger))
             {
-                Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
+                Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
 
-                logger.log(warning_IMAGEMAGIC);
+                logger.log(warning_GraphicsMagick);
                 return null;
             }
 
-            remove_tmp_dir(this_dir, tmp_dir.toFile().toString(), logger);
         }
         return target;
     }

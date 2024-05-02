@@ -25,11 +25,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MyFaceRecognizer_noOpenCV
 //**********************************************************
 {
-
     private static final int SMALL_SIZE = 100;
-    private static final double MAX_IMAGE_SIZE_FOR_FACE_DETECTION = 512;
+    //private static final double MAX_IMAGE_SIZE_FOR_FACE_DETECTION = 512;
     private static MyFaceRecognizer_noOpenCV instance;
-    private Viola_Jones_detector faceDetector2;
+    private Viola_Jones_detector viola_jones_detector;
     Trainer trainer;
     public final Logger logger;
     private boolean trained = false;
@@ -65,19 +64,16 @@ public class MyFaceRecognizer_noOpenCV
     private boolean init(Logger logger)
     //**********************************************************
     {
-
         InputStream haarXml = Klik_application.class.getResourceAsStream("haarcascade_frontalface_default.xml");
-
-        if ( haarXml == null){
+        if ( haarXml == null)
+        {
             logger.log("cannot read ressource haarcascade_frontalface_default.xml");
             return false;
         }
-        faceDetector2 = new Viola_Jones_detector(haarXml);
-
-
+        viola_jones_detector = new Viola_Jones_detector(haarXml);
         trainer = Trainer.builder()
                 .metric(new CosineDissimilarity())
-                .featureType(FeatureType.PCA)
+                .featureType(FeatureType.LDA)
                 .numberOfComponents(3)
                 .k(1);
         return true;
@@ -235,10 +231,10 @@ public class MyFaceRecognizer_noOpenCV
     {
         BufferedImage gray = to_grey(p);
         {
-            Simple_image_window sim = new Simple_image_window(gray,"gray version",logger);
+            Simple_image_window.open_Simple_image_window(gray,"gray version",logger);
 
         }
-        List<Rectangle> list = detect_face2(gray);
+        List<Rectangle> list = detect_face(gray);
         if (list == null) { // No faces detected
             logger.log("No faces detected (1) in the image.");
             return null; // or throw an exception, depending on your requirements
@@ -252,10 +248,8 @@ public class MyFaceRecognizer_noOpenCV
         {
             Rectangle r = list.get(i);
             logger.log("Face detected in the image."+r.toString());
-
             BufferedImage extracted = gray.getSubimage(r.x,r.y,r.width,r.height);
-
-            Simple_image_window sim = new Simple_image_window(extracted, "Rectangle "+i, logger);
+            Simple_image_window.open_Simple_image_window(extracted, "Rectangle "+i, logger);
         }
 
         Rectangle r = list.get(0);
@@ -263,29 +257,28 @@ public class MyFaceRecognizer_noOpenCV
         BufferedImage originalImage = null;
         try {
             originalImage = ImageIO.read(new FileInputStream(p.toFile()));
-            Simple_image_window sim1 = new Simple_image_window(originalImage, "original version", logger);
+            Simple_image_window.open_Simple_image_window(originalImage, "original version", logger);
 
             BufferedImage face_local =  originalImage.getSubimage(r.x,r.y,r.width,r.height);
-            Simple_image_window sim2 = new Simple_image_window(face_local, "face in original version", logger);
-
+            Simple_image_window.open_Simple_image_window(face_local, "face in original version", logger);
 
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
 
         BufferedImage extracted = gray.getSubimage(r.x,r.y,r.width,r.height);
-        Simple_image_window sim3 = new Simple_image_window(extracted, "gray version", logger);
+        Simple_image_window.open_Simple_image_window(extracted, "gray version", logger);
 
         return extracted;
     }
 
     //**********************************************************
-    public List<Rectangle> detect_face2(BufferedImage img)
+    public List<Rectangle> detect_face(BufferedImage img)
     //**********************************************************
     {
         List<Rectangle> res = null;
-        synchronized (faceDetector2) {
-             res = faceDetector2.getFaces(img, 1, 1.25f, 0.1f,1,true);
+        synchronized (viola_jones_detector) {
+             res = viola_jones_detector.getFaces(img, 1, 1.25f, 0.1f,1,true);
         }
         return res;
     }

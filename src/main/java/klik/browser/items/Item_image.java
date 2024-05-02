@@ -14,6 +14,7 @@ import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_rotation;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.browser.icons.caches.Rotation;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
 import klik.images.Image_window;
@@ -361,8 +362,8 @@ public class Item_image extends Item
 
         double local_rot = 0;
         {
-            Optional<Double> local_rot_op = image_and_rotation.rotation();
-            if (local_rot_op.isEmpty()) {
+            Rotation rotation = image_and_rotation.rotation();
+            if (rotation == null) {
                 if (Files.exists(path)) {
 
                     logger.log(Stack_trace_getter.get_stack_trace("WTF"));
@@ -448,8 +449,8 @@ public class Item_image extends Item
                 image_view.setFitHeight(image_and_rotation.image().getHeight());
             }
         }
-        if ( image_and_rotation.rotation().isPresent()) {
-            image_pane.setRotate(image_and_rotation.rotation().get());
+        if ( image_and_rotation.rotation() != null) {
+            image_pane.setRotate(Rotation.to_angle(image_and_rotation.rotation()));
         }
     }
 

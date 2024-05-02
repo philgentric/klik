@@ -28,13 +28,13 @@ makes an animated gif from the pictures inside a folder
 public class Animated_gif_from_folder
 //**********************************************************
 {
-    public static final String warning_IMAGEMAGIC = "This feature requires ImageMagic\n . for mac: brew install imagemagick\n . for other systems download from imagemagic.org\n";
+    public static final String warning_GraphicsMagick = "This feature requires ImageMagic\n . for mac: brew install imagemagick\n . for other systems download from imagemagic.org\n";
 
     private final static boolean dbg = false;
     public static final String FRAME1 = "Frame_";
     public static final String FRAME2 = "_"+FRAME1;
     public static final String PNG = ".png";
-    private static boolean dbg_imagemagic_call = true;
+    private static boolean dbg_GraphicsMagick_call = true;
 
     //**********************************************************
     public static Path make_animated_gif_from_all_images_in_folder(Stage owner, Path in, List<File> images_in_folder, Logger logger)
@@ -66,8 +66,10 @@ public class Animated_gif_from_folder
         STEP1: for each image in the folder
         find the icon in the cache (if it is not present... too bad !)
          */
-        List<String> l = new ArrayList<>();
-        l.add("convert");
+        List<String> graphicsMagick_command_line = new ArrayList<>();
+        // call GraphicsMagick
+        graphicsMagick_command_line.add("gm");
+        graphicsMagick_command_line.add("convert");
 
         Double W = null;
         double H = 0;
@@ -135,26 +137,26 @@ public class Animated_gif_from_folder
             return null; // abort
         }
 
-        l.add("-delay");
-        l.add("30"); // in centiseconds
+        graphicsMagick_command_line.add("-delay");
+        graphicsMagick_command_line.add("30"); // in centiseconds
         String frames = Icon_writer_actor.make_cache_name_raw(in.toAbsolutePath())+ FRAME2 + "*" + PNG;
-        l.add(frames);
-        l.add(out.getFileName().toString());
+        graphicsMagick_command_line.add(frames);
+        graphicsMagick_command_line.add(out.getFileName().toString());
 
-        if ( dbg_imagemagic_call)
-            logger.log("execute = "+l);
+        if ( dbg_GraphicsMagick_call)
+            logger.log("execute = "+graphicsMagick_command_line);
 
         {
             StringBuilder sb = null;
-            if (dbg_imagemagic_call) sb = new StringBuilder();
-            if (!Execute_command.execute_command_list(l, folder_icon_cache_dir.toFile(), 2000, sb, logger))
+            if (dbg_GraphicsMagick_call) sb = new StringBuilder();
+            if (!Execute_command.execute_command_list(graphicsMagick_command_line, folder_icon_cache_dir.toFile(), 2000, sb, logger))
             {
-                Static_application_properties.manage_show_imagemagick_install_warning(owner,logger);
-                logger.log(warning_IMAGEMAGIC);
+                Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
+                logger.log(warning_GraphicsMagick);
                 logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;
             }
-            if (dbg_imagemagic_call) logger.log(sb.toString());
+            if (dbg_GraphicsMagick_call) logger.log(sb.toString());
         }
 
 
