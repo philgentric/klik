@@ -13,7 +13,7 @@ import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
-import klik.facerecognition.MyFaceRecognizer_noOpenCV;
+import klik.facerecognition.Face_recognizer;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -436,14 +436,8 @@ public class Browser_menus
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            MyFaceRecognizer_noOpenCV i = MyFaceRecognizer_noOpenCV.get_instance(logger);
-            if ( i == null)
-            {
-                logger.log("failed: MyFaceRecognizer_noOpenCV instance is null");
-                return;
-            }
-            i.add_all_pictures_to_training_set(browser.displayed_folder_path);
-            logger.log("done: MyFaceRecognizer_noOpenCV add_all_pictures_to_training_set for "+browser.displayed_folder_path);
+            Face_recognizer i = Face_recognizer.get_instance(browser,logger);
+            logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+browser.displayed_folder_path);
 
         });
         return item;
@@ -457,13 +451,8 @@ public class Browser_menus
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            MyFaceRecognizer_noOpenCV i = MyFaceRecognizer_noOpenCV.get_instance(logger);
-            if ( i == null)
-            {
-                logger.log("failed: MyFaceRecognizer_noOpenCV instance is null");
-                return;
-            }
-            i.train();
+            logger.log("Train face recognition NOT IMPLEMETED");
+
         });
         return item;
     }
@@ -475,7 +464,7 @@ public class Browser_menus
         String text = "Reset face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> MyFaceRecognizer_noOpenCV.reset());
+        item.setOnAction(event -> Face_recognizer.reset());
         return item;
     }
 
