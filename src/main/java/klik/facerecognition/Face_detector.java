@@ -66,7 +66,8 @@ public class Face_detector
             int responseCode = connection.getResponseCode();
             logger.log("Response Code: " + responseCode);
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            //logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log("face detection failed");
             return null;
         }
 

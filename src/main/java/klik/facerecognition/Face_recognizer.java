@@ -14,26 +14,26 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.icons.JavaFX_to_Swing;
+import klik.files_and_paths.Files_and_Paths;
 import klik.images.Image_window;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 //**********************************************************
 public class Face_recognizer
 //**********************************************************
 {
-
+    public final static String EXTENSION_FOR_EP = "prototype";
     private static Face_recognizer instance = null;
     private final Logger logger;
     private final Browser browser;
@@ -74,12 +74,13 @@ public class Face_recognizer
     public void add_prototype_image_face(Image face, String label)
     //**********************************************************
     {
-        Path path = write_tmp_image(face, logger);
+        String name = label+ "_"+ UUID.randomUUID();
+        Path path = write_tmp_image(face, name,logger);
         Feature_vector fv = get_image_embeddings(path, logger);
-        embeddings_prototypes.add(new Embeddings_prototype(face, fv, label));
+        embeddings_prototypes.add(new Embeddings_prototype(face, fv, label, name));
         if ( !labels.contains(label)) labels.add(label);
         logger.log("added prototype image face with label ="+label);
-        display(face, browser, logger);
+        display(face,label);
     }
 
 
@@ -247,40 +248,181 @@ public class Face_recognizer
     //**********************************************************
     {
         Feature_vector fv = get_image_embeddings(face, logger);
-
         double min = Double.MAX_VALUE;
         String label = null;
+
+        ConcurrentSkipListMap<Double, Embeddings_prototype> nearests = new ConcurrentSkipListMap<>();
+
         for (Embeddings_prototype ep : embeddings_prototypes)
         {
             double distance = fv.distance(ep.feature_vector());
-            logger.log("distance ="+distance);
+            nearests.put(distance,ep);
+            logger.log("          distance ="+distance);
             if (distance < min) {
-                logger.log("best distance : "+ep.label());
+                logger.log("best distance : "+ep.label()+" at: "+distance);
                 label = ep.label();
                 min = distance;
             }
         }
-        return label;
+        // vote
+        Map<String,Integer> votes = new HashMap<>();
+        int count = 0;
+        for (Map.Entry<Double,Embeddings_prototype> e : nearests.entrySet())
+        {
+            double distance = e.getKey();
+            String label2 = e.getValue().label();
+            Integer vote = votes.get(label2);
+            if ( vote == null)
+            {
+                votes.put(label2, Integer.valueOf(1));
+            }
+            else
+            {
+                votes.put(label2, Integer.valueOf(vote+1));
+            }
+            count++;
+            if ( count > 5) break;
+        }
+        int max_vote = 0;
+        String label5 = null;
+        for (Map.Entry<String,Integer> e : votes.entrySet())
+        {
+            String l = e.getKey();
+            Integer i = e.getValue();
+            if ( i > max_vote)
+            {
+                max_vote = i;
+                label5 = l;
+            }
+        }
+
+        logger.log("1 nearest "+label+ " at "+min);
+        logger.log("5 nearest "+label5);
+        return label5;
     }
 
-
-    public static void display(Image face, Browser b, Logger logger) {
-
-        Path path = write_tmp_image(face, logger);
-        if (path == null) return;
-        Image_window s = Image_window.get_Image_window(b, path, logger);
-    }
-
-    public static void display(Image face, String label, Browser b, Logger logger)
+    //**********************************************************
+    public void save()
+    //**********************************************************
     {
+        for (Embeddings_prototype ep : embeddings_prototypes)
+        {
+            save_ep(ep);
+        }
+    }
+    //**********************************************************
+    public void load()
+    //**********************************************************
+    {
+        reset();
+        Path p = Path.of(Files_and_Paths.get_face_recognition_cache_dir(logger).toAbsolutePath().toString());
 
-        Path path = write_tmp_image(face, logger);
-        if (path == null) return;
+        File[] files = p.toFile().listFiles();
+        for (File f: files)
+        {
+            if ( f.isDirectory()) continue;
+            String ext = FilenameUtils.getExtension(f.getName());
+            if ( !ext.equals(EXTENSION_FOR_EP)) continue;
+
+            Embeddings_prototype ep = load_ep(f);
+            this.embeddings_prototypes.add(ep);
+            String label = ep.label();
+            if ( !labels.contains(label)) labels.add(label);
+        }
+    }
+
+    //**********************************************************
+    private Embeddings_prototype load_ep(File f)
+    //**********************************************************
+    {
+        try (BufferedReader reader = new BufferedReader(new FileReader(f)))
+        {
+            String label = null;
+            String name = null;
+
+            {
+                String line =  reader.readLine();
+                if ( line == null)
+                {
+                    logger.log("error reading ep label");
+                    return null;
+                }
+                label = line.trim();
+            }
+            {
+                String line =  reader.readLine();
+                if ( line == null)
+                {
+                    logger.log("error reading ep name");
+                    return null;
+                }
+                name = line.trim();
+            }
+            int size = 0;
+            {
+                String line =  reader.readLine();
+                if ( line == null)
+                {
+                    logger.log("error reading ep fv size");
+                    return null;
+                }
+                size = Integer.valueOf(line.trim());
+            }
+            double[] values = new double[size];
+            for ( int i = 0; i < size ;i++)
+            {
+                String line = reader.readLine();
+                if ( line == null)
+                {
+                    logger.log("error reading fv #"+i);
+                    return null;
+                }
+                values[i] = Double.valueOf(line.trim());
+            }
+            Feature_vector fv = new Feature_vector(values);
+            // now read the face from the same folder
+            Image face = new Image(make_image_path(name,logger).toAbsolutePath().toString());
+
+            return new Embeddings_prototype(face, fv, label, name);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //**********************************************************
+    private void save_ep(Embeddings_prototype prototype)
+    //**********************************************************
+    {
+        Path p = Path.of(Files_and_Paths.get_face_recognition_cache_dir(logger).toAbsolutePath().toString() , prototype.name()+"."+EXTENSION_FOR_EP);
+        String filename = p.toAbsolutePath().toString();
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filename)))
+        {
+            writer.println(prototype.label());
+            writer.println(prototype.name());
+            writer.println(prototype.feature_vector().features.length );
+            for ( double d : prototype.feature_vector().features)
+            {
+                writer.println(d);
+            }
+        }
+        catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+    }
+
+
+    //**********************************************************
+    public static void display(Image image, String label)
+    //**********************************************************
+    {
         Stage stage = new Stage();
         stage.setTitle("Face Recognition Result");
         VBox vBox = new VBox();
         {
-            ImageView iv = new ImageView(face);
+            ImageView iv = new ImageView(image);
             iv.setPreserveRatio(true);
             iv.setFitWidth(100);
             Pane image_pane = new StackPane(iv);
@@ -295,11 +437,20 @@ public class Face_recognizer
         stage.show();
     }
 
-
-    public static Path write_tmp_image(Image face, Logger logger)
+    //**********************************************************
+    static Path make_image_path(String name, Logger logger)
+    //**********************************************************
     {
-        List<Path> trashes = Static_application_properties.get_existing_trash_dirs(logger);
-        Path path =  Path.of(trashes.get(0).toString(),"tmp.png");
+        Path cache_dir = Files_and_Paths.get_face_recognition_cache_dir(logger);
+        Path path =  Path.of(cache_dir.toString(),name+".png");
+        return path;
+    }
+
+    //**********************************************************
+    public static Path write_tmp_image(Image face, String name, Logger logger)
+    //**********************************************************
+    {
+        Path path =  make_image_path(name,logger);
         try {
             BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);
             ImageIO.write(bi, "png", path.toFile());
@@ -310,7 +461,9 @@ public class Face_recognizer
         return path;
     }
 
-    public void recognize(Path tested)
+    //**********************************************************
+    public String recognize(Path tested)
+    //**********************************************************
     {
         Image face = Face_detector.detect_face(tested,logger);
         if ( face != null)
@@ -318,11 +471,14 @@ public class Face_recognizer
             if ( face.getWidth() > 0)
             {
                 logger.log("Face detected");
-                Path path_to_face = Face_recognizer.write_tmp_image(face,logger);
+                Path path_to_face = Face_recognizer.write_tmp_image(face,"unknown",logger);
                 String label = eval(path_to_face);
                 logger.log("result = "+label);
-                display(face, label, browser,logger);
+                display(face, label);
+                return label;
             }
         }
+        logger.log("NO face detected");
+        return "no face detected";
     }
 }

@@ -7,5 +7,4 @@ tensorflow
 keras.preprocessing
 keras.applications
 pillow
-re
 numpy

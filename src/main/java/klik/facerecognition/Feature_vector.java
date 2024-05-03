@@ -7,6 +7,10 @@ import klik.util.Logger;
 public class Feature_vector {
     public double[] features;
 
+    public Feature_vector(double[] values) {
+        features = values;
+    }
+
     public static Feature_vector parse_json(String response, Logger logger)
     {
         Gson gson = new GsonBuilder().create();

@@ -32,11 +32,12 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         x = np.expand_dims(x, axis=0)
         x = preprocess_input(x)
         feature_vector = model.predict(x)
-        print("feature_vector: "+str(feature_vector)+"\nfeature vector size: "+str(feature_vector.size))
+        #print("feature_vector: "+str(feature_vector))
+        print("feature vector size: "+str(feature_vector.size))
 
         double_values = [np.float64(i) for i in x.flatten()]
 
-        print("values: "+str(double_values))
+        #print("values: "+str(double_values))
         data = {'features': double_values}
         x = json.dumps(data)
         self.send_response(200)

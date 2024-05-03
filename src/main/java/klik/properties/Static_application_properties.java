@@ -70,6 +70,8 @@ public class Static_application_properties
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
     public static final String TRASH_DIR = "klik_trash";
     public static final String ICON_CACHE_DIR = "klik_icon_cache";
+    public static final String FACE_RECOG_CACHE_DIR = "klik_face_recognition_cache";
+
     public static final String ASPECT_RATIO_AND_ROTATION_CACHES_DIR = "klik_aspect_ratio_cache";
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
     public static final String USER_HOME = "user.home";

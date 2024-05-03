@@ -169,6 +169,16 @@ public class Files_and_Paths {
         return tmp_dir;
     }
     //**********************************************************
+    public static Path get_face_recognition_cache_dir(Logger logger)
+    //**********************************************************
+    {
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.FACE_RECOG_CACHE_DIR, false, logger);
+        if (dbg) if (tmp_dir != null) {
+            logger.log("icon dir file=" + tmp_dir.toAbsolutePath());
+        }
+        return tmp_dir;
+    }
+    //**********************************************************
     public static Path get_folder_icon_cache_dir(Logger logger)
     //**********************************************************
     {
