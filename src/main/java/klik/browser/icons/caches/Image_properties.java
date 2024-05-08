@@ -1,24 +1,36 @@
 package klik.browser.icons.caches;
 
 
-import klik.browser.Image_and_rotation;
+import klik.browser.Image_and_properties;
+import klik.util.Stack_trace_getter;
 
-public record Image_properties(double w, double h, Rotation rotation) {
-
-    public static Image_properties from(Image_and_rotation image_and_rotation)
+//**********************************************************
+public record Image_properties(double w, double h, Rotation rotation)
+//**********************************************************
+{
+/*
+    //**********************************************************
+    public static Image_properties from(Image_and_properties image_and_rotation)
+    //**********************************************************
     {
         double w = image_and_rotation.image().getWidth();
         double h = image_and_rotation.image().getHeight();
         Rotation rotation = image_and_rotation.rotation();
         return new Image_properties(w,h, rotation);
     }
-
+*/
+    //**********************************************************
     public String to_string()
+    //**********************************************************
     {
         return w() + " "+ h()+ " " + rotation();
     }
 
-    public static Image_properties from_string(String value) {
+
+    //**********************************************************
+    public static Image_properties from_string(String value)
+    //**********************************************************
+    {
         int first_space = value.indexOf(" ");
         int second_space = value.indexOf(" ",first_space+1);
         String ws = value.substring(0,first_space);
@@ -30,17 +42,25 @@ public record Image_properties(double w, double h, Rotation rotation) {
         return new Image_properties(w,h, rotation);
     }
 
+    //**********************************************************
     public double get_aspect_ratio()
+    //**********************************************************
     {
+        if ( rotation() == null)
+        {
+            System.out.println(Stack_trace_getter.get_stack_trace("PANIC: rotation should never be null"));
+            return 1.0;
+        }
         switch (rotation())
         {
             case normal,upsidedown ->
             {
                 return w/h;
             }
-            case rot_90_clockwise, rot_90_anticlockwise -> {
+            case rot_90_clockwise, rot_90_anticlockwise ->
+            {
             return  h/w;
-        }
+            }
         }
         return 1.0;
     }

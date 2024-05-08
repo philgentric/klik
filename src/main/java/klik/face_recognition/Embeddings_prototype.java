@@ -1,4 +1,4 @@
-package klik.facerecognition;
+package klik.face_recognition;
 
 import javafx.scene.image.Image;
 

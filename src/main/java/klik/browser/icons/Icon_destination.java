@@ -1,13 +1,13 @@
 package klik.browser.icons;
 
-import klik.browser.Image_and_rotation;
+import klik.browser.Image_and_properties;
 import klik.browser.items.Iconifiable_item_type;
 
 import java.nio.file.Path;
 
 public interface Icon_destination
 {
-    void receive_icon(Image_and_rotation icon);
+    void receive_icon(Image_and_properties icon);
 
     Iconifiable_item_type get_item_type();
 

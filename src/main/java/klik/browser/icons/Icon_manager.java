@@ -19,6 +19,7 @@ import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.search.Show_running_man_frame;
+import klik.search.Show_running_man_frame_with_abort_button;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -195,7 +196,7 @@ public class Icon_manager
     }
 
     //**********************************************************
-    private void process_iconified_items(Browser the_browser, Pane pane, boolean single_column, double icon_size, double column_increment, double scene_width, Point2D p)
+    private void process_iconified_items(Browser the_browser, Pane pane, boolean single_column, double icon_size, double column_increment, double scene_width, Point2D point)
     //**********************************************************
     {
         double file_button_height = 2 * Static_application_properties.get_font_size(logger);
@@ -253,13 +254,13 @@ public class Icon_manager
             if (show_icons_instead_of_text)
             {
 
-                p = compute_next_Point2D_for_icons(p, item,
+                point = compute_next_Point2D_for_icons(point, item,
                         icon_size, icon_size,
                         scene_width, single_column,max_y_in_row, current_row);
             }
             else
             {
-                p = new_Point_for_files_and_dirs(p, item,
+                point = new_Point_for_files_and_dirs(point, item,
                         column_increment,
                         file_button_height, scene_width, single_column);
                 how_many_rows++;
@@ -647,7 +648,7 @@ public class Icon_manager
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Icon_manager: show_total_size_deep_in_each_folder");
         AtomicInteger count = new AtomicInteger(0);
-        Show_running_man_frame show_running_man_frame = Show_running_man_frame.show_running_man_with_cancel_button("Computing folder sizes", 300, logger);
+        Show_running_man_frame_with_abort_button show_running_man_frame = Show_running_man_frame_with_abort_button.show_running_man("Computing folder sizes", 300, logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button item_button)

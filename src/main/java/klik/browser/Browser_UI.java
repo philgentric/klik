@@ -351,10 +351,20 @@ public class Browser_UI
             search.getItems().add(browser_menus.make_search_by_keywords_menu_item());
             search.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
             search.getItems().add(browser_menus.make_add_to_face_recognition_training_set_menu_item());
-            search.getItems().add(browser_menus.make_train_menu_item());
-            search.getItems().add(browser_menus.make_reset_train_menu_item());
+
 
             files_menu.getItems().add(search);
+        }
+        {
+            Menu face_recognition = new Menu("Face recognition");
+            face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());
+            face_recognition.getItems().add(browser_menus.make_save_face_recog_menu_item());
+            face_recognition.getItems().add(browser_menus.make_reset_face_recog_menu_item());
+            face_recognition.getItems().add(browser_menus.make_start_auto_face_recog_menu_item());
+
+
+
+            files_menu.getItems().add(face_recognition);
         }
         {
             String cleanup = I18n.get_I18n_string("Clean_Up",logger);

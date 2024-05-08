@@ -11,12 +11,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.actor.Job;
 import klik.audio.Audio_player;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
-import klik.browser.Image_and_rotation;
+import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
@@ -132,7 +131,7 @@ public class Item_button extends Item implements Icon_destination
     }
     //**********************************************************
     @Override
-    public void receive_icon(Image_and_rotation image_and_rotation)
+    public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
         logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));

@@ -5,11 +5,14 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.change.undo.Undo_engine;
-import klik.facerecognition.Face_recognizer;
+import klik.face_recognition.Face_recognition_actor;
+import klik.face_recognition.Face_recognition_message;
+import klik.face_recognition.Face_recognition_service;
 import klik.files_and_paths.Guess_file_type;
 import klik.level3.metadata.Tag_stage;
 import klik.look.Look_and_feel_manager;
@@ -352,7 +355,6 @@ public class Menus_for_image_window
     {
         MenuItem rename = new MenuItem(I18n.get_I18n_string("Rename_with_shortcut", image_window.logger));
         rename.setOnAction(event -> {
-
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
         });
@@ -364,9 +366,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem browse = new MenuItem(I18n.get_I18n_string("Browse", image_window.logger));
-
         browse.setOnAction(event -> {
-
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
              Browser_creation_context.additional_no_past(image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.logger);
@@ -380,16 +380,19 @@ public class Menus_for_image_window
     {
         MenuItem open = new MenuItem(I18n.get_I18n_string("Open", image_window.logger));
         open.setOnAction(event ->
-                {
-
-                    if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                    image_window.image_display_handler.get_image_context().get().open();
-                });
+        {
+            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            image_window.image_display_handler.get_image_context().get().open();
+        });
         return open;
     }
 
+
+    /*
+    Face recognition
+     */
     //**********************************************************
-    private static MenuItem get_set_as_reference_face_menu_item(Image_window image_window, Browser browser)
+    private static MenuItem get_add_as_prototype_menu_item(Image_window image_window, Browser browser)
     //**********************************************************
     {
         MenuItem mi = new MenuItem("Extract a face and add it to training set");//I18n.get_I18n_string("Open", image_window.logger));
@@ -397,13 +400,13 @@ public class Menus_for_image_window
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             Path reference_face = image_window.image_display_handler.get_image_context().get().path;
-            Face_recognizer fr = Face_recognizer.get_instance(browser,image_window.logger);
-            fr.train(reference_face);
+            Face_recognition_service fr = Face_recognition_service.get_instance(browser);
+            fr.train_manual(reference_face);
         });
         return mi;
     }
     //**********************************************************
-    private static MenuItem get_compare_to_reference_face_menu_item(Image_window image_window, Browser browser)
+    private static MenuItem get_perform_face_recognition_menu_item(Image_window image_window, Browser browser)
     //**********************************************************
     {
         MenuItem mi = new MenuItem("Perform face recognition");//I18n.get_I18n_string("Open", image_window.logger));
@@ -412,12 +415,23 @@ public class Menus_for_image_window
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             Path tested = image_window.image_display_handler.get_image_context().get().path;
-            Face_recognizer fr = Face_recognizer.get_instance(browser,image_window.logger);
-            if (fr == null) return;
-            fr.recognize(tested);
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(browser);
+            if (recognition_services == null) return;
+            //fr.recognize(tested, true);
+
+            Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
+            Face_recognition_message msg = new Face_recognition_message(
+                    image_window.image_display_handler.get_image_context().get().path.toFile(),
+                    null,
+                    true,
+                    image_window.aborter, null);
+
+
+            Actor_engine.run(actor,msg,null,image_window.logger);
         });
         return mi;
     }
+
 
 
 
@@ -647,10 +661,10 @@ public class Menus_for_image_window
         }
 
 
-        MenuItem set_as_reference_face = get_set_as_reference_face_menu_item(image_window,the_browser);
+        MenuItem set_as_reference_face = get_add_as_prototype_menu_item(image_window,the_browser);
         context_menu.getItems().add(set_as_reference_face);
 
-        MenuItem compare_to_reference_face = get_compare_to_reference_face_menu_item(image_window, the_browser);
+        MenuItem compare_to_reference_face = get_perform_face_recognition_menu_item(image_window, the_browser);
         context_menu.getItems().add(compare_to_reference_face);
 
         MenuItem open = get_open_menu_item(image_window);

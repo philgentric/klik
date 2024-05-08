@@ -70,7 +70,6 @@ public class Static_application_properties
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
     public static final String TRASH_DIR = "klik_trash";
     public static final String ICON_CACHE_DIR = "klik_icon_cache";
-    public static final String FACE_RECOG_CACHE_DIR = "klik_face_recognition_cache";
 
     public static final String ASPECT_RATIO_AND_ROTATION_CACHES_DIR = "klik_aspect_ratio_cache";
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
@@ -627,9 +626,11 @@ public class Static_application_properties
         Path conf_dir2 = Paths.get(conf_dir1.toString(),CONF_DIR+"_privacy_screen");
         if (!conf_dir2.toFile().exists())
         {
-            try {
+            try
+            {
                 Files.createDirectory(conf_dir2);
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
                 Popups.popup_Exception(e,300,err,logger);
                 return null;
@@ -639,11 +640,14 @@ public class Static_application_properties
 
         Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
         if (dbg) logger.log("get_dir returns=" + returned.toAbsolutePath());
-        if (!Files.exists(returned)) {
+        if (!Files.exists(returned))
+        {
             try {
                 Files.createDirectory(returned);
                 return returned;
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
                 Popups.popup_Exception(e, 300,err,logger);
                 return null;

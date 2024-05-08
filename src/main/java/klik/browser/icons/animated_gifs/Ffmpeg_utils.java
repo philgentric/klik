@@ -21,6 +21,7 @@ import klik.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
 import klik.properties.Static_application_properties;
 import klik.search.Show_running_man_frame;
+import klik.search.Show_running_man_frame_with_abort_button;
 import klik.util.Fx_batch_injector;
 import klik.util.Popups;
 import klik.util.execute.Execute_command;
@@ -71,7 +72,7 @@ public class Ffmpeg_utils
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_man_frame running_man = Show_running_man_frame.show_running_man_with_cancel_button("Wait for animated gifs to be generated",20*60,logger);
+        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man("Wait for animated gifs to be generated",20*60,logger);
         aborter = running_man.aborter;
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
@@ -91,26 +92,7 @@ public class Ffmpeg_utils
                     logger);
         }
 
-        Runnable tracker =  new Runnable() {
-            @Override
-            public void run() {
-                for(;;)
-                {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    if( in_flight.get() == 0)
-                    {
-                        running_man.close();
-                        return;
-                    }
-                }
-            }
-        };
-        Actor_engine.execute(tracker,running_man.aborter,logger);
+        running_man.wait_and_block_until_finished(in_flight);
     }
 
 

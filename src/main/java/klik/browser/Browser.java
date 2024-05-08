@@ -85,7 +85,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public Scene the_Scene;
     final Pane the_Pane;
     public final Icon_manager icon_manager;
-    final Logger logger;
+    public final Logger logger;
     public final Path displayed_folder_path;
     public final Selection_handler selection_handler;
     public final Aborter aborter;
@@ -114,7 +114,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     // make sure we go gain at the same scroll point when we enter a given folder
     static Map<Path,Path> scroll_memory = new HashMap<>();
 
-
+/*
     //**********************************************************
     @Override // Refresh_target
     public void refresh_all(String from)
@@ -129,7 +129,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         };
         Fx_batch_injector.inject(r,logger);
     }
-
+*/
 
 
     //**********************************************************
@@ -137,6 +137,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void refresh_UI_after_scan_dir(String from)
     //**********************************************************
     {
+        paths_manager.redo_iconized_sorted(from);
         if ( x_redraw !=null)
         {
             x_redraw.countDown();
@@ -335,13 +336,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
         image_properties_cache = new Image_properties_cache(displayed_folder_path,"Image properties cache",aborter,logger);
-        //image_width_cache = new Image_width_cache(displayed_folder_path,aborter,logger);
-        //aspect_ratio_cache = new Aspect_ratio_cache(displayed_folder_path,aborter,logger);
-        //rotation_cache = new Rotation_cache(displayed_folder_path,aborter,logger);
-        //icon_factory_actor = new Icon_factory_actor(aspect_ratio_cache, rotation_cache, my_Stage.the_Stage, aborter, logger);
         icon_factory_actor = new Icon_factory_actor(image_properties_cache, my_Stage.the_Stage, aborter, logger);
         paths_manager = new Paths_manager(image_properties_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
-        //paths_manager = new Paths_manager(image_width_cache, aspect_ratio_cache,rotation_cache,icon_factory_actor, displayed_folder_path, this, aborter, logger);
         icon_manager = new Icon_manager(paths_manager,aborter,logger);
         selection_handler = new Selection_handler(the_Pane, icon_manager, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
@@ -1200,18 +1196,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             case more_changes:
             {
                if (dbg) logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-                //fx_injector.inject(() -> {
-                    redraw_fx("change gang for dir: " + displayed_folder_path, true);
-                //});
+               redraw_fx("change gang for dir: " + displayed_folder_path, true);
             };
             break;
             case one_new_file, one_file_gone:
             {
                 if (dbg) logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-
-                //fx_injector.inject(() -> {
-                    redraw_fx("change gang for dir: " + displayed_folder_path, true);
-                //});
+                redraw_fx("change gang for dir: " + displayed_folder_path, true);
             }
             break;
             default:

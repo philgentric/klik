@@ -33,6 +33,6 @@ module klikmodule {
 //    requires com.fasterxml.jackson.databind;
 //    requires com.fasterxml.jackson.dataformat.xml;
 
-    exports klik.facerecognition; // required for parsing json from embeddings server
+    exports klik.face_recognition; // required for parsing json from embeddings server
     exports klik;
 }

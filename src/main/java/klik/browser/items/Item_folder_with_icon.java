@@ -14,7 +14,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
-import klik.browser.Image_and_rotation;
+import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
@@ -145,17 +145,17 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
     //**********************************************************
     @Override
-    public void receive_icon(Image_and_rotation image_and_rotation)
+    public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
         Fx_batch_injector.inject(() -> set_icon(image_and_rotation),logger);
     }
 
     //**********************************************************
-    private void set_icon(Image_and_rotation image_and_rotation)
+    private void set_icon(Image_and_properties image_and_properties)
     //**********************************************************
     {
-        if ( image_and_rotation.image() == null)
+        if ( image_and_properties.image() == null)
         {
             the_image_view = null;
             logger.log(Stack_trace_getter.get_stack_trace("image==null for "+path));
@@ -168,12 +168,12 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         the_image_pane.getChildren().add(the_image_view);
 
         //logger.log(Stack_trace_getter.get_stack_trace("item_folder_with_icon setting icon for "+path+ " image width = "+image.getWidth()));
-        the_image_view.setImage(image_and_rotation.image());
+        the_image_view.setImage(image_and_properties.image());
         the_image_view.setPreserveRatio(true);
 
         // normally we already have the rotation
         double local_rot = 0;
-        Rotation rotation = image_and_rotation.rotation();
+        Rotation rotation = image_and_properties.properties().rotation();
         if (rotation == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
@@ -183,7 +183,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         }
         else
         {
-            the_image_pane.setRotate(Rotation.to_angle(image_and_rotation.rotation()));
+            the_image_pane.setRotate(Rotation.to_angle(rotation));
         }
         resize_the_box(the_button);
     }

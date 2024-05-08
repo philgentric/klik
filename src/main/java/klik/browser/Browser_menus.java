@@ -13,7 +13,7 @@ import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
-import klik.facerecognition.Face_recognizer;
+import klik.face_recognition.Face_recognition_service;
 import klik.files_and_paths.*;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -436,7 +436,7 @@ public class Browser_menus
 
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Face_recognizer i = Face_recognizer.get_instance(browser,logger);
+            Face_recognition_service i = Face_recognition_service.get_instance(browser);
             logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+browser.displayed_folder_path);
 
         });
@@ -444,29 +444,51 @@ public class Browser_menus
     }
 
     //**********************************************************
-    public MenuItem make_train_menu_item()
+    public MenuItem make_save_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "Train face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = "Save face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> {
-            logger.log("Train face recognition NOT IMPLEMETED");
+        item.setOnAction(event -> Face_recognition_service.save());
 
-        });
         return item;
     }
 
     //**********************************************************
-    public MenuItem make_reset_train_menu_item()
+    public MenuItem make_load_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "Reset face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = "Load face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognizer.reset());
+        item.setOnAction(event -> Face_recognition_service.load(browser));
+
         return item;
     }
+
+
+    //**********************************************************
+    public MenuItem make_reset_face_recog_menu_item()
+    //**********************************************************
+    {
+        String text = "Reset/init face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Face_recognition_service.start_new(browser));
+        return item;
+    }
+
+
+    //**********************************************************
+    public MenuItem make_start_auto_face_recog_menu_item()
+    //**********************************************************
+    {
+        String text = "Auto face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Face_recognition_service.auto(browser));
+        return item;
+    }
+
 
     //**********************************************************
     public MenuItem make_search_by_keywords_menu_item()

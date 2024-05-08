@@ -29,7 +29,7 @@ public class Moving_files
 //**********************************************************
 {
 
-    private static final boolean moving_files_dbg = true;
+    private static final boolean moving_files_dbg = false;
 
     //**********************************************************
     public static void safe_move_files_or_dirs(Stage owner,

@@ -6,6 +6,7 @@ import klik.browser.icons.Paths_manager;
 import klik.browser.icons.Refresh_target;
 import klik.files_and_paths.Ding;
 import klik.files_and_paths.Files_and_Paths;
+import klik.images.decoding.Fast_image_property_from_exif_metadata_extractor;
 import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
@@ -30,7 +31,6 @@ public class Image_properties_cache
     private final Map<String, Image_properties> cache = new ConcurrentHashMap<>();
     protected final Properties_manager pm;
     LinkedBlockingQueue<String> end = new LinkedBlockingQueue<>();
-    public AtomicInteger in_flight = new AtomicInteger(0);
     Image_properties_actor image_properties_actor;
     //**********************************************************
     public Image_properties_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
@@ -48,22 +48,45 @@ public class Image_properties_cache
             logger.log(cache_name+" cache file ="+cache_file_path);
         }
         pm = new Properties_manager(cache_file_path,logger);
-        image_properties_actor = new Image_properties_actor(in_flight,end);
+        image_properties_actor = new Image_properties_actor(end);
     }
 
 
     //**********************************************************
-    public void put_in_cache(Path p,Image_properties ip)
+    private void put_in_cache(Path p,Image_properties ip)
     //**********************************************************
     {
         cache.put(key_from_path(p),ip);
     }
 
     //**********************************************************
+    public Image_properties really_get_from_cache(Path path)
+    //**********************************************************
+    {
+        // try the cache
+        Image_properties returned = get_from_cache(path);
+        if ( returned != null) return returned;
+        // ok, so now we must REALLY get the data
+
+        returned = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger);
+
+        return returned;
+
+    }
+
+
+    //**********************************************************
     public Image_properties get_from_cache(Path p)
     //**********************************************************
     {
-        return cache.get(key_from_path(p));
+        Image_properties image_properties =  cache.get(key_from_path(p));
+        if ( image_properties == null)
+        {
+            Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
+            image_properties_actor.increment_in_flight();
+            Actor_engine.run(image_properties_actor,imp,null,logger);
+        }
+        return image_properties;
     }
 
     //**********************************************************
@@ -131,7 +154,8 @@ public class Image_properties_cache
             pm.remove(key);
         }
         if ( !cleanup.isEmpty()) pm.store_properties();
-        if (dbg) logger.log(cache_name+": "+already_in_RAM+" already in RAM, "+reloaded+" items reloaded from file");
+        //if (dbg)
+            logger.log(cache_name+": "+already_in_RAM+" already in RAM, "+reloaded+" items reloaded from file");
 
         if ( dbg)
         {
@@ -180,7 +204,8 @@ public class Image_properties_cache
             return;
         }
 
-        CountDownLatch running_man = Show_running_man_frame.show_running_man("Aspect ratios are being computed", 20000,  aborter, logger);
+        CountDownLatch running_man = Show_running_man_frame.show_running_man("Image properties are being computed", 20*60,  aborter, logger);
+
 
         long start = System.currentTimeMillis();
         look_for_end_runnable = new Runnable() {
@@ -204,15 +229,17 @@ public class Image_properties_cache
                             process_end(paths_manager,refresh_target,start,running_man);
                             return;
                         }
-                        if (in_flight.get() == 0)
+                        logger.log("look_for_end, image geometries remaining: " + image_properties_actor.get_in_flight());
+                        if (image_properties_actor.get_in_flight() == 0)
                         {
                             process_end(paths_manager,refresh_target,start,running_man);
                             return;
                         }
-                        logger.log("aspect ratios remaining: " + image_properties_actor.in_flight.get());
                     }
                     else
                     {
+                        logger.log("look_for_end received END signal");
+
                         process_end(paths_manager,refresh_target,start, running_man);
                         return;
                     }
@@ -226,7 +253,7 @@ public class Image_properties_cache
     private void process_end(Paths_manager paths_manager, Refresh_target refresh_target, long start, CountDownLatch running_man)
     //**********************************************************
     {
-        logger.log("aspect ratios done! ");
+        logger.log("process_end() ");
         // this is the end
         running_man.countDown();
         done_look_for_end.set(true);
@@ -249,10 +276,9 @@ public class Image_properties_cache
             paths_manager.iconized_sorted = new ConcurrentSkipListMap<>(local_file_comparator);
 
             // now that we changed the iconized container we must do a scan dir
-            logger.log("aspect ratios engine done, going to FULL refresh as iconized is empty");
+            logger.log("image geometry cache reloaded, going to refresh");
 
-            paths_manager.redo_iconized_sorted();
-            refresh_target.refresh_UI_after_scan_dir("aspect ratio done");
+            refresh_target.refresh_UI_after_scan_dir("look_for_end");
             //refresh_target.refresh_all("aspect ratio cache");
         }
     }
@@ -266,7 +292,6 @@ public class Image_properties_cache
         double dd = 10.0*d;
         return Math.round(dd)*10.0;
     }
-
 
 
     //**********************************************************

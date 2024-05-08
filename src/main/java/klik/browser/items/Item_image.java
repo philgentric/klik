@@ -12,7 +12,7 @@ import javafx.scene.layout.StackPane;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
-import klik.browser.Image_and_rotation;
+import klik.browser.Image_and_properties;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.caches.Rotation;
 import klik.change.Change_gang;
@@ -287,7 +287,7 @@ public class Item_image extends Item
 
     //**********************************************************
     @Override
-    public void receive_icon(Image_and_rotation image_and_rotation)
+    public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
         //logger.log("RECEIVING icon");
@@ -310,14 +310,14 @@ public class Item_image extends Item
         if ( image_and_rotation == null)
         {
             if ( dbg)
-                logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+                logger.log("image_and_rotation == null ");
             //Fx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( image_and_rotation.image() == null)
         {
             if ( dbg)
-                logger.log("image_and_rotation == null : setting the image to null in the Image_view");
+                logger.log("image_and_rotation.image() == null : setting the image to null in the Image_view");
             //Fx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
@@ -354,19 +354,34 @@ public class Item_image extends Item
 
 
     //**********************************************************
-    public void receive_icon_in_fx_thread(Image_and_rotation image_and_rotation)
+    public void receive_icon_in_fx_thread(Image_and_properties image_and_properties)
     //**********************************************************
     {
         if ( dbg)
-            logger.log("receive_icon_in_fx_thread, w=" +image_and_rotation.image().getWidth()+", h="+image_and_rotation.image().getHeight()+ " for: "+path);
+        {
+            if ( image_and_properties.properties() ==null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+path));
+                return;
+            }
+            logger.log("receive_icon_in_fx_thread," +
+                    "\n   w icon=          "+image_and_properties.image().getWidth()+
+                    "\n   h icon=          "+image_and_properties.image().getHeight()+
+                    "\n   w image=         "+image_and_properties.properties().w()+
+                    "\n   h image=         "+image_and_properties.properties().h()+
+                    "\n   rot image=       "+image_and_properties.properties().rotation()+
+                    "\n   aspect ratio=    "+image_and_properties.properties().get_aspect_ratio()+
+                    "\n   for:             "+path);
+
+        }
 
         double local_rot = 0;
         {
-            Rotation rotation = image_and_rotation.rotation();
-            if (rotation == null) {
-                if (Files.exists(path)) {
-
-                    logger.log(Stack_trace_getter.get_stack_trace("WTF"));
+            Rotation rotation = image_and_properties.properties().rotation();
+            if (rotation == null)
+            {
+                if (Files.exists(path))
+                {
                     if (
                             (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
                     ) {
@@ -375,7 +390,10 @@ public class Item_image extends Item
                     } else {
                         local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, browser_aborter, logger);
                     }
-                } else {
+                }
+                else
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("WTF"));
                     you_are_invisible();
                     return;
                 }
@@ -387,7 +405,7 @@ public class Item_image extends Item
             if (aspect_ratio == null)
             {
                 logger.log("SHOULD NOT HAPPEN");
-                double local = image_and_rotation.image().getWidth()/image_and_rotation.image().getHeight();
+                double local = image_and_properties.image().getWidth()/image_and_properties.image().getHeight();
                 if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
                 aspect_ratio = local;
             }
@@ -401,13 +419,12 @@ public class Item_image extends Item
         }
 
         image_view.setSmooth(true);
-        image_view.setImage(image_and_rotation.image());
+        image_view.setImage(image_and_properties.image());
 
-        if (( image_and_rotation.image().getHeight() >= icon_size) && (image_and_rotation.image().getWidth() >= icon_size))
+        if (( image_and_properties.image().getHeight() >= icon_size) && (image_and_properties.image().getWidth() >= icon_size))
         {
             // this happens when the icon is PDF as we dont scale PDF icons
-            if (dbg)
-                logger.log("icon larger than target HAPPENS1 for: "+path);
+            if (dbg) logger.log("icon larger than target HAPPENS1 for: "+path);
             image_view.setFitWidth(icon_size);
             image_view.setFitHeight(icon_size);
             if ((local_rot == 90) || (local_rot == 270))
@@ -415,8 +432,8 @@ public class Item_image extends Item
                 // this actually NEVER HAPPENS now since a PDF icon is never rotated
                 //if (dbg)
                     logger.log("HAPPENS2 for: "+path);
-                image_view.setFitWidth(image_and_rotation.image().getHeight());
-                image_view.setFitHeight(image_and_rotation.image().getWidth());
+                image_view.setFitWidth(image_and_properties.image().getHeight());
+                image_view.setFitHeight(image_and_properties.image().getWidth());
             }
         }
         else
@@ -424,7 +441,7 @@ public class Item_image extends Item
             if ((local_rot == 90) || (local_rot == 270))
             {
 
-                if ( image_and_rotation.image().getHeight() < image_and_rotation.image().getWidth())
+                if ( image_and_properties.image().getHeight() < image_and_properties.image().getWidth())
                 {
                     if (dbg)
                         logger.log("HAPPENS3A for: "+path);
@@ -445,12 +462,16 @@ public class Item_image extends Item
             {
                 if (dbg)
                     logger.log("HAPPENS4 for: "+path);
-                image_view.setFitWidth(image_and_rotation.image().getWidth());
-                image_view.setFitHeight(image_and_rotation.image().getHeight());
+                image_view.setFitWidth(image_and_properties.image().getWidth());
+                image_view.setFitHeight(image_and_properties.image().getHeight());
             }
         }
-        if ( image_and_rotation.rotation() != null) {
-            image_pane.setRotate(Rotation.to_angle(image_and_rotation.rotation()));
+        if ( image_and_properties.properties().rotation() != null) {
+            image_pane.setRotate(Rotation.to_angle(image_and_properties.properties().rotation()));
+        }
+        else
+        {
+            if ( dbg) logger.log("image_and_rotation.rotation() is null");
         }
     }
 

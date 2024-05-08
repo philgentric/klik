@@ -1,4 +1,4 @@
-package klik.facerecognition;
+package klik.face_recognition;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +28,7 @@ public class Feature_vector {
         return sb.toString();
     }
 
-    public double distance(Feature_vector featureVector)
+    public double euclidian(Feature_vector featureVector)
     {
         if ( this.features.length != featureVector.features.length)
         {
@@ -44,5 +44,30 @@ public class Feature_vector {
             returned_distance += diff2;
         }
         return Math.sqrt(returned_distance);
+    }
+
+    // with VGG19 the best distance seems to be cosine: c.f.
+    public double distance(Feature_vector feature_vector)
+    {
+        int n = features.length;
+        double dotProduct = 0.0;
+        double magnitudeVec1 = 0.0;
+        double magnitudeVec2 = 0.0;
+
+        for (int i = 0; i < n; i++) {
+            dotProduct += features[i] * feature_vector.features[i];
+            magnitudeVec1 += features[i] * features[i];
+            magnitudeVec2 += feature_vector.features[i] * feature_vector.features[i];
+        }
+
+        magnitudeVec1 = Math.sqrt(magnitudeVec1);
+        magnitudeVec2 = Math.sqrt(magnitudeVec2);
+
+        if (magnitudeVec1 == 0.0 || magnitudeVec2 == 0.0) {
+            return 0.0; // avoid division by zero
+        }
+
+        double cosineSimilarity = dotProduct / (magnitudeVec1 * magnitudeVec2);
+        return cosineSimilarity;
     }
 }

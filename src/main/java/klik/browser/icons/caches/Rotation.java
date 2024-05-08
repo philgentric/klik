@@ -5,8 +5,7 @@ public enum Rotation
     normal, // 0
     rot_90_clockwise,
     upsidedown, // 180
-    rot_90_anticlockwise,
-    ;
+    rot_90_anticlockwise;
 
     public static double to_angle(Rotation rotation) {
         switch (rotation)

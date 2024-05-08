@@ -1,6 +1,6 @@
 package klik.browser.items;
 
-import klik.browser.Image_and_rotation;
+import klik.browser.Image_and_properties;
 
-public record Item_image_target(Item_image target, Image_and_rotation payload) {}
+public record Item_image_target(Item_image target, Image_and_properties payload) {}
 

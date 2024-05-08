@@ -23,9 +23,11 @@ because the format is weird/wrong
  */
 // TODO: consider using Gifsicle?
 
+//**********************************************************
 public class Gif_repair
+//**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private static final boolean cleanup = false;
 
     //**********************************************************

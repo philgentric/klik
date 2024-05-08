@@ -7,9 +7,19 @@ from http.server import SimpleHTTPRequestHandler
 import urllib.parse
 import tensorflow as tf
 import numpy as np
-from keras.applications.vgg16 import preprocess_input
 
-model = tf.keras.applications.VGG16(weights='imagenet', include_top=False)
+from keras.models import Model
+from keras.applications.vgg19 import VGG19
+from keras.applications.vgg19 import preprocess_input
+
+
+vgg19_base_model = VGG19(weights='imagenet')
+vgg19 = Model(inputs=vgg19_base_model.input, outputs=vgg19_base_model.get_layer('block4_pool').output)
+
+
+
+#from keras.applications.inception_v3 import InceptionV3
+#inceptionV3 = tf.keras.applications.InceptionV3(weights='imagenet', include_top=False)
 
 class EmbeddingGenerator(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -31,6 +41,8 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         x = keras.utils.img_to_array(img)
         x = np.expand_dims(x, axis=0)
         x = preprocess_input(x)
+        model = vgg19
+        #model = inceptionV3
         feature_vector = model.predict(x)
         #print("feature_vector: "+str(feature_vector))
         print("feature vector size: "+str(feature_vector.size))

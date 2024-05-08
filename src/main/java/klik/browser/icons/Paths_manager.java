@@ -6,7 +6,9 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Error_receiver;
+import klik.browser.icons.caches.Image_properties;
 import klik.browser.icons.caches.Image_properties_cache;
+import klik.browser.icons.caches.Image_properties_message;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
@@ -28,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Paths_manager
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public static final String OK = "OK";
     public double max_dir_text_length;
     private static Logger logger;
@@ -48,16 +50,12 @@ public class Paths_manager
     public final int ID;
     public final Aborter aborter;
     public final Path folder_path;
-    //final Aspect_ratio_cache aspect_ratio_cache;
-    //final Image_width_cache image_sizes_cache;
-    //final  Rotation_cache rotation_cache;
     final Image_properties_cache image_properties_cache;
     private final Icon_factory_actor icon_factory_actor;
 
     private Refresh_target refresh_target;
 
     //**********************************************************
-    //public Paths_manager(Image_width_cache image_sizes_cache, Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
     public Paths_manager(Image_properties_cache image_properties_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
@@ -90,7 +88,7 @@ public class Paths_manager
             case NAME_GIFS_FIRST:
                 other_file_comparator = alphabetical_file_name_comparator_gif_first;
                 break;
-       }
+        }
         image_file_comparator = other_file_comparator;
 
         logger.log("Path_manager image_file_comparator init\n\n"+image_file_comparator.toString());
@@ -98,20 +96,7 @@ public class Paths_manager
         folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
         iconized_sorted = new ConcurrentSkipListMap<>(image_file_comparator);
-
     }
-
-
-    //**********************************************************
-    public boolean do_we_still_have(Path p)
-    //**********************************************************
-    {
-        if ( iconized_sorted.containsKey(p)) return true;
-        if ( non_iconized.containsKey(p)) return true;
-        if ( folders.containsKey(p)) return true;
-        return false;
-    }
-
 
     //long scan_dir_elapsed = 0;
 
@@ -142,53 +127,30 @@ public class Paths_manager
         boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
         boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
         iconized_paths.clear();
-        iconized_sorted.clear();
         non_iconized.clear();
         folders.clear();
 
         image_properties_cache.reload_cache_from_disk();
         image_properties_cache.look_for_end(this, refresh_target);
 
-/*        rotation_cache.reload_cache_from_disk();
-        if (
-            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO) ||
-            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.ASPECT_RATIO)
-        )
-        {
-            aspect_ratio_cache.reload_cache_from_disk();
-            // start a thread that will refresh when ALL the aspect ratios are available
-            // and switch the file_comparator
-            aspect_ratio_cache.look_for_end(this, refresh_target);
-        }
-        if (
-            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.IMAGE_HEIGHT) ||
-            (Static_application_properties.get_sort_files_by(logger) == File_sort_by.IMAGE_WIDTH)
-        )
-        {
-            image_sizes_cache.reload_cache_from_disk();
-            // start a thread that will refresh when ALL the aspect ratios are available
-            // and switch the file_comparator
-            image_sizes_cache.look_for_end(this, refresh_target);
-        }
-        */
-
         do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-        redo_iconized_sorted();
-        refresh_target.refresh_UI_after_scan_dir("after do_the_hard_work_of_scan_dir");
+        refresh_target.refresh_UI_after_scan_dir("scan_dir_in_a_thread");
     }
 
 
     //**********************************************************
-    public void redo_iconized_sorted()
+    public void redo_iconized_sorted(String from)
     //**********************************************************
     {
         iconized_sorted.clear();
 
+        int i = 0;
         for ( Path path : iconized_paths)
         {
             iconized_sorted.put(path,true);
+            i++;
         }
-        logger.log("redo_iconized_sorted; iconized_paths="+iconized_paths.size()+" iconized_sorted="+iconized_sorted.size());
+        logger.log(i+" redo_iconized_sorted; from= "+from+" iconized_paths.size="+iconized_paths.size()+" iconized_sorted.size="+iconized_sorted.size());
     }
 
 
@@ -323,12 +285,12 @@ public class Paths_manager
             if (show_icons_instead_of_text)
             {
                 iconized_paths.add(path);
+                {
+                    if (dbg) logger.log("calling image properties cache from path manager do_file()");
+                    // calling this will populate the cache
+                    Image_properties ip = image_properties_cache.get_from_cache(path);
+                }
                 //iconized_sorted.put(path,true);
-                return;
-            }
-            else
-            {
-                non_iconized.put(path,true);
                 return;
             }
         }
