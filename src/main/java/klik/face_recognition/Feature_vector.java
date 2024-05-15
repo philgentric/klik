@@ -3,23 +3,148 @@ package klik.face_recognition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import klik.util.Logger;
+import klik.util.Stack_trace_getter;
 
-public class Feature_vector {
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.nio.file.Path;
+import java.util.Random;
+
+//**********************************************************
+public class Feature_vector
+//**********************************************************
+{
+    static int[] port = {8020, 8021, 8022, 8023, 8024, 8025, 8026, 8027, 8028, 8029};
+    //static int[] port = {8020};
+    static Random random = new Random();
+    public static int get_random_port()
+    {
+        int returned = random.nextInt(port[0],port[0]+port.length);
+        return returned;
+    }
+
     public double[] features;
 
     public Feature_vector(double[] values) {
         features = values;
     }
 
+    //**********************************************************
     public static Feature_vector parse_json(String response, Logger logger)
+    //**********************************************************
     {
         Gson gson = new GsonBuilder().create();
         Feature_vector fv = gson.fromJson(response, Feature_vector.class);
-        logger.log("parsed a feature vector, length: " + fv.features.length);
+        //logger.log("parsed a feature vector, length: " + fv.features.length);
         return fv;
     }
 
-    public String to_string() {
+
+    //**********************************************************
+    public static Feature_vector get_feature_vector_from_server(Path path, Logger logger)
+    //**********************************************************
+    {
+        if ( path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD"));
+            return null;
+        }
+
+        String url_string = null;
+        try {
+            String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
+            url_string = "http://localhost:" + get_random_port() + "/" + encodedPath;
+        } catch (UnsupportedEncodingException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+        URL url = null;
+        try {
+            url = new URL(url_string);
+        } catch (MalformedURLException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+        //logger.log("Connection established: "+connection.toString());
+        // Send a GET request to the server
+        try {
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(120_000);
+        } catch (ProtocolException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+        try {
+            connection.connect();
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+
+        // Get the response code and message
+        try {
+            int responseCode = connection.getResponseCode();
+            // logger.log("Response Code: " + responseCode);
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+
+        try {
+            String responseMessage = connection.getResponseMessage();
+            //logger.log("Response Message: " + responseMessage);
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+
+        // Read the response from the server
+        StringBuffer sb = new StringBuffer();
+        try(BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream()))
+        {
+            for(;;)
+            {
+                int c = bufferedInputStream.read();
+                if ( c == -1) break;
+                //System.out.print((char)c);
+                sb.append((char)c);
+            }
+        } catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return null;
+        }
+
+
+
+        // Use a JSON parser library (e.g., Jackson) to parse the JSON string
+        String json = sb.toString();
+        //logger.log("json ="+json);
+        Feature_vector fv = Feature_vector.parse_json(json,logger);
+        if ( fv == null) {
+            logger.log("feature vector is null");
+        }
+        else {
+            //logger.log("feature vector size:"+fv.features.length);
+        }
+
+        return fv;
+    }
+
+
+    //**********************************************************
+    public String to_string()
+    //**********************************************************
+    {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < features.length; i++) {
             sb.append(features[i]);
@@ -28,7 +153,9 @@ public class Feature_vector {
         return sb.toString();
     }
 
+    //**********************************************************
     public double euclidian(Feature_vector featureVector)
+    //**********************************************************
     {
         if ( this.features.length != featureVector.features.length)
         {
@@ -46,8 +173,10 @@ public class Feature_vector {
         return Math.sqrt(returned_distance);
     }
 
-    // with VGG19 the best distance seems to be cosine: c.f.
+    // with VGG19 the best distance seems to be cosine...
+    //**********************************************************
     public double distance(Feature_vector feature_vector)
+    //**********************************************************
     {
         int n = features.length;
         double dotProduct = 0.0;
@@ -59,15 +188,13 @@ public class Feature_vector {
             magnitudeVec1 += features[i] * features[i];
             magnitudeVec2 += feature_vector.features[i] * feature_vector.features[i];
         }
-
-        magnitudeVec1 = Math.sqrt(magnitudeVec1);
-        magnitudeVec2 = Math.sqrt(magnitudeVec2);
-
         if (magnitudeVec1 == 0.0 || magnitudeVec2 == 0.0) {
-            return 0.0; // avoid division by zero
+            return 0.0; // avoid NaN
         }
 
-        double cosineSimilarity = dotProduct / (magnitudeVec1 * magnitudeVec2);
-        return cosineSimilarity;
+        double mag = Math.sqrt(magnitudeVec1*magnitudeVec2);
+
+        double cosineSimilarity = dotProduct / mag;
+        return 1 - cosineSimilarity;
     }
 }

@@ -34,14 +34,9 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
 
+
         #normalize
         gray = cv2.normalize(gray, None, 0.0, 255.0,cv2.NORM_MINMAX)
-
-        # debug:
-        #cv2.imshow('SERVER SIDE Face Detector NORMALIZED gray image',gray)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-
 
         print("image has been converted to grayscale, going to call face detection")
 
@@ -56,15 +51,16 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
         return_whole_image = False
         if (return_whole_image):
             print("whole image")
+
             # Draw rectangles around detected faces
             for (x, y, w, h) in faces:
                 print("face detected at x: "+str(x)+", y: "+str(y)+", w: "+str(w)+", h: "+str(h))
                 cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
             # Convert the output image to JPEG format
-            ret, output = cv2.imencode('.jpg', gray)
+            ret, output = cv2.imencode('.png', gray)
             self.send_response(200)
-            self.send_header('Content-type', 'image/jpeg')
+            self.send_header('Content-type', 'image/png')
             self.end_headers()
             self.wfile.write(output.tobytes())
         else:
@@ -84,7 +80,7 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
 
 
-                if (max_confidence < 8):
+                if (max_confidence < 4):
                     print(" max_confidence too small "+ str(max_confidence))
                 else:
                     # Extract the ROI of the most plausible face and return it as a JPEG image
@@ -97,9 +93,9 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
                     #cv2.waitKey(0)
                     #cv2.destroyAllWindows()
 
-                    ret, out = cv2.imencode('.jpg', roi)
+                    ret, out = cv2.imencode('.png', roi)
                     self.send_response(200)
-                    self.send_header('Content-type', 'image/jpeg')
+                    self.send_header('Content-type', 'image/png')
                     self.end_headers()
                     self.wfile.write(out.tobytes())
             else:
@@ -113,13 +109,14 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 def run_server(port):
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, FaceDetectionHandler)
-    print("Starting local server on port "+str(port))
+    print("Starting local FACE DETECTION server on port "+str(port))
     httpd.serve_forever()
 
 import threading
 
 if __name__ == '__main__':
-    ports = [8002, 8003, 8004, 8005]
+    ports = [8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059]
+    #ports = [8002]
     threads = []
     for port in ports:
         t = threading.Thread(target=run_server, args=(port,))

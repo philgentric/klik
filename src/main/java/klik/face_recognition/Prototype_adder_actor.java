@@ -23,9 +23,6 @@ public class Prototype_adder_actor implements Actor
 //**********************************************************
 {
     public static final boolean dbg = false;
-
-    public final static String EXTENSION_FOR_EP = "prototype";
-    public static final int K_of_KNN = 5;
     private final Face_recognition_service service;
 
     //**********************************************************
@@ -53,11 +50,25 @@ public class Prototype_adder_actor implements Actor
     {
         String name = label+ "_"+ UUID.randomUUID();
         Path path = Face_recognition_service.write_tmp_image(face, service.face_recognizer_path, name,service.logger);
-        Feature_vector fv = get_image_embeddings(path, service.logger);
+        if ( path == null)
+        {
+            return Face_recognition_status.no_feature_vector;
+        }
+        Feature_vector fv = Feature_vector.get_feature_vector_from_server(path, service.logger);
         if ( fv ==null)
         {
-            service.logger.log("FATAL: prototype not added as the feature vector is null");
-            return Face_recognition_status.no_feature_vector;
+            // try again, once
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                service.logger.log(""+e);
+            }
+
+            fv = Feature_vector.get_feature_vector_from_server(path, service.logger);
+            if ( fv == null) {
+                service.logger.log("FATAL: prototype not added as the feature vector is null");
+                return Face_recognition_status.no_feature_vector;
+            }
         }
 
         Embeddings_prototype ep = new Embeddings_prototype(face, fv, label, name);
@@ -70,7 +81,7 @@ public class Prototype_adder_actor implements Actor
         return Face_recognition_status.feature_vector_ready;
     }
 
-
+/*
     //**********************************************************
     public static Feature_vector get_image_embeddings(Path path, Logger logger)
     //**********************************************************
@@ -97,7 +108,7 @@ public class Prototype_adder_actor implements Actor
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return null;
         }
-        logger.log("Connection established: "+connection.toString());
+        //logger.log("Connection established: "+connection.toString());
         // Send a GET request to the server
         try {
             connection.setRequestMethod("GET");
@@ -115,7 +126,7 @@ public class Prototype_adder_actor implements Actor
         // Get the response code and message
         try {
             int responseCode = connection.getResponseCode();
-            logger.log("Response Code: " + responseCode);
+            //logger.log("Response Code: " + responseCode);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return null;
@@ -123,7 +134,7 @@ public class Prototype_adder_actor implements Actor
 
         try {
             String responseMessage = connection.getResponseMessage();
-            logger.log("Response Message: " + responseMessage);
+            //logger.log("Response Message: " + responseMessage);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return null;
@@ -160,14 +171,13 @@ public class Prototype_adder_actor implements Actor
             logger.log("feature vector is null");
         }
         else {
-            //logger.log("feature vector ="+fv.to_string());
-            logger.log("feature vector size:"+fv.features.length);
+            //logger.log("feature vector size:"+fv.features.length);
         }
 
         return fv;
     }
 
-
+*/
 
     //**********************************************************
     private void save_ep(Embeddings_prototype prototype)

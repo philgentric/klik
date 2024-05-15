@@ -88,11 +88,19 @@ def parse_feature_vector(s):
         values.append(float(num_str))
         return values
 
-def run_server():
-    server_address = ('localhost', 8001)
+def run_server(port):
+    server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
-    print("Starting local server on port 8001...")
+    print("Starting local IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()
 
+import threading
+
 if __name__ == '__main__':
-    run_server()
+    ports = [8020, 8021, 8022, 8023, 8024, 8025, 8026, 8027, 8028, 8029]
+    #ports = [8020]
+    threads = []
+    for port in ports:
+        t = threading.Thread(target=run_server, args=(port,))
+        threads.append(t)
+        t.start()

@@ -78,7 +78,6 @@ public class Exif_metadata_extractor
 
         //String file = I18n.get_I18n_string("File",logger);
 
-        exif_metadata.add("File on disk is ->"+ path.toAbsolutePath()+"<-");
 
         String extension = FilenameUtils.getExtension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
@@ -93,9 +92,7 @@ public class Exif_metadata_extractor
             }
         }
 
-        String file_size = Files_and_Paths.get_1_line_string_with_size(path.toAbsolutePath(),logger);
-        //file_size = file_size.replace("\n","  -  ");
-        exif_metadata.add(file_size);
+
 
         List<String> list_of_strings = null;
         if ( details)

@@ -36,7 +36,7 @@ public class Static_application_properties
     public static final String SORT_FILES_BY = "sort_files_by";
     private static final String LEVEL2 = "LEVEL2";
     private static final String LEVEL3 = "LEVEL3";
-    private static final int DEFAULT_SIZE_WARNING_MEGABYTES = 100;
+    private static final int DEFAULT_SIZE_WARNING_MEGABYTES = 500;
     private static final String DISK_CACHE_SIZE_WARNING_MEGABYTES = "DISK_CACHE_SIZE_WARNING_MEGABYTES";
     private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
     private static int icon_size = -1;
@@ -438,7 +438,7 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static int fx(Logger logger)
+    public static int get_folder_warning_size(Logger logger)
     //**********************************************************
     {
         int warning_megabytes = DEFAULT_SIZE_WARNING_MEGABYTES;

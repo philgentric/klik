@@ -361,6 +361,7 @@ public class Browser_UI
             face_recognition.getItems().add(browser_menus.make_save_face_recog_menu_item());
             face_recognition.getItems().add(browser_menus.make_reset_face_recog_menu_item());
             face_recognition.getItems().add(browser_menus.make_start_auto_face_recog_menu_item());
+            face_recognition.getItems().add(browser_menus.make_start_self_face_recog_menu_item());
 
 
 

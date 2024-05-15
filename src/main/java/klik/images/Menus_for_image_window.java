@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static klik.images.Image_display_handler.build_Image_context;
 
@@ -392,17 +393,27 @@ public class Menus_for_image_window
     Face recognition
      */
     //**********************************************************
-    private static MenuItem get_add_as_prototype_menu_item(Image_window image_window, Browser browser)
+    private static MenuItem get_perform_face_recognition_no_face_detection_menu_item(Image_window image_window, Browser browser)
     //**********************************************************
     {
-        MenuItem mi = new MenuItem("Extract a face and add it to training set");//I18n.get_I18n_string("Open", image_window.logger));
+        MenuItem mi = new MenuItem("Perform face recognition DIRECTLY (debug: for image that are extracted faces)");//I18n.get_I18n_string("Open", image_window.logger));
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Path reference_face = image_window.image_display_handler.get_image_context().get().path;
-            Face_recognition_service fr = Face_recognition_service.get_instance(browser);
-            fr.train_manual(reference_face);
-        });
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(browser);
+            if ( recognition_services == null) return;
+
+            AtomicInteger count_for_label = new AtomicInteger(0);// not used
+            boolean do_face_detection = false;
+            Face_recognition_message msg = new Face_recognition_message(
+                    image_window.image_display_handler.get_image_context().get().path.toFile(),
+                    do_face_detection,
+                    null,
+                    true,
+                    image_window.aborter, null, count_for_label);
+
+            Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
+            Actor_engine.run(actor,msg,null,image_window.logger);        });
         return mi;
     }
     //**********************************************************
@@ -414,19 +425,18 @@ public class Menus_for_image_window
         {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Path tested = image_window.image_display_handler.get_image_context().get().path;
             Face_recognition_service recognition_services = Face_recognition_service.get_instance(browser);
             if (recognition_services == null) return;
-            //fr.recognize(tested, true);
 
             Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
+            AtomicInteger count_for_label = new AtomicInteger(0);// not used
+            boolean do_face_detection = true;
             Face_recognition_message msg = new Face_recognition_message(
                     image_window.image_display_handler.get_image_context().get().path.toFile(),
+                    do_face_detection,
                     null,
                     true,
-                    image_window.aborter, null);
-
-
+                    image_window.aborter, null, count_for_label);
             Actor_engine.run(actor,msg,null,image_window.logger);
         });
         return mi;
@@ -661,11 +671,12 @@ public class Menus_for_image_window
         }
 
 
-        MenuItem set_as_reference_face = get_add_as_prototype_menu_item(image_window,the_browser);
-        context_menu.getItems().add(set_as_reference_face);
 
         MenuItem compare_to_reference_face = get_perform_face_recognition_menu_item(image_window, the_browser);
         context_menu.getItems().add(compare_to_reference_face);
+
+        MenuItem set_as_reference_face = get_perform_face_recognition_no_face_detection_menu_item(image_window,the_browser);
+        context_menu.getItems().add(set_as_reference_face);
 
         MenuItem open = get_open_menu_item(image_window);
         context_menu.getItems().add(open);

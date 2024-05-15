@@ -28,7 +28,7 @@ public class Fast_image_property_from_exif_metadata_extractor
     public static Image_properties get_image_properties(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger.log("\n\n\nget_image_properties "+path);
+        //logger.log("\n\n\nget_image_properties "+path);
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
         InputStream is = From_disk.get_image_InputStream(path, enable_fusk, report_if_not_found, aborter, logger);
         if ( is == null)

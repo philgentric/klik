@@ -1,10 +1,11 @@
 package klik.images;
 
-import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -18,14 +19,14 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.files_and_paths.*;
-import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
-import klik.search.Finder;
+import klik.images.decoding.Exif_metadata_extractor;
 import klik.images.decoding.Fast_date_from_OS;
+import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.level3.fusk.Fusk_static_core;
 import klik.level3.fusk.Fusk_strings;
-import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
+import klik.search.Finder;
 import klik.search.Keyword_extractor;
 import klik.util.From_disk;
 import klik.util.Fx_batch_injector;
@@ -35,7 +36,8 @@ import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import org.apache.commons.io.FilenameUtils;
 
-import java.awt.*;
+import java.awt.Desktop;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,8 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
@@ -187,11 +187,20 @@ public class Image_context
         textFlow.setLayoutX(40);
         textFlow.setLayoutY(40);
         if ( exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
+
+        TextField tf = new TextField(path.toAbsolutePath().toString());
+        tf.setMinWidth(1000);
+        textFlow.getChildren().add(tf);
+        textFlow.getChildren().add(new Text(System.lineSeparator()));
+
+        String file_size = Files_and_Paths.get_1_line_string_with_size(path.toAbsolutePath(),logger);
+        textFlow.getChildren().add(new Text(file_size));
+        textFlow.getChildren().add(new Text(System.lineSeparator()));
+
         for (String s : load_exif(new Aborter("EXIF",logger)))
         {
             if ( exif_dbg) logger.log(s);
-            Text t = new Text(s);
-            textFlow.getChildren().add(t);
+            textFlow.getChildren().add(new Text(s));
             textFlow.getChildren().add(new Text(System.lineSeparator()));
         }
         {

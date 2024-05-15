@@ -163,7 +163,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
 
-
     //**********************************************************
     public Comparator<? super Path> get_file_comparator()
     //**********************************************************
@@ -1034,7 +1033,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             double title_height = my_Stage.the_Stage.getHeight() - the_Scene.getHeight();
             if ( title_height > 60)
             {
-                logger.log("PANIC safety title_height activated\nmy_Stage.the_Stage.getHeight()="+my_Stage.the_Stage.getHeight()+"\nthe_Scene.getHeight()="+the_Scene.getHeight());
+                logger.log("WARNING: safety title_height activated\nmy_Stage.the_Stage.getHeight()="+my_Stage.the_Stage.getHeight()+"\nthe_Scene.getHeight()="+the_Scene.getHeight());
             }
             else {
                 for (Button b : browser_ui.top_buttons) {
@@ -1319,6 +1318,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             if (dbg) logger.log((" scroll_to == null "));
             return;
         }
+
+        // execute a "useless" scroll before the correct one:
+        // purpose?
+        // on macos javafx sometimes does not perform the full stage update
+        // note this is a truly random bug as sometimes it does
+        vertical_slider.scroll_absolute(234, icon_manager);
+
 
         double y1 = icon_manager.get_y_offset_of(scroll_to);
         //if ( y1 < 10.0) y1 = 10.0;

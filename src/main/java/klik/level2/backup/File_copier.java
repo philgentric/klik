@@ -32,6 +32,7 @@ public class File_copier
         return returned_bytes_copied;
     }
     //**********************************************************
+    @Deprecated
     public static long copy_file(File destfile, File srcfile, Logger logger) throws IOException
     //**********************************************************
     {

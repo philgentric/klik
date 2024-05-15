@@ -95,7 +95,7 @@ application {
 
 javafx {
     version = "23-ea+3"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media','javafx.web' ]
 }
 
 

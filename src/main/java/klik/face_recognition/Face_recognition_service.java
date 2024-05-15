@@ -5,10 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -18,7 +16,6 @@ import klik.browser.Browser_creation_context;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.Static_application_properties;
-import klik.search.Show_running_man_frame;
 import klik.search.Show_running_man_frame_with_abort_button;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
@@ -33,7 +30,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -42,7 +38,6 @@ public class Face_recognition_service
 {
     public static final boolean dbg = false;
     public final static String EXTENSION_FOR_EP = "prototype";
-    public static final int K_of_KNN = 5;
     private static Face_recognition_service instance = null;
     final Logger logger;
     private final Browser browser;
@@ -85,16 +80,19 @@ public class Face_recognition_service
     public static void start_new(Browser browser)
     //**********************************************************
     {
-        String local = get_face_recognition_name(browser.my_Stage.the_Stage);
-        instance = new Face_recognition_service(local, browser);
+        Optional<String> localo = get_face_recognition_name(browser.my_Stage.the_Stage);
+
+        if ( localo.isEmpty()) return;
+
+        instance = new Face_recognition_service(localo.get(), browser);
         instance.load_internal();
     }
 
     //**********************************************************
-    public static void save()
+    public static void save(Aborter aborter)
     //**********************************************************
     {
-        if ( instance != null) instance.save_internal();
+        if ( instance != null) instance.save_internal(aborter);
     }
 
     //**********************************************************
@@ -108,15 +106,13 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    private static String get_face_recognition_name(Stage stage)
+    private static Optional<String> get_face_recognition_name(Stage stage)
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Give recognition system tag");
         dialog.setHeaderText("Give recognition system tag");
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) return result.get();
-        return null;
+        return dialog.showAndWait();
     }
 
     //**********************************************************
@@ -124,17 +120,20 @@ public class Face_recognition_service
     //**********************************************************
     {
         Face_recognition_service fr = Face_recognition_service.get_instance(browser);
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                fr.auto_internal(browser);
-            }
-        };
-        Actor_engine.execute(r,new Aborter("auto face recog",fr.logger), fr.logger);
+        Actor_engine.execute(() -> fr.auto_internal(browser),new Aborter("AUTO face recog",fr.logger), fr.logger);
+    }
+
+
+    //**********************************************************
+    public static void self(Browser browser)
+    //**********************************************************
+    {
+        Face_recognition_service fr = Face_recognition_service.get_instance(browser);
+        Actor_engine.execute(() -> fr.self_internal(browser),new Aborter("SELF face recog",fr.logger), fr.logger);
     }
 
     //**********************************************************
-    public void auto_internal(Browser browser)
+    private void auto_internal(Browser browser)
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
@@ -148,31 +147,220 @@ public class Face_recognition_service
         File check = new File (target.toFile(),".folder_name_is_recognition_label");
         if ( !check.exists())
         {
-            logger.log("skipping "+target);
+            logger.log("auto_internal skipping1 "+target);
             return;
         }
-        logger.log("doing "+target);
+        logger.log("doing AUTO on: "+target);
 
         File files[] = target.toFile().listFiles();
         for ( File f : files)
         {
             if ( !f.isDirectory())
             {
-                logger.log("skipping "+f.getAbsolutePath());
+                logger.log("auto_internal skipping2 "+f.getAbsolutePath());
                 continue;
             }
+            if ( aborter_for_auto_train.should_abort()) return;
+            for(;;)
+            {
+                int N = Actor_engine.how_many_threads_are_in_flight(logger);
+                if (N < 1000) break;
+                {
+                    try {
+                        logger.log("\n\nAUTO going to sleep :" + N + " ms, too many threads");
+                        Thread.sleep(N);
+                    } catch (InterruptedException e) {
+                        logger.log("" + e);
+                        return;
+                    }
+                }
+            }
             String label = f.getName();
-            AtomicInteger count = new AtomicInteger(0);
-            process_folder(f,label, aborter_for_auto_train, files_in_flight, count);
+            AtomicInteger count_for_label = new AtomicInteger(0);
+            if ( !auto_folder(f,label, aborter_for_auto_train, files_in_flight, count_for_label))
+            {
+                running_man.aborter.abort("found 10");
+                break;
+            }
         }
 
+        save_internal(aborter_for_auto_train);
+
         running_man.wait_and_block_until_finished(files_in_flight);
+        logger.log("Finished Face Recognition");
     }
 
     //**********************************************************
-    private void process_folder(File dir, String label, Aborter aborter_for_auto_train, AtomicInteger files_in_flight, AtomicInteger count)
+    private void self_internal(Browser browser)
     //**********************************************************
     {
+        AtomicInteger files_in_flight = new AtomicInteger(0);
+        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man("Wait for SELF face recognition to complete",20*60,logger);
+        Aborter aborter_for_self = running_man.aborter;
+
+        last_report = System.currentTimeMillis();
+        recognition_stats = new Recognition_stats();
+        Path target = face_recognizer_path;
+        logger.log("doing SELF on: "+target);
+
+        File files[] = target.toFile().listFiles();
+        for ( File f : files)
+        {
+            if ( f.isDirectory())
+            {
+                logger.log("self_internal skipping2 "+f.getAbsolutePath());
+                continue;
+            }
+            if ( aborter_for_self.should_abort()) return;
+            if ( ! FilenameUtils.getExtension(f.getName()).equals(EXTENSION_FOR_EP)) continue;
+            int N = Actor_engine.how_many_threads_are_in_flight(logger);
+            if ( N > 10000)
+            {
+                try {
+                    Thread.sleep(N);
+                } catch (InterruptedException e) {
+                    logger.log(""+e);
+                    return;
+                }
+
+            }
+
+            self_file(f,files,aborter_for_self);
+        }
+
+        running_man.wait_and_block_until_finished(files_in_flight);
+        logger.log("Finished Face Recognition");
+    }
+
+    //**********************************************************
+    private void self_file(File f, File[] files, Aborter aborter_for_self)
+    //**********************************************************
+    {
+        String ext = FilenameUtils.getExtension(f.getName());
+        if ( !ext.equals(EXTENSION_FOR_EP)) return;
+        String self_target_name = FilenameUtils.getBaseName(f.getName());
+
+        boolean part2 = true;
+        String label = null;
+        Feature_vector fv  = null;
+        Image ref = null;
+        if ( part2)
+        {
+            Embeddings_prototype ep = load_ep(f,self_target_name);
+            fv = ep.feature_vector();
+            label = ep.label();
+            ref= ep.face();
+        }
+        else
+        {
+            label = load_label_from_ep_file(f);
+            if (label == null) {
+                logger.log("loading failed for " + f.getAbsolutePath());
+                return;
+            }
+            logger.log("self file: " + self_target_name + " label:" + label);
+        }
+
+        double min_distance = Double.MAX_VALUE;
+        Embeddings_prototype ep_min = null;
+        Embeddings_prototype ep_max = null;
+        double max_distance = 0;
+        double average_distance =0;
+        int count =0;
+        for ( File f2 : files)
+        {
+            if ( f.getAbsolutePath().equals(f2.getAbsolutePath())) continue;
+            if ( ! FilenameUtils.getExtension(f2.getName()).equals(EXTENSION_FOR_EP)) continue;
+            Feature_vector fv2 = null;
+            String name2 = FilenameUtils.getBaseName(f2.getName());
+            String label2 = load_label_from_ep_file(f2);
+            if ( label2 == null) continue;
+            if ( !label2.equals(label)) continue;
+
+            Embeddings_prototype ep = null;
+            if ( part2)
+            {
+                ep = load_ep(f2,name2);
+                fv2 = ep.feature_vector();
+            }
+            logger.log("self file: "+self_target_name+ " name2:"+name2);
+            Path face_path2 = make_image_path(face_recognizer_path,name2,logger);
+
+            boolean part1 = false;
+            if ( part1)
+            {
+                // part1: ask the full set==> must return an exact match
+                Face_recognition_actor.Face_recognition_results face_recognition_results = Face_recognition_actor.recognize_a_face(face_path2,false,aborter_for_self, this);
+
+                logger.log(face_recognition_results.to_string()+"\n\n\n");
+
+                if ( face_recognition_results.status() == Face_recognition_status.exact_match)
+                {
+                    // this is what is expected of course !
+                }
+                else
+                {
+                    logger.log("ERROR: "+self_target_name+" tested with "+name2+ " does not give exact match");
+                }
+            }
+            if (part2)
+            {
+                //part2, compute the distances
+                double distance = fv.distance(fv2);
+                count++;
+                if ( distance < min_distance)
+                {
+                    ep_min = ep;
+                    min_distance = distance;
+                }
+                if ( distance > max_distance)
+                {
+                    ep_max = ep;
+                    max_distance = distance;
+                }
+                average_distance += distance;
+            }
+
+        }
+        average_distance /= count;
+        logger.log(self_target_name+" min: "+min_distance+ " ave: "+average_distance+" max: "+max_distance);
+        if (( ep_min != null) && ( ep_max != null))
+        {
+            String desc = " min:"+ep_min.name()+ "at: "+String.format("%.2f",min_distance);
+            desc += "\n max:"+ep_max.name()+ "at: "+String.format("%.2f",max_distance);
+
+            Utils.display(200,ref,ep_min.face(),ep_max.face(),self_target_name +"recognized as:", desc,logger);
+        }
+        else
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("WTF?"));
+        }
+    }
+
+
+    //**********************************************************
+    private boolean auto_folder(File dir, String label,
+                                Aborter aborter_for_auto_train,
+                                AtomicInteger files_in_flight,
+                                AtomicInteger count_for_label)
+    //**********************************************************
+    {
+        for(;;)
+        {
+            int N = Actor_engine.how_many_threads_are_in_flight(logger);
+            if (N < 1000) break;
+            {
+                try {
+                    logger.log("\n\nAUTO going to sleep :" + N + " ms, too many threads");
+                    Thread.sleep(N);
+                } catch (InterruptedException e) {
+                    logger.log("" + e);
+                    return false;
+                }
+            }
+        }
+
+        logger.log("auto_folder: "+dir);
         Face_recognition_actor actor = new Face_recognition_actor(this);
         Job_termination_reporter tr = (message, job) -> {
             files_in_flight.decrementAndGet();
@@ -187,26 +375,37 @@ public class Face_recognition_service
         };
         logger.log("auto train folder: "+dir.getAbsolutePath()+ "files in flight: "+files_in_flight.get());
         File files[] = dir.listFiles();
+        if ( files == null) return true;
+        if ( files.length == 0) return true;
         for ( File f: files)
         {
-            if ( f.isDirectory()) process_folder(f,label,aborter_for_auto_train, files_in_flight, count);
+            if ( aborter_for_auto_train.should_abort())
+            {
+                logger.log("auto aborted");
+                return false;
+            }
+
+            if ( f.isDirectory())
+            {
+                if ( !auto_folder(f,label,aborter_for_auto_train, files_in_flight, count_for_label))
+                {
+                    logger.log("auto_folder returns false");
+                    return false;
+                }
+            }
             if (Guess_file_type.is_file_an_image(f))
             {
-                while ( files_in_flight.get() > 10)
-                {
-                    logger.log("auto train more than 10 files in flight, sleeping: "+files_in_flight.get());
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                    }
-                }
-                Face_recognition_message msg = new Face_recognition_message(f,label,false,aborter_for_auto_train, files_in_flight);
+                Face_recognition_message msg = new Face_recognition_message(f, true, label,false,aborter_for_auto_train, files_in_flight, count_for_label);
                 Actor_engine.run(actor,msg,tr,logger);
-                if ( count.incrementAndGet() > 10) break;
+                if ( count_for_label.get() > 10)
+                {
+                    logger.log("aborting AUTO folder after 10 faces on the same label");
+                    return false;
+                }
             }
         }
-        save_internal();
+        logger.log("Folder done: "+dir.getAbsolutePath());
+        return true;
     }
 
 
@@ -223,208 +422,211 @@ public class Face_recognition_service
     }
 
 
-
-    //**********************************************************
-    public boolean train_manual(Path reference_face)
-    //**********************************************************
-    {
-        Face_detector.Face_detection_result status = Face_detector.detect_face(reference_face, true, logger);
-
-        if (status.status() == Face_recognition_status.server_not_reacheable)
-        {
-            Face_detector.warn_about_face_detector_server(logger);
-            return false;
-        }
-        if (status.status() != Face_recognition_status.face_detected)
-        {
-            Face_detector.warn_about_no_face_detected(logger);
-            return false;
-        }
-        if (dbg) show_face_recognition_window(status.image(),null, true, null,new ArrayList<>());
-        return true;
-    }
-
-
     //**********************************************************
     public void show_face_recognition_window(
             Image face,
-            String label,
-            boolean enable_adding,
-            String name, // only present in case of an exact match
-            List<Image> closest_faces
+            Face_recognition_actor.Eval_results eval_result,
+            Aborter aborter
     )
     //**********************************************************
     {
+        int size = 1600/Face_recognition_actor.K_of_KNN;
+        if ( size > 200) size = 200;
         if (Platform.isFxApplicationThread())
         {
-            show_face_recognition_window_internal(face,label,enable_adding,name,closest_faces);
+            show_face_recognition_window_internal(size,face,eval_result,aborter);
         }
         else {
-            Fx_batch_injector.inject(()->show_face_recognition_window_internal(face,label,enable_adding,name,closest_faces),logger);
+            int size2 = size;
+            Fx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result,aborter),logger);
         }
     }
     //**********************************************************
     public void show_face_recognition_window_internal(
+            int size,
             Image face,
-            String label,
-            boolean enable_adding,
-            String name, // only present in case of an exact match
-            List<Image> closest_faces
+            Face_recognition_actor.Eval_results eval_result,
+            Aborter aborter
     )
     //**********************************************************
     {
         Stage stage = new Stage();
         Label status_label = new Label();
 
-        if ( label != null)
+        if ( eval_result != null)
         {
-            stage.setTitle("Recognized as: "+label);
+            stage.setTitle("Recognized as: "+eval_result.label());
+        }
+        else
+        {
+            stage.setTitle("Not Recognized");
         }
         VBox vBox = new VBox();
-        vBox.getChildren().add(new Label("Extracted face looks like this:"));
 
         {
-            ImageView iv = new ImageView();
             if ( face != null)
             {
+                vBox.getChildren().add(new Label("Extracted face looks like this:"));
+                ImageView iv = new ImageView();
                 iv.setImage(face);
+                iv.setPreserveRatio(true);
+                iv.setFitWidth(size);
+                Pane image_pane = new StackPane(iv);
+                vBox.getChildren().add(image_pane);
             }
             else
             {
                 stage.setTitle("Face Detection failed");
+                stage.setMinWidth(400);
+                stage.setMinHeight(400);
                 status_label.setText("Face Detection failed");
             }
-            iv.setPreserveRatio(true);
-            iv.setFitWidth(100);
-            Pane image_pane = new StackPane(iv);
-            vBox.getChildren().add(image_pane);
         }
-        if ( !closest_faces.isEmpty())
+        if ( face !=null)
         {
-            vBox.getChildren().add(new Label("Closests prototypes found: "));
+            if (eval_result != null) {
+                if (!eval_result.list().isEmpty()) {
+                    vBox.getChildren().add(new Label("Closests prototypes found: "));
 
-            HBox hBox = new HBox();
-            for ( Image ii : closest_faces)
-            {
-                ImageView iv = new ImageView(ii);
-                iv.setPreserveRatio(true);
-                iv.setFitWidth(100);
-                Pane image_pane = new StackPane(iv);
-                hBox.getChildren().add(image_pane);
-            }
-            vBox.getChildren().add(hBox);
+                    HBox hBox = new HBox();
+                    Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(1),new BorderWidths(0.5)));
 
-        }
-        TextField textField = new TextField();
-        textField.setDisable(!enable_adding);
+                    for (Face_recognition_actor.Eval_result_for_one_prototype res : eval_result.list()) {
+                        VBox vb = new VBox();
+                        vb.setBorder(border);
 
-        {
-            HBox hBox = new HBox();
-            Label label5 = new Label("Enter the recognition label from list:");
-            hBox.getChildren().add(label5);
-            vBox.getChildren().add(hBox);
-        }
-        {
-            HBox hBox = new HBox();
-            ComboBox<String> comboBox = new ComboBox<>();
-            comboBox.setDisable(!enable_adding);
+                        {
+                            Label lab = new Label("At: "+String.format("%.3f",res.distance()));
+                            lab.setMaxWidth(size);
+                            lab.setWrapText(true);
+                            vb.getChildren().add(lab);
+                        }
+                        {
+                            Image image = res.embeddings_prototype().face();
+                            ImageView iv = new ImageView(image);
+                            iv.setPreserveRatio(true);
+                            iv.setFitWidth(size);
+                            Pane image_pane = new StackPane(iv);
+                            vb.getChildren().add(image_pane);
+                        }
+                        {
+                            Label lab = new Label(res.embeddings_prototype().label());
+                            lab.setMaxWidth(size);
+                            lab.setWrapText(true);
+                            vb.getChildren().add(lab);
+                        }
 
-            comboBox.getItems().addAll(Face_recognition_service.get_instance(browser).get_prototype_labels());
-            if ( label != null)
-            {
-                comboBox.setValue(label);
-                textField.setText(label);
-            }
-            comboBox.onActionProperty().set(e -> {
-                String selected = comboBox.getSelectionModel().getSelectedItem();
-                textField.setText(selected);
-            });
-            hBox.getChildren().add(comboBox);
-
-            Label label2 = new Label("Or introduce a new label:");
-            hBox.getChildren().add(label2);
-
-            hBox.getChildren().add(textField);
-            vBox.getChildren().add(hBox);
-        }
-        if (!enable_adding)
-        {
-            if ( face !=null)
-            {
-                stage.setTitle("Exact match! ");
-                status_label.setText("prototype was recognized at distance zero, no need to add it ");
-            }
-        }
-
-        {
-            HBox hBox = new HBox();
-            Button add = new Button("Add to training set");
-            add.setDisable(!enable_adding);
-            add.setOnAction(e -> {
-                String image_label = textField.getText();
-                if ( image_label.trim().isEmpty())
-                {
-                    status_label.setText("Error: no label!");
-                    return;
-                }
-                Prototype_adder_actor actor = new Prototype_adder_actor(this);
-                Prototype_adder_message msg = new Prototype_adder_message(face,image_label.trim(),new Aborter("bidon",logger));
-                Job_termination_reporter tr = (message, job) -> {
-                    Face_recognition_status s = Face_recognition_status.valueOf(message);
-                    if (s != Face_recognition_status.feature_vector_ready)
-                    {
-                        status_label.setText("prototype fabrication error "+s);
+                        hBox.getChildren().add(vb);
                     }
-                    else
-                    {
-                        save_internal();
-                        stage.close();
+                    vBox.getChildren().add(hBox);
+
+                }
+            }
+            TextField textField = new TextField();
+            if (eval_result != null) textField.setDisable(!eval_result.enable_adding());
+
+            {
+                HBox hBox = new HBox();
+                Label label5 = new Label("Enter the recognition label from list:");
+                hBox.getChildren().add(label5);
+                vBox.getChildren().add(hBox);
+            }
+            {
+                HBox hBox = new HBox();
+                ComboBox<String> comboBox = new ComboBox<>();
+                if (eval_result != null) comboBox.setDisable(!eval_result.enable_adding());
+
+                comboBox.getItems().addAll(Face_recognition_service.get_instance(browser).get_prototype_labels());
+                if (eval_result != null) {
+                    if (eval_result.label() != null) {
+                        comboBox.setValue(eval_result.label());
+                        textField.setText(eval_result.label());
                     }
-                };
-                Actor_engine.run(actor,msg,tr,logger);
-
-                //Face_recognition_status s = add_prototype_image_face(face, image_label.trim(),false);
-
-            });
-            hBox.getChildren().add(add);
-            vBox.getChildren().add(hBox);
-        }
-        {
-            HBox hBox = new HBox();
-            Button skip = new Button("Skip this face, do not add it to the training set");
-            skip.setOnAction(e -> {
-                stage.close();
-            });
-            hBox.getChildren().add(skip);
-            vBox.getChildren().add(hBox);
-        }
-        {
-            HBox hBox = new HBox();
-            Button skip = new Button("REMOVE this face from the training set (bad face or wrong label)");
-            skip.setDisable(!enable_adding);
-            skip.setOnAction(e -> {
-                Embeddings_prototype guilty = names_to_embeddings.get(name);
-                embeddings_prototypes.remove(guilty);
-                names_to_embeddings.remove(name);
-                try {
-                    Path p = make_image_path(face_recognizer_path,name,logger);
-                    Files.delete(p);
-                    logger.log("deleted: "+p);
-                } catch (IOException ex) {
-                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 }
-                try {
-                    Path p = make_prototype_path(face_recognizer_path,name);
-                    Files.delete(p);
-                    logger.log("deleted: "+p);
-                } catch (IOException ex) {
-                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                comboBox.onActionProperty().set(e -> {
+                    String selected = comboBox.getSelectionModel().getSelectedItem();
+                    textField.setText(selected);
+                });
+                hBox.getChildren().add(comboBox);
+
+                Label label2 = new Label("Or introduce a new label:");
+                hBox.getChildren().add(label2);
+
+                hBox.getChildren().add(textField);
+                vBox.getChildren().add(hBox);
+            }
+            if (eval_result != null) {
+                if (!eval_result.enable_adding()) {
+                    if (face != null) {
+                        stage.setTitle("Exact match! " + eval_result.label());
+                        status_label.setText("prototype was recognized at distance zero, no need to add it ");
+                    }
                 }
-                save_internal();
-                stage.close();
-            });
-            hBox.getChildren().add(skip);
-            vBox.getChildren().add(hBox);
+            }
+
+            {
+                HBox hBox = new HBox();
+                Button add = new Button("Add to training set");
+                if (eval_result != null) add.setDisable(!eval_result.enable_adding());
+                add.setOnAction(e -> {
+                    String image_label = textField.getText();
+                    if (image_label.trim().isEmpty()) {
+                        status_label.setText("Error: no label!");
+                        return;
+                    }
+                    Prototype_adder_actor actor = new Prototype_adder_actor(this);
+                    Prototype_adder_message msg = new Prototype_adder_message(face, image_label.trim(), new Aborter("bidon", logger));
+                    Job_termination_reporter tr = (message, job) -> {
+                        Face_recognition_status s = Face_recognition_status.valueOf(message);
+                        if (s != Face_recognition_status.feature_vector_ready) {
+                            Fx_batch_injector.inject(() -> status_label.setText("prototype fabrication error " + s), logger);
+                        } else {
+                            save_internal(aborter);
+                            Fx_batch_injector.inject(() -> stage.close(), logger);
+                        }
+                    };
+                    Actor_engine.run(actor, msg, tr, logger);
+                });
+                hBox.getChildren().add(add);
+                vBox.getChildren().add(hBox);
+            }
+            {
+                HBox hBox = new HBox();
+                Button skip = new Button("Skip this face, do not add it to the training set");
+                skip.setOnAction(e -> {
+                    stage.close();
+                });
+                hBox.getChildren().add(skip);
+                vBox.getChildren().add(hBox);
+            }
+            if (eval_result != null) {
+                HBox hBox = new HBox();
+                Button skip = new Button("REMOVE this face from the training set (bad face or wrong label)");
+                skip.setDisable(!eval_result.enable_adding());
+                skip.setOnAction(e -> {
+                    Embeddings_prototype guilty = names_to_embeddings.get(eval_result.name());
+                    embeddings_prototypes.remove(guilty);
+                    names_to_embeddings.remove(eval_result.name());
+                    try {
+                        Path p = make_image_path(face_recognizer_path, eval_result.name(), logger);
+                        Files.delete(p);
+                        logger.log("deleted: " + p);
+                    } catch (IOException ex) {
+                        logger.log(Stack_trace_getter.get_stack_trace("" + e));
+                    }
+                    try {
+                        Path p = make_prototype_path(face_recognizer_path, eval_result.name());
+                        Files.delete(p);
+                        logger.log("deleted: " + p);
+                    } catch (IOException ex) {
+                        logger.log(Stack_trace_getter.get_stack_trace("" + e));
+                    }
+                    save_internal(aborter);
+                    stage.close();
+                });
+                hBox.getChildren().add(skip);
+                vBox.getChildren().add(hBox);
+            }
         }
         {
             HBox hBox = new HBox();
@@ -437,80 +639,93 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    private void save_internal()
+    private void save_internal(Aborter aborter)
     //**********************************************************
     {
-        logger.log("saving "+embeddings_prototypes.size()+ "prototypes");
+        logger.log("saving "+embeddings_prototypes.size()+ " prototypes");
         for (Embeddings_prototype ep : embeddings_prototypes)
         {
-            save_ep(ep);
+            Actor_engine.execute(()->save_ep(ep),aborter,logger);
+            //save_ep(ep);
         }
     }
     //**********************************************************
     private void load_internal()
     //**********************************************************
     {
-        Aborter ab = new Aborter("face reco load",logger);
+        AtomicInteger in_flight = new AtomicInteger(0);
+        Show_running_man_frame_with_abort_button x = Show_running_man_frame_with_abort_button.show_running_man("Loading face recognition prototypes", 20_100, logger);
+        Load_one_prototype_actor actor = new Load_one_prototype_actor();
+        Runnable r = () -> {
+            Path p = Path.of(face_recognizer_path.toAbsolutePath().toString());
+            File[] files = p.toFile().listFiles();
+            for (File f: files)
+            {
+                if ( f.isDirectory()) continue;
+                in_flight.incrementAndGet();
+                Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
 
-        CountDownLatch x = Show_running_man_frame.show_running_man("Loading face recognition prototypes", 20_100,ab, logger);
-
-        Face_recognition_service frs = this;
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                Path p = Path.of(face_recognizer_path.toAbsolutePath().toString());
-                File[] files = p.toFile().listFiles();
-                for (File f: files)
-                {
-                    if ( f.isDirectory()) continue;
-                    String ext = FilenameUtils.getExtension(f.getName());
-                    if ( !ext.equals(EXTENSION_FOR_EP)) continue;
-                    String name = FilenameUtils.getBaseName(f.getName());
-
-                    Embeddings_prototype ep = load_ep(f,name);
-                    if ( ep == null)
-                    {
-                        logger.log("loading failed for "+f.getAbsolutePath());
-                        continue;
-                    }
-                    String label = ep.label();
-                    frs.embeddings_prototypes.add(ep);
-                    if ( !labels.contains(label)) labels.add(label);
-                }
-                x.countDown();
+                Actor_engine.run(actor,
+                        new Load_one_prototype_message(f,this,x.aborter),
+                        tr,
+                        logger);
             }
         };
-        Actor_engine.execute(r,ab,logger);
+        Actor_engine.execute(r,x.aborter,logger);
 
+        x.wait_and_block_until_finished(in_flight);
+    }
 
+    //**********************************************************
+    public void load_one_prototype(File f)
+    //**********************************************************
+    {
+        String ext = FilenameUtils.getExtension(f.getName());
+        if ( !ext.equals(EXTENSION_FOR_EP)) return;
+        String name = FilenameUtils.getBaseName(f.getName());
+
+        Embeddings_prototype ep = load_ep(f,name);
+        if ( ep == null)
+        {
+            //logger.log("loading failed for "+ f.getAbsolutePath());
+            return;
+        }
+        String label = ep.label();
+        embeddings_prototypes.add(ep);
+        if ( !labels.contains(label)) labels.add(label);
     }
 
     //**********************************************************
     private Embeddings_prototype load_ep(File f, String name)
     //**********************************************************
     {
-        Path image_path = make_image_path(face_recognizer_path,name,logger);
-
-        logger.log("trying to load image ->"+image_path+"<-");
-        File image_file = new File(image_path.toAbsolutePath().toString());
         Image face = null;
-        try
         {
-            face = new Image(image_file.toURI().toString());
-        }
-        catch (Exception e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            // remove the prototype
-            try {
-                Files.delete(f.toPath());
-            } catch (IOException ex) {
-                logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            }
-            logger.log("face not found while loading prototype: prototype erased from disk : "+f);
-            return null;
-        }
+            Path image_path = make_image_path(face_recognizer_path, name, logger);
 
+            logger.log("trying to load image ->" + image_path + "<-");
+            File image_file = new File(image_path.toAbsolutePath().toString());
+            if (!image_file.exists()) {
+                // typically the image has been discarded by a human reviewer
+                // remove the prototype
+                try {
+                    Files.delete(f.toPath());
+                } catch (IOException ex) {
+                    logger.log(Stack_trace_getter.get_stack_trace("" + ex));
+                }
+                logger.log("face not found while loading prototype: prototype erased from disk : " + f);
+                return null;
+            }
+            try
+            {
+                face = Utils.get_image(image_path);
+            }
+            catch (Exception e)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("should not happen "+e));
+                return null;
+            }
+        }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(f)))
         {
@@ -542,7 +757,7 @@ public class Face_recognition_service
                 String line = reader.readLine();
                 if ( line == null)
                 {
-                    logger.log("error reading fv #"+i);
+                    logger.log("error reading fv: missing component #"+i+", size of fv was "+size+ " for: "+f);
                     return null;
                 }
                 try {
@@ -558,8 +773,6 @@ public class Face_recognition_service
 
             //Path cache_dir = Files_and_Paths.get_face_recognition_cache_dir(logger);
 
-
-
             return new Embeddings_prototype(face, fv, label, name);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -567,6 +780,32 @@ public class Face_recognition_service
             throw new RuntimeException(e);
         }
     }
+
+    //**********************************************************
+    private String load_label_from_ep_file(File f)
+    //**********************************************************
+    {
+        try (BufferedReader reader = new BufferedReader(new FileReader(f)))
+        {
+            String line =  reader.readLine();
+            if ( line == null)
+            {
+                logger.log("error reading ep label");
+                return null;
+            }
+            String label = line.trim();
+            return label;
+
+        } catch (FileNotFoundException e) {
+            logger.log(""+e);
+        } catch (IOException e) {
+            logger.log(""+e);
+        }
+        return null;
+    }
+
+
+
 
     //**********************************************************
     static Path make_prototype_path(Path folder_path, String name)
@@ -597,29 +836,7 @@ public class Face_recognition_service
     }
 
 
-    //**********************************************************
-    @Deprecated
-    public static void display(Image image, String label)
-    //**********************************************************
-    {
-        Stage stage = new Stage();
-        stage.setTitle("Face Recognition Result");
-        VBox vBox = new VBox();
-        {
-            ImageView iv = new ImageView(image);
-            iv.setPreserveRatio(true);
-            iv.setFitWidth(100);
-            Pane image_pane = new StackPane(iv);
-            vBox.getChildren().add(image_pane);
-        }
 
-        HBox hBox = new HBox();
-        Label ll = new Label(label);
-        hBox.getChildren().add(ll);
-        vBox.getChildren().add(hBox);
-        stage.setScene(new Scene(vBox));
-        stage.show();
-    }
 
     //**********************************************************
     static Path make_image_path(Path folder, String name, Logger logger)

@@ -43,7 +43,7 @@ public class Disk_usage_monitor
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Static_application_properties.fx(logger);
+        warning_limit_bytes = Static_application_properties.get_folder_warning_size(logger);
 
 
     }

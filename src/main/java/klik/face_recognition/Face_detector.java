@@ -21,12 +21,13 @@ it returns the extracted face as a byte array
 public class Face_detector
 //**********************************************************
 {
-    int port[] = {8002,8003,8004,8005};
+    static int[] port = {8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059};
+    //static int[] port = {8050};
     static Random  random = new Random();
     public static int get_random_port()
     {
-        int port = random.nextInt(8002,8006);
-        return port;
+        int returned = random.nextInt(port[0],port[0]+port.length);
+        return returned;
     }
 
     record Face_detection_result(Image image, Face_recognition_status status){}
@@ -69,19 +70,25 @@ public class Face_detector
         }
 
         boolean done = false;
-        for(int i =0; i < 100 ; i++) {
+        long sleep_time = 100;
+        for(int i =0; i < 100 ; i++)
+        {
             try {
                 connection.connect();
                 done = true;
                 break;
             } catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace("" + e));
+                //logger.log(Stack_trace_getter.get_stack_trace("" + e));
+                logger.log(("                         Face detector: " + e));
             }
+            logger.log(" connection to face detection server: going to sleep: "+sleep_time);
             try {
-                Thread.sleep(2000);
+                Thread.sleep(sleep_time);
             } catch (InterruptedException e) {
                 logger.log(Stack_trace_getter.get_stack_trace("" + e));
             }
+            sleep_time *= 5.0;
+            if ( sleep_time > 10_000) sleep_time =10_000;
         }
         if ( !done)
         {
@@ -90,31 +97,38 @@ public class Face_detector
         // Get the response code and message
         try {
             int responseCode = connection.getResponseCode();
-            logger.log("Response Code: " + responseCode);
+            //logger.log("Response Code: " + responseCode);
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            logger.log("face detection failed");
+            //logger.log("face detection failed");
             return new Face_detection_result(null,Face_recognition_status.no_face_detected);
         }
 
         try {
             String responseMessage = connection.getResponseMessage();
-            logger.log("Response Message: " + responseMessage);
+            //logger.log("Response Message: " + responseMessage);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null,Face_recognition_status.no_face_detected);
         }
 
         // Read the response from the server
-        BufferedInputStream bufferedInputStream = null;
-        try {
-            bufferedInputStream = new BufferedInputStream(connection.getInputStream());
+        Image img = null;
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream())){
+            img = new Image(bufferedInputStream);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null,Face_recognition_status.no_face_detected);
         }
         // Convert the image data to a BufferedImage object
-        Image img = new Image(bufferedInputStream);
+
+        if ( Math.abs(img.getHeight()-img.getWidth()) > 2)
+        {
+            logger.log("non square face discarded i.e. assume face detection failed");
+            //Image big = Utils.get_image(path);
+            //Utils.display(200,img,big,null,"non square face discarded","",logger);
+            return new Face_detection_result(null,Face_recognition_status.no_face_detected);
+        }
         return new Face_detection_result(img,Face_recognition_status.face_detected);
     }
 

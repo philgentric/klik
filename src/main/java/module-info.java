@@ -18,6 +18,7 @@ module klikmodule {
     requires com.github.benmanes.caffeine;
     requires metadata.extractor;
     requires com.google.gson;
+    requires javafx.web;
     //requires org.apache.pdfbox;
     //requires org.junit.jupiter.api;
     //requires org.bytedeco.opencv;

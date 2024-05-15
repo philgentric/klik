@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Recognition_stats
 {
+    long start = System.currentTimeMillis();
     AtomicInteger done = new AtomicInteger(0);
     AtomicInteger no_face_detected = new AtomicInteger(0);
     AtomicInteger face_not_recognized = new AtomicInteger(0);
@@ -25,6 +26,10 @@ public class Recognition_stats
         sb.append(error.get());
         sb.append("\n   done: ");
         sb.append(done.get());
+        sb.append("\n   rate: ");
+        long elapsed = System.currentTimeMillis()-start;
+        sb.append(String.format("%.2f",1000.0*(double)done.get()/(double) elapsed));
+        sb.append(" faces per second");
         return sb.toString();
     }
 }

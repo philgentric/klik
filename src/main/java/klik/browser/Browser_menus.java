@@ -320,7 +320,7 @@ public class Browser_menus
 
         item.setOnAction(actionEvent -> {
             //Static_application_properties.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.fx(logger));
+            TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.get_folder_warning_size(logger));
             Look_and_feel_manager.set_dialog_look(dialog);
             dialog.initOwner(browser.my_Stage.the_Stage);
             dialog.setWidth(800);
@@ -450,7 +450,7 @@ public class Browser_menus
         String text = "Save face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.save());
+        item.setOnAction(event -> Face_recognition_service.save(browser.aborter));
 
         return item;
     }
@@ -488,6 +488,18 @@ public class Browser_menus
         item.setOnAction(event -> Face_recognition_service.auto(browser));
         return item;
     }
+
+    //**********************************************************
+    public MenuItem make_start_self_face_recog_menu_item()
+    //**********************************************************
+    {
+        String text = "SELF face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Face_recognition_service.self(browser));
+        return item;
+    }
+
+
 
 
     //**********************************************************

@@ -278,7 +278,9 @@ public class Backup_actor_for_one_file implements Actor
     //**********************************************************
     {
         My_File fr = new My_File(file_to_be_copied,logger);
-        for ( File f : destination_dir.listFiles())
+        File[] files = destination_dir.listFiles();
+        if ( files ==null) return null;
+        for ( File f : files)
         {
 
             My_File ff = new My_File(f,logger);

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+EMBEDDINGS_PORTS=(8020 8021 8022 8023 8024 8025 8026 8027 8028 8029)
+
+for PORT in "${EMBEDDINGS_PORTS[@]}"; do
+    pids=$(pgrep -f "python.*run_server.*${PORT}" | xargs)
+    if [ -n "$pids" ]; then
+        echo "Killing process(es) ${pids} for port ${PORT}"
+        kill $pids
+    fi
+done
+
+FACE_DETECTION_PORTS=(8050 8051 8052 8053 8054 8055 8056 8057 8058 8059)
+
+for PORT in "${FACE_DETECTION_PORTS[@]}"; do
+    pids=$(pgrep -f "python.*run_server.*${PORT}" | xargs)
+    if [ -n "$pids" ]; then
+        echo "Killing process(es) ${pids} for port ${PORT}"
+        kill $pids
+    fi
+done
