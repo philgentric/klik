@@ -16,16 +16,59 @@ import java.util.Random;
 this face detector reliess on a python server that uses the face detection library
 with a super simple API: pass the full file path of an image,
 it returns the extracted face as a byte array
+
+there are 4 possible configurations
+
+each is running on different servers, the selector is the port number see in python code:
+    1: 'haarcascade_frontalface_default.xml',
+    2: 'haarcascade_frontalface_alt.xml',
+    3: 'haarcascade_frontalface_alt2.xml',
+    4: 'haarcascade_frontalface_alt_tree.xml',
+
+and see launch_server script:
+(yes this is dirty distributed config... pffff)
+
+
  */
 //**********************************************************
 public class Face_detector
 //**********************************************************
 {
-    static int[] port = {8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059};
-    //static int[] port = {8050};
+
+    static int[] port_type1 = {8090, 8091}; // haarcascade_frontalface_default.xml has higher recall,  more false positives
+    static int[] port_type2 = {8100, 8101}; // haarcascade_frontalface_alt.xml
+    static int[] port_type3 = {8110, 8111}; // haarcascade_frontalface_alt2.xml
+    static int[] port_type4 = {8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059}; // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
     static Random  random = new Random();
-    public static int get_random_port()
+
+
+    public enum Face_detection_type
     {
+        high_precision, // type4
+        false_positioves, // type1
+        alt1,
+        alt2,
+    }
+    //**********************************************************
+    public static int get_random_port(Face_detection_type config)
+    //**********************************************************
+    {
+        int[] port = null;
+        switch (config)
+        {
+            case false_positioves:
+                port = port_type1;
+                break;
+            case alt1:
+                port = port_type2;
+                break;
+            case alt2:
+                port = port_type3;
+                break;
+            default: // also high_precision
+                port = port_type4;
+                break;
+        }
         int returned = random.nextInt(port[0],port[0]+port.length);
         return returned;
     }
@@ -33,10 +76,10 @@ public class Face_detector
     record Face_detection_result(Image image, Face_recognition_status status){}
 
     //**********************************************************
-    public static Face_detection_result detect_face(Path path, boolean verbose, Logger logger)
+    public static Face_detection_result detect_face(Path path, Face_detection_type config, boolean verbose, Logger logger)
     //**********************************************************
     {
-        int port = get_random_port();
+        int port = get_random_port(config);
         String url_string = null;
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");

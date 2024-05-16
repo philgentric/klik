@@ -23,15 +23,11 @@ vgg19 = Model(inputs=vgg19_base_model.input, outputs=vgg19_base_model.get_layer(
 
 class EmbeddingGenerator(SimpleHTTPRequestHandler):
     def do_GET(self):
-
         image_raw_url = self.path[1:]
-        print("going to open image_raw_url:    "+image_raw_url)
-
-        #decoded_url = urllib.parse.unquote(image_raw_url)
+        #print("going to open image_raw_url:    "+image_raw_url)
         decoded_url = urllib.parse.unquote_plus(image_raw_url)
 
-        print("decoded url:"+decoded_url)
-        # Create a dummy image (you can replace this with your own video feed)
+        #print("decoded url:"+decoded_url)
         img = keras.utils.load_img(decoded_url, target_size=(224, 224))
 
         #plt.imshow(img)
@@ -45,7 +41,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #model = inceptionV3
         feature_vector = model.predict(x)
         #print("feature_vector: "+str(feature_vector))
-        print("feature vector size: "+str(feature_vector.size))
+        #print("feature vector size: "+str(feature_vector.size))
 
         double_values = [np.float64(i) for i in x.flatten()]
 
@@ -68,11 +64,6 @@ def extract_double_values(feature_vector):
     return double_values
 
 def parse_feature_vector(s):
-    # Use regular expression to extract the numerical values from the string
-    #pattern = r'\d+(?:\.\d+)?'
-    #values = [float(x) for x in re.findall(pattern, s)]
-    #pattern = r'-?\d+\.\d+|\d+\.?'
-    #values = [float(x) for x in re.findall(pattern, s)]
 
     values = []
     num_str = ''
@@ -93,14 +84,3 @@ def run_server(port):
     httpd = HTTPServer(server_address, EmbeddingGenerator)
     print("Starting local IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()
-
-import threading
-
-if __name__ == '__main__':
-    ports = [8020, 8021, 8022, 8023, 8024, 8025, 8026, 8027, 8028, 8029]
-    #ports = [8020]
-    threads = []
-    for port in ports:
-        t = threading.Thread(target=run_server, args=(port,))
-        threads.append(t)
-        t.start()

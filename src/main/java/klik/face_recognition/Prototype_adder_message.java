@@ -8,10 +8,12 @@ public class Prototype_adder_message implements Message {
     private final Aborter aborter;
     public final Image face;
     public final String label;
+    public final Feature_vector feature_vector;
 
-    public Prototype_adder_message(Image face, String label, Aborter aborter) {
-        this.face = face;
+    public Prototype_adder_message(String label, Image face, Feature_vector feature_vector, Aborter aborter) {
         this.label = label;
+        this.face = face;
+        this.feature_vector = feature_vector;
         this.aborter = aborter;
     }
 

@@ -39,13 +39,13 @@ public class Prototype_adder_actor implements Actor
     //**********************************************************
     {
         Prototype_adder_message pam = (Prototype_adder_message)m;
-        Face_recognition_status frs = add_prototype_image_face(pam.face,pam.label,true);
+        Face_recognition_status frs = add_prototype_image_face(pam.label,pam.face,pam.feature_vector, true);
         return frs.name();
     }
 
 
     //**********************************************************
-    public Face_recognition_status add_prototype_image_face(Image face, String label, boolean and_save)
+    public Face_recognition_status add_prototype_image_face(String label, Image face, Feature_vector fv, boolean and_save)
     //**********************************************************
     {
         String name = label+ "_"+ UUID.randomUUID();
@@ -54,29 +54,13 @@ public class Prototype_adder_actor implements Actor
         {
             return Face_recognition_status.no_feature_vector;
         }
-        Feature_vector fv = Feature_vector.get_feature_vector_from_server(path, service.logger);
-        if ( fv ==null)
-        {
-            // try again, once
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                service.logger.log(""+e);
-            }
-
-            fv = Feature_vector.get_feature_vector_from_server(path, service.logger);
-            if ( fv == null) {
-                service.logger.log("FATAL: prototype not added as the feature vector is null");
-                return Face_recognition_status.no_feature_vector;
-            }
-        }
 
         Embeddings_prototype ep = new Embeddings_prototype(face, fv, label, name);
         service.names_to_embeddings.put(name,ep);
         service.embeddings_prototypes.add(ep);
         if ( !service.labels.contains(label)) service.labels.add(label);
         if ( and_save) save_ep(ep);
-        service.logger.log("added prototype image face with label ="+label);
+        service.logger.log("added prototype image face with name ="+name);
         //display(face,label);
         return Face_recognition_status.feature_vector_ready;
     }

@@ -12,5 +12,6 @@ public enum Face_recognition_status {
     feature_vector_ready,
     face_recognized,
     exact_match // special case of face recognized
+    ;
 
 }

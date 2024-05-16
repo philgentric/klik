@@ -17,15 +17,21 @@ public class Face_recognition_message implements Message
     public final boolean display_face_reco_window;
     public final AtomicInteger files_in_flight;
     public final AtomicInteger count_for_label;
+    public final Face_detector.Face_detection_type face_detection_type;
 
 
     //**********************************************************
-    public Face_recognition_message(File file, boolean do_face_detection, String label, boolean display_face_reco_window, Aborter aborter, AtomicInteger files_in_flight, AtomicInteger count_for_label)
+    public Face_recognition_message(File file,
+                                    Face_detector.Face_detection_type face_detection_type,
+                                    boolean do_face_detection,
+                                    String label_for_training, // if null, this is "only" recognition, otherwise if recognition result is NOT this label, training will happen
+                                    boolean display_face_reco_window, Aborter aborter, AtomicInteger files_in_flight, AtomicInteger count_for_label)
     //**********************************************************
     {
         this.file = file;
+        this.face_detection_type = face_detection_type;
         this.do_face_detection = do_face_detection;
-        this.label = label;
+        this.label = label_for_training;
         this.display_face_reco_window = display_face_reco_window;
         this.aborter = aborter;
         this.files_in_flight = files_in_flight;
