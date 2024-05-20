@@ -10,10 +10,7 @@ import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.change.undo.Undo_engine;
-import klik.face_recognition.Face_detector;
-import klik.face_recognition.Face_recognition_actor;
-import klik.face_recognition.Face_recognition_message;
-import klik.face_recognition.Face_recognition_service;
+import klik.face_recognition.*;
 import klik.files_and_paths.Guess_file_type;
 import klik.level3.metadata.Tag_stage;
 import klik.look.Look_and_feel_manager;
@@ -408,7 +405,7 @@ public class Menus_for_image_window
             boolean do_face_detection = false;
             Face_recognition_message msg = new Face_recognition_message(
                     image_window.image_display_handler.get_image_context().get().path.toFile(),
-                    Face_detector.Face_detection_type.high_precision,// ignored
+                    Face_detection_type.haars_high_precision,// ignored
                     do_face_detection,
                     null, // this recognition ONLY i.e. no training will happen
                     true,
@@ -423,11 +420,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem mi = new MenuItem("Perform face recognition with high precision face detector");//I18n.get_I18n_string("Open", image_window.logger));
-        mi.setOnAction(event ->
-        {
-
-            face_rec(Face_detector.Face_detection_type.high_precision,image_window, browser);
-        });
+        mi.setOnAction(event -> face_rec(Face_detection_type.MTCNN,image_window, browser));
         return mi;
     }
     //**********************************************************
@@ -437,7 +430,7 @@ public class Menus_for_image_window
         MenuItem mi = new MenuItem("Perform face recognition with optimistic face detector (more false positive)");//I18n.get_I18n_string("Open", image_window.logger));
         mi.setOnAction(event ->
         {
-            face_rec(Face_detector.Face_detection_type.false_positioves,image_window, browser);
+            face_rec(Face_detection_type.haars_false_positioves,image_window, browser);
         });
         return mi;
     }
@@ -449,7 +442,7 @@ public class Menus_for_image_window
         MenuItem mi = new MenuItem("Perform face recognition with ALT1 face detector (more false positive)");//I18n.get_I18n_string("Open", image_window.logger));
         mi.setOnAction(event ->
         {
-            face_rec(Face_detector.Face_detection_type.alt1,image_window, browser);
+            face_rec(Face_detection_type.haars_alt1,image_window, browser);
         });
         return mi;
     }
@@ -460,12 +453,12 @@ public class Menus_for_image_window
         MenuItem mi = new MenuItem("Perform face recognition with ALT2 face detector (more false positive)");//I18n.get_I18n_string("Open", image_window.logger));
         mi.setOnAction(event ->
         {
-            face_rec(Face_detector.Face_detection_type.alt2,image_window, browser);
+            face_rec(Face_detection_type.haars_alt2,image_window, browser);
         });
         return mi;
     }
 
-    private static void face_rec(Face_detector.Face_detection_type face_detection_type, Image_window image_window, Browser browser)
+    private static void face_rec(Face_detection_type face_detection_type, Image_window image_window, Browser browser)
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
         Face_recognition_service recognition_services = Face_recognition_service.get_instance(browser);

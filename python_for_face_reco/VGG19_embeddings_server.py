@@ -41,7 +41,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #model = inceptionV3
         feature_vector = model.predict(x)
         #print("feature_vector: "+str(feature_vector))
-        #print("feature vector size: "+str(feature_vector.size))
+        print("VGGface feature vector size: "+str(feature_vector.size))
 
         double_values = [np.float64(i) for i in x.flatten()]
 

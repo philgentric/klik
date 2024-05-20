@@ -8,3 +8,7 @@ keras.preprocessing
 keras.applications
 pillow
 numpy
+mtcnn
+keras_vggface
+facenet-pytorch
+keras-facenet

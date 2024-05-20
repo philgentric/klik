@@ -34,21 +34,16 @@ and see launch_server script:
 public class Face_detector
 //**********************************************************
 {
+    static int[] port_MTCNN = {8040, 8041, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049};
 
-    static int[] port_type1 = {8090, 8091}; // haarcascade_frontalface_default.xml has higher recall,  more false positives
-    static int[] port_type2 = {8100, 8101}; // haarcascade_frontalface_alt.xml
-    static int[] port_type3 = {8110, 8111}; // haarcascade_frontalface_alt2.xml
-    static int[] port_type4 = {8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059}; // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
+    static int[] port_haars_high_precision = {8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059}; // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
+    static int[] port_haars_false_positioves = {8090, 8091}; // haarcascade_frontalface_default.xml has higher recall,  more false positives
+    static int[] port_haars_alt1 = {8100, 8101}; // haarcascade_frontalface_alt.xml
+    static int[] port_haars_alt2 = {8110, 8111}; // haarcascade_frontalface_alt2.xml
     static Random  random = new Random();
 
 
-    public enum Face_detection_type
-    {
-        high_precision, // type4
-        false_positioves, // type1
-        alt1,
-        alt2,
-    }
+
     //**********************************************************
     public static int get_random_port(Face_detection_type config)
     //**********************************************************
@@ -56,18 +51,20 @@ public class Face_detector
         int[] port = null;
         switch (config)
         {
-            case false_positioves:
-                port = port_type1;
+            case haars_false_positioves:
+                port = port_haars_false_positioves;
                 break;
-            case alt1:
-                port = port_type2;
+            case haars_alt1:
+                port = port_haars_alt1;
                 break;
-            case alt2:
-                port = port_type3;
+            case haars_alt2:
+                port = port_haars_alt2;
                 break;
-            default: // also high_precision
-                port = port_type4;
+            case haars_high_precision:
+                port = port_haars_high_precision;
                 break;
+            case MTCNN:
+                port = port_MTCNN;
         }
         int returned = random.nextInt(port[0],port[0]+port.length);
         return returned;
@@ -76,10 +73,10 @@ public class Face_detector
     record Face_detection_result(Image image, Face_recognition_status status){}
 
     //**********************************************************
-    public static Face_detection_result detect_face(Path path, Face_detection_type config, boolean verbose, Logger logger)
+    public static Face_detection_result detect_face(Path path, Face_detection_type face_detection_type, boolean verbose, Logger logger)
     //**********************************************************
     {
-        int port = get_random_port(config);
+        int port = get_random_port(face_detection_type);
         String url_string = null;
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
@@ -163,14 +160,25 @@ public class Face_detector
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null,Face_recognition_status.no_face_detected);
         }
-        // Convert the image data to a BufferedImage object
 
-        if ( Math.abs(img.getHeight()-img.getWidth()) > 2)
+        if ( face_detection_type == Face_detection_type.MTCNN)
         {
-            logger.log("non square face discarded i.e. assume face detection failed");
-            //Image big = Utils.get_image(path);
-            //Utils.display(200,img,big,null,"non square face discarded","",logger);
-            return new Face_detection_result(null,Face_recognition_status.no_face_detected);
+            if ((img.getHeight() < 100) || (img.getWidth() < 100) )
+            {
+                logger.log("things smaller than 100 pixels are discarded i.e. assume face detection failed");
+                //Image big = Utils.get_image(path);
+                //Utils.display(200,img,big,null,"face discarded as too small","",logger);
+                return new Face_detection_result(null, Face_recognition_status.no_face_detected);
+            }
+        }
+        else
+        {
+            if (Math.abs(img.getHeight() - img.getWidth()) > 2) {
+                logger.log("non square face discarded i.e. assume face detection failed");
+                //Image big = Utils.get_image(path);
+                //Utils.display(200,img,big,null,"non square face discarded","",logger);
+                return new Face_detection_result(null, Face_recognition_status.no_face_detected);
+            }
         }
         return new Face_detection_result(img,Face_recognition_status.face_detected);
     }

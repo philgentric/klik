@@ -7,11 +7,6 @@ import numpy as np
 
 
 # Dictionary to map config number to face cascade classifier file
-
-# haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
-# haarcascade_frontalface_default.xml has higher recall,  more false positives
-
-
 class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
     FACE_CASCADE_FILES = {
@@ -26,7 +21,12 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
     def __init__(self, config_number, *args, **kwargs):
         self.config_number = config_number
-        self.face_cascade = cv2.CascadeClassifier(self.FACE_CASCADE_FILES[self.config_number])
+        if ( self.config_number <= 4) :
+            print("haars: "+str(self.config_number))
+            self.face_cascade = cv2.CascadeClassifier(self.FACE_CASCADE_FILES[self.config_number])
+        else :
+            print("FATAL : config number not supported "+str(config_number))
+
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -60,9 +60,8 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
         #print("image has been converted to grayscale, going to call face detection")
 
+
         # Detect faces in the image using the Haar cascade classifier
-        #rejectLevels = []
-        #levelWeights = []
         faces, rejectLevels, levelWeights = self.face_cascade.detectMultiScale3(gray, scaleFactor=1.1, minNeighbors=5, outputRejectLevels=True)
         #print("detected face count: "+str(len(faces)))
         #print("rejectLevels: "+str(rejectLevels))
@@ -130,5 +129,5 @@ def run_server(port, config_number):
     server_address = ('localhost', port)
     handler = partial(FaceDetectionHandler, config_number)
     httpd = HTTPServer(server_address, handler)
-    print("Starting local FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
+    print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
     httpd.serve_forever()

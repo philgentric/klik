@@ -167,7 +167,7 @@ public class Prototype_adder_actor implements Actor
     private void save_ep(Embeddings_prototype prototype)
     //**********************************************************
     {
-        String filename = Face_recognition_service.make_prototype_path(service.face_recognizer_path, prototype.name()).toAbsolutePath().toString();
+        String filename = Face_recognition_service.make_prototype_path(service.face_recognizer_path, prototype.tag()).toAbsolutePath().toString();
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename)))
         {
             writer.println(prototype.label());

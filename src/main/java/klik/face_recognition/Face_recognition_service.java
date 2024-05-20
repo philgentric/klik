@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Face_recognition_service
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public final static String EXTENSION_FOR_EP = "prototype";
     private static Face_recognition_service instance = null;
     final Logger logger;
@@ -253,7 +253,7 @@ public class Face_recognition_service
             }
             if (Guess_file_type.is_file_an_image(f))
             {
-                Face_recognition_message msg = new Face_recognition_message(f, Face_detector.Face_detection_type.high_precision, true, label,false,aborter_for_auto_train, files_in_flight, count_for_label);
+                Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label,false,aborter_for_auto_train, files_in_flight, count_for_label);
                 Actor_engine.run(face_recognition_actor,msg,tr,logger);
 
             }
@@ -708,7 +708,7 @@ public class Face_recognition_service
     private void save_ep(Embeddings_prototype prototype)
     //**********************************************************
     {
-        String filename = make_prototype_path(face_recognizer_path, prototype.name()).toAbsolutePath().toString();
+        String filename = make_prototype_path(face_recognizer_path, prototype.tag()).toAbsolutePath().toString();
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename)))
         {
             writer.println(prototype.label());
@@ -728,18 +728,18 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    static Path make_image_path(Path folder, String name, Logger logger)
+    static Path make_image_path(Path folder, String tag, Logger logger)
     //**********************************************************
     {
-        Path path =  Path.of(folder.toString(),name+".png");
+        Path path =  Path.of(folder.toString(),tag+".png");
         return path;
     }
 
     //**********************************************************
-    public static Path write_tmp_image(Image face, Path folder_path, String name, Logger logger)
+    public static Path write_tmp_image(Image face, Path folder_path, String tag, Logger logger)
     //**********************************************************
     {
-        Path path =  make_image_path(folder_path,name,logger);
+        Path path =  make_image_path(folder_path,tag,logger);
         try {
             BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);
             ImageIO.write(bi, "png", path.toFile());
@@ -803,7 +803,7 @@ public class Face_recognition_service
     {
         String ext = FilenameUtils.getExtension(f.getName());
         if ( !ext.equals(EXTENSION_FOR_EP)) return;
-        String self_target_name = FilenameUtils.getBaseName(f.getName());
+        String self_target_tag = FilenameUtils.getBaseName(f.getName());
 
         boolean part2 = true;
         String label = null;
@@ -811,7 +811,7 @@ public class Face_recognition_service
         Image ref = null;
         if ( part2)
         {
-            Embeddings_prototype ep = load_ep(f,self_target_name);
+            Embeddings_prototype ep = load_ep(f,self_target_tag);
             fv = ep.feature_vector();
             label = ep.label();
             ref= ep.face();
@@ -823,7 +823,7 @@ public class Face_recognition_service
                 logger.log("loading failed for " + f.getAbsolutePath());
                 return;
             }
-            logger.log("self file: " + self_target_name + " label:" + label);
+            logger.log("self file: " + self_target_tag + " label:" + label);
         }
 
         double min_distance = Double.MAX_VALUE;
@@ -837,7 +837,7 @@ public class Face_recognition_service
             if ( f.getAbsolutePath().equals(f2.getAbsolutePath())) continue;
             if ( ! FilenameUtils.getExtension(f2.getName()).equals(EXTENSION_FOR_EP)) continue;
             Feature_vector fv2 = null;
-            String name2 = FilenameUtils.getBaseName(f2.getName());
+            String tag2 = FilenameUtils.getBaseName(f2.getName());
             String label2 = load_label_from_ep_file(f2);
             if ( label2 == null) continue;
             if ( !label2.equals(label)) continue;
@@ -845,11 +845,11 @@ public class Face_recognition_service
             Embeddings_prototype ep = null;
             if ( part2)
             {
-                ep = load_ep(f2,name2);
+                ep = load_ep(f2,tag2);
                 fv2 = ep.feature_vector();
             }
-            logger.log("self file: "+self_target_name+ " name2:"+name2);
-            Path face_path2 = make_image_path(face_recognizer_path,name2,logger);
+            logger.log("self file: "+self_target_tag+ " tag2:"+tag2);
+            Path face_path2 = make_image_path(face_recognizer_path,tag2,logger);
 
             boolean part1 = false;
             if ( part1)
@@ -865,7 +865,7 @@ public class Face_recognition_service
                 }
                 else
                 {
-                    logger.log("ERROR: "+self_target_name+" tested with "+name2+ " does not give exact match");
+                    logger.log("ERROR: "+self_target_tag+" tested with "+tag2+ " does not give exact match");
                 }
             }
             if (part2)
@@ -888,13 +888,13 @@ public class Face_recognition_service
 
         }
         average_distance /= count;
-        logger.log(self_target_name+" min: "+min_distance+ " ave: "+average_distance+" max: "+max_distance);
+        logger.log(self_target_tag+" min: "+min_distance+ " ave: "+average_distance+" max: "+max_distance);
         if (( ep_min != null) && ( ep_max != null))
         {
-            String desc = " min:"+ep_min.name()+ "at: "+String.format("%.2f",min_distance);
-            desc += "\n max:"+ep_max.name()+ "at: "+String.format("%.2f",max_distance);
+            String desc = " min:"+ep_min.tag()+ "at: "+String.format("%.2f",min_distance);
+            desc += "\n max:"+ep_max.tag()+ "at: "+String.format("%.2f",max_distance);
 
-            Utils.display(200,ref,ep_min.face(),ep_max.face(),self_target_name +"recognized as:", desc,logger);
+            Utils.display(200,ref,ep_min.face(),ep_max.face(),self_target_tag +"recognized as:", desc,logger);
         }
         else
         {
