@@ -9,24 +9,9 @@ import numpy as np
 # Dictionary to map config number to face cascade classifier file
 class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
-    FACE_CASCADE_FILES = {
-        1: 'haarcascade_frontalface_default.xml',
-        2: 'haarcascade_frontalface_alt.xml',
-        3: 'haarcascade_frontalface_alt2.xml',
-        4: 'haarcascade_frontalface_alt_tree.xml',
-
-        # Add more entries for other config numbers
-    }
-
-
-    def __init__(self, config_number, *args, **kwargs):
-        self.config_number = config_number
-        if ( self.config_number <= 4) :
-            print("haars: "+str(self.config_number))
-            self.face_cascade = cv2.CascadeClassifier(self.FACE_CASCADE_FILES[self.config_number])
-        else :
-            print("FATAL : config number not supported "+str(config_number))
-
+    def __init__(self, config_name, *args, **kwargs):
+        print("HAARS: "+config_name)
+        self.face_cascade = cv2.CascadeClassifier(config_name)
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -125,9 +110,10 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
 from functools import partial
 
-def run_server(port, config_number):
+def run_server(port, config_name):
     server_address = ('localhost', port)
-    handler = partial(FaceDetectionHandler, config_number)
+    handler = partial(FaceDetectionHandler, config_name)
+    print("Starting local HAARS FACE DETECTION with config: "+config_name)
     httpd = HTTPServer(server_address, handler)
-    print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
+    print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+config_name)
     httpd.serve_forever()

@@ -21,8 +21,8 @@ public class Monitor
     {
         this.aborter = aborter;
         this.logger = logger;
-        disk_usage_monitor = new Disk_usage_monitor(aborter, logger);
-        cache_auto_clean = new Cache_auto_clean(aborter, logger);
+        disk_usage_monitor = new Disk_usage_monitor(null, aborter, logger);
+        cache_auto_clean = new Cache_auto_clean(null, aborter, logger);
         history_auto_clean = new History_auto_clean(aborter, logger);
     }
 

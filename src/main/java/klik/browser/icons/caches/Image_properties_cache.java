@@ -41,7 +41,7 @@ public class Image_properties_cache
         cache_name = cache_name_;
         String local = cache_name+path.toAbsolutePath().toString();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()).toString()+".properties";
-        Path dir = Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(logger);
+        Path dir = Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg)
         {

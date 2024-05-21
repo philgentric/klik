@@ -48,7 +48,7 @@ public class Animated_gif_from_folder
 
 
         Collections.sort(images_in_folder);
-        Path actual_icon_cache_dir = Files_and_Paths.get_icon_cache_dir(logger);
+        Path actual_icon_cache_dir = Files_and_Paths.get_icon_cache_dir(owner, logger);
         Path folder_icon_cache_dir = Files_and_Paths.get_folder_icon_cache_dir(logger);
 
         int icon_size = Static_application_properties.get_icon_size(logger);

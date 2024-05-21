@@ -409,7 +409,7 @@ public class Menus_for_image_window
                     do_face_detection,
                     null, // this recognition ONLY i.e. no training will happen
                     true,
-                    image_window.aborter, null, count_for_label);
+                    image_window.aborter, null);
 
             Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
             Actor_engine.run(actor,msg,null,image_window.logger);        });
@@ -465,7 +465,6 @@ public class Menus_for_image_window
         if (recognition_services == null) return;
 
         Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
-        AtomicInteger count_for_label = new AtomicInteger(0);// not used
         boolean do_face_detection = true;
         Face_recognition_message msg = new Face_recognition_message(
                 image_window.image_display_handler.get_image_context().get().path.toFile(),
@@ -473,7 +472,7 @@ public class Menus_for_image_window
                 do_face_detection,
                 null,
                 true,
-                image_window.aborter, null, count_for_label);
+                image_window.aborter, null);
         Actor_engine.run(actor,msg,null, image_window.logger);
     }
 

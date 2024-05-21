@@ -12,3 +12,5 @@ mtcnn
 keras_vggface
 facenet-pytorch
 keras-facenet
+insightface
+onnxruntime

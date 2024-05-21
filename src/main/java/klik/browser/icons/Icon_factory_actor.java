@@ -60,18 +60,15 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    //public Icon_factory_actor(Aspect_ratio_cache aspect_ratio_cache, Rotation_cache rotation_cache, Stage owner_, Aborter aborter, Logger logger_)
     public Icon_factory_actor(Image_properties_cache image_properties_cache, Stage owner_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        //this.aspect_ratio_cache = aspect_ratio_cache;
-        //this.rotation_cache = rotation_cache;
         this.image_properties_cache = image_properties_cache;
         this.aborter = aborter;
         owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
-        icon_cache_dir = Files_and_Paths.get_icon_cache_dir(logger);
+        icon_cache_dir = Files_and_Paths.get_icon_cache_dir(owner, logger);
         writer = new Icon_writer_actor(icon_cache_dir, logger);
         //writer = Icon_writer_actor.launch_icon_writer(icon_cache_dir, logger);
     }

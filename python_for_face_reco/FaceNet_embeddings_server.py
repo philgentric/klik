@@ -13,7 +13,7 @@ from facenet_pytorch import InceptionResnetV1
 class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
     model = InceptionResnetV1(pretrained='vggface2')  # Load FaceNet model only once
-    #embedder = FaceNet()
+    print("Embeddings server started: vggface2 model loaded")
 
     def do_GET(self):
         image_raw_url = self.path[1:]
@@ -24,8 +24,6 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #plt.imshow(img)
         #plt.title('SERVER SIDE INPUT Face')
         #plt.show()
-
-        #feature_vector = self.embedder.embeddings(img)
 
         x = keras.utils.img_to_array(img)
         x = np.expand_dims(x, axis=0)
@@ -54,29 +52,6 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         pass
-
-def extract_double_values(feature_vector):
-    double_values = []
-    for element in np.nditer(feature_vector):
-        if isinstance(element, float):  # Check if the element is a float
-            double_values.append(element)
-    return double_values
-
-def parse_feature_vector(s):
-
-    values = []
-    num_str = ''
-    for char in s:
-        if char.isdigit():
-            num_str += char
-        elif char == '.' and not num_str:
-            num_str += char
-        elif num_str:
-            values.append(float(num_str))
-            num_str = ''
-    if num_str:
-        values.append(float(num_str))
-        return values
 
 def run_server(port):
     server_address = ('localhost', port)

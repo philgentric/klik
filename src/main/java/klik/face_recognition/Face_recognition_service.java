@@ -43,7 +43,8 @@ public class Face_recognition_service
     private final Browser browser;
     ConcurrentLinkedQueue<Embeddings_prototype> embeddings_prototypes = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<String> labels = new ConcurrentLinkedQueue<>();
-    Map<String,Embeddings_prototype> names_to_embeddings = new ConcurrentHashMap<>();
+    Map<String,Embeddings_prototype> tags_to_embeddings = new ConcurrentHashMap<>();
+    Map<String,Integer> labels_to_prototype_count = new ConcurrentHashMap<>();
     public final String face_recognizer_name;
     public final Path face_recognizer_path;
     Recognition_stats recognition_stats;
@@ -166,10 +167,27 @@ public class Face_recognition_service
                 continue;
             }
             if ( aborter_for_auto_train.should_abort()) return;
+
+            String label = f.getName();
+            Integer N = labels_to_prototype_count.get(label);
+            if ( N == null)
+            {
+                N = Integer.valueOf(0);
+                labels_to_prototype_count.put(label,N);
+            }
+            else
+            {
+                if (N > Face_recognition_actor.LIMIT_PER_LABEL)
+                {
+                    logger.log("NOT adding "+f.getName()+" with label: "+label+ " as there are too many prototypes already "+labels_to_prototype_count.get(label));
+                    continue;
+                }
+            }
+
             for(;;)
             {
-                int N = Actor_engine.how_many_threads_are_in_flight(logger);
-                if (N < MAX_THREADS) break;
+                int T = Actor_engine.how_many_threads_are_in_flight(logger);
+                if (T < MAX_THREADS) break;
                 {
                     try {
                         logger.log("\n\nAUTO going to sleep :1s, too many threads");
@@ -180,23 +198,24 @@ public class Face_recognition_service
                     }
                 }
             }
-            String label = f.getName();
-            AtomicInteger count_for_label = new AtomicInteger(0);
-            auto_folder_for_one_label(f,label, face_recognition_actor, aborter_for_auto_train, files_in_flight, count_for_label);
+
+            AtomicInteger label_in_flight = new AtomicInteger(0);
+            auto_folder_for_one_label(f,label, face_recognition_actor, aborter_for_auto_train, files_in_flight, label_in_flight);
         }
 
-        save_internal(aborter_for_auto_train);
+        // DONT save_internal(aborter_for_auto_train);
 
         running_man.wait_and_block_until_finished(files_in_flight);
         logger.log("Finished Face Recognition AUTO: "+recognition_stats.to_string());
     }
+
 
     //**********************************************************
     private boolean auto_folder_for_one_label(File dir, String label,
                                               Face_recognition_actor face_recognition_actor,
                                               Aborter aborter_for_auto_train,
                                               AtomicInteger files_in_flight,
-                                              AtomicInteger count_for_label)
+                                              AtomicInteger label_in_flight)
     //**********************************************************
     {
         for(;;)
@@ -217,6 +236,7 @@ public class Face_recognition_service
         logger.log("auto_folder: "+dir);
         Job_termination_reporter tr = (message, job) -> {
             files_in_flight.decrementAndGet();
+            label_in_flight.decrementAndGet();
             long now = System.currentTimeMillis();
             if (now-last_report> 10000)
             {
@@ -237,15 +257,11 @@ public class Face_recognition_service
                 logger.log("auto aborted");
                 return false;
             }
-            if ( count_for_label.get() > Face_recognition_actor.LIMIT_PER_LABEL)
-            {
-                logger.log("aborting AUTO folder after enough faces on label: "+label+" in folder:"+dir);
-                return false;
-            }
+
 
             if ( f.isDirectory())
             {
-                if ( !auto_folder_for_one_label(f,label, face_recognition_actor, aborter_for_auto_train, files_in_flight, count_for_label))
+                if ( !auto_folder_for_one_label(f,label, face_recognition_actor, aborter_for_auto_train, files_in_flight,label_in_flight))
                 {
                     logger.log("auto_folder returns false, aborting folder "+dir);
                     return false;
@@ -253,9 +269,15 @@ public class Face_recognition_service
             }
             if (Guess_file_type.is_file_an_image(f))
             {
-                Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label,false,aborter_for_auto_train, files_in_flight, count_for_label);
-                Actor_engine.run(face_recognition_actor,msg,tr,logger);
-
+                if ( label_in_flight.get() < Face_recognition_actor.LIMIT_PER_LABEL)
+                {
+                    label_in_flight.incrementAndGet();
+                    Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);
+                    Actor_engine.run(face_recognition_actor, msg, tr, logger);
+                }
+                else {
+                    recognition_stats.skipped.incrementAndGet();
+                }
             }
         }
         logger.log("Folder done: "+dir.getAbsolutePath());
@@ -359,7 +381,7 @@ public class Face_recognition_service
                             vb.getChildren().add(lab);
                         }
                         {
-                            Image image = res.embeddings_prototype().face();
+                            Image image = res.embeddings_prototype().face(face_recognizer_path,logger);
                             ImageView iv = new ImageView(image);
                             iv.setPreserveRatio(true);
                             iv.setFitWidth(size);
@@ -462,18 +484,18 @@ public class Face_recognition_service
                 Button skip = new Button("REMOVE this face from the training set (bad face or wrong label)");
                 skip.setDisable(!eval_result.enable_adding());
                 skip.setOnAction(e -> {
-                    Embeddings_prototype guilty = names_to_embeddings.get(eval_result.name());
+                    Embeddings_prototype guilty = tags_to_embeddings.get(eval_result.name());
                     embeddings_prototypes.remove(guilty);
-                    names_to_embeddings.remove(eval_result.name());
+                    tags_to_embeddings.remove(eval_result.name());
                     try {
-                        Path p = make_image_path(face_recognizer_path, eval_result.name(), logger);
+                        Path p = Embeddings_prototype.make_image_path(face_recognizer_path, eval_result.name(), logger);
                         Files.delete(p);
                         logger.log("deleted: " + p);
                     } catch (IOException ex) {
                         logger.log(Stack_trace_getter.get_stack_trace("" + e));
                     }
                     try {
-                        Path p = make_prototype_path(face_recognizer_path, eval_result.name());
+                        Path p = Embeddings_prototype.make_prototype_path(face_recognizer_path, eval_result.name());
                         Files.delete(p);
                         logger.log("deleted: " + p);
                     } catch (IOException ex) {
@@ -504,7 +526,6 @@ public class Face_recognition_service
         for (Embeddings_prototype ep : embeddings_prototypes)
         {
             Actor_engine.execute(()->save_ep(ep),aborter,logger);
-            //save_ep(ep);
         }
     }
     //**********************************************************
@@ -554,33 +575,17 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    private Embeddings_prototype load_ep(File f, String name)
+    private Embeddings_prototype load_ep(File f, String tag)
     //**********************************************************
     {
-        Image face = null;
-        File image_file = null;
+        Image local_face = Embeddings_prototype.is_image_present(face_recognizer_path,tag,logger);
+        if ( local_face == null)
         {
-            Path image_path = make_image_path(face_recognizer_path, name, logger);
-
-            logger.log("trying to load image ->" + image_path + "<-");
-            image_file = new File(image_path.toAbsolutePath().toString());
-            if (!image_file.exists()) {
-                // typically the image has been discarded by a human reviewer
-                // remove the prototype
-                delete_prototype(f);
-                logger.log("face not found while loading prototype: prototype erased from disk : " + f);
-                return null;
-            }
-            try
-            {
-                face = Utils.get_image(image_path);
-            }
-            catch (Exception e)
-            {
-                logger.log(Stack_trace_getter.get_stack_trace("should not happen "+e));
-                return null;
-            }
+            // no image, remove the prototype
+           delete_prototype(f);
+            return null;
         }
+
 
         try (BufferedReader reader = new BufferedReader(new FileReader(f)))
         {
@@ -645,7 +650,8 @@ public class Face_recognition_service
             if ( ok)
             {
                 Feature_vector fv = new Feature_vector(values);
-                return new Embeddings_prototype(face, fv, label, name);
+                return new Light_embeddings_prototype(fv,label,tag);
+                //return new Heavy_embeddings_prototype(face, fv, label, tag);
             }
         } catch (FileNotFoundException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
@@ -654,7 +660,7 @@ public class Face_recognition_service
         }
         // the prototype file is corrupted, let us remove it and the image too
         delete_prototype(f);
-        delete_prototype(image_file);
+        delete_prototype(Embeddings_prototype.make_image_path(face_recognizer_path,tag,logger).toFile());
         return null;
     }
 
@@ -696,50 +702,22 @@ public class Face_recognition_service
 
 
 
-    //**********************************************************
-    static Path make_prototype_path(Path folder_path, String name)
-    //**********************************************************
-    {
-        return Path.of(folder_path.toAbsolutePath().toString() , name+"."+EXTENSION_FOR_EP);
-    }
-
 
     //**********************************************************
     private void save_ep(Embeddings_prototype prototype)
     //**********************************************************
     {
-        String filename = make_prototype_path(face_recognizer_path, prototype.tag()).toAbsolutePath().toString();
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filename)))
-        {
-            writer.println(prototype.label());
-            writer.println(prototype.feature_vector().features.length );
-            for ( double d : prototype.feature_vector().features)
-            {
-                writer.println(d);
-            }
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
+        prototype.save(face_recognizer_path,logger);
+
     }
 
 
-
-
-    //**********************************************************
-    static Path make_image_path(Path folder, String tag, Logger logger)
-    //**********************************************************
-    {
-        Path path =  Path.of(folder.toString(),tag+".png");
-        return path;
-    }
 
     //**********************************************************
     public static Path write_tmp_image(Image face, Path folder_path, String tag, Logger logger)
     //**********************************************************
     {
-        Path path =  make_image_path(folder_path,tag,logger);
+        Path path =  Embeddings_prototype.make_image_path(folder_path,tag,logger);
         try {
             BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);
             ImageIO.write(bi, "png", path.toFile());
@@ -814,7 +792,7 @@ public class Face_recognition_service
             Embeddings_prototype ep = load_ep(f,self_target_tag);
             fv = ep.feature_vector();
             label = ep.label();
-            ref= ep.face();
+            ref= ep.face(face_recognizer_path,logger);
         }
         else
         {
@@ -849,7 +827,7 @@ public class Face_recognition_service
                 fv2 = ep.feature_vector();
             }
             logger.log("self file: "+self_target_tag+ " tag2:"+tag2);
-            Path face_path2 = make_image_path(face_recognizer_path,tag2,logger);
+            Path face_path2 = Embeddings_prototype.make_image_path(face_recognizer_path,tag2,logger);
 
             boolean part1 = false;
             if ( part1)
@@ -871,7 +849,7 @@ public class Face_recognition_service
             if (part2)
             {
                 //part2, compute the distances
-                double distance = fv.distance(fv2);
+                double distance = fv.cosine_similarity(fv2);
                 count++;
                 if ( distance < min_distance)
                 {
@@ -894,7 +872,7 @@ public class Face_recognition_service
             String desc = " min:"+ep_min.tag()+ "at: "+String.format("%.2f",min_distance);
             desc += "\n max:"+ep_max.tag()+ "at: "+String.format("%.2f",max_distance);
 
-            Utils.display(200,ref,ep_min.face(),ep_max.face(),self_target_tag +"recognized as:", desc,logger);
+            Utils.display(200,ref,ep_min.face(face_recognizer_path,logger),ep_max.face(face_recognizer_path,logger),self_target_tag +"recognized as:", desc,logger);
         }
         else
         {

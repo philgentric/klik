@@ -8,10 +8,7 @@ import klik.audio.Audio_player;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.styles.Look_and_feel_light;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.Stack_trace_getter;
+import klik.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,28 +66,23 @@ public class Static_application_properties
     public static final String CONF_DIR = ".klik";//+File.separator;
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
     public static final String TRASH_DIR = "klik_trash";
-    public static final String ICON_CACHE_DIR = "klik_icon_cache";
 
+
+    // cache directories
+    // they can be either in the "home"/.klik folder
+    // or if activated, in the RAM disk
+
+    public static final String ICON_CACHE_DIR = "klik_icon_cache";
     public static final String ASPECT_RATIO_AND_ROTATION_CACHES_DIR = "klik_aspect_ratio_cache";
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
+
+
     public static final String USER_HOME = "user.home";
     public static final String SINGLE_COLUMN = "single_column";
     public static final String ICONS_FOR_FOLDERS = "icons_for_folders";
     public static final String MONITOR_BROWSED_FOLDERS = "monitor_browsed_folders";
-    /*
-    public static final String IMAGE_WINDOW_SCREEN_TOP_LEFT_X = "IMAGE_WINDOW_SCREEN_TOP_LEFT_X";
-    public static final String IMAGE_WINDOW_SCREEN_TOP_LEFT_Y = "IMAGE_WINDOW_SCREEN_TOP_LEFT_Y";
-    public static final String IMAGE_WINDOW_SCREEN_WIDTH = "IMAGE_WINDOW_SCREEN_WIDTH";
-    public static final String IMAGE_WINDOW_SCREEN_HEIGHT = "IMAGE_WINDOW_SCREEN_HEIGHT";
-    public static final String BROWSER_SCREEN_TOP_LEFT_X = "BROWSER_SCREEN_TOP_LEFT_X";
-    public static final String BROWSER_SCREEN_TOP_LEFT_Y = "BROWSER_SCREEN_TOP_LEFT_Y";
-    public static final String BROWSER_SCREEN_WIDTH = "BROWSER_SCREEN_WIDTH";
-    public static final String BROWSER_SCREEN_HEIGHT = "BROWSER_SCREEN_HEIGHT";
-    public static final String AUDIO_PLAYER_SCREEN_TOP_LEFT_X = "AUDIO_PLAYER_SCREEN_TOP_LEFT_X";
-    public static final String AUDIO_PLAYER_SCREEN_TOP_LEFT_Y = "AUDIO_PLAYER_SCREEN_TOP_LEFT_Y";
-    public static final String AUDIO_PLAYER_SCREEN_WIDTH = "AUDIO_PLAYER_SCREEN_WIDTH";
-    public static final String AUDIO_PLAYER_SCREEN_HEIGHT = "AUDIO_PLAYER_SCREEN_HEIGHT";
-*/
+    public static final String USE_RAM_DISK = "use_RAM_disk";
+
 
     //**********************************************************
     public static Properties_manager get_properties_manager(Logger logger)
@@ -225,6 +217,28 @@ public class Static_application_properties
             return Boolean.parseBoolean(s);
         }
     }
+
+
+    //**********************************************************
+    public static void set_use_RAM_disk(boolean b, Logger logger)
+    //**********************************************************
+    {
+        get_properties_manager(logger).save_unico(USE_RAM_DISK, String.valueOf(b), false);
+    }
+
+    //**********************************************************
+    public static boolean get_use_RAM_disk(Logger logger)
+    //**********************************************************
+    {
+        String s = get_properties_manager(logger).get(USE_RAM_DISK);
+        if (s == null) {
+            get_properties_manager(logger).save_unico(USE_RAM_DISK, "false", false);
+            return false;
+        } else {
+            return Boolean.parseBoolean(s);
+        }
+    }
+
 
 
     //**********************************************************
@@ -595,20 +609,33 @@ public class Static_application_properties
         String home = System.getProperty(USER_HOME);
         if (dbg) logger.log("user home =" + home);
 
-        return from_home(home, relative_dir_name,can_fail, logger);
+        return from_top_folder(home, relative_dir_name,can_fail, logger);
     }
 
+    // returns a directory using that relative name, on the user home
+    // creates it if needed
     //**********************************************************
-    private static Path from_home(String home, String relative_dir_name, boolean can_fail, Logger logger)
+    public static Path get_absolute_dir_on_RAM_disk(String relative_dir_name, Stage owner, Logger logger)
     //**********************************************************
     {
-        Path conf_dir1 = Paths.get(home,CONF_DIR);
+        if (dbg) logger.log("dir_name=" + relative_dir_name);
+
+        return from_top_folder(RAM_disk.get_top_folder_name(owner,logger), relative_dir_name,false, logger);
+
+    }
+
+
+    //**********************************************************
+    private static Path from_top_folder(String top_folder, String relative_dir_name, boolean can_fail, Logger logger)
+    //**********************************************************
+    {
+        Path conf_dir1 = Paths.get(top_folder,CONF_DIR);
         if (!conf_dir1.toFile().exists())
         {
             try {
                 Files.createDirectory(conf_dir1);
             } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed";
+                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed "+e;
                 if ( can_fail)
                 {
                     logger.log(err);
@@ -675,7 +702,7 @@ public class Static_application_properties
             if ( volume == null) {
                 logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath().toString()+" fails");
             }
-            return from_home(volume.toString(),TRASH_DIR,true, logger);
+            return from_top_folder(volume.toString(),TRASH_DIR,true, logger);
         }
 
         Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
@@ -756,7 +783,7 @@ public class Static_application_properties
                     trashes.add(trash_dir);
                 }
                 else {
-                    Path trash_dir = from_home(f.toPath().toString(), TRASH_DIR,true, logger);
+                    Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR,true, logger);
                     trashes.add(trash_dir);
                     logger.log("WARNING: untested trash on windows drives !!!!");
                 }
@@ -945,47 +972,14 @@ public class Static_application_properties
         }
     }
 
-    static Boolean level2_cache = null;
-    //**********************************************************
-    public static boolean get_level2(Logger logger)
-    //**********************************************************
-    {
-        if ( level2_cache == null)
-        {
-            String s = Static_application_properties.get_properties_manager(logger).get(LEVEL2);
-            if (s == null) {
-                Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, "false", false);
-                level2_cache = false;
-            } else {
-                logger.log("LEVEL2=" + s);
-                level2_cache = Boolean.parseBoolean(s);
-            }
-        }
-        return level2_cache;
-    }
-    static Boolean level3_cache = null;
-    //**********************************************************
-    public static boolean get_level3(Logger logger)
-    //**********************************************************
-    {
-        if ( level3_cache == null)
-        {
-            String s = Static_application_properties.get_properties_manager(logger).get(LEVEL3);
-            if (s == null) {
-                Static_application_properties.get_properties_manager(logger).save_unico(LEVEL3, "false", false);
-                level3_cache = false;
-            } else {
-                logger.log("LEVEL3=" + s);
-                level3_cache = Boolean.parseBoolean(s);
-            }
-        }
-        return level3_cache;
-    }
+
 
 
 
     /*
-    // should never be used: the user should edit the properties file directly
+    // not used at this time? ... the idea being that the user should edit the properties file "manually"
+    // as this is about "semi advanced" features, the user should be at least capable on opening abd editing a properties file?
+
     //**********************************************************
     public static void set_level2(boolean b, Logger logger)
     //**********************************************************
@@ -996,26 +990,43 @@ public class Static_application_properties
     */
 
 
-        /*
+    static Boolean level2_capabilities = null;
     //**********************************************************
-    public static boolean get_show_folder_size(Logger logger)
+    public static boolean get_level2(Logger logger)
     //**********************************************************
     {
-        String s = get_properties_manager(logger).get(SHOW_FOLDER_SIZE);
-        if (s == null) {
-            get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, "false", false);
-            return false;
-        } else {
-            return Boolean.parseBoolean(s);
+        if ( level2_capabilities == null)
+        {
+            String s = Static_application_properties.get_properties_manager(logger).get(LEVEL2);
+            if (s == null) {
+                Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, "false", false);
+                level2_capabilities = false;
+            } else {
+                logger.log("LEVEL2=" + s);
+                level2_capabilities = Boolean.parseBoolean(s);
+            }
         }
+        return level2_capabilities;
+    }
+    static Boolean level3_capabilities = null;
+    //**********************************************************
+    public static boolean get_level3(Logger logger)
+    //**********************************************************
+    {
+        if ( level3_capabilities == null)
+        {
+            String s = Static_application_properties.get_properties_manager(logger).get(LEVEL3);
+            if (s == null) {
+                Static_application_properties.get_properties_manager(logger).save_unico(LEVEL3, "false", false);
+                level3_capabilities = false;
+            } else {
+                logger.log("LEVEL3=" + s);
+                level3_capabilities = Boolean.parseBoolean(s);
+            }
+        }
+        return level3_capabilities;
     }
 
-    //**********************************************************
-    public static void set_show_folder_size(boolean b, Logger logger)
-    //**********************************************************
-    {
-        get_properties_manager(logger).save_unico(SHOW_FOLDER_SIZE, String.valueOf(b), false);
-    }
-    */
+
 
 }

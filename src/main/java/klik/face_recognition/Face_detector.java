@@ -34,15 +34,23 @@ and see launch_server script:
 public class Face_detector
 //**********************************************************
 {
+    // MTCNN face detector servers
     static int[] port_MTCNN = {8040, 8041, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049};
 
-    static int[] port_haars_high_precision = {8050, 8051, 8052, 8053, 8054, 8055, 8056, 8057, 8058, 8059}; // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
-    static int[] port_haars_false_positioves = {8090, 8091}; // haarcascade_frontalface_default.xml has higher recall,  more false positives
-    static int[] port_haars_alt1 = {8100, 8101}; // haarcascade_frontalface_alt.xml
-    static int[] port_haars_alt2 = {8110, 8111}; // haarcascade_frontalface_alt2.xml
+    // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
+    static int[] port_haars_high_precision = {8080, 8081};//, 8082, 8083, 8084};//, 8085, 8086, 8087, 8088, 8089};
+
+    // haarcascade_frontalface_default.xml has higher recall,  more false positives
+    static int[] port_haars_false_positives = {8090, 8091};
+
+    // haarcascade_frontalface_alt.xml
+    static int[] port_haars_alt1 = {8100, 8101};
+
+    // haarcascade_frontalface_alt2.xml
+    static int[] port_haars_alt2 = {8110, 8111};
     static Random  random = new Random();
 
-
+    static final int MINIMUM_ACCEPTABLE_FACE_SIZE = 200;
 
     //**********************************************************
     public static int get_random_port(Face_detection_type config)
@@ -52,7 +60,7 @@ public class Face_detector
         switch (config)
         {
             case haars_false_positioves:
-                port = port_haars_false_positioves;
+                port = port_haars_false_positives;
                 break;
             case haars_alt1:
                 port = port_haars_alt1;
@@ -72,10 +80,16 @@ public class Face_detector
 
     record Face_detection_result(Image image, Face_recognition_status status){}
 
+
+    static long start;
+    static long total_server_ns = 0;
+    static long count =0;
+
     //**********************************************************
     public static Face_detection_result detect_face(Path path, Face_detection_type face_detection_type, boolean verbose, Logger logger)
     //**********************************************************
     {
+        start = System.nanoTime();
         int port = get_random_port(face_detection_type);
         String url_string = null;
         try {
@@ -110,6 +124,7 @@ public class Face_detector
         }
 
         boolean done = false;
+        long tot_sleep =0;
         long sleep_time = 100;
         for(int i =0; i < 100 ; i++)
         {
@@ -123,6 +138,7 @@ public class Face_detector
             }
             logger.log(" connection to face detection server: going to sleep: "+sleep_time);
             try {
+                tot_sleep += sleep_time;
                 Thread.sleep(sleep_time);
             } catch (InterruptedException e) {
                 logger.log(Stack_trace_getter.get_stack_trace("" + e));
@@ -136,8 +152,7 @@ public class Face_detector
         }
         // Get the response code and message
         try {
-            int responseCode = connection.getResponseCode();
-            //logger.log("Response Code: " + responseCode);
+            int response_code = connection.getResponseCode();
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             //logger.log("face detection failed");
@@ -145,7 +160,7 @@ public class Face_detector
         }
 
         try {
-            String responseMessage = connection.getResponseMessage();
+            String response_message = connection.getResponseMessage();
             //logger.log("Response Message: " + responseMessage);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
@@ -163,24 +178,38 @@ public class Face_detector
 
         if ( face_detection_type == Face_detection_type.MTCNN)
         {
-            if ((img.getHeight() < 100) || (img.getWidth() < 100) )
+            if ((img.getHeight() < MINIMUM_ACCEPTABLE_FACE_SIZE) || (img.getWidth() < MINIMUM_ACCEPTABLE_FACE_SIZE) )
             {
-                logger.log("things smaller than 100 pixels are discarded i.e. assume face detection failed");
+                logger.log("things smaller than "+ MINIMUM_ACCEPTABLE_FACE_SIZE +" pixels are discarded i.e. we assume face detection failed");
                 //Image big = Utils.get_image(path);
                 //Utils.display(200,img,big,null,"face discarded as too small","",logger);
+                report_time(logger,tot_sleep);
                 return new Face_detection_result(null, Face_recognition_status.no_face_detected);
             }
         }
         else
         {
             if (Math.abs(img.getHeight() - img.getWidth()) > 2) {
-                logger.log("non square face discarded i.e. assume face detection failed");
+                logger.log("non square face discarded i.e. we assume face detection failed");
                 //Image big = Utils.get_image(path);
                 //Utils.display(200,img,big,null,"non square face discarded","",logger);
+                report_time(logger,tot_sleep);
                 return new Face_detection_result(null, Face_recognition_status.no_face_detected);
             }
         }
+
+        report_time(logger, tot_sleep);
         return new Face_detection_result(img,Face_recognition_status.face_detected);
+    }
+
+    //**********************************************************
+    private static void report_time(Logger logger, long tot_sleep)
+    //**********************************************************
+    {
+        long end =  System.nanoTime();
+        total_server_ns += (end-start);
+        count++;
+        logger.log("\n==>face detection took "+(end-start)/1_000_000.0+"milliseconds, including sleep="+tot_sleep+", average = "+total_server_ns/count/1_000_000.0);
     }
 
     //**********************************************************

@@ -113,7 +113,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter, logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage, browser.aborter, logger);
             Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter, logger);
             browser.icon_manager.clear_image_properties_cache_fx();
         });
@@ -140,7 +140,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter, logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage,browser.aborter, logger);
             Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter,logger);
         });
         return item;
@@ -168,7 +168,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
             browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
@@ -283,6 +283,21 @@ public class Browser_menus
             browser.redraw_fx("show hidden file boolean changed",true);
         });
         return item;
+    }
+
+
+
+    //**********************************************************
+    public MenuItem make_use_RAM_disk_menu_item()
+    //**********************************************************
+    {
+        String text = "Use RAM disk for caches (requires restart)";// I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
+
+        CheckMenuItem item = new CheckMenuItem(text);
+        item.setSelected(Static_application_properties.get_use_RAM_disk(logger));
+        item.setOnAction(actionEvent -> Static_application_properties.set_use_RAM_disk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        return item;
+
     }
 
 

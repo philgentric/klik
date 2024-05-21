@@ -1,5 +1,6 @@
 package klik.util;
 
+import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
 import klik.look.my_i18n.I18n;
@@ -28,14 +29,14 @@ public class Disk_usage_monitor
     public final int warning_limit_bytes;
 
     //**********************************************************
-    public Disk_usage_monitor(Aborter aborter_, Logger logger_)
+    public Disk_usage_monitor(Stage owner, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(logger),true));
-        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(logger),true));
+        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER,Files_and_Paths.get_icon_cache_dir(owner, logger),true));
+        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER,Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(owner, logger),true));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger),true));
 
         for ( Path t : Static_application_properties.get_existing_trash_dirs(logger))
@@ -81,7 +82,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(aborter,logger);
+                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(null, aborter,logger);
                         Files_and_Paths.clear_folder_icon_cache_no_warning_fx(aborter,logger);
                         continue;
                     }
@@ -90,7 +91,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(aborter,logger);
+                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(null, aborter,logger);
                         continue;
                     }
                 }

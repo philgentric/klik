@@ -426,12 +426,12 @@ public class Browser_UI
             pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
             pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
             pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
+            pref.getItems().add(browser_menus.make_use_RAM_disk_menu_item());
+
+
         }
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
-        //pref.getItems().add(browser_menus.make_sort_files_by_name_vs_decreasing_size_check_menu_item());
-        //pref.getItems().add(browser_menus.make_show_gifs_first_check_menu_item());
-        //if (level2) pref.getItems().add(browser_menus.make_show_folder_size_check_menu_item(browser.my_Stage.the_Stage));
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
         pref.getItems().add(browser_menus.make_folder_icon_size_menu());

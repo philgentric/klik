@@ -9,13 +9,13 @@ from mtcnn import MTCNN
 
 class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
-    def __init__(self, config_number, *args, **kwargs):
-        self.config_number = config_number
-        if ( config_number <= 4) :
-            print("FATAL: config number not supported "+str(self.config_number))
-        else :
+    detector = MTCNN()
+
+    def __init__(self, config_name, *args, **kwargs):
+        if  config_name ==  "MTCNN":
             print("MTCNN")
-            self.detector = MTCNN()
+        else :
+            print("FATAL: config  not supported "+config_name)
 
         super().__init__(*args, **kwargs)
 

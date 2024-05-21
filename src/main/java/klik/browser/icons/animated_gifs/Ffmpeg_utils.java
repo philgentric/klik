@@ -292,10 +292,10 @@ public class Ffmpeg_utils
     {
         start_time_seconds = 0;
         duration_seconds =  5;
-        Path icon_cache_dir = Files_and_Paths.get_icon_cache_dir(logger);
 
         Platform.runLater(() -> {
             the_stage = new Stage();
+            Path icon_cache_dir = Files_and_Paths.get_icon_cache_dir(the_stage,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);

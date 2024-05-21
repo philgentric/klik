@@ -10,6 +10,7 @@ public class Recognition_stats
     AtomicInteger face_not_recognized = new AtomicInteger(0);
     AtomicInteger face_recognized = new AtomicInteger(0);
     AtomicInteger error = new AtomicInteger(0);
+    AtomicInteger skipped = new AtomicInteger(0);
 
     public String to_string() {
         StringBuilder sb = new StringBuilder();
@@ -26,9 +27,14 @@ public class Recognition_stats
         sb.append(error.get());
         sb.append("\n   done: ");
         sb.append(done.get());
-        sb.append("\n   rate: ");
+        sb.append(" rate: ");
         long elapsed = System.currentTimeMillis()-start;
         sb.append(String.format("%.2f",1000.0*(double)done.get()/(double) elapsed));
+        sb.append(" faces per second");
+        sb.append("\n   skipped: ");
+        sb.append(skipped.get());
+        sb.append(" rate: ");
+        sb.append(String.format("%.2f",1000.0*(double)skipped.get()/(double) elapsed));
         sb.append(" faces per second");
         return sb.toString();
     }

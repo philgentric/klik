@@ -1,5 +1,6 @@
 package klik.util;
 
+import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.files_and_paths.Files_and_Paths;
 
@@ -28,15 +29,15 @@ public class Cache_auto_clean
 
 
     //**********************************************************
-    public Cache_auto_clean(Aborter aborter_, Logger logger_)
+    public Cache_auto_clean(Stage owner, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder("Icon cache folder",Files_and_Paths.get_icon_cache_dir(logger)));
+        monitored_folders.add(new Monitored_folder("Icon cache folder",Files_and_Paths.get_icon_cache_dir(owner,logger)));
         monitored_folders.add(new Monitored_folder("Folder's icon cache folder",Files_and_Paths.get_folder_icon_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder("Aspect ratio cache folder",Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(logger)));
+        monitored_folders.add(new Monitored_folder("Aspect ratio cache folder",Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(owner,logger)));
         
         //monitored_folders.add(new Monitored_folder("Trash folder",Static_application_properties.get_trash_dir(logger)));
 

@@ -148,9 +148,19 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static Path get_aspect_ratio_and_rotation_caches_dir(Logger logger)
+    public static Path get_aspect_ratio_and_rotation_caches_dir(Stage owner, Logger logger)
     //**********************************************************
     {
+        if ( Static_application_properties.get_use_RAM_disk(logger))
+        {
+            Path tmp_dir = Static_application_properties.get_absolute_dir_on_RAM_disk(Static_application_properties.ASPECT_RATIO_AND_ROTATION_CACHES_DIR, owner, logger);
+            //if (dbg)
+            if (tmp_dir != null) {
+                logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
+            }
+            return tmp_dir;
+        }
+
         Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.ASPECT_RATIO_AND_ROTATION_CACHES_DIR, false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
@@ -159,12 +169,22 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static Path get_icon_cache_dir(Logger logger)
+    public static Path get_icon_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
+        if ( Static_application_properties.get_use_RAM_disk(logger))
+        {
+            Path tmp_dir = Static_application_properties.get_absolute_dir_on_RAM_disk(Static_application_properties.ICON_CACHE_DIR, owner, logger);
+            //if (dbg)
+            if (tmp_dir != null) {
+                logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
+            }
+            return tmp_dir;
+        }
+
         Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.ICON_CACHE_DIR, false, logger);
         if (dbg) if (tmp_dir != null) {
-            logger.log("icon dir file=" + tmp_dir.toAbsolutePath());
+            logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
         return tmp_dir;
     }
@@ -181,10 +201,10 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static void clear_one_icon_from_cache_on_disk(Path path, Logger logger)
+    public static void clear_one_icon_from_cache_on_disk(Path path, Stage owner, Logger logger)
     //**********************************************************
     {
-        Path icon_cache_dir = get_icon_cache_dir(logger);
+        Path icon_cache_dir = get_icon_cache_dir(owner, logger);
         int icon_size = Static_application_properties.get_icon_size(logger);
         String name = Icon_writer_actor.make_cache_name(path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
@@ -202,7 +222,7 @@ public class Files_and_Paths {
     public static void clear_icon_cache_on_disk_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path icons = get_icon_cache_dir(logger);
+        Path icons = get_icon_cache_dir(owner, logger);
 
         double size = get_size_on_disk(icons, aborter, logger);
         String s1 = I18n.get_I18n_string("Warning_deleting_icon", logger);
@@ -216,19 +236,19 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static void clear_icon_cache_on_disk_no_warning(Aborter aborter, Logger logger)
+    public static void clear_icon_cache_on_disk_no_warning(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path icons = get_icon_cache_dir(logger);
+        Path icons = get_icon_cache_dir(owner, logger);
         delete_for_ever_all_files_in_dir_in_a_thread(icons, false, aborter, logger);
     }
 
 
     //**********************************************************
-    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(Aborter aborter, Logger logger)
+    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path icons = get_aspect_ratio_and_rotation_caches_dir(logger);
+        Path icons = get_aspect_ratio_and_rotation_caches_dir(owner, logger);
         delete_for_ever_all_files_in_dir_in_a_thread(icons, false,aborter, logger);
     }
 

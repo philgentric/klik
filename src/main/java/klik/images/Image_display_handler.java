@@ -224,7 +224,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                     Fx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path);
-                        Files_and_Paths.clear_one_icon_from_cache_on_disk(local.path,logger);
+                        Files_and_Paths.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage, logger);
                         // reload the image
                         Optional<Image_context> option = local_getImage_context(local.path,  aborter);
                         if ( option.isPresent())

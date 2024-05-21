@@ -1,6 +1,12 @@
 #!/bin/bash
 
-EMBEDDINGS_PORTS=(8020 8021 8022 8023 8024 8025 8026 8027 8028 8029)
+# need to copy here the lists from  "launch_servers" ... bit dirty
+
+
+EMBEDDINGS_PORTS=(8020 8021)
+#8022 8023 8024 )
+#8025 8026 8027 8028 8029)
+#8030 8031 8032 8033 8034 8035 8036 8037 8038 8039)
 
 for PORT in "${EMBEDDINGS_PORTS[@]}"; do
     pids=$(pgrep -f "python.*run_server.*${PORT}" | xargs)
@@ -10,11 +16,11 @@ for PORT in "${EMBEDDINGS_PORTS[@]}"; do
     fi
 done
 
-# need to copy here the lists from  "launch_servers" ... bit dirty
 
 FACE_DETECTION_PORTS=(
 8040 8041 8042 8043 8044 8045 8046 8047 8048 8049
 8050 8051 8052 8053 8054 8055 8056 8057 8058 8059
+8080 8081 # 8082 8083 8084 #8085 8086 8087 8088 8089
  8090 8091
  8100 8101
  8110 8111)
