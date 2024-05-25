@@ -135,6 +135,7 @@ public class Face_detector
             } catch (IOException e) {
                 //logger.log(Stack_trace_getter.get_stack_trace("" + e));
                 logger.log(("                         Face detector: " + e));
+                //Popups.popup_warning(null,"ohoh","connection to face detection server failed, did you start it?",false,logger);
             }
             logger.log(" connection to face detection server: going to sleep: "+sleep_time);
             try {

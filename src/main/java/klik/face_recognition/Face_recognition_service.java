@@ -435,10 +435,20 @@ public class Face_recognition_service
                 vBox.getChildren().add(hBox);
             }
             if (eval_result != null) {
-                if (!eval_result.enable_adding()) {
-                    if (face != null) {
-                        stage.setTitle("Exact match! " + eval_result.label());
-                        status_label.setText("prototype was recognized at distance zero, no need to add it ");
+                if (!eval_result.enable_adding())
+                {
+                    if (face != null)
+                    {
+                        if ( eval_result.label() != null)
+                        {
+                            stage.setTitle("Exact match! " + eval_result.label());
+                            status_label.setText("prototype was recognized at distance zero, no need to add it ");
+                        }
+                        else
+                        {
+                            stage.setTitle("Not recognized");
+                            status_label.setText("prototype was not recognized ");
+                        }
                     }
                 }
             }

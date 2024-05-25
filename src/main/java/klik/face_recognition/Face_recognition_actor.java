@@ -345,7 +345,7 @@ public class Face_recognition_actor implements Actor
         if (results.isEmpty())
         {
             service.logger.log("no results at all (happens when there are no prototypes in the set)");
-            return new Eval_results("empty", the_feature_vector_to_be_identified,Eval_situation.nothing_found, false,"empty",new ArrayList<>());
+            return new Eval_results(null, the_feature_vector_to_be_identified,Eval_situation.nothing_found, false,"empty",new ArrayList<>());
         }
 
         Collections.sort(results,comp);
@@ -481,7 +481,7 @@ public class Face_recognition_actor implements Actor
         if (results.isEmpty())
         {
             service.logger.log("no results at all (happens when there are no prototypes in the set)");
-            return new Eval_results("empty", the_feature_vector_to_be_identified,Eval_situation.nothing_found, false,"empty",new ArrayList<>());
+            return new Eval_results(null, the_feature_vector_to_be_identified,Eval_situation.nothing_found, true,"empty",new ArrayList<>());
         }
 
         Collections.sort(results,comp);
