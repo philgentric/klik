@@ -129,7 +129,7 @@ public class Show_running_man_frame
 				logger.log("Show running man wait interrupted");
 			}
 		};
-		Actor_engine.execute(r,new Aborter("Show running man",logger),logger);
+		Actor_engine.execute(r,logger);
 	}
 	
 	//**********************************************************
@@ -156,7 +156,7 @@ public class Show_running_man_frame
 
 			};
 
-			Actor_engine.execute(r, new Aborter("wait!", logger), logger);
+			Actor_engine.execute(r, logger);
 		}
 		else
 		{
@@ -191,6 +191,6 @@ public class Show_running_man_frame
 				}
 			}
 		};
-		Actor_engine.execute(tracker, aborter, logger);
+		Actor_engine.execute(tracker, logger);
 	}
 }

@@ -36,7 +36,7 @@ public class Folder_size {
 
 
     //**********************************************************
-    public static void get_folder_size(Path path, Browser browser, Aborter aborter, Logger logger)
+    public static void get_folder_size(Path path, Browser browser, Logger logger)
     //**********************************************************
     {
         // open a window to display what is going on and the final result
@@ -118,7 +118,7 @@ public class Folder_size {
 
             },logger);
         };
-        Actor_engine.execute(r,aborter, logger);
+        Actor_engine.execute(r, logger);
 
     }
 

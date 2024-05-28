@@ -334,15 +334,6 @@ public class Item_image extends Item
 
     }
 
-    //**********************************************************
-    @Override
-    public void cancel_custom()
-    //**********************************************************
-    {
-        if (dbg)
-            logger.log("cancel_custom for: " + get_string());
-        image_view.setImage(null); // for GC
-    }
 
     //**********************************************************
     @Override
@@ -497,6 +488,13 @@ public class Item_image extends Item
 
         image_view.setImage(default_icon);
 
+    }
+    //**********************************************************
+    @Override // Item
+    public void you_are_invisible_specific()
+    //**********************************************************
+    {
+        image_view.setImage(null);
     }
 
 

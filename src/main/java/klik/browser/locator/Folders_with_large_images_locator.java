@@ -127,7 +127,7 @@ public class Folders_with_large_images_locator
                 show();
             }
         };
-        Actor_engine.execute(r,private_aborter,logger);
+        Actor_engine.execute(r,logger);
     }
 
     //**********************************************************
@@ -202,7 +202,7 @@ public class Folders_with_large_images_locator
                 };
                 if ( Threads.use_virtual_threads)
                 {
-                    Actor_engine.execute(r,browser.aborter,logger);
+                    Actor_engine.execute(r,logger);
                 }
                 else
                 {

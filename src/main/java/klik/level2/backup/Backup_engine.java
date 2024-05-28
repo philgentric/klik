@@ -70,7 +70,7 @@ public class Backup_engine
                 launch_in_thread(deep);
             }
         };
-        Actor_engine.execute(runnable, dedicated_backup_aborter,logger);
+        Actor_engine.execute(runnable,logger);
     }
 
     //**********************************************************
@@ -80,7 +80,7 @@ public class Backup_engine
         start = System.currentTimeMillis();
         logger.log("Backup starts");
 
-        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(dedicated_backup_aborter, logger);
+        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
         actor_engine_based_on_workers.run(
                 new Backup_actor_for_one_folder(stats,deep,deep,reports, dedicated_backup_aborter,logger),
                 new Directory_backup_job_request(source.toFile(), destination.toFile(), dedicated_backup_aborter,logger),

@@ -555,18 +555,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         if (monitor_this_folder)
         {
-            Runnable r = new Runnable() {
-                @Override
-                public void run()
+            Runnable r = () -> {
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, Browser.monitoring_aborter, logger);
+                if (filesystem_item_modification_watcher == null)
                 {
-                    filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, logger);
-                    if (filesystem_item_modification_watcher == null)
-                    {
-                        logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
-                    }
+                    logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
                 }
             };
-            Actor_engine.execute(r,browser_ui.browser.aborter, logger);
+            Actor_engine.execute(r, logger);
         }
         my_Stage.the_Stage.fullScreenProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -949,7 +945,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
             }
         };
-        Actor_engine.execute(r, aborter, logger);
+        Actor_engine.execute(r, logger);
 
 
     }
@@ -1089,7 +1085,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 sort_by_year_internal();
             }
         };
-        Actor_engine.execute(r, aborter, logger);
+        Actor_engine.execute(r, logger);
     }
 
     //**********************************************************

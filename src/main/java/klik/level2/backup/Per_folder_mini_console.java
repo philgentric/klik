@@ -223,7 +223,7 @@ public class Per_folder_mini_console
 
                 close();
             };
-            Actor_engine.execute(r,aborter, logger);
+            Actor_engine.execute(r, logger);
         }
 
     }

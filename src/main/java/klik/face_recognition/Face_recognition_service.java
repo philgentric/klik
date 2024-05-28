@@ -1,10 +1,13 @@
 package klik.face_recognition;
 
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -91,10 +94,10 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void save(Aborter aborter)
+    public static void save()
     //**********************************************************
     {
-        if ( instance != null) instance.save_internal(aborter);
+        if ( instance != null) instance.save_internal();
     }
 
     //**********************************************************
@@ -122,7 +125,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         Face_recognition_service fr = Face_recognition_service.get_instance(browser);
-        Actor_engine.execute(() -> fr.auto_internal(browser),new Aborter("AUTO face recog",fr.logger), fr.logger);
+        Actor_engine.execute(() -> fr.auto_internal(browser), fr.logger);
     }
 
 
@@ -131,7 +134,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         Face_recognition_service fr = Face_recognition_service.get_instance(browser);
-        Actor_engine.execute(() -> fr.self_internal(browser),new Aborter("SELF face recog",fr.logger), fr.logger);
+        Actor_engine.execute(() -> fr.self_internal(browser), fr.logger);
     }
 
     //**********************************************************
@@ -326,8 +329,23 @@ public class Face_recognition_service
     )
     //**********************************************************
     {
+
+
         Stage stage = new Stage();
         Label status_label = new Label();
+
+        stage.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent key_event)
+            {
+                if (key_event.getCode() == KeyCode.ESCAPE)
+                {
+                    key_event.consume();
+                    stage.close();
+                }
+            }
+        });
 
         if ( eval_result != null)
         {
@@ -471,7 +489,7 @@ public class Face_recognition_service
                         if (s != Face_recognition_status.feature_vector_ready) {
                             Fx_batch_injector.inject(() -> status_label.setText("prototype fabrication error " + s), logger);
                         } else {
-                            save_internal(aborter);
+                            save_internal();
                             Fx_batch_injector.inject(() -> stage.close(), logger);
                         }
                     };
@@ -511,7 +529,7 @@ public class Face_recognition_service
                     } catch (IOException ex) {
                         logger.log(Stack_trace_getter.get_stack_trace("" + e));
                     }
-                    save_internal(aborter);
+                    save_internal();
                     stage.close();
                 });
                 hBox.getChildren().add(skip);
@@ -529,13 +547,13 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    private void save_internal(Aborter aborter)
+    private void save_internal()
     //**********************************************************
     {
         logger.log("saving "+embeddings_prototypes.size()+ " prototypes");
         for (Embeddings_prototype ep : embeddings_prototypes)
         {
-            Actor_engine.execute(()->save_ep(ep),aborter,logger);
+            Actor_engine.execute(()->save_ep(ep),logger);
         }
     }
     //**********************************************************
@@ -560,7 +578,7 @@ public class Face_recognition_service
                         logger);
             }
         };
-        Actor_engine.execute(r,x.aborter,logger);
+        Actor_engine.execute(r,logger);
 
         x.wait_and_block_until_finished(in_flight);
     }

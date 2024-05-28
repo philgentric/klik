@@ -315,17 +315,14 @@ public class Face_recognition_actor implements Actor
         CountDownLatch cdl = new CountDownLatch(service.embeddings_prototypes.size());
         for (Embeddings_prototype embeddings_prototype : service.embeddings_prototypes)
         {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    double distance = the_feature_vector_to_be_identified.cosine_similarity(embeddings_prototype.feature_vector());
-                    //nearests.put(distance,embeddings_prototype);
-                    out_queue.add(new Eval_result_for_one_prototype(distance,embeddings_prototype));
-                    if ( verbose) service.logger.log("   at distance ="+String.format("%.4f",distance)+"  =>   "+embeddings_prototype.label());
-                    cdl.countDown();
-                }
+            Runnable r = () -> {
+                double distance = the_feature_vector_to_be_identified.cosine_similarity(embeddings_prototype.feature_vector());
+                //nearests.put(distance,embeddings_prototype);
+                out_queue.add(new Eval_result_for_one_prototype(distance,embeddings_prototype));
+                if ( verbose) service.logger.log("   at distance ="+String.format("%.4f",distance)+"  =>   "+embeddings_prototype.label());
+                cdl.countDown();
             };
-            Actor_engine.execute(r,new Aborter("distances",service.logger),service.logger);
+            Actor_engine.execute(r,service.logger);
         }
         List<Eval_result_for_one_prototype> results = new ArrayList<>();
         for(;;)

@@ -246,7 +246,7 @@ public class Image_properties_cache
                 }
             }
         };
-        Actor_engine.execute(look_for_end_runnable,aborter,logger);
+        Actor_engine.execute(look_for_end_runnable,logger);
     }
 
     //**********************************************************

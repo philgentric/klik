@@ -22,14 +22,16 @@ public class Worker
     private final AtomicInteger threads_in_flight;
 
     //**********************************************************
-    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, AtomicInteger threads_in_flight_, Aborter aborter, Logger logger_)
+    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, AtomicInteger threads_in_flight_,
+                  //Aborter aborter,
+                  Logger logger_)
     //**********************************************************
     {
         engine_input_queue = input_queue_;
         threads_in_flight = threads_in_flight_;
         logger = logger_;
         name = name_;
-        this.aborter = aborter;
+        this.aborter = new Aborter("Worker abort",logger);
     }
 
     //**********************************************************
@@ -72,7 +74,7 @@ public class Worker
     public void stop()
     {
         aborter.abort("Worker "+name+" stop");
-        logger.log("Worker "+name+" stop");
+        logger.log("Worker "+name+" aborted");
 
     }
 

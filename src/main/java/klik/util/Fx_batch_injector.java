@@ -81,7 +81,7 @@ public class Fx_batch_injector
                 }
             }
         };
-        Actor_engine.execute(r,aborter,logger);
+        Actor_engine.execute(r,logger);
     }
 
     //**********************************************************

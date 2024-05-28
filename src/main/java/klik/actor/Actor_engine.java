@@ -18,17 +18,23 @@ public class Actor_engine // is a singleton
 
 
     //**********************************************************
-    public static Actor_engine_interface create(Aborter aborter, Logger logger)
+    public static Actor_engine_interface create(
+            //Aborter aborter,
+            Logger logger)
     //**********************************************************
     {
         if ( instance != null) return instance;
         if (Threads.use_virtual_threads)
         {
-            instance = new Actor_engine_with_virtual_threads(aborter,logger);
+            instance = new Actor_engine_with_virtual_threads(
+                    //aborter,
+                    logger);
         }
         else
         {
-            instance = new Actor_engine_based_on_workers(aborter,logger);
+            instance = new Actor_engine_based_on_workers(
+                    //aborter,
+                    logger);
         }
         return instance;
 
@@ -73,10 +79,10 @@ public class Actor_engine // is a singleton
     }
 
     //**********************************************************
-    public static Job execute(Runnable r, Aborter aborter, Logger logger)
+    public static Job execute(Runnable r, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = create(aborter,logger);
+        if ( instance == null) instance = create(logger);
         return instance.execute_internal(r, logger);
     }
 }

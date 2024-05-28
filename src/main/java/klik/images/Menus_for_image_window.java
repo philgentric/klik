@@ -458,7 +458,9 @@ public class Menus_for_image_window
         return mi;
     }
 
-    private static void face_rec(Face_detection_type face_detection_type, Image_window image_window, Browser browser)
+    //**********************************************************
+    static void face_rec(Face_detection_type face_detection_type, Image_window image_window, Browser browser)
+    //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
         Face_recognition_service recognition_services = Face_recognition_service.get_instance(browser);

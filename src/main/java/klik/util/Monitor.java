@@ -30,28 +30,29 @@ public class Monitor
     public void start()
     //**********************************************************
     {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                for(;;)
+        Runnable r = () -> {
+            for(;;)
+            {
+                if ( aborter.should_abort())
                 {
-                    if ( aborter.should_abort()) return;
-
-                    try {
-                        Thread.sleep(10*60*1000);
-                    } catch (InterruptedException e) {
-                        logger.log(""+e);
-                    }
-
-                    if ( !disk_usage_monitor.monitor()) break;
-                    if ( !cache_auto_clean.monitor()) break;
-                    if ( !history_auto_clean.monitor()) break;
-
-
+                    logger.log("All 3 Monitors aborted");
+                    return;
                 }
+
+                try {
+                    Thread.sleep(10*60*1000);
+                } catch (InterruptedException e) {
+                    logger.log(""+e);
+                }
+
+                if ( !disk_usage_monitor.monitor()) break;
+                if ( !cache_auto_clean.monitor()) break;
+                if ( !history_auto_clean.monitor()) break;
+
+
             }
         };
-        Actor_engine.execute(r,aborter,logger);
+        Actor_engine.execute(r,logger);
 
     }
 }

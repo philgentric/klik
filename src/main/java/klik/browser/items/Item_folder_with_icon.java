@@ -117,7 +117,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     }
     //**********************************************************
     @Override
-    public void cancel_custom()
+    public void you_are_invisible_specific()
     //**********************************************************
     {
     }
@@ -431,7 +431,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter,logger);
             Fx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
-        Actor_engine.execute(r,aborter,logger);
+        Actor_engine.execute(r,logger);
     }
 
 

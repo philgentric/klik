@@ -682,7 +682,7 @@ public class Icon_manager
 
             }
         };
-        Actor_engine.execute(monitor,aborter,logger);
+        Actor_engine.execute(monitor,logger);
     }
 
 

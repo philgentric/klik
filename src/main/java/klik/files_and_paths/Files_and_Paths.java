@@ -232,24 +232,24 @@ public class Files_and_Paths {
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
 
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,aborter, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, true, logger);
     }
 
     //**********************************************************
-    public static void clear_icon_cache_on_disk_no_warning(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_icon_cache_on_disk_no_warning(Stage owner, Logger logger)
     //**********************************************************
     {
         Path icons = get_icon_cache_dir(owner, logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, aborter, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
     }
 
 
     //**********************************************************
-    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(Stage owner, Logger logger)
     //**********************************************************
     {
         Path icons = get_aspect_ratio_and_rotation_caches_dir(owner, logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false,aborter, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
     }
 
     //**********************************************************
@@ -266,15 +266,15 @@ public class Files_and_Paths {
             s2 = size / 1000_000.0 + I18n.get_I18n_string("MB_deleted", logger);
         }
         if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,aborter,logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,logger);
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_no_warning_fx(Aborter aborter, Logger logger)
+    public static void clear_folder_icon_cache_no_warning_fx(Logger logger)
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, aborter,logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(icons, false,logger);
     }
 
 
@@ -302,13 +302,13 @@ public class Files_and_Paths {
             Runnable r2 = () -> {
                 if (!Popups.popup_ask_for_confirmation(owner, s1, finalS, logger)) return;
                 for (Path trash : trashes) {
-                    delete_for_ever_all_files_in_dir_in_a_thread(trash, true, aborter,logger);
+                    delete_for_ever_all_files_in_dir_in_a_thread(trash, true,logger);
                     logger.log("deletion ongoing: "+trash);
                 }
             };
             Fx_batch_injector.inject(r2,logger);
         };
-        Actor_engine.execute(r,new Aborter("clean trash",logger),logger);
+        Actor_engine.execute(r,logger);
 
     }
 
@@ -597,7 +597,7 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Aborter aborter, Logger logger)
+    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -620,7 +620,7 @@ public class Files_and_Paths {
             }
         };
 
-        Actor_engine.execute(r,aborter,logger);
+        Actor_engine.execute(r,logger);
 
     }
 
@@ -969,7 +969,7 @@ public class Files_and_Paths {
             }
         };
         try {
-            Actor_engine.execute(r,aborter,logger);
+            Actor_engine.execute(r,logger);
             if ( dbg) logger.log("copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
             logger.log("copy_dir_in_a_thread()" + ree);

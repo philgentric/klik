@@ -140,14 +140,8 @@ public class Ffmpeg_utils
             Logger logger)
     //**********************************************************
     {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                video_to_mp4(owner, video_path, aborter, aborted_reported,logger);
-            }
-        };
-        //Threads.execute(r,logger);
-        Actor_engine.execute(r,aborter,logger);
+        Runnable r = () -> video_to_mp4(owner, video_path, aborter, aborted_reported,logger);
+        Actor_engine.execute(r,logger);
     }
 
     //**********************************************************

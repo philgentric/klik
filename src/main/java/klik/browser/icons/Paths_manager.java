@@ -114,7 +114,7 @@ public class Paths_manager
             scan_dir_in_flight.set(false);
 
         };
-        Actor_engine.execute(r, aborter, logger);
+        Actor_engine.execute(r, logger);
         return Error_type.OK;
     }
     //**********************************************************

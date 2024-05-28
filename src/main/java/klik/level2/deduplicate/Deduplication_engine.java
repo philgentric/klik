@@ -62,13 +62,8 @@ public class Deduplication_engine implements Againor
 
         console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                runnable_deduplication2(local_engine, auto);
-            }
-        };
-        Actor_engine.execute(r, private_aborter,logger);
+        Runnable r = () -> runnable_deduplication2(local_engine, auto);
+        Actor_engine.execute(r,logger);
         logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
 
@@ -133,7 +128,7 @@ public class Deduplication_engine implements Againor
 
             // launch actor (feeder) in another tread
             Runnable_for_finding_duplicate_file_pairs duplicate_finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, i_min, i_max, same_file_pairs_input_queue, private_aborter, logger);
-            Actor_engine.execute(duplicate_finder, private_aborter,logger);
+            Actor_engine.execute(duplicate_finder,logger);
 
             logger.log("Deduplication::runnable_deduplication thread launched on i_min="+i_min+ "i_max="+i_max);
             if ( end) break;
@@ -371,7 +366,7 @@ public class Deduplication_engine implements Againor
                 }
             }
         };
-        Actor_engine.execute(r, private_aborter,logger);
+        Actor_engine.execute(r,logger);
 
     }
 
@@ -384,7 +379,7 @@ public class Deduplication_engine implements Againor
         console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, true, browser, private_aborter, logger);
 
         Runnable r = () -> just_count();
-        Actor_engine.execute(r, private_aborter,logger);
+        Actor_engine.execute(r,logger);
         logger.log("Deduplication::count() runnable_deduplication thread launched");
     }
 

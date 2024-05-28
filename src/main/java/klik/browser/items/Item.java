@@ -219,7 +219,7 @@ public abstract class Item implements Icon_destination
         else
         {
             // is a folder
-            context_menu.getItems().add(create_get_folder_size_menu_item(browser_aborter));
+            context_menu.getItems().add(create_get_folder_size_menu_item());
             if ( is_trash())
             {
                 MenuItem menu_item = create_clear_trash_menu_item();
@@ -261,11 +261,11 @@ public abstract class Item implements Icon_destination
     }
 
     //**********************************************************
-    private MenuItem create_get_folder_size_menu_item(Aborter aborter)
+    private MenuItem create_get_folder_size_menu_item()
     //**********************************************************
     {
         MenuItem size = new MenuItem(I18n.get_I18n_string("Get_folder_size",logger));
-        size.setOnAction(event -> Folder_size.get_folder_size(path,browser,aborter, logger));
+        size.setOnAction(event -> Folder_size.get_folder_size(path,browser, logger));
         return size;
     }
 
@@ -602,11 +602,11 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         //logger.log("Invisible: "+path.getFileName());
-        get_Node().setVisible(false);
+        //get_Node().setVisible(false); OHOH
+        you_are_invisible_specific();
         cancel_icon();
-        cancel_custom();
+
     }
-    public abstract void cancel_custom();
 
     //**********************************************************
     public void you_are_visible()
@@ -616,13 +616,14 @@ public abstract class Item implements Icon_destination
         //if( !Platform.isFxApplicationThread())  logger.log(Stack_trace_getter.get_stack_trace("PANIC not on Fx thread"));
 
         you_are_visible_specific();
-        get_Node().setVisible(true);
+        //get_Node().setVisible(true); OHOH
         if( has_icon())
             request_icon_to_factory(get_icon_size());
     }
 
 
     abstract void you_are_visible_specific();
+    abstract void you_are_invisible_specific();
     abstract int get_icon_size();
     abstract boolean has_icon();
 

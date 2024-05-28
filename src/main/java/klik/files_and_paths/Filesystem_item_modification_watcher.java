@@ -1,5 +1,6 @@
 package klik.files_and_paths;
 
+import klik.actor.Aborter;
 import klik.change.Change_gang;
 import klik.util.execute.Scheduled_thread_pool;
 import klik.util.Logger;
@@ -16,6 +17,7 @@ public class Filesystem_item_modification_watcher
 {
     private final static boolean dbg = false;
     private ScheduledFuture<?> t = null;
+    private Aborter aborter;
 
 
     //**********************************************************
@@ -24,10 +26,11 @@ public class Filesystem_item_modification_watcher
             Filesystem_modification_reporter reporter,
             boolean abort_on_change,
             int timeout_in_minutes,
+            Aborter aborter,
             Logger logger)
     //**********************************************************
     {
-
+        this.aborter = aborter;
         final Filesystem_item_signature[] signature = new Filesystem_item_signature[1];
         signature[0] = new Filesystem_item_signature(logger);
         if (!signature[0].init(path))
@@ -36,8 +39,13 @@ public class Filesystem_item_modification_watcher
             return false;
         }
 
-        //ScheduledFuture<?> finalT = t;
         Runnable r = () -> {
+                if ( aborter.should_abort())
+                {
+                    t.cancel(true);
+                    logger.log("Filesystem_item_modification_watcher for "+path+" aborted");
+                    return;
+                }
                 Filesystem_item_signature possibly_new_signature = new Filesystem_item_signature(logger);
                 if ( !possibly_new_signature.init(path) )
                 {
@@ -72,7 +80,7 @@ public class Filesystem_item_modification_watcher
 
 
     //**********************************************************
-    public static Filesystem_item_modification_watcher monitor_folder(Path folder_path, int timeout_in_minutes, Logger logger)
+    public static Filesystem_item_modification_watcher monitor_folder(Path folder_path, int timeout_in_minutes, Aborter monitoring_aborter, Logger logger)
     //**********************************************************
     {
         Filesystem_modification_reporter reporter = () -> {
@@ -85,7 +93,7 @@ public class Filesystem_item_modification_watcher
             Change_gang.report_changes(oanps);
         };
         Filesystem_item_modification_watcher fimw = new Filesystem_item_modification_watcher();
-        if ( fimw.init(folder_path,reporter,false,timeout_in_minutes,logger))
+        if ( fimw.init(folder_path,reporter,false,timeout_in_minutes,monitoring_aborter,logger))
         {
             return fimw;
         }

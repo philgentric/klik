@@ -113,8 +113,8 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage, browser.aborter, logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter, logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage, logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(logger);
             browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
@@ -140,8 +140,8 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage,browser.aborter, logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage, logger);
+            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(logger);
         });
         return item;
     }
@@ -168,7 +168,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage,logger);
             browser.icon_manager.clear_image_properties_cache_fx();
         });
         return item;
@@ -305,9 +305,12 @@ public class Browser_menus
     public MenuItem make_stop_monitoring_menu_item()
     //**********************************************************
     {
-        String text = "Stop monitoring";// I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
+        String text = "Stop all monitoring (requires restart to get it back on)";// I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(actionEvent->Browser.monitoring_aborter.abort("user stops monitoring"));
+        item.setOnAction(actionEvent->{
+            Browser.monitoring_aborter.abort("user stopped all monitoring");
+            item.setDisable(true); // have to restart to reactivate
+        });
         return item;
     }
     //**********************************************************
@@ -465,7 +468,7 @@ public class Browser_menus
         String text = "Save face recognition";//I18n.get_I18n_string("Search_images_by_keywords",logger);
 
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.save(browser.aborter));
+        item.setOnAction(event -> Face_recognition_service.save());
 
         return item;
     }

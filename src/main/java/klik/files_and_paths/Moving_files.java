@@ -108,7 +108,7 @@ public class Moving_files
         if (moving_files_dbg) logger.log("perform_safe_moves_in_a_thread()");
         Runnable r = () -> actual_safe_moves(owner, the_list, and_list_for_undo, aborter, logger);
         try {
-            Actor_engine.execute(r,aborter, logger);
+            Actor_engine.execute(r, logger);
             if (moving_files_dbg) logger.log("perform_safe_moves_in_a_thread LAUNCHED, thread COUNT=" + Thread.activeCount());
         } catch (RejectedExecutionException ree) {
             logger.log("perform_safe_moves_in_a_thread()" + ree);

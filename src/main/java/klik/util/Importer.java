@@ -81,46 +81,40 @@ public class Importer
 
         logger.log("Importer: copy starting");
 
-        File_payload file_payload = new File_payload() {
-            @Override
-            public void process_file(File f) {
-                logger.log("Importer: looking at file: "+f.getName());
-                if (!(FilenameUtils.getExtension(f.getName()).equals("jpeg")))
-                {
-                    logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+FilenameUtils.getExtension(f.getName()));
-                    return;
-                }
-                try
-                {
-                    Path new_path = Path.of(finalNew_dir.toAbsolutePath().toString(),f.getName());
-                    Files.copy(f.toPath(), new_path, StandardCopyOption.COPY_ATTRIBUTES);
-                    logger.log("Importer: copied file: "+f.getName()+" to: "+new_path.toAbsolutePath());
-                    counter.incrementAndGet();
-                } catch (IOException e)
-                {
-                    logger.log("copy failed: could not create new file for: " + f.getName() + ", Exception:" + e);
-                    return;
-                }
+        File_payload file_payload = f -> {
+            logger.log("Importer: looking at file: "+f.getName());
+            if (!(FilenameUtils.getExtension(f.getName()).equals("jpeg")))
+            {
+                logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+FilenameUtils.getExtension(f.getName()));
+                return;
+            }
+            try
+            {
+                Path new_path = Path.of(finalNew_dir.toAbsolutePath().toString(),f.getName());
+                Files.copy(f.toPath(), new_path, StandardCopyOption.COPY_ATTRIBUTES);
+                logger.log("Importer: copied file: "+f.getName()+" to: "+new_path.toAbsolutePath());
+                counter.incrementAndGet();
+            } catch (IOException e)
+            {
+                logger.log("copy failed: could not create new file for: " + f.getName() + ", Exception:" + e);
+                return;
             }
         };
 
         AtomicBoolean done = new AtomicBoolean(false);
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                for(;;)
-                {
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if ( done.get()) return;
-                    logger.log("Importation: "+counter.get()+ " images copied");
+        Runnable r = () -> {
+            for(;;)
+            {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
+                if ( done.get()) return;
+                logger.log("Importation: "+counter.get()+ " images copied");
             }
         };
-        Actor_engine.execute(r,aborter, logger);
+        Actor_engine.execute(r, logger);
 
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(

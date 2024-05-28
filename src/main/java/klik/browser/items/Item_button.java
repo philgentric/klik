@@ -115,6 +115,15 @@ public class Item_button extends Item implements Icon_destination
 
     //**********************************************************
     @Override // Item
+    public void you_are_invisible_specific()
+    //**********************************************************
+    {
+
+    }
+
+
+    //**********************************************************
+    @Override // Item
     public int get_icon_size()
     //**********************************************************
     {
@@ -184,14 +193,7 @@ public class Item_button extends Item implements Icon_destination
 
     }
 
-    //**********************************************************
-    @Override
-    public void cancel_custom()
-    //**********************************************************
-    {
-        //Actor_engine.cancel_job(job);
-        //job = null;
-    }
+
 
     boolean make_animated_gif = true;
     //**********************************************************
@@ -434,7 +436,7 @@ public class Item_button extends Item implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r,aborter, logger);
+        Actor_engine.execute(r, logger);
     }
 
 
@@ -474,7 +476,7 @@ public class Item_button extends Item implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r,aborter, logger);
+        Actor_engine.execute(r, logger);
     }
 
 

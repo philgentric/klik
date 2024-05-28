@@ -63,7 +63,11 @@ public class Disk_usage_monitor
         {
             long tmp = Files_and_Paths.get_size_on_disk_concurrent(monitored_folder.path,aborter,logger);
 
-            if ( aborter.should_abort()) return false;
+            if ( aborter.should_abort())
+            {
+                logger.log("Disk_usage_monitor aborted");
+                return false;
+            }
 
             tmp = tmp/1_000_000; // mega bytes!
 
@@ -82,8 +86,8 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(null, aborter,logger);
-                        Files_and_Paths.clear_folder_icon_cache_no_warning_fx(aborter,logger);
+                        Files_and_Paths.clear_icon_cache_on_disk_no_warning(null,logger);
+                        Files_and_Paths.clear_folder_icon_cache_no_warning_fx(logger);
                         continue;
                     }
                 }
@@ -91,7 +95,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(null, aborter,logger);
+                        Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(null,logger);
                         continue;
                     }
                 }

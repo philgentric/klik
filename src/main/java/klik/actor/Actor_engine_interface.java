@@ -13,7 +13,7 @@ public interface Actor_engine_interface
     void cancel_job(Job canceled);
     void stop();
     int how_many_threads_are_in_flight();
-    Aborter get_aborter();
+    //Aborter get_aborter();
 
     //**********************************************************
     default void cancel_all(ConcurrentLinkedQueue<Job> jobs)

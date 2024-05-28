@@ -319,7 +319,7 @@ public class Image_context
             };
             Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
-            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,logger))
+            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,new Aborter("edit",logger), logger))
             {
                 logger.log("Warning: cannot start monitoring: "+path);
             }
@@ -348,7 +348,7 @@ public class Image_context
             };
             Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
-            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,logger))
+            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,aborter,logger))
             {
                 logger.log("Warning: cannot start monitoring: "+path);
             }
@@ -616,7 +616,7 @@ public class Image_context
             logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
             return false;
         }
-        Actor_engine.execute(after,b.aborter,logger);
+        Actor_engine.execute(after,logger);
         //Popups.popup_text(I18n.get_I18n_string("Copy_done",logger),I18n.get_I18n_string("New_name",logger)+new_path.getFileName().toString(),false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(

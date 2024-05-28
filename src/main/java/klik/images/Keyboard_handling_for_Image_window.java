@@ -5,6 +5,7 @@ import javafx.scene.input.KeyEvent;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.change.Change_gang;
+import klik.face_recognition.Face_detection_type;
 import klik.level3.metadata.Tag_stage;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
@@ -124,10 +125,12 @@ public class Keyboard_handling_for_Image_window
                 return;
             }
             case "f" -> {
-                if (keyword_dbg) logger.log("f like find = search_using_keywords_given_by_the_user");
+                if (keyword_dbg) logger.log("f like Face Recognition");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(the_browser,true);
+
+                Menus_for_image_window.face_rec(Face_detection_type.MTCNN,image_window, the_browser);
+
                 key_event.consume();
                 return;
             }
@@ -183,7 +186,7 @@ public class Keyboard_handling_for_Image_window
                 key_event.consume();
                 return;
             }
-            case "u" -> {
+            case "u" , "U" -> {
                 if (keyword_dbg) logger.log("u like next ultim");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -191,12 +194,7 @@ public class Keyboard_handling_for_Image_window
                 key_event.consume();
                 return;
             }
-            case "U" -> {
-                if (keyword_dbg) logger.log("U like ultim MODE");
-                image_window.ultim_mode = !image_window.ultim_mode;
-                key_event.consume();
-                return;
-            }
+
             case "v" -> {
                 if (keyword_dbg) logger.log("v like up Vote");
 

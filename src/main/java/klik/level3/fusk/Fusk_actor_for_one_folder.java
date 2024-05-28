@@ -62,7 +62,7 @@ public class Fusk_actor_for_one_folder implements Actor
                 if ( Threads.use_virtual_threads)
                 {
                     Runnable r = () -> Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
-                    Actor_engine.execute(r,aborter,logger);
+                    Actor_engine.execute(r,logger);
                 }
                 else {
                     Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
