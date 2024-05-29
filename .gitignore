@@ -10,3 +10,4 @@ settings.gradle.old
 out/*
 nohup.out
 .aider*
+*.jfr

@@ -19,20 +19,7 @@ module klikmodule {
     requires metadata.extractor;
     requires com.google.gson;
     requires javafx.web;
-    //requires org.apache.pdfbox;
-    //requires org.junit.jupiter.api;
-    //requires org.bytedeco.opencv;
-    //requires jdom;
-    //requires org.jdom2;
-    //requires com.fasterxml.jackson.databind;
-    //uses org.jdom2.Document;
-    //uses org.jdom2.Element;
-    //uses org.jdom2.input.SAXBuilder;
 
-
-
-//    requires com.fasterxml.jackson.databind;
-//    requires com.fasterxml.jackson.dataformat.xml;
 
     exports klik.face_recognition; // required for parsing json from embeddings server
     exports klik;

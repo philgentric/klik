@@ -36,34 +36,7 @@ dependencies {
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
     // files etc
     implementation group: 'commons-io', name: 'commons-io', version: '2.15.1'
-    // PDF icons
-    //implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '3.0.1'
-
-    // for reading xml definition of haar cascade face detector (viola-jones algorithm)
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml
-  //  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
-   // implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.0'
-   // implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.17.0'
-//    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.17.0'
-//    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.17.0'
-
-    //implementation group: 'org.bytedeco', name: 'opencv', version: '4.9.0-1.5.10'
-    //implementation "org.bytedeco:javacv-platform:1.5.10"
-    //implementation 'org.bytedeco:opencv:4.9.0-1.5.10:macosx-arm64'
-    //implementation 'org.bytedeco:openblas:0.3.9-1.5.3:macosx-arm64'
-    //implementation("org.bytedeco:javacv:1.5.10")
-    //implementation("org.bytedeco:javacv-platform:1.5.10")
-    //implementation("org.bytedeco:opencv:4.9.0-1.5.10")
-    //implementation group: 'org.bytedeco', name: 'flandmark-platform', version: '1.07-1.5.8'
-    //implementation group: 'org.bytedeco', name: 'openblas-platform', version: '0.3.6-1.5.1'
-
-
-    // https://mvnrepository.com/artifact/org.jdom/jdom
-
-    //implementation group: 'org.jdom', name: 'jdom2', version: '2.0.6.1'
-    //implementation group: 'org.jdom', name: 'jdom', version: '1.1'
-
-    //implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    // for face recognition: gson is used to serialise the feature vectors between the python server and this app
     implementation 'com.google.code.gson:gson:2.8.6'
 
 }
@@ -81,15 +54,8 @@ application {
     // if you have only 2GB or not much more:
     //applicationDefaultJvmArgs = ["-Xms1G"]
 
-    //applicationDefaultJvmArgs = ["-Xms10G","-Xmx10G","-XX:+UseZGC","-XX:+ZGenerational"]
-
     // if you have a lot of RAM say 64GB or more
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational"]
-//                                 "-Djava.library.path=/opt/homebrew/lib"]
-
-    // for face recognition, one needs to point the java bindings to opencv
-    // on mac you can do that with homebrew
-    // brew reinstall opencv --build-from-source
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:+ZGenerational","-XX:+FlightRecorder"]
 
 }
 
