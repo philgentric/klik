@@ -625,12 +625,12 @@ public class Face_recognition_actor implements Actor
         }
         if (face_detection_result.status() != Face_recognition_status.face_detected)
         {
-            if ( display_face_reco_window) service.show_face_recognition_window(null,null,aborter);
+            if ( display_face_reco_window) service.show_face_recognition_window(face_detection_result.image(),null,aborter);
             return new Face_recognition_results(null,null, null,null, Face_recognition_status.no_face_detected);
         }
-        Image face = face_detection_result.image();
+        Image image_face = face_detection_result.image();
 
-        if (face == null)
+        if (image_face == null)
         {
             if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(service.logger);
             else service.logger.log("no face detected");
@@ -642,10 +642,10 @@ public class Face_recognition_actor implements Actor
         // write the image to disk, the tmp path will be passed to the embedding server
         String tag = "tmp_unknown_face"+ "_"+ UUID.randomUUID();
         Path tmp_image_reco = Files_and_Paths.get_icon_cache_dir(null,service.logger);
-        Path tmp_path_to_face = Face_recognition_service.write_tmp_image(face, tmp_image_reco,tag,service.logger);
+        Path tmp_path_to_face = Face_recognition_service.write_tmp_image(image_face, tmp_image_reco,tag,service.logger);
 
         Eval_results eval_result = eval_a_face(tmp_path_to_face,service);
-        if (display_face_reco_window) service.show_face_recognition_window(face,eval_result, aborter);
+        if (display_face_reco_window) service.show_face_recognition_window(image_face,eval_result, aborter);
 
         String display_label = eval_result.label();
         if ( eval_result.label() == null)
@@ -653,22 +653,20 @@ public class Face_recognition_actor implements Actor
             display_label = "not recognized";
         }
         service.logger.log("face reco result = "+display_label);
-        //display(face, display_label);
-
 
         if ( eval_result.label() == null)
         {
-            return new Face_recognition_results(null,face,tmp_path_to_face,null, Face_recognition_status.no_face_recognized);
+            return new Face_recognition_results(null,image_face,tmp_path_to_face,eval_result.feature_vector(), Face_recognition_status.no_face_recognized);
         }
         else
         {
             if ( eval_result.eval_situation == Eval_situation.exact_match)
             {
-                return new Face_recognition_results(eval_result.label(), face, tmp_path_to_face, eval_result.feature_vector(), Face_recognition_status.exact_match);
+                return new Face_recognition_results(eval_result.label(), image_face, tmp_path_to_face, eval_result.feature_vector(), Face_recognition_status.exact_match);
             }
             else
             {
-                return new Face_recognition_results(eval_result.label(), face, tmp_path_to_face, eval_result.feature_vector(), Face_recognition_status.face_recognized);
+                return new Face_recognition_results(eval_result.label(), image_face, tmp_path_to_face, eval_result.feature_vector(), Face_recognition_status.face_recognized);
             }
         }
     }

@@ -272,16 +272,10 @@ public class Face_recognition_service
             }
             if (Guess_file_type.is_file_an_image(f))
             {
-                if ( label_in_flight.get() < Face_recognition_actor.LIMIT_PER_LABEL)
-                {
-                    label_in_flight.incrementAndGet();
-                    Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);
-                    Actor_engine.run(face_recognition_actor, msg, tr, logger);
-                }
-                else {
-                    recognition_stats.skipped.incrementAndGet();
-                }
-            }
+                label_in_flight.incrementAndGet();
+                Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);
+                Actor_engine.run(face_recognition_actor, msg, tr, logger);
+           }
         }
         logger.log("Folder done: "+dir.getAbsolutePath());
         return true;
@@ -313,20 +307,18 @@ public class Face_recognition_service
         if ( size > 200) size = 200;
         if (Platform.isFxApplicationThread())
         {
-            show_face_recognition_window_internal(size,face,eval_result,aborter);
+            show_face_recognition_window_internal(size,face,eval_result);
         }
         else {
             int size2 = size;
-            Fx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result,aborter),logger);
+            Fx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result),logger);
         }
     }
     //**********************************************************
     public void show_face_recognition_window_internal(
             int size,
-            Image face,
-            Face_recognition_actor.Eval_results eval_result,
-            Aborter aborter
-    )
+            Image face_image,
+            Face_recognition_actor.Eval_results eval_result)
     //**********************************************************
     {
 
@@ -358,11 +350,11 @@ public class Face_recognition_service
         VBox vBox = new VBox();
 
         {
-            if ( face != null)
+            if ( face_image != null)
             {
                 vBox.getChildren().add(new Label("Extracted face looks like this:"));
                 ImageView iv = new ImageView();
-                iv.setImage(face);
+                iv.setImage(face_image);
                 iv.setPreserveRatio(true);
                 iv.setFitWidth(size);
                 Pane image_pane = new StackPane(iv);
@@ -376,7 +368,7 @@ public class Face_recognition_service
                 status_label.setText("Face Detection failed");
             }
         }
-        if ( face !=null)
+        if ( face_image !=null)
         {
             if (eval_result != null) {
                 logger.log("eval results SIZE="+eval_result.list().size());
@@ -455,7 +447,7 @@ public class Face_recognition_service
             if (eval_result != null) {
                 if (!eval_result.enable_adding())
                 {
-                    if (face != null)
+                    if (face_image != null)
                     {
                         if ( eval_result.label() != null)
                         {
@@ -483,13 +475,13 @@ public class Face_recognition_service
                     }
                     Prototype_adder_actor actor = new Prototype_adder_actor(this);
                     Feature_vector fv = eval_result.feature_vector();
-                    Prototype_adder_message msg = new Prototype_adder_message(image_label.trim(), face, fv,new Aborter("bidon", logger));
+                    Prototype_adder_message msg = new Prototype_adder_message(image_label.trim(), face_image, fv,new Aborter("bidon", logger));
                     Job_termination_reporter tr = (message, job) -> {
                         Face_recognition_status s = Face_recognition_status.valueOf(message);
                         if (s != Face_recognition_status.feature_vector_ready) {
                             Fx_batch_injector.inject(() -> status_label.setText("prototype fabrication error " + s), logger);
                         } else {
-                            save_internal();
+                            //save_internal();
                             Fx_batch_injector.inject(() -> stage.close(), logger);
                         }
                     };
@@ -529,7 +521,7 @@ public class Face_recognition_service
                     } catch (IOException ex) {
                         logger.log(Stack_trace_getter.get_stack_trace("" + e));
                     }
-                    save_internal();
+                    //save_internal();
                     stage.close();
                 });
                 hBox.getChildren().add(skip);
@@ -550,7 +542,7 @@ public class Face_recognition_service
     private void save_internal()
     //**********************************************************
     {
-        logger.log("saving "+embeddings_prototypes.size()+ " prototypes");
+        logger.log("save_internal : saving "+embeddings_prototypes.size()+ " prototypes");
         for (Embeddings_prototype ep : embeddings_prototypes)
         {
             Actor_engine.execute(()->save_ep(ep),logger);

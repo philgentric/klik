@@ -13,7 +13,7 @@ import java.nio.file.Path;
 public class Heavy_embeddings_prototype implements Embeddings_prototype
 //**********************************************************
 {
-    private final Image face;
+    private final Image face; // this is what makes it heavy
     private final Feature_vector fv;
     private final String label;
     private final String tag;

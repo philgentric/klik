@@ -169,9 +169,9 @@ public class Face_detector
         }
 
         // Read the response from the server
-        Image img = null;
+        Image face_image = null;
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream())){
-            img = new Image(bufferedInputStream);
+            face_image = new Image(bufferedInputStream);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null,Face_recognition_status.no_face_detected);
@@ -179,7 +179,7 @@ public class Face_detector
 
         if ( face_detection_type == Face_detection_type.MTCNN)
         {
-            if ((img.getHeight() < MINIMUM_ACCEPTABLE_FACE_SIZE) || (img.getWidth() < MINIMUM_ACCEPTABLE_FACE_SIZE) )
+            if ((face_image.getHeight() < MINIMUM_ACCEPTABLE_FACE_SIZE) || (face_image.getWidth() < MINIMUM_ACCEPTABLE_FACE_SIZE) )
             {
                 logger.log("things smaller than "+ MINIMUM_ACCEPTABLE_FACE_SIZE +" pixels are discarded i.e. we assume face detection failed");
                 //Image big = Utils.get_image(path);
@@ -190,7 +190,8 @@ public class Face_detector
         }
         else
         {
-            if (Math.abs(img.getHeight() - img.getWidth()) > 2) {
+            if (Math.abs(face_image.getHeight() - face_image.getWidth()) > 2)
+            {
                 logger.log("non square face discarded i.e. we assume face detection failed");
                 //Image big = Utils.get_image(path);
                 //Utils.display(200,img,big,null,"non square face discarded","",logger);
@@ -200,7 +201,7 @@ public class Face_detector
         }
 
         report_time(logger, tot_sleep);
-        return new Face_detection_result(img,Face_recognition_status.face_detected);
+        return new Face_detection_result(face_image,Face_recognition_status.face_detected);
     }
 
     //**********************************************************
