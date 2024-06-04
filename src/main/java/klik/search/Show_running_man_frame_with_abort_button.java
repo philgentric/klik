@@ -175,13 +175,17 @@ public class Show_running_man_frame_with_abort_button
 		}
 	}
 
+	//**********************************************************
 	public void close() {
 		latch.countDown();
 	}
+	//**********************************************************
 
 
 
+	//**********************************************************
 	public void wait_and_block_until_finished(AtomicInteger in_flight)
+	//**********************************************************
 	{
 		Runnable tracker = () -> {
             for(;;)
@@ -203,5 +207,14 @@ public class Show_running_man_frame_with_abort_button
             }
         };
 		Actor_engine.execute(tracker, logger);
+	}
+
+	//**********************************************************
+    public void set_title(String title)
+	//**********************************************************
+	{
+		if (stage != null) {
+			Fx_batch_injector.inject(() -> stage.setTitle(title), logger);
+		}
 	}
 }

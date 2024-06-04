@@ -43,14 +43,14 @@ public class Prototype_adder_actor implements Actor
 
         // what we store is the version WITHOUT the image, to save RAM
         Embeddings_prototype ep = new Light_embeddings_prototype(fv, label, tag);
-        service.tags_to_embeddings.put(tag,ep);
-        Integer x = service.labels_to_prototype_count.get(label);
+        service.tag_to_prototype.put(tag,ep);
+        Integer x = service.label_to_prototype_count.get(label);
         if ( x == null) x = Integer.valueOf(0);
         x++;
-        service.labels_to_prototype_count.put(label,x);
+        service.label_to_prototype_count.put(label,x);
         service.embeddings_prototypes.add(ep);
         if ( !service.labels.contains(label)) service.labels.add(label);
-        service.logger.log("added prototype image face with name ="+tag);
+        service.logger.log("added prototype image face with tag ="+tag);
         // for debug
         //Utils.display(300, face,null,null,"debug",label,service.logger);
         return Face_recognition_status.feature_vector_ready;

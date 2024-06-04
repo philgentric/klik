@@ -64,10 +64,11 @@ public class Image_scaler extends Application {
             imageView1.setCache(true);
             imageView1.setCacheHint(CacheHint.QUALITY);
         }
-        else {
-                imageView1.setSmooth(false);
-                imageView1.setCache(true);
-                imageView1.setCacheHint(CacheHint.SPEED);
+        else
+        {
+            imageView1.setSmooth(false);
+            imageView1.setCache(true);
+            imageView1.setCacheHint(CacheHint.SPEED);
         }
 
 

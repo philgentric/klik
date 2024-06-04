@@ -23,7 +23,7 @@ public class Light_embeddings_prototype implements Embeddings_prototype
 
     //**********************************************************
     @Override
-    public Image face(Path face_recognizer_path, Logger logger)
+    public Image face_image(Path face_recognizer_path, Logger logger)
     //**********************************************************
     {
         return Embeddings_prototype.is_image_present(face_recognizer_path,tag, logger);

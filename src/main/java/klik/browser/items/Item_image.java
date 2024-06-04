@@ -59,20 +59,20 @@ public class Item_image extends Item
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
 
 
-            // firt time
-            image_view = new ImageView();
-            image_pane = new StackPane(image_view);
+        // first time
+        image_view = new ImageView();
+        image_pane = new StackPane(image_view);
 
-            if ( dbg)
-                logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
-            image_view.setPreserveRatio(true);
-            image_view.setSmooth(true);
-            image_view.setFitWidth(actual_icon_size);
-            image_view.setFitHeight(actual_icon_size);
-            //the_image_view.setManaged(false);
-            image_view.setCache(false);
-            //image_view.setCacheHint(CacheHint.SPEED);
-            Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
+        if ( dbg)
+            logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
+        image_view.setPreserveRatio(true);
+        image_view.setSmooth(true);
+        image_view.setFitWidth(actual_icon_size);
+        image_view.setFitHeight(actual_icon_size);
+        //the_image_view.setManaged(false);
+        image_view.setCache(false);
+        //image_view.setCacheHint(CacheHint.SPEED);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
 
 
         image_view.setOnMouseClicked(event ->

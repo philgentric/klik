@@ -32,7 +32,7 @@ public class Heavy_embeddings_prototype implements Embeddings_prototype
 
     //**********************************************************
     @Override
-    public Image face(Path face_recognizer_path, Logger logger)
+    public Image face_image(Path face_recognizer_path, Logger logger)
     //**********************************************************
     {
         return face;
@@ -70,7 +70,7 @@ public class Heavy_embeddings_prototype implements Embeddings_prototype
         // "for human only":
         // we write the face image to disk, if it gets deleted by aa human,
         // the prototype will be deleted next time the set is reloaded
-        Path path_to_prototype_image = Face_recognition_service.write_tmp_image(face(face_recognizer_path,logger), face_recognizer_path, tag,logger);
+        Path path_to_prototype_image = Face_recognition_service.write_tmp_image(face_image(face_recognizer_path,logger), face_recognizer_path, tag,logger);
         if ( path_to_prototype_image == null)
         {
             return false;

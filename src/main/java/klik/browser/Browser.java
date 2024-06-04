@@ -114,23 +114,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     // make sure we go gain at the same scroll point when we enter a given folder
     static Map<Path,Path> scroll_memory = new HashMap<>();
 
-/*
-    //**********************************************************
-    @Override // Refresh_target
-    public void refresh_all(String from)
-    //**********************************************************
-    {
-        //Browser local = this;
-        Runnable r = () -> {
-            logger.log("REFRESH_ALL "+from);
-            redraw_fx("aspect ratio engine "+from,false);
-            //Browser_creation_context.replace_same_folder(local,logger);
-
-        };
-        Fx_batch_injector.inject(r,logger);
-    }
-*/
-
 
     //**********************************************************
     @Override // Refresh_target
@@ -143,7 +126,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             x_redraw.countDown();
             x_redraw = null;
         }
-        //Browser local = this;
         Runnable r = () -> {
             logger.log("refresh_UI_after_scan_dir "+from);
             update_UI("refresh_UI_after_scan_dir ... "+from,true);
@@ -1079,12 +1061,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void sort_by_year()
     //**********************************************************
     {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                sort_by_year_internal();
-            }
-        };
+        Runnable r = () -> sort_by_year_internal();
         Actor_engine.execute(r, logger);
     }
 

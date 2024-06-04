@@ -11,7 +11,7 @@ import java.nio.file.Path;
 public interface Embeddings_prototype
 //**********************************************************
 {
-    Image face(Path face_recognizer_path, Logger logger);
+    Image face_image(Path face_recognizer_path, Logger logger);
     Feature_vector feature_vector();
     String label();
     String tag();

@@ -124,9 +124,9 @@ public class Face_detector
         }
 
         boolean done = false;
-        long tot_sleep =0;
+        long effectively_slept =0;
         long sleep_time = 100;
-        for(int i =0; i < 100 ; i++)
+        for(;;)
         {
             try {
                 connection.connect();
@@ -139,14 +139,22 @@ public class Face_detector
             }
             logger.log(" connection to face detection server: going to sleep: "+sleep_time);
             try {
-                tot_sleep += sleep_time;
+                effectively_slept += sleep_time;
                 Thread.sleep(sleep_time);
             } catch (InterruptedException e) {
                 logger.log(Stack_trace_getter.get_stack_trace("" + e));
             }
             sleep_time *= 5.0;
             if ( sleep_time > 10_000) sleep_time =10_000;
+            if ( effectively_slept > 10*60*1000) // 10 minutes
+            {
+                logger.log("Face detection: giving up, server not reachable");
+                break;
+            }
         }
+
+
+
         if ( !done)
         {
             return new Face_detection_result(null, Face_recognition_status.server_not_reacheable);
@@ -184,7 +192,7 @@ public class Face_detector
                 logger.log("things smaller than "+ MINIMUM_ACCEPTABLE_FACE_SIZE +" pixels are discarded i.e. we assume face detection failed");
                 //Image big = Utils.get_image(path);
                 //Utils.display(200,img,big,null,"face discarded as too small","",logger);
-                report_time(logger,tot_sleep);
+                report_time(logger,effectively_slept);
                 return new Face_detection_result(null, Face_recognition_status.no_face_detected);
             }
         }
@@ -195,12 +203,12 @@ public class Face_detector
                 logger.log("non square face discarded i.e. we assume face detection failed");
                 //Image big = Utils.get_image(path);
                 //Utils.display(200,img,big,null,"non square face discarded","",logger);
-                report_time(logger,tot_sleep);
+                report_time(logger,effectively_slept);
                 return new Face_detection_result(null, Face_recognition_status.no_face_detected);
             }
         }
 
-        report_time(logger, tot_sleep);
+        report_time(logger, effectively_slept);
         return new Face_detection_result(face_image,Face_recognition_status.face_detected);
     }
 

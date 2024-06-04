@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Face_recognition_actor implements Actor
@@ -42,9 +41,10 @@ public class Face_recognition_actor implements Actor
 
         if ( frm.label != null)
         {
-            if ( service.labels_to_prototype_count.get(frm.label) > LIMIT_PER_LABEL)
+            if ( service.label_to_prototype_count.get(frm.label) > LIMIT_PER_LABEL)
             {
-                service.logger.log("NOT adding "+frm.file.getName()+" with label: "+frm.label+ " as there are too many prototypes already "+service.labels_to_prototype_count.get(frm.label));
+                service.skipped();
+                service.logger.log("Face_recognition_actor, NOT performing recognition "+frm.file.getName()+" with label: "+frm.label+ " as there are too many prototypes already "+service.label_to_prototype_count.get(frm.label));
                 return null;
             }
         }
@@ -81,48 +81,31 @@ public class Face_recognition_actor implements Actor
         {
             case server_not_reacheable:
                 service.logger.log("detect_face_and_recognize:server_not_reacheable");
-                service.recognition_stats.error.incrementAndGet();
-                service.recognition_stats.done.incrementAndGet();
-                service.training_stats.error.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
+                service.server_error();
+
                 break;
             case  error:
                 service.logger.log("detect_face_and_recognize:error");
-                service.recognition_stats.error.incrementAndGet();
-                service.recognition_stats.done.incrementAndGet();
-                service.training_stats.error.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
+                service.server_error();
                 break;
             case no_face_detected:
                 // happens a lot
                 service.logger.log("detect_face_and_recognize:no_face_detected "+file);
-                service.recognition_stats.done.incrementAndGet();
-                service.recognition_stats.no_face_detected.incrementAndGet();
-                service.training_stats.no_face_detected.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
+                service.no_face_detected();
                 break;
             case face_detected:
                 service.logger.log("detect_face_and_recognize:should not happen 1");
-                service.recognition_stats.error.incrementAndGet();
-                service.recognition_stats.done.incrementAndGet();
-                service.training_stats.error.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
+                service.should_not_happen();
                 break;
             case no_feature_vector:
                 service.logger.log("detect_face_and_recognize:should not happen 2");
-                service.recognition_stats.error.incrementAndGet();
-                service.recognition_stats.done.incrementAndGet();
-                service.training_stats.error.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
+                service.should_not_happen();
                 break;
             case feature_vector_ready:
-                service.logger.log("detect_face_and_recognize:should not happen 2");
-                service.recognition_stats.error.incrementAndGet();
-                service.recognition_stats.done.incrementAndGet();
-                service.training_stats.error.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
+                service.logger.log("detect_face_and_recognize:should not happen 3");
+                service.should_not_happen();
                 break;
-            case face_recognized :
+            case exact_match, face_recognized :
                 service.logger.log("detect_face_and_recognize:face_recognized");
                 service.recognition_stats.face_recognized.incrementAndGet();
                 service.recognition_stats.done.incrementAndGet();
@@ -139,10 +122,10 @@ public class Face_recognition_actor implements Actor
                     break;
                 }
                 service.logger.log("ADDING "+file.getName()+" as label was NOT correct: "+face_recognition_results.label);
-                service.training_stats.done.incrementAndGet();
+
                 add_prototype_to_set(file,label,face_recognition_results,aborter);
                 break;
-            case exact_match, no_face_recognized :
+            case no_face_recognized :
                 service.logger.log("detect_face_and_recognize: NO face_recognized");
                 service.recognition_stats.face_not_recognized.incrementAndGet();
                 service.recognition_stats.done.incrementAndGet();
@@ -241,9 +224,7 @@ public class Face_recognition_actor implements Actor
                     break;
                 }
                 service.logger.log("ADDING "+file.getName()+" as label was NOT correct: "+face_recognition_results.label);
-                service.training_stats.face_wrongly_recognized_recorded.incrementAndGet();
-                service.training_stats.done.incrementAndGet();
-                add_prototype_to_set(file,label,face_recognition_results,aborter);
+                 add_prototype_to_set(file,label,face_recognition_results,aborter);
                 break;
             case no_face_recognized :
                 service.logger.log("just_recognize: NO face_recognized");
@@ -280,7 +261,7 @@ public class Face_recognition_actor implements Actor
         normal
     }
 
-    record Eval_results(String label, Feature_vector feature_vector, Eval_situation eval_situation, boolean enable_adding, String name, List<Eval_result_for_one_prototype> list){};
+    record Eval_results(String label, Feature_vector feature_vector, Eval_situation eval_situation, boolean enable_adding, String tag, List<Eval_result_for_one_prototype> list){};
 
     record Eval_result_for_one_prototype(Double distance, Embeddings_prototype embeddings_prototype){}
 
@@ -722,13 +703,6 @@ public class Face_recognition_actor implements Actor
     private boolean add_prototype_to_set(File f, String label, Face_recognition_results face_recognition_results, Aborter aborter)
     //**********************************************************
     {
-
-        if ( service.labels_to_prototype_count.get(label) > LIMIT_PER_LABEL)
-        {
-            service.logger.log("NOT adding "+f.getName()+" with label: "+label+ " as there are too many prototypes already "+service.labels_to_prototype_count.get(label));
-            return false;
-        }
-
         boolean check_this_is_a_face = false;
 
         if (check_this_is_a_face)
@@ -738,6 +712,7 @@ public class Face_recognition_actor implements Actor
 
             if (face_detection_result.status() != Face_recognition_status.face_detected)
             {
+                service.skipped();
                 service.logger.log("NOT adding prototype as the final face check fails , for: "+face_recognition_results.image_path());
                 return false;
             }
@@ -746,11 +721,20 @@ public class Face_recognition_actor implements Actor
                 service.logger.log("ADDING prototype as the final face check is OK , status is: "+face_recognition_results.image_path());
             }
         }
-        else {
-            service.logger.log("ADDING "+f.getAbsolutePath()+" as: "+name());
+
+        if ( service.label_to_prototype_count.get(label) > LIMIT_PER_LABEL)
+        {
+            service.skipped();
+            service.logger.log("Face_recognition_actor, NOT storing "+f.getName()+" with label: "+label+ " as there are too many prototypes already "+service.label_to_prototype_count.get(label));
+            return false;
+        }
+        else
+        {
+            service.logger.log("STORING "+f.getAbsolutePath()+" as: "+name());
         }
 
         service.training_stats.face_wrongly_recognized_recorded.incrementAndGet();
+        service.training_stats.done.incrementAndGet();
 
         Prototype_adder_actor actor = new Prototype_adder_actor(service);
         Prototype_adder_message msg = new Prototype_adder_message(label,face_recognition_results.image(),face_recognition_results.feature_vector() , aborter);
