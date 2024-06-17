@@ -34,6 +34,8 @@ and see launch_server script:
 public class Face_detector
 //**********************************************************
 {
+    private static final boolean dbg = false;
+
     // MTCNN face detector servers
     static int[] port_MTCNN = {8040, 8041, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049};
 
@@ -134,10 +136,10 @@ public class Face_detector
                 break;
             } catch (IOException e) {
                 //logger.log(Stack_trace_getter.get_stack_trace("" + e));
-                logger.log(("                         Face detector: " + e));
+                if ( dbg) logger.log(("                         Face detector: " + e));
                 //Popups.popup_warning(null,"ohoh","connection to face detection server failed, did you start it?",false,logger);
             }
-            logger.log(" connection to face detection server: going to sleep: "+sleep_time);
+            if ( dbg) logger.log(" connection to face detection server: going to sleep: "+sleep_time);
             try {
                 effectively_slept += sleep_time;
                 Thread.sleep(sleep_time);
@@ -219,7 +221,8 @@ public class Face_detector
         long end =  System.nanoTime();
         total_server_ns += (end-start);
         count++;
-        logger.log("\n==>face detection took "+(end-start)/1_000_000.0+"milliseconds, including sleep="+tot_sleep+", average = "+total_server_ns/count/1_000_000.0);
+        logger.log("\n==>face detection took "+String.format("%.2f",(end-start)/1_000_000.0)
+                +"milliseconds, including sleep="+tot_sleep+", average = "+String.format("%.2f",total_server_ns/count/1_000_000.0));
     }
 
     //**********************************************************

@@ -5,7 +5,8 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.files_and_paths.*;
-import klik.search.Show_running_man_frame;
+import klik.util.Hourglass;
+import klik.util.Show_running_man_frame;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.execute.Threads;
@@ -70,7 +71,7 @@ public class Folders_with_large_images_locator
             public void run() {
                 explore(top.toFile());
 
-                CountDownLatch show_running_man = Show_running_man_frame.show_running_man("Looking for folders with large images", 10 * 60, private_aborter, logger);
+                Hourglass show_running_man = Show_running_man_frame.show_running_man("Looking for folders with large images", 10 * 60, private_aborter, logger);
                 // wait for exploration to end
                 long start = System.currentTimeMillis();
                 for(;;)
@@ -110,7 +111,7 @@ public class Folders_with_large_images_locator
                     }
 
                 }
-                show_running_man.countDown();
+                show_running_man.close();
 
                 if ( dbg) print_all_contaminated();
 

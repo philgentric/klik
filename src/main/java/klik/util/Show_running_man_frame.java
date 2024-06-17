@@ -1,9 +1,7 @@
-package klik.search;
+package klik.util;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -12,15 +10,13 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Show_running_man_frame_with_abort_button
+public class Show_running_man_frame implements Hourglass
 //**********************************************************
 {
 	public final Aborter aborter;
@@ -30,37 +26,38 @@ public class Show_running_man_frame_with_abort_button
 	ImageView iv;
 	long start;
 	private final CountDownLatch latch = new CountDownLatch(1);
-	Label in_flight_label;
-
 
 	//**********************************************************
-	public static Show_running_man_frame_with_abort_button show_running_man(String wait_message, int timeout_s, Logger logger)
+	public static Hourglass show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
-		Show_running_man_frame_with_abort_button local = new Show_running_man_frame_with_abort_button(timeout_s, logger);
-		launch(local, wait_message,logger);
+		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s,logger);
+		launch(local, wait_message, logger);
 		return local;
 	}
+
+
 	//**********************************************************
-	private static CountDownLatch launch(Show_running_man_frame_with_abort_button local, String wait_message, Logger logger)
+	private static Hourglass launch(Show_running_man_frame local, String wait_message, Logger logger)
 	//**********************************************************
 	{
+		logger.log("Show_running_man_frame: launch");
 		if ( Platform.isFxApplicationThread())
 		{
 			local.define_fx(wait_message);
 		}
 		else
 		{
-			Fx_batch_injector.inject(()->local.define_fx(wait_message),logger);
+			Fx_batch_injector.now(()->local.define_fx(wait_message));
 		}
-		return local.latch;
+		return local;
 	}
 
 	//**********************************************************
-	private Show_running_man_frame_with_abort_button( int timeout_s_, Logger logger_)
+	private Show_running_man_frame(Aborter aborter_, int timeout_s_, Logger logger_)
 	//**********************************************************
 	{
-		aborter = new Aborter("Show_running_man_frame",logger_);
+		aborter = aborter_;
 		timeout_s = timeout_s_;
         logger = logger_;
 	}
@@ -81,16 +78,6 @@ public class Show_running_man_frame_with_abort_button
 		stage.setMinWidth(600);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
-
-		{
-			in_flight_label = new Label("In flight items: ");
-			vbox.getChildren().add(in_flight_label);
-		}
-		{
-			Button abort = new Button("Abort");
-			vbox.getChildren().add(abort);
-			abort.setOnAction(e -> aborter.abort("aborted by user"));
-		}
 
 
 		Scene scene = new Scene(vbox);
@@ -175,46 +162,34 @@ public class Show_running_man_frame_with_abort_button
 		}
 	}
 
-	//**********************************************************
+	@Override // Hourglass
 	public void close() {
 		latch.countDown();
 	}
-	//**********************************************************
 
 
 
-	//**********************************************************
 	public void wait_and_block_until_finished(AtomicInteger in_flight)
-	//**********************************************************
 	{
-		Runnable tracker = () -> {
-            for(;;)
-            {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-				int in_flight_local = in_flight.get();
+		Runnable tracker =  new Runnable() {
+			@Override
+			public void run() {
+				for(;;)
+				{
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
 
-				Fx_batch_injector.inject(()-> in_flight_label.setText("Items in flight: " +in_flight_local),logger);
-
-                if( in_flight_local == 0)
-                {
-                    close();
-                    return;
-                }
-            }
-        };
+					if( in_flight.get() == 0)
+					{
+						close();
+						return;
+					}
+				}
+			}
+		};
 		Actor_engine.execute(tracker, logger);
-	}
-
-	//**********************************************************
-    public void set_title(String title)
-	//**********************************************************
-	{
-		if (stage != null) {
-			Fx_batch_injector.inject(() -> stage.setTitle(title), logger);
-		}
 	}
 }

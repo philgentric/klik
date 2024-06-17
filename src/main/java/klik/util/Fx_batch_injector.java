@@ -33,6 +33,13 @@ public class Fx_batch_injector
     }
 
     //**********************************************************
+    public static void now(Runnable r)
+    //**********************************************************
+    {
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
     private void inject(Runnable r)
     //**********************************************************
     {
@@ -40,7 +47,8 @@ public class Fx_batch_injector
         {
             input.add(r);
         }
-        else {
+        else
+        {
             Platform.runLater(r);
         }
     }

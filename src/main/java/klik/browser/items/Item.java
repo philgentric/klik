@@ -616,7 +616,7 @@ public abstract class Item implements Icon_destination
         //if( !Platform.isFxApplicationThread())  logger.log(Stack_trace_getter.get_stack_trace("PANIC not on Fx thread"));
 
         you_are_visible_specific();
-        //get_Node().setVisible(true); OHOH
+        //get_Node().setVisible(true);
         if( has_icon())
             request_icon_to_factory(get_icon_size());
     }

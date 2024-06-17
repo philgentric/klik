@@ -10,23 +10,25 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
+import klik.browser.Change_type;
 import klik.browser.Landscape_height_listener;
+import klik.browser.Scroll_to_listener;
 import klik.browser.icons.caches.Image_properties;
 import klik.browser.items.*;
 import klik.files_and_paths.*;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.search.Show_running_man_frame;
-import klik.search.Show_running_man_frame_with_abort_button;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -39,6 +41,7 @@ public class Icon_manager
     public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
     public static final boolean scroll_dbg = false;
+
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
@@ -47,10 +50,13 @@ public class Icon_manager
     private final Aborter aborter;
     private final Logger logger;
     private Landscape_height_listener landscape_height_listener;
+    private Scroll_to_listener scroll_to_listener;
     private final Paths_manager paths_manager;
 
     // state:
-    private final Map<Path, Item> all_items_map = new HashMap<>();
+    private final ConcurrentHashMap<Path, Item> all_items_map = new ConcurrentHashMap<>();
+    AtomicBoolean items_are_ready = new AtomicBoolean(false);
+
     private double landscape_height = -Double.MAX_VALUE;
     private double current_vertical_offset = 0;
     private int how_many_rows;
@@ -95,15 +101,30 @@ public class Icon_manager
         }
     }
 
+
+    // make sure map_buttons_and_icons is not called again before it is finished
+    // cannot use "synchronized" because part of the job is performed
+    // on another thread
+    AtomicBoolean map_buttons_and_icons_guard = new AtomicBoolean(false);
+
     long map_buttons_and_icons_elapsed = 0;
     //**********************************************************
-    private void map_buttons_and_icons(Browser the_browser,
-                                       Pane pane,
-                                       List<Node> mandatory,
-                                       boolean single_column,
-                                       boolean rebuild_all_items)
+    private void map_buttons_and_icons_8(Browser the_browser,
+                                         Pane pane,
+                                         List<Node> mandatory,
+                                         boolean single_column,
+                                         String reason,
+                                         Change_type change_type,
+                                         Path scroll_to,
+                                         Hourglass running_man)
     //**********************************************************
     {
+        if ( map_buttons_and_icons_guard.get())
+        {
+            logger.log("map_buttons_and_icons_guard activated " +reason);
+            return;
+        }
+        map_buttons_and_icons_guard.set(true);
 
         long start = System.nanoTime();
          if ( dbg) logger.log("Icon_manager map_buttons_and_icons");
@@ -146,40 +167,95 @@ public class Icon_manager
         }
 
 
-        if ( rebuild_all_items)
+        if ( change_type ==  Change_type.files_or_folders_changed)
         {
-            all_items_map.clear();
             pane.getChildren().clear();
             pane.getChildren().addAll(mandatory);
         }
-        else
-        {
-            /*
-            // check for possibly gone files
-            List<Path> gones = new ArrayList<>();
-            for ( Path p : all_items_map.keySet())
-            {
-                if ( !paths_manager.do_we_still_have(p)){
-                    gones.add(p);
-                }
-            }
-            for ( Path p : gones) all_items_map.remove(p);
-            */
 
-        }
-        how_many_rows = 0;
-        Point2D p = new Point2D(0, 0);
-        p = process_folders(the_browser, pane, single_column, row_increment_for_dirs, column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
-        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
-        p = process_non_iconized_files(the_browser, pane, single_column, column_increment_for_folders, scene_width, p);
-        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
-        process_iconified_items(the_browser, pane, single_column, icon_size, column_increment_for_icons, scene_width, p);
-        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
-        map_buttons_and_icons_elapsed += (System.nanoTime()-start);
-        logger.log("map_buttons_and_icons_elapsed= "+map_buttons_and_icons_elapsed+" ns");
+        int final_column_increment_for_folders = column_increment_for_folders;
+        int final_column_increment_for_icons = column_increment_for_icons;
+
+        Runnable r = () -> {
+
+            logger.log("map_buttons_and_icons thread started");
+
+            if ( change_type ==  Change_type.files_or_folders_changed)
+            {
+                all_items_map.clear();
+                items_are_ready.set(false);
+            }
+
+            how_many_rows = 0;
+
+            Point2D p = new Point2D(0, 0);
+            p = process_folders(the_browser, single_column, row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
+            p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
+            p = process_non_iconized_files(the_browser, single_column, final_column_increment_for_folders, scene_width, p);
+            p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
+
+
+            process_iconified_items(the_browser, single_column, icon_size, final_column_increment_for_icons, scene_width, p);
+
+            compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
+            map_buttons_and_icons_elapsed += (System.nanoTime()-start);
+            logger.log("map_buttons_and_icons_elapsed= "+String.format("%.2f",map_buttons_and_icons_elapsed/1000_000.0)+" ms "+reason);
+
+
+            if ( change_type ==  Change_type.files_or_folders_changed)
+            {
+                Fx_batch_injector.inject(() -> {
+                    for (Item ii : all_items_map.values()) {
+                        if (pane.getChildren().contains(ii.get_Node()))
+                        {
+                            logger.log("shit happens " + ii.get_item_path());
+                        }
+                        else
+                        {
+                            pane.getChildren().add(ii.get_Node());
+                        }
+                    }
+                    end_map(pane, reason, true,scroll_to, running_man);
+                }, logger);
+            }
+            else
+            {
+                end_map(pane, reason, false,scroll_to,running_man);
+            }
+        };
+        Actor_engine.execute(r,logger);
     }
 
+    //**********************************************************
+    private void end_map(Pane pane, String reason, boolean from_thread, Path scroll_to, Hourglass running_man)
+    //**********************************************************
+    {
+        items_are_ready.set(true);
+        map_buttons_and_icons_guard.set(false);
+        //has_to_call_check_visibility_latter.set(false);
+        Fx_batch_injector.inject(()->
+                {
+                    check_visibility_11(pane, reason+" map_buttons_and_icons "+from_thread);
+                    if ( running_man!=null) running_man.close();
+                    scroll_to(scroll_to);
+                },logger);
+    }
+
+    //**********************************************************
+    void scroll_to(Path scroll_to)
+    //**********************************************************
+    {
+        current_vertical_offset = get_y_offset_of(scroll_to);
+        if ( scroll_to_listener == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("SHOUKLD NOT HAPPEN"));
+            return;
+        }
+        scroll_to_listener.perform_scroll_to(current_vertical_offset,this);
+    }
+    //**********************************************************
     private void show_error_icon(Browser the_browser, Pane pane, ImageView iv_denied, double top_delta_y)
+    //**********************************************************
     {
         iv_denied.setPreserveRatio(true);
         iv_denied.setSmooth(true);
@@ -196,9 +272,10 @@ public class Icon_manager
     }
 
     //**********************************************************
-    private void process_iconified_items(Browser the_browser, Pane pane, boolean single_column, double icon_size, double column_increment, double scene_width, Point2D point)
+    private void process_iconified_items(Browser the_browser, boolean single_column, double icon_size, double column_increment, double scene_width, Point2D point)
     //**********************************************************
     {
+
         double file_button_height = 2 * Static_application_properties.get_font_size(logger);
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
@@ -206,71 +283,91 @@ public class Icon_manager
         max_y_in_row[0] = 0;
         List<Item> current_row = new ArrayList<>();
         // manage iconized items
-        logger.log("paths_manager.get_iconized().keySet().size()="+ paths_manager.get_iconized_sorted().keySet().size());
-        for (Iterator<Path> it = paths_manager.get_iconized_sorted().keySet().iterator(); it.hasNext(); )
+        AtomicInteger image_properties_in_flight = new AtomicInteger(0);
+        //List<Path> wait_for_properties = new ArrayList<>();
+        Job_termination_reporter tr = (message, job) -> image_properties_in_flight.decrementAndGet();
+
+        for (Path path : paths_manager.iconized_paths )
         {
-            Path path = it.next();
-            if ( path == null)
-            {
-                logger.log(Stack_trace_getter.get_stack_trace("BAD"));
-                continue;
-            }
-            if ( dbg) logger.log("Icon_manager process_iconified_items "+path);
+            if (dbg) logger.log("Icon_manager process_iconified_items " + path);
             Item item;
             if (show_icons_instead_of_text)
             {
                 item = all_items_map.get(path);
-                if ( item == null)
+                if (item == null)
                 {
-                    Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path);
-                    Double cache_aspect_ratio = 1.0;
-                    if ( ip != null)
-                    {
-                        cache_aspect_ratio = ip.get_aspect_ratio();
-                    }
-                    item = new Item_image(the_browser,path, cache_aspect_ratio, logger);
-                    all_items_map.put(path,item);
-                    pane.getChildren().add(item.get_Node());
+                    image_properties_in_flight.incrementAndGet();
+                    // cause image properties fetch is threads
+                    paths_manager.image_properties_cache.get_from_cache(path,tr, false);
                 }
-
-
             }
             else
             {
                 // this is an item that could have an image but the user prefers
                 // to see it as a text: we use an Item_button
-                String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(),logger);
+                String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(), logger);
                 item = all_items_map.get(path);
-                if ( item == null)
-                {
-                    item = new Item_button(the_browser, path, null,path.getFileName().toString()+"("+size+")",
-                            // TODO
-                            icon_size/2,false,false, logger);
-                    all_items_map.put(path,item);
-                    pane.getChildren().add(item.get_Node());
+                if (item == null) {
+                    item = new Item_button(the_browser, path, null, path.getFileName().toString() + "(" + size + ")",
+                            icon_size / 2, false, false, logger);
+                    all_items_map.put(path, item);
                 }
             }
+        }
+        // wait for all properties to become available
+        long start = System.currentTimeMillis();
+        for(;;)
+        {
+           try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.log(Stack_trace_getter.get_stack_trace("oho"));
+            }
+            int k = image_properties_in_flight.get();
+            if (dbg) logger.log("icons in flight = "+k);
+            if (k == 0 ) break;
+        }
+        if (dbg) logger.log("total wait time for image properties = "+(System.currentTimeMillis()-start)+"ms");
 
-            if (show_icons_instead_of_text)
-            {
+        for ( Path path : paths_manager.iconized_paths)
+        {
+            Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path,null, true);
+            if ( ip == null) {
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
+                continue;
+            }
+            Double cache_aspect_ratio = ip.get_aspect_ratio();
+            Item item = new Item_image(the_browser,path, cache_aspect_ratio, logger);
+            all_items_map.put(path,item);
+            //logger.log("item created: "+path);
+        }
+
+
+        /// at this stage we MUST have get_iconized_sorted() in the proper order
+        // that will define the x,y layout
+        List<Path> ll = paths_manager.get_iconized_sorted("process_iconified_items");
+        //logger.log("paths_manager.get_iconized().keySet().size()="+ ll.size());
+        for (Path path : ll )
+        {
+            Item item = all_items_map.get(path);
+            if (dbg)  logger.log("Icon_manager process_iconified_items " + path+" ar:"+((Item_image)item).aspect_ratio);
+
+            if (show_icons_instead_of_text) {
 
                 point = compute_next_Point2D_for_icons(point, item,
                         icon_size, icon_size,
-                        scene_width, single_column,max_y_in_row, current_row);
-            }
-            else
-            {
+                        scene_width, single_column, max_y_in_row, current_row);
+            } else {
                 point = new_Point_for_files_and_dirs(point, item,
                         column_increment,
                         file_button_height, scene_width, single_column);
                 how_many_rows++;
-
             }
         }
     }
 
     //**********************************************************
-    private Point2D process_non_iconized_files(Browser the_browser, Pane pane, boolean single_column, double column_increment, double scene_width, Point2D p)
+    private Point2D process_non_iconized_files(Browser the_browser, boolean single_column, double column_increment, double scene_width, Point2D p)
     //**********************************************************
     {
         // manage the non-iconifed-files section
@@ -288,7 +385,6 @@ public class Icon_manager
                 item = new Item_button(the_browser,path, null, text,
                         icon_height, false, false, logger);
                 all_items_map.put(path,item);
-                pane.getChildren().add(item.get_Node());
             }
             //item.get_Node().setVisible(false);
             p = new_Point_for_files_and_dirs(p, item,
@@ -313,7 +409,9 @@ public class Icon_manager
 
     long tot_ms = 0;
     //**********************************************************
-    private Point2D process_folders(Browser the_browser, Pane pane, boolean single_column, double row_increment_for_dirs, double column_increment, double row_increment_for_dirs_with_picture, double scene_width, Point2D p)
+    private Point2D process_folders(Browser the_browser,
+                                    //Pane pane,
+                                    boolean single_column, double row_increment_for_dirs, double column_increment, double row_increment_for_dirs_with_picture, double scene_width, Point2D p)
     //**********************************************************
     {
         if (dbg) logger.log("Icon_manager process_folders0 ");
@@ -328,7 +426,7 @@ public class Icon_manager
                 if (dbg) logger.log("Icon_manager process_folders1 "+folder_path);
                 long start = System.currentTimeMillis();
                 if(dbg) logger.log("folder :"+folder_path+" took1 "+(System.currentTimeMillis()-start)+" milliseconds");
-                p = process_one_folder_with_picture(the_browser, pane, single_column, column_increment, actual_row_increment, scene_width, p, folder_path, Color.BEIGE);
+                p = process_one_folder_with_picture(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path, Color.BEIGE);
                 if(dbg) logger.log("folder :"+folder_path+" took2 "+(System.currentTimeMillis()-start)+" milliseconds");
             }
         }
@@ -353,7 +451,7 @@ public class Icon_manager
             for (Path folder_path : keyset)
             {
                 if (dbg) logger.log("Icon_manager process_folders2 "+folder_path);
-                p = process_one_folder_plain(the_browser, pane, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
+                p = process_one_folder_plain(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
             }
         }
 
@@ -368,7 +466,7 @@ public class Icon_manager
     //**********************************************************
     private Point2D process_one_folder_with_picture(
             Browser the_browser,
-            Pane pane,
+           // Pane pane,
             boolean single_column,
             double column_increment,
             double row_increment,
@@ -383,11 +481,7 @@ public class Icon_manager
         {
              folder_item = new Item_folder_with_icon(the_browser, folder_path, color, folder_path.getFileName().toString(), (int)column_increment, logger);
             all_items_map.put(folder_path, folder_item);
-            pane.getChildren().add(folder_item.get_Node());
-
         }
-        //logger.log("column_increment: "+column_increment+", row_increment: "+row_increment);
-
         p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
         return p;
     }
@@ -396,7 +490,6 @@ public class Icon_manager
     //**********************************************************
     private Point2D process_one_folder_plain(
                                        Browser the_browser,
-                                       Pane pane,
                                        boolean single_column,
                                        double column_increment,
                                        double row_increment,
@@ -441,8 +534,6 @@ public class Icon_manager
             }
             folder_item = new Item_button(the_browser,folder_path, color, tmp, icon_height, false, false, logger);
             all_items_map.put(folder_path, folder_item);
-            pane.getChildren().add(folder_item.get_Node());
-
         }
 
         p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
@@ -463,20 +554,20 @@ public class Icon_manager
     }
 
     //**********************************************************
-    public void geometry_changed(Browser b,
-                                 Pane pane,
-                                 List<Node> mandatory,
-                                 String reason,boolean rebuild_all_items
-    )
+    public void geometry_changed_7(Browser b,
+                                   Pane pane,
+                                   List<Node> mandatory,
+                                   String reason,
+                                   Change_type change_type,
+                                   Path scroll_to,
+                                   Hourglass running_man)
     //**********************************************************
     {
         if (scroll_dbg)
-            logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" rebuild_all_items="
-                    +rebuild_all_items
-            );
+            logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset+" change_type=" +change_type);
         boolean single_column = Static_application_properties.get_single_column(logger);
         if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
-        map_buttons_and_icons(b, pane, mandatory, single_column, rebuild_all_items);
+        map_buttons_and_icons_8(b, pane, mandatory, single_column, reason, change_type, scroll_to, running_man);
         move_absolute(pane, current_vertical_offset, reason);
         //b.scroll_a_bit(1);
 
@@ -493,13 +584,23 @@ public class Icon_manager
         if (scroll_dbg)
             logger.log("move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
         current_vertical_offset = new_vertical_offset;
-        check_visibility(pane);
+        check_visibility_11(pane, "move_absolute");
     }
 
+    //AtomicBoolean has_to_call_check_visibility_latter = new AtomicBoolean(false);
+    // this is on the FX thread
+    // and it is called very often for example when scrolling
     //**********************************************************
-    void check_visibility(Pane pane)
+    void check_visibility_11(Pane pane, String from)
     //**********************************************************
     {
+        if ( !items_are_ready.get())
+        {
+            //logger.log("check_visibility: items are not ready yet ! "+from);
+            //has_to_call_check_visibility_latter.set(true);
+            return;
+        }
+        //logger.log("check_visibility: "+ all_items_map.values().size()+" items are ready "+from);
         double h = pane.getHeight();
         int icon_size = Static_application_properties.get_icon_size(logger);
         double min_y = Double.MAX_VALUE;
@@ -533,7 +634,7 @@ public class Icon_manager
                 //logger.log("       tmp........"+top_left + " is now top left at y=" + min_y);
             }
         }
-       // logger.log(top_left + " is now top left at y=" + min_y);
+        //logger.log(top_left + " is now top left at y=" + min_y);
 
     }
 
@@ -543,6 +644,8 @@ public class Icon_manager
     private synchronized void process_is_visible(Item item)
     //**********************************************************
     {
+        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        //logger.log("process_is_visible item "+item.get_item_path()+" x="+item.get_javafx_x()+" y="+item.get_javafx_y());
 
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
@@ -559,6 +662,8 @@ public class Icon_manager
     private void process_is_invisible(Pane pane, Item item)
     //**********************************************************
     {
+        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+
         item.set_translate_X(item.get_javafx_x());
         item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
 
@@ -659,28 +764,24 @@ public class Icon_manager
                 }
             }
         }
-        Runnable monitor = new Runnable() {
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                for(;;) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        logger.log("" + e);
-                    }
-                    if (count.get() == 0)
-                    {
-                        show_running_man_frame.close();
-                        Fx_batch_injector.inject(()-> geometry_changed(browser,pane,mandatory,"sort by size",false),logger);
-                        if ( System.currentTimeMillis()-start > 3000) {
-                            Ding.play("display all folder sizes", logger);
-                        }
-                        return;
-                    }
+        Runnable monitor = () -> {
+            long start = System.currentTimeMillis();
+            for(;;) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    logger.log("" + e);
                 }
-
+                if (count.get() == 0)
+                {
+                    Fx_batch_injector.inject(()-> geometry_changed_7(browser,pane,mandatory,"sort by size",Change_type.layout_changed,null, show_running_man_frame),logger);
+                    if ( System.currentTimeMillis()-start > 3000) {
+                        Ding.play("display all folder sizes", logger);
+                    }
+                    return;
+                }
             }
+
         };
         Actor_engine.execute(monitor,logger);
     }
@@ -690,13 +791,6 @@ public class Icon_manager
     public Path get_top_left(Pane pane)
     //**********************************************************
     {
-        //if ( top_left== null)
-        {
-           // logger.log("Icon_manager::get_top_left needs check visible");
-            // very bad idea as this is called heavily
-           // check_visibility(pane);
-        }
-        //logger.log("Icon_manager::get_top_left"+top_left);
         return top_left;
     }
 
@@ -704,6 +798,8 @@ public class Icon_manager
     public double get_y_offset_of(Path target)
     //**********************************************************
     {
+        if ( target == null)  return 0.0;
+        
         //logger.log("\n\nIcon_manager::get_y_offset_of "+target.toAbsolutePath()+" size="+all_items_map.values().size());
         String t2 = target.toAbsolutePath().toString();
         for ( Item i : all_items_map.values())
@@ -909,7 +1005,7 @@ public class Icon_manager
             if (item.get_javafx_y() + h > landscape_height) landscape_height = item.get_javafx_y() + h;
         }
 
-        if (paths_manager.get_iconized_sorted().isEmpty()) {
+        if (paths_manager.get_iconized_sorted("compute_bounding_rectangle").isEmpty()) {
             // when there is no iconized items in the folder
             // it may happen that the height of the last row of buttons at the bottom is underestimated
             landscape_height += 100;
@@ -923,4 +1019,7 @@ public class Icon_manager
     }
 
 
+    public void set_scroll_to_listener(Scroll_to_listener vertical_slider) {
+        scroll_to_listener = vertical_slider;
+    }
 }

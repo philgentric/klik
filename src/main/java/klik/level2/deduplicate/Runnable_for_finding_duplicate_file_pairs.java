@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 //**********************************************************
 {
-	private static final boolean dbg = true;
+	private static final boolean dbg = false;
 	private static final boolean ultra_dbg = false;
 	Logger logger;
 	private final List<My_File> all_files;

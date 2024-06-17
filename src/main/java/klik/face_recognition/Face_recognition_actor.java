@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class Face_recognition_actor implements Actor
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public static final boolean verbose = false;
     public static final int K_of_KNN = 3;
     public static final int LIMIT_PER_LABEL = 3;
@@ -90,7 +90,7 @@ public class Face_recognition_actor implements Actor
                 break;
             case no_face_detected:
                 // happens a lot
-                service.logger.log("detect_face_and_recognize:no_face_detected "+file);
+                service.logger.log("detect_face_and_recognize:no_face_detected for: "+file);
                 service.no_face_detected();
                 break;
             case face_detected:
@@ -333,7 +333,7 @@ public class Face_recognition_actor implements Actor
         winner = results.get(0).embeddings_prototype;
         if ( min_distance < 0.001)
         {
-            service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+min_distance);
+            service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
             List<Eval_result_for_one_prototype> l = new ArrayList<>();
             l.add(new Eval_result_for_one_prototype(min_distance,winner));
 
@@ -422,8 +422,8 @@ public class Face_recognition_actor implements Actor
         }
 
 
-        if ( winner != null) service.logger.log("1 nearest "+winner.label()+ " at "+min_distance);
-        service.logger.log("5 nearest "+label5+ " average distance = "+average_distance);
+        if ( winner != null) service.logger.log("1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
+        service.logger.log(K_of_KNN+" nearest "+label5+ " average distance = "+String.format("%.2f",average_distance));
 
 
         report_time(service, fv_time);
@@ -468,7 +468,7 @@ public class Face_recognition_actor implements Actor
         Embeddings_prototype winner = results.get(0).embeddings_prototype;
         if ( min_distance < 0.001)
         {
-            service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+min_distance);
+            service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
             List<Eval_result_for_one_prototype> l = new ArrayList<>();
             l.add(new Eval_result_for_one_prototype(min_distance,winner));
             report_time(service, fv_time);
@@ -555,8 +555,8 @@ public class Face_recognition_actor implements Actor
         }
 
 
-        if ( winner != null) service.logger.log("1 nearest "+winner.label()+ " at "+min_distance);
-        service.logger.log("5 nearest "+label5+ " average distance = "+average_distance);
+        if ( winner != null) service.logger.log("1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
+        service.logger.log(K_of_KNN+" nearest "+label5+ " average distance = "+String.format("%.2f",average_distance));
 
 
         report_time(service, fv_time);
@@ -573,7 +573,12 @@ public class Face_recognition_actor implements Actor
         double x = (end-start);
         total_ns += x;
         count++;
-        service.logger.log("\n==> evaluating one face took "+x/1_000_000.0+" milliseconds of which "+ fv_time/1_000_000.0 +" was computing the feature vector ("+ 100.0*fv_time/x+"%), the averages are "+total_ns/(double) count/1_000_000.0+" / "+feature_vector_total_ns/(double) count/1_000_000.0);
+        service.logger.log("\n==> evaluating one face took "
+                +String.format("%.2f",x/1_000_000.0)
+                +" milliseconds of which "+ String.format("%.2f",fv_time/1_000_000.0)
+                +" was computing the feature vector ("+ String.format("%.2f",100.0*fv_time/x)
+                +"%), the averages are "+String.format("%.2f",total_ns/(double) count/1_000_000.0)
+                +" / "+String.format("%.2f",feature_vector_total_ns/(double) count/1_000_000.0));
     }
 
 

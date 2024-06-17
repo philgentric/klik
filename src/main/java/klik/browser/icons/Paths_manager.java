@@ -4,15 +4,15 @@ import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.browser.Change_type;
 import klik.browser.Error_receiver;
-import klik.browser.icons.caches.Image_properties;
 import klik.browser.icons.caches.Image_properties_cache;
-import klik.browser.icons.caches.Image_properties_message;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.properties.Static_application_properties;
+import klik.util.Hourglass;
+import klik.util.Show_running_man_frame;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
@@ -23,6 +23,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,9 +40,8 @@ public class Paths_manager
     public ConcurrentSkipListMap<Path,Boolean> folders;
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
 
-    public ConcurrentSkipListMap<Path, Boolean> iconized_sorted;
+    private List<Path> iconized_sorted = new ArrayList<>();
     public ConcurrentLinkedQueue<Path> iconized_paths = new ConcurrentLinkedQueue<>();
-
 
     public Comparator<? super Path> image_file_comparator = null;
     public Comparator<? super Path> other_file_comparator;
@@ -95,32 +95,18 @@ public class Paths_manager
         // these MUST be mutually exclusive:
         folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
-        iconized_sorted = new ConcurrentSkipListMap<>(image_file_comparator);
     }
 
     //long scan_dir_elapsed = 0;
 
-    AtomicBoolean scan_dir_in_flight = new AtomicBoolean(false);
-    //**********************************************************
-    public Error_type scan_dir_fx(Stage stage, String from)
-    //**********************************************************
-    {
-        //long start = System.currentTimeMillis();
-        //logger.log((from+" scan dir "+folder_path));
-        Runnable r = () -> {
-            if ( scan_dir_in_flight.get()) return;
-            scan_dir_in_flight.set(true);
-            scan_dir_in_a_thread(stage, from);
-            scan_dir_in_flight.set(false);
 
-        };
-        Actor_engine.execute(r, logger);
-        return Error_type.OK;
-    }
     //**********************************************************
-    private void scan_dir_in_a_thread(Stage stage, String from)
+    public void scan_dir_in_a_thread_2(Stage stage, Change_type change_type)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
+        Hourglass running_man = Show_running_man_frame.show_running_man("Scanning folder", 20*60,  aborter, logger);
+
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
         max_dir_text_length = 0;
@@ -131,42 +117,28 @@ public class Paths_manager
         folders.clear();
 
         image_properties_cache.reload_cache_from_disk();
-        image_properties_cache.look_for_end(this, refresh_target);
+        do_the_hard_work_of_scan_dir_3(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
 
-        do_the_hard_work_of_scan_dir(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
-        refresh_target.refresh_UI_after_scan_dir("scan_dir_in_a_thread");
+        image_properties_cache.all_image_properties_acquired_4(this,refresh_target,change_type,start, running_man);
+
     }
 
 
-    //**********************************************************
-    public void redo_iconized_sorted(String from)
-    //**********************************************************
-    {
-        iconized_sorted.clear();
 
-        int i = 0;
-        for ( Path path : iconized_paths)
-        {
-            iconized_sorted.put(path,true);
-            i++;
-        }
-        logger.log(i+" redo_iconized_sorted; from= "+from+" iconized_paths.size="+iconized_paths.size()+" iconized_sorted.size="+iconized_sorted.size());
-    }
-
-
-    private AtomicBoolean hard_part_ongoing = new AtomicBoolean(false);
+    private AtomicBoolean hard_part_guard = new AtomicBoolean(false);
 
     //**********************************************************
-    private void do_the_hard_work_of_scan_dir(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
+    private void do_the_hard_work_of_scan_dir_3(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
     //**********************************************************
     {
         if (Platform.isFxApplicationThread())
         {
             logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
         }
-        if ( hard_part_ongoing.get()) return;
+        if ( hard_part_guard.get()) return;
 
-        hard_part_ongoing.set(true);
+        hard_part_guard.set(true);
+        iconized_sorted_ready.set(false);
         try
         {
             File files[] = folder_path.toFile().listFiles();
@@ -175,7 +147,7 @@ public class Paths_manager
                 if ( aborter.should_abort())
                 {
                     logger.log("path manager aborting1");
-                    hard_part_ongoing.set(false);
+                    hard_part_guard.set(false);
                     return;
                 }
 
@@ -194,13 +166,12 @@ public class Paths_manager
         {
             logger.log(""+e);
             //Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
-            hard_part_ongoing.set(false);
+            hard_part_guard.set(false);
             ((Error_receiver)refresh_target).receive_error(Error_type.DENIED);
             return;
         }
         //logger.log("hard part in a thread done!");
-        image_properties_cache.save_whole_cache_to_disk();
-        hard_part_ongoing.set(false);
+        hard_part_guard.set(false);
     }
 
 
@@ -239,7 +210,6 @@ public class Paths_manager
                     if ( Guess_file_type.is_this_a_video_or_audio_file(stage,path,logger))
                     {
                         iconized_paths.add(path);
-                        //iconized_sorted.put(path,true);
                     }
                     else
                     {
@@ -248,7 +218,6 @@ public class Paths_manager
                     return;
                 }
                 iconized_paths.add(path);
-                //iconized_sorted.put(path,true);
                 return;
             }
             non_iconized.put(path,true);
@@ -265,14 +234,12 @@ public class Paths_manager
             if (show_icons_instead_of_text)
             {
                 iconized_paths.add(path);
-                //iconized_sorted.put(path,true);
-                return;
             }
             else
             {
                 non_iconized.put(path,true);
-                return;
             }
+            return;
         }
         if ( aborter.should_abort())
         {
@@ -287,10 +254,9 @@ public class Paths_manager
                 iconized_paths.add(path);
                 {
                     if (dbg) logger.log("calling image properties cache from path manager do_file()");
-                    // calling this will populate the cache
-                    Image_properties ip = image_properties_cache.get_from_cache(path);
+                    // calling this will pre-populate the cache
+                    image_properties_cache.get_from_cache(path,null, false);
                 }
-                //iconized_sorted.put(path,true);
                 return;
             }
         }
@@ -345,10 +311,9 @@ public class Paths_manager
     };
 
 
-
     //**********************************************************
     class Date_comparator implements Comparator<Path>
-            //**********************************************************
+    //**********************************************************
     {
 
         @Override
@@ -436,7 +401,6 @@ public class Paths_manager
         {
             returned.add(p.toFile());
         }
-
         return returned;
     }
 
@@ -454,7 +418,7 @@ public class Paths_manager
     }
 
     //**********************************************************
-    public void remove_empty_folders_fx(boolean recursively)
+    public void remove_empty_folders(boolean recursively)
     //**********************************************************
     {
         for (Path p : folders.keySet())
@@ -464,10 +428,41 @@ public class Paths_manager
 
     }
 
+    public AtomicBoolean iconized_sorted_ready = new AtomicBoolean(false);
+
     //**********************************************************
-    public ConcurrentSkipListMap<Path, Boolean> get_iconized_sorted()
+    public void set_new_iconized_items_comparator(Comparator<Path> local_file_comparator)
     //**********************************************************
     {
+        image_file_comparator = local_file_comparator;
+        iconized_sorted_ready.set(false);
+    }
+
+
+    //**********************************************************
+    public List<Path> get_iconized_sorted(String from)
+    //**********************************************************
+    {
+        if ( !iconized_sorted_ready.get()) redo_iconized_sorted_7(from);
         return iconized_sorted;
     }
+
+    //**********************************************************
+    synchronized public void redo_iconized_sorted_7(String from)
+    //**********************************************************
+    {
+        iconized_sorted.clear();
+
+        int i = 0;
+        for ( Path path : iconized_paths)
+        {
+            iconized_sorted.add(path);
+            i++;
+        }
+
+        Collections.sort(iconized_sorted,image_file_comparator);
+        iconized_sorted_ready.set(true);
+        logger.log(i+" redo_iconized_sorted; from= "+from+" iconized_paths.size="+iconized_paths.size()+" iconized_sorted.size="+iconized_sorted.size());
+    }
+
 }

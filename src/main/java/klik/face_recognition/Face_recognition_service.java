@@ -19,7 +19,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.files_and_paths.Guess_file_type;
 import klik.properties.Static_application_properties;
-import klik.search.Show_running_man_frame_with_abort_button;
+import klik.util.Show_running_man_frame_with_abort_button;
 import klik.util.Fx_batch_injector;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Face_recognition_service
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public final static String EXTENSION_FOR_EP = "prototype";
     private static Face_recognition_service instance = null;
     final Logger logger;

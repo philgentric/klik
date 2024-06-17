@@ -2,22 +2,21 @@ package klik.browser.icons.caches;
 
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.actor.Job_termination_reporter;
+import klik.browser.Change_type;
 import klik.browser.icons.Paths_manager;
 import klik.browser.icons.Refresh_target;
 import klik.files_and_paths.Ding;
 import klik.files_and_paths.Files_and_Paths;
-import klik.images.decoding.Fast_image_property_from_exif_metadata_extractor;
 import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.search.Show_running_man_frame;
+import klik.util.Hourglass;
 import klik.util.Logger;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Image_properties_cache
@@ -30,8 +29,8 @@ public class Image_properties_cache
     protected final Path cache_file_path;
     private final Map<String, Image_properties> cache = new ConcurrentHashMap<>();
     protected final Properties_manager pm;
-    LinkedBlockingQueue<String> end = new LinkedBlockingQueue<>();
     Image_properties_actor image_properties_actor;
+
     //**********************************************************
     public Image_properties_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************
@@ -39,54 +38,37 @@ public class Image_properties_cache
         logger = logger_;
         aborter = aborter_;
         cache_name = cache_name_;
-        String local = cache_name+path.toAbsolutePath().toString();
-        String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()).toString()+".properties";
+        String local = cache_name+ path.toAbsolutePath();
+        String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
         Path dir = Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
-        if ( dbg)
-        {
-            logger.log(cache_name+" cache file ="+cache_file_path);
-        }
+        if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
+
         pm = new Properties_manager(cache_file_path,logger);
-        image_properties_actor = new Image_properties_actor(end);
+        image_properties_actor = new Image_properties_actor();
     }
 
 
-    //**********************************************************
-    private void put_in_cache(Path p,Image_properties ip)
-    //**********************************************************
-    {
-        cache.put(key_from_path(p),ip);
-    }
-
-    //**********************************************************
-    public Image_properties really_get_from_cache(Path path)
-    //**********************************************************
-    {
-        // try the cache
-        Image_properties returned = get_from_cache(path);
-        if ( returned != null) return returned;
-        // ok, so now we must REALLY get the data
-
-        returned = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger);
-
-        return returned;
-
-    }
 
 
     //**********************************************************
-    public Image_properties get_from_cache(Path p)
+    public Image_properties get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)
     //**********************************************************
     {
         Image_properties image_properties =  cache.get(key_from_path(p));
-        if ( image_properties == null)
+        if ( image_properties != null)
         {
-            Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
-            image_properties_actor.increment_in_flight();
-            Actor_engine.run(image_properties_actor,imp,null,logger);
+            if ( tr != null) tr.has_ended("found in cache",null);
+            return image_properties;
         }
-        return image_properties;
+        Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
+        if ( wait_if_needed)
+        {
+            image_properties_actor.run(imp);
+            return cache.get(key_from_path(p));
+        }
+        Actor_engine.run(image_properties_actor,imp,tr,logger);
+        return null;
     }
 
     //**********************************************************
@@ -190,76 +172,16 @@ public class Image_properties_cache
     }
 
 
-
-    private AtomicBoolean done_look_for_end = new AtomicBoolean(false);
-    private Runnable look_for_end_runnable = null;
     //**********************************************************
-    public void look_for_end(Paths_manager paths_manager, Refresh_target refresh_target)
+    public void all_image_properties_acquired_4(Paths_manager paths_manager, Refresh_target refresh_target, Change_type change_type, long start, Hourglass running_man)
     //**********************************************************
     {
-        if ( done_look_for_end.get()) return;
-        if (look_for_end_runnable != null)
-        {
-            //already running;
-            return;
-        }
+        logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
+        Actor_engine.execute(()->save_whole_cache_to_disk(),logger);
 
-        CountDownLatch running_man = Show_running_man_frame.show_running_man("Image properties are being computed", 20*60,  aborter, logger);
-
-
-        long start = System.currentTimeMillis();
-        look_for_end_runnable = new Runnable() {
-            @Override
-            public void run()
-            {
-                for(;;)
-                {
-                    String s = null;
-                    try {
-                        s = end.poll(100, TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if (s == null)
-                    {
-                        logger.log("look_for_end timeout");
-
-                        if (aborter.should_abort()) {
-                            logger.log("Aspect ratio cache look_for_end_runnable aborting");
-                            process_end(paths_manager,refresh_target,start,running_man);
-                            return;
-                        }
-                        logger.log("look_for_end, image geometries remaining: " + image_properties_actor.get_in_flight());
-                        if (image_properties_actor.get_in_flight() == 0)
-                        {
-                            process_end(paths_manager,refresh_target,start,running_man);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        logger.log("look_for_end received END signal");
-
-                        process_end(paths_manager,refresh_target,start, running_man);
-                        return;
-                    }
-                }
-            }
-        };
-        Actor_engine.execute(look_for_end_runnable,logger);
-    }
-
-    //**********************************************************
-    private void process_end(Paths_manager paths_manager, Refresh_target refresh_target, long start, CountDownLatch running_man)
-    //**********************************************************
-    {
-        logger.log("process_end() ");
-        // this is the end
-        running_man.countDown();
-        done_look_for_end.set(true);
         if (System.currentTimeMillis() - start > 5_000) {
             if (Static_application_properties.get_ding(logger)) {
-                Ding.play("Aspect_ratio_cache: done acquiring all aspect ratios", logger);
+                Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }
         Comparator<Path> local_file_comparator = null;
@@ -271,16 +193,14 @@ public class Image_properties_cache
             case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator();
             default -> local_file_comparator = null;
         }
-        if (local_file_comparator != null) {
-            paths_manager.image_file_comparator = local_file_comparator;
-            paths_manager.iconized_sorted = new ConcurrentSkipListMap<>(local_file_comparator);
+        if (local_file_comparator != null)
+        {
+            paths_manager.set_new_iconized_items_comparator(local_file_comparator);
 
-            // now that we changed the iconized container we must do a scan dir
-            logger.log("image geometry cache reloaded, going to refresh");
-
-            refresh_target.refresh_UI_after_scan_dir("look_for_end");
-            //refresh_target.refresh_all("aspect ratio cache");
         }
+        logger.log("all_image_properties_acquired, going to refresh");
+        refresh_target.refresh_UI_after_scan_dir_5(change_type,"all_image_properties_acquired", running_man);
+
     }
 
 
@@ -301,11 +221,19 @@ public class Image_properties_cache
         @Override
         public int compare(Path p1, Path p2)
         {
-            Image_properties ip1 = get_from_cache(p1);
-            if ( ip1 == null) return 0;
+            Image_properties ip1 = get_from_cache(p1,null,true);
+            if ( ip1 == null)
+            {
+                logger.log("panic234");
+                return 0;
+            }
             Double d1 = ip1.get_aspect_ratio();
-            Image_properties ip2 = get_from_cache(p2);
-            if ( ip2 == null) return 0;
+            Image_properties ip2 = get_from_cache(p2,null,true);
+            if ( ip2 == null)
+            {
+                logger.log("panic235");
+                return 0;
+            }
             Double d2 = ip2.get_aspect_ratio();
             int diff =  d1.compareTo(d2);
             if ( diff != 0) return diff;
@@ -324,10 +252,10 @@ public class Image_properties_cache
         }
         @Override
         public int compare(Path p1, Path p2) {
-            Image_properties ip1 = get_from_cache(p1);
+            Image_properties ip1 = get_from_cache(p1,null, true);
             if ( ip1 == null) return 0;
             Double d1 = ip1.get_aspect_ratio();
-            Image_properties ip2 = get_from_cache(p2);
+            Image_properties ip2 = get_from_cache(p2,null, true);
             if ( ip2 == null) return 0;
             Double d2 = ip2.get_aspect_ratio();
 
@@ -350,11 +278,11 @@ public class Image_properties_cache
     {
         @Override
         public int compare(Path p1, Path p2) {
-            Image_properties ip1 = get_from_cache(p1);
+            Image_properties ip1 = get_from_cache(p1,null, true);
             if ( ip1 == null) return 0;
             Double d1 = ip1.get_image_width();
             if ( d1 == null) return 0;
-            Image_properties ip2 = get_from_cache(p2);
+            Image_properties ip2 = get_from_cache(p2,null, true);
             if ( ip2 == null) return 0;
             Double d2 = ip2.get_image_width();
             if ( d2 == null) return 0;
@@ -371,11 +299,11 @@ public class Image_properties_cache
     {
         @Override
         public int compare(Path p1, Path p2) {
-            Image_properties ip1 = get_from_cache(p1);
+            Image_properties ip1 = get_from_cache(p1,null, true);
             if ( ip1 == null) return 0;
             Double d1 = ip1.get_image_height();
             if ( d1 == null) return 0;
-            Image_properties ip2 = get_from_cache(p2);
+            Image_properties ip2 = get_from_cache(p2,null, true);
             if ( ip2 == null) return 0;
             Double d2 = ip2.get_image_height();
             if ( d2 == null) return 0;

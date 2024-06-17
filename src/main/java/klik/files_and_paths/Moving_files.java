@@ -10,7 +10,7 @@ import klik.images.Redo_same_move_engine;
 import klik.level3.metadata.Metadata_handler;
 import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
-import klik.search.Show_running_man_frame;
+import klik.util.Show_running_man_frame;
 import klik.util.*;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
@@ -141,7 +141,7 @@ public class Moving_files
                                           boolean and_list_for_undo, Aborter aborter , Logger logger)
     //**********************************************************
     {
-        CountDownLatch x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+        Hourglass x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
 
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
@@ -223,7 +223,7 @@ public class Moving_files
             logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
         }
 
-        x.countDown();
+        x.close();
 
 
         return done;
