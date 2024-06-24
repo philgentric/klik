@@ -196,22 +196,14 @@ public class Image_properties_cache
         if (local_file_comparator != null)
         {
             paths_manager.set_new_iconized_items_comparator(local_file_comparator);
-
         }
-        logger.log("all_image_properties_acquired, going to refresh");
+        //logger.log("all_image_properties_acquired, going to refresh");
         refresh_target.refresh_UI_after_scan_dir_5(change_type,"all_image_properties_acquired", running_man);
 
     }
 
 
 
-    //**********************************************************
-    static double round_to_one_decimal(double d)
-    //**********************************************************
-    {
-        double dd = 10.0*d;
-        return Math.round(dd)*10.0;
-    }
 
 
     //**********************************************************
@@ -243,32 +235,52 @@ public class Image_properties_cache
 
     //**********************************************************
     class Aspect_ratio_comparator_random implements Comparator<Path>
+    //**********************************************************
     {
         long seed;
+        HashMap<Path,Long> cache_local = new HashMap<>();
         public Aspect_ratio_comparator_random()
         {
             Random r = new Random();
             seed = r.nextLong();
+
         }
         @Override
         public int compare(Path p1, Path p2) {
             Image_properties ip1 = get_from_cache(p1,null, true);
-            if ( ip1 == null) return 0;
+            if ( ip1 == null)
+            {
+                System.out.println("should not happen");
+                return 0;
+            }
             Double d1 = ip1.get_aspect_ratio();
             Image_properties ip2 = get_from_cache(p2,null, true);
-            if ( ip2 == null) return 0;
+            if ( ip2 == null)
+            {
+                System.out.println("should not happen");
+                return 0;
+            }
             Double d2 = ip2.get_aspect_ratio();
 
-            // round the aspect ratio a bit
-            Double d1r= round_to_one_decimal(d1);
-            Double d2r= round_to_one_decimal(d2);
-            int diff = d1r.compareTo(d2r);
+            int diff = d1.compareTo(d2);
             if (diff != 0) return diff;
-            // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
-            long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l1 = new Random(seed*s1).nextLong();
-            long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
-            Long l2 = new Random(seed*s2).nextLong();
+
+            Long l1 = cache_local.get(p1);
+            if ( l1 == null) {
+                // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
+                long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
+                l1 = new Random(seed * s1).nextLong();
+                cache_local.put(p1,l1);
+            }
+
+            Long l2 = cache_local.get(p2);
+            if ( l2 == null) {
+                // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
+                long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
+                l2 = new Random(seed * s2).nextLong();
+                cache_local.put(p2, l2);
+            }
+
             return l1.compareTo(l2);
         }
     };

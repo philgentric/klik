@@ -452,17 +452,11 @@ public class Paths_manager
     //**********************************************************
     {
         iconized_sorted.clear();
-
-        int i = 0;
         for ( Path path : iconized_paths)
         {
             iconized_sorted.add(path);
-            i++;
         }
-
         Collections.sort(iconized_sorted,image_file_comparator);
         iconized_sorted_ready.set(true);
-        logger.log(i+" redo_iconized_sorted; from= "+from+" iconized_paths.size="+iconized_paths.size()+" iconized_sorted.size="+iconized_sorted.size());
     }
-
 }

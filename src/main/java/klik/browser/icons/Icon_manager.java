@@ -122,6 +122,7 @@ public class Icon_manager
         if ( map_buttons_and_icons_guard.get())
         {
             logger.log("map_buttons_and_icons_guard activated " +reason);
+            running_man.close();
             return;
         }
         map_buttons_and_icons_guard.set(true);
@@ -153,21 +154,24 @@ public class Icon_manager
         if (the_browser.error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
             show_error_icon(the_browser, pane, iv_denied, top_delta_y);
+            running_man.close();
             return;
         }
         if (the_browser.error_type == Error_type.NOT_FOUND) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
             show_error_icon(the_browser, pane, iv_denied, top_delta_y);
+            running_man.close();
             return;
         }
         if (the_browser.error_type == Error_type.ERROR) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
             show_error_icon(the_browser, pane, iv_denied, top_delta_y);
+            running_man.close();
             return;
         }
 
 
-        if ( change_type ==  Change_type.files_or_folders_changed)
+        if (( change_type ==  Change_type.files_or_folders_changed) || (change_type == Change_type.layout_changed))
         {
             pane.getChildren().clear();
             pane.getChildren().addAll(mandatory);
@@ -178,7 +182,7 @@ public class Icon_manager
 
         Runnable r = () -> {
 
-            logger.log("map_buttons_and_icons thread started");
+            //logger.log("map_buttons_and_icons thread started");
 
             if ( change_type ==  Change_type.files_or_folders_changed)
             {
@@ -199,10 +203,10 @@ public class Icon_manager
 
             compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
             map_buttons_and_icons_elapsed += (System.nanoTime()-start);
-            logger.log("map_buttons_and_icons_elapsed= "+String.format("%.2f",map_buttons_and_icons_elapsed/1000_000.0)+" ms "+reason);
+            //logger.log("map_buttons_and_icons_elapsed= "+String.format("%.2f",map_buttons_and_icons_elapsed/1000_000.0)+" ms "+reason);
 
 
-            if ( change_type ==  Change_type.files_or_folders_changed)
+            if (( change_type ==  Change_type.files_or_folders_changed) || (change_type == Change_type.layout_changed))
             {
                 Fx_batch_injector.inject(() -> {
                     for (Item ii : all_items_map.values()) {
@@ -347,13 +351,15 @@ public class Icon_manager
         // that will define the x,y layout
         List<Path> ll = paths_manager.get_iconized_sorted("process_iconified_items");
         //logger.log("paths_manager.get_iconized().keySet().size()="+ ll.size());
+        logger.log("point ="+point.getX()+"-"+point.getY());
         for (Path path : ll )
         {
             Item item = all_items_map.get(path);
             if (dbg)  logger.log("Icon_manager process_iconified_items " + path+" ar:"+((Item_image)item).aspect_ratio);
 
             if (show_icons_instead_of_text) {
-
+                //logger.log("recomputing position for "+item.get_item_path());
+                //logger.log(path+" point ="+point.getX()+"-"+point.getY());
                 point = compute_next_Point2D_for_icons(point, item,
                         icon_size, icon_size,
                         scene_width, single_column, max_y_in_row, current_row);
@@ -568,8 +574,7 @@ public class Icon_manager
         boolean single_column = Static_application_properties.get_single_column(logger);
         if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
         map_buttons_and_icons_8(b, pane, mandatory, single_column, reason, change_type, scroll_to, running_man);
-        move_absolute(pane, current_vertical_offset, reason);
-        //b.scroll_a_bit(1);
+//        move_absolute(pane, current_vertical_offset, reason);
 
     }
 
@@ -587,7 +592,6 @@ public class Icon_manager
         check_visibility_11(pane, "move_absolute");
     }
 
-    //AtomicBoolean has_to_call_check_visibility_latter = new AtomicBoolean(false);
     // this is on the FX thread
     // and it is called very often for example when scrolling
     //**********************************************************
@@ -612,18 +616,18 @@ public class Icon_manager
             {
                 if (invisible_dbg)
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
-                process_is_invisible(pane, item);
+                item.process_is_invisible(current_vertical_offset);
                 continue;
             }
             if (item.get_javafx_y()  > h+current_vertical_offset+icon_size)
             {
                 if (invisible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
-                process_is_invisible(pane, item);
+                item.process_is_invisible(current_vertical_offset);
                 continue;
             }
             if (visible_dbg)
                 logger.log(item.get_item_path() + " Item is visible at y=" + item.get_javafx_y() + " item height=" + item.get_Height());
-            process_is_visible(item);
+            item.process_is_visible(current_vertical_offset);
 
             // look for top left
             if ( item.get_javafx_x() > 0) continue;
@@ -638,44 +642,6 @@ public class Icon_manager
 
     }
 
-
-    // this is called SUPER intensively when scrolling
-    //**********************************************************
-    private synchronized void process_is_visible(Item item)
-    //**********************************************************
-    {
-        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
-        //logger.log("process_is_visible item "+item.get_item_path()+" x="+item.get_javafx_x()+" y="+item.get_javafx_y());
-
-        item.set_translate_X(item.get_javafx_x());
-        item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
-
-        // this is essential: dont call item.you_are_visible() unless needed
-        if (!item.visible_in_scene.get())
-        {
-            item.visible_in_scene.set(true);
-            item.you_are_visible();
-        }
-    }
-
-    //**********************************************************
-    private void process_is_invisible(Pane pane, Item item)
-    //**********************************************************
-    {
-        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
-
-        item.set_translate_X(item.get_javafx_x());
-        item.set_translate_Y(item.get_javafx_y() - current_vertical_offset);
-
-        //if ( !Platform.isFxApplicationThread())logger.log(Stack_trace_getter.get_stack_trace("PANIC process_is_invisible "+Platform.isFxApplicationThread()));
-        if (item.visible_in_scene.get())
-        {
-            item.visible_in_scene.set(false);
-            item.you_are_invisible();
-            //if (visible_dbg) logger.log("removing from Pane invisible Item: " + item.get_string());
-            //pane.getChildren().remove(item.get_Node());
-        }
-    }
 
 
 

@@ -80,6 +80,26 @@ public class Files_and_Paths {
 
 
     //**********************************************************
+    public static void move_to_trash(Stage owner, List<Path> paths, Runnable after_the_move, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        Path trash_dir = Static_application_properties.get_trash_dir(paths.get(0),logger);
+        if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
+            Popups.popup_warning(owner, I18n.get_I18n_string("Nothing_done", logger), I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
+            return;
+        }
+        List<Old_and_new_Path> l2 = new ArrayList<>();
+        for ( Path p : paths) {
+            Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
+            Old_and_new_Path oanf2 = new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command, false);
+            oanf2.run_after = after_the_move;
+            l2.add(oanf2);
+        }
+        Moving_files.perform_safe_moves_in_a_thread(owner, l2, true, aborter, logger);
+
+    }
+
+    //**********************************************************
     public static void move_to_trash(Stage owner, Path path, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {

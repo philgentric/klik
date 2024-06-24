@@ -1414,16 +1414,25 @@ public class Browser_menus
         Path dir = browser.displayed_folder_path;
         File[] files = dir.toFile().listFiles();
         if ( files == null) return;
+        List<Path> to_be_deleted =  new ArrayList<>();
         for (File f : files)
         {
             if ( f.isDirectory()) continue;
-            if ( !Guess_file_type.is_file_an_image(f)) continue;
 
+            if ( f.getName().startsWith("._"))
+            {
+                logger.log("file name starts with ._, removed "+f.getName());
+                to_be_deleted.add(f.toPath());
+                continue;
+            }
+
+            if ( !Guess_file_type.is_file_an_image(f)) continue;
             Exif_metadata_extractor e = new Exif_metadata_extractor(f.toPath(),logger);
             e.get_exif_metadata(0, true, browser.aborter,false);
             if( !e.is_image_damaged()) continue;
-            Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,f.toPath(), null, browser.aborter, logger);
+            to_be_deleted.add(f.toPath());
         }
+        Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,to_be_deleted, null, browser.aborter, logger);
 
     }
 

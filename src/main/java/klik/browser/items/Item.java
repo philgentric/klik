@@ -10,6 +10,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -619,6 +620,48 @@ public abstract class Item implements Icon_destination
         //get_Node().setVisible(true);
         if( has_icon())
             request_icon_to_factory(get_icon_size());
+    }
+
+
+    // this is called SUPER intensively when scrolling
+    //**********************************************************
+    public synchronized void process_is_visible(double current_vertical_offset)
+    //**********************************************************
+    {
+        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        if ( get_javafx_y() == 0)
+        {
+            logger.log("process_is_visible item "+get_item_path()+" x="+get_javafx_x()+" y="+get_javafx_y());
+        }
+
+        set_translate_X(get_javafx_x());
+        set_translate_Y(get_javafx_y() - current_vertical_offset);
+
+        // this is essential: dont call you_are_visible() unless needed
+        if (!visible_in_scene.get())
+        {
+            visible_in_scene.set(true);
+            you_are_visible();
+        }
+    }
+
+    //**********************************************************
+    public void process_is_invisible(double current_vertical_offset)
+    //**********************************************************
+    {
+        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+
+        set_translate_X(get_javafx_x());
+        set_translate_Y(get_javafx_y() - current_vertical_offset);
+
+        //if ( !Platform.isFxApplicationThread())logger.log(Stack_trace_getter.get_stack_trace("PANIC process_is_invisible "+Platform.isFxApplicationThread()));
+        if (visible_in_scene.get())
+        {
+            visible_in_scene.set(false);
+            you_are_invisible();
+            //if (visible_dbg) logger.log("removing from Pane invisible Item: " + get_string());
+            //pane.getChildren().remove(get_Node());
+        }
     }
 
 

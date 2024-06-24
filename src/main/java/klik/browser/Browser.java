@@ -289,23 +289,26 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         my_Stage.the_Stage.setScene(the_Scene);
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            if (windows_count.get() != 1) {
-                // ignore: we store the position of a "unique or last" window
-                return;
-            }
-            if (dbg) logger.log("ChangeListener: image window position and/or size changed");
-            Rectangle2D b = new Rectangle2D(my_Stage.the_Stage.getX(), my_Stage.the_Stage.getY(), my_Stage.the_Stage.getWidth(), my_Stage.the_Stage.getHeight());
-            Static_application_properties.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
+           record_stage_bounds();
         };
         my_Stage.the_Stage.xProperty().addListener(change_listener);
         my_Stage.the_Stage.yProperty().addListener(change_listener);
-        my_Stage.the_Stage.widthProperty().addListener(change_listener);
-        my_Stage.the_Stage.heightProperty().addListener(change_listener);
 
 
         redraw_fx_1("Browser constructor", Change_type.files_or_folders_changed);
     }
 
+    //**********************************************************
+    private void record_stage_bounds()
+    //**********************************************************
+    {
+        if (windows_count.get() != 1) {
+            // ignore: we store the position of a "unique or last" window
+            return;
+        }
+        if (dbg) logger.log("ChangeListener: image window position and/or size changed");
+        Static_application_properties.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
+    }
 
     //**********************************************************
     private void set_icon()
@@ -604,10 +607,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         //the_stage.setMinWidth(860);
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (dbg) logger.log("new browser width =" + newValue.doubleValue());
+            record_stage_bounds();
             redraw_fx_1("width changed by user", Change_type.layout_changed);
         });
-        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) ->
-                redraw_fx_1("height changed by user", Change_type.layout_changed));
+        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            record_stage_bounds();
+            redraw_fx_1("height changed by user", Change_type.layout_changed);
+        });
 
         the_Scene.setOnScroll(event -> {
             double dy = event.getDeltaY();
@@ -1147,15 +1153,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         paths_manager.redo_iconized_sorted_7(from);
 
         Runnable r = () -> {
-            logger.log("refresh_UI_after_scan_dir " + from);
+            //logger.log("refresh_UI_after_scan_dir " + from);
             Path scroll_to = get_scroll_to();
             update_UI_6("refresh_UI_after_scan_dir ... " + from, change_type, scroll_to,running_man);
         };
         if (Platform.isFxApplicationThread()) {
-            logger.log("refresh_UI_after_scan_dir WAS on FX thread from=" + from);
+            //logger.log("refresh_UI_after_scan_dir WAS on FX thread from=" + from);
             r.run();
         } else {
-            logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected, from=" + from);
+            //logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected, from=" + from);
             Fx_batch_injector.inject(r, logger);
         }
 
