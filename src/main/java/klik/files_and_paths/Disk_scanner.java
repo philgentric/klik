@@ -53,7 +53,8 @@ public class Disk_scanner implements Runnable
         {
             if( dbg) logger.log(origin+" Disk_scanner going down (not a symbolic links) on folder: "+path);
         }
-        long start = System.currentTimeMillis();
+        long start = 0L;
+        if (dbg) start = System.currentTimeMillis();
         AtomicInteger folder_count_stop_counter = new AtomicInteger(0);
         launch_folder_in_a_thread_(
                 path,
@@ -83,8 +84,11 @@ public class Disk_scanner implements Runnable
             if ( folder_count_stop_counter.get() == 0) break;
 
         }
-        long end = System.currentTimeMillis();
-        if (dbg) logger.log(origin+" file tree processing time: "+(end-start)+"ms");
+        if (dbg)
+        {
+            long end = System.currentTimeMillis();
+            logger.log(origin+" file tree processing time: "+(end-start)+"ms");
+        }
 
     }
     //**********************************************************
@@ -144,7 +148,6 @@ public class Disk_scanner implements Runnable
         File[] all_files = path.toFile().listFiles();
         if ( all_files == null)
         {
-            //if ( dbg)
             {
                 logger.log (origin+ " Disk_scanner: listFiles() returns null for: "+path);
                 Error_type error = Files_and_Paths.explain_error(path,logger);
@@ -180,15 +183,10 @@ public class Disk_scanner implements Runnable
                 {
                     if (Threads.use_virtual_threads)
                     {
-                        Runnable r = new Runnable() {
-                            @Override
-                            public void run() {
-                                file_payload.process_file(f);
-                            }
-                        };
-                        Actor_engine.execute(r, logger);
+                        Actor_engine.execute(()->file_payload.process_file(f), logger);
                     }
-                    else {
+                    else
+                    {
                         file_payload.process_file(f);
                     }
                 }

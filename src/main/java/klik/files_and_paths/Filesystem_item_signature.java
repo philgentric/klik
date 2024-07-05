@@ -52,7 +52,7 @@ public class Filesystem_item_signature
             }
             if ( file_signature_array.length == 0)
             {
-                logger.log("WARNIN: Filesystem_item_signature file_signature_array is empty ??? for "+path);
+                logger.log("WARNING: Filesystem_item_signature file_signature_array is empty ??? for "+path);
                 return false;
             }
         }
