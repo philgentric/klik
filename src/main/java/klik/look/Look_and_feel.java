@@ -107,20 +107,37 @@ public abstract class Look_and_feel
 
     abstract public URL get_CSS_URL();
 
+    //**********************************************************
     public static URL get_URL_by_name(String name)
+    //**********************************************************
     {
         // this scheme works with Jbang
-        URL url = Thread.currentThread().getContextClassLoader().getResource(name);
-        if (url != null) return url;
+        ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
+        //System.out.println("get_URL_by_name trying with class_loader : "+class_loader+" ...");
+        URL url = class_loader.getResource(name);
+        if (url != null)
+        {
+            //System.out.println("... worked!");
+            return url;
+        }
         // this scheme works with Gradle
         return Klik_application.class.getResource(name);
     }
 
+    //**********************************************************
     public static InputStream get_InputStream_by_name(String name)
+    //**********************************************************
     {
         // this scheme works with Jbang
-        InputStream s = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-        if (s != null) return s;
+        ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
+        System.out.println("get_InputStream_by_name trying with class_loader : "+class_loader+ " ...");
+        InputStream s = class_loader.getResourceAsStream(name);
+        if (s != null)
+        {
+            System.out.println("... worked");
+            return s;
+        }
+        System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
         // this scheme works with Gradle
         return Klik_application.class.getResourceAsStream(name);
     }

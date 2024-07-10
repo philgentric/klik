@@ -1,15 +1,17 @@
 package klik.look.my_i18n;
 
-import klik.Klik_application;
+import klik.look.Look_and_feel;
 import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.io.FileInputStream;
+import java.util.PropertyResourceBundle;
+
 
 //**********************************************************
 public class I18n
@@ -30,34 +32,29 @@ public class I18n
         }
         catch(Exception e)
         {
-            the_resource_bundle = null;
-            logger.log("BADBADBAD1 failed to load language resource  : "+e);
-            String classpath  = System.getProperty("java.class.path");
-            logger.log("classpath  : "+classpath);
-            logger.log("the_locale = "+the_locale);
-            {
-                String test_path = "MessagesBundle_fr_FR.properties";
-                try (InputStream x = Klik_application.class.getResourceAsStream(test_path)) {
-                    logger.log("InputStream = Klik_application.class.getResourceAsStream(" + test_path + ")=" + x);
-                } catch (IOException ex) {
-                    logger.log("PANIC: "+Stack_trace_getter.get_stack_trace_for_throwable(ex));
-                    return;
-                }
-            }
-            {
-                String test_path = "MessagesBundle_fr_FR.properties";
-                try (InputStream x = Klik_application.class.getResourceAsStream(test_path)) {
-                    logger.log("InputStream = Klik_application.class.getResourceAsStream(" + test_path + ")=" + x);
-                } catch (IOException ex) {
-                    logger.log("PANIC: "+Stack_trace_getter.get_stack_trace_for_throwable(ex));
-                    return;                }
-            }
+            logger.log("method1 failed to load language resource  : "+e);
 
-            return;
+            try {
+                String name = "MessagesBundle" + "_" + language + "_" + country+".properties";
+                logger.log("trying with name : "+name);
+
+                InputStream is = Look_and_feel.get_InputStream_by_name(name);
+                //FileInputStream fis = new FileInputStream(name);
+                the_resource_bundle = new PropertyResourceBundle(is);
+
+                //ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
+                //logger.log("trying with class_loader : "+class_loader);
+                //the_resource_bundle = ResourceBundle.getBundle("resources/MessagesBundle", the_locale, class_loader);
+                //the_resource_bundle = ResourceBundle.getBundle("klik/MessagesBundle", the_locale, class_loader);
+            }
+            catch (Exception e2)
+            {
+                logger.log("method2 failed to load language resource  : "+e2);
+            }
         }
         if ( the_resource_bundle == null)
         {
-            logger.log("BADBADBAD2 failed to load language resource; ResourceBundle.getBundle() returns null");
+            logger.log("BAD WARNING failed to load language resource"+language);
             return;
         }
         if ( dbg)

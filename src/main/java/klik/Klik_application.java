@@ -1,14 +1,22 @@
+//RUNTIME_OPTIONS -Xms50G
+//RUNTIME_OPTIONS -Xmx50G
+//RUNTIME_OPTIONS -XX:+UseZGC
+//RUNTIME_OPTIONS -XX:+ZGenerational
+
+
 //FILES ../../resources/klik/denied.png
 //FILES ../../resources/klik/ding.mp3
 //FILES ../../resources/klik/dummy.png
 //FILES ../../resources/klik/haarcascade_frontalface_default.xml
 //FILES ../../resources/klik/lazy.png
 //FILES ../../resources/klik/lazy_dark.png
-//FILES ../../resources/klik/MessagesBundle_en_US.properties
-//FILES ../../resources/klik/MessagesBundle_fr_FR.properties
+//FILES MessagesBundle_en_US.properties=../../resources/klik/MessagesBundle_en_US.properties
+//FILES MessagesBundle_fr_FR.properties=../../resources/klik/MessagesBundle_fr_FR.properties
 //FILES ../../resources/klik/not-found.png
 //FILES ../../resources/klik/speaker.png
 //FILES ../../resources/klik/unknown-error.png
+//FILES ../../resources/klik/running_man.gif
+
 //FILES dark/bookmarks.png=../../resources/klik/dark/bookmarks.png
 //FILES dark/dark.css=../../resources/klik/dark/dark.css
 //FILES dark/folder.png=../../resources/klik/dark/folder.png
@@ -17,6 +25,7 @@
 //FILES dark/trash.png=../../resources/klik/dark/trash.png
 //FILES dark/up.png=../../resources/klik/dark/up.png
 //FILES dark/view.png=../../resources/klik/dark/view.png
+
 //FILES light/bookmarks.png=../../resources/klik/light/bookmarks.png
 //FILES light/broken.png=../../resources/klik/light/broken.png
 //FILES light/camera.png=../../resources/klik/light/camera.png
