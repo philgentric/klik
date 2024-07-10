@@ -130,11 +130,11 @@ public abstract class Look_and_feel
     {
         // this scheme works with Jbang
         ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
-        System.out.println("get_InputStream_by_name trying with class_loader : "+class_loader+ " ...");
+        //System.out.println("get_InputStream_by_name trying with class_loader : "+class_loader+ " ...");
         InputStream s = class_loader.getResourceAsStream(name);
         if (s != null)
         {
-            System.out.println("... worked");
+            //System.out.println("... worked");
             return s;
         }
         System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
