@@ -1,3 +1,6 @@
+//SOURCES ./Language.java
+//SOURCES ./FR.java
+//SOURCES ./US.java
 package klik.look.my_i18n;
 
 

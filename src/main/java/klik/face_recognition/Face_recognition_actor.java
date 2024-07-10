@@ -1,3 +1,9 @@
+//SOURCES ./Eval_result_for_one_prototype.java
+//SOURCES ./Feature_vector.java
+//SOURCES ./Face_detection_type.java
+//SOURCES ./Face_recognition_status.java
+//SOURCES ./Face_detector.java
+
 package klik.face_recognition;
 
 import javafx.scene.image.Image;
@@ -263,13 +269,12 @@ public class Face_recognition_actor implements Actor
 
     record Eval_results(String label, Feature_vector feature_vector, Eval_situation eval_situation, boolean enable_adding, String tag, List<Eval_result_for_one_prototype> list){};
 
-    record Eval_result_for_one_prototype(Double distance, Embeddings_prototype embeddings_prototype){}
 
     //**********************************************************
     static Comparator<? super Eval_result_for_one_prototype> comp = new Comparator<Eval_result_for_one_prototype>() {
         @Override
         public int compare(Eval_result_for_one_prototype o1, Eval_result_for_one_prototype o2) {
-            return o1.distance.compareTo(o2.distance);
+            return o1.distance().compareTo(o2.distance());
         }
     };
 
@@ -329,8 +334,8 @@ public class Face_recognition_actor implements Actor
         Collections.sort(results,comp);
 
 
-        double min_distance = results.get(0).distance;
-        winner = results.get(0).embeddings_prototype;
+        double min_distance = results.get(0).distance();
+        winner = results.get(0).embeddings_prototype();
         if ( min_distance < 0.001)
         {
             service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
@@ -350,9 +355,9 @@ public class Face_recognition_actor implements Actor
         for ( int i = 0 ; i < max; i++)
         {
             Eval_result_for_one_prototype res = results.get(i);
-            service.logger.log("     d="+String.format("%.3f",res.distance)+ " "+ res.embeddings_prototype().tag());
-            average_distance += res.distance;
-            Embeddings_prototype ep = res.embeddings_prototype;
+            service.logger.log("     d="+String.format("%.3f",res.distance())+ " "+ res.embeddings_prototype().tag());
+            average_distance += res.distance();
+            Embeddings_prototype ep = res.embeddings_prototype();
             list_of_Eval_result_for_one_prototype.add(res);
             String label2 = ep.label();
             Integer vote = votes.get(label2);
@@ -404,7 +409,7 @@ public class Face_recognition_actor implements Actor
             {
                 for (Eval_result_for_one_prototype r : results)
                 {
-                    if (r.embeddings_prototype.label().equals(lab))
+                    if (r.embeddings_prototype().label().equals(lab))
                     {
                         if (r.distance() < min )
                         {
@@ -464,8 +469,8 @@ public class Face_recognition_actor implements Actor
 
         Collections.sort(results,comp);
 
-        double min_distance = results.get(0).distance;
-        Embeddings_prototype winner = results.get(0).embeddings_prototype;
+        double min_distance = results.get(0).distance();
+        Embeddings_prototype winner = results.get(0).embeddings_prototype();
         if ( min_distance < 0.001)
         {
             service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
@@ -483,9 +488,9 @@ public class Face_recognition_actor implements Actor
         for ( int i = 0 ; i < max; i++)
         {
             Eval_result_for_one_prototype res = results.get(i);
-            service.logger.log("     d="+String.format("%.3f",res.distance)+ " "+ res.embeddings_prototype().tag());
-            average_distance += res.distance;
-            Embeddings_prototype ep = res.embeddings_prototype;
+            service.logger.log("     d="+String.format("%.3f",res.distance())+ " "+ res.embeddings_prototype().tag());
+            average_distance += res.distance();
+            Embeddings_prototype ep = res.embeddings_prototype();
             list_of_Eval_result_for_one_prototype.add(res);
             String label2 = ep.label();
             Integer vote = votes.get(label2);
@@ -537,7 +542,7 @@ public class Face_recognition_actor implements Actor
             {
                 for (Eval_result_for_one_prototype r : results)
                 {
-                    if (r.embeddings_prototype.label().equals(lab))
+                    if (r.embeddings_prototype().label().equals(lab))
                     {
                         if (r.distance() < min )
                         {

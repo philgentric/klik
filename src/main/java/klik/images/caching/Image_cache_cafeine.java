@@ -1,3 +1,5 @@
+//SOURCES ./Image_decoding_actor_for_cache.java
+//SOURCES ./Image_decode_request_for_cache.java
 package klik.images.caching;
 
 import com.github.benmanes.caffeine.cache.Cache;

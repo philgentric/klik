@@ -1,3 +1,7 @@
+//SOURCES ./Actor_engine_interface.java
+//SOURCES ./virtual_threads/Actor_engine_with_virtual_threads.java
+//SOURCES ./workers/Actor_engine_based_on_workers.java
+//SOURCES ../util/execute/Threads.java
 package klik.actor;
 
 import klik.actor.virtual_threads.Actor_engine_with_virtual_threads;

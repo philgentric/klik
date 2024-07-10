@@ -1,3 +1,7 @@
+//SOURCES ./Backup_stats.java
+//SOURCES ./Backup_console_window.java
+//SOURCES ./Backup_actor_for_one_folder.java
+
 package klik.level2.backup;
 
 import javafx.application.Platform;

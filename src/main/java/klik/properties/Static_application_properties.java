@@ -1,3 +1,5 @@
+//SOURCES ../audio/Audio_player.java
+//SOURCES ../util/RAM_disk.java
 package klik.properties;
 
 import javafx.stage.Stage;

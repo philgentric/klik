@@ -1,3 +1,5 @@
+//SOURCES ../../../actor/virtual_threads/Concurency_limiter.java
+//SOURCES ./Animated_gif_generation_message.java
 package klik.browser.icons.animated_gifs;
 
 import klik.actor.Actor;

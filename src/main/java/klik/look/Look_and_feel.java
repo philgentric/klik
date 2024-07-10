@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -14,8 +15,10 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import klik.properties.Static_application_properties;
 import klik.util.Logger;
+import klik.Klik_application;
 
 import java.net.URL;
+import java.io.InputStream;
 
 //**********************************************************
 public abstract class Look_and_feel
@@ -51,15 +54,16 @@ public abstract class Look_and_feel
     //**********************************************************
     {
         logger = logger_;
-        URL style_sheet_url = get_CSS_URL();
-        if (style_sheet_url == null)
+        URL style_sheet_url2 = get_CSS_URL();
+        //System.out.println("style:"+name_+" CSS URL="+style_sheet_url2);
+        if (style_sheet_url2 == null)
         {
+            logger.log("style:"+name_+"Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
             style_sheet_url_string = null;
-            logger.log("BADBADBAD cannot load style sheet");
         }
         else
         {
-            style_sheet_url_string = style_sheet_url.toExternalForm();
+            style_sheet_url_string = style_sheet_url2.toExternalForm();
             //logger.log("loaded style sheet=" + style_sheet_url_string);
         }
 
@@ -83,7 +87,16 @@ public abstract class Look_and_feel
         tmp_pane.getStyleClass().add(laf);
         Scene tmp_scene = new Scene(tmp_pane);
         tmp_scene.getStylesheets().add(style_sheet_url_string);
-        tmp_pane.applyCss();
+        try
+        {
+            tmp_pane.applyCss();
+        }
+        catch ( Exception e)
+        {
+            logger.log("BAD WARNING cannot apply CSS style to pane");
+            return new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY);
+
+        }
         if ( tmp_pane.getBackground() == null)
         {
             logger.log("BADBADBAD cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+laf);
@@ -93,6 +106,26 @@ public abstract class Look_and_feel
     }
 
     abstract public URL get_CSS_URL();
+
+    public static URL get_URL_by_name(String name)
+    {
+        // this scheme works with Jbang
+        URL url = Thread.currentThread().getContextClassLoader().getResource(name);
+        if (url != null) return url;
+        // this scheme works with Gradle
+        return Klik_application.class.getResource(name);
+    }
+
+    public static InputStream get_InputStream_by_name(String name)
+    {
+        // this scheme works with Jbang
+        InputStream s = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+        if (s != null) return s;
+        // this scheme works with Gradle
+        return Klik_application.class.getResourceAsStream(name);
+    }
+
+
 
 
     abstract public String get_search_end_icon_path();
@@ -257,3 +290,4 @@ public abstract class Look_and_feel
     }
 
 }
+

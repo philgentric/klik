@@ -1,3 +1,5 @@
+//SOURCES ../Icon_writer_actor.java
+
 package klik.browser.icons.animated_gifs;
 
 import javafx.scene.image.Image;

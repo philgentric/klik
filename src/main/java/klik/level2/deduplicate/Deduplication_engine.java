@@ -1,3 +1,9 @@
+//SOURCES ./manual/Stage_with_2_images.java
+//SOURCES ./console/Deduplication_console_window.java
+//SOURCES ./manual/Againor.java
+//SOURCES ./File_pair.java
+//SOURCES ./Runnable_for_finding_duplicate_file_pairs.java
+
 package klik.level2.deduplicate;
 
 import javafx.application.Platform;

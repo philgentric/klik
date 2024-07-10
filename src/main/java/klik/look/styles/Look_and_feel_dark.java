@@ -76,7 +76,7 @@ public class Look_and_feel_dark extends Look_and_feel
 
     @Override
     public URL get_CSS_URL() {
-        return Klik_application.class.getResource("dark/dark.css");
+        return Look_and_feel.get_URL_by_name("dark/dark.css");
     }
 
     @Override

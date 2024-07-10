@@ -1,3 +1,4 @@
+//SOURCES ../My_File_and_status.java
 package klik.level2.deduplicate.manual;
 
 import javafx.application.Platform;

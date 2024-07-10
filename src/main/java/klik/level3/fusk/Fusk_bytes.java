@@ -1,3 +1,5 @@
+//SOURCES ./Pin_code_client.java
+//SOURCES ./Pin_code_getter_stage.java
 package klik.level3.fusk;
 
 import klik.actor.Aborter;

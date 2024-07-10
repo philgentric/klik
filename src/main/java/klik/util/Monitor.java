@@ -1,3 +1,5 @@
+//SOURCES ./Disk_usage_monitor.java
+//SOURCES ./Cache_auto_clean.java
 package klik.util;
 
 import klik.actor.Aborter;

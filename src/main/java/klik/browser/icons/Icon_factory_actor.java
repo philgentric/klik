@@ -1,3 +1,11 @@
+//SOURCES animated_gifs/Ffmpeg_utils.java
+//SOURCES ../Image_and_properties.java
+//SOURCES ../items/Iconifiable_item_type.java
+//SOURCES ../../files_and_paths/Files_and_Paths.java
+//SOURCES ../../images/decoding/Fast_image_property_from_exif_metadata_extractor.java
+//SOURCES ../../util/execute/Execute_command.java
+//SOURCES animated_gifs/Animated_gif_from_folder.java
+
 package klik.browser.icons;
 
 import javafx.scene.image.Image;
@@ -24,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
-
 
 // an actor-style asynchronous icon factory
 //**********************************************************

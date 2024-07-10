@@ -1,3 +1,9 @@
+//SOURCES ../../../actor/Job_termination_reporter.java
+//SOURCES ../../../util/Show_running_man_frame_with_abort_button.java
+//SOURCES ../../../util/Fx_batch_injector.java
+//SOURCES ../../../util/From_disk.java
+//SOURCES ./Animated_gif_generation_actor.java
+
 package klik.browser.icons.animated_gifs;
 
 import javafx.application.Platform;

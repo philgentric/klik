@@ -1,3 +1,5 @@
+//SOURCES ./Defusk_actor_for_one_folder.java
+//SOURCES ./Fusk_actor_for_one_folder.java
 package klik.level3.fusk;
 
 import javafx.stage.Stage;

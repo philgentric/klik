@@ -1,3 +1,9 @@
+//SOURCES ./Callback_for_file_found_publish.java
+//SOURCES ./Search_config.java
+//SOURCES ./Results_frame.java
+//SOURCES ./Search_result.java
+//SOURCES ./Finder_actor.java
+//SOURCES ./Finder_message.java
 package klik.search;
 
 import klik.actor.Aborter;

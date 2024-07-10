@@ -1,3 +1,8 @@
+//SOURCES ./Sizes.java
+//SOURCES ./File_payload.java
+//SOURCES ./Dir_payload.java
+//SOURCES ./Disk_scanner.java
+
 package klik.files_and_paths;
 
 

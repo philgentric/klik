@@ -1,3 +1,9 @@
+//SOURCES ./Search_receiver.java
+//SOURCES ./Keyword_slot.java
+//SOURCES ./Search_session.java
+//SOURCES ./Search_statistics.java
+//SOURCES ./Search_status.java
+
 package klik.search;
 
 import javafx.application.Platform;

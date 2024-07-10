@@ -1,3 +1,6 @@
+//SOURCES ./Filesystem_modification_reporter.java
+//SOURCES ./Filesystem_item_signature.java
+
 package klik.files_and_paths;
 
 import klik.actor.Aborter;

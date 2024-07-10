@@ -35,7 +35,7 @@ dependencies {
       // Cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
     // files etc
-    implementation group: 'commons-io', name: 'commons-io', version: '2.15.1'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.16.1'
     // for face recognition: gson is used to serialise the feature vectors between the python server and this app
     implementation 'com.google.code.gson:gson:2.8.6'
 
@@ -60,7 +60,7 @@ application {
 }
 
 javafx {
-    version = "23-ea+3"
+    version = "23-ea+22"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media','javafx.web' ]
 }
 

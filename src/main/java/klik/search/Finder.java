@@ -1,3 +1,4 @@
+//SOURCES ./Finder_frame.java
 package klik.search;
 
 import klik.browser.Browser;

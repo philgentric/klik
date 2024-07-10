@@ -1,3 +1,6 @@
+//SOURCES ./Value_getter.java
+//SOURCES ./Real_to_pixel.java
+//SOURCES ./Graph.java
 package klik.browser.meter;
 
 import javafx.scene.Scene;

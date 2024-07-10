@@ -1,3 +1,4 @@
+//SOURCES ./Fusk_message.java
 package klik.level3.fusk;
 
 import klik.actor.*;

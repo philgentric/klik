@@ -30,7 +30,7 @@ public class Look_and_feel_light extends Look_and_feel
 
     @Override
     public URL get_CSS_URL() {
-        return Klik_application.class.getResource("light/light.css");
+        return get_URL_by_name("light/light.css");
     }
 
     @Override

@@ -1,3 +1,5 @@
+//SOURCES ../browser/Drag_and_drop.java
+//SOURCES ./styles/*.java
 package klik.look;
 
 import javafx.geometry.Pos;
@@ -33,7 +35,7 @@ public class Look_and_feel_manager
     // https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
 
 
-    public static final boolean icon_load_dbg = false;
+    public static final boolean icon_load_dbg = true;
     public static final boolean look_dbg = false;
     public static Logger logger;
 
@@ -494,120 +496,20 @@ public class Look_and_feel_manager
     public static Image load_icon_fx_from_jar(String image_file_path, double icon_size)
     //**********************************************************
     {
-
-        if (icon_load_dbg)
+        InputStream  s = Look_and_feel.get_InputStream_by_name(image_file_path);
+        if ( s == null)
         {
-            logger.log("looking for icon->" + image_file_path + "<-");
-            {
-                String path = "";
-                URL url1 = Klik_application.class.getResource(path);
-                if (url1 == null)
-                {
-                    logger.log("Method1 fails: Klik_application.class.getResource(" + path + ");  failed");
-                }
-                else
-                {
-                    logger.log("Method1 works: Klik_application.class.getResource(" + path + ");" + url1.getPath());
-                }
-            }
-            {
-                String path = ".";
-                URL url2 = Klik_application.class.getResource(path);
-                if (url2 == null)
-                {
-                    logger.log("Method2 fails: Klik_application.class.getResource(" + path + ");  failed");
-                }
-                else
-                {
-                    logger.log("Method2 works: Klik_application.class.getResource(" + path + ")" + url2.getPath());
-                }
-            }
-            {
-                String path = "../";
-                URL url3 = Klik_application.class.getResource(path);
-                if (url3 == null)
-                {
-                    logger.log("Method3 fails: Klik_application.class.getResource(" + path + ");  failed");
-                }
-                else
-                {
-                    logger.log("Method3 works: Klik_application.class.getResource(" + path + "); " + url3.getPath());
-                }
-            }
-            {
-                String classpath = System.getProperty("java.class.path");
-                URL url5 = Klik_application.class.getResource(classpath);
-                if (url5 == null)
-                {
-                    logger.log("Method5 failed");// this is a long string to print
-                    // : classpath->"+classpath+"<-");
-                }
-                else
-                {
-                    logger.log("Method5 works: classpath " + url5.getPath());
-                }
-            }
+            logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
+            return null;
         }
 
-        /*
-        this gives the original source path: not the one being deployed
-        URL url_loader = Klik_application.class.getProtectionDomain().getCodeSource().getLocation();
-        logger.log("===Klik_application.class.getProtectionDomain().getCodeSource().getLocation()====" + url_loader.toString() );
-        logger.log("===getProtectionDomain().getCodeSource().getLocation().getPath()====" + url_loader.getPath() );
-        */
-
-        URL url4 = Klik_application.class.getResource(image_file_path);
-        if (url4 == null)
+        Image image = new Image(s, icon_size, icon_size, true, true);
+        if (image.isError())
         {
-            logger.log("Method4 failed :Klik_application.class.getResource(" + image_file_path + ");  failed");
-            InputStream input_stream = Klik_application.class.getResourceAsStream(image_file_path);
-            if (input_stream == null)
-            {
-                logger.log("Method4 bis failed");
-                return null;
-            }
-            logger.log("Method4 bis worked");
-
-            //requestedWidth=0 means the resizing preserves aspect ratio and targets the HEIGHT
-            Image image = new Image(input_stream, 0, icon_size, true, true);
-
-            if (image.isError())
-            {
-                //return null;
-                logger.log("WARNING: an error occurred when reading: " + image_file_path);
-
-
-                return get_broken_icon(icon_size);
-            }
-            return image;
+            logger.log("WARNING: an error occurred when reading: " + image_file_path);
+            return get_broken_icon(icon_size);
         }
-        if (icon_load_dbg) logger.log("Method4 works :Klik_application.class.getResource(" + image_file_path + ") path:" + url4.getPath());
-
-        if (icon_load_dbg) logger.log("path for icon=" + url4.getPath());
-
-        try (InputStream input_stream = Klik_application.class.getResourceAsStream(image_file_path))
-        {
-
-            if ( input_stream == null)
-            {
-                return null;
-            }
-            Image image = new Image(input_stream, icon_size, icon_size, true, true);
-
-            if (image.isError())
-            {
-                logger.log("WARNING: an error occurred when reading: " + image_file_path);
-                return get_broken_icon(icon_size);
-            }
-            return image;
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
-        }
-
-
-        return get_broken_icon(icon_size);
+        return image;
     }
 
 

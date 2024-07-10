@@ -1,3 +1,17 @@
+//SOURCES ./Embeddings_prototype.java
+//SOURCES ./Recognition_stats.java
+//SOURCES ./Training_stats.java
+//SOURCES ./Face_recognition_actor.java
+//SOURCES ./Face_recognition_message.java
+//SOURCES ./Prototype_adder_actor.java
+//SOURCES ./Prototype_adder_message.java
+//SOURCES ./Load_one_prototype_actor.java
+//SOURCES ./Load_one_prototype_message.java
+//SOURCES ./Light_embeddings_prototype.java
+//SOURCES ./Utils.java
+
+
+
 package klik.face_recognition;
 
 import javafx.application.Platform;
@@ -394,7 +408,7 @@ public class Face_recognition_service
                     HBox hBox = new HBox();
                     Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(1),new BorderWidths(0.5)));
 
-                    for (Face_recognition_actor.Eval_result_for_one_prototype res : eval_result.list())
+                    for (Eval_result_for_one_prototype res : eval_result.list())
                     {
                         VBox vb = new VBox();
                         vb.setBorder(border);

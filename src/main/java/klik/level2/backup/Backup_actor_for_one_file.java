@@ -1,3 +1,8 @@
+//SOURCES ./File_comparator.java
+//SOURCES ./File_backup_job_request.java
+//SOURCES ./Dir_results.java
+//SOURCES ./Similarity_result.java
+//SOURCES ./File_copier.java
 package klik.level2.backup;
 
 import klik.actor.Aborter;

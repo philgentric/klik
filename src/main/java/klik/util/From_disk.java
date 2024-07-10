@@ -1,3 +1,7 @@
+//SOURCES ../images/decoding/Fast_aspect_ratio_from_exif_metadata_extractor.java
+//SOURCES ../images/decoding/Fast_width_from_exif_metadata_extractor.java
+//SOURCES ../level3/fusk/Fusk_static_core.java
+
 package klik.util;
 
 import klik.actor.Aborter;

@@ -1,3 +1,13 @@
+//SOURCES ../../util/execute/System_open_actor.java
+//SOURCES ../icons/*.java
+//SOURCES ../../files_and_paths/Folder_size.java
+//SOURCES ../../level3/metadata/Tag_stage.java
+//SOURCES ./My_color.java
+/*
+//SOURCES ../icons/Icon_destination.java
+//SOURCES ../icons/Icon_factory_request.java
+ */
+
 package klik.browser.items;
 
 import javafx.scene.Node;

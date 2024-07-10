@@ -31,7 +31,7 @@ public class Look_and_feel_wood extends Look_and_feel
 
     @Override
     public URL get_CSS_URL() {
-        return Klik_application.class.getResource("wood/wood.css");
+        return get_URL_by_name("wood/wood.css");
     }
 
     @Override

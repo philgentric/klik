@@ -1,3 +1,6 @@
+//SOURCES ./Icon_size.java
+//SOURCES ./About_klik_stage.java
+//SOURCES ../files_and_paths/Name_cleaner.java
 package klik.browser;
 
 import javafx.scene.control.*;

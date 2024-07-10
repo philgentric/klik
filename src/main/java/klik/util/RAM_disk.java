@@ -6,7 +6,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+// this is an attempt to create a RAM disk for caching
+// (experimental in the sense that on my recent Mac I could not
+// "measure" a difference between the RAM disk and the SSD disk)
+
+
+//**********************************************************
 public class RAM_disk
+//**********************************************************
 {
 
     public  static final String RAM_disk_name = "klik_RAM_disk_please_do_not_eject";

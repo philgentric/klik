@@ -1,3 +1,4 @@
+//SOURCES icons/Error_type.java
 package klik.browser;
 
 import klik.browser.icons.Error_type;

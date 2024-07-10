@@ -1,3 +1,6 @@
+//SOURCES ../../images/decoding/Fast_rotation_from_exif_metadata_extractor.java
+//SOURCES ../../level3/experimental/Multiple_image_window.java
+
 package klik.browser.items;
 
 import javafx.geometry.Rectangle2D;
@@ -482,7 +485,7 @@ public class Item_image extends Item
         //logger.log("Item_image::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
-            logger.log("BADBADBAD: item_image: loading default icon NOT THERE");
+            logger.log("BAD WARNING: item_image: default_icon == null");
             return;
         }
 
