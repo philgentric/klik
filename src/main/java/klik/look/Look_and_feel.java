@@ -1,6 +1,5 @@
 package klik.look;
 
-import javafx.css.PseudoClass;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -9,11 +8,7 @@ import javafx.scene.control.Label;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
-import klik.properties.Static_application_properties;
 import klik.util.Logger;
 import klik.Klik_application;
 
@@ -99,7 +94,7 @@ public abstract class Look_and_feel
         }
         if ( tmp_pane.getBackground() == null)
         {
-            logger.log("BADBADBAD cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+laf);
+            logger.log("BAD WARNING cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :"+laf);
         }
         background_fill = tmp_pane.getBackground().getFills().get(0);
         return background_fill;
@@ -137,7 +132,7 @@ public abstract class Look_and_feel
             //System.out.println("... worked");
             return s;
         }
-        System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
+        //System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
         // this scheme works with Gradle
         return Klik_application.class.getResourceAsStream(name);
     }
@@ -145,7 +140,7 @@ public abstract class Look_and_feel
 
 
 
-    abstract public String get_search_end_icon_path();
+    abstract public String get_sleeping_man_icon_path();
     abstract public String get_klik_image_path();
     abstract public String get_trash_icon_path();
     abstract public String get_up_icon_path();
@@ -171,15 +166,31 @@ public abstract class Look_and_feel
         // it is used as a DEFAULT graphic in button for folders
         return "dummy.png";
     }
+    //**********************************************************
     protected String get_denied_icon_path()
+    //**********************************************************
     {
         return "denied.png";
     }
+    //**********************************************************
     protected String get_unknown_error_icon_path()
+    //**********************************************************
     {
         return "unknown-error.png";
     }
-    protected String get_not_found_icon_path() { return "not-found.png";}
+    //**********************************************************
+    protected String get_not_found_icon_path()
+    //**********************************************************
+    { 
+        return "not-found.png";
+    }
+    
+    //**********************************************************
+    public String get_running_man_icon_path()
+    //**********************************************************
+    {
+        return "running_man.gif";
+    }
 
     //public static final PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
     //**********************************************************
@@ -300,10 +311,6 @@ public abstract class Look_and_feel
         double w =  text.getLayoutBounds().getWidth();
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
-    }
-
-    public String get_search_icon_path() {
-        return "running_man.gif";
     }
 
 }

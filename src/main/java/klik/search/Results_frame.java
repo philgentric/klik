@@ -1,7 +1,5 @@
 package klik.search;
 
-import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -20,7 +18,6 @@ import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
-import klik.look.Font_size;
 import klik.util.Fx_batch_injector;
 import klik.util.Text_frame;
 import klik.util.execute.System_open_actor;
@@ -58,7 +55,7 @@ public class Results_frame
 		Look_and_feel_manager.set_region_look(vbox);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_search_icon());
+		iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
 		iv.setFitHeight(100);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
@@ -200,7 +197,7 @@ public class Results_frame
 		Fx_batch_injector.inject(() -> {
 			stage.setTitle(I18n.get_I18n_string("Search_Results_Ended", logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
-			iv.setImage(Look_and_feel_manager.get_search_end_icon());
+			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());
 
 			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
 			all_results.sort((o1, o2) -> {

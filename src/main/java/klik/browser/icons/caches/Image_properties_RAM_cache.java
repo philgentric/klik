@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 //**********************************************************
-public class Image_properties_cache
+public class Image_properties_RAM_cache
 //**********************************************************
 {
     public final static boolean dbg = false;
@@ -34,7 +34,7 @@ public class Image_properties_cache
     Image_properties_actor image_properties_actor;
 
     //**********************************************************
-    public Image_properties_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
+    public Image_properties_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -42,7 +42,7 @@ public class Image_properties_cache
         cache_name = cache_name_;
         String local = cache_name+ path.toAbsolutePath();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
-        Path dir = Files_and_Paths.get_aspect_ratio_and_rotation_caches_dir(null,logger);
+        Path dir = Files_and_Paths.get_aspect_ratio_and_rotation_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 

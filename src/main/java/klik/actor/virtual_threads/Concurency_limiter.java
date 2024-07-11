@@ -19,8 +19,9 @@ public class Concurency_limiter
     - with virtual threads the actor engine adds nothing = it just starts one thread per submitted actor-job!
     ... so there is no limit to the number of threads that could try to execute in parallel
     ... and it can be a huge number
-    for example, the number of files in the drive being backup-ed !!!
-    (virtual threads are cheap but the actor code may not be cheap!)
+    for example, the number of animated gifs we are making at the asmae time,
+    when making 600 x 5 seconds animated gifs from a movie
+    (virtual threads are cheap but the gif-making process is not cheap!)
     */
 
     public Concurency_limiter(String origin, double max_number_of_threads_per_core, Logger logger)

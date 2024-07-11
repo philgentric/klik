@@ -193,7 +193,7 @@ public class Undo_storage_to_disk
             }
         }
 
-        Info_stage.show_info_stage("About Klik",l, null);
+        Info_stage.show_info_stage("Undos",l, null);
     }
 
     //**********************************************************

@@ -82,7 +82,7 @@ public class I18n
         catch (MissingResourceException e)
         {
             String classpath  = System.getProperty("java.class.path");
-            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD I18n ->"+key+"<-\nnot found in classpath = "+classpath));
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING I18n ->"+key+"<-\nnot found in classpath = "+classpath));
             logger.log("the_resource_bundle contains:");
             Enumeration<String> es = the_resource_bundle.getKeys();
             while (es.hasMoreElements()) {

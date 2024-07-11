@@ -1,7 +1,7 @@
 //SOURCES ../actor/Actor_engine.java
 //SOURCES ../actor/Aborter.java
 //SOURCES ../change/Change_gang.java
-//SOURCES icons/caches/Image_properties_cache.java
+//SOURCES icons/caches/Image_properties_RAM_cache.java
 //SOURCES ../look/Look_and_feel_manager.java
 //SOURCES ../look/my_i18n/I18n.java
 //SOURCES ../properties/Static_application_properties.java
@@ -65,7 +65,7 @@ import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.*;
-import klik.browser.icons.caches.Image_properties_cache;
+import klik.browser.icons.caches.Image_properties_RAM_cache;
 import klik.browser.items.Item;
 import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;
@@ -95,7 +95,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -132,7 +131,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public final Selection_handler selection_handler;
     public final Aborter aborter;
     public final Paths_manager paths_manager;
-    private final Image_properties_cache image_properties_cache;
+    private final Image_properties_RAM_cache image_properties_cache;
 
 
     TextField status;
@@ -312,7 +311,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Pane = new Pane();
 
 
-        image_properties_cache = new Image_properties_cache(displayed_folder_path, "Image properties cache", aborter, logger);
+        image_properties_cache = new Image_properties_RAM_cache(displayed_folder_path, "Image properties cache", aborter, logger);
         icon_factory_actor = new Icon_factory_actor(image_properties_cache, my_Stage.the_Stage, aborter, logger);
         paths_manager = new Paths_manager(image_properties_cache, icon_factory_actor, displayed_folder_path, this, aborter, logger);
         icon_manager = new Icon_manager(paths_manager, aborter, logger);

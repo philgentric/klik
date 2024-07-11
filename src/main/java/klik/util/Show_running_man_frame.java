@@ -73,7 +73,7 @@ public class Show_running_man_frame implements Hourglass
 		Look_and_feel_manager.set_region_look(vbox);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_search_icon());
+		iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
 		iv.setFitHeight(100);
 		stage.setMinWidth(600);
 		iv.setPreserveRatio(true);
@@ -140,7 +140,7 @@ public class Show_running_man_frame implements Hourglass
 		if ( sleep_time > 3000) sleep_time = 3000;
 		Fx_batch_injector.inject(() -> {
 			stage.setTitle(message);//I18n.get_I18n_string("Search_Results_Ended", logger));
-			iv.setImage(Look_and_feel_manager.get_search_end_icon());
+			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());
 		},logger);
 
 		if ( sleep) {

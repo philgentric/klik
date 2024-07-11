@@ -144,12 +144,6 @@ public class Item_image extends Item
     {
         Image_window s = Image_window.get_Image_window(browser, path, logger);
         if ( dbg) logger.log("\n\nImage_stage opening for path:" + path.toString());
-
-        if (s == null) // used to be possible, normally not anymore
-        {
-            // let us do a bit of checking about why this failed
-            Change_gang.report_anomaly(path);
-        }
     }
 
 
@@ -188,6 +182,10 @@ public class Item_image extends Item
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu);
 
+        {
+            MenuItem menu_item = create_open_exif_frame_menu_item(path,logger);
+            context_menu.getItems().add(menu_item);
+        }
         {
             MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
             menu_item.setOnAction(event -> {

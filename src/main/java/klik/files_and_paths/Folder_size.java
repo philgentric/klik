@@ -1,6 +1,5 @@
 package klik.files_and_paths;
 
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
@@ -14,7 +13,6 @@ import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
-import klik.browser.items.Item_button;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.I18n;
@@ -59,7 +57,7 @@ public class Folder_size {
 
         vbox.setAlignment(javafx.geometry.Pos.CENTER);
         ImageView iv;
-        iv = new ImageView(Look_and_feel_manager.get_search_icon());
+        iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
         iv.setFitHeight(icon_height);
         iv.setPreserveRatio(true);
         vbox.getChildren().add(iv);
@@ -98,7 +96,7 @@ public class Folder_size {
             Fx_batch_injector.inject(() -> {
                 String bytes = Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes(),logger);
 
-                iv.setImage(Look_and_feel_manager.get_search_end_icon());
+                iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());
 
                 if (sizes.bytes() < 0)
                 {

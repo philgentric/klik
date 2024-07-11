@@ -115,10 +115,10 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage, logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(logger);
-            browser.icon_manager.clear_image_properties_cache_fx();
+            Files_and_Paths.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage, logger);
+            Files_and_Paths.clear_folder_icon_DISK_cache_no_warning_fx(logger);
+            browser.icon_manager.clear_image_properties_RAM_cache_fx();
         });
         return item;
     }
@@ -130,7 +130,7 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            browser.icon_manager.clear_image_properties_cache_fx();
+            browser.icon_manager.clear_image_properties_RAM_cache_fx();
         });
         return item;
     }
@@ -142,9 +142,9 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_All_Disk_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage, logger);
-            Files_and_Paths.clear_folder_icon_cache_no_warning_fx(logger);
+            Files_and_Paths.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            Files_and_Paths.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage, logger);
+            Files_and_Paths.clear_folder_icon_DISK_cache_no_warning_fx(logger);
         });
         return item;
     }
@@ -157,8 +157,8 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            browser.icon_manager.clear_image_properties_cache_fx();
+            Files_and_Paths.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
+            browser.icon_manager.clear_image_properties_RAM_cache_fx();
         });
         return item;
     }
@@ -171,8 +171,8 @@ public class Browser_menus
         String text = I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Files_and_Paths.clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(browser.my_Stage.the_Stage,logger);
-            browser.icon_manager.clear_image_properties_cache_fx();
+            Files_and_Paths.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage,logger);
+            browser.icon_manager.clear_image_properties_RAM_cache_fx();
         });
         return item;
     }

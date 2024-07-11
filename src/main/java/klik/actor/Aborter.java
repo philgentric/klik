@@ -5,14 +5,15 @@ import klik.util.Logger;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// a container for aborting background threads
-// when using virtual threads, this is not needed as we have a thread to interrupt
-// but with workers, we need to be able to interrupt them
-// aborter is a thread safe way to signal any piece of background running coode that it should abort
-// in klik a typical usage is when the user selects a different folder from browsing:
+// Aborter is a thread safe way to signal any piece of background running code
+// that it should abort
+// in Klik, a typical usage is when the user selects a different folder from browsing:
 // all background tasks that are relevant to that folder should be aborted
 // this includes icon fabrication, searches, disk scans for sizes etc
-// however backup tasks MUST NOT be aborted, so they use a different aborter
+// all these will check the aborter of THAT browser window instance,
+// and when leaving that browser window (or changing dir) the aborter will be triggered
+// Some tasks like backup tasks MUST NOT be aborted when the user changes dir
+// or closes a browsing window so they must use a specific aborter
 
 //**********************************************************
 public class Aborter

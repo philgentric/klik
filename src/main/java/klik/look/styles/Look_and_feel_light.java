@@ -24,7 +24,7 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
-    public String get_search_end_icon_path() {
+    public String get_sleeping_man_icon_path() {
         return "lazy.png";
     }
 

@@ -5,6 +5,7 @@ import javafx.print.PrinterJob;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
@@ -392,7 +393,7 @@ public class Menus_for_image_window
     Face recognition
      */
     //**********************************************************
-    private static MenuItem get_perform_face_recognition_no_face_detection_menu_item(Image_window image_window, Browser browser)
+    public static MenuItem get_perform_face_recognition_no_face_detection_menu_item(Image_window image_window, Browser browser)
     //**********************************************************
     {
         MenuItem mi = new MenuItem("Perform face recognition DIRECTLY (debug: for image that are extracted faces)");//I18n.get_I18n_string("Open", image_window.logger));
@@ -533,7 +534,7 @@ public class Menus_for_image_window
 
 
     //**********************************************************
-    private static MenuItem make_info_menu_item(Image_window image_window)
+    public static MenuItem make_info_menu_item(Image_window image_window)
     //**********************************************************
     {
         String txt = I18n.get_I18n_string("Info_about", image_window.logger);
@@ -545,7 +546,8 @@ public class Menus_for_image_window
                 {
 
                     if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                    image_window.image_display_handler.get_image_context().get().show_exif_stage(image_window.aborter);
+                    Image_context image_context = image_window.image_display_handler.get_image_context().get();
+                    Exif_stage.show_exif_stage(image_context.image, image_context.path, image_window.aborter, image_context.logger);
                 });
         return info;
     }

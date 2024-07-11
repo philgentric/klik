@@ -1,6 +1,5 @@
 package klik.level2.backup;
 
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
@@ -123,7 +122,7 @@ public class Per_folder_mini_console
 
             if (!f.isDirectory())
             {
-                if (!Guess_file_type.ignore(f.toPath()))
+                if (!Guess_file_type.should_ignore(f.toPath()))
                 {
                     target_file_count++;
                 }

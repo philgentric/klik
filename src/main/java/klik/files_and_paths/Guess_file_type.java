@@ -64,7 +64,7 @@ public class Guess_file_type
     public static boolean is_this_path_a_text(Path path)
     //**********************************************************
     {
-        if (ignore(path)) return false;
+        if (should_ignore(path)) return false;
         String extension = FilenameUtils.getExtension(path.getFileName().toString());
         return is_this_extension_a_text(extension);
     }
@@ -72,13 +72,13 @@ public class Guess_file_type
     public static boolean is_this_path_an_image(Path path)
     //**********************************************************
     {
-        if (ignore(path)) return false;
+        if (should_ignore(path)) return false;
         String extension = FilenameUtils.getExtension(path.getFileName().toString());
         return is_this_extension_an_image(extension);
     }
 
     //**********************************************************
-    public static boolean ignore(Path path)
+    public static boolean should_ignore(Path path)
     //**********************************************************
     {
         for ( String i : ignored_prefixes)
@@ -211,7 +211,7 @@ public class Guess_file_type
         {
             return true;
         }
-        return (ignore(path));
+        return (should_ignore(path));
 
     }
 

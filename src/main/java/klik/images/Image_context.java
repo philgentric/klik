@@ -146,33 +146,6 @@ public class Image_context
         return rotation;
     }
 
-    //**********************************************************
-    private List<String> load_exif(Aborter aborter)
-    //**********************************************************
-    {
-        List<String> exifs_tags_list = new ArrayList<>();
-        image_is_damaged = false;
-        try
-        {
-            Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,logger);
-            double how_many_pixels = image.getWidth()*image.getHeight();
-            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,true, aborter,true);
-            rotation = extractor.get_rotation(true,aborter);
-            if ( dbg) logger.log(path+" rotation="+rotation);
-            image_is_damaged = extractor.is_image_damaged();
-            title = extractor.title;
-        }
-        catch (OutOfMemoryError e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
-        }
-        catch (Exception e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
-        }
-        return exifs_tags_list;
-    }
-
 
     //**********************************************************
     public String get_image_name()
@@ -182,83 +155,13 @@ public class Image_context
         return path.getFileName().toString();
     }
 
+
+
     //**********************************************************
-    public void show_exif_stage(Aborter aborter)
-    //**********************************************************
-    {
-        TextFlow textFlow = new TextFlow();
-        textFlow.setLayoutX(40);
-        textFlow.setLayoutY(40);
-        if ( exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
-
-        TextField tf = new TextField(path.toAbsolutePath().toString());
-        tf.setMinWidth(1000);
-        textFlow.getChildren().add(tf);
-        textFlow.getChildren().add(new Text(System.lineSeparator()));
-
-        String file_size = Files_and_Paths.get_1_line_string_with_size(path.toAbsolutePath(),logger);
-        textFlow.getChildren().add(new Text(file_size));
-        textFlow.getChildren().add(new Text(System.lineSeparator()));
-
-        for (String s : load_exif(new Aborter("EXIF",logger)))
-        {
-            if ( exif_dbg) logger.log(s);
-            textFlow.getChildren().add(new Text(s));
-            textFlow.getChildren().add(new Text(System.lineSeparator()));
-        }
-        {
-            StringBuilder sb = get_GraphicsMagick_info();
-            if (sb == null) return;
-            Text t = new Text(sb.toString());
-            textFlow.getChildren().add(t);
-            textFlow.getChildren().add(new Text(System.lineSeparator()));
-        }
-        if ( exif_dbg) logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
-        ScrollPane sp = new ScrollPane();
-        Look_and_feel_manager.set_region_look(sp);
-        Look_and_feel_manager.set_region_look(textFlow);
-        sp.setPrefSize(1000, 600);
-        sp.setContent(textFlow);
-        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-
-        Stage local_stage = new Stage();
-        local_stage.setHeight(600);
-        local_stage.setWidth(1000);
-
-        Scene scene = new Scene(sp, 1000, 600);
-
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
-        if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
-        {
-            if (Fusk_static_core.is_fusk(path,aborter, logger))
-            {
-                String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
-                local_stage.setTitle(Fusk_strings.defusk_string(base, logger));
-            }
-            else
-            {
-                local_stage.setTitle(path.toAbsolutePath()+"(has the extension but IS NOT a fusk!)");
-            }
-        }
-        else
-        {
-            local_stage.setTitle(path.toAbsolutePath().toString());
-        }
-        local_stage.setScene(scene);
-        local_stage.show();
-        local_stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                key_event -> {
-                    if (key_event.getCode() == KeyCode.ESCAPE) {
-                        local_stage.close();
-                        key_event.consume();
-                    }
-                });
-    }
-
     double get_animated_gif_delay()
+    //**********************************************************
     {
-        StringBuilder sb = get_GraphicsMagick_info();
+        StringBuilder sb = Exif_stage.get_GraphicsMagick_info(path,logger);
         String s = sb.toString();
 
         String[] lines = s.split("\\R");
@@ -278,25 +181,6 @@ public class Image_context
         return 10;
     }
 
-    //**********************************************************
-    private StringBuilder get_GraphicsMagick_info()
-    //**********************************************************
-    {
-        List<String> graphicsMagick_command_line = new ArrayList<>();
-        graphicsMagick_command_line.add("gm");
-        graphicsMagick_command_line.add("identify");
-        graphicsMagick_command_line.add("-verbose");
-        graphicsMagick_command_line.add(path.toAbsolutePath().toString());
-
-        StringBuilder sb = new StringBuilder();
-        if ( ! Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger))
-        {
-            logger.log(warning_GraphicsMagick);
-            return null;
-        }
-        logger.log(sb.toString());
-        return sb;
-    }
 
 
     //**********************************************************

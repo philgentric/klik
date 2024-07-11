@@ -17,27 +17,13 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     (so we can have as many actors that sleep as you want, we never risk deadlock!)
      */
     private final Logger logger;
-    //private final Aborter aborter;
-    //private int recent_max_threads = 0;
 
     //**********************************************************
-    public Actor_engine_with_virtual_threads(
-            //Aborter aborter,
-            Logger logger_)
+    public Actor_engine_with_virtual_threads(Logger logger_)
     //**********************************************************
     {
-        //this.aborter = aborter;
         logger = logger_;
     }
-    /*
-    //**********************************************************
-    @Override
-    public Aborter get_aborter()
-    //**********************************************************
-    {
-        return aborter;
-    }
-*/
 
     //**********************************************************
     @Override
@@ -50,14 +36,10 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
             //if ( now > recent_max_threads) recent_max_threads = now;
             String msg = job.actor.run(job.message);
             job.has_ended(msg);
-            //if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
             Actor_engine.threads_in_flight.decrementAndGet();
         };
-        //job.thread = builder.start(r);
         ExecutorService executor_service = Threads.get_executor_service(logger);
         executor_service.execute(r);
-        //executor_service.submit(r);
-
         return job;
     }
 

@@ -13,11 +13,11 @@ public class Image_properties_message implements Message
 
     public final Path path;
     public final Logger logger;
-    public final Image_properties_cache image_properties_cache;
+    public final Image_properties_RAM_cache image_properties_cache;
     public final Aborter aborter;
 
     //**********************************************************
-    public Image_properties_message(Path path, Image_properties_cache image_properties_cache, Aborter aborter_, Logger logger)
+    public Image_properties_message(Path path, Image_properties_RAM_cache image_properties_cache, Aborter aborter_, Logger logger)
     //**********************************************************
     {
         this.path = path;

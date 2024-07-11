@@ -16,7 +16,6 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.caches.*;
 import klik.browser.items.Iconifiable_item_type;
 import klik.files_and_paths.Files_and_Paths;
-import klik.images.decoding.Fast_image_property_from_exif_metadata_extractor;
 import klik.properties.Static_application_properties;
 import klik.util.*;
 import klik.util.execute.Execute_command;
@@ -42,9 +41,7 @@ public class Icon_factory_actor implements Actor
     private static final boolean dbg = false;
     private static final boolean pdf_dbg = false;
     private static final boolean aborting_dbg = false;
-    //private final Aspect_ratio_cache aspect_ratio_cache;
-    //private final Rotation_cache rotation_cache;
-    private final Image_properties_cache image_properties_cache;
+    private final Image_properties_RAM_cache image_properties_cache;
 
     Logger logger;
     private final Stage owner;
@@ -67,7 +64,7 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    public Icon_factory_actor(Image_properties_cache image_properties_cache, Stage owner_, Aborter aborter, Logger logger_)
+    public Icon_factory_actor(Image_properties_RAM_cache image_properties_cache, Stage owner_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.image_properties_cache = image_properties_cache;

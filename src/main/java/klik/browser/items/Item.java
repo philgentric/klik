@@ -6,6 +6,7 @@
 /*
 //SOURCES ../icons/Icon_destination.java
 //SOURCES ../icons/Icon_factory_request.java
+//SOURCES ../../audio/Audio_info_frame.java
  */
 
 package klik.browser.items;
@@ -19,8 +20,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -30,6 +31,10 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.files_and_paths.Guess_file_type;
+import klik.images.Exif_stage;
+import klik.audio.Audio_info_frame;
+import klik.util.From_disk;
 import klik.util.execute.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
@@ -204,39 +209,20 @@ public abstract class Item implements Icon_destination
     }
 
 
-
-
     //**********************************************************
     public void give_a_menu_to_the_button(Button local_button, Label local_label)
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu);
-        if (!Files.isDirectory(path))
+        if (Files.isDirectory(path))
         {
-            if ( this.item_type == Iconifiable_item_type.video)
-            {
-                Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg, browser_aborter,logger);
-            }
-            // is a "plain" file
-            context_menu.getItems().add(create_open_with_system_menu_item(path,logger));
-            context_menu.getItems().add(create_open_with_special_app_item(path,logger));
-            context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
-            context_menu.getItems().add(create_copy_menu_item());
-            context_menu.getItems().add(create_delete_menu_item());
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
-            if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
-        }
-        else
-        {
-            // is a folder
             context_menu.getItems().add(create_get_folder_size_menu_item());
             if ( is_trash())
             {
                 MenuItem menu_item = create_clear_trash_menu_item();
                 context_menu.getItems().add(menu_item);
             }
-
             if(!is_trash() && !is_parent())
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
@@ -246,15 +232,69 @@ public abstract class Item implements Icon_destination
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
                 context_menu.getItems().add(create_edit_color_menu_item(logger));
-
-
             }
         }
+        else
+        {
+            if (Guess_file_type.is_this_path_an_image(path))
+            {
+                context_menu.getItems().add(create_open_exif_frame_menu_item(path,logger));
+            }
+            if (Guess_file_type.is_this_path_a_music(path))
+            {
+                context_menu.getItems().add(create_open_mediainfo_frame_menu_item(path,logger));
+            }
+            if ( this.item_type == Iconifiable_item_type.video)
+            {
+                Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg, browser_aborter,logger);
+            }
+
+            // is a "plain" file
+            context_menu.getItems().add(create_open_with_system_menu_item(path,logger));
+            context_menu.getItems().add(create_open_with_special_app_item(path,logger));
+            context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
+            context_menu.getItems().add(create_copy_menu_item());
+            context_menu.getItems().add(create_delete_menu_item());
+
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
+            if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+        }
+
 
         local_button.setOnContextMenuRequested((ContextMenuEvent event) -> {
             if ( dbg) logger.log("show context menu of button:"+ path.toAbsolutePath());
             context_menu.show(local_button, event.getScreenX(), event.getScreenY());
         });
+    }
+
+
+    //**********************************************************
+    public MenuItem create_open_exif_frame_menu_item(Path path, Logger logger)
+    //**********************************************************
+    {
+        String txt = I18n.get_I18n_string("Info_about", logger);
+        MenuItem menu_item = new MenuItem(txt);
+        menu_item.setOnAction(actionEvent -> {
+            if (dbg) logger.log("info");
+            Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, browser_aborter,logger);
+            Exif_stage.show_exif_stage(local_image, path, browser_aborter, logger);
+        });
+
+        return menu_item;
+    }
+
+    //**********************************************************
+    public MenuItem create_open_mediainfo_frame_menu_item(Path path, Logger logger)
+    //**********************************************************
+    {
+        String txt = I18n.get_I18n_string("Info_about", logger);
+        MenuItem menu_item = new MenuItem(txt);
+        menu_item.setOnAction(actionEvent -> {
+            if (dbg) logger.log("info");
+            Audio_info_frame.show(path,logger);
+        });
+
+        return menu_item;
     }
 
 

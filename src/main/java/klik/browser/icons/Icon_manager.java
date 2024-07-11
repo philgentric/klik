@@ -33,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -403,9 +402,11 @@ public class Icon_manager
                     column_increment,
                     row_increment_for_files, scene_width, single_column);
 
-            Item_button ini = (Item_button) item;
-            ini.get_button().setPrefWidth(column_increment);
-            ini.get_button().setMinWidth(column_increment);
+            if (item instanceof Item_button ini)
+            {
+                ini.get_button().setPrefWidth(column_increment);
+                ini.get_button().setMinWidth(column_increment);
+            }
         }
         if ( ! paths_manager.non_iconized.isEmpty())
         {
@@ -491,7 +492,7 @@ public class Icon_manager
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-             folder_item = new Item_folder_with_icon(the_browser, folder_path, color, folder_path.getFileName().toString(), (int)column_increment, logger);
+            folder_item = new Item_folder_with_icon(the_browser, folder_path, color, folder_path.getFileName().toString(), (int)column_increment, logger);
             all_items_map.put(folder_path, folder_item);
         }
         p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
@@ -558,7 +559,7 @@ public class Icon_manager
     }
 
     //**********************************************************
-    public void clear_image_properties_cache_fx()
+    public void clear_image_properties_RAM_cache_fx()
     //**********************************************************
     {
         if ( paths_manager.image_properties_cache == null) return;

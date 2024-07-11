@@ -56,16 +56,16 @@ public class Image_decoding_actor_for_cache implements Actor
             }
             else
             {
-                if (!Guess_file_type.ignore(image_context.path))
+                if (!Guess_file_type.should_ignore(image_context.path))
                 {
                     logger.log( Stack_trace_getter.get_stack_trace(image_context.path.getFileName().toString()
-                            +" BADBADBAD weird image ?"+image_context.image.getWidth() +"x"+image_context.image.getHeight()));
+                            +" BAD WARNING weird image ?"+image_context.image.getWidth() +"x"+image_context.image.getHeight()));
                 }
             }
         }
         else
         {
-            logger.log( Stack_trace_getter.get_stack_trace("BADBADBAD get_Image_and_index failed"));
+            logger.log( Stack_trace_getter.get_stack_trace("BAD WARNING get_Image_and_index failed"));
         }
         return "OK, image decoded";
     }

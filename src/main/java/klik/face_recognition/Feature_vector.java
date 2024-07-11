@@ -41,7 +41,7 @@ public class Feature_vector
     {
         if ( path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BADBADBAD"));
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING"));
             return null;
         }
 

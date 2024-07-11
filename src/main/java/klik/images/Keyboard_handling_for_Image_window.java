@@ -138,7 +138,8 @@ public class Keyboard_handling_for_Image_window
                 if (keyword_dbg) logger.log("i like information");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().show_exif_stage(image_window.aborter);
+                Image_context image_context = image_window.image_display_handler.get_image_context().get();
+                Exif_stage.show_exif_stage(image_context.image, image_context.path, image_window.aborter, image_context.logger);
                 key_event.consume();
                 return;
             }

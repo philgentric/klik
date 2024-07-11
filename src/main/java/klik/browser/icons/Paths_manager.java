@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
-import klik.browser.icons.caches.Image_properties_cache;
+import klik.browser.icons.caches.Image_properties_RAM_cache;
 import klik.files_and_paths.Files_and_Paths;
 import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
@@ -23,7 +23,6 @@ import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,18 +49,15 @@ public class Paths_manager
     public final int ID;
     public final Aborter aborter;
     public final Path folder_path;
-    final Image_properties_cache image_properties_cache;
+    final Image_properties_RAM_cache image_properties_cache;
     private final Icon_factory_actor icon_factory_actor;
 
     private Refresh_target refresh_target;
 
     //**********************************************************
-    public Paths_manager(Image_properties_cache image_properties_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
+    public Paths_manager(Image_properties_RAM_cache image_properties_cache, Icon_factory_actor icon_factory_actor, Path displayed_folder_path, Refresh_target refresh_target_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
-        //this.image_sizes_cache = image_sizes_cache;
-        //this.aspect_ratio_cache = aspect_ratio_cache;
-        //this.rotation_cache = rotation_cache;
         this.image_properties_cache = image_properties_cache;
         folder_path = displayed_folder_path;
         logger = logger_;
@@ -70,7 +66,6 @@ public class Paths_manager
         aborter = aborter_;
         this.icon_factory_actor = icon_factory_actor;
 
-        //boolean gif_first = Static_application_properties.get_show_gifs_first(logger);
         switch (Static_application_properties.get_sort_files_by(logger))
         {
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:

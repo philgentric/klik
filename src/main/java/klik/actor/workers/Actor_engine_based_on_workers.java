@@ -23,19 +23,15 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     private static final boolean dbg = false;
     private static final int MULTIPLICATION_FACTOR_FOR_THREAD_COUNT = 4;
     private final Logger logger;
-    //private final Aborter aborter;
     ConcurrentLinkedQueue<Worker> runners = new ConcurrentLinkedQueue<>();
     LinkedBlockingQueue<Job> input_queue_single = new LinkedBlockingQueue<>();
     private final AtomicInteger threads_in_flight = new AtomicInteger(0);
 
 
     //**********************************************************
-    public Actor_engine_based_on_workers(
-            //Aborter aborter,
-            Logger logger_)
+    public Actor_engine_based_on_workers(Logger logger_)
     //**********************************************************
     {
-        //this.aborter = aborter;
         int number_of_runners = MULTIPLICATION_FACTOR_FOR_THREAD_COUNT*Runtime.getRuntime().availableProcessors();
 
         logger = logger_;

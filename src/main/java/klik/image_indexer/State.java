@@ -60,7 +60,7 @@ class State
             {
                 if (Files.isDirectory(path)) continue;
 
-                if ( !consider_also_hidden_files) if ( Guess_file_type.ignore(path)) continue;
+                if ( !consider_also_hidden_files) if ( Guess_file_type.should_ignore(path)) continue;
 
                 path_list.add(path);
             }

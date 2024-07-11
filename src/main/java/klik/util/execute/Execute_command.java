@@ -14,6 +14,10 @@ public class Execute_command
 //**********************************************************
 {
 
+    public static final String GOING_TO_SHOOT_THIS = "going TO SHOOT THIS: ->";
+    public static final String EXECUTE_COMMAND_END_OF_WAIT_OK = "Execute command: end of wait OK";
+    public static final String IN_WORKING_DIR = "in working dir";
+
     //**********************************************************
     public static boolean execute_command_list(List<String> command_tokens, File wd, int max_ms_wait_time, StringBuilder to_be_returned, Logger logger)
     //**********************************************************
@@ -24,7 +28,7 @@ public class Execute_command
         {
             received_line.append(s).append(" ");
         }
-        if ( to_be_returned != null) to_be_returned.append("going TO SHOOT THIS: ->").append(received_line).append("<-\nin working dir:").append(wd.getAbsolutePath()).append("\n");
+        if ( to_be_returned != null) to_be_returned.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
 
         ProcessBuilder process_builder = new ProcessBuilder(command_tokens);
         process_builder.directory(wd);
@@ -93,7 +97,7 @@ public class Execute_command
         }
         if ( to_be_returned != null)
         {
-            to_be_returned.append("Execute command: end of wait OK");
+            to_be_returned.append(EXECUTE_COMMAND_END_OF_WAIT_OK);
         }
         return true;
     }

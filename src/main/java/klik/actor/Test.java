@@ -19,7 +19,7 @@ public class Test
 
         class Message1 implements Message
         {
-            String s;
+            final String s;
             Aborter aborter = new Aborter("test",logger);
             public Message1(String s_) {
                 s = s_;
@@ -37,7 +37,7 @@ public class Test
         }
         class Actor1 implements Actor
         {
-            String actor_name;
+            final String actor_name;
             public Actor1(String actor_name_) {
                 actor_name = actor_name_;
             }
@@ -77,8 +77,9 @@ public class Test
             if ( random.nextBoolean()) ac = a;
             else ac = b;
 
-            Job am = Actor_engine.run(ac,m, cr,logger);
+            Job j = Actor_engine.run(ac,m, cr,logger);
 
+            logger.log("started job:"+j);
         }
 
         try {

@@ -173,7 +173,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static Path get_aspect_ratio_and_rotation_caches_dir(Stage owner, Logger logger)
+    public static Path get_aspect_ratio_and_rotation_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
         if ( Static_application_properties.get_use_RAM_disk(logger))
@@ -244,7 +244,7 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void clear_icon_cache_on_disk_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_icon_DISK_cache_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_icon_cache_dir(owner, logger);
@@ -270,10 +270,10 @@ public class Files_and_Paths {
 
 
     //**********************************************************
-    public static void clear_aspect_ratio_and_rotation_caches_on_disk_no_warning_fx(Stage owner, Logger logger)
+    public static void clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(Stage owner, Logger logger)
     //**********************************************************
     {
-        Path icons = get_aspect_ratio_and_rotation_caches_dir(owner, logger);
+        Path icons = get_aspect_ratio_and_rotation_cache_dir(owner, logger);
         delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
     }
 
@@ -295,7 +295,7 @@ public class Files_and_Paths {
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_no_warning_fx(Logger logger)
+    public static void clear_folder_icon_DISK_cache_no_warning_fx(Logger logger)
     //**********************************************************
     {
         Path icons = get_folder_icon_cache_dir(logger);

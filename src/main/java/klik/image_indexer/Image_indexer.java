@@ -27,7 +27,8 @@ difficulties arise because
 
 Any of this can be from 2 different origins:
 - internally: from actions generated in THIS instance of klik (but a different browser instance typically?)
-- "behind our back" the file system may be changing, for example the user has another file manager open and is renaming/moving/deleting etc
+- "behind our back" the file system may be changing, for example the user has another file manager open
+ (or another instance of klik) and is renaming/moving/deleting etc
 
 In both cases, browser windows and image windows CAN get warned thanks to the change gang
 - internal action : the change gang tells us... if the action included sending an event!
