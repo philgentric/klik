@@ -7,6 +7,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -64,6 +65,7 @@ public class Item_image extends Item
 
         // first time
         image_view = new ImageView();
+        Tooltip.install(image_view,new Tooltip(path.getFileName().toString()));
         image_pane = new StackPane(image_view);
 
         if ( dbg)
