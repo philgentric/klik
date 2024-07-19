@@ -168,28 +168,4 @@ public class Show_running_man_frame implements Hourglass
 	}
 
 
-
-	public void wait_and_block_until_finished(AtomicInteger in_flight)
-	{
-		Runnable tracker =  new Runnable() {
-			@Override
-			public void run() {
-				for(;;)
-				{
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-
-					if( in_flight.get() == 0)
-					{
-						close();
-						return;
-					}
-				}
-			}
-		};
-		Actor_engine.execute(tracker, logger);
-	}
 }

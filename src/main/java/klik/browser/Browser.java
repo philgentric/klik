@@ -111,6 +111,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
     public static Aborter monitoring_aborter;
+    public static boolean show_running_man = true;
     static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;

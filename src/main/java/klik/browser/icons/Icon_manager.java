@@ -127,7 +127,7 @@ public class Icon_manager
         if ( map_buttons_and_icons_guard.get())
         {
             logger.log("map_buttons_and_icons_guard activated " +reason);
-            running_man.close();
+            if ( running_man != null) running_man.close();
             return;
         }
         map_buttons_and_icons_guard.set(true);
@@ -159,19 +159,19 @@ public class Icon_manager
         if (the_browser.error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
             show_error_icon(the_browser, pane, iv_denied, top_delta_y);
-            running_man.close();
+            if ( running_man != null) running_man.close();
             return;
         }
         if (the_browser.error_type == Error_type.NOT_FOUND) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
             show_error_icon(the_browser, pane, iv_denied, top_delta_y);
-            running_man.close();
+            if ( running_man != null) running_man.close();
             return;
         }
         if (the_browser.error_type == Error_type.ERROR) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
             show_error_icon(the_browser, pane, iv_denied, top_delta_y);
-            running_man.close();
+            if ( running_man != null) running_man.close();
             return;
         }
 
@@ -245,7 +245,7 @@ public class Icon_manager
         Fx_batch_injector.inject(()->
                 {
                     check_visibility_11(pane, reason+" map_buttons_and_icons "+from_thread);
-                    if ( running_man!=null) running_man.close();
+                    if ( running_man != null) running_man.close();
                     scroll_to(scroll_to);
                 },logger);
     }
@@ -281,7 +281,7 @@ public class Icon_manager
     }
 
     //**********************************************************
-    private void process_iconified_items(Browser the_browser, boolean single_column, double icon_size, double column_increment, double scene_width, Point2D point)
+    private synchronized void process_iconified_items(Browser the_browser, boolean single_column, double icon_size, double column_increment, double scene_width, Point2D point)
     //**********************************************************
     {
 
@@ -360,6 +360,11 @@ public class Icon_manager
         for (Path path : ll )
         {
             Item item = all_items_map.get(path);
+            if ( item == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("should not happen: item is null for"+path));
+                return;
+            }
             if (dbg)  logger.log("Icon_manager process_iconified_items " + path+" ar:"+((Item_image)item).aspect_ratio);
 
             if (show_icons_instead_of_text) {

@@ -46,8 +46,7 @@ public class Keyboard_handling_for_Image_window
             else
             {
                 image_window.the_Stage.close();
-                //logger.log("Image_stage closing on escape");
-                Change_gang.deregister(image_window.image_display_handler, the_browser.aborter);
+                image_window.my_close();
             }
 
             return;

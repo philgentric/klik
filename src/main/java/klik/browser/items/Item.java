@@ -679,10 +679,8 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
-        if ( get_javafx_y() == 0)
-        {
-            logger.log("process_is_visible item "+get_item_path()+" x="+get_javafx_x()+" y="+get_javafx_y());
-        }
+        //if ( get_javafx_y() == 0) logger.log("process_is_visible item "+get_item_path()+" x="+get_javafx_x()+" y="+get_javafx_y());
+
 
         set_translate_X(get_javafx_x());
         set_translate_Y(get_javafx_y() - current_vertical_offset);

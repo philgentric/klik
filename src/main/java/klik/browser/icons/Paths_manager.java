@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
@@ -93,14 +94,17 @@ public class Paths_manager
     }
 
     //long scan_dir_elapsed = 0;
-
-
     //**********************************************************
     public void scan_dir_in_a_thread_2(Stage stage, Change_type change_type)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
-        Hourglass running_man = Show_running_man_frame.show_running_man("Scanning folder", 20*60,  aborter, logger);
+
+        Hourglass running_man = null;
+        if (Browser.show_running_man)
+        {
+            running_man = Show_running_man_frame.show_running_man("Scanning folder", 20*60,  aborter, logger);
+        }
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
@@ -120,7 +124,7 @@ public class Paths_manager
 
 
 
-    private AtomicBoolean hard_part_guard = new AtomicBoolean(false);
+    private final AtomicBoolean hard_part_guard = new AtomicBoolean(false);
 
     //**********************************************************
     private void do_the_hard_work_of_scan_dir_3(Path folder_path, Stage stage, boolean show_hidden_directories, boolean show_icons_for_folders, boolean show_hidden_files, boolean show_icons_instead_of_text)
@@ -282,7 +286,6 @@ public class Paths_manager
         @Override
         public int compare(Path f1, Path f2)
         {
-            System.out.println("alphabetical_file_name_comparator_gifs_fist ");
             int i =  f1.getFileName().toString().compareTo(f2.getFileName().toString());
             if ( i != 0) return i;
             Boolean is_gif1 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f1.getFileName().toString()));

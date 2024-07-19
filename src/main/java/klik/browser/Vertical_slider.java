@@ -137,7 +137,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         double pixel_height = get_pixel_height(icon_manager.get_landscape_height());
         //if ( Icon_manager.scroll_dbg)
         //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
-        logger.log(("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
+        //logger.log(("\n\n\nset_absolute_value (with pixel_height="+pixel_height+")  pixels="+pixels+"\n"));
         double slider = pixels_to_slider(pixels,pixel_height);
         //logger.log("new slider value 1 = "+slider);
         the_Slider.setValue(slider);

@@ -1,6 +1,5 @@
 package klik.images;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -27,7 +26,6 @@ import klik.util.Logger;
 import klik.util.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.swing.text.html.Option;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,11 +163,9 @@ public class Image_window
 
 
 
-        the_Stage.setOnCloseRequest(we -> {
-            logger.log("Image_window is closing");
-            aborter.abort("Image_window is closing");
-            Change_gang.deregister(image_display_handler, aborter);
-        });
+        // this event handler is NOT called when close() is called
+        // from the keyboard handler but only upon an "OS" window close
+        the_Stage.setOnCloseRequest(we -> my_close());
 
         the_Scene.setOnScroll(event -> {
             double dy = -event.getDeltaY();
@@ -209,6 +205,7 @@ public class Image_window
 
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
+        Browser.show_running_man = false;
 
     }
 
@@ -220,6 +217,10 @@ public class Image_window
         progress = p;
     }
 
+
+    /*
+    slide show
+     */
 
     //**********************************************************
     public boolean toggle_slideshow()
@@ -259,6 +260,26 @@ public class Image_window
         slide_show = null;
         image_display_handler.set_title();
     }
+
+    //**********************************************************
+    public void hurry_up()
+    //**********************************************************
+    {
+        if ( slide_show!= null) slide_show.hurry_up();
+    }
+
+    //**********************************************************
+    public void slow_down()
+    //**********************************************************
+    {
+        if ( slide_show!= null) slide_show.slow_down();
+    }
+
+
+
+
+
+
 
     //**********************************************************
     void set_background(Region target, String extension)
@@ -459,6 +480,15 @@ public class Image_window
     }
 
 
+    //**********************************************************
+    public void my_close()
+    //**********************************************************
+    {
+        logger.log("Image_window is closing");
+        aborter.abort("Image_window is closing");
+        Browser.show_running_man = true;
+        Change_gang.deregister(image_display_handler, aborter);
+    }
 
     //**********************************************************
     void set_image(Image_context local_image_context)
@@ -476,16 +506,13 @@ public class Image_window
         Fx_batch_injector.inject(() -> {
 
             local_image_context.the_image_view.setPreserveRatio(true);
-            //logger.log("smooth?"+local_image_context.imageView.isSmooth());
             local_image_context.the_image_view.setSmooth(true);
-            //ic.imageView.setCache(true);
             double rot = local_image_context.get_rotation(aborter);
 
             // there is a bug with imageView rotate
             // see: https://stackoverflow.com/questions/53109791/fitting-rotated-imageview-into-application-window-scene
             // but the proposed solution does not work well
             // the trick that works however is to rotate a Pane containing the imageview !!!
-            //local_image_context.the_image_view.setRotate(rot);
             the_image_Pane.setRotate(rot);
             if (( rot == 90) || ( rot == 270))
             {
@@ -496,49 +523,11 @@ public class Image_window
                 local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
                 local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
             }
-            /*
-            ReadOnlyDoubleProperty h1 = the_Scene.heightProperty();
-            ReadOnlyDoubleProperty h2 = the_progress_bar.heightProperty();
-            DoubleBinding real_height_property = h1.subtract(h2);
-            if (( rot == 90) || ( rot == 270))
-            {
-                if(dbg) logger.log("image_window rot 90 or 270 " +
-                        " h= "+real_height_property.get()
-                +" w= "+the_Scene.widthProperty().get());
-                // when the image is rotated imageview "width property" becomes ... the display height !!!
-                // (and vice-versa)
-                local_image_context.the_image_view.fitWidthProperty().bind(real_height_property);
-                local_image_context.the_image_view.fitHeightProperty().bind(the_Scene.widthProperty());
-            }
-            else
-            {
-                // this will work properly only for rot = 0 and rot = 180
-                // for exotic values, image corners will be truncated ...
-                local_image_context.the_image_view.fitWidthProperty().bind(the_Scene.widthProperty());
-                local_image_context.the_image_view.fitHeightProperty().bind(real_height_property);
-            }
-*/
             set_background(the_image_Pane,FilenameUtils.getExtension(local_image_context.get_image_name()));
 
-
-            //the_image_Pane.setCenter(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
             set_stage_title(local_image_context);
-            /*
-
-            boolean local_pix_for_pix =  false;
-            if ( the_Scene.getHeight() > local_image_context.the_image_view.getImage().getHeight())
-            {
-                if (the_Scene.getWidth() > local_image_context.the_image_view.getImage().getWidth())
-                {
-                    local_pix_for_pix = true;
-                }
-            }
-            final boolean local_pix_for_pix2 =  local_pix_for_pix;
-            if (mouse_handling_for_image_window.mouse_mode == Mouse_mode.pix_for_pix || local_pix_for_pix2 ) mouse_handling_for_image_window.pix_for_pix();
-            */
-
         },logger);
     }
 
@@ -568,16 +557,13 @@ public class Image_window
     }
 
 
-    public Path get_dir() {
+    //**********************************************************
+    public Path get_folder_path()
+    //**********************************************************
+    {
         return dir;
     }
 
-    public void hurry_up() {
-        if ( slide_show!= null) slide_show.hurry_up();
-    }
 
-    public void slow_down() {
-        if ( slide_show!= null) slide_show.slow_down();
 
-    }
 }

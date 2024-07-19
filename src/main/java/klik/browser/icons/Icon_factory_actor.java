@@ -381,7 +381,7 @@ public class Icon_factory_actor implements Actor
             }
 
 
-            Ffmpeg_utils.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, icon_factory_request.get_aborter(), logger);
+            Ffmpeg_utils.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting6");
                 return null;

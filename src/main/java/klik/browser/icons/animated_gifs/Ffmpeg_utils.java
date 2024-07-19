@@ -196,10 +196,12 @@ public class Ffmpeg_utils
             Path destination_gif_full_path,
             double clip_duration_in_seconds,
             double start_time_in_seconds,
+            int retry_safety_count,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
+        if (retry_safety_count > 5) return false;
         List<String> list = new ArrayList<>();
         list.add("ffmpeg");
         list.add("-y"); // force overwrite of output without asking
@@ -238,8 +240,10 @@ public class Ffmpeg_utils
 
         if (sb.toString().contains("Output file is empty"))
         {
+            if ( retry_safety_count > 5) return false;
+            retry_safety_count++;
             //retry without delay
-            return video_to_gif(owner, video_path, destination_gif_full_path, clip_duration_in_seconds, 0, aborter,logger);
+            return video_to_gif(owner, video_path, destination_gif_full_path, clip_duration_in_seconds, 0, retry_safety_count, aborter,logger);
 
         }
         return true;
@@ -481,6 +485,7 @@ public class Ffmpeg_utils
                 gif_full_path,
                 clip_duration,
                 start_time,
+                0,
                 new Aborter("video_to_gif",logger),
                 logger);
 

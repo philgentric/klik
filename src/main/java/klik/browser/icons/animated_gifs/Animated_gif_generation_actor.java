@@ -36,6 +36,7 @@ public class Animated_gif_generation_actor implements Actor
                 mm.destination_gif_full_path,
                 mm.dur,
                 mm.start,
+                0,
                 mm.get_aborter(),
                 mm.logger);
         cl.release();

@@ -5,7 +5,6 @@
 
 package klik.images;
 
-import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -312,7 +311,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         // Job_termination_reporter will recover the NEW image_context
 
         Index_reporter index_reporter = index -> {
-            image_window.set_progress(image_window.get_dir(), index);
+            image_window.set_progress(image_window.get_folder_path(), index);
             if ( dbg) logger.log("reporting index for: "+ image_context.get().path+" index="+index);
         };
 

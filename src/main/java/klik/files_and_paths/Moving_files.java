@@ -142,7 +142,12 @@ public class Moving_files
                                           boolean and_list_for_undo, Aborter aborter , Logger logger)
     //**********************************************************
     {
-        Hourglass x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+        Hourglass x = null;
+
+        if ( the_list.size() > 2)
+        {
+            x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+        }
 
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
@@ -224,7 +229,7 @@ public class Moving_files
             logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
         }
 
-        x.close();
+        if ( x != null) x.close();
 
 
         return done;
