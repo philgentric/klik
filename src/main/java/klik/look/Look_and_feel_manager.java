@@ -36,7 +36,6 @@ public class Look_and_feel_manager
     private static Image default_icon = null;
     public static Image broken_icon = null;
     public static Image denied_icon = null;
-    public static Image large_folder_icon = null;
     public static Image folder_icon = null;
     public static Image trash_icon = null;
     public static Image bookmarks_icon = null;
@@ -89,13 +88,13 @@ public class Look_and_feel_manager
     }
 
     //**********************************************************
-    public static void set_look_and_feel(Look_and_feel style)
+    public static void set_look_and_feel(Look_and_feel instance_)
     //**********************************************************
     {
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
-        logger.log(("setting style = " + style.name));
-        instance = style;
-        Static_application_properties.set_style(style,logger);
+        logger.log(("setting style = " + instance_.name));
+        instance = instance_;
+        Static_application_properties.set_style(instance_,logger);
         reset();
     }
 
@@ -131,13 +130,13 @@ public class Look_and_feel_manager
         {
             if ( dummy_icon.getHeight() == icon_size) return dummy_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_dummy_icon_path();
+        String path = local_instance.get_dummy_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get dummy icon path"));
@@ -154,13 +153,13 @@ public class Look_and_feel_manager
         {
             if ( folder_icon.getHeight() == icon_size) return folder_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_folder_icon_path();
+        String path = local_instance.get_folder_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));
@@ -174,13 +173,13 @@ public class Look_and_feel_manager
     public static Image get_speaker_icon()
     //**********************************************************
     {
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_speaker_icon_path();
+        String path = local_instance.get_speaker_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));
@@ -243,13 +242,13 @@ public class Look_and_feel_manager
         {
             if ( default_icon.getHeight() == icon_size) return default_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_default_icon_path();
+        String path = local_instance.get_default_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get default icon path"));
@@ -268,13 +267,13 @@ public class Look_and_feel_manager
         {
             if ( denied_icon.getHeight() == icon_size) return denied_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_denied_icon_path();
+        String path = local_instance.get_denied_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get denied icon path"));
@@ -293,13 +292,13 @@ public class Look_and_feel_manager
         {
             if ( trash_icon.getHeight() == icon_size) return trash_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_trash_icon_path();
+        String path = local_instance.get_trash_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get trash icon path"));
@@ -318,13 +317,13 @@ public class Look_and_feel_manager
         {
             if ( up_icon.getHeight() == icon_size) return up_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_up_icon_path();
+        String path = local_instance.get_up_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up icon path"));
@@ -343,13 +342,13 @@ public class Look_and_feel_manager
         {
             if ( bookmarks_icon.getHeight() == icon_size) return bookmarks_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_bookmarks_icon_path();
+        String path = local_instance.get_bookmarks_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up bookmarks path"));
@@ -367,13 +366,13 @@ public class Look_and_feel_manager
         {
             if ( view_icon.getHeight() == icon_size) return view_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_view_icon_path();
+        String path = local_instance.get_view_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up view icon path"));
@@ -391,13 +390,13 @@ public class Look_and_feel_manager
         {
             if ( preferences_icon.getHeight() == icon_size) return preferences_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_preferences_icon_path();
+        String path = local_instance.get_preferences_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up preferences icon path"));
@@ -416,13 +415,13 @@ public class Look_and_feel_manager
         {
             if ( broken_icon.getHeight() == icon_size) return broken_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_broken_icon_path();
+        String path = local_instance.get_broken_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get broken icon path"));
@@ -441,13 +440,13 @@ public class Look_and_feel_manager
         {
             if ( not_found_icon.getHeight() == icon_size) return not_found_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_not_found_icon_path();
+        String path = local_instance.get_not_found_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get not_found icon path"));
@@ -466,13 +465,13 @@ public class Look_and_feel_manager
         {
             if ( unknown_error_icon.getHeight() == icon_size) return unknown_error_icon;
         }
-        Look_and_feel i = get_instance();
-        if (i == null)
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_unknown_error_icon_path();
+        String path = local_instance.get_unknown_error_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get unknown_error icon path"));
@@ -731,16 +730,6 @@ public class Look_and_feel_manager
         Font_size.apply_font_size(region,logger);
     }
 
-/*
-    //**********************************************************
-    public static void set_label_look_for_folder(Label label) // Label is a Region
-    //**********************************************************
-    {
-        //String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-        //if (s == null) logger.log("WARNING: could not load folder icon");
-        set_label_look(label);
-    }
-*/
 
     //**********************************************************
     public static void set_label_look(Label label)
@@ -768,13 +757,9 @@ public class Look_and_feel_manager
     public static void set_button_look_as_folder(Button button, double icon_height, Color color) // Button is a region
     //**********************************************************
     {
-        if ( folder_icon == null) {
+        if ( folder_icon == null)
+        {
             folder_icon = get_folder_icon(icon_height);
-            //logger.log("set_button_look_as_folder = "+icon_height);
-            //String s = Look_and_feel_manager.get_instance().get_folder_icon_path();
-            //if (s == null) logger.log("WARNING: could not load folder icon");
-            //folder_icon = load_icon_fx_from_jar(s, icon_height);
-            //if (folder_icon == null) logger.log("WARNING: could not load " + s);
         }
         set_button_and_image_look(button, folder_icon, icon_height, color,true);
     }
@@ -793,24 +778,15 @@ public class Look_and_feel_manager
     public static void set_CheckBox_look(CheckBox check_box)
     //**********************************************************
     {
-
         Look_and_feel laf = get_instance();
-        if (laf.style_sheet_url_string != null) {
+        if (laf.style_sheet_url_string != null)
+        {
             check_box.getStylesheets().clear();
             check_box.getStylesheets().add(laf.style_sheet_url_string);
             check_box.getStyleClass().clear();
             check_box.getStyleClass().add("check-box");
         }
-        //check_box.getStyleClass().clear();
-        //check_box.getStyleClass().add("check-box");
         Font_size.apply_font_size(check_box,logger);
-        /*
-        Look_and_feel laf = Look_and_feel_manager.get_instance();
-        if (laf.style_sheet_url_string != null)
-        {
-            check_box.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
-        }
-        */
     }
 
 
@@ -936,22 +912,22 @@ public class Look_and_feel_manager
     public static void set_background(Node n, BackgroundFill background_fill)
     //**********************************************************
     {
-        if ( n instanceof Button)
+        if ( n instanceof Button button)
         {
-            Button button = (Button)n;
             button.setBackground(new Background(background_fill));
             Node node = button.getGraphic();
-            if (node instanceof Label)
+            if (node instanceof Label label)
             {
-                Look_and_feel_manager.set_label_look((Label) node);
+                Look_and_feel_manager.set_label_look(label);
             }
         }
-        else if ( n instanceof FlowPane)
+        else if ( n instanceof FlowPane flow_pane)
         {
-            ((FlowPane)n).setBackground(new Background(background_fill));
+            flow_pane.setBackground(new Background(background_fill));
         }
     }
 
+    /*
     //**********************************************************
     public static void set_box_look(Region r) // VBox is a region
     //**********************************************************
@@ -974,7 +950,7 @@ public class Look_and_feel_manager
         hbox.getStylesheets().add(laf.style_sheet_url_string);
         hbox.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
     }
-
+*/
 
     //**********************************************************
     public static void set_drag_look_for_pane(Region pane)

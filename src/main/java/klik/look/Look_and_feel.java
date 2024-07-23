@@ -90,7 +90,6 @@ public abstract class Look_and_feel
         {
             logger.log("BAD WARNING cannot apply CSS style to pane");
             return new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY);
-
         }
         if ( tmp_pane.getBackground() == null)
         {
@@ -149,14 +148,18 @@ public abstract class Look_and_feel
     abstract public String get_preferences_icon_path();
     abstract public String get_broken_icon_path();
     abstract public String get_default_icon_path();
-    public String get_speaker_icon_path(){return "speaker.png";}
     abstract public String get_folder_icon_path();
     abstract public String get_selected_text_color();
     abstract public Color get_selection_box_color();
-
     abstract public Color get_background_color();
     abstract public Color get_foreground_color();
 
+    //**********************************************************
+    public String get_speaker_icon_path()
+    //**********************************************************
+    {
+        return "speaker.png";
+    }
 
     //**********************************************************
     protected String get_dummy_icon_path()
@@ -192,17 +195,13 @@ public abstract class Look_and_feel
         return "running_man.gif";
     }
 
-    //public static final PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
     //**********************************************************
     public void set_hovered_directory_style(Node node)
     //**********************************************************
     {
         //System.out.println("Look_and_feel::set_hovered_directory_style");
         Font_size.apply_font_size(node, logger);
-
         set_text_color(node,get_selected_text_color());//"-fx-text-fill: #704040;");
-        //PseudoClass pseudo_css_class_for_selection = PseudoClass.getPseudoClass("selected_item");
-        //button.pseudoClassStateChanged(pseudo_css_class_for_selection,true);
     }
 
 
@@ -212,15 +211,13 @@ public abstract class Look_and_feel
     {
         // color MUST be formatted as: "-fx-text-fill: #704040;"
         node.setStyle(color);
-        if ( node instanceof Button)
+        if ( node instanceof Button button)
         {
-            Button button = (Button) node;
             //button.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(2))));
             Node g = button.getGraphic();
-            if ( g instanceof Label)
+            if ( g instanceof Label label)
             {
-                Label t = (Label) g;
-                t.setStyle(color);
+                label.setStyle(color);
             }
 
         }

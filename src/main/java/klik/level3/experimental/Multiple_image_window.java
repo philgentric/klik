@@ -1,7 +1,6 @@
 //SOURCES ../../image_indexer/Image_indexer.java
 package klik.level3.experimental;
 
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;

@@ -328,7 +328,7 @@ public class Paths_manager
 
     //**********************************************************
     public final static Comparator<Path> alphabetical_file_name_comparator_gif_first = new Comparator<>()
-            //**********************************************************
+    //**********************************************************
     {
         @Override
         public int compare(Path f1, Path f2)
@@ -357,7 +357,7 @@ public class Paths_manager
 
     //**********************************************************
     public final static Comparator<Path> decreasing_file_size_comparator = new Comparator<>()
-            //**********************************************************
+    //**********************************************************
     {
         @Override
         public int compare(Path p1, Path p2)
@@ -373,7 +373,7 @@ public class Paths_manager
 
     //**********************************************************
     public final static Comparator<Path> decreasing_file_size_comparator_gifs_fist = new Comparator<>()
-            //**********************************************************
+    //**********************************************************
     {
         @Override
         public int compare(Path f1, Path f2)
@@ -423,7 +423,6 @@ public class Paths_manager
         {
             Files_and_Paths.remove_empty_folders(p, recursively, logger);
         }
-
     }
 
     public AtomicBoolean iconized_sorted_ready = new AtomicBoolean(false);

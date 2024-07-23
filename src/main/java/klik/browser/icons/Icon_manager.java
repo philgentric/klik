@@ -855,8 +855,6 @@ public class Icon_manager
             return new Point2D(future_x, future_y);
         }
 
-
-
         double future_x = item.get_screen_x_of_image()+width_of_this;
         if ( Item.layout_dbg) logger.log("width_of_this="+width_of_this+" => future_x: "+future_x);
         if (future_x + column_increment > scene_width)
@@ -900,8 +898,6 @@ public class Icon_manager
                 double diff = (row_height-height)/2.0;
                 i.set_javafx_y(i.get_javafx_y()+diff);
             }
-
-
 
             // new ROW
             current_row.clear();
@@ -997,7 +993,10 @@ public class Icon_manager
     }
 
 
-    public void set_scroll_to_listener(Scroll_to_listener vertical_slider) {
+    //**********************************************************
+    public void set_scroll_to_listener(Scroll_to_listener vertical_slider)
+    //**********************************************************
+    {
         scroll_to_listener = vertical_slider;
     }
 }

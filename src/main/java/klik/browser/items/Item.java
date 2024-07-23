@@ -75,13 +75,13 @@ public abstract class Item implements Icon_destination
     public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
     public final Aborter browser_aborter;
 
-    // virtual coordinates: will change whenever the window geometry changes
-    // this is the (top-left) position if the square box containing the image
-    // for a landscape image we can shift up so javafx_y < screen_y_of_image
-    // for a portrait image we can shift left so javafx_x < screen_x_of_image
+     // javafx_x and javafx_y are going to be used in Translate_X (resp. Y)
+    // vertical scroll is managed by substracting the y_offset
     private double javafx_x;
     private double javafx_y;
     // this is the (top-left) position of the image
+    // in the possibly hugely tall virtual screen
+    // that contains all icons
     private double screen_x_of_image = 0;
     private double screen_y_of_image = 0;
 
@@ -133,10 +133,7 @@ public abstract class Item implements Icon_destination
     public void set_screen_x_of_image(double x_) { screen_x_of_image = x_; }
     public void set_screen_y_of_image(double y_) {screen_y_of_image = y_;}
     public double get_screen_x_of_image() { return screen_x_of_image; }
-    public double get_screen_y_of_image()
-    {
-        return screen_y_of_image;
-    }
+    public double get_screen_y_of_image() {return screen_y_of_image;}
 
     public abstract Node get_Node();
 
