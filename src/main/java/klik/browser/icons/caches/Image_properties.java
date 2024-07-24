@@ -2,8 +2,7 @@
 package klik.browser.icons.caches;
 
 
-import klik.browser.Image_and_properties;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Stack_trace_getter;
 
 //**********************************************************
 public record Image_properties(double w, double h, Rotation rotation)

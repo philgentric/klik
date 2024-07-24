@@ -2,9 +2,9 @@ package klik.images;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.files_and_paths.*;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.*;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

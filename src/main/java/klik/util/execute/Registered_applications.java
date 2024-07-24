@@ -3,8 +3,8 @@ package klik.util.execute;
 import javafx.stage.Stage;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import javax.swing.*;
 import java.nio.file.Path;

@@ -5,11 +5,11 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.files_and_paths.*;
-import klik.util.Hourglass;
-import klik.util.Show_running_man_frame;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.files_and_paths.*;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Show_running_man_frame;
+import klik.util.log.Logger;
 import klik.util.execute.Threads;
 
 import java.io.File;
@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -102,7 +101,7 @@ public class Folders_with_large_images_locator
                         if ( monitor == null)
                         {
                             monitor = new Monitor(top,locator,private_aborter,logger);
-                            Fx_batch_injector.inject(()->monitor.realize(),logger);
+                            Jfx_batch_injector.inject(()->monitor.realize(),logger);
                         }
                         else
                         {
@@ -376,7 +375,7 @@ public class Folders_with_large_images_locator
             if ( count < MAX_WINDOWS)
             {
                 String final_S = s;
-                Fx_batch_injector.inject(()->Browser_creation_context.additional_no_past(key_to_path(final_S), logger),logger);
+                Jfx_batch_injector.inject(()->Browser_creation_context.additional_no_past(key_to_path(final_S), logger),logger);
                 count++;
             }
             else {

@@ -1,6 +1,6 @@
 package klik.properties;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class Bookmarks
     //**********************************************************
     {
         key_base = key_base_;
-        pm = Static_application_properties.get_properties_manager(logger);
+        pm = Static_application_properties.get_main_properties_manager(logger);
         cache = get_bookmarks_of(pm, key_base);
     }
 

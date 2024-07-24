@@ -2,9 +2,8 @@
 package klik.actor.workers;
 
 import klik.actor.*;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;

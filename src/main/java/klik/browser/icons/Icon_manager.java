@@ -23,11 +23,15 @@ import klik.browser.Landscape_height_listener;
 import klik.browser.Scroll_to_listener;
 import klik.browser.icons.caches.Image_properties;
 import klik.browser.items.*;
-import klik.files_and_paths.*;
+import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.util.*;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Show_running_man_frame_with_abort_button;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -213,7 +217,7 @@ public class Icon_manager
 
             if (( change_type ==  Change_type.files_or_folders_changed) || (change_type == Change_type.layout_changed))
             {
-                Fx_batch_injector.inject(() -> {
+                Jfx_batch_injector.inject(() -> {
                     for (Item ii : all_items_map.values()) {
                         if (pane.getChildren().contains(ii.get_Node()))
                         {
@@ -242,7 +246,7 @@ public class Icon_manager
         items_are_ready.set(true);
         map_buttons_and_icons_guard.set(false);
         //has_to_call_check_visibility_latter.set(false);
-        Fx_batch_injector.inject(()->
+        Jfx_batch_injector.inject(()->
                 {
                     check_visibility_11(pane, reason+" map_buttons_and_icons "+from_thread);
                     if ( running_man != null) running_man.close();
@@ -275,7 +279,7 @@ public class Icon_manager
         }
         else
         {
-            Fx_batch_injector.inject(()-> pane.getChildren().add(iv_denied),logger);
+            Jfx_batch_injector.inject(()-> pane.getChildren().add(iv_denied),logger);
         }
         compute_bounding_rectangle(the_browser.error_type.toString());
     }
@@ -314,7 +318,7 @@ public class Icon_manager
             {
                 // this is an item that could have an image but the user prefers
                 // to see it as a text: we use an Item_button
-                String size = Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(), logger);
+                String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(), logger);
                 item = all_items_map.get(path);
                 if (item == null) {
                     item = new Item_button(the_browser, path, null, path.getFileName().toString() + "(" + size + ")",
@@ -355,8 +359,6 @@ public class Icon_manager
         /// at this stage we MUST have get_iconized_sorted() in the proper order
         // that will define the x,y layout
         List<Path> ll = paths_manager.get_iconized_sorted("process_iconified_items");
-        //logger.log("paths_manager.get_iconized().keySet().size()="+ ll.size());
-        logger.log("point ="+point.getX()+"-"+point.getY());
         for (Path path : ll )
         {
             Item item = all_items_map.get(path);
@@ -547,7 +549,7 @@ public class Icon_manager
                 else
                 {
                     tmp += "       ";
-                    tmp += Files_and_Paths.get_1_line_string_for_byte_data_size(bytes,logger);
+                    tmp += Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,logger);
                 }
             }
             folder_item = new Item_button(the_browser,folder_path, color, tmp, icon_height, false, false, logger);
@@ -752,7 +754,7 @@ public class Icon_manager
                 }
                 if (count.get() == 0)
                 {
-                    Fx_batch_injector.inject(()-> geometry_changed_7(browser,pane,mandatory,"sort by size",Change_type.layout_changed,null, show_running_man_frame),logger);
+                    Jfx_batch_injector.inject(()-> geometry_changed_7(browser,pane,mandatory,"sort by size",Change_type.layout_changed,null, show_running_man_frame),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display all folder sizes", logger);
                     }
@@ -785,7 +787,7 @@ public class Icon_manager
             //logger.log("\n\nIcon_manager::get_y_offset_of ... looking at "+i.get_item_path().toAbsolutePath());
             if ( i.get_item_path().toAbsolutePath().toString().equals(t2))
             {
-                logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_javafx_y());
+                //logger.log("\n\nIcon_manager::get_y_offset_of "+target+ " FOUND offset = "+i.get_javafx_y());
                 return i.get_javafx_y();
             }
         }

@@ -1,8 +1,8 @@
 //SOURCES ./My_action.java
 package klik.util.execute;
 
-import klik.util.Logger;
-import klik.util.System_out_logger;
+import klik.util.log.Logger;
+import klik.util.log.System_out_logger;
 
 import java.util.ArrayList;
 import java.util.Collection;

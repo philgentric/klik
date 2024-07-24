@@ -2,10 +2,10 @@ package klik.images.caching;
 
 import klik.actor.Actor;
 import klik.actor.Message;
-import klik.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.images.Image_context;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.util.Optional;
 

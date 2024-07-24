@@ -14,7 +14,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class Video_player

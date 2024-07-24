@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.util.Set;
 
@@ -43,7 +43,7 @@ public class Tag_items_management_stage
         the_stage.setHeight(300);
         the_stage.setTitle("Manage stored tags");
 
-        Properties_manager pm = Static_application_properties.get_properties_manager(logger);
+        Properties_manager pm = Static_application_properties.get_main_properties_manager(logger);
 
 
         Set<String> l = pm.get_all_keys();

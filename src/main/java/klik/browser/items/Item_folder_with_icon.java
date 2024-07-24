@@ -20,16 +20,16 @@ import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.caches.Rotation;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Guess_file_type;
-import klik.files_and_paths.Sizes;
+import klik.look.my_i18n.My_I18n;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Sizes;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -149,7 +149,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        Fx_batch_injector.inject(() -> set_icon(image_and_rotation),logger);
+        Jfx_batch_injector.inject(() -> set_icon(image_and_rotation),logger);
     }
 
     //**********************************************************
@@ -291,7 +291,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     {
         label_for_sizes = new Label(s);
         Look_and_feel_manager.set_label_look(label_for_sizes);
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
             the_image_pane.getChildren().clear();
             the_image_pane.getChildren().add(label_for_sizes);
         },logger);
@@ -386,18 +386,18 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             label_for_sizes.setWrapText(true);
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(sizes.bytes(),logger));
+        sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),logger));
         intercalaire(on_one_line, sb);
         sb.append(sizes.folders());
-        String folders = I18n.get_I18n_string("Folders",logger);
+        String folders = My_I18n.get_I18n_string("Folders",logger);
         sb.append(folders);
         intercalaire(on_one_line, sb);
         sb.append(sizes.files());
-        String files = I18n.get_I18n_string("Files",logger);
+        String files = My_I18n.get_I18n_string("Files",logger);
         sb.append(files);
         intercalaire(on_one_line, sb);
         sb.append(sizes.images());
-        String images = I18n.get_I18n_string("Images",logger);
+        String images = My_I18n.get_I18n_string("Images",logger);
 
         sb.append(images);
         label_for_sizes.setText(sb.toString());
@@ -429,8 +429,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
                 throw new RuntimeException(e);
             }
             if ( aborter.should_abort()) return;
-            Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter,logger);
-            Fx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter,logger);
+            Jfx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
         Actor_engine.execute(r,logger);
     }

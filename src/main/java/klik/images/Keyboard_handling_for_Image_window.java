@@ -4,12 +4,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.change.Change_gang;
 import klik.face_recognition.Face_detection_type;
 import klik.level3.metadata.Tag_stage;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 import java.io.IOException;
 import java.nio.file.Files;

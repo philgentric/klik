@@ -1,6 +1,6 @@
 package klik.actor;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 

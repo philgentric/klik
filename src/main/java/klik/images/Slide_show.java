@@ -5,7 +5,7 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class Slide_show

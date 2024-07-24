@@ -2,10 +2,10 @@ package klik.search;
 
 import klik.actor.Actor;
 import klik.actor.Message;
-import klik.files_and_paths.Ding;
-import klik.files_and_paths.Guess_file_type;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.Ding;
+import klik.util.files_and_paths.Guess_file_type;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;

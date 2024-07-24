@@ -1,20 +1,24 @@
 package klik.change.undo;
 
 import javafx.stage.Stage;
-import klik.files_and_paths.Command_old_and_new_Path;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.files_and_paths.Status_old_and_new_Path;
-import klik.look.my_i18n.I18n;
+import klik.look.my_i18n.My_I18n;
+import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 //**********************************************************
 public class Undo_storage_to_disk
@@ -25,15 +29,18 @@ public class Undo_storage_to_disk
     static final boolean ultra_dbg = false;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
     public static final String HOW_MANY = "_how_many";
-    private final Properties_manager properties_manager;
     private final Logger logger;
+    public static final String UNDO_FILENAME = "undo.properties";
+    private final Properties_manager properties_manager;
 
     //**********************************************************
     public Undo_storage_to_disk(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
-        properties_manager = Static_application_properties.get_properties_manager(logger);
+        String home = System.getProperty(Static_application_properties.USER_HOME);
+        Path p = Paths.get(home, Static_application_properties.CONF_DIR, UNDO_FILENAME);
+        properties_manager = new Properties_manager(p, logger);
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded");
     }
@@ -92,11 +99,8 @@ public class Undo_storage_to_disk
     //**********************************************************
     {
 
-        String s1 = I18n.get_I18n_string("Warning_delete_undo", logger);
+        String s1 = My_I18n.get_I18n_string("Warning_delete_undo", logger);
         if (!Popups.popup_ask_for_confirmation(owner, s1, "", logger)) return;
-
-
-
 
         Set<String> set = properties_manager.get_all_keys();
         for ( String k : set)
@@ -154,7 +158,7 @@ public class Undo_storage_to_disk
     public static void show_all_events(Logger logger)
     //**********************************************************
     {
-        Properties_manager local = Static_application_properties.get_properties_manager(logger);
+        Properties_manager local = Static_application_properties.get_main_properties_manager(logger);
 
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Items that can be undone:"));

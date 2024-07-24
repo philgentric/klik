@@ -1,6 +1,6 @@
 package klik.level3.fusk;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 
 //**********************************************************

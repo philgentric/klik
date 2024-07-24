@@ -1,7 +1,7 @@
 package klik.face_recognition;
 
 import javafx.scene.image.Image;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 

@@ -1,6 +1,6 @@
 package klik.browser.items;
 
-import klik.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Guess_file_type;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Files;

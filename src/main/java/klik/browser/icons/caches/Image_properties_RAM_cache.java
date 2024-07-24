@@ -2,23 +2,24 @@
 //SOURCES ./Image_properties_message.java
 package klik.browser.icons.caches;
 
+import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Change_type;
 import klik.browser.icons.Paths_manager;
 import klik.browser.icons.Refresh_target;
-import klik.files_and_paths.Ding;
-import klik.files_and_paths.Files_and_Paths;
+import klik.util.files_and_paths.Ding;
+import klik.level3.experimental.RAM_disk;
 import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Hourglass;
-import klik.util.Logger;
+import klik.util.ui.Hourglass;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 //**********************************************************
 public class Image_properties_RAM_cache
@@ -42,12 +43,33 @@ public class Image_properties_RAM_cache
         cache_name = cache_name_;
         String local = cache_name+ path.toAbsolutePath();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
-        Path dir = Files_and_Paths.get_aspect_ratio_and_rotation_cache_dir(null,logger);
+        Path dir = get_aspect_ratio_and_rotation_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 
         pm = new Properties_manager(cache_file_path,logger);
         image_properties_actor = new Image_properties_actor();
+    }
+
+    //**********************************************************
+    public static Path get_aspect_ratio_and_rotation_cache_dir(Stage owner, Logger logger)
+    //**********************************************************
+    {
+        if ( RAM_disk.get_use_RAM_disk(logger))
+        {
+            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, owner, logger);
+            //if (dbg)
+            if (tmp_dir != null) {
+                logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
+            }
+            return tmp_dir;
+        }
+
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, false,logger);
+        if (dbg) if (tmp_dir != null) {
+            logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
+        }
+        return tmp_dir;
     }
 
 
@@ -178,7 +200,7 @@ public class Image_properties_RAM_cache
     public void all_image_properties_acquired_4(Paths_manager paths_manager, Refresh_target refresh_target, Change_type change_type, long start, Hourglass running_man)
     //**********************************************************
     {
-        logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
+        //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
         Actor_engine.execute(()->save_whole_cache_to_disk(),logger);
 
         if (System.currentTimeMillis() - start > 5_000) {

@@ -1,7 +1,6 @@
 //SOURCES ../My_File_and_status.java
 package klik.level2.deduplicate.manual;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -16,17 +15,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
-import klik.util.Fx_batch_injector;
+import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
-import klik.files_and_paths.*;
+import klik.util.files_and_paths.*;
 import klik.level2.deduplicate.File_pair;
 import klik.level2.deduplicate.My_File_and_status;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
-import klik.util.From_disk;
-import klik.util.Logger;
+import klik.util.files_and_paths.From_disk;
+import klik.util.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +73,7 @@ public class Stage_with_2_images
 		//the_pair = pair;
 
 
-		Fx_batch_injector.inject(() ->{
+		Jfx_batch_injector.inject(() ->{
 				stage = new Stage();
 				the_big_vbox = new VBox();
 				Scene scene = new Scene(the_big_vbox);

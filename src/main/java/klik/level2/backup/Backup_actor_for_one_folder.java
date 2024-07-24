@@ -8,8 +8,8 @@ import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
 import klik.change.Change_gang;
-import klik.files_and_paths.*;
-import klik.util.Logger;
+import klik.util.files_and_paths.*;
+import klik.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -189,7 +189,7 @@ public class Backup_actor_for_one_folder implements Actor
         stats.done_dir_count.incrementAndGet();
 
         // since the files are done in threads, this does not work:
-        //long size = Files_and_Paths.get_size_on_disk_excluding_sub_folders(request.source_dir.toPath(), logger);
+        //long size = Static_files_and_paths_utilities.get_size_on_disk_excluding_sub_folders(request.source_dir.toPath(), logger);
         //stats.number_of_bytes_processed.addAndGet(size);
 
         if ( mini_console != null)

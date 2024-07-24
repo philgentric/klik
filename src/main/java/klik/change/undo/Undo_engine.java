@@ -3,19 +3,18 @@ package klik.change.undo;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.change.active_list_stage.Datetime_to_signature_source;
-import klik.files_and_paths.Moving_files;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Popups;
 import klik.change.active_list_stage.Active_list_stage;
+import klik.change.active_list_stage.Datetime_to_signature_source;
+import klik.util.files_and_paths.Moving_files;
+import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.*;
-import java.util.List;
 
 //**********************************************************
 public class Undo_engine implements Datetime_to_signature_source
@@ -127,6 +126,8 @@ public class Undo_engine implements Datetime_to_signature_source
         this.aborter = aborter;
         logger  = logger_;
         store = new Undo_storage_to_disk(logger);
+
+
     }
 
 
@@ -263,7 +264,7 @@ public class Undo_engine implements Datetime_to_signature_source
     private static void refresh_UI()
     //**********************************************************
     {
-        Fx_batch_injector.inject(()-> {
+        Jfx_batch_injector.inject(()-> {
             for (Active_list_stage s : undo_stages) {
                 s.define();
             }

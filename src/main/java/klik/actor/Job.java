@@ -1,10 +1,6 @@
 package klik.actor;
 
-import klik.util.Logger;
-
-import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class Job

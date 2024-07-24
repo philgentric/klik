@@ -4,8 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 

@@ -2,7 +2,7 @@ package klik.level3.metadata;
 
 import javafx.util.Pair;
 import klik.properties.Properties_manager;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

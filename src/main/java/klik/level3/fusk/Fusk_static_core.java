@@ -1,9 +1,9 @@
 package klik.level3.fusk;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 import klik.actor.Aborter;
-import klik.util.Stack_trace_getter;
-import klik.util.System_out_logger;
+import klik.util.log.Stack_trace_getter;
+import klik.util.log.System_out_logger;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.FileInputStream;

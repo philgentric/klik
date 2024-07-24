@@ -1,8 +1,8 @@
 package klik.change.undo;
 
-import klik.files_and_paths.Old_and_new_Path;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;

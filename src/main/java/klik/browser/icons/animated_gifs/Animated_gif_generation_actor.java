@@ -5,9 +5,9 @@ package klik.browser.icons.animated_gifs;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.actor.virtual_threads.Concurency_limiter;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 //**********************************************************
 public class Animated_gif_generation_actor implements Actor
@@ -45,7 +45,7 @@ public class Animated_gif_generation_actor implements Actor
             if (! mm.abort_reported.get())
             {
                 mm.abort_reported.set(true);
-                Fx_batch_injector.inject(() -> Popups.popup_warning(mm.owner, "Massive animated gif generation for "+mm.video_path+" was ABORTED!", "Did you change dir ?",false,mm.logger), mm.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(mm.owner, "Massive animated gif generation for "+mm.video_path+" was ABORTED!", "Did you change dir ?",false,mm.logger), mm.logger);
 
             }
         }

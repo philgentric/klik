@@ -21,14 +21,15 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
+import klik.util.log.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.Objects;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static klik.properties.Static_application_properties.USER_HOME;
@@ -40,6 +41,7 @@ public class Audio_player
 
 
     private static final boolean dbg =  false;
+    private static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
     public static final String PLAYLIST_EXTENSION = "klik_playlist";
     public static final int WIDTH = 500;
     public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
@@ -70,7 +72,7 @@ public class Audio_player
         }
         if ( playlist_file == null)
         {
-            playlist_file = Static_application_properties.get_playlist_file(logger);
+            playlist_file = get_playlist_file(logger);
         }
         instance.load_playlist(playlist_file);
         instance.play_song(the_song_file);
@@ -85,7 +87,7 @@ public class Audio_player
             instance = new Audio_player(logger);
         }
         playlist_file = file;
-        Static_application_properties.set_playlist_file_name(file.getAbsolutePath(),logger);
+        set_playlist_file_name(file.getAbsolutePath(),logger);
 
         instance.play_playlist_internal(file);
     }
@@ -344,7 +346,7 @@ public class Audio_player
         HBox hb4 = new HBox();
         vbox.getChildren().add(hb4);
 
-        playlist_file = Static_application_properties.get_playlist_file(logger);
+        playlist_file = get_playlist_file(logger);
         //logger.log("playlist_file="+playlist_file.getAbsolutePath());
         String play_list_name_s = extract_playlist_name();
         //logger.log("playlist_name="+play_list_name_s);
@@ -641,4 +643,31 @@ public class Audio_player
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
     }
+
+    //**********************************************************
+    public static File get_playlist_file(Logger logger)
+    //**********************************************************
+    {
+        String playlist_file_name = Static_application_properties.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME);
+        if ( playlist_file_name == null)
+        {
+            playlist_file_name = "playlist."+ Audio_player.PLAYLIST_EXTENSION;
+            Static_application_properties.get_main_properties_manager(logger).save_unico(PLAYLIST_FILE_NAME,playlist_file_name,false);
+        }
+        else
+        {
+            Path p = Path.of(playlist_file_name);
+            if (p.isAbsolute()) return p.toFile();
+        }
+        String home = System.getProperty(USER_HOME);
+        Path p = Paths.get(home, Static_application_properties.CONF_DIR, playlist_file_name);
+        return p.toFile();
+    }
+    //**********************************************************
+    public static void set_playlist_file_name(String playlist_file_name, Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_main_properties_manager(logger).save_unico(PLAYLIST_FILE_NAME,playlist_file_name,false);
+    }
+
 }

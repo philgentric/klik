@@ -1,6 +1,6 @@
 package klik.level2.backup;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.io.*;
 import java.nio.channels.FileChannel;

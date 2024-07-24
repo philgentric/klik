@@ -5,7 +5,7 @@ package klik.look.my_i18n;
 
 
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.util.*;
 
@@ -29,7 +29,7 @@ public class Language_manager
     {
         if ( instance == null)
         {
-            logger.log("FATAL: you MUST set the language by calling Language_manager.init_registered_languages(logger) before anycall to I18n");
+            logger.log("FATAL: you MUST set the language by calling Language_manager.init_registered_languages(logger) before anycall to My_I18n");
         }
         return instance;
     }

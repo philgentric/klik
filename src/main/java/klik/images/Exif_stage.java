@@ -11,13 +11,13 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.files_and_paths.Files_and_Paths;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.level3.fusk.Fusk_static_core;
 import klik.level3.fusk.Fusk_strings;
 import klik.look.Look_and_feel_manager;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import org.apache.commons.io.FilenameUtils;
 
@@ -61,7 +61,7 @@ public class Exif_stage
         textFlow.getChildren().add(tf);
         textFlow.getChildren().add(new Text(System.lineSeparator()));
 
-        String file_size = Files_and_Paths.get_1_line_string_with_size(path.toAbsolutePath(),logger);
+        String file_size = Static_files_and_paths_utilities.get_1_line_string_with_size(path.toAbsolutePath(),logger);
         textFlow.getChildren().add(new Text(file_size));
         textFlow.getChildren().add(new Text(System.lineSeparator()));
 

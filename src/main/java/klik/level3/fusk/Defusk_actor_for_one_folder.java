@@ -2,7 +2,7 @@
 package klik.level3.fusk;
 
 import klik.actor.*;
-import klik.util.Logger;
+import klik.util.log.Logger;
 import klik.util.execute.Threads;
 
 import java.io.File;

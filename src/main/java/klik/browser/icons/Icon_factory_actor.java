@@ -1,7 +1,7 @@
 //SOURCES animated_gifs/Ffmpeg_utils.java
 //SOURCES ../Image_and_properties.java
 //SOURCES ../items/Iconifiable_item_type.java
-//SOURCES ../../files_and_paths/Files_and_Paths.java
+//SOURCES ../../util/files_and_paths/Static_files_and_paths_utilities.java
 //SOURCES ../../images/decoding/Fast_image_property_from_exif_metadata_extractor.java
 //SOURCES ../../util/execute/Execute_command.java
 //SOURCES animated_gifs/Animated_gif_from_folder.java
@@ -15,10 +15,12 @@ import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.caches.*;
 import klik.browser.items.Iconifiable_item_type;
-import klik.files_and_paths.Files_and_Paths;
+import klik.util.files_and_paths.From_disk;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.properties.Static_application_properties;
-import klik.util.*;
 import klik.util.execute.Execute_command;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 /*import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
@@ -72,7 +74,7 @@ public class Icon_factory_actor implements Actor
         owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
-        icon_cache_dir = Files_and_Paths.get_icon_cache_dir(owner, logger);
+        icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(owner, logger);
         writer = new Icon_writer_actor(icon_cache_dir, logger);
         //writer = Icon_writer_actor.launch_icon_writer(icon_cache_dir, logger);
     }
@@ -353,7 +355,7 @@ public class Icon_factory_actor implements Actor
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
             int length = Static_application_properties.get_animated_gif_duration_for_a_video(logger);
 
-            File gif_animated_icon_file = From_disk.file_for_icon_cache(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
+            File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting5");
@@ -445,7 +447,7 @@ public class Icon_factory_actor implements Actor
             logger.log("Icon_factory thread:  load from disk cache FAILED for " + icon_destination.get_item_path().getFileName() + " MAKING IT NOW");
 
         File file_in = icon_destination.get_item_path().toFile();
-        File resulting_png_name = From_disk.file_for_icon_cache(icon_cache_dir, icon_destination.get_item_path(), tag, png_extension);
+        File resulting_png_name = From_disk.file_for_icon_caching(icon_cache_dir, icon_destination.get_item_path(), tag, png_extension);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting9");

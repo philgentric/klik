@@ -1,11 +1,10 @@
-//SOURCES ./Key_value.java
 package klik.properties;
 
 import javafx.util.Pair;
-import klik.util.Logger;
-import klik.util.Popups;
-import klik.util.Stack_trace_getter;
-import klik.util.System_out_logger;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
+import klik.util.log.Stack_trace_getter;
+import klik.util.log.System_out_logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -268,57 +267,6 @@ public class Properties_manager
         if ( and_save) store_properties();
     }
 
-    // list all stored values for a base-key
-    //**********************************************************
-    public List<Key_value> get_key_values_for_base(String key_base)
-    //**********************************************************
-    {
-        List<Key_value> returned = new ArrayList<>();
-        for (int i = 0; i < max; i++)
-        {
-            if (get(key_base + i) != null)
-            {
-                String b = get(key_base + i);
-                returned.add(new Key_value(key_base + i, b));
-            }
-        }
-        Collections.sort(returned);
-        return returned;
-    }
-
-    //**********************************************************
-    public String get_most_recent_value_for_base(String key_base)
-    //**********************************************************
-    {
-        String returned = null;
-        LocalDateTime most_recent = null;
-        for (int i = 0; i < max; i++)
-        {
-            String candidate = get(key_base + i);
-            String date = get(key_base + i + AGE);
-            if (date == null)
-            {
-                returned = candidate;
-                break;
-            }
-            LocalDateTime ld = LocalDateTime.parse(date);
-            if (most_recent == null)
-            {
-                most_recent = ld;
-                returned = candidate;
-            }
-            else
-            {
-                if (ld.isAfter(most_recent))
-                {
-                    most_recent = ld;
-                    returned = candidate;
-                }
-
-            }
-        }
-        return returned;
-    }
 
 
     // saves a value for a base-key, handling oldest-replacement silently

@@ -1,7 +1,7 @@
 package klik.level3.experimental.video;
 
 //import com.google.common.net.UrlEscapers;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;

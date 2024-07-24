@@ -31,12 +31,12 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.JavaFX_to_Swing;
-import klik.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.properties.Static_application_properties;
-import klik.util.Show_running_man_frame_with_abort_button;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.ui.Show_running_man_frame_with_abort_button;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -340,7 +340,7 @@ public class Face_recognition_service
         }
         else {
             int size2 = size;
-            Fx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result),logger);
+            Jfx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result),logger);
         }
     }
     //**********************************************************
@@ -508,10 +508,10 @@ public class Face_recognition_service
                     Job_termination_reporter tr = (message, job) -> {
                         Face_recognition_status s = Face_recognition_status.valueOf(message);
                         if (s != Face_recognition_status.feature_vector_ready) {
-                            Fx_batch_injector.inject(() -> status_label.setText("prototype fabrication error " + s), logger);
+                            Jfx_batch_injector.inject(() -> status_label.setText("prototype fabrication error " + s), logger);
                         } else {
                             //save_internal();
-                            Fx_batch_injector.inject(() -> stage.close(), logger);
+                            Jfx_batch_injector.inject(() -> stage.close(), logger);
                         }
                     };
                     Actor_engine.run(actor, msg, tr, logger);

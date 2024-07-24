@@ -20,16 +20,16 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.caches.Rotation;
 import klik.change.Change_gang;
-import klik.files_and_paths.*;
+import klik.look.my_i18n.My_I18n;
+import klik.util.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.level3.experimental.Multiple_image_window;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import klik.util.execute.System_open_actor;
 
 import java.nio.file.Files;
@@ -189,11 +189,11 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem(I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Item_image: Renaming "+path);
 
-                Path new_path =  Files_and_Paths.ask_user_for_new_file_name(browser.my_Stage.the_Stage,path,logger);
+                Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(browser.my_Stage.the_Stage,path,logger);
                 if ( new_path == null) return;
 
                 List<Old_and_new_Path> l = new ArrayList<>();
@@ -204,15 +204,15 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Delete", logger));
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(My_I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
-                Files_and_Paths.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter, logger);
+                Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Edit", logger));
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(My_I18n.get_I18n_string("Edit", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Editing "+path);
                 System_open_actor.open_with_system(browser,path,logger);
@@ -220,7 +220,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(I18n.get_I18n_string("Open_With_Registered_Application", logger));
+            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening with registered app: "+path);
                 System_open_actor.open_special(browser.my_Stage.the_Stage,path,browser_aborter,logger);
@@ -307,33 +307,33 @@ public class Item_image extends Item
             // the item is not visible anymore typically because the user scrolled away
             if ( dbg)
                 logger.log("!visible_in_scene.get() : calling you_are_invisible");
-            Fx_batch_injector.inject(() -> you_are_invisible(),logger);
+            Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( image_and_rotation == null)
         {
             if ( dbg)
                 logger.log("image_and_rotation == null ");
-            //Fx_batch_injector.inject(() -> you_are_invisible(),logger);
+            //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( image_and_rotation.image() == null)
         {
             if ( dbg)
                 logger.log("image_and_rotation.image() == null : setting the image to null in the Image_view");
-            //Fx_batch_injector.inject(() -> you_are_invisible(),logger);
+            //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
 
         if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
-            Fx_batch_injector.inject(() -> you_are_invisible(),logger);
+            Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
 
 
-        Fx_batch_injector.inject(() -> receive_icon_in_fx_thread(image_and_rotation),logger);
+        Jfx_batch_injector.inject(() -> receive_icon_in_fx_thread(image_and_rotation),logger);
 
     }
 

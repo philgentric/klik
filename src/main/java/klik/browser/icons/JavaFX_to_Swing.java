@@ -40,7 +40,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritablePixelFormat;
 import javafx.scene.image.Image;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 
 import java.awt.Graphics2D;

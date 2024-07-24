@@ -1,9 +1,9 @@
 package klik.image_indexer;
 
-import klik.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

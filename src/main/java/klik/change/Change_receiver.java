@@ -1,7 +1,7 @@
 package klik.change;
 
-import klik.files_and_paths.Old_and_new_Path;
-import klik.util.Logger;
+import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.log.Logger;
 
 import java.util.List;
 

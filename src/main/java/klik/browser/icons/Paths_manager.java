@@ -8,14 +8,14 @@ import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.properties.Static_application_properties;
-import klik.util.Hourglass;
-import klik.util.Show_running_man_frame;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Show_running_man_frame;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -87,7 +87,7 @@ public class Paths_manager
         }
         image_file_comparator = other_file_comparator;
 
-        logger.log("Path_manager image_file_comparator init\n\n"+image_file_comparator.toString());
+        //logger.log("Path_manager image_file_comparator init\n\n"+image_file_comparator.toString());
         // these MUST be mutually exclusive:
         folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
@@ -164,7 +164,7 @@ public class Paths_manager
         catch (Exception e)
         {
             logger.log(""+e);
-            //Error_type denied = Files_and_Paths.explain_error(folder_path,logger);
+            //Error_type denied = Static_files_and_paths_utilities.explain_error(folder_path,logger);
             hard_part_guard.set(false);
             ((Error_receiver)refresh_target).receive_error(Error_type.DENIED);
             return;
@@ -421,7 +421,7 @@ public class Paths_manager
     {
         for (Path p : folders.keySet())
         {
-            Files_and_Paths.remove_empty_folders(p, recursively, logger);
+            Static_files_and_paths_utilities.remove_empty_folders(p, recursively, logger);
         }
     }
 

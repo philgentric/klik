@@ -4,7 +4,7 @@ package klik.browser;
 
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 // the reason to create this class is a strange behavior in javafx:
 // the keyboard handler gets installed as many times as the frame is "reused"

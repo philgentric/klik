@@ -2,10 +2,9 @@ package klik.images;
 
 import klik.actor.Aborter;
 import klik.actor.Message;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.util.Objects;
-import java.util.Optional;
 
 //**********************************************************
 public class Change_image_message implements Message

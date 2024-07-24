@@ -2,8 +2,7 @@ package klik.images.caching;
 
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
-import klik.images.caching.Cache_interface;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 

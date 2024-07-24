@@ -3,11 +3,9 @@ package klik.audio;
 import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.properties.Properties_manager;
-import klik.properties.Static_application_properties;
-import klik.util.Hourglass;
-import klik.util.Logger;
-import klik.util.Show_running_man_frame;
+import klik.util.ui.Hourglass;
+import klik.util.log.Logger;
+import klik.util.ui.Show_running_man_frame;
 import klik.util.execute.Execute_command;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
@@ -15,10 +13,6 @@ import klik.util.info_stage.Line_for_info_stage;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 public class Audio_info_frame {
 

@@ -3,7 +3,7 @@ package klik.browser.icons;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

@@ -15,18 +15,18 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
 import klik.images.caching.Image_cache_dummy;
 import klik.level3.experimental.Static_image_utilities;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
 import klik.look.Look_and_feel_manager;
-import klik.util.From_disk;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.From_disk;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -214,7 +214,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 logger2.log("Image_display_handler, ic.f == null");
                 continue;
             }
-            if ( Files_and_Paths.is_same_path(oanf.get_old_Path(),local.path,logger))
+            if ( Static_files_and_paths_utilities.is_same_path(oanf.get_old_Path(),local.path,logger))
             {
                 if ( dbg) logger.log(oanf.get_old_Path().toAbsolutePath()+ " OLD path corresponds to currently displayed image "+local.path.toAbsolutePath());
                 // the case when the image has been dragged away is handled directly
@@ -225,10 +225,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 if (image_indexer.exists(oanf.new_Path))
                 {
                     if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.get_string());
-                    Fx_batch_injector.inject(() -> {
+                    Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path);
-                        Files_and_Paths.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage, logger);
+                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage, logger);
                         // reload the image
                         Optional<Image_context> option = local_getImage_context(local.path,  aborter);
                         if ( option.isPresent())
@@ -273,7 +273,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Path to_be_deleted = image_context.get().path;
         change_image_relative(1, image_window.ultim_mode);
         Runnable r = () -> image_indexer.signal_deleted_file(to_be_deleted);
-        Files_and_Paths.move_to_trash(image_window.the_Stage,to_be_deleted, r, aborter,logger);
+        Static_files_and_paths_utilities.move_to_trash(image_window.the_Stage,to_be_deleted, r, aborter,logger);
     }
 
 

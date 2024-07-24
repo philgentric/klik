@@ -4,13 +4,13 @@ package klik.change;
 
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.files_and_paths.Command_old_and_new_Path;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Old_and_new_Path;
-import klik.files_and_paths.Status_old_and_new_Path;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
-import klik.util.System_out_logger;
+import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.Status_old_and_new_Path;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
+import klik.util.log.System_out_logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class Change_gang
                 else
                 {
                     //if (oan.get_old_Path().getParent().toAbsolutePath().toString().equals(ref))
-                    if (Files_and_Paths.is_same_path(oan.get_old_Path().getParent(),dir,logger))
+                    if (Static_files_and_paths_utilities.is_same_path(oan.get_old_Path().getParent(),dir,logger))
                     {
                         if (dbg) logger.log("is_my_directory_impacted? YES! "+oan.get_old_Path().getParent().toAbsolutePath() +" OLD path matches "+ dir.toAbsolutePath());
 
@@ -105,7 +105,7 @@ public class Change_gang
             }
             if (oan.get_new_Path() != null)
             {
-                if (Files_and_Paths.is_same_path(oan.get_new_Path(), dir, logger))
+                if (Static_files_and_paths_utilities.is_same_path(oan.get_new_Path(), dir, logger))
                 {
                     if (dbg) logger.log("is_my_directory_impacted? YES! " + oan.get_new_Path().toAbsolutePath() + " NEW path matches " + dir.toAbsolutePath());
                     if ( oan.cmd == Command_old_and_new_Path.command_move)
@@ -120,7 +120,7 @@ public class Change_gang
                 }
                 if (oan.get_new_Path().getParent() != null)
                 {
-                    if (Files_and_Paths.is_same_path(oan.get_new_Path().getParent(), dir, logger))
+                    if (Static_files_and_paths_utilities.is_same_path(oan.get_new_Path().getParent(), dir, logger))
                     {
                         if (dbg) logger.log("is_my_directory_impacted? YES! " + oan.get_new_Path().getParent().toAbsolutePath() + " NEW path matches " + dir.toAbsolutePath());
                         if ( oan.cmd == Command_old_and_new_Path.command_move)
@@ -227,7 +227,7 @@ public class Change_gang
         List<Old_and_new_Path> returned = new ArrayList<>();
         for (Old_and_new_Path oan : l) {
             // are you the origin directory?
-            if ( Files_and_Paths.is_same_path(dir,oan.get_old_Path().getParent(),logger)) {
+            if ( Static_files_and_paths_utilities.is_same_path(dir,oan.get_old_Path().getParent(),logger)) {
                 Command_old_and_new_Path c = oan.get_cmd();
                 switch (c) {
                     case command_move_to_trash:
@@ -260,7 +260,7 @@ public class Change_gang
         List<Old_and_new_Path> returned = new ArrayList<>();
         for (Old_and_new_Path oan : l) {
             // are you the origin directory?
-            if (Files_and_Paths.is_same_path( dir,oan.get_old_Path().getParent(),logger)) {
+            if (Static_files_and_paths_utilities.is_same_path( dir,oan.get_old_Path().getParent(),logger)) {
                 Command_old_and_new_Path c = oan.get_cmd();
                 switch (c) {
                     case command_move_to_trash:
@@ -300,7 +300,7 @@ public class Change_gang
                 logger.log("oan.get_new_Path() == null");
             }
             // are you the destination directory?
-            if (Files_and_Paths.is_same_path(dir,oan.get_new_Path().getParent(),logger)) {
+            if (Static_files_and_paths_utilities.is_same_path(dir,oan.get_new_Path().getParent(),logger)) {
                 Command_old_and_new_Path c = oan.get_cmd();
                 switch (c) {
                     case command_move_to_trash:

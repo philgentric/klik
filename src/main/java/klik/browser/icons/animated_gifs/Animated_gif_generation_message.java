@@ -3,7 +3,7 @@ package klik.browser.icons.animated_gifs;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Message;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;

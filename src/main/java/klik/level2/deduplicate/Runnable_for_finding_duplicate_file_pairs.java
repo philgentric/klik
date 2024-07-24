@@ -1,10 +1,10 @@
 package klik.level2.deduplicate;
 
 import klik.actor.Aborter;
-import klik.files_and_paths.Guess_file_type;
-import klik.files_and_paths.My_File;
-import klik.files_and_paths.Name_cleaner;
-import klik.util.Logger;
+import klik.util.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.My_File;
+import klik.util.files_and_paths.Name_cleaner;
+import klik.util.log.Logger;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;

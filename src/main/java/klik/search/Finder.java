@@ -2,7 +2,7 @@
 package klik.search;
 
 import klik.browser.Browser;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.List;

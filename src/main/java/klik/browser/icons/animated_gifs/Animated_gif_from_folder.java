@@ -6,10 +6,12 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
-import klik.files_and_paths.Files_and_Paths;
+import klik.util.files_and_paths.From_disk;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.properties.Static_application_properties;
-import klik.util.*;
 import klik.util.execute.Execute_command;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,8 +52,8 @@ public class Animated_gif_from_folder
 
 
         Collections.sort(images_in_folder);
-        Path actual_icon_cache_dir = Files_and_Paths.get_icon_cache_dir(owner, logger);
-        Path folder_icon_cache_dir = Files_and_Paths.get_folder_icon_cache_dir(logger);
+        Path actual_icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(owner, logger);
+        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_folder_icon_cache_dir(logger);
 
         int icon_size = Static_application_properties.get_icon_size(logger);
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(in,"ANIMATED_FOLDER_"+icon_size, "gif");
@@ -119,7 +121,7 @@ public class Animated_gif_from_folder
             try {
                 //String icon_name = make_cache_name(image_file.toPath(),tag, png_extension);
                 //Path icon_path = Path.of(actual_icon_cache_dir.toAbsolutePath().toString(),icon_name);
-                File icon_file= From_disk.file_for_icon_cache(actual_icon_cache_dir.toAbsolutePath(), image_file.toPath(), tag, Icon_factory_actor.png_extension);
+                File icon_file= From_disk.file_for_icon_caching(actual_icon_cache_dir.toAbsolutePath(), image_file.toPath(), tag, Icon_factory_actor.png_extension);
 
                 Files.copy(icon_file.toPath(), icon_path2, REPLACE_EXISTING);
                 if ( dbg) logger.log("copy DONE "+icon_path2);

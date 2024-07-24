@@ -2,7 +2,7 @@
 package klik.image_indexer;
 
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

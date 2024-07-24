@@ -9,9 +9,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

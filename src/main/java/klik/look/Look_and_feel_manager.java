@@ -11,12 +11,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import klik.browser.Drag_and_drop;
-import klik.look.styles.*;
-import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.look.styles.Look_and_feel_dark;
+import klik.look.styles.Look_and_feel_light;
+import klik.look.styles.Look_and_feel_wood;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +34,6 @@ public class Look_and_feel_manager
     private static Look_and_feel instance = null;
     public static List<Look_and_feel> registered = new ArrayList<>();
     private static Image default_icon = null;
-    public static Image broken_icon = null;
     public static Image denied_icon = null;
     public static Image folder_icon = null;
     public static Image trash_icon = null;
@@ -84,7 +83,7 @@ public class Look_and_feel_manager
         registered.add(new Look_and_feel_light(logger_));
         registered.add(new Look_and_feel_dark(logger_));
         registered.add(new Look_and_feel_wood(logger_));
-        instance = Static_application_properties.read_look_and_feel_from_properties_file(logger_);
+        instance = Look_and_feel.read_look_and_feel_from_properties_file(logger_);
     }
 
     //**********************************************************
@@ -94,7 +93,7 @@ public class Look_and_feel_manager
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         logger.log(("setting style = " + instance_.name));
         instance = instance_;
-        Static_application_properties.set_style(instance_,logger);
+        Look_and_feel.set_style(instance_,logger);
         reset();
     }
 
@@ -103,7 +102,7 @@ public class Look_and_feel_manager
     //**********************************************************
     {
         default_icon = null;
-        broken_icon = null;
+        Jar_utils.broken_icon = null;
         denied_icon = null;
         trash_icon = null;
         folder_icon = null;
@@ -142,7 +141,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get dummy icon path"));
             return null;
         }
-        dummy_icon = load_icon_fx_from_jar(path, icon_size);
+        dummy_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return dummy_icon;
     }
     //**********************************************************
@@ -165,7 +164,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));
             return null;
         }
-        folder_icon = load_icon_fx_from_jar(path, icon_size);
+        folder_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return folder_icon;
     }
 
@@ -185,7 +184,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));
             return null;
         }
-        return load_icon_fx_from_jar(path, 256);
+        return Jar_utils.load_jfx_image_from_jar(path, 256, logger);
     }
 
 
@@ -210,7 +209,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));
             return null;
         }
-        large_folder_icon = load_icon_fx_from_jar(path, icon_size);
+        large_folder_icon = Jar_utils.load_icon_fx_from_jar(path, icon_size);
         return large_folder_icon;
     }
 
@@ -254,7 +253,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get default icon path"));
             return null;
         }
-        default_icon = load_icon_fx_from_jar(path, icon_size);
+        default_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return default_icon;
     }
 
@@ -279,7 +278,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get denied icon path"));
             return null;
         }
-        denied_icon = load_icon_fx_from_jar(path, icon_size);
+        denied_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return denied_icon;
     }
 
@@ -304,7 +303,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get trash icon path"));
             return null;
         }
-        trash_icon = load_icon_fx_from_jar(path, icon_size);
+        trash_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return trash_icon;
     }
 
@@ -329,7 +328,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up icon path"));
             return null;
         }
-        up_icon = load_icon_fx_from_jar(path, icon_size);
+        up_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return up_icon;
     }
 
@@ -354,7 +353,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up bookmarks path"));
             return null;
         }
-        bookmarks_icon = load_icon_fx_from_jar(path, icon_size);
+        bookmarks_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size,logger);
         return bookmarks_icon;
     }
 
@@ -378,7 +377,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up view icon path"));
             return null;
         }
-        view_icon = load_icon_fx_from_jar(path, icon_size);
+        view_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return view_icon;
     }
 
@@ -402,34 +401,11 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get up preferences icon path"));
             return null;
         }
-        preferences_icon = load_icon_fx_from_jar(path, icon_size);
+        preferences_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return preferences_icon;
     }
 
 
-    //**********************************************************
-    public static Image get_broken_icon(double icon_size)
-    //**********************************************************
-    {
-        if (broken_icon != null)
-        {
-            if ( broken_icon.getHeight() == icon_size) return broken_icon;
-        }
-        Look_and_feel local_instance = get_instance();
-        if (local_instance == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
-            return null;
-        }
-        String path = local_instance.get_broken_icon_path();
-        if (path == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get broken icon path"));
-            return null;
-        }
-        broken_icon = load_icon_fx_from_jar(path, icon_size);
-        return broken_icon;
-    }
 
 
     //**********************************************************
@@ -452,7 +428,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get not_found icon path"));
             return null;
         }
-        not_found_icon = load_icon_fx_from_jar(path, icon_size);
+        not_found_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return not_found_icon;
     }
 
@@ -477,31 +453,11 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get unknown_error icon path"));
             return null;
         }
-        unknown_error_icon = load_icon_fx_from_jar(path, icon_size);
+        unknown_error_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return unknown_error_icon;
     }
 
 
-
-    //**********************************************************
-    public static Image load_icon_fx_from_jar(String image_file_path, double icon_size)
-    //**********************************************************
-    {
-        InputStream  s = Look_and_feel.get_InputStream_by_name(image_file_path);
-        if ( s == null)
-        {
-            logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
-            return null;
-        }
-
-        Image image = new Image(s, icon_size, icon_size, true, true);
-        if (image.isError())
-        {
-            logger.log("WARNING: an error occurred when reading: " + image_file_path);
-            return get_broken_icon(icon_size);
-        }
-        return image;
-    }
 
 
     /*
@@ -525,14 +481,14 @@ public class Look_and_feel_manager
     private static void load_default_icon(double icon_size)
     //**********************************************************
     {
-        default_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_default_image_path(), icon_size);
+        default_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_default_image_path(), icon_size);
     }
 
     //**********************************************************
     private static Image load_denied_icon(double icon_size)
     //**********************************************************
     {
-        denied_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_denied_icon_path(), icon_size);
+        denied_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_denied_icon_path(), icon_size);
         return denied_icon;
     }
 
@@ -557,7 +513,7 @@ public class Look_and_feel_manager
     private static Image load_not_found_icon(double icon_size)
     //**********************************************************
     {
-        not_found_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_not_found_icon_path(), icon_size);
+        not_found_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_not_found_icon_path(), icon_size);
         return not_found_icon;
     }
 
@@ -568,7 +524,7 @@ public class Look_and_feel_manager
     {
         if (trash_icon == null)
         {
-            trash_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_trash_icon_path(), icon_size);
+            trash_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_trash_icon_path(), icon_size);
         }
         return trash_icon;
     }
@@ -580,7 +536,7 @@ public class Look_and_feel_manager
     private static Image load_unknown_error_icon(double icon_size)
     //**********************************************************
     {
-        unknown_error_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_unknown_error_icon_path(), icon_size);
+        unknown_error_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_unknown_error_icon_path(), icon_size);
         return unknown_error_icon;
     }
 
@@ -605,7 +561,7 @@ public class Look_and_feel_manager
     private static void load_broken_icon(double icon_size)
     //**********************************************************
     {
-        broken_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_broken_icon_path(), icon_size);
+        broken_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_broken_icon_path(), icon_size);
     }
 
     //**********************************************************
@@ -614,7 +570,7 @@ public class Look_and_feel_manager
     {
         if (up_icon == null)
         {
-            up_icon = load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_up_icon_path(), icon_size);
+            up_icon = Jar_utils.load_icon_fx_from_jar(Objects.requireNonNull(get_instance()).get_up_icon_path(), icon_size);
         }
         return up_icon;
     }
@@ -994,7 +950,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get running man icon path"));
             return null;
         }
-        return load_icon_fx_from_jar(path, 600);
+        return Jar_utils.load_jfx_image_from_jar(path, 600, logger);
     }
 
 
@@ -1014,6 +970,6 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get slipping_man icon path"));
             return null;
         }
-        return load_icon_fx_from_jar(path, 600);
+        return Jar_utils.load_jfx_image_from_jar(path, 600, logger);
     }
 }

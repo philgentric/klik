@@ -1,10 +1,9 @@
 package klik.actor.virtual_threads;
 
 import klik.actor.*;
-import klik.util.Logger;
+import klik.util.log.Logger;
 import klik.util.execute.Threads;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 
 //**********************************************************

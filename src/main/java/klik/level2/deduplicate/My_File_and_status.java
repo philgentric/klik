@@ -1,6 +1,6 @@
 package klik.level2.deduplicate;
 
-import klik.files_and_paths.My_File;
+import klik.util.files_and_paths.My_File;
 
 //**********************************************************
 public class My_File_and_status

@@ -13,10 +13,10 @@ import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
+import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class Browser_UI
             String go_up_text = "";
             if (browser.displayed_folder_path.getParent() != null)
             {
-                go_up_text = I18n.get_I18n_string("Parent_Folder", logger);// to: " + parent.toAbsolutePath().toString();
+                go_up_text = My_I18n.get_I18n_string("Parent_Folder", logger);// to: " + parent.toAbsolutePath().toString();
             }
             up_button = browser_menus.make_button_that_behaves_like_a_folder(browser,
                     browser.displayed_folder_path.getParent(),
@@ -85,7 +85,7 @@ public class Browser_UI
 
         Button trash;
         {
-            String trash_text = I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
+            String trash_text = My_I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
                     browser,
                     Static_application_properties.get_trash_dir(browser.displayed_folder_path,logger),
@@ -177,8 +177,8 @@ public class Browser_UI
     //**********************************************************
     {
         {
-            String bandh = I18n.get_I18n_string("Bookmarks", logger);
-            bandh += " & " + I18n.get_I18n_string("History", logger);
+            String bandh = My_I18n.get_I18n_string("Bookmarks", logger);
+            bandh += " & " + My_I18n.get_I18n_string("History", logger);
             Button bandh_button = new Button(bandh);
             bandh_button.setOnAction(e -> button_bandh(e));
             top_pane.getChildren().add(bandh_button);
@@ -188,7 +188,7 @@ public class Browser_UI
             Look_and_feel_manager.set_button_and_image_look(bandh_button, icon, height,null, false);
         }
         {
-            String files = I18n.get_I18n_string("Files", logger);
+            String files = My_I18n.get_I18n_string("Files", logger);
             Button files_button = new Button(files);
             files_button.setOnAction(e -> button_files(e));
             top_pane.getChildren().add(files_button);
@@ -198,7 +198,7 @@ public class Browser_UI
             Look_and_feel_manager.set_button_and_image_look(files_button, icon, height,null, false);
         }
         {
-            String view = I18n.get_I18n_string("View", logger);
+            String view = My_I18n.get_I18n_string("View", logger);
             Button view_button = new Button(view);
             view_button.setOnAction(e -> button_view(e));
             top_pane.getChildren().add(view_button);
@@ -208,7 +208,7 @@ public class Browser_UI
             Look_and_feel_manager.set_button_and_image_look(view_button, icon, height,null, false);
         }
         {
-            String preferences = I18n.get_I18n_string("Preferences", logger);
+            String preferences = My_I18n.get_I18n_string("Preferences", logger);
             Button preferences_button = new Button(preferences);
             preferences_button.setOnAction(e -> button_preferences(e));
             top_pane.getChildren().add(preferences_button);
@@ -339,7 +339,7 @@ public class Browser_UI
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
 
         {
-            String create_string = I18n.get_I18n_string("Create",logger);
+            String create_string = My_I18n.get_I18n_string("Create",logger);
             Menu create = new Menu(create_string);
             create.getItems().add(browser_menus.make_create_empty_directory_menu_item());
             create.getItems().add(browser_menus.make_sort_by_year_menu_item());
@@ -347,7 +347,7 @@ public class Browser_UI
             files_menu.getItems().add(create);
         }
         {
-            String search_string = I18n.get_I18n_string("Search",logger);
+            String search_string = My_I18n.get_I18n_string("Search",logger);
             Menu search = new Menu(search_string);
             search.getItems().add(browser_menus.make_search_by_keywords_menu_item());
             search.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
@@ -369,7 +369,7 @@ public class Browser_UI
             files_menu.getItems().add(face_recognition);
         }
         {
-            String cleanup = I18n.get_I18n_string("Clean_Up",logger);
+            String cleanup = My_I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
             if (level3) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
@@ -456,7 +456,7 @@ public class Browser_UI
     private MenuItem create_auto_deduplication_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Deduplicate_auto",logger);
+        String text = My_I18n.get_I18n_string("Deduplicate_auto",logger);
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(event -> {
             //logger.log("Deduplicate auto");
@@ -473,7 +473,7 @@ public class Browser_UI
     private MenuItem create_manual_deduplication_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Deduplicate_manual",logger);
+        String text = My_I18n.get_I18n_string("Deduplicate_manual",logger);
 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
@@ -486,7 +486,7 @@ public class Browser_UI
     private MenuItem create_deduplication_count_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Deduplicate_count",logger);
+        String text = My_I18n.get_I18n_string("Deduplicate_count",logger);
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("count duplicates!");
@@ -500,7 +500,7 @@ public class Browser_UI
     private MenuItem create_help_on_deduplication_menu_item()
     //**********************************************************
     {
-        String text = I18n.get_I18n_string("Deduplicate_help",logger);
+        String text = My_I18n.get_I18n_string("Deduplicate_help",logger);
         MenuItem itemhelp = new MenuItem(text);
         itemhelp.setOnAction(event -> Popups.popup_warning(browser.my_Stage.the_Stage,
                 "Help on deduplication",

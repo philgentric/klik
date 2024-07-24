@@ -1,8 +1,8 @@
 package klik.level2.backup;
 
 import javafx.stage.Stage;
-import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

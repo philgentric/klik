@@ -7,9 +7,9 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
 import klik.properties.Static_application_properties;
-import klik.util.From_disk;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.From_disk;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.IOException;
 import java.io.InputStream;

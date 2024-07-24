@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 import klik.actor.Aborter;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class Scan_show

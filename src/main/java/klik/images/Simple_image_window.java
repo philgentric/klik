@@ -10,12 +10,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.change.Change_gang;
 import klik.look.Look_and_feel_manager;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 
 import java.awt.image.BufferedImage;
 
@@ -41,7 +38,7 @@ public class Simple_image_window
         else
         {
             Runnable r = () -> new Simple_image_window(bi,title,logger);
-            Fx_batch_injector.inject(r,logger);
+            Jfx_batch_injector.inject(r,logger);
         }
     }
 

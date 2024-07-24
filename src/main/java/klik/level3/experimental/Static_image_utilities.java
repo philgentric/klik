@@ -6,9 +6,9 @@ import javafx.scene.image.WritableImage;
 import klik.actor.Aborter;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.Image_context;
-import klik.look.Look_and_feel_manager;
-import klik.util.From_disk;
-import klik.util.Logger;
+import klik.look.Jar_utils;
+import klik.util.files_and_paths.From_disk;
+import klik.util.log.Logger;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -34,7 +34,7 @@ public class Static_image_utilities
         if ( local_image == null) return Optional.empty();
         if ( local_image.isError())
         {
-            javafx.scene.image.Image broken = Look_and_feel_manager.get_broken_icon(300);
+            javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300,logger_);
 
             return Optional.of(new Image_context(path_,path_, broken,logger_));
         }

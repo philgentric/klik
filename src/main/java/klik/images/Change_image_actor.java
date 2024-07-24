@@ -1,10 +1,9 @@
 package klik.images;
 
-import javafx.application.Platform;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.change.Change_gang;
-import klik.util.Fx_batch_injector;
+import klik.util.ui.Jfx_batch_injector;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -113,7 +112,7 @@ public class Change_image_actor implements Actor
             // image was found in cache
             change_image_message.output_image_context[0] = image_context;
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
-            Fx_batch_injector.inject(() -> change_image_message.image_window.set_image(change_image_message.output_image_context[0]), change_image_message.logger);
+            Jfx_batch_injector.inject(() -> change_image_message.image_window.set_image(change_image_message.output_image_context[0]), change_image_message.logger);
             //cim.image_stage.restore_cursor();
             change_image_message.image_window.image_display_handler.preload( change_image_message.ultimate, forward);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
             return "found in cache";

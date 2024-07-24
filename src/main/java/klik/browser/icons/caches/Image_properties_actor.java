@@ -2,13 +2,7 @@ package klik.browser.icons.caches;
 
 import klik.actor.Actor;
 import klik.actor.Message;
-import klik.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_image_property_from_exif_metadata_extractor;
-import klik.util.From_disk;
-import org.apache.commons.io.FilenameUtils;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Image_properties_actor implements Actor

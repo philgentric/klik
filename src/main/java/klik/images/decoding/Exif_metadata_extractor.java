@@ -6,12 +6,11 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
-import klik.files_and_paths.Files_and_Paths;
-import klik.look.my_i18n.I18n;
+import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
-import klik.util.From_disk;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.From_disk;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import klik.level3.fusk.Fusk_static_core;
 import klik.level3.fusk.Fusk_strings;
 import org.apache.commons.io.FilenameUtils;
@@ -23,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //**********************************************************
 public class Exif_metadata_extractor
@@ -76,7 +74,7 @@ public class Exif_metadata_extractor
             return exif_metadata;
         }
 
-        //String file = I18n.get_I18n_string("File",logger);
+        //String file = My_I18n.get_I18n_string("File",logger);
 
 
         String extension = FilenameUtils.getExtension(path.getFileName().toString());
@@ -112,7 +110,7 @@ public class Exif_metadata_extractor
                 logger.log("extract_exif_metadata() Managed exception (2)->"+e+"<- for:"+ path.toAbsolutePath());
             }
             double bits_per_pixel = (double)l*8.0/how_many_pixels;
-            String s_bits_per_pixel = I18n.get_I18n_string("Bits_per_pixel",logger);
+            String s_bits_per_pixel = My_I18n.get_I18n_string("Bits_per_pixel",logger);
             exif_metadata.add(s_bits_per_pixel+": "+bits_per_pixel);
         }
 

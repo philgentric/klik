@@ -1,14 +1,13 @@
 package klik.browser.meter;
 
-import javafx.application.Platform;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import klik.look.Look_and_feel_manager;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -195,7 +194,7 @@ public class Graph
                 }
             }
         };
-        Fx_batch_injector.inject(rr,logger);
+        Jfx_batch_injector.inject(rr,logger);
     }
 
     public double get_width() {

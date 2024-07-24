@@ -9,7 +9,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.List;

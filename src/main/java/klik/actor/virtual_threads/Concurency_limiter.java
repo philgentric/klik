@@ -1,7 +1,6 @@
 package klik.actor.virtual_threads;
 
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
 
 import java.util.concurrent.Semaphore;
 

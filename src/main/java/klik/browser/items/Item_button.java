@@ -1,4 +1,4 @@
-//SOURCES ../../util/Text_frame.java
+//SOURCES ../../util/ui/Text_frame.java
 package klik.browser.items;
 
 import javafx.scene.Node;
@@ -20,14 +20,18 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_manager;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Guess_file_type;
-import klik.files_and_paths.Sizes;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Sizes;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.util.*;
 import klik.util.execute.System_open_actor;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Popups;
+import klik.util.ui.Text_frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -300,7 +304,7 @@ public class Item_button extends Item implements Icon_destination
                 LocalDateTime ldt = x.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 sb.append(ldt.format(date_time_formatter));
                 sb.append("                 ");
-                sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(path.toFile().length(),logger));
+                sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(),logger));
                 sb.append("                 ");
                 if (!path.toFile().canWrite())
                 {
@@ -426,13 +430,13 @@ public class Item_button extends Item implements Icon_destination
             Long how_many_files_deep = folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
-                how_many_files_deep = Files_and_Paths.get_how_many_files_deep(path, aborter, logger);
+                how_many_files_deep = Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
             String extended_text =  text + " (" + how_many_files_deep + " files)";
 
             String finalExtended_text = extended_text;
-            Fx_batch_injector.inject(() -> {
+            Jfx_batch_injector.inject(() -> {
                 button.setText(finalExtended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
@@ -452,7 +456,7 @@ public class Item_button extends Item implements Icon_destination
             if ( bytes == null)
             {
                 logger.log(path+" size not found in cache");
-                Sizes sizes = Files_and_Paths.get_sizes_on_disk_deep(path, aborter, logger);
+                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, logger);
                 bytes = sizes.bytes();
                 folder_total_sizes.put(path,bytes);
             }
@@ -465,14 +469,14 @@ public class Item_button extends Item implements Icon_destination
             StringBuilder sb =  new StringBuilder();
             sb.append(text);
             sb.append("       ");
-            sb.append(Files_and_Paths.get_1_line_string_for_byte_data_size(bytes,logger));
+            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,logger));
 
             //sb.append(", ");
             //sb.append(sizes.files());
             //sb.append(" ");
-            //sb.append(I18n.get_I18n_string("Files",logger));
+            //sb.append(My_I18n.get_I18n_string("Files",logger));
             String extended_text = sb.toString();
-            Fx_batch_injector.inject(() -> {
+            Jfx_batch_injector.inject(() -> {
                 button.setText(extended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);

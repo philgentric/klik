@@ -1,7 +1,6 @@
 //SOURCES ../../util/Strings.java
 package klik.level2.backup;
 
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,8 +13,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 import klik.util.Strings;
 
 
@@ -187,7 +186,7 @@ public class Backup_console_window
     //**********************************************************
     {
 
-        Fx_batch_injector.inject(this::update_,logger);
+        Jfx_batch_injector.inject(this::update_,logger);
     }
 
 

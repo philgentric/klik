@@ -1,6 +1,6 @@
 package klik.face_recognition;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 import klik.util.execute.Execute_command;
 
 import java.io.File;

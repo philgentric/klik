@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
-import klik.util.Logger;
+import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
 
 import java.util.concurrent.TimeUnit;

@@ -2,7 +2,6 @@ package klik.face_recognition;
 
 import klik.actor.Aborter;
 import klik.actor.Message;
-import klik.util.Logger;
 
 import java.io.File;
 

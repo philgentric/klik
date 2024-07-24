@@ -11,7 +11,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.io.FileInputStream;

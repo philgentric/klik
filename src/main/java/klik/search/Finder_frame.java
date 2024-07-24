@@ -6,7 +6,6 @@
 
 package klik.search;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -23,12 +22,12 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.browser.Browser;
-import klik.files_and_paths.Ding;
+import klik.util.files_and_paths.Ding;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
+import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -94,7 +93,7 @@ public class Finder_frame implements Search_receiver
 		Scene scene = new Scene(main_vbox);
 		Look_and_feel_manager.set_region_look(main_vbox);
 
-		stage.setTitle(I18n.get_I18n_string("Search_by_keywords", logger));
+		stage.setTitle(My_I18n.get_I18n_string("Search_by_keywords", logger));
 		//stage.setMinWidth(MIN_WIDTH);
 		stage.setX(0);
 		stage.setScene(scene);
@@ -113,7 +112,7 @@ public class Finder_frame implements Search_receiver
 		{
 			HBox hbox = new HBox();
 
-			Label static_visited_folders = new Label(I18n.get_I18n_string("Visited_Folders", logger));
+			Label static_visited_folders = new Label(My_I18n.get_I18n_string("Visited_Folders", logger));
 			hbox.getChildren().add(static_visited_folders);
 			Look_and_feel_manager.set_region_look(static_visited_folders);
 
@@ -129,7 +128,7 @@ public class Finder_frame implements Search_receiver
 		{
 			HBox hbox = new HBox();
 
-			Label static_visited_files = new Label(I18n.get_I18n_string("Visited_Files", logger));
+			Label static_visited_files = new Label(My_I18n.get_I18n_string("Visited_Files", logger));
 			hbox.getChildren().add(static_visited_files);
 			Look_and_feel_manager.set_region_look(static_visited_files);
 
@@ -153,7 +152,7 @@ public class Finder_frame implements Search_receiver
 		{
 			Label target_folder_label = new Label(target_path.toAbsolutePath().toString());
 			settings_vbox.getChildren().add(target_folder_label);
-			Button up = new Button(I18n.get_I18n_string("Search_Parent_Folder", logger));
+			Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", logger));
 			Look_and_feel_manager.set_button_look(up,true);
 
 			settings_vbox.getChildren().add(up);
@@ -173,7 +172,7 @@ public class Finder_frame implements Search_receiver
 			});
 		}
 		{
-			CheckBox search_also_folders = new CheckBox(I18n.get_I18n_string("Search_Also_Folders", logger));
+			CheckBox search_also_folders = new CheckBox(My_I18n.get_I18n_string("Search_Also_Folders", logger));
 			search_also_folders.setSelected(also_folders);
 			Look_and_feel_manager.set_CheckBox_look(search_also_folders);
 			search_also_folders.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -187,7 +186,7 @@ public class Finder_frame implements Search_receiver
 		}
 		settings_vbox.getChildren().add(vertical_spacer());
 		{
-			CheckBox only_images = new CheckBox(I18n.get_I18n_string("Search_Only_Images", logger));
+			CheckBox only_images = new CheckBox(My_I18n.get_I18n_string("Search_Only_Images", logger));
 			only_images.setSelected(look_only_for_images);
 			Look_and_feel_manager.set_CheckBox_look(only_images);
 			only_images.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -201,7 +200,7 @@ public class Finder_frame implements Search_receiver
 		settings_vbox.getChildren().add(vertical_spacer());
 
 		{
-			CheckBox check_case_cb = new CheckBox(I18n.get_I18n_string("Check_Case", logger));
+			CheckBox check_case_cb = new CheckBox(My_I18n.get_I18n_string("Check_Case", logger));
 			check_case_cb.setSelected(check_case);
 			Look_and_feel_manager.set_CheckBox_look(check_case_cb);
 			check_case_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -216,7 +215,7 @@ public class Finder_frame implements Search_receiver
 
 		{
 			HBox hb = new HBox();
-			CheckBox use_extension_cb = new CheckBox(I18n.get_I18n_string("Use_Extension", logger));
+			CheckBox use_extension_cb = new CheckBox(My_I18n.get_I18n_string("Use_Extension", logger));
 			use_extension_cb.setSelected(use_extension);
 			Look_and_feel_manager.set_CheckBox_look(use_extension_cb);
 			use_extension_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -304,7 +303,7 @@ public class Finder_frame implements Search_receiver
 			hbox.getChildren().add(new_keyword_textfield);
 			hbox.getChildren().add(horizontal_spacer());
 
-			Button add_keyword = new Button(I18n.get_I18n_string("Add_Keyword", logger));
+			Button add_keyword = new Button(My_I18n.get_I18n_string("Add_Keyword", logger));
 			Look_and_feel_manager.set_button_look(add_keyword,true);
 			add_keyword.setOnAction(actionEvent -> {
 				new_keyword_action(new_keyword_textfield);
@@ -320,7 +319,7 @@ public class Finder_frame implements Search_receiver
 		}
 		top_keyword_vbox.getChildren().add(vertical_spacer());
 
-		start = new Button(I18n.get_I18n_string("Start_Search", logger));
+		start = new Button(My_I18n.get_I18n_string("Start_Search", logger));
 		start.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
@@ -331,7 +330,7 @@ public class Finder_frame implements Search_receiver
 		Look_and_feel_manager.set_button_look(start,true);
 
 		settings_vbox.getChildren().add(vertical_spacer());
-		stop = new Button(I18n.get_I18n_string("Stop_Search", logger));
+		stop = new Button(My_I18n.get_I18n_string("Stop_Search", logger));
 		stop.setDisable(true);
 		stop.setOnAction(new EventHandler<>() {
 			@Override
@@ -409,7 +408,7 @@ public class Finder_frame implements Search_receiver
 	public void receive_intermediary_statistics(Search_statistics search_statistics)
 	//**********************************************************
 	{
-		Fx_batch_injector.inject(() -> {
+		Jfx_batch_injector.inject(() -> {
 
             for (String input_keyword: keyword_to_slot.keySet())
             {
@@ -451,13 +450,13 @@ public class Finder_frame implements Search_receiver
 		}
 		if ( search_status == Search_status.invalid)
 		{
-			Fx_batch_injector.inject(() -> {
+			Jfx_batch_injector.inject(() -> {
                 stop.setDisable(true);
                 start.setDisable(false);
             },logger);
 			return;
 		}
-		Fx_batch_injector.inject(() -> {
+		Jfx_batch_injector.inject(() -> {
             stop.setDisable(true);
             start.setDisable(false);
         },logger);

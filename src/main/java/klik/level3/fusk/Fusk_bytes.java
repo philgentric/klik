@@ -3,8 +3,8 @@
 package klik.level3.fusk;
 
 import klik.actor.Aborter;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

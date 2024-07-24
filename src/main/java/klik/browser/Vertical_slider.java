@@ -6,7 +6,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import klik.browser.icons.Icon_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class Vertical_slider implements Landscape_height_listener, Scroll_to_listener
@@ -223,7 +223,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     public void perform_scroll_to(double y_offset, Icon_manager icon_manager)
     {
 
-        logger.log("got a scroll_to  target y offset = "+y_offset);
+        //logger.log("got a scroll_to  target y offset = "+y_offset);
 
         scroll_absolute(y_offset, icon_manager);
     }

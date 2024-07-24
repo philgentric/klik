@@ -2,7 +2,7 @@ package klik.change.history;
 
 import klik.actor.Aborter;
 import klik.change.undo.Undo_engine;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class History_auto_clean

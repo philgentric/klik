@@ -1,19 +1,21 @@
 package klik.look;
 
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.geometry.Insets;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import klik.util.Logger;
-import klik.Klik_application;
+import klik.look.styles.Look_and_feel_light;
+import klik.properties.Static_application_properties;
+import klik.util.log.Logger;
 
 import java.net.URL;
-import java.io.InputStream;
 
 //**********************************************************
 public abstract class Look_and_feel
@@ -29,6 +31,7 @@ public abstract class Look_and_feel
     public static final String LOOK_AND_FEEL_MENU_BUTTONS = "menu_buttons";
     public static final String LOOK_AND_FEEL_ALL_FILES = "look_and_feel_all_files";
     public static final String LOOK_AND_FEEL_ALL_DIRS = "look_and_feel_all_dirs";
+    public static final String STYLE = "STYLE";
 
 
     public static final boolean dbg = false;
@@ -101,46 +104,13 @@ public abstract class Look_and_feel
 
     abstract public URL get_CSS_URL();
 
-    //**********************************************************
-    public static URL get_URL_by_name(String name)
-    //**********************************************************
-    {
-        // this scheme works with Jbang
-        ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
-        //System.out.println("get_URL_by_name trying with class_loader : "+class_loader+" ...");
-        URL url = class_loader.getResource(name);
-        if (url != null)
-        {
-            //System.out.println("... worked!");
-            return url;
-        }
-        // this scheme works with Gradle
-        return Klik_application.class.getResource(name);
-    }
 
-    //**********************************************************
-    public static InputStream get_InputStream_by_name(String name)
-    //**********************************************************
-    {
-        // this scheme works with Jbang
-        ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
-        //System.out.println("get_InputStream_by_name trying with class_loader : "+class_loader+ " ...");
-        InputStream s = class_loader.getResourceAsStream(name);
-        if (s != null)
-        {
-            //System.out.println("... worked");
-            return s;
-        }
-        //System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
-        // this scheme works with Gradle
-        return Klik_application.class.getResourceAsStream(name);
-    }
 
 
 
 
     abstract public String get_sleeping_man_icon_path();
-    abstract public String get_klik_image_path();
+    abstract public String get_klik_icon_path();
     abstract public String get_trash_icon_path();
     abstract public String get_up_icon_path();
     abstract public String get_view_icon_path();
@@ -309,6 +279,39 @@ public abstract class Look_and_feel
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
     }
+
+    //**********************************************************
+    public static Look_and_feel read_look_and_feel_from_properties_file(Logger logger)
+    //**********************************************************
+    {
+        Look_and_feel look_and_feel = null;
+        String style_s = Static_application_properties.get_main_properties_manager(logger).get(STYLE);
+        if (style_s == null)
+        {
+            // DEFAULT STYLE, first time klik is launched on the platform
+            look_and_feel = new Look_and_feel_light(logger);
+        } else {
+            for (Look_and_feel laf : Look_and_feel_manager.registered) {
+                if (laf.name.equals(style_s)) {
+                    look_and_feel = laf;
+                    break;
+                }
+            }
+        }
+        if (look_and_feel == null) {
+            look_and_feel = new Look_and_feel_light(logger);
+        }
+        Static_application_properties.get_main_properties_manager(logger).save_unico(STYLE, look_and_feel.name,false);
+        return look_and_feel;
+    }
+
+    //**********************************************************
+    public static void set_style(Look_and_feel style,Logger logger)
+    //**********************************************************
+    {
+        Static_application_properties.get_main_properties_manager(logger).save_unico(STYLE, style.name,false);
+    }
+
 
 }
 

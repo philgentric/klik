@@ -1,13 +1,9 @@
 package klik.look.styles;
 
-import javafx.geometry.Insets;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import klik.Klik_application;
-import klik.browser.Browser;
+import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.net.URL;
 
@@ -30,7 +26,7 @@ public class Look_and_feel_light extends Look_and_feel
 
     @Override
     public URL get_CSS_URL() {
-        return get_URL_by_name("light/light.css");
+        return Jar_utils.get_URL_by_name("light/light.css");
     }
 
     @Override
@@ -79,7 +75,7 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
-    public String get_klik_image_path() {
+    public String get_klik_icon_path() {
         return "light/klik.jpg";
     }
 

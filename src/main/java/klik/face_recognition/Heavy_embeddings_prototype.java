@@ -1,8 +1,8 @@
 package klik.face_recognition;
 
 import javafx.scene.image.Image;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.FileWriter;
 import java.io.IOException;

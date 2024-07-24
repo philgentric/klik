@@ -10,11 +10,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
 import klik.browser.Drag_and_drop;
+import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -395,7 +395,7 @@ public class Mouse_handling_for_Image_window
                 logger.log("bad image size");
             }
             logger.log("setting image view as broken icon");
-            local.the_image_view.setImage(Look_and_feel_manager.get_broken_icon(300));
+            local.the_image_view.setImage(Jar_utils.get_broken_icon(300, logger));
             return true;
         }
         return false;

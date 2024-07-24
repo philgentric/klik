@@ -1,6 +1,5 @@
 package klik.level3.fusk;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -14,8 +13,8 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.properties.Static_application_properties;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -81,7 +80,7 @@ public class Pin_code_getter_stage
     private void show()
     //**********************************************************
     {
-        Fx_batch_injector.inject(()->define(),logger);
+        Jfx_batch_injector.inject(()->define(),logger);
     }
 
     //**********************************************************

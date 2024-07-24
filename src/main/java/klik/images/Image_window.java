@@ -15,15 +15,15 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
-import klik.files_and_paths.*;
+import klik.util.files_and_paths.*;
 import klik.level3.fusk.Fusk_static_core;
 import klik.level3.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
@@ -305,7 +305,7 @@ public class Image_window
         }
         else
         {
-            Look_and_feel current_style = Static_application_properties.read_look_and_feel_from_properties_file(logger);
+            Look_and_feel current_style = Look_and_feel.read_look_and_feel_from_properties_file(logger);
             background_fill = current_style.get_background_fill();
         }
         return background_fill;
@@ -469,7 +469,7 @@ public class Image_window
     //**********************************************************
     {
         // no image to display...
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
             //the_BorderPane.getChildren().clear();
             the_image_Pane.getChildren().clear();//setCenter(null);
             if( dir_ != null) the_Stage.setTitle("No image to display in: " + dir_.toAbsolutePath());
@@ -503,7 +503,7 @@ public class Image_window
         }
         // if pix-for-pix was used on a very large image, the window size is very large too..
         // let us check and correct that
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
 
             local_image_context.the_image_view.setPreserveRatio(true);
             local_image_context.the_image_view.setSmooth(true);
@@ -549,7 +549,7 @@ public class Image_window
         {
             List<Old_and_new_Path> l = new ArrayList<>();
             Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
-            oandn.run_after = () -> Fx_batch_injector.inject(() -> set_stage_title(local_new_image_context),logger);
+            oandn.run_after = () -> Jfx_batch_injector.inject(() -> set_stage_title(local_new_image_context),logger);
             l.add(oandn);
             Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, true, aborter,logger);
         }

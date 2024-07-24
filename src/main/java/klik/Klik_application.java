@@ -76,10 +76,10 @@
 //SOURCES look/Look_and_feel_manager.java
 //SOURCES look/my_i18n/Language_manager.java
 //SOURCES properties/Static_application_properties.java
-//SOURCES util/Exceptions_in_threads_catcher.java
-//SOURCES util/Monitor.java
-//SOURCES util/System_out_logger.java
-//SOURCES util/Logger.java
+//SOURCES util/log/Exceptions_in_threads_catcher.java
+//SOURCES util/cache_auto_clean/Monitor.java
+//SOURCES util/log/System_out_logger.java
+//SOURCES util/log/Logger.java
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/icons/Icon_manager.java
@@ -111,18 +111,16 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.My_Stage;
-import klik.change.history.History_auto_clean;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.Static_application_properties;
-import klik.util.*;
+import klik.util.cache_auto_clean.Monitor;
+import klik.util.log.Logger;
+import klik.util.log.Exceptions_in_threads_catcher;
+import klik.util.log.System_out_logger;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.Properties;
 
 //**********************************************************
 public class Klik_application extends Application

@@ -2,8 +2,8 @@ package klik.face_recognition;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

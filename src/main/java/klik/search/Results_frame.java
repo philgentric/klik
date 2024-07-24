@@ -18,15 +18,15 @@ import javafx.stage.Stage;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
-import klik.util.Fx_batch_injector;
-import klik.util.Text_frame;
+import klik.look.my_i18n.My_I18n;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Text_frame;
 import klik.util.execute.System_open_actor;
-import klik.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.images.Image_window;
 import klik.audio.Audio_player;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,7 +66,7 @@ public class Results_frame
 		//Scene scene = new Scene(scroll_pane, 800, 600);
 		Look_and_feel_manager.set_region_look(scroll_pane);
 
-		stage.setTitle(I18n.get_I18n_string("Search_Results", logger));
+		stage.setTitle(My_I18n.get_I18n_string("Search_Results", logger));
 		stage.setScene(scene);
 		stage.setX(Finder_frame.MIN_WIDTH);
 		stage.setY(0);
@@ -129,7 +129,7 @@ public class Results_frame
 		Look_and_feel_manager.set_context_menu_look(context_menu);
 
 
-		MenuItem browse = new MenuItem( I18n.get_I18n_string("Browse",logger));
+		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",logger));
 		browse.setOnAction(event -> {
 			logger.log("Browse in new window");
 			Path local = path;
@@ -140,7 +140,7 @@ public class Results_frame
 
 		if (! path.toFile().isDirectory())
 		{
-			String text = I18n.get_I18n_string("Open_With_Registered_Application",logger);
+			String text = My_I18n.get_I18n_string("Open_With_Registered_Application",logger);
 			MenuItem open_special = new MenuItem(text);
 			open_special.setOnAction(event -> {
 				logger.log("Open_With_Registered_Application");
@@ -185,7 +185,7 @@ public class Results_frame
 
 		path_set.add(sr.path());
 
-		Fx_batch_injector.inject(() -> make_one_button(the_browser, keys, is_max, sr.path()),logger);
+		Jfx_batch_injector.inject(() -> make_one_button(the_browser, keys, is_max, sr.path()),logger);
 
 	}
 
@@ -194,8 +194,8 @@ public class Results_frame
 	//**********************************************************
 	{
 
-		Fx_batch_injector.inject(() -> {
-			stage.setTitle(I18n.get_I18n_string("Search_Results_Ended", logger));
+		Jfx_batch_injector.inject(() -> {
+			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
 			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());
 

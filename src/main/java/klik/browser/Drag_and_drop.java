@@ -1,19 +1,16 @@
-//SOURCES ../files_and_paths/Moving_files.java
+//SOURCES ../util/files_and_paths/Moving_files.java
 package klik.browser;
 
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.*;
-import javafx.scene.layout.BackgroundFill;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.items.Item;
-import klik.files_and_paths.Moving_files;
-import klik.look.Look_and_feel;
+import klik.util.files_and_paths.Moving_files;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;

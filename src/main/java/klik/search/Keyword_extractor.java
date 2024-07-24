@@ -1,6 +1,6 @@
 package klik.search;
 
-import klik.util.Logger;
+import klik.util.log.Logger;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;

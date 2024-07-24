@@ -21,9 +21,9 @@ import klik.browser.icons.Paths_manager;
 import klik.image_indexer.Image_indexer;
 import klik.images.Image_context;
 import klik.look.Look_and_feel_manager;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -161,7 +161,7 @@ public class Multiple_image_window
     {
         set_background();
 
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
                 double size = 1000;
                 //ic = get_next_GIF();
                 if (ic == null) return;

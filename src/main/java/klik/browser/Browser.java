@@ -1,44 +1,47 @@
 //SOURCES ../actor/Actor_engine.java
 //SOURCES ../actor/Aborter.java
+//SOURCES ../util/ui/Show_running_man_frame.java
+//SOURCES ../util/ui/Popups.java
+//SOURCES ../util/log/Stack_trace_getter.java
+//SOURCES ../util/files_and_paths/Old_and_new_Path.java
+//SOURCES ../util/files_and_paths/Filesystem_item_modification_watcher.java
+//SOURCES ../util/files_and_paths/Guess_file_type.java
+//SOURCES ../util/files_and_paths/Ding.java
 //SOURCES ../change/Change_gang.java
-//SOURCES icons/caches/Image_properties_RAM_cache.java
-//SOURCES ../look/Look_and_feel_manager.java
-//SOURCES ../look/my_i18n/I18n.java
-//SOURCES ../properties/Static_application_properties.java
-//SOURCES ../util/Popups.java
-//SOURCES ../util/Stack_trace_getter.java
-//SOURCES items/Item.java
-//SOURCES locator/Folders_with_large_images_locator.java
 //SOURCES ../change/Change_receiver.java
-//SOURCES  ../change/history/History_engine.java
+//SOURCES ../change/history/History_engine.java
 //SOURCES ../level2/backup/Backup_singleton.java
 //SOURCES ../level3/fusk/Fusk_bytes.java
 //SOURCES ../level3/fusk/Fusk_singleton.java
 //SOURCES ../level3/fusk/Static_fusk_paths.java
+//SOURCES ../look/Look_and_feel_manager.java
+//SOURCES ../look/my_i18n/My_I18n.java
 //SOURCES ../look/Font_size.java
 //SOURCES ../look/Look_and_feel_manager.java
-//SOURCES ../look/my_i18n/I18n.java
-//SOURCES ../properties/Static_application_properties.java
-//SOURCES ../files_and_paths/Old_and_new_Path.java
-//SOURCES ./Scan_show_slave.java
-//SOURCES ./Selection_reporter.java
-//SOURCES ./icons/Refresh_target.java
-//SOURCES ./Change_type.java
-//SOURCES ./Error_receiver.java
-//SOURCES ./icons/Icon_factory_actor.java
-//SOURCES ../files_and_paths/Filesystem_item_modification_watcher.java
-//SOURCES ./Selection_handler.java
+//SOURCES ../look/my_i18n/My_I18n.java
+//SOURCES ../look/Jar_utils.java
+
 //SOURCES ./items/Item_image.java
+//SOURCES ./items/Item.java
+
+//SOURCES ../properties/Static_application_properties.java
+//SOURCES ../properties/Static_application_properties.java
+//SOURCES ./icons/caches/Image_properties_RAM_cache.java
+//SOURCES ./icons/Refresh_target.java
+//SOURCES ./icons/Icon_factory_actor.java
 //SOURCES ./icons/Paths_manager.java
-//SOURCES ../files_and_paths/Guess_file_type.java
+//SOURCES ./locator/Folders_with_large_images_locator.java
 //SOURCES ../images/decoding/Fast_date_from_OS.java
-//SOURCES ../util/Show_running_man_frame.java
-//SOURCES ../util/Importer.java
-//SOURCES ../files_and_paths/Ding.java
 //SOURCES ./Browser_UI.java
 //SOURCES ./Scan_show.java
 //SOURCES ./External_close_event_handler.java
 //SOURCES ./Static_backup_paths.java
+//SOURCES ./Change_type.java
+//SOURCES ./Error_receiver.java
+//SOURCES ./Scan_show_slave.java
+//SOURCES ./Selection_reporter.java
+//SOURCES ./Selection_handler.java
+//SOURCES ./Importer.java
 
 package klik.browser;
 
@@ -71,16 +74,22 @@ import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
-import klik.files_and_paths.*;
+import klik.look.my_i18n.My_I18n;
+import klik.util.files_and_paths.*;
 import klik.level2.backup.Backup_singleton;
 import klik.level3.fusk.Fusk_bytes;
 import klik.level3.fusk.Fusk_singleton;
 import klik.level3.fusk.Static_fusk_paths;
 import klik.look.Font_size;
+import klik.look.Jar_utils;
+import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
 import klik.properties.Static_application_properties;
-import klik.util.*;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Popups;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -219,7 +228,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 }
             }
         };
-        Fx_batch_injector.inject(r, logger);
+        Jfx_batch_injector.inject(r, logger);
     }
 
 
@@ -356,11 +365,19 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private void set_icon()
     //**********************************************************
     {
+        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
+        if (look_and_feel == null) {
+            logger.log("BAD WARNING: cannot get look and feel instance");
+            return;
+        }
+        String klik_image_path = look_and_feel.get_klik_icon_path();
+
         my_Stage.the_Stage.getIcons().clear();
         Image taskbar_icon = null;
         int[] icon_sizes = {16, 32, 64, 128};
-        for (int s : icon_sizes) {
-            Image icon = Look_and_feel_manager.load_icon_fx_from_jar(Objects.requireNonNull(Look_and_feel_manager.get_instance()).get_klik_image_path(), s);
+        for (int s : icon_sizes)
+        {
+            Image icon = Jar_utils.load_jfx_image_from_jar(klik_image_path, s, logger);
             if (icon != null) {
                 my_Stage.the_Stage.getIcons().add(icon);
                 taskbar_icon = icon;
@@ -885,7 +902,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                     }
                 }
                 long finalHow_many_files = how_many_files;
-                Fx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + finalHow_many_files + " files & folders"), logger);
+                Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + finalHow_many_files + " files & folders"), logger);
 
             }
         };
@@ -1024,13 +1041,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void create_new_directory()
     //**********************************************************
     {
-        TextInputDialog dialog = new TextInputDialog(I18n.get_I18n_string("New_directory", logger));
+        TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", logger));
         Look_and_feel_manager.set_dialog_look(dialog);
         dialog.initOwner(my_Stage.the_Stage);
         dialog.setWidth(my_Stage.the_Stage.getWidth());
-        dialog.setTitle(I18n.get_I18n_string("New_directory", logger));
-        dialog.setHeaderText(I18n.get_I18n_string("Enter_name_of_new_directory", logger));
-        dialog.setContentText(I18n.get_I18n_string("New_directory_name", logger));
+        dialog.setTitle(My_I18n.get_I18n_string("New_directory", logger));
+        dialog.setHeaderText(My_I18n.get_I18n_string("Enter_name_of_new_directory", logger));
+        dialog.setContentText(My_I18n.get_I18n_string("New_directory_name", logger));
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
@@ -1204,7 +1221,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             r.run();
         } else {
             //logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected, from=" + from);
-            Fx_batch_injector.inject(r, logger);
+            Jfx_batch_injector.inject(r, logger);
         }
 
     }

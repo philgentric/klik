@@ -6,10 +6,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.I18n;
-import klik.util.Logger;
+import klik.look.my_i18n.My_I18n;
+import klik.util.log.Logger;
 
 //**********************************************************
 public class Keyword_slot
@@ -77,7 +76,7 @@ public class Keyword_slot
 
             hbox1.getChildren().add(Finder_frame.horizontal_spacer());
 
-            Button t4 = new Button(I18n.get_I18n_string("Remove_This_Keyword", logger));
+            Button t4 = new Button(My_I18n.get_I18n_string("Remove_This_Keyword", logger));
             Look_and_feel_manager.set_button_look(t4, true);
             t4.setOnAction(new EventHandler<>() {
                 @Override
@@ -99,7 +98,7 @@ public class Keyword_slot
             hbox2.getChildren().add(result_keyword_label);
             hbox2.getChildren().add(Finder_frame.horizontal_spacer());
 
-            Label t2 = new Label(I18n.get_I18n_string("Was_Found_In", logger));
+            Label t2 = new Label(My_I18n.get_I18n_string("Was_Found_In", logger));
             Look_and_feel_manager.set_region_look(t2);
             hbox2.getChildren().add(t2);
             hbox2.getChildren().add(Finder_frame.horizontal_spacer());
@@ -109,7 +108,7 @@ public class Keyword_slot
             hbox2.getChildren().add(result_count_label);
             hbox2.getChildren().add(Finder_frame.horizontal_spacer());
 
-            Label t4 = new Label( I18n.get_I18n_string("File_Names",logger));
+            Label t4 = new Label( My_I18n.get_I18n_string("File_Names",logger));
             Look_and_feel_manager.set_region_look(t4);
             hbox2.getChildren().add(t4);
             finder_frame.bottom_keyword_vbox.getChildren().add(hbox2);

@@ -4,7 +4,7 @@ package klik.level3.fusk;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.util.Logger;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 

@@ -1,4 +1,4 @@
-//SOURCES ../../../files_and_paths/My_File.java
+//SOURCES ../../../util/files_and_paths/My_File.java
 package klik.level2.deduplicate.console;
 
 import javafx.event.ActionEvent;
@@ -12,12 +12,12 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
-import klik.files_and_paths.Guess_file_type;
-import klik.files_and_paths.My_File;
+import klik.util.files_and_paths.Guess_file_type;
+import klik.util.files_and_paths.My_File;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
 
 import java.io.File;
@@ -200,7 +200,7 @@ public class Deduplication_console_window
             }
         });
 
-        Fx_batch_injector.inject(r,logger);
+        Jfx_batch_injector.inject(r,logger);
     }
 
 
@@ -210,20 +210,20 @@ public class Deduplication_console_window
     public void set_end_examined()
     //**********************************************************
     {
-        Fx_batch_injector.inject(() -> progress_bar_examined.setProgress(1.0),logger);
+        Jfx_batch_injector.inject(() -> progress_bar_examined.setProgress(1.0),logger);
     }
     //**********************************************************
     public void set_end_deleted()
     //**********************************************************
     {
-        Fx_batch_injector.inject(() -> { if ( !just_count) progress_bar_deleted.setProgress(1.0);},logger);
+        Jfx_batch_injector.inject(() -> { if ( !just_count) progress_bar_deleted.setProgress(1.0);},logger);
     }
 
     //**********************************************************
     public void set_status_text(String status)
     //**********************************************************
     {
-        Fx_batch_injector.inject(() ->{
+        Jfx_batch_injector.inject(() ->{
 
             if (private_aborter.should_abort()) return;
             label_status.setText(STATUS+ status);

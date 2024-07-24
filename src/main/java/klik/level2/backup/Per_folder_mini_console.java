@@ -5,10 +5,10 @@ import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.files_and_paths.Guess_file_type;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.util.files_and_paths.Guess_file_type;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import klik.util.Strings;
 
 import java.io.File;
@@ -63,7 +63,7 @@ public class Per_folder_mini_console
     {
         int H = Mini_console_height;
         int W = Mini_console_width;
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
             the_stage = new Stage();
             the_stage.setTitle("Backup console ");
             the_stage.setMinWidth(W);
@@ -91,7 +91,7 @@ public class Per_folder_mini_console
     {
         start_time = System.currentTimeMillis();
         request = request_;
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
                     the_stage.setTitle("Backing up : " + request.source_dir.getName());
                     the_text_area.setText("Source:"+request.source_dir);
                 },logger);
@@ -99,7 +99,7 @@ public class Per_folder_mini_console
         renamed_files_names = "";
         estimate(request.source_dir);
 
-        //target_file_count = Files_and_Paths.get_how_many_files_down_the_tree(request.source_dir.toPath(),logger);
+        //target_file_count = Static_files_and_paths_utilities.get_how_many_files_down_the_tree(request.source_dir.toPath(),logger);
     }
 
     //**********************************************************
@@ -198,13 +198,13 @@ public class Per_folder_mini_console
     {
 
         String report = make_current_report();
-        Fx_batch_injector.inject(() -> the_text_area.setText(report),logger);
+        Jfx_batch_injector.inject(() -> the_text_area.setText(report),logger);
 
         if ( processed_file_count.get() == target_file_count)
         {
             Runnable r = () -> {
 
-                        Fx_batch_injector.inject(() -> {
+                        Jfx_batch_injector.inject(() -> {
                             the_text_area.setStyle("-fx-control-inner-background: green;");
 
                             //the_text_area.setStyle("-fx-base: white; "+ "-fx-font-weight: bold; ");
@@ -288,7 +288,7 @@ public class Per_folder_mini_console
     //**********************************************************
     {
 
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
             if ( the_stage != null) the_stage.close();
         },logger);
 

@@ -1,7 +1,7 @@
 //SOURCES ../../../actor/Job_termination_reporter.java
-//SOURCES ../../../util/Show_running_man_frame_with_abort_button.java
-//SOURCES ../../../util/Fx_batch_injector.java
-//SOURCES ../../../util/From_disk.java
+//SOURCES ../../../util/ui/Show_running_man_frame_with_abort_button.java
+//SOURCES ../../../util/ui/Jfx_batch_injector.java
+//SOURCES ../../../util/files_and_paths/From_disk.java
 //SOURCES ./Animated_gif_generation_actor.java
 
 package klik.browser.icons.animated_gifs;
@@ -23,15 +23,14 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.change.Change_gang;
-import klik.files_and_paths.*;
+import klik.util.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
 import klik.properties.Static_application_properties;
-import klik.util.Show_running_man_frame_with_abort_button;
-import klik.util.Fx_batch_injector;
-import klik.util.Popups;
+import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.Execute_command;
-import klik.util.From_disk;
-import klik.util.Logger;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
+import klik.util.ui.Show_running_man_frame_with_abort_button;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
@@ -83,7 +82,7 @@ public class Ffmpeg_utils
         {
             if (running_man.aborter.should_abort())
             {
-                Fx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,logger), logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,logger), logger);
                 return;
             }
             String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",start)+".gif";
@@ -175,7 +174,7 @@ public class Ffmpeg_utils
             {
                 aborted_reported.set(true);
                 logger.log("video_to_gif abort reported");
-                Fx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false, logger), logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false, logger), logger);
             }
             return;
         }
@@ -298,7 +297,7 @@ public class Ffmpeg_utils
 
         Platform.runLater(() -> {
             the_stage = new Stage();
-            Path icon_cache_dir = Files_and_Paths.get_icon_cache_dir(the_stage,logger);
+            Path icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(the_stage,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);
@@ -472,7 +471,7 @@ public class Ffmpeg_utils
         logger.log("path="+ path);
         int icon_size = 500;
 
-        File icon_file = From_disk.file_for_icon_cache(icon_cache_dir, path, String.valueOf(icon_size), Icon_factory_actor.gif_extension);
+        File icon_file = From_disk.file_for_icon_caching(icon_cache_dir, path, String.valueOf(icon_size), Icon_factory_actor.gif_extension);
         logger.log("icon_file="+icon_file.getAbsolutePath());
 
 

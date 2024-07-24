@@ -2,8 +2,6 @@
 package klik.browser;
 
 import javafx.geometry.Point2D;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
@@ -11,11 +9,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item;
-import klik.browser.items.Item_image;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.util.Logger;
-import klik.util.Popups;
+import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 import java.io.File;
 import java.nio.file.Files;

@@ -2,9 +2,9 @@ package klik.browser.items;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import klik.look.my_i18n.I18n;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
+import klik.look.my_i18n.My_I18n;
+import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,22 +29,22 @@ public class My_colors
         Color col;
         String localized_name;
         {
-            localized_name = I18n.get_I18n_string(NO_COLOR,logger);
+            localized_name = My_I18n.get_I18n_string(NO_COLOR,logger);
             col = null;
             all_colors.put(localized_name,new My_color(col, localized_name,null));
         }
         {
-            localized_name = I18n.get_I18n_string("Color_Red",logger);
+            localized_name = My_I18n.get_I18n_string("Color_Red",logger);
             col = Color.RED;
             all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
         }
         {
-            localized_name = I18n.get_I18n_string("Color_Green", logger);
+            localized_name = My_I18n.get_I18n_string("Color_Green", logger);
             col = Color.GREEN;
             all_colors.put(localized_name, new My_color(col, localized_name, col.toString()));
         }
         {
-            localized_name = I18n.get_I18n_string("Color_Blue",logger);
+            localized_name = My_I18n.get_I18n_string("Color_Blue",logger);
             col = Color.BLUE;
             all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
         }

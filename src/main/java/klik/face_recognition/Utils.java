@@ -10,8 +10,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 
@@ -69,7 +69,7 @@ public class Utils
         }
         else
         {
-            Fx_batch_injector.inject(r, logger);
+            Jfx_batch_injector.inject(r, logger);
         }
     }
 

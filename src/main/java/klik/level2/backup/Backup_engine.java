@@ -4,16 +4,15 @@
 
 package klik.level2.backup;
 
-import javafx.application.Platform;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.workers.Actor_engine_based_on_workers;
-import klik.files_and_paths.Files_and_Paths;
-import klik.files_and_paths.Sizes;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.files_and_paths.Sizes;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
 
 import java.nio.file.Path;
@@ -66,7 +65,7 @@ public class Backup_engine
         backup_console_window = new Backup_console_window(this,stats,logger);
         update_properties(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString());
         update_status(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString(),"incomplete_backup");
-        Static_application_properties.get_properties_manager(logger).store_properties();
+        Static_application_properties.get_main_properties_manager(logger).store_properties();
 
         Runnable runnable = new Runnable() {
             @Override
@@ -90,7 +89,7 @@ public class Backup_engine
                 new Directory_backup_job_request(source.toFile(), destination.toFile(), dedicated_backup_aborter,logger),
                         null,logger);
 
-        Sizes sizes= Files_and_Paths.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
+        Sizes sizes= Static_files_and_paths_utilities.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
         stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");
         Runnable monitoring = () -> {
@@ -144,7 +143,7 @@ public class Backup_engine
         is_finished = true;
         //Static_application_properties.get_properties_manager(logger).store_properties();
 
-        Fx_batch_injector.inject(() -> {
+        Jfx_batch_injector.inject(() -> {
             StringBuilder sbb = new StringBuilder();
             for ( String r : reports)
             {
@@ -191,18 +190,18 @@ public class Backup_engine
         {
             String key = LAST_SOURCE_DIR +i;
 
-            String s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+            String s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null ) break;
             if ( s.equals(source) == true)
             {
                 key = LAST_DESTINATION_DIR +i;
-                s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+                s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
                 if ( s == null ) break;
                 if ( s.equals(destination) == true)
                 {
                     // FOUND
                     key = LAST_STATUS +i;
-                    Static_application_properties.get_properties_manager(logger).raw_put(key,status);
+                    Static_application_properties.get_main_properties_manager(logger).raw_put(key,status);
                 }
             }
         }
@@ -219,12 +218,12 @@ public class Backup_engine
         for(int j = 0 ; j < 12; j++)
         {
             key = LAST_SOURCE_DIR +j;
-            String s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+            String s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null ) break;
             if ( s.equals(absolutePath_source) == true)
             {
                 key = LAST_DESTINATION_DIR +j;
-                String s2 = (String) Static_application_properties.get_properties_manager(logger).get(key);
+                String s2 = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
                 if ( s2 == null ) break;
                 if ( s2.equals(absolutePath_destination) == true)
                 {
@@ -234,7 +233,7 @@ public class Backup_engine
                     key = LAST_SAVE_DATE +j;
                     Date d = new Date();
                     s = d.toString();
-                    Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+                    Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
                     return;
                 }
             }
@@ -245,13 +244,13 @@ public class Backup_engine
         for(int j = 11 ; j >= 0 ; j--)
         {
             key = LAST_SOURCE_DIR +j;
-            String s = Static_application_properties.get_properties_manager(logger).get(key);
+            String s = Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null ) continue;
             key = LAST_SOURCE_DIR +(j+1);
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
             key = LAST_DESTINATION_DIR +j;
-            s = Static_application_properties.get_properties_manager(logger).get(key);
+            s = Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null )
             {
                 // this is BAD !break;
@@ -259,10 +258,10 @@ public class Backup_engine
                 s = "Corrupted file record, do not use";
             }
             key = LAST_DESTINATION_DIR +(j+1);
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
             key = LAST_SAVE_DATE +j;
-            s = Static_application_properties.get_properties_manager(logger).get(key);
+            s = Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null )
             {
                 // this is BAD !break;
@@ -270,10 +269,10 @@ public class Backup_engine
                 s = "unknown date";
             }
             key = LAST_SAVE_DATE +(j+1);
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
             key = LAST_STATUS +j;
-            s = Static_application_properties.get_properties_manager(logger).get(key);
+            s = Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null )
             {
                 // this is BAD !break;
@@ -281,16 +280,16 @@ public class Backup_engine
                 s = "status unknown";
             }
             key = LAST_STATUS +(j+1);
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
         }
 
         if (absolutePath_source == null ) return; // usefull for "clearing"
-        Static_application_properties.get_properties_manager(logger).raw_put(LAST_DESTINATION_DIR+"0", absolutePath_destination);
-        Static_application_properties.get_properties_manager(logger).raw_put(LAST_SOURCE_DIR+"0", absolutePath_source);
+        Static_application_properties.get_main_properties_manager(logger).raw_put(LAST_DESTINATION_DIR+"0", absolutePath_destination);
+        Static_application_properties.get_main_properties_manager(logger).raw_put(LAST_SOURCE_DIR+"0", absolutePath_source);
         Date d = new Date();
         String s = d.toString();
-        Static_application_properties.get_properties_manager(logger).raw_put(LAST_SAVE_DATE+"0", s);
+        Static_application_properties.get_main_properties_manager(logger).raw_put(LAST_SAVE_DATE+"0", s);
 
         // NOTE: status is updated by dedicated routine
 
@@ -301,7 +300,7 @@ public class Backup_engine
     public static void remove_all_properties(Logger logger)
     //**********************************************************
     {
-        Properties_manager pm = Static_application_properties.get_properties_manager(logger);
+        Properties_manager pm = Static_application_properties.get_main_properties_manager(logger);
         for(int j = 0; j <=12 ; j++)
         {
             {
@@ -332,56 +331,56 @@ public class Backup_engine
         for(int j = i; j <=12 ; j++)
         {
             String key = LAST_SOURCE_DIR +(j+1);
-            String s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+            String s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null )
             {
                 // last one is j
                 key = LAST_SOURCE_DIR +j;
-                s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+                s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
                 if ( s != null )
                 {
-                    Static_application_properties.get_properties_manager(logger).remove(key);
+                    Static_application_properties.get_main_properties_manager(logger).remove(key);
                 }
                 key = LAST_DESTINATION_DIR +j;
-                s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+                s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
                 if ( s != null )
                 {
-                    Static_application_properties.get_properties_manager(logger).remove(key);
+                    Static_application_properties.get_main_properties_manager(logger).remove(key);
                 }
                 key = LAST_SAVE_DATE +j;
-                s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+                s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
                 if ( s != null )
                 {
-                    Static_application_properties.get_properties_manager(logger).remove(key);
+                    Static_application_properties.get_main_properties_manager(logger).remove(key);
                 }
                 key = LAST_STATUS +j;
-                s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+                s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
                 if ( s != null )
                 {
-                    Static_application_properties.get_properties_manager(logger).remove(key);
+                    Static_application_properties.get_main_properties_manager(logger).remove(key);
                 }
                 break;
             }
             key = LAST_SOURCE_DIR +j;
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
             key = LAST_DESTINATION_DIR +(j+1);
-            s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+            s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null ) break;
             key = LAST_DESTINATION_DIR +j;
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
             key = LAST_SAVE_DATE +(j+1);
-            s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+            s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null ) break;
             key = LAST_SAVE_DATE +j;
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
 
             key = LAST_STATUS +(j+1);
-            s = (String) Static_application_properties.get_properties_manager(logger).get(key);
+            s = (String) Static_application_properties.get_main_properties_manager(logger).get(key);
             if ( s == null ) break;
             key = LAST_STATUS +j;
-            Static_application_properties.get_properties_manager(logger).raw_put(key,s);
+            Static_application_properties.get_main_properties_manager(logger).raw_put(key,s);
         }
 
     }

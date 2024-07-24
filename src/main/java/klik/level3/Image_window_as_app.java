@@ -8,8 +8,8 @@ import klik.browser.My_Stage;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
-import klik.util.Logger;
-import klik.util.System_out_logger;
+import klik.util.log.Logger;
+import klik.util.log.System_out_logger;
 
 import java.nio.file.Path;
 

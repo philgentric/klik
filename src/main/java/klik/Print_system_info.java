@@ -20,7 +20,7 @@ public class Print_system_info
         show_runtime_properties();
 
         //show_environement_variables();
-        //Font_name.print_all_font_families();
+        //print_all_font_families();
 
     }
 
@@ -44,6 +44,20 @@ public class Print_system_info
             System.out.println(name+" = "+p.getProperty(name));
         }
     }
+
+    public static void print_all_font_families() {
+        System.out.println("*********FONT FAMILIES***********");
+        for (String ff : javafx.scene.text.Font.getFamilies())
+        {
+            System.out.println(ff);
+        }
+        System.out.println("*********FONT NAMES***********");
+        for (String ff : javafx.scene.text.Font.getFontNames())
+        {
+            System.out.println(ff);
+        }
+    }
+
 
     //**********************************************************
     private static void show_environement_variables()

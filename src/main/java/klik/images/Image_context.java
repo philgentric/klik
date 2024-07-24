@@ -5,39 +5,26 @@ package klik.images;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.change.Change_gang;
-import klik.files_and_paths.*;
-import klik.images.decoding.Exif_metadata_extractor;
+import klik.util.files_and_paths.*;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
-import klik.level3.fusk.Fusk_static_core;
-import klik.level3.fusk.Fusk_strings;
+import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
-import klik.util.From_disk;
-import klik.util.Fx_batch_injector;
-import klik.util.Logger;
-import klik.util.Stack_trace_getter;
-import klik.util.execute.Execute_command;
+import klik.util.files_and_paths.From_disk;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
-import org.apache.commons.io.FilenameUtils;
 
 import java.awt.Desktop;
 
@@ -49,8 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 //**********************************************************
 public class Image_context
@@ -83,7 +68,7 @@ public class Image_context
         }
         if ( local_image.isError())
         {
-            Image broken = Look_and_feel_manager.get_broken_icon(300);
+            Image broken = Jar_utils.get_broken_icon(300,logger_);
             return Optional.of(new Image_context(path,path,broken,logger_));
         }
 
@@ -330,7 +315,7 @@ public class Image_context
         int max = Static_application_properties.get_excluded_keyword_list_max_size(logger);
         for (int i = 0; i < max; i++) {
             String key = Static_application_properties.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Static_application_properties.get_properties_manager(logger).get(key);
+            String kw = Static_application_properties.get_main_properties_manager(logger).get(key);
             if (kw != null) {
                 String lower = kw.toLowerCase();
                 returned.add(lower);
@@ -394,7 +379,7 @@ public class Image_context
     {
         logger.log("ask_user_and_find()");
 
-        Fx_batch_injector.inject( () -> {
+        Jfx_batch_injector.inject( () -> {
             StringBuilder ttt = new StringBuilder();
             for (String ss : keywords) ttt.append(ss).append(" ");
             TextInputDialog dialog = new TextInputDialog(ttt.toString());
@@ -454,8 +439,8 @@ public class Image_context
     boolean copy(Browser b, Runnable after)
     //**********************************************************
     {
-        //if (Popups.popup_ask_for_confirmation(I18n.get_I18n_string("Warning", logger),
-        //        I18n.get_I18n_string("Copy_are_you_sure", logger), logger) == false) return;
+        //if (Popups.popup_ask_for_confirmation(My_I18n.get_I18n_string("Warning", logger),
+        //        My_I18n.get_I18n_string("Copy_are_you_sure", logger), logger) == false) return;
 
         // to get a good (long) prefix, add 2 levels of folders names
         // since a copy is usually moved afterward and you  want to get a good name for the copy
@@ -504,7 +489,7 @@ public class Image_context
             return false;
         }
         Actor_engine.execute(after,logger);
-        //Popups.popup_text(I18n.get_I18n_string("Copy_done",logger),I18n.get_I18n_string("New_name",logger)+new_path.getFileName().toString(),false);
+        //Popups.popup_text(My_I18n.get_I18n_string("Copy_done",logger),My_I18n.get_I18n_string("New_name",logger)+new_path.getFileName().toString(),false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(
                 path,
@@ -523,7 +508,7 @@ public class Image_context
     public Optional<Image_context> rename_file_for_an_image_window(Image_window image_window)
     //**********************************************************
     {
-        Path new_path =  Files_and_Paths.ask_user_for_new_file_name(image_window.the_Stage, path,logger);
+        Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(image_window.the_Stage, path,logger);
         if ( new_path == null) return Optional.empty();
         return image_window.change_name_of_file(new_path);
     }
