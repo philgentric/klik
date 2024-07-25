@@ -97,40 +97,24 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
 -fx-background-color: blue;
 }
 
-/*
-failed attempt to use pseudoclass
-.menu_buttons:selected_item{
-    -fx-background-color: #efefef;
-}
-
-
-Button:selected_item{
-    -fx-background-color: #efefef;
-}
-
-*/
-
 
 
 .menu_buttons:hover {
-  -fx-background-color: #efefef;
+  -fx-background-color: #efefef; // light grey
 }
 
 
 .look_and_feel_drag {
     -fx-background-color: #88ffff; // light blue
-//    -fx-background-color: #efefff;
 }
 
-
-
 .look_and_feel_all_files {
-    -fx-background-color: #ffffaa;
+    -fx-background-color: #ffffaa; // light yellow
 }
 
 
 .look_and_feel_all_dirs {
-    -fx-background-color: #aaffff;
+    -fx-background-color: #aaffff; // light blue
 }
 
 my_dialog{
@@ -149,5 +133,5 @@ my_dialog{
 .my_dialog:header *.header-panel *.label{
     -fx-font-size: 18px;
     -fx-font-style: italic;
-    -fx-fill: #404040;
+    -fx-fill: #404040; // dqrk grey
 }
