@@ -954,6 +954,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 return;
             }
             scan_dir_guard.set(true);
+            aborter.add_on_abort(() -> scan_dir_guard.set(false));
             paths_manager.scan_dir_in_a_thread_2(my_Stage.the_Stage, change_type);
             scan_dir_guard.set(false);
         };

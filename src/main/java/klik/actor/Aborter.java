@@ -3,6 +3,8 @@ package klik.actor;
 
 import klik.util.log.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // Aborter is a thread safe way to signal any piece of background running code
@@ -24,6 +26,7 @@ public class Aborter
     private AtomicBoolean abort = new AtomicBoolean(false);
     private final Logger logger;
     public String reason;
+    private Runnable on_abort;
 
     //**********************************************************
     public Aborter(String name, Logger logger)
@@ -50,5 +53,19 @@ public class Aborter
         //if ( dbg) if( abort.get()) logger.log(Stack_trace_getter.get_stack_trace("should abort "+name));
         if ( dbg) if( abort.get()) logger.log(("should abort "+name+" because: "+reason));
         return abort.get();
+    }
+
+    //**********************************************************
+    public void add_on_abort(Runnable r)
+    //**********************************************************
+    {
+        on_abort = r;
+    }
+
+    //**********************************************************
+    public void on_abort()
+    //**********************************************************
+    {
+        on_abort.run();
     }
 }

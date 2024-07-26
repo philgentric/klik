@@ -35,7 +35,7 @@ public class Static_application_properties
     private static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
 
     public static final int DEFAULT_ICON_SIZE = 256;
-    public static final int DEFAULT_FOLDER_ICON_SIZE = 32;
+    public static final int DEFAULT_FOLDER_ICON_SIZE = 256;
     public static final int DEFAULT_VIDEO_LENGTH = 1;
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";

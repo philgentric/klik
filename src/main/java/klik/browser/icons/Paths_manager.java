@@ -147,6 +147,7 @@ public class Paths_manager
                 {
                     logger.log("path manager aborting1");
                     hard_part_guard.set(false);
+                    aborter.on_abort();
                     return;
                 }
 

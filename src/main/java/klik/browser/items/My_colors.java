@@ -22,7 +22,7 @@ public class My_colors
     public static Map<String,My_color> all_colors = new HashMap();
 
     //**********************************************************
-    public static void init_My_colors(Logger logger)
+    public static synchronized void init_My_colors(Logger logger)
     //**********************************************************
     {
         all_colors.clear();
@@ -89,7 +89,7 @@ public class My_colors
     public static Collection<My_color> get_all_colors(Logger logger)
     //**********************************************************
     {
-        if ( all_colors != null) init_My_colors(logger);
+        if ( all_colors == null) init_My_colors(logger);
         return all_colors.values();
     }
 

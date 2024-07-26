@@ -46,9 +46,12 @@ public class Drag_and_drop
     {
 
         Object source = drag_event.getGestureSource();
-        if (source == null) {
-            logger.log("source class is null for" + drag_event.toString());
-        } else {
+        if (source == null)
+        {
+            logger.log("source is null for: " + drag_event.getSource());
+        }
+        else
+        {
             if (source == excluded) {
                 logger.log("source is excluded: cannot drop onto itself");
                 drag_event.consume();

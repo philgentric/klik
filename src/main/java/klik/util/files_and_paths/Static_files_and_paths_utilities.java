@@ -793,6 +793,7 @@ public class Static_files_and_paths_utilities
 
         TextInputDialog dialog = new TextInputDialog(old_name);
         Look_and_feel_manager.set_dialog_look(dialog);
+        dialog.getDialogPane().setMinWidth(800);
         dialog.initOwner(owner);
         {
             String text = My_I18n.get_I18n_string("Rename", logger);// to: " + parent.toAbsolutePath().toString();
