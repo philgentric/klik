@@ -217,16 +217,7 @@ public class Icon_factory_actor implements Actor
             return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
         }
         String tag = String.valueOf(icon_factory_request.icon_size);
-        /*
-        if ( icon_factory_request.destination.get_item_type() == Iconifiable_item_type.pdf)
-        {
-            logger.log("SHOULD NOT HAPPEN: process_image: PDF");
 
-            // for PDF we do not minimize the generated png, ImageView will do it
-            // so a side effect is it is not necessary to regenerate it if the icon size was changed
-            tag = "";
-        }
-        */
         //long start = System.currentTimeMillis();
         {
             Image image_from_cache = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false, logger);
@@ -252,7 +243,7 @@ public class Icon_factory_actor implements Actor
         {
             if ( aborting_dbg)
                 logger.log("Icon_factory thread: aborting3");
-            return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
+            return null;
         }
         if (image_from_disk == null) {
             //if (dbg)

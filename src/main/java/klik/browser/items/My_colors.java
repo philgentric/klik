@@ -89,7 +89,7 @@ public class My_colors
     public static Collection<My_color> get_all_colors(Logger logger)
     //**********************************************************
     {
-        if ( all_colors == null) init_My_colors(logger);
+        if ( all_colors.isEmpty()) init_My_colors(logger);
         return all_colors.values();
     }
 
@@ -107,7 +107,7 @@ public class My_colors
 
 
     //**********************************************************
-    public static Color load_color(Path folderPath, Logger logger)
+    public static Color load_color_for_path(Path folderPath, Logger logger)
     //**********************************************************
     {
         Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
@@ -122,7 +122,15 @@ public class My_colors
                     return Color.valueOf(my_color.java_name());
                 }
             }
-            logger.log("warning color not found ??? "+lines.get(0));
+            try {
+                Color c = Color.valueOf(lines.get(0));
+                logger.log("WARNING: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
+                return c;
+            } catch ( Exception e) {
+                logger.log("FATAL: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
+                logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                return null;
+            }
         } catch (IOException e) {
             // this is OK, no file = no color
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));

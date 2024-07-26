@@ -243,10 +243,12 @@ public class Moving_files
     private static Old_and_new_Path process_one_move(Stage owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (oandn.cmd == Command_old_and_new_Path.command_move) {
+        if (oandn.cmd == Command_old_and_new_Path.command_move)
+        {
             // when this is NOT a move to trash,
             // we check if the destination file is already there
-            if (file_contents_are_identical(oandn, aborter, logger)) {
+            if (file_contents_are_identical(oandn, aborter, logger))
+            {
                 // Yes the destination is there AND identical content
                 // the use case is a reconciliation of multiple copies with different NAMES
                 // in that case trying to "overwrite" is counterproductive (and depending on OS may fail in different ways)
@@ -254,12 +256,15 @@ public class Moving_files
                 // 1. move the source file to klik_trash aka "safe"
                 // 2. delete the source file, since we have it already in the destination
                 // IN BOTH CASES WE CALL THIS ROUTINE AGAIN BUT THE COMMAND IS CHANGED
-                if (unsafe) {
+                if (unsafe)
+                {
                     // TRANSFORM the command to "delete_for_ever"
                     Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.identical_file_deleted,false);
                     logger.log(oandn.get_old_Path() + " deleted because a file at destination has exactly the same content");
                     return process_one_move(owner, new_, aborter, logger);
-                } else {
+                }
+                else
+                {
                     Path new_path = Paths.get(Static_application_properties.get_trash_dir(oandn.old_Path, logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
                     new_path = generate_new_candidate_name(new_path, "", "_identical_file", logger);
                     Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, new_path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.identical_file_moved_to_klik_trash,false);
@@ -267,21 +272,26 @@ public class Moving_files
                     return process_one_move(owner, new_, aborter, logger);
                 }
             }
-            //logger.log(oandn.get_old_Path() + " files are not identical");
+            else
+            {
+                //logger.log(oandn.get_old_Path() + " files are not identical");
+            }
 
         }
 
-        if (oandn.get_new_Path() == null) {
+        if (oandn.get_new_Path() == null)
+        {
             logger.log("oandn.get_new_Path() is null, this is a delete forever of:" + oandn.get_old_Path());
             return do_the_move_or_delete(owner, oandn,logger);
         }
 
-        // this is a move, and there is a risk that the destination FILE exists
+        // this is a MOVE, and there is a risk that the destination FILE exists
+        // to avoid erase the destination file, we try to find a new name
         // MAGIC: try up to 42000 new names
-        for (int i = 0; i < 42000; i++) {
+        for (int i = 0; i < 42_000; i++) {
             //logger.log("oandn.get_new_Path() = " + oandn.get_new_Path());
 
-            // the trick is to make sure we do not have case problems e.g. depending on file system
+            // one trick is to make sure we do not have case problems e.g. depending on file system
             File proposed_new_name = oandn.get_new_Path().toFile();
             String proposed_new_name_string = proposed_new_name.getName();
 
@@ -309,7 +319,9 @@ public class Moving_files
                     if(moving_files_dbg) logger.log("FILE "+proposed_new_name_string+" new name NOT ok, there is a file with that name");
                     Path new_path = generate_new_candidate_name_special(oandn.get_new_Path(), "", i, logger);
                     oandn = new Old_and_new_Path(oandn.old_Path, new_path, oandn.cmd, Status_old_and_new_Path.name_augmented,false);
-                } else {
+                }
+                else
+                {
                     if(moving_files_dbg) logger.log("FILE " + proposed_new_name_string + " this name is OK, no file with that name");
                     return do_the_move_or_delete(owner, oandn, logger);
                 }
@@ -329,10 +341,10 @@ public class Moving_files
         }
         //if ( f.length() == 0) return true; DONT DO THAT, if the file does not exists length is zero !
 
-
         //return f.exists();
 
-        // it seems that sometimes, when a network or USB drive is "under the water" for example heavy traffic for USB drives,
+        // it seems that sometimes, when a network or USB drive is "under the water"
+        // for example heavy traffic for USB drives,
         // or shaky network like "mobile in the countryside",
         // the call File::exists() return false... but the file actually exists!
         // this is a problem when we do not want to overwrite ANY file

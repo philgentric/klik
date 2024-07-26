@@ -32,16 +32,13 @@ import java.nio.file.Path;
 public class From_disk
 //**********************************************************
 {
-
     public static final boolean dbg = false;
     public static final int MIN_REMAINING_FREE_MEMORY_10MB = 10_000_000;
-
 
     //**********************************************************
     public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
-
         if (try_fusked)
         {
             byte[] buf= Fusk_static_core.defusk_file_to_bytes(original_image_file, aborter, logger);
@@ -68,6 +65,7 @@ public class From_disk
         }
         catch(FileNotFoundException e)
         {
+            /* when the file system is under strain, this can fail, reporting "file not found", but the file is there */
             if (Files.isDirectory(original_image_file))
             {
                 logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN (try to file-open a directory!) get_image_InputStream:"+e));
@@ -80,9 +78,7 @@ public class From_disk
             }
             return null;
         }
-
     }
-
 
     //**********************************************************
     public static Double determine_width(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
@@ -113,7 +109,6 @@ public class From_disk
             return i.getWidth();
         }
         return null;
-
     }
     //**********************************************************
     public static double determine_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
@@ -163,7 +158,6 @@ public class From_disk
             input_stream.close();
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-
             e.printStackTrace();
         }
         if ( image.isError())
@@ -178,7 +172,6 @@ public class From_disk
                 logger.log("IMAGE decode failed :"+image.getException());
                 // this occurs on damaged images like download not finished, or fusk wrong pin code
                 // Popups.popup_Exception(image.getException(),100,"If this image was fusked, maybe the pin code is wrong?",logger);
-
             }
             else
             {
@@ -194,13 +187,13 @@ public class From_disk
 
     //private static long elapsed_read_original_image_from_disk_and_return_icon =0;
     //**********************************************************
-    public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size,  boolean dbg, Aborter aborter, Logger logger)
+    public static Image read_original_image_from_disk_and_return_icon(Path original_image_file, double icon_size,  boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
         boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
         Image image = null;
-        try(InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, dbg, aborter,logger))
+        try(InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, report_if_not_found, aborter,logger))
         {
             if ( input_stream == null)
             {
@@ -270,7 +263,6 @@ public class From_disk
         //elapsed_read_original_image_from_disk_and_return_icon += now-start;
         //logger.log("elapsed_read_original_image_from_disk_and_return_icon:"+elapsed_read_original_image_from_disk_and_return_icon);
         return image;
-
     }
 
     //**********************************************************
@@ -285,8 +277,6 @@ public class From_disk
         return remaining;
     }
 
-
-    
     //**********************************************************
     public static File file_for_icon_caching(Path cache_dir, Path original_image_file, String tag, String extension)
     //**********************************************************
@@ -306,13 +296,11 @@ public class From_disk
             Logger logger)
     //**********************************************************
     {
-
         if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB)
         {
             logger.log("load_icon_from_cache_fx WARNING: running low on memory ! loading default icon");
             return Look_and_feel_manager.get_default_icon(icon_size);
         }
-
         File f = file_for_icon_caching(cache_dir,original_image_file,tag, extension);
         if (dbg) logger.log("load_icon_from_disk file is:"+f.getAbsolutePath()+" for "+original_image_file);
         try (FileInputStream input_stream = new FileInputStream(f))
@@ -331,85 +319,4 @@ public class From_disk
         }
         return null;
     }
-
-
-    /*
-        // this call loads the image in the native size
-    //**********************************************************
-    public static Image load_image_fx_from_disk_old(Path original_image_file, Logger logger)
-    //**********************************************************
-    {
-
-        if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB) {
-            logger.log("load_image_fx WARNING! running low on memory ! ");
-            return null;
-        }
-
-        // SPOT33
-        if (encrypt_images)
-        {
-
-            byte[] buf= Fusk.defusk_file_to_bytes(original_image_file,logger);
-            if ( buf != null) {
-                // was fusked !
-
-                try (ByteArrayInputStream input_stream = new ByteArrayInputStream(buf)) {
-                    Image image = new Image(input_stream);
-                    return image;
-                } catch (FileNotFoundException e) {
-                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-                } catch (IOException e) {
-                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-                } catch (OutOfMemoryError e) {
-                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-                } catch (Exception e) {
-                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-                }
-                return null;
-            }
-
-        }
-        // not fusked
-        try (FileInputStream input_stream = new FileInputStream(original_image_file.toFile())) {
-            Image image = new Image(input_stream);
-            return image;
-        } catch (FileNotFoundException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        } catch (OutOfMemoryError e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        } catch (Exception e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        }
-
-        return null;
-    }
-
-    // this call RESIZES to the target icon size
-    //**********************************************************
-    public static Image read_original_image_from_disk_and_return_icon_old(Path original_image_file, double icon_size, boolean dbg, Logger logger)
-    //**********************************************************
-    {
-        // SPOT33
-        try (FileInputStream input_stream = new FileInputStream(original_image_file.toFile())) {
-            Image image = new Image(input_stream, icon_size, icon_size, true, true);
-            if ( image.isError())
-            {
-                if ( dbg) logger.log("From_disk WARNING: an error occurred when reading: "+original_image_file.toAbsolutePath());
-                return null;
-            }
-            return image;
-        } catch (FileNotFoundException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        }
-
-
-        return null;
-    }
-
-
-     */
 }
