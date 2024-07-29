@@ -48,7 +48,8 @@ public class Finder_frame implements Search_receiver
 	private final Stage stage;
 	private boolean look_only_for_images = false;
 	private boolean use_extension = false;
-	private boolean also_folders = true;
+	private boolean search_folders_names = true;
+	private boolean search_files_names = true;
 	private boolean check_case = false;
 	Search_session session;
 	Path target_path;
@@ -172,17 +173,30 @@ public class Finder_frame implements Search_receiver
 			});
 		}
 		{
-			CheckBox search_also_folders = new CheckBox(My_I18n.get_I18n_string("Search_Also_Folders", logger));
-			search_also_folders.setSelected(also_folders);
-			Look_and_feel_manager.set_CheckBox_look(search_also_folders);
-			search_also_folders.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			CheckBox search_folder_names_cb = new CheckBox(My_I18n.get_I18n_string("Search_Folder_names", logger));
+			search_folder_names_cb.setSelected(search_folders_names);
+			Look_and_feel_manager.set_CheckBox_look(search_folder_names_cb);
+			search_folder_names_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
-					also_folders = new_value;
-					logger.log("search_also_folders = "+also_folders);
+					search_folders_names = new_value;
+					logger.log("search_folders_names = "+ search_folders_names);
 				}
 			});
-			settings_vbox.getChildren().add(search_also_folders);
+			settings_vbox.getChildren().add(search_folder_names_cb);
+		}
+		{
+			CheckBox search_file_names_cb = new CheckBox(My_I18n.get_I18n_string("Search_File_names", logger));
+			search_file_names_cb.setSelected(search_files_names);
+			Look_and_feel_manager.set_CheckBox_look(search_file_names_cb);
+			search_file_names_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
+					search_files_names = new_value;
+					logger.log("search_files_names = "+ search_files_names);
+				}
+			});
+			settings_vbox.getChildren().add(search_file_names_cb);
 		}
 		settings_vbox.getChildren().add(vertical_spacer());
 		{
@@ -215,7 +229,7 @@ public class Finder_frame implements Search_receiver
 
 		{
 			HBox hb = new HBox();
-			CheckBox use_extension_cb = new CheckBox(My_I18n.get_I18n_string("Use_Extension", logger));
+			CheckBox use_extension_cb = new CheckBox(My_I18n.get_I18n_string("Use_Extension", logger)+ "(e.g. pdf,jpg)");
 			use_extension_cb.setSelected(use_extension);
 			Look_and_feel_manager.set_CheckBox_look(use_extension_cb);
 			use_extension_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -492,7 +506,7 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension,also_folders,check_case);
+		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
 		session = new Search_session(search_config,browser,this,logger);
 		session.start_search();
 		stop.setDisable(false);

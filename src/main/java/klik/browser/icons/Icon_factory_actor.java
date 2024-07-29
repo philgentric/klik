@@ -269,8 +269,17 @@ public class Icon_factory_actor implements Actor
                 // no need for folders
                 break;
             default:
+                if (path.getParent().toAbsolutePath().toString().equals(icon_cache_dir.toAbsolutePath().toString()))
+                {
+                    // the user is browsing the icon cache. if we save a file for the icon, it will trigger a new icon request...
+                    // ad nauseam ! ==> storm avoidance = dont save the icon.
+                    if (dbg) logger.log("Icon_factory thread: (storm avoidance) not saving the icon for a file which is in the icons' cache folder " + path.getFileName());
+                    break;
+                }
+
                 if (dbg)
                         logger.log("Icon_factory thread: sending icon write to file in cache dir for " + path.getFileName());
+
                 Icon_write_message iwm = new Icon_write_message(image_from_disk, icon_factory_request.icon_size, png_extension, path,aborter);
                 writer.push(iwm);
                 break;

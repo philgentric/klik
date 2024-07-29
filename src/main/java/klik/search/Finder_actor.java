@@ -108,7 +108,6 @@ public class Finder_actor implements Actor
                 if ( Files.isDirectory(path))
                 {
                     visited_folders++;
-
                     if (Files.isSymbolicLink(path))
                     {
                         if ( dbg) logger.log("NOT following symbolic link:"+path);
@@ -132,13 +131,19 @@ public class Finder_actor implements Actor
                                 break;
                         }
                     }
-                    if (fm.search_config.also_folders())
+                    if (fm.search_config.search_folders())
                     {
                         check_if_name_matches_keywords(path, fm);
                     }
                 }
                 else
                 {
+                    if (!fm.search_config.search_files())
+                    {
+                        // we are nio interested in files
+                        continue;
+                    }
+
                     visited_files++;
                     if ( fm.search_config.look_only_for_images())
                     {
