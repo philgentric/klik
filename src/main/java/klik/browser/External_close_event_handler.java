@@ -29,7 +29,7 @@ public class External_close_event_handler implements EventHandler<WindowEvent>
         browser.close_window();
         //browser.logger.log("After close = "+ browser.signature());
 
-        if (browser.windows_count.get() ==0)
+        if (Browser.windows_count.get() ==0)
         {
             browser.logger.log(browser.signature()+"... calling System.exit(0)");
             System.exit(0);

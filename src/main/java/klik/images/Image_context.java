@@ -49,7 +49,7 @@ public class Image_context
     public final Path path;
     public final Image image;
     public final ImageView the_image_view;
-    private double rotation = 0;
+    private Double rotation = null;
     Logger logger;
     double zoom_factor = 1.0;
     public boolean image_is_damaged;
@@ -71,7 +71,6 @@ public class Image_context
             Image broken = Jar_utils.get_broken_icon(300,logger_);
             return Optional.of(new Image_context(path,path,broken,logger_));
         }
-
         return Optional.of(new Image_context(path,path, local_image,logger_));
     }
 
@@ -127,6 +126,7 @@ public class Image_context
     public double get_rotation(Aborter aborter)
     //**********************************************************
     {
+        if ( rotation != null) return rotation;
         rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
         return rotation;
     }
@@ -162,7 +162,6 @@ public class Image_context
             }
         }
         logger.log("no delay found, assuming 10");
-
         return 10;
     }
 
@@ -234,48 +233,46 @@ public class Image_context
     void change_zoom_factor(Image_window image_window, double mul)
     //**********************************************************
     {
-        image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix);
-
-        // if image is smaller than screen
-        if (( the_image_view.getImage().getHeight() < image_window.the_Scene.getHeight())
-            &&(the_image_view.getImage().getWidth() < image_window.the_Scene.getWidth()))
-        {
-            the_image_view.setFitWidth(image_window.the_Scene.getWidth());
-            the_image_view.setFitHeight(image_window.the_Scene.getHeight());
-            return;
-        }
+        //image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix);
+        double image_width = image.getWidth();
+        double image_height = image.getHeight();
 
 
-        // depends on aspect ratio
-        double image_aspect_ratio = the_image_view.getImage().getHeight()/the_image_view.getImage().getWidth();
-        double scene_aspect_ratio =  image_window.the_Scene.getHeight()/ image_window.the_Scene.getWidth();
-
-        if ( scene_aspect_ratio > image_aspect_ratio)
-        {
-            the_image_view.setFitWidth(image_window.the_Scene.getWidth());
-            logger.log("change_zoom_factor setFitWidth"+image_window.the_Scene.getWidth());
-        }
-        else
-        {
-            the_image_view.setFitHeight(image_window.the_Scene.getHeight());
-            logger.log("change_zoom_factor setFitHeight"+image_window.the_Scene.getHeight());
-        }
-
-        zoom_factor *= mul;
+        zoom_factor /= mul;
         logger.log("mul="+mul+" => new zoom_factor="+zoom_factor);
 
-        double ww = image.getWidth();
-        double dx = ww/10* zoom_factor;
-        double W = ww - 2 * dx;
-        logger.log("change_zoom_factor dx="+dx+" W="+W);
-        if ( W < 0) return;
+        double image_width2 = image_width*zoom_factor;
+        double window_width = image_window.the_Scene.getWidth();
+        if ( image_width2 < window_width)
+        {
+            logger.log("image_width2 too small");
+            image_width2 = window_width;
+        }
+        double min_x = (image_width-image_width2);
+        if ( min_x < 0)
+        {
+            logger.log("min_x too small");
+            min_x = 0;
+        }
 
-        double hh = image.getHeight();
-        double dy = hh/10* zoom_factor;
-        double H = hh - 2 * dy;
-        logger.log("change_zoom_factor dy="+dy+" H="+H);
-        if ( H < 0) return;
-        Rectangle2D r = new Rectangle2D(dx, dy,W , H);
+
+        double image_height2 = image_height*zoom_factor;
+        double window_height = image_window.the_Scene.getHeight();
+        if ( image_height2 < window_height)
+        {
+            logger.log("image_height2 too small");
+            image_height2 = window_height;
+        }
+        double min_y = (image_height-image_height2);
+        if ( min_y < 0)
+        {
+            logger.log("min_y too small");
+            min_y = 0;
+        }
+
+
+        logger.log("rectangle = "+min_x+", "+min_y+", "+image_width2+", "+image_height2);
+        Rectangle2D r = new Rectangle2D(min_x, min_y,image_width2 , image_height2);
         the_image_view.setViewport(r);
     }
 

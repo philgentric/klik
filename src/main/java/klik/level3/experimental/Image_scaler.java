@@ -47,15 +47,6 @@ public class Image_scaler extends Application {
         GridPane layout = new GridPane();
         layout.setHgap(10);
         layout.setVgap(10);
-
-        /*
-        ImageView originalImageView = new ImageView(image);
-        StackPane originalImageViewStack = new StackPane();
-        originalImageViewStack.getChildren().add(originalImageView);
-        originalImageViewStack.setMinWidth(scaledImageSize);
-        */
-
-
         ImageView imageView1 = new ImageView(image);
         boolean quality = true;
         if ( quality)
@@ -70,24 +61,10 @@ public class Image_scaler extends Application {
             imageView1.setCache(true);
             imageView1.setCacheHint(CacheHint.SPEED);
         }
-
-
         imageView1.setFitWidth(scaledImageSize);
         imageView1.setPreserveRatio(true);
 
-
-
-
-        //image_s - Static_image_utilities.
         ImageView imageView2 = new ImageView(image);
-        /*
-        ImageView imageView2 = new ImageView(
-                resample(
-                        image,
-                        SCALE_FACTOR
-                )
-        );
-        */
         imageView2.setSmooth(false);
         imageView2.setCache(true);
         imageView2.setCacheHint(CacheHint.SPEED);
@@ -129,19 +106,16 @@ public class Image_scaler extends Application {
     private Label centeredLabel(String text) {
         Label label = new Label(text);
         GridPane.setHalignment(label, HPos.CENTER);
-
         return label;
     }
 
-    private Image resample(Image input, double scaleFactor) {
+    private Image resample(Image input, double scaleFactor)
+    {
         final int W = (int) input.getWidth();
         final int H = (int) input.getHeight();
         final double S = scaleFactor;
 
-        WritableImage output = new WritableImage(
-                (int)(W * S),
-                (int)(H * S)
-        );
+        WritableImage output = new WritableImage((int)(W * S), (int)(H * S));
 
         PixelReader reader = input.getPixelReader();
         PixelWriter writer = output.getPixelWriter();
@@ -187,9 +161,7 @@ public class Image_scaler extends Application {
                     }
                 }
             }
-
         }
-
         return output;
     }
 

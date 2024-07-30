@@ -1266,7 +1266,7 @@ public class Browser_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string(sort_by.name(),logger));
-        File_sort_by actual = Static_application_properties.get_sort_files_by(logger);
+        File_sort_by actual = File_sort_by.get_sort_files_by(logger);
         item.setSelected(actual == sort_by);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -1275,7 +1275,7 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_sort_files_by(sort_by,logger);
+                File_sort_by.set_sort_files_by(sort_by,logger);
                 logger.log("new sorting order= "+sort_by);
                 Browser_creation_context.replace_same_folder(browser,logger);
                 //browser.scene_geometry_changed("file sorting method changed",true,false);
@@ -1292,6 +1292,16 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Icon_Size",logger);
         Menu menu = new Menu(text);
+        {
+            MenuItem plus = new MenuItem("+ 10%");
+            menu.getItems().add(plus);
+            plus.setOnAction(actionEvent -> browser.increase_icon_size());
+        }
+        {
+            MenuItem moins = new MenuItem("- 10%");
+            menu.getItems().add(moins);
+            moins.setOnAction(actionEvent -> browser.reduce_icon_size());
+        }
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         List<Icon_size> icon_sizes = get_icon_sizes();
         for ( Icon_size icon_size : icon_sizes)
@@ -1323,6 +1333,9 @@ public class Browser_menus
                 icon_sizes.add(new Icon_size(size, true, divider));
             }
         }
+        int current_icon_size = Static_application_properties.get_icon_size(logger);
+        Icon_size cur = new Icon_size(current_icon_size,false,0);
+        if ( !icon_sizes.contains(cur)) icon_sizes.add(cur);
         Comparator<? super Icon_size> comp = new Comparator<Icon_size>() {
             @Override
             public int compare(Icon_size o1, Icon_size o2) {

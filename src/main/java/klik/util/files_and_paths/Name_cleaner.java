@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Name_cleaner
 //**********************************************************
 {
-    public static final String SP_EZ_IA_L = "_copy_made_by_klik_";
+    public static final String SP_EZ_IA_L = "_Copy_Made_By_Klik_";
     private static final boolean dbg = false;
     //**********************************************************
     public static String clean(String in, boolean check_extension, Logger logger)

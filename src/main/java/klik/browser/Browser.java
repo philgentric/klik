@@ -586,15 +586,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
                 if (keyEvent.getCharacter().equals("+")) {
                     if (keyboard_dbg) logger.log("character is +meta = zoom +");
-                    zoom_plus();
+                    increase_icon_size();
                 }
                 if (keyEvent.getCharacter().equals("=")) {
                     if (keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
-                    zoom_plus();
+                    increase_icon_size();
                 }
                 if (keyEvent.getCharacter().equals("-")) {
                     if (keyboard_dbg) logger.log("character is -meta = zoom -");
-                    zoom_minus();
+                    reduce_icon_size();
                 }
             }
             if (keyEvent.getCharacter().equals("n")) {
@@ -912,29 +912,29 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    private void zoom_plus()
+    public void increase_icon_size()
     //**********************************************************
     {
-        zoom(1.05);
+        change_icon_size(1.1);
     }
 
     //**********************************************************
-    private void zoom_minus()
+    public void reduce_icon_size()
     //**********************************************************
     {
-        zoom(0.95);
+        change_icon_size(0.9);
     }
 
     //**********************************************************
-    private void zoom(double fac)
+    private void change_icon_size(double fac)
     //**********************************************************
     {
         int new_icon_size = (int) (Static_application_properties.get_icon_size(logger) * fac);
         if (new_icon_size < 20) new_icon_size = 20;
-        //logger.log("new icon size = "+new_icon_size);
+        if ( keyboard_dbg) logger.log("new icon size = "+new_icon_size);
         Static_application_properties.set_icon_size(new_icon_size, logger);
         //icon_manager.modify_button_fonts(fac);
-        redraw_fx_1("zoom", Change_type.layout_changed);
+        redraw_fx_1("new icon size "+new_icon_size, Change_type.layout_changed);
     }
 
 

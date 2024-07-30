@@ -38,8 +38,8 @@ public class Stage_with_2_images
 //**********************************************************
 {
 	Stage stage;
-	public double W = 1000;
-	//public double H = 800;
+	public double H = 1000;
+	public double W = 1400;
 	Logger logger;
 
 	public final Browser browser;
@@ -50,7 +50,7 @@ public class Stage_with_2_images
 	//**********************************************************
 	public Stage_with_2_images(
 			Browser browser_,
-			File_pair pair,//My_File_and_status file_of_the_images_[],
+			File_pair pair,
 			Againor againor_,
 			Aborter private_aborter_,
 			Logger logger_
@@ -62,15 +62,14 @@ public class Stage_with_2_images
 		private_aborter = private_aborter_;
 
 		// there is an obscure bug with random order
-		if ( Static_application_properties.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO)
+		if ( File_sort_by.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO)
 		{
-			Static_application_properties.set_sort_files_by(File_sort_by.NAME, logger);
+			File_sort_by.set_sort_files_by(File_sort_by.NAME, logger);
 		}
 
 		logger.log("Stage_with_2_images !");
 
 		againor = againor_;
-		//the_pair = pair;
 
 
 		Jfx_batch_injector.inject(() ->{
@@ -130,77 +129,8 @@ public class Stage_with_2_images
 		the_big_vbox.getChildren().add(hbox);
 		for ( int i = 0 ; i < the_image_files.length ; i++)
 		{
-			VBox the_vbox = new VBox();
-			My_File_and_status local_file = the_image_files[i];
-			if ( local_file == null)
-			{
-				logger.log("local_file == null");
-				return false;
-			}
-			if (!local_file.my_file.file.exists())
-			{
-				logger.log("file already gone");
-				return false;
-			}
-			title += local_file.my_file.file.getName()+"-";
-
-
-			Button view = new Button("View this one");
-			Look_and_feel_manager.set_button_look(view,true);
-			view.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event)
-				{
-					if ( the_pair.is_image)
-					{
-						Image_window is = Image_window.get_Image_window(browser,local_file.my_file.file.toPath(),logger);
-					}
-					else {
-						System_open_actor.open_with_system(browser,local_file.my_file.file.toPath(),logger);
-					}
-				}
-			});
-			the_vbox.getChildren().add(view);
-
-			Button delete_button = new Button("Delete this one");
-			Look_and_feel_manager.set_button_look(delete_button,true);
-			delete_button.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event)
-				{
-					List<Old_and_new_Path> l = new ArrayList<>();
-					l.add(new Old_and_new_Path(local_file.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
-					Moving_files.safe_delete_files(stage,l, private_aborter,logger);
-					againor.again(true);
-					if ( stage != null) stage.close();
-				}
-			});
-			the_vbox.getChildren().add(delete_button);
-			double w = W/2;
-			{
-				HBox hbox2 = new HBox();
-				Label label = new Label("File:"+local_file.my_file.file.getAbsolutePath());
-				Look_and_feel_manager.set_region_look(label);
-				label.setMaxWidth(w);
-				label.setWrapText(true);
-				hbox2.getChildren().add(label);
-				Region spacer = new Region();
-				HBox.setHgrow(spacer, Priority.ALWAYS);
-				hbox2.getChildren().add(spacer);
-				the_vbox.getChildren().add(hbox2);
-			}
-			if ( the_pair.is_image) {
-				Image image = From_disk.load_native_resolution_image_from_disk(local_file.my_file.file.toPath(), true, private_aborter, logger);
-				ImageView image_view = new ImageView(image);
-				image_view.setPreserveRatio(true);
-				image_view.setSmooth(true);
-				//image_view.setCache(true);
-				image_view.prefWidth(w);
-				image_view.setFitWidth(w);
-				the_vbox.getChildren().add(image_view);
-			}
-
-			hbox.getChildren().add(the_vbox);
+			title = display_one_picture_with_buttons(the_pair, browser, title, hbox, the_image_files[i]);
+			if (title == null) return false;
 
 			if ( i == 0) {
 				Separator separator = new Separator();
@@ -213,6 +143,90 @@ public class Stage_with_2_images
 		//stage.setHeight(H);
 		stage.setTitle(title);
 		return true;
+	}
+
+	//**********************************************************
+	private String display_one_picture_with_buttons(File_pair the_pair, Browser browser, String title, HBox hbox, My_File_and_status file_and_status)
+	//**********************************************************
+	{
+		VBox the_vbox = new VBox();
+		if ( file_and_status == null)
+		{
+			logger.log("file_and_status == null");
+			return null;
+		}
+		if (!file_and_status.my_file.file.exists())
+		{
+			logger.log("file already gone");
+			return null;
+		}
+		title += file_and_status.my_file.file.getName()+"-";
+
+
+		Button view = new Button("View this one");
+		Look_and_feel_manager.set_button_look(view,true);
+		view.setOnAction(event -> {
+            if (the_pair.is_image) {
+                Image_window is = Image_window.get_Image_window(browser, file_and_status.my_file.file.toPath(), logger);
+            } else {
+                System_open_actor.open_with_system(browser, file_and_status.my_file.file.toPath(), logger);
+            }
+        });
+		the_vbox.getChildren().add(view);
+
+		Button delete_button = new Button("Delete this one");
+		Look_and_feel_manager.set_button_look(delete_button,true);
+		delete_button.setOnAction(event -> {
+            List<Old_and_new_Path> l = new ArrayList<>();
+            l.add(new Old_and_new_Path(file_and_status.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
+            Moving_files.safe_delete_files(stage,l, private_aborter,logger);
+            againor.again(true);
+            if ( stage != null) stage.close();
+        });
+		the_vbox.getChildren().add(delete_button);
+		double w = W/2;
+		{
+			HBox hbox2 = new HBox();
+			{
+				Label label = new Label("Folder:"+file_and_status.my_file.file.getParentFile().getAbsolutePath());
+				Look_and_feel_manager.set_region_look(label);
+				label.setMinWidth(w);
+				label.setWrapText(true);
+				label.setTextOverrun(OverrunStyle.LEADING_WORD_ELLIPSIS);
+				hbox2.getChildren().add(label);
+			}
+			Region spacer = new Region();
+			HBox.setHgrow(spacer, Priority.ALWAYS);
+			hbox2.getChildren().add(spacer);
+			the_vbox.getChildren().add(hbox2);
+		}
+		{
+			HBox hbox2 = new HBox();
+			{
+				Label label = new Label("File:"+file_and_status.my_file.file.getName());
+				Look_and_feel_manager.set_region_look(label);
+				label.setMinWidth(w);
+				label.setWrapText(true);
+				hbox2.getChildren().add(label);
+
+			}
+			Region spacer = new Region();
+			HBox.setHgrow(spacer, Priority.ALWAYS);
+			hbox2.getChildren().add(spacer);
+			the_vbox.getChildren().add(hbox2);
+		}
+		if ( the_pair.is_image)
+		{
+			Image image = From_disk.load_native_resolution_image_from_disk(file_and_status.my_file.file.toPath(), true, private_aborter, logger);
+			ImageView image_view = new ImageView(image);
+			image_view.setPreserveRatio(true);
+			image_view.setFitWidth(w);
+			image_view.setFitHeight(H);
+			the_vbox.getChildren().add(image_view);
+		}
+
+		hbox.getChildren().add(the_vbox);
+		return title;
 	}
 
 	public void close() {

@@ -65,7 +65,8 @@ public class Fast_image_property_from_exif_metadata_extractor
                         }
                         if (tag.toString().contains("Image"))
                         {
-                            w = Double.valueOf(get_number(tag.toString()));
+                            double w_tmp = Double.valueOf(get_number(tag.toString()));
+                            if ( w_tmp > w) w = w_tmp;
                             if (dbg) logger.log("w="+w+" from tag:"+tag);
                         }
                     }
@@ -83,7 +84,9 @@ public class Fast_image_property_from_exif_metadata_extractor
                         }
                         if (tag.toString().contains("Image"))
                         {
-                            h = Double.valueOf(get_number(tag.toString()));
+                            double h_tmp = Double.valueOf(get_number(tag.toString()));
+                            if ( h_tmp > h) h = h_tmp;
+
                             if (dbg) logger.log("h="+h+" from tag:"+tag);
                         }
                     }

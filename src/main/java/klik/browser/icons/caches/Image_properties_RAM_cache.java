@@ -209,7 +209,7 @@ public class Image_properties_RAM_cache
             }
         }
         Comparator<Path> local_file_comparator = null;
-        switch (Static_application_properties.get_sort_files_by(logger))
+        switch (File_sort_by.get_sort_files_by(logger))
         {
             case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator();
             case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random();

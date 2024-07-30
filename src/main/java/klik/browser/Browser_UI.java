@@ -177,15 +177,15 @@ public class Browser_UI
     //**********************************************************
     {
         {
-            String bandh = My_I18n.get_I18n_string("Bookmarks", logger);
-            bandh += " & " + My_I18n.get_I18n_string("History", logger);
-            Button bandh_button = new Button(bandh);
-            bandh_button.setOnAction(e -> button_bandh(e));
-            top_pane.getChildren().add(bandh_button);
-            top_buttons.add(bandh_button);
-            browser.always_on_front_nodes.add(bandh_button);
+            String undo_bookmark_history = My_I18n.get_I18n_string("Bookmarks", logger);
+            undo_bookmark_history += " & " + My_I18n.get_I18n_string("History", logger);
+            Button undo_bookmark_history_button = new Button(undo_bookmark_history);
+            undo_bookmark_history_button.setOnAction(e -> button_undo_bookmark_history(e));
+            top_pane.getChildren().add(undo_bookmark_history_button);
+            top_buttons.add(undo_bookmark_history_button);
+            browser.always_on_front_nodes.add(undo_bookmark_history_button);
             Image icon = Look_and_feel_manager.get_bookmarks_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(bandh_button, icon, height,null, false);
+            Look_and_feel_manager.set_button_and_image_look(undo_bookmark_history_button, icon, height,null, false);
         }
         {
             String files = My_I18n.get_I18n_string("Files", logger);
@@ -220,12 +220,12 @@ public class Browser_UI
     }
 
     //**********************************************************
-    private void button_bandh(ActionEvent e)
+    private void button_undo_bookmark_history(ActionEvent e)
     //**********************************************************
     {
-        ContextMenu banh = define_contextmenu_bandh();
+        ContextMenu undo_bookmark_history = define_contextmenu_undo_bookmark_history();
         Button b = (Button) e.getSource();
-        banh.show(b, Side.TOP, 0, 0);
+        undo_bookmark_history.show(b, Side.TOP, 0, 0);
     }
 
     //**********************************************************
@@ -275,17 +275,17 @@ public class Browser_UI
 
 
     //**********************************************************
-    private ContextMenu define_contextmenu_bandh()
+    private ContextMenu define_contextmenu_undo_bookmark_history()
     //**********************************************************
     {
-        ContextMenu bandh_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(bandh_menu);
+        ContextMenu undo_bookmark_history_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(undo_bookmark_history_menu);
 
-        bandh_menu.getItems().add(browser_menus.make_undos_menu());
-        bandh_menu.getItems().add(browser_menus.make_bookmarks_menu());
-        bandh_menu.getItems().add(browser_menus.make_history_menu());
-        bandh_menu.getItems().add(browser_menus.make_roots_menu());
-        return bandh_menu;
+        undo_bookmark_history_menu.getItems().add(browser_menus.make_undos_menu());
+        undo_bookmark_history_menu.getItems().add(browser_menus.make_bookmarks_menu());
+        undo_bookmark_history_menu.getItems().add(browser_menus.make_history_menu());
+        undo_bookmark_history_menu.getItems().add(browser_menus.make_roots_menu());
+        return undo_bookmark_history_menu;
     }
 
     //**********************************************************

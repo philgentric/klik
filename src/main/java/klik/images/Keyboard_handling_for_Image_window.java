@@ -195,7 +195,7 @@ public class Keyboard_handling_for_Image_window
             }
 
             case "v" -> {
-                if (keyword_dbg) logger.log("v like up Vote");
+                if (keyword_dbg) logger.log("v like Vote");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 Image_context ic = image_window.image_display_handler.get_image_context().get();
@@ -233,9 +233,9 @@ public class Keyboard_handling_for_Image_window
 
         switch (key_event.getCode())
         {
+            /*
             case UP:
-                if ( keyword_dbg) logger.log("zoom up/in:");
-
+                if ( keyword_dbg) logger.log("zoom in:");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 image_window.image_display_handler.get_image_context().get().change_zoom_factor(image_window,1.05);
@@ -243,12 +243,10 @@ public class Keyboard_handling_for_Image_window
 
             case DOWN:
                 if ( keyword_dbg) logger.log("zoom down/out:");
-
-
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 image_window.image_display_handler.get_image_context().get().change_zoom_factor(image_window,0.95);
                 break;
-
+            */
             case LEFT:
                 if ( keyword_dbg) logger.log("left");
 

@@ -379,7 +379,7 @@ public class Item_image extends Item
                     if (
                             (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
                     ) {
-                        if (dbg) logger.log("PDF => rot=0");
+                        if (dbg) logger.log("PDF or video => rot=0");
                         local_rot = Double.valueOf(0);
                     } else {
                         local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, browser_aborter, logger);

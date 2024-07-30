@@ -8,6 +8,7 @@ import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
+import klik.properties.File_sort_by;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.images.decoding.Fast_date_from_OS;
@@ -67,7 +68,7 @@ public class Paths_manager
         aborter = aborter_;
         this.icon_factory_actor = icon_factory_actor;
 
-        switch (Static_application_properties.get_sort_files_by(logger))
+        switch (File_sort_by.get_sort_files_by(logger))
         {
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
                 other_file_comparator = alphabetical_file_name_comparator;

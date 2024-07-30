@@ -67,7 +67,7 @@ public class Deduplication_engine implements Againor
 
         console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
 
-        Runnable r = () -> runnable_deduplication2(local_engine, auto);
+        Runnable r = () -> runnable_deduplication(local_engine, auto);
         Actor_engine.execute(r,logger);
         logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
@@ -84,7 +84,7 @@ public class Deduplication_engine implements Againor
     }
 
     //**********************************************************
-    private void runnable_deduplication2(Deduplication_engine local_deduplication, boolean auto)
+    private void runnable_deduplication(Deduplication_engine local_deduplication, boolean auto)
     //**********************************************************
     {
         find_duplicate_pairs(local_deduplication);
@@ -214,7 +214,10 @@ public class Deduplication_engine implements Againor
 
     }
 
-    private boolean is_finished() {
+    //**********************************************************
+    private boolean is_finished()
+    //**********************************************************
+    {
         if ( remaining_threads.get() == 0) return true;
         return false;
     }

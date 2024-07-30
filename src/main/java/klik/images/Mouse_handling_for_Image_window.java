@@ -334,7 +334,6 @@ public class Mouse_handling_for_Image_window
         pane.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouse_released_click_to_zoom_event_handler);
     }
 
-
     //**********************************************************
     void set_mouse_mode(Image_window image_window, Mouse_mode new_mode)
     //**********************************************************

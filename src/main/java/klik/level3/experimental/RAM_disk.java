@@ -10,9 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-// this is an attempt to create a RAM disk for caching
-// (experimental in the sense that on my recent Mac I could not
-// "measure" a difference between the RAM disk and the SSD disk)
+// this is a RAM disk for caching
+// Note that on my recent Mac I could not
+// "sea" a difference between the RAM disk and the SSD disk
 
 
 //**********************************************************
@@ -20,19 +20,16 @@ public class RAM_disk
 //**********************************************************
 {
     public static final String USE_RAM_DISK = "use_RAM_disk";
-
     public  static final String RAM_disk_name = "klik_RAM_disk_please_do_not_eject";
     private static String ram_disk_path = null;
     private static boolean init_done = false;
     private static final boolean dbg = false;
-
 
     //**********************************************************
     public static boolean init_RAM_disk_path(Stage owner, Logger logger)
     //**********************************************************
     {
         String os = System.getProperty("os.name").toLowerCase();
-
         if (os.contains("mac"))
         {
             ram_disk_path = "/Volumes/"+RAM_disk_name;
@@ -42,7 +39,9 @@ public class RAM_disk
         {
             ram_disk_path = "/tmp/"+RAM_disk_name;
             return true;
-        } else {
+        }
+        else
+        {
             ram_disk_path = null;
             Popups.popup_warning(owner,"Sorry, RAM disk is not supported under windows","Sorry, RAM disk is not supported under windows",false,logger);
         }
