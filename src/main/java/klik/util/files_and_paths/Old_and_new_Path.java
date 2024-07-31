@@ -79,8 +79,10 @@ public 	class Old_and_new_Path
 	{
 		return cmd;
 	}
-	
+
+	//**********************************************************
 	public String get_string()
+	//**********************************************************
 	{
 		return "old Path="+old_Path+" new Path="+new_Path+" cmd="+cmd+" status="+status+"\n";
 	}

@@ -15,14 +15,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.change.Change_gang;
+import klik.look.Look_and_feel_manager;
 import klik.util.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
 import klik.properties.Static_application_properties;
@@ -54,11 +53,11 @@ public class Ffmpeg_utils
     public static void generate_many_gifs(Stage owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        int duration_in_seconds = get_video_duration(owner, video_path, logger);
+        double duration_in_seconds = get_video_duration(owner, video_path, logger);
         if ( duration_in_seconds > 3*3600)
         {
             logger.log("WARNING: ffprobe reports duration that looks wrong?"+duration_in_seconds+" in hours="+duration_in_seconds/3600+ "... going to assume 30 minutes");
-            duration_in_seconds = 3600/2; // assume half an hour ...
+            duration_in_seconds = 1800; // assume half an hour ...
         }
         String folder_name = video_path.getFileName().toString()+"_anim";
         File dir = new File(video_path.getParent().toFile(),folder_name);
@@ -101,7 +100,7 @@ public class Ffmpeg_utils
 
 
     //**********************************************************
-    public static int get_video_duration(
+    public static double get_video_duration(
             Stage owner,
             Path video_path,
             Logger logger)
@@ -121,13 +120,12 @@ public class Ffmpeg_utils
         }
         //logger.log("->"+sb.toString()+"<-");
 
-        int duration = -1;
+        double duration = -1;
         String[] x = sb.toString().split("\\R");
         for (String l : x) {
             if (l.startsWith("duration=")) {
                 String sub = l.substring(9);
-                double dd = Double.parseDouble(sub);
-                duration = (int) dd;
+                duration = Double.parseDouble(sub);
                 if (dbg) logger.log("FOUND DURATION" + duration + "seconds");
                 break;
             }
@@ -285,28 +283,50 @@ public class Ffmpeg_utils
     public static TextField tf_duration;
     static double start_time_seconds;
     static double duration_seconds;
-    static Path gif_full_path;
+    static Path temporary_gif_full_path;
     static File gif_saving_dir = null;
+    static Path icon_cache_dir = null;
+    static Path video_path;
+    static Logger logger;
 
     //**********************************************************
-    public static void interactive(Path video_path, Logger logger)
+    public static void interactive(Path video_path_, Logger logger_)
     //**********************************************************
     {
+        video_path = video_path_;
+        logger = logger_;
         start_time_seconds = 0;
         duration_seconds =  5;
 
         Platform.runLater(() -> {
             the_stage = new Stage();
-            Path icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(the_stage,logger);
+            icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(the_stage,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);
             the_imageview = new ImageView();
-            int duration_in_seconds = get_video_duration(the_stage, video_path, logger);
+            the_imageview.setPreserveRatio(true);
+            the_imageview.setFitHeight(512);
+            double full_clip_duration_in_seconds = get_video_duration(the_stage, video_path, logger);
 
-            set_image(start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
             Pane vb = new VBox();
-            vb.getChildren().add(the_imageview);
+            Look_and_feel_manager.set_region_look(vb);
+            {
+                HBox hb =  new HBox();
+                {
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, Priority.ALWAYS);
+                    hb.getChildren().add(spacer);
+                }
+                hb.getChildren().add(the_imageview);
+                vb.getChildren().add(hb);
+                {
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, Priority.ALWAYS);
+                    hb.getChildren().add(spacer);
+                }
+            }
             Button save = new Button("Choose folder & save");
             vb.getChildren().add(save);
             Button save_same = new Button("Save in previously chosen folder");
@@ -316,13 +336,15 @@ public class Ffmpeg_utils
             // reason to use SWING is because JFileChooser allows hidden folders
             save.setOnAction(actionEvent -> SwingUtilities.invokeLater(() -> {
                 JFileChooser  dir_chooser = new JFileChooser();
+                dir_chooser.setDialogTitle("Choose folder");
                 dir_chooser.setFileHidingEnabled(false);
                 dir_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 if ( gif_saving_dir != null)
                 {
                     dir_chooser.setCurrentDirectory(gif_saving_dir.getParentFile());
                     dir_chooser.setSelectedFile(gif_saving_dir);
-                }int status = dir_chooser.showOpenDialog(null);
+                }
+                int status = dir_chooser.showOpenDialog(null);
                 if (status == JFileChooser.APPROVE_OPTION)
                 {
                     gif_saving_dir = dir_chooser.getSelectedFile();
@@ -336,74 +358,94 @@ public class Ffmpeg_utils
             });
 
             {
-                HBox hb = new HBox();
-                Label label = new Label("Start time: ");
-                label.setPrefWidth(HUNDRED);
-                label.setMinWidth(HUNDRED);
-                label.setMaxWidth(HUNDRED);
-                hb.getChildren().add(label);
-                tf_start = new TextField(String.valueOf(start_time_seconds));
-                tf_start.setPrefWidth(3*HUNDRED);
-                tf_start.setMinWidth(3*HUNDRED);
-                tf_start.setMaxWidth(3*HUNDRED);
-                EventHandler<ActionEvent> start_change = actionEvent -> {
-                    start_time_seconds = Double.parseDouble(tf_start.getText());
-                    logger.log(" START  ="+ start_time_seconds);
-                    set_image(start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
-
-                };
-                tf_start.setOnAction(start_change);
-                hb.getChildren().add(tf_start);
                 {
-                    Label label2 = new Label("Total time: "+duration_in_seconds);
-                    label2.setPrefWidth(HUNDRED);
-                    label2.setMinWidth(HUNDRED);
-                    label2.setMaxWidth(HUNDRED);
-                    hb.getChildren().add(label2);
+                    HBox hb = new HBox();
+                    Label label = new Label("Start time: ");
+                    label.setPrefWidth(HUNDRED);
+                    label.setMinWidth(HUNDRED);
+                    label.setMaxWidth(HUNDRED);
+                    hb.getChildren().add(label);
+                    tf_start = new TextField(String.valueOf(start_time_seconds));
+                    tf_start.setPrefWidth(3 * HUNDRED);
+                    tf_start.setMinWidth(3 * HUNDRED);
+                    tf_start.setMaxWidth(3 * HUNDRED);
+                    EventHandler<ActionEvent> start_change = actionEvent -> {
+                        start_time_seconds = Double.parseDouble(tf_start.getText());
+                        logger.log(" START  =" + start_time_seconds);
+                        make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
+
+                    };
+                    tf_start.setOnAction(start_change);
+                    hb.getChildren().add(tf_start);
+                    {
+                        Label label2 = new Label("Total time: " + full_clip_duration_in_seconds);
+                        label2.setPrefWidth(HUNDRED);
+                        label2.setMinWidth(HUNDRED);
+                        label2.setMaxWidth(HUNDRED);
+                        hb.getChildren().add(label2);
+                    }
+                    vb.getChildren().add(hb);
+                    Button jump =  new Button("Jump to next (add current duration)");
+                    hb.getChildren().add(jump);
+                    jump.setOnAction(actionEvent -> {
+                        change_start_time(start_time_seconds+duration_seconds);
+                        make_animated_gif_in_tmp_folder();
+                    });
                 }
 
-                vb.getChildren().add(hb);
 
-                HBox hbplus = new HBox();
-                add_plus_button(1,video_path, logger, icon_cache_dir, hbplus);
-                add_plus_button(5,video_path, logger, icon_cache_dir, hbplus);
-                add_plus_button(10,video_path, logger, icon_cache_dir, hbplus);
-                add_plus_button(30,video_path, logger, icon_cache_dir, hbplus);
-                add_plus_button(60,video_path, logger, icon_cache_dir, hbplus);
-                add_plus_button(180,video_path, logger, icon_cache_dir, hbplus);
-                vb.getChildren().add(hbplus);
 
-                HBox hbminus = new HBox();
-                add_minus_button(1, video_path, logger, icon_cache_dir, hbminus);
-                add_minus_button(5, video_path, logger, icon_cache_dir, hbminus);
-                add_minus_button(10, video_path, logger, icon_cache_dir, hbminus);
-                add_minus_button(30, video_path, logger, icon_cache_dir, hbminus);
-                add_minus_button(60, video_path, logger, icon_cache_dir, hbminus);
-                add_minus_button(180, video_path, logger, icon_cache_dir, hbminus);
-                vb.getChildren().add(hbminus);
+
+                {
+                    HBox hb = new HBox();
+                    double[] values ={0.1,0.5,1,5,10,30,60,180};
+                    for ( double val : values) add_change_start_time_button(val, video_path, logger, icon_cache_dir, hb);
+                    vb.getChildren().add(hb);
+                }
+
+                {
+                    HBox hb = new HBox();
+                    double[] values ={-0.1,-0.5,-1,-5,-10,-30,-60,-180};
+                    for ( double val : values) add_change_start_time_button(val, video_path, logger, icon_cache_dir, hb);
+                    vb.getChildren().add(hb);
+                }
             }
 
             {
-                HBox hb = new HBox();
+                HBox hb_dur = new HBox();
                 Label label = new Label("Duration");
                 label.setPrefWidth(HUNDRED);
                 label.setMinWidth(HUNDRED);
                 label.setMaxWidth(HUNDRED);
-                hb.getChildren().add(label);
+                hb_dur.getChildren().add(label);
                 tf_duration = new TextField(String.valueOf(duration_seconds));
 
                 EventHandler<ActionEvent> duration_change = actionEvent -> {
                     duration_seconds = Double.parseDouble(tf_duration.getText());
                     logger.log(" DURATION  ="+duration_seconds);
-                    set_image(start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
+                    make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                 };
                 tf_duration.setOnAction(duration_change);
                 tf_duration.setPrefWidth(3*HUNDRED);
                 tf_duration.setMinWidth(3*HUNDRED);
                 tf_duration.setMaxWidth(3*HUNDRED);
-                hb.getChildren().add(tf_duration);
-                vb.getChildren().add(hb);
+                hb_dur.getChildren().add(tf_duration);
+                vb.getChildren().add(hb_dur);
+
+                {
+                    HBox hb = new HBox();
+                    double[] values ={0.1,0.5,1,5,10,30,60,180};
+                    for ( double val : values) add_change_duration_button(val,video_path, logger, icon_cache_dir, hb);
+                    vb.getChildren().add(hb);
+                }
+
+                {
+                    HBox hb = new HBox();
+                    double[] values ={-0.1,-0.5,-1,-5,-10,-30,-60,-180};
+                    for ( double val : values) add_change_duration_button(val, video_path, logger, icon_cache_dir, hb);
+                    vb.getChildren().add(hb);
+                }
             }
 
             Scene the_scene = new Scene(vb);
@@ -419,77 +461,99 @@ public class Ffmpeg_utils
     private static void save_now(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        String new_name = gif_full_path.getFileName().toString();
+        // if the user already saved, the file has been moved to the target folder
+        // so we need to re-generate (use case is: user saved, changed her mind, erased the result, wants to redo it)
+        if ( !temporary_gif_full_path.toFile().exists())
+        {
+            make_animated_gif_in_tmp_folder();
+        }
+        String new_name = temporary_gif_full_path.getFileName().toString();
+
         //if (new_name.length() > 24) new_name = new_name.substring(new_name.length() - 12);
-        Path new_path = Path.of(gif_saving_dir.getAbsolutePath().toString(), new_name);
-        Old_and_new_Path oandnp = new Old_and_new_Path(gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command,false);
+        Path new_path = Path.of(gif_saving_dir.getAbsolutePath(), new_name);
+        Old_and_new_Path oandnp = new Old_and_new_Path(temporary_gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oandnp);
         Moving_files.perform_safe_moves_in_a_thread(the_stage, ll,false, aborter, logger);
     }
 
-    //**********************************************************
-    private static void add_minus_button(int amount, Path path, Logger logger, Path icon_cache_dir, HBox hb)
-    //**********************************************************
+    private static void change_start_time(double new_val)
     {
-        Button minus = new Button(" - "+amount+" s");
-        minus.setPrefWidth(HUNDRED);
-        minus.setMinWidth(HUNDRED);
-        minus.setMaxWidth(HUNDRED);
-        EventHandler<ActionEvent> minus_action = actionEvent -> {
-            start_time_seconds -= amount;
-            tf_start.setText(String.valueOf(start_time_seconds));
-            logger.log(" START  =" + start_time_seconds);
-            set_image(start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
-        };
-        minus.setOnAction(minus_action);
-        hb.getChildren().add(minus);
+        start_time_seconds = new_val;
+        tf_start.setText(String.valueOf(start_time_seconds));
+        logger.log(" START  =" + start_time_seconds);
     }
 
+    private static void change_duration(double new_val)
+    {
+        duration_seconds = new_val;
+        tf_duration.setText(String.valueOf(duration_seconds));
+        logger.log(" DURATION  =" + duration_seconds);
+    }
+
+
+
     //**********************************************************
-    private static void add_plus_button(int amount, Path path, Logger logger, Path icon_cache_dir, HBox hb)
+    private static void add_change_start_time_button(double amount, Path path, Logger logger, Path icon_cache_dir, HBox hb)
     //**********************************************************
     {
-        Button plus = new Button(" + "+amount+" s");
-        plus.setPrefWidth(HUNDRED);
-        plus.setMinWidth(HUNDRED);
-        plus.setMaxWidth(HUNDRED);
+        String d = amount+" s";
+        if( amount > 0) d = " + "+d;
+        Button button = new Button(d);
+        button.setPrefWidth(HUNDRED);
+        button.setMinWidth(HUNDRED);
+        button.setMaxWidth(HUNDRED);
         EventHandler<ActionEvent> plus_action = actionEvent -> {
-            start_time_seconds += amount;
-            tf_start.setText(String.valueOf(start_time_seconds));
-            logger.log(" START  =" + start_time_seconds);
-            set_image(start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
+            change_start_time(start_time_seconds+amount);
+            make_animated_gif_in_tmp_folder();//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
         };
-        plus.setOnAction(plus_action);
-        hb.getChildren().add(plus);
+        button.setOnAction(plus_action);
+        hb.getChildren().add(button);
+    }
+    //**********************************************************
+    private static void add_change_duration_button(double amount, Path path, Logger logger, Path icon_cache_dir, HBox hb)
+    //**********************************************************
+    {
+        String d = amount+" s";
+        if( amount > 0) d = " + "+d;
+        Button button = new Button(d);
+        button.setPrefWidth(HUNDRED);
+        button.setMinWidth(HUNDRED);
+        button.setMaxWidth(HUNDRED);
+        EventHandler<ActionEvent> plus_action = actionEvent -> {
+            change_duration(duration_seconds+amount);
+            make_animated_gif_in_tmp_folder();//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
+        };
+        button.setOnAction(plus_action);
+        hb.getChildren().add(button);
     }
 
     //**********************************************************
-    private static void set_image(double start_time, double clip_duration, Path path, Logger logger, Path icon_cache_dir)
+    private static void make_animated_gif_in_tmp_folder()
     //**********************************************************
     {
-        logger.log("path="+ path);
+        logger.log("path="+ video_path);
         int icon_size = 500;
 
-        File icon_file = From_disk.file_for_icon_caching(icon_cache_dir, path, String.valueOf(icon_size), Icon_factory_actor.gif_extension);
+        File icon_file = From_disk.file_for_icon_caching(icon_cache_dir, video_path, String.valueOf(icon_size), Icon_factory_actor.gif_extension);
         logger.log("icon_file="+icon_file.getAbsolutePath());
 
 
-        gif_full_path = icon_file.toPath();//Paths.get(icon_cache_dir.toAbsolutePath().toString(), icon_file.getName());
+        temporary_gif_full_path = icon_file.toPath();//Paths.get(icon_cache_dir.toAbsolutePath().toString(), icon_file.getName());
 
-        logger.log("gif_full_path="+gif_full_path);
+        logger.log("temporary_gif_full_path="+ temporary_gif_full_path);
         video_to_gif(
                 the_stage,
-                path,
-                gif_full_path,
-                clip_duration,
-                start_time,
+                video_path,
+                temporary_gif_full_path,
+                duration_seconds,
+                start_time_seconds,
                 0,
                 new Aborter("video_to_gif",logger),
                 logger);
 
 
-        Image image = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, From_disk.dbg, logger);
+        Image image = From_disk.load_icon_from_disk_cache(video_path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, From_disk.dbg, logger);
 
         if ( image == null) logger.log("shit image==null");
         else the_imageview.setImage(image);

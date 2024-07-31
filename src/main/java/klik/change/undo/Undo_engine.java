@@ -139,6 +139,11 @@ public class Undo_engine implements Datetime_to_signature_source
         for (Old_and_new_Path e : undo_item.oans)
         {
             Old_and_new_Path r = e.reverse_for_restore();
+            if ( r.old_Path == null)
+            {
+                logger.log("nope, cannot undo this : "+r.get_string());
+                continue;
+            }
             if ( Files.exists(r.old_Path))
             {
                 valid++;

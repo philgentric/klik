@@ -353,7 +353,7 @@ public class Icon_factory_actor implements Actor
 
             if (dbg)
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            int length = Static_application_properties.get_animated_gif_duration_for_a_video(logger);
+            double length = Static_application_properties.get_animated_gif_duration_for_a_video(logger);
 
             File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
@@ -364,11 +364,11 @@ public class Icon_factory_actor implements Actor
 
             Path destination_gif_full_path = Paths.get(icon_cache_dir.toAbsolutePath().toString(), gif_animated_icon_file.getName());
 
-            int skip = 0;
-            int duration_in_seconds = Ffmpeg_utils.get_video_duration(owner, destination.get_item_path(), logger);
+            double skip = 0;
+            double duration_in_seconds = Ffmpeg_utils.get_video_duration(owner, destination.get_item_path(), logger);
             if (duration_in_seconds > 3 * 3600) {
                 logger.log("WARNING: ffprobe reports duration that looks wrong");
-                duration_in_seconds = 3600 / 2;
+                duration_in_seconds = 1800;
             }
 
             if (duration_in_seconds < 0) {
