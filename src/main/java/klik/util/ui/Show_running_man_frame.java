@@ -41,7 +41,7 @@ public class Show_running_man_frame implements Hourglass
 	private static Hourglass launch(Show_running_man_frame local, String wait_message, Logger logger)
 	//**********************************************************
 	{
-		//logger.log("Show_running_man_frame: launch");
+		logger.log("Show_running_man_frame: wait_message= "+wait_message);
 		if ( Platform.isFxApplicationThread())
 		{
 			local.define_fx(wait_message);

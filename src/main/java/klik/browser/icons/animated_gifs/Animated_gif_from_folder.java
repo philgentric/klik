@@ -32,7 +32,7 @@ makes an animated gif from the pictures inside a folder
 public class Animated_gif_from_folder
 //**********************************************************
 {
-    public static final String warning_GraphicsMagick = "This feature requires ImageMagic\n . for mac: brew install imagemagick\n . for other systems download from imagemagic.org\n";
+    public static final String warning_GraphicsMagick = "This feature requires GraphicsMagick\n . for mac: brew install graphicsmagick\n . for all systems download from GraphicsMagick.org\n";
 
     private final static boolean dbg = false;
     public static final String FRAME1 = "Frame_";

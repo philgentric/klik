@@ -844,7 +844,7 @@ public class Static_application_properties
             if(!GraphicsMagick_popup_done)
             {
                 GraphicsMagick_popup_done = true;
-                String msg = "klik uses the gm convert utility of GraphicsMagick.org to support some features. It is easy and free to install (google GraphicsMagick)";
+                String msg = "klik uses the gm convert utility of GraphicsMagick.org to support some features. It is easy and free to install (GraphicsMagick.org)";
                 logger.log("WARNING: " + msg);
                 Jfx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing GraphicsMagick again, click OK", logger)) {

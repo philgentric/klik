@@ -75,6 +75,7 @@ import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.my_i18n.My_I18n;
+import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.level2.backup.Backup_singleton;
 import klik.level3.fusk.Fusk_bytes;
@@ -90,6 +91,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
+import klik.util.ui.Show_running_man_frame;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -108,6 +110,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.awt.Taskbar.Feature.ICON_IMAGE;
+import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 
 //**********************************************************
@@ -1037,6 +1040,70 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage, moves, true, aborter, logger);
 
     }
+
+    //**********************************************************
+    public void create_PDF_contact_sheet()
+    //**********************************************************
+    {
+        Runnable r = this::create_PDF_contact_sheet_in_a_thread;
+        Actor_engine.execute(r,logger);
+    }
+    //**********************************************************
+    public void create_PDF_contact_sheet_in_a_thread()
+    //**********************************************************
+    {
+        Hourglass x = Show_running_man_frame.show_running_man("Making PDF contact sheet",
+        20_000,new Aborter("contact sheet",logger),logger);
+        List<String> graphicsMagick_command_line = new ArrayList<>();
+
+        boolean formula1 = false;
+        if ( formula1)
+        {
+            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add("convert");
+            graphicsMagick_command_line.add("vid:*.jpg");
+            graphicsMagick_command_line.add("contact_sheet.pdf");
+
+        }
+        else {
+            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add("montage");
+            graphicsMagick_command_line.add("-label");
+            graphicsMagick_command_line.add("'%f'");
+            graphicsMagick_command_line.add("-font");
+            graphicsMagick_command_line.add("Helvetica");
+            graphicsMagick_command_line.add("-pointsize");
+            graphicsMagick_command_line.add("10");
+            graphicsMagick_command_line.add("-background");
+            graphicsMagick_command_line.add("#000000");
+            graphicsMagick_command_line.add("-fill");
+            graphicsMagick_command_line.add("#ffffff");
+            graphicsMagick_command_line.add("-define");
+            graphicsMagick_command_line.add("jpeg:size=300x200");
+            graphicsMagick_command_line.add("-geometry");
+            graphicsMagick_command_line.add("300x200+2+2");
+            graphicsMagick_command_line.add("*.jpg");
+            graphicsMagick_command_line.add("contact_sheet.pdf");
+        }
+
+
+        StringBuilder sb = null;
+        //if ( dbg)
+            sb = new StringBuilder();
+        if ( !Execute_command.execute_command_list(graphicsMagick_command_line, displayed_folder_path.toFile(), 2000, sb, logger))
+        {
+
+            Static_application_properties.manage_show_GraphicsMagick_install_warning(my_Stage.the_Stage,logger);
+
+            Popups.popup_warning(my_Stage.the_Stage, "Contact sheet generation command failed:", warning_GraphicsMagick,false,logger);
+        }
+        else
+        {
+            logger.log("contact sheet generated "+ sb);
+        }
+        x.close();
+    }
+
 
     //**********************************************************
     public void create_new_directory()

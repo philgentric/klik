@@ -692,6 +692,17 @@ public class Browser_menus
     }
 
     //**********************************************************
+    public MenuItem make_create_PDF_contact_sheet_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Create_PDF_contact_sheet",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.create_PDF_contact_sheet());
+        return item;
+    }
+
+
+    //**********************************************************
     public MenuItem make_sort_by_year_menu_item()
     //**********************************************************
     {

@@ -73,6 +73,11 @@ public class My_colors
         col = Color.CHOCOLATE;
         all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
         }
+        {
+            localized_name = "Noir";
+            col = Color.BLACK;
+            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        }
     }
 
 

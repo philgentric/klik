@@ -342,6 +342,7 @@ public class Browser_UI
             String create_string = My_I18n.get_I18n_string("Create",logger);
             Menu create = new Menu(create_string);
             create.getItems().add(browser_menus.make_create_empty_directory_menu_item());
+            create.getItems().add(browser_menus.make_create_PDF_contact_sheet_menu_item());
             create.getItems().add(browser_menus.make_sort_by_year_menu_item());
             create.getItems().add(browser_menus.make_import_menu());
             files_menu.getItems().add(create);

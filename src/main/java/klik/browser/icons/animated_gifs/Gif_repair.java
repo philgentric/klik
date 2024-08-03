@@ -53,18 +53,18 @@ public class Gif_repair
         Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, new_path, target.toFile(), aborter, logger);
 
 
-        List<String> graphicsMagick_commad_line = new ArrayList<>();
+        List<String> graphicsMagick_command_line = new ArrayList<>();
         // user GraphicsMagick to extract all gif frames
-        graphicsMagick_commad_line.add("gm");
-        graphicsMagick_commad_line.add("convert");
-        graphicsMagick_commad_line.add(new_path.toAbsolutePath().toString());//+"[0--1]");
+        graphicsMagick_command_line.add("gm");
+        graphicsMagick_command_line.add("convert");
+        graphicsMagick_command_line.add(new_path.toAbsolutePath().toString());//+"[0--1]");
         //l.add("-scene");
         //l.add("1");
-        graphicsMagick_commad_line.add("+adjoin");
-        graphicsMagick_commad_line.add(uuid+"_frame_%03d.gif");
+        graphicsMagick_command_line.add("+adjoin");
+        graphicsMagick_command_line.add(uuid+"_frame_%03d.gif");
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
-        if ( !Execute_command.execute_command_list(graphicsMagick_commad_line, tmp_dir.toFile(), 2000, sb, logger))
+        if ( !Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger))
         {
 
             Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);

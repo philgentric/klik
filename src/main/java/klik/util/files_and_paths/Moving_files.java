@@ -146,10 +146,7 @@ public class Moving_files
     {
         Hourglass x = null;
 
-        if ( the_list.size() > 2)
-        {
-            x = Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
-        }
+        x = check_show_running_man(the_list, aborter, logger);
 
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
@@ -235,6 +232,33 @@ public class Moving_files
 
 
         return done;
+    }
+
+    //**********************************************************
+    private static Hourglass check_show_running_man(List<Old_and_new_Path> the_list, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        boolean show_running_man = false;
+
+        if ( the_list.size() > 2 ) show_running_man = true;
+        else {
+            Old_and_new_Path oand = the_list.getFirst();
+
+            if ( oand.old_Path.toFile().isDirectory())
+            {
+                Sizes sizes =   Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(oand.old_Path, aborter, logger);
+                if ( sizes.bytes() > 10_000_000) show_running_man = true;
+            }
+            else
+            {
+                if (oand.old_Path.toFile().length() > 10_000_000) show_running_man = true;
+            }
+        }
+        if ( show_running_man)
+        {
+            return Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+        }
+        return null;
     }
 
     private static final boolean unsafe = true;
