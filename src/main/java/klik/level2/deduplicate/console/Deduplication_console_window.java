@@ -178,7 +178,6 @@ public class Deduplication_console_window
         Scheduled_thread_pool.execute(r,200, TimeUnit.MILLISECONDS);
     }
 
-    // returns true if the thread should stop
     //**********************************************************
     private void refresh_UI()
     //**********************************************************

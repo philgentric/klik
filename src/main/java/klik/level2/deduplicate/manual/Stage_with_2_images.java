@@ -27,6 +27,8 @@ import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -178,7 +180,11 @@ public class Stage_with_2_images
 		Look_and_feel_manager.set_button_look(delete_button,true);
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
-            l.add(new Old_and_new_Path(file_and_status.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
+			Path p = file_and_status.my_file.file.toPath();
+			Path trash_dir = Static_application_properties.get_trash_dir(p,logger);
+			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
+
+			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
             Moving_files.safe_delete_files(stage,l, private_aborter,logger);
             againor.again(true);
             if ( stage != null) stage.close();

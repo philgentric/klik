@@ -20,7 +20,10 @@ import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,7 +38,7 @@ public class Deduplication_engine implements Againor
     Logger logger;
     BlockingQueue<File_pair> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
     //int n_threads;
-    AtomicInteger remaining_threads = new AtomicInteger(0);
+    AtomicInteger threads_in_flight = new AtomicInteger(0);
     AtomicInteger duplicates_found = new AtomicInteger(0);
     File target_dir;
     //private final Aborter browser_aborter;
@@ -89,7 +92,11 @@ public class Deduplication_engine implements Againor
     {
         find_duplicate_pairs(local_deduplication);
 
-        if (!wait_for_finder_to_find_something()) return;
+        if (!wait_for_finder_to_find_something())
+        {
+            logger.log("wait_for_finder_to_find_something returns false");
+            return;
+        }
 
         if (auto) {
             logger.log("\n\n\nAUTO MODE!\n\n\n");
@@ -116,9 +123,11 @@ public class Deduplication_engine implements Againor
         pairs /= 2L;
         console_window.total_pairs_to_be_examined.addAndGet(pairs);
 
-        int n = Runtime.getRuntime().availableProcessors()-1;
-        if (n < 1) n = 1;
-        int inc = files.size()/n;
+        // launch N threads
+
+        int number_of_threads = Runtime.getRuntime().availableProcessors()-1;
+        if (number_of_threads < 1) number_of_threads = 1;
+        int inc = files.size()/number_of_threads;
         if ( inc == 0) inc = 1;
         int i_min = 0;
         boolean end = false;
@@ -167,14 +176,14 @@ public class Deduplication_engine implements Againor
             }
             if (p == null)
             {
-                if ( is_finished())
+                if ( are_threaded_finders_finished())
                 {
                     console_window.set_end_examined();
                     console_window.set_end_deleted();
                     logger.log("going to actually delete!");
                     break;
                 }
-                logger.log(remaining_threads.get() + " alive threads + empty queue, retrying");
+                logger.log(threads_in_flight.get() + " alive threads + empty queue, retrying");
                 continue;
             }
 
@@ -200,7 +209,10 @@ public class Deduplication_engine implements Againor
                     + p.f2.my_file.file.getAbsolutePath() + "\n\t"
                     + "going to delete:\n\t" + to_be_deleted.getAbsolutePath());
 
-            Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
+
+            Path trash_dir = Static_application_properties.get_trash_dir(to_be_deleted.toPath(),logger);
+            Path new_Path = (Paths.get(trash_dir.toString(), to_be_deleted.getName()));
+            Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
             ll.add(oanp);
             erased++;
             console_window.count_deleted.incrementAndGet();
@@ -215,10 +227,10 @@ public class Deduplication_engine implements Againor
     }
 
     //**********************************************************
-    private boolean is_finished()
+    private boolean are_threaded_finders_finished()
     //**********************************************************
     {
-        if ( remaining_threads.get() == 0) return true;
+        if ( threads_in_flight.get() == 0) return true;
         return false;
     }
 
@@ -273,14 +285,13 @@ public class Deduplication_engine implements Againor
             File_pair p = same_file_pairs_input_queue.peek();
             if (p != null) return true;
 
-            if ( is_finished())
+            if ( are_threaded_finders_finished())
             {
                 logger.log("wait_for_finder_to_find_something: FINISHED ????? ");
 
                 abort();
-                return true;
+                return false;
             }
-            logger.log("wait_for_finder_to_find_something: sleep ");
 
             try {
                 Thread.sleep(100);
@@ -289,7 +300,8 @@ public class Deduplication_engine implements Againor
             }
 
         }
-        return false;
+        logger.log("wait_for_finder_to_find_something: done ");
+        return true;
     }
 
 
@@ -353,15 +365,20 @@ public class Deduplication_engine implements Againor
         logger.log("manual deduplicator: again called !");
         Runnable r = () -> {
             {
-                File_pair p = same_file_pairs_input_queue.poll();
+                File_pair p;
+                try {
+                    p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    logger.log(""+e);
+                    return;
+                }
                 if (p != null) {
                     logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
                     ask_user_about_a_duplicate_pair(p);
                 }
                 else
                 {
-                    logger.log("manual deduplicator: nothing to do...");
-                    if (is_finished())
+                    if (are_threaded_finders_finished())
                     {
                         logger.log("\nduplicate finder is finished !!");
                         if ( !end_reported)
@@ -371,6 +388,8 @@ public class Deduplication_engine implements Againor
                         }
                         console_window.set_end_examined();
                     }
+                    logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
+
                 }
             }
         };
@@ -415,7 +434,7 @@ public class Deduplication_engine implements Againor
             }
             if (p == null)
             {
-                if ( is_finished())
+                if ( are_threaded_finders_finished())
                 {
                     console_window.set_end_examined();
                     break;
@@ -436,9 +455,9 @@ public class Deduplication_engine implements Againor
 
         List<My_File> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
         //Collections.sort(files, by_path_length);
+        logger.log("deduplication scan done "+files.size()+" files found");
 
-
-
+        Collections.shuffle(files);
         return files;
     }
 

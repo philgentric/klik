@@ -8,7 +8,6 @@ import klik.util.log.Logger;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
@@ -23,7 +22,6 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	private final int i_max;
 	BlockingQueue<File_pair> output_queue_of_same_in_pairs;
 	Deduplication_engine deduplication_engine;
-	private AtomicInteger is_finished = new AtomicInteger(0);
 	private final Aborter private_aborter;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs(
@@ -50,8 +48,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	public void run()
 	//**********************************************************
 	{
-		is_finished.incrementAndGet();
-		deduplication_engine.remaining_threads.incrementAndGet();
+		deduplication_engine.threads_in_flight.incrementAndGet();
 		int duplicates_found_by_this_thread = 0;
 
 		//boolean[] stop = new boolean[1];
@@ -65,7 +62,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 
 				if (private_aborter.should_abort()) {
 					if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");
-					is_finished.set(0);
+					deduplication_engine.threads_in_flight.decrementAndGet();
 					return;
 				}
 
@@ -93,7 +90,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 
 
 		logger.log("found duplicates:  "+deduplication_engine.duplicates_found.get());
-		int remaining = deduplication_engine.remaining_threads.decrementAndGet();
+		int remaining = deduplication_engine.threads_in_flight.decrementAndGet();
 		if ( remaining != 0)
 		{
 			deduplication_engine.console_window.set_status_text("Thread found "+duplicates_found_by_this_thread+" duplicated pairs ... Search continues on "+ remaining +" threads!");
@@ -103,7 +100,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			deduplication_engine.console_window.set_status_text("Total = "+ deduplication_engine.duplicates_found.get()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
 		}
 
-		is_finished.decrementAndGet();
+		//threads_in_flight.decrementAndGet();
 	}
 
 
@@ -144,12 +141,12 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				if ( all_files.get(j).file.getName().contains("_"))
 				{
 					// both have underscore(s): delete f1
-					logger.log("f1 to be deleted as both names have underscores");
+					//logger.log("f1 to be deleted as both names have underscores");
 					return set_f1_to_be_deleted(i,j, is_image);
 				}
 				else
 				{
-					logger.log("f2 to be deleted as name has no underscores, and f1 has");
+					//logger.log("f2 to be deleted as name has no underscores, and f1 has");
 					return set_f2_to_be_deleted(i,j, is_image);
 				}
 			}
@@ -159,25 +156,25 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				if ( all_files.get(j).file.getName().contains("_"))
 				{
 					// f2 has underscore(s): delete f1
-					logger.log("f1 to be deleted as name has no underscores, and f2 has");
+					//logger.log("f1 to be deleted as name has no underscores, and f2 has");
 					return set_f1_to_be_deleted(i,j, is_image);
 				}
 				else
 				{
 					// none have underscores  ... delete j
-					logger.log("f2 to be deleted as none have underscores");
+					//logger.log("f2 to be deleted as none have underscores");
 					return set_f2_to_be_deleted(i,j, is_image);
 				}
 			}
 		}
 		else if ( lenght_of_path_for_i > lenght_of_path_for_j)
 		{
-			logger.log("f1 to be deleted as its path is longer");
+			//logger.log("f1 to be deleted as its path is longer");
 			return set_f1_to_be_deleted(i,j, is_image);
 		}
 		else
 		{
-			logger.log("f2 to be deleted as its path is longer");
+			//logger.log("f2 to be deleted as its path is longer");
 			return set_f2_to_be_deleted(i,j, is_image);
 		}
 	}
@@ -199,12 +196,4 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		return out;
 	}
 
-	//**********************************************************
-	public boolean is_finished()
-	//**********************************************************
-	{
-		if (is_finished.get() == 0) return true;
-
-		return false;
-	}
 }

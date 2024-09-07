@@ -21,6 +21,8 @@ public class Jfx_batch_injector
     private static final boolean enable = true;
     private static final boolean dbg = false;
     private final LinkedBlockingQueue<Runnable> input = new LinkedBlockingQueue<>();
+
+    // if something arrives while the batch is being executed, it will get in the batch
     private final ConcurrentLinkedQueue<Runnable> batch = new ConcurrentLinkedQueue<>();
     private final Logger logger;
     private static Jfx_batch_injector instance;
