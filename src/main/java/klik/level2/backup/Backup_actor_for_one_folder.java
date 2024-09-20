@@ -5,8 +5,8 @@ package klik.level2.backup;
 
 import klik.actor.Aborter;
 import klik.actor.Actor;
-import klik.actor.Actor_engine;
 import klik.actor.Message;
+import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
@@ -33,6 +33,7 @@ public class Backup_actor_for_one_folder implements Actor
     Backup_actor_for_one_folder folder_actor;
     public final boolean enable_deep_byte_check;
     public final boolean enable_check_for_same_file_different_name;
+    private Actor_engine_based_on_workers actor_engine_based_on_workers;
 
 
     //**********************************************************
@@ -41,6 +42,7 @@ public class Backup_actor_for_one_folder implements Actor
                                        boolean enable_deep_byte_check,
                                        ConcurrentLinkedQueue<String> reports_,
                                        Aborter aborter_,
+                                       Actor_engine_based_on_workers actor_engine_based_on_workers_,
                                        Logger logger_)
     //**********************************************************
     {
@@ -50,6 +52,7 @@ public class Backup_actor_for_one_folder implements Actor
         reports = reports_;
         logger = logger_;
         aborter = aborter_;
+        actor_engine_based_on_workers = actor_engine_based_on_workers_;
 
         // allocate a dedicated actor per folder since a folder maybe in its own thread and file comparator is not re-entrant
         file_actor = new Backup_actor_for_one_file(stats, logger);
@@ -169,12 +172,12 @@ public class Backup_actor_for_one_folder implements Actor
             }
             if ( launch_in_thread)
             {
-                Actor_engine.run(new Backup_actor_for_one_folder(stats, enable_check_for_same_file_different_name,enable_deep_byte_check,reports, aborter, logger), directory_backup_job_request, null, logger);
+                actor_engine_based_on_workers.run(new Backup_actor_for_one_folder(stats, enable_check_for_same_file_different_name,enable_deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger), directory_backup_job_request, null, logger);
                 threads_launched++;
             }
             else
             {
-                if ( folder_actor == null) folder_actor = new Backup_actor_for_one_folder(stats, enable_check_for_same_file_different_name,enable_deep_byte_check,reports, aborter, logger);
+                if ( folder_actor == null) folder_actor = new Backup_actor_for_one_folder(stats, enable_check_for_same_file_different_name,enable_deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger);
                 folder_actor.do_one_folder(directory_backup_job_request);
             }
             if (mini_console != null) mini_console.show_progress();

@@ -450,6 +450,8 @@ public class Paths_manager
     synchronized public void redo_iconized_sorted_7(String from)
     //**********************************************************
     {
+        logger.log("making & sorting iconized_sorted");
+        iconized_sorted_ready.set(false);
         iconized_sorted.clear();
         for ( Path path : iconized_paths)
         {

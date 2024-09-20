@@ -20,23 +20,22 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
      */
 
     private static final boolean dbg = false;
-    private static final int MULTIPLICATION_FACTOR_FOR_THREAD_COUNT = 4;
     private final Logger logger;
     ConcurrentLinkedQueue<Worker> runners = new ConcurrentLinkedQueue<>();
     LinkedBlockingQueue<Job> input_queue_single = new LinkedBlockingQueue<>();
-    private final AtomicInteger threads_in_flight = new AtomicInteger(0);
 
 
     //**********************************************************
     public Actor_engine_based_on_workers(Logger logger_)
     //**********************************************************
     {
-        int number_of_runners = MULTIPLICATION_FACTOR_FOR_THREAD_COUNT*Runtime.getRuntime().availableProcessors();
-
         logger = logger_;
+        int number_of_runners = Runtime.getRuntime().availableProcessors()-1;
+        logger.log("Actor_engine_based_on_workers starting with "+number_of_runners+" workers");
+
         for (int i = 0; i < number_of_runners; i++)
         {
-            Worker r = new Worker("runner_"+i,input_queue_single,threads_in_flight, logger);
+            Worker r = new Worker("runner_"+i,input_queue_single, logger);
             runners.add(r);
         }
         start();
@@ -50,7 +49,8 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     //**********************************************************
     {
         Job j = new Job(actor,message,tr,logger);
-        run_job(j);
+        queue_job(j);
+        logger.log("Actor_engine_based_on_workers: "+input_queue_single.size()+" queued jobs");
         return j;
     }
 
@@ -62,11 +62,10 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     }
 
     //**********************************************************
-    private void run_job(Job am)
+    private void queue_job(Job am)
     //**********************************************************
     {
         input_queue_single.add(am);
-        threads_in_flight.incrementAndGet();
         if ( dbg) logger.log(am.to_string()+" scheduled for execution");
     }
 
@@ -82,7 +81,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     public int how_many_threads_are_in_flight()
     //**********************************************************
     {
-        return threads_in_flight.get();
+        return Actor_engine.threads_in_flight.get();
     }
 
     //**********************************************************
@@ -98,10 +97,9 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         else
         {
             if ( Actor_engine.cancel_dbg) logger.log("Actor-Message NOT found, actor canceled after start: "+job.to_string());
-            job.cancel();
+            job.cancel("worked thread job cancelled");
         }
         job.has_ended("Engine received cancel for "+job.to_string());
-        threads_in_flight.decrementAndGet();
     }
 
 

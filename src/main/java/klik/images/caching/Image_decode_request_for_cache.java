@@ -45,7 +45,7 @@ public class Image_decode_request_for_cache implements Message
     public String get_string()
     //**********************************************************
     {
-        if ( path == null)         return " path:null";
+        if ( path == null)         return "path:null";
 
         return " path:" + path.toAbsolutePath();
     }

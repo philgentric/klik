@@ -365,8 +365,8 @@ public class Icon_manager
             Item item = all_items_map.get(path);
             if ( item == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("should not happen: no item in map for: "+path+" map size="+all_items_map.size() ));
-                return;
+                logger.log(("should not happen: no item in map for: "+path+" map size="+all_items_map.size() ));
+                continue;
             }
             if (dbg)  logger.log("Icon_manager process_iconified_items " + path+" ar:"+((Item_image)item).aspect_ratio);
 

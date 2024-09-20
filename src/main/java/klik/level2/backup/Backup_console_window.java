@@ -156,7 +156,9 @@ public class Backup_console_window
 
     }
 
+    //**********************************************************
     private void add_one_line(VBox vbox, TextField tf,String text)
+    //**********************************************************
     {
         HBox hbox = new HBox();
         vbox.getChildren().add(hbox);
@@ -185,7 +187,6 @@ public class Backup_console_window
     void update_later()
     //**********************************************************
     {
-
         Jfx_batch_injector.inject(this::update_,logger);
     }
 

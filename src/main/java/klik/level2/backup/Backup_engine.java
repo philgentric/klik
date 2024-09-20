@@ -82,14 +82,14 @@ public class Backup_engine
     {
         start = System.currentTimeMillis();
         logger.log("Backup starts");
+        Sizes sizes= Static_files_and_paths_utilities.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
 
         Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
         actor_engine_based_on_workers.run(
-                new Backup_actor_for_one_folder(stats,deep,deep,reports, dedicated_backup_aborter,logger),
+                new Backup_actor_for_one_folder(stats,deep,deep,reports, dedicated_backup_aborter,actor_engine_based_on_workers,logger),
                 new Directory_backup_job_request(source.toFile(), destination.toFile(), dedicated_backup_aborter,logger),
                         null,logger);
 
-        Sizes sizes= Static_files_and_paths_utilities.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
         stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");
         Runnable monitoring = () -> {

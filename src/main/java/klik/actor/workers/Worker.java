@@ -1,6 +1,7 @@
 package klik.actor.workers;
 
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -19,16 +20,12 @@ public class Worker
     Logger logger;
     String name;
     private final Aborter aborter;
-    private final AtomicInteger threads_in_flight;
 
     //**********************************************************
-    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, AtomicInteger threads_in_flight_,
-                  //Aborter aborter,
-                  Logger logger_)
+    public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, Logger logger_)
     //**********************************************************
     {
         engine_input_queue = input_queue_;
-        threads_in_flight = threads_in_flight_;
         logger = logger_;
         name = name_;
         this.aborter = new Aborter("Worker abort",logger);
@@ -58,9 +55,10 @@ public class Worker
                         logger.log("BAD BAD null actor in message :"+job.to_string());
                         continue;
                     }
+                    Actor_engine.threads_in_flight.incrementAndGet();
                     String msg = job.actor.run(job.message);
                     if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
-                    threads_in_flight.decrementAndGet();
+                    Actor_engine.threads_in_flight.decrementAndGet();
                 }
                 catch (InterruptedException e) {
                     logger.log(Stack_trace_getter.get_stack_trace(e.toString()));

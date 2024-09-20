@@ -72,8 +72,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     //**********************************************************
      {
          if (job==null) return;
-         job.message.get_aborter().abort("virtual thread job cancelled");
-         if ( job.thread != null) job.thread.interrupt();
+         job.cancel("virtual thread job cancelled");
 
          if( Actor_engine.cancel_dbg) logger.log("virtual threads engine has cancelled: "+job.to_string());
          job.has_ended("Engine received cancel for "+job.to_string()+" (virtual threads)");

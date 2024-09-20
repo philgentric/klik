@@ -10,7 +10,6 @@ public class Job
     public final Message message;
     public final Logger logger;
     public final Job_termination_reporter termination_reporter; // is optional ie. maybe null
-    public Thread thread = null; // depending on the engine, job don't get a thread, or late
 
     //**********************************************************
     public Job(Actor actor, Message message, Job_termination_reporter termination_reporter_, Logger logger)
@@ -51,12 +50,10 @@ public class Job
     }
 
     //**********************************************************
-    public void cancel()
+    public void cancel(String msg)
     //**********************************************************
     {
-        message.get_aborter().abort("cancelling job");
-        // for the worker-based engine, we do not have a thread to interrupt ...
-        if ( thread != null) thread.interrupt();
+        message.get_aborter().abort(msg+" "+message.to_string());
     }
 
 }

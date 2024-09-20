@@ -6,6 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
+import klik.browser.icons.caches.Image_properties;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.From_disk;
@@ -97,8 +98,14 @@ public class Exif_metadata_extractor
         {
             list_of_strings = new ArrayList<>();
         }
+
+        Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger);
+        exif_metadata.add("width="+image_properties.get_image_width());
+        exif_metadata.add("height="+image_properties.get_image_height());
+        exif_metadata.add("aspect_ratio(1)="+image_properties.get_aspect_ratio());
         double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger);
-        exif_metadata.add("aspect_ratio="+aspect_ratio);
+        exif_metadata.add("aspect_ratio(2)="+aspect_ratio);
+
 
         {
             long l = 0;

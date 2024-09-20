@@ -346,6 +346,8 @@ public class Image_properties_RAM_cache
 
             int diff =  d1.compareTo(d2);
             if ( diff != 0) return diff;
+            //System.out.println("Image_height_comparator " + "\n"+p1+" h="+d1+"\n"+p2+" h="+d2+" ==>"+diff);
+
             return (p1.toString().compareTo(p2.toString()));
         }
     };

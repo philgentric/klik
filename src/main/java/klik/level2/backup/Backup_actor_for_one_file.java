@@ -192,7 +192,7 @@ public class Backup_actor_for_one_file implements Actor
 
         if ( file_backup_job_request.get_aborter().should_abort())
         {
-            file_backup_job_request.mini_console.increment_file_count();
+            if ( file_backup_job_request.mini_console != null) file_backup_job_request.mini_console.increment_file_count();
             return returned;
         }
         // last check: there might already be a copy as a file with a different name

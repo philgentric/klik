@@ -114,6 +114,7 @@ import klik.browser.My_Stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.Static_application_properties;
+import klik.util.Performance_monitor.Performance_monitor;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
@@ -146,11 +147,11 @@ public class Klik_application extends Application
 
         Logger logger = new System_out_logger();
 
-
         Language_manager.init_registered_languages(logger);
 
         Browser.monitoring_aborter = new Aborter("Monitoring", logger);
         new Monitor(Browser.monitoring_aborter,logger).start();
+        //Performance_monitor.create_performance_monitor(Browser.monitoring_aborter,logger);
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);

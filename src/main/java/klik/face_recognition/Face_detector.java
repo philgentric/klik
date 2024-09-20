@@ -115,7 +115,7 @@ public class Face_detector
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null,Face_recognition_status.error);
         }
-        logger.log("Connection established: "+connection.toString());
+        logger.log("Connection ready: "+connection.toString());
         // Send a GET request to the server
         try {
             connection.setRequestMethod("GET");
