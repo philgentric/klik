@@ -21,10 +21,17 @@ public class Meters_stage
 
     public static final double DISPLAY_PIXEL_HEIGHT = 600;
     private final static long HEARTH_BEAT = 50; //ms
+    private static Stage instance;
 
     //**********************************************************
     public static void show_stage(Logger logger)
     //**********************************************************
+    {
+        if ( instance == null) instance = create_stage(logger);
+        else instance.show();
+    }
+
+    private static Stage create_stage(Logger logger)
     {
         Stage stage = new Stage();
         HBox hbox = new HBox();
@@ -77,6 +84,7 @@ public class Meters_stage
         stage.setMinWidth(width);
         stage.setMinHeight(DISPLAY_PIXEL_HEIGHT+100);
         stage.show();
+        return stage;
     }
 
 

@@ -3,6 +3,7 @@ package klik.browser.items;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
@@ -102,6 +103,8 @@ public class Item_button extends Item implements Icon_destination
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
+        Tooltip.install(button,new Tooltip(path.toString()));
+
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
 
     }

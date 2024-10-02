@@ -322,6 +322,8 @@ public class Browser_UI
         view_menu.getItems().add(browser_menus.make_about_menu_item(logger));
         view_menu.getItems().add(browser_menus.make_refresh_menu_item());
         view_menu.getItems().add(browser_menus.make_meters_menu_item(logger));
+        view_menu.getItems().add(browser_menus.make_perfmon_menu_item(logger));
+
         if (level3) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
 
         return view_menu;

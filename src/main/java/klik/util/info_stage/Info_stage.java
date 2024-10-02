@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import java.util.List;
 
 /*
-popsup a new frame with informative text structured in "Lines"
+pops up a new frame with informative text structured in "Lines"
  */
 //**********************************************************
 public class Info_stage

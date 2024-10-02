@@ -30,6 +30,7 @@ import klik.look.my_i18n.Language_manager;
 import klik.properties.Bookmarks;
 import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -85,6 +86,16 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Show_Meters",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Meters_stage.show_stage(logger));
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_perfmon_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Show_Perfmon",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Performance_monitor.show(logger));
         return item;
     }
 

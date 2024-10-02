@@ -4,6 +4,8 @@ package klik.browser.items;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
+
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
@@ -85,6 +87,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
         Look_and_feel_manager.set_button_look(the_button,true);
         the_button.setOnAction(actionEvent -> Browser_creation_context.replace_different_folder(path,browser, logger));
+        Tooltip.install(the_button,new Tooltip(path.getFileName().toString()));
 
         resize_the_box(the_button);
 
@@ -165,8 +168,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         if ( the_image_view == null)
         {
             the_image_view = new ImageView();
+            the_image_pane.getChildren().add(the_image_view);
         }
-        the_image_pane.getChildren().add(the_image_view);
 
         //logger.log(Stack_trace_getter.get_stack_trace("item_folder_with_icon setting icon for "+path+ " image width = "+image.getWidth()));
         the_image_view.setImage(image_and_properties.image());

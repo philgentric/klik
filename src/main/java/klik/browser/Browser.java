@@ -75,8 +75,6 @@ import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.my_i18n.My_I18n;
-import klik.util.Performance_monitor.Monitoring_ends_reporter;
-import klik.util.Performance_monitor.Performance_monitor;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.level2.backup.Backup_singleton;
@@ -949,11 +947,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void redraw_fx_1(String from, Change_type change_type)
     //**********************************************************
     {
-        //Monitoring_ends_reporter x = Performance_monitor.register_new_span("Browser", 300, logger);
 
-        //if (dbg)
+        if (dbg)
         logger.log("Browser redraw from:" + from + " change_type=" + change_type);
 
+        long start = System.currentTimeMillis();
         Runnable r = () -> {
             if ( scan_dir_guard.get())
             {
@@ -962,7 +960,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             }
             scan_dir_guard.set(true);
             aborter.add_on_abort(() -> scan_dir_guard.set(false));
-            paths_manager.scan_dir_in_a_thread_2(my_Stage.the_Stage, change_type);
+            paths_manager.scan_dir_in_a_thread_2(my_Stage.the_Stage, change_type, start);
             scan_dir_guard.set(false);
             //x.task_ended();
         };

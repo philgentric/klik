@@ -3,6 +3,7 @@ package klik.images;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.change.Change_gang;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class Change_image_actor implements Actor
     public String run(Message m)
     //**********************************************************
     {
-
+        long start = System.currentTimeMillis();
         Change_image_message change_image_message = (Change_image_message) m;
 
         if ( dbg) change_image_message.logger.log("delta=" + change_image_message.delta);
@@ -93,9 +94,11 @@ public class Change_image_actor implements Actor
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
-        return display_target_path(target_path, change_image_message);
+        String returned =  display_target_path(target_path, change_image_message);
 
-
+        long end = System.currentTimeMillis();
+        Performance_monitor.register_new_record("Image display",target_path.toString(),end-start,change_image_message.logger);
+        return returned;
     }
 
     //**********************************************************

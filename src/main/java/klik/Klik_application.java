@@ -103,6 +103,7 @@
 //SOURCES properties/Bookmarks.java
 //SOURCES actor/Message.java
 //SOURCES actor/Job.java
+//SOURCES util/performance_monitor/Performance_monitor.java
 package klik;
 
 import javafx.application.Application;
@@ -114,11 +115,11 @@ import klik.browser.My_Stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.properties.Static_application_properties;
-import klik.util.Performance_monitor.Performance_monitor;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.System_out_logger;
+import klik.util.performance_monitor.Performance_monitor;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -151,7 +152,6 @@ public class Klik_application extends Application
 
         Browser.monitoring_aborter = new Aborter("Monitoring", logger);
         new Monitor(Browser.monitoring_aborter,logger).start();
-        //Performance_monitor.create_performance_monitor(Browser.monitoring_aborter,logger);
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);

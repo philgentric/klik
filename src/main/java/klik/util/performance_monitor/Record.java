@@ -1,13 +1,13 @@
-package klik.util.Performance_monitor;
+package klik.util.performance_monitor;
 
 //**********************************************************
-public record End_record(String name, long dur_ms, String uuid)
+public record Record(String type, String tag, long dur_ms, String uuid)
 //**********************************************************
 {
     //**********************************************************
     public String to_string()
     //**********************************************************
     {
-        return name + ": task executed for "+dur_ms+ " uuid:"+uuid;
+        return type + ": task executed for "+dur_ms+ " tag:"+tag+" uuid:"+uuid;
     }
 }

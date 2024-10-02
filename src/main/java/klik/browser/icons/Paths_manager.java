@@ -96,10 +96,9 @@ public class Paths_manager
 
     //long scan_dir_elapsed = 0;
     //**********************************************************
-    public void scan_dir_in_a_thread_2(Stage stage, Change_type change_type)
+    public void scan_dir_in_a_thread_2(Stage stage, Change_type change_type, long start)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
 
         Hourglass running_man = null;
         if (Browser.show_running_man)
