@@ -4,7 +4,9 @@
 //SOURCES ../level3/experimental/RAM_disk.java
 package klik.browser;
 
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
+import javafx.event.ActionEvent;
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_manager;
 import klik.browser.items.Item_button;
@@ -43,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Consumer;
 
 //**********************************************************
 public class Browser_menus
@@ -67,6 +70,18 @@ public class Browser_menus
         logger = logger_;
     }
 
+
+    //**********************************************************
+    public MenuItem make_menu_item(String key, EventHandler<ActionEvent> ev)
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string(key,logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(ev);
+        return item;
+    }
+
+/*
     //**********************************************************
     public MenuItem make_about_menu_item(Logger logger)
     //**********************************************************
@@ -77,7 +92,7 @@ public class Browser_menus
         return item;
     }
 
-
+*/
 
     //**********************************************************
     public MenuItem make_meters_menu_item(Logger logger)
@@ -85,9 +100,11 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Show_Meters",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Meters_stage.show_stage(logger));
+        EventHandler<ActionEvent> p = event -> Meters_stage.show_stage(logger);
+        item.setOnAction(p);
         return item;
     }
+
 
     //**********************************************************
     public MenuItem make_perfmon_menu_item(Logger logger)
@@ -142,14 +159,14 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> {
-            browser.icon_manager.clear_image_properties_RAM_cache_fx();
-        });
+        item.setOnAction(event ->
+            browser.icon_manager.clear_image_properties_RAM_cache_fx()
+        );
         return item;
     }
 
     //**********************************************************
-    public MenuItem make_clear_all_disk_caches_menu_item(Logger logger)
+    public MenuItem make_clear_all_disk_caches_menu_item()
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Clear_All_Disk_Caches",logger);
@@ -164,7 +181,7 @@ public class Browser_menus
 
 
     //**********************************************************
-    public MenuItem make_clear_icon_disk_cache_menu_item(Logger logger)
+    public MenuItem make_clear_icon_disk_cache_menu_item()
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
@@ -193,16 +210,6 @@ public class Browser_menus
 
 
 
-    //**********************************************************
-    public MenuItem make_clear_folder_icon_disk_cache_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Clear_Folder_Icon_Cache_Folder",logger);
-
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger));
-        return item;
-    }
 
     //**********************************************************
     public CheckMenuItem make_invert_vertical_scroll_menu_item(Logger logger)
@@ -467,7 +474,6 @@ public class Browser_menus
     //**********************************************************
     {
         String text = "Add all images to face recognition training set";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
-
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Face_recognition_service i = Face_recognition_service.get_instance(browser);
@@ -534,25 +540,11 @@ public class Browser_menus
     }
 
 
-
-
-    //**********************************************************
-    public MenuItem make_search_by_keywords_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Search_by_keywords",logger);
-
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> search_files_by_keyworks_fx());
-        return item;
-    }
-
     //**********************************************************
     public MenuItem make_remove_recursively_empty_folders_menu_item()
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Remove_empty_folders_recursively",logger);
-
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> remove_empty_folders_recursively_fx());
         return item;
@@ -646,53 +638,6 @@ public class Browser_menus
         if(select_all_folders_menu_item != null) select_all_folders_menu_item.setSelected(false);
     }
     //**********************************************************
-    public MenuItem make_start_stop_slideshow_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Start_stop_slow_scan",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.handle_scan_switch());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_slow_down_scan_slideshow_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Slow_down_scan",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.slow_down_scan());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_speed_up_scan_slideshow_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Speed_up_scan",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.speed_up_scan());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_new_window_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("New_Window",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Browser_creation_context.additional_same_folder(browser,logger));
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_new_window2_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("New_Twin_Window",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Browser_creation_context.additional_same_folder_twin(browser,logger));
-        return item;
-    }
-
-    //**********************************************************
     public MenuItem make_create_empty_directory_menu_item()
     //**********************************************************
     {
@@ -730,7 +675,6 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Stop_full_screen",logger);
-
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.stop_full_screen());
         return item;
@@ -741,7 +685,6 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Go_full_screen",logger);
-
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.go_full_screen());
         return item;
@@ -752,7 +695,6 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Refresh",logger);
-
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> browser.redraw_fx_1("refresh",Change_type.files_or_folders_changed));
         return item;
@@ -923,26 +865,16 @@ public class Browser_menus
     public void create_undos_menu(Browser browser, Menu undos_menu, Logger logger)
     //**********************************************************
     {
-        {
-            MenuItem item = make_undo_menu_item(logger);
-            undos_menu.getItems().add(item);
-        }
-
-
-        {
-            String text = My_I18n.get_I18n_string("Show_Undos",logger);
-            MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> pop_up_whole_undo_history(browser.aborter));
-            undos_menu.getItems().add(item);
-        }
-        {
-            String text = My_I18n.get_I18n_string("Clear_Undos",logger);
-            MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,browser.aborter, logger));
-            undos_menu.getItems().add(item);
-        }
+        undos_menu.getItems().add(make_menu_item(
+                "Undo_LAST_move_or_delete",
+                event -> Undo_engine.perform_last_undo_fx(browser.my_Stage.the_Stage,browser.aborter, logger)));
+        undos_menu.getItems().add(make_menu_item(
+                "Show_Undos",
+                event -> pop_up_whole_undo_history(browser.aborter)));
+        undos_menu.getItems().add(make_menu_item(
+                "Clear_Undos",
+                event -> Undo_engine.remove_all_undo_items(browser.my_Stage.the_Stage,browser.aborter, logger)));
     }
-
 
     //**********************************************************
     public void create_roots_menu(Browser browser, Menu roots_menu, Logger logger)
@@ -950,7 +882,6 @@ public class Browser_menus
     {
         for ( File f : File.listRoots())
         {
-
             String text = f.getAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> {
@@ -973,18 +904,13 @@ public class Browser_menus
                 logger.log(Stack_trace_getter.get_stack_trace("item == null for signature="+signature));
                 return;
             }
-
             if ( !Undo_engine.check_validity(item, browser.my_Stage.the_Stage,browser.aborter,logger))
             {
                 Popups.popup_warning(browser.my_Stage.the_Stage,"Invalid undo item ignored","The file was probably moved since?",true,logger);
                 return;
             }
             logger.log("\n\n\n undo_item="+item.to_string());
-            //String header = My_I18n.get_I18n_string("Going_To_Undo_This",logger);
-            //if (Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage,header,signature,logger))
-            {
-                Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,aborter, logger);
-            }
+            Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,aborter, logger);
         };
         String title = My_I18n.get_I18n_string("Whole_Undo_History",logger);
         Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_engine.get_instance(aborter, logger), action, logger));
@@ -997,7 +923,6 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Style",logger);
-
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
         for( Look_and_feel s : Look_and_feel_manager.registered)
@@ -1006,6 +931,7 @@ public class Browser_menus
         }
         return menu;
     }
+
     //**********************************************************
     public void create_check_menu_item_for_style(Browser browser, Menu menu, Look_and_feel style, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
@@ -1013,23 +939,19 @@ public class Browser_menus
         CheckMenuItem check_menu_item = new CheckMenuItem(style.name);
         Look_and_feel current_style = Look_and_feel.read_look_and_feel_from_properties_file(logger);
         check_menu_item.setSelected(current_style.name.equals(style.name));
-
         check_menu_item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
             if (local.isSelected()) {
-
                 for ( CheckMenuItem cmi : all_check_menu_items)
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Look_and_feel_manager.set_look_and_feel(style);
                 Browser_creation_context.replace_same_folder(browser,logger);
-
             }
         });
         menu.getItems().add(check_menu_item);
         all_check_menu_items.add(check_menu_item);
-
     }
 
     //**********************************************************
@@ -1037,7 +959,6 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Language",logger);
-
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
         for( String locale : Language_manager.get_registered_languages())
@@ -1074,6 +995,7 @@ public class Browser_menus
         });
         return item;
     }
+
     //**********************************************************
     public void create_check_menu_item_for_language(Browser browser, Menu menu, String language, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
@@ -1092,15 +1014,11 @@ public class Browser_menus
                 Language_manager.set_current_language(language);
                 My_I18n.reset();
                 Browser_creation_context.replace_same_folder(browser,logger);
-
-
             }
         });
         menu.getItems().add(item);
         all_check_menu_items.add(item);
-
     }
-
 
     //**********************************************************
     public void create_menu_item_for_one_video_length(Browser browser, Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Logger logger)
@@ -1123,9 +1041,7 @@ public class Browser_menus
         });
         menu.getItems().add(item);
         all_check_menu_items.add(item);
-
     }
-
 
     //**********************************************************
     public void create_menu_item_for_one_column_width(Browser browser, Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Logger logger)
@@ -1181,7 +1097,6 @@ public class Browser_menus
         });
         menu.getItems().add(item);
         all_check_menu_items.add(item);
-
     }
 
 
@@ -1205,7 +1120,6 @@ public class Browser_menus
         });
         menu.getItems().add(item);
         all_check_menu_items.add(item);
-
     }
 
     //**********************************************************
@@ -1229,7 +1143,6 @@ public class Browser_menus
         });
         menu.getItems().add(item);
         all_check_menu_items.add(item);
-
     }
 
 
@@ -1240,13 +1153,11 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Length_of_video_sample",logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-
         int[] possible_lenghts ={Static_application_properties.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
         for ( int l : possible_lenghts)
         {
             create_menu_item_for_one_video_length(browser, menu, l, all_check_menu_items, logger);
         }
-
         return menu;
     }
     //**********************************************************
@@ -1256,13 +1167,11 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string(Static_application_properties.COLUMN_WIDTH,logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-
-        int[] possible_lenghts ={Icon_manager.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
-        for ( int l : possible_lenghts)
+        int[] possible_lengths ={Icon_manager.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
+        for ( int l : possible_lengths)
         {
             create_menu_item_for_one_column_width(browser, menu, l, all_check_menu_items, logger);
         }
-
         return menu;
     }
     //**********************************************************
@@ -1270,16 +1179,12 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("File_Sorting_Method",logger);
-
         Menu menu = new Menu(text);
-
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-
         for ( File_sort_by sort_by : File_sort_by.values())
         {
             create_menu_item_for_one_file_sort_method(browser, menu, sort_by, all_check_menu_items, logger);
         }
-
         return menu;
     }
 
@@ -1373,17 +1278,13 @@ public class Browser_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Folder_Icon_Size",logger);
-
         Menu menu = new Menu(text);
-
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-
         int[] possible_sizes ={Static_application_properties.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
         for ( int size : possible_sizes)
         {
             create_menu_item_for_one_folder_icon_size(browser, menu, size, all_check_menu_items, logger);
         }
-
         return menu;
     }
     //**********************************************************
@@ -1413,7 +1314,7 @@ public class Browser_menus
 
 
     //**********************************************************
-    private void clean_up_names_fx()
+    void clean_up_names_fx()
     //**********************************************************
     {
         if ( !Popups.popup_ask_for_confirmation(browser.my_Stage.the_Stage, "EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",logger)) return;
@@ -1448,7 +1349,7 @@ public class Browser_menus
 
 
     //**********************************************************
-    private void remove_corrupted_images_fx()
+    void remove_corrupted_images_fx()
     //**********************************************************
     {
         Path dir = browser.displayed_folder_path;
@@ -1476,41 +1377,7 @@ public class Browser_menus
 
     }
 
-    //**********************************************************
-    void search_files_by_keyworks_fx()
-    //**********************************************************
-    {
-        List<String> given = new ArrayList<>();
-        Image_context.ask_user_and_find(
-                browser,
-                browser.displayed_folder_path,
-                given,
-                false,
-                logger
-        );
 
-    }
-
-    //**********************************************************
-    public MenuItem make_show_how_many_files_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_How_Many_Files_Are_In_Each_Folder",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.show_how_many_files_deep_in_each_folder());
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_show_folder_size_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_How_Each_Folder_Total_Size",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.show_total_size_deep_in_each_folder());
-        return item;
-    }
 
     //**********************************************************
     public Menu make_backup_menu()
@@ -1518,29 +1385,11 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Backup",logger);
         Menu menu = new Menu(text);
-        {
-            MenuItem mi = make_set_as_backup_source_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_set_as_backup_destination_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_backup_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_abort_backup_menu_item();
-            menu.getItems().add(mi);
-        }
-
-        {
-            String text2 = My_I18n.get_I18n_string("Backup_help",logger);
-            MenuItem item = new MenuItem(text2);
-            item.setOnAction(event -> show_backup_help(logger));
-            menu.getItems().add(item);
-        }
+        menu.getItems().add(make_menu_item("Set_as_backup_source_folder",event -> browser.you_are_backup_source()));
+        menu.getItems().add(make_menu_item("Set_as_backup_destination_folder",event -> browser.you_are_backup_destination()));
+        menu.getItems().add(make_menu_item("Start_backup",event -> browser.start_backup()));
+        menu.getItems().add(make_menu_item("Abort_backup",event -> browser.abort_backup()));
+        menu.getItems().add(make_menu_item("Backup_help",event -> show_backup_help(logger)));
         return menu;
     }
     //**********************************************************
@@ -1549,15 +1398,8 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Import",logger);
         Menu menu = new Menu(text);
-        {
-            MenuItem mi = make_import_from_apple_Photos_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_estimate_size_of_importing_from_apple_Photos_menu_item();
-            menu.getItems().add(mi);
-        }
-
+        menu.getItems().add(make_menu_item("Import_Apple_Photos",event -> browser.import_apple_Photos()));
+        menu.getItems().add(make_menu_item("Estimate_Size_Of_Import_Apple_Photos",event -> browser.estimate_size_of_importing_apple_Photos()));
         return menu;
     }
     //**********************************************************
@@ -1566,36 +1408,13 @@ public class Browser_menus
     {
         String text = "Fusk (experimental!)"; //My_I18n.get_I18n_string("Backup",logger);
         Menu menu = new Menu(text);
-        {
-            MenuItem mi = make_enter_fusk_pin_code_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_set_as_fusk_source_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_set_as_fusk_destination_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_fusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_abort_fusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            MenuItem mi = make_start_defusk_menu_item();
-            menu.getItems().add(mi);
-        }
-        {
-            String text2 = "Fusk help";//My_I18n.get_I18n_string("Backup_help",logger);
-            MenuItem item = new MenuItem(text2);
-            item.setOnAction(event -> show_fusk_help(logger));
-            menu.getItems().add(item);
-        }
+        menu.getItems().add(make_menu_item("Enter fusk pin code",event -> browser.enter_fusk_pin_code()));
+        menu.getItems().add(make_menu_item("Set this folder as fusk source",event -> browser.you_are_fusk_source()));
+        menu.getItems().add(make_menu_item("Set this folder as fusk destination",event -> browser.you_are_fusk_destination()));
+        menu.getItems().add(make_menu_item("Start fusk (experimental!)",event -> browser.start_fusk()));
+        menu.getItems().add( make_menu_item("Abort fusk",event -> browser.abort_fusk()));
+        menu.getItems().add(make_menu_item("Start defusk (experimental!)",event -> browser.start_defusk()));
+        menu.getItems().add(make_menu_item("Fusk help",event -> show_fusk_help()));
         return menu;
     }
 
@@ -1603,7 +1422,6 @@ public class Browser_menus
     private void show_backup_help(Logger logger)
     //**********************************************************
     {
-
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(false,"The backup tool will copy recursively down the paths starting in the SOURCE folder"));
         l.add(new Line_for_info_stage(false,"into the DESTINATION folder"));
@@ -1611,14 +1429,12 @@ public class Browser_menus
         l.add(new Line_for_info_stage(false,"If names and content are the same, the file is not copied (it is not a brute force copy)"));
         l.add(new Line_for_info_stage(false,"If names are matching but content is different, the source file is copied"));
         l.add(new Line_for_info_stage(false,"and the previous file in the destination is renamed"));
-
         Info_stage.show_info_stage("Help on backup",l, null);
     }
     //**********************************************************
-    private void show_fusk_help(Logger logger)
+    private void show_fusk_help()
     //**********************************************************
     {
-
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(false,"Fusk tool: create obsfuscated files that can only be decoded by Klik"));
         l.add(new Line_for_info_stage(false,"The fusk tool will copy recursively down the paths starting in the SOURCE folder"));
@@ -1629,68 +1445,18 @@ public class Browser_menus
         l.add(new Line_for_info_stage(false,"If the pin code is not the good one the images are not displayed"));
         l.add(new Line_for_info_stage(false,"WARNING: this is encryption, if you forget your pin code, recovering your files will be painful"));
         l.add(new Line_for_info_stage(false,"(recovery: someone will have to make a brute force attack code i.e. try all possible pin codes!)"));
-
         Info_stage.show_info_stage("Help on fusk",l, null);
     }
 
 
 
-    //**********************************************************
-    public MenuItem make_enter_fusk_pin_code_menu_item()
-    //**********************************************************
-    {
-        String text = "Enter fusk pin code";//My_I18n.get_I18n_string("Set_as_backup_source_folder",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.enter_fusk_pin_code());
-        return item;
-    }
 
-    //**********************************************************
-    public MenuItem make_set_as_fusk_source_menu_item()
-    //**********************************************************
-    {
-        String text = "Set this folder as fusk source";//My_I18n.get_I18n_string("Set_as_backup_source_folder",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_source());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_set_as_fusk_destination_menu_item()
-    //**********************************************************
-    {
-        String text = "Set this folder as fusk destination";//My_I18n.get_I18n_string("dsfsdfdsf",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.you_are_fusk_destination());
-        return item;
-    }
 
-    //**********************************************************
-    public MenuItem make_start_fusk_menu_item()
-    //**********************************************************
-    {
-        String text = "start fusk (experimental!)";//My_I18n.get_I18n_string("Start_backup",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_fusk());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_start_defusk_menu_item()
-    //**********************************************************
-    {
-        String text = "start defusk (experimental!)";//My_I18n.get_I18n_string("Start_backup",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.start_defusk());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_abort_fusk_menu_item()
-    //**********************************************************
-    {
-        String text = "Abort fusk";//My_I18n.get_I18n_string("Abort_backup",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.abort_fusk());
-        return item;
-    }
+
+
+
+
+
 
     //**********************************************************
     public MenuItem make_set_as_backup_source_menu_item()
@@ -1761,4 +1527,142 @@ public class Browser_menus
         item.setOnAction(event -> browser.show_where_are_images());
         return item;
     }
+
+
+    //**********************************************************
+    public MenuItem make_start_stop_slideshow_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Start_stop_slow_scan",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.handle_scan_switch());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_slow_down_scan_slideshow_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Slow_down_scan",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.slow_down_scan());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_speed_up_scan_slideshow_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Speed_up_scan",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.speed_up_scan());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_new_window_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("New_Window",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Browser_creation_context.additional_same_folder(browser,logger));
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_new_window2_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("New_Twin_Window",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Browser_creation_context.additional_same_folder_twin(browser,logger));
+        return item;
+    }
+
+
+    //**********************************************************
+    public MenuItem make_enter_fusk_pin_code_menu_item()
+    //**********************************************************
+    {
+        String text = "Enter fusk pin code";//My_I18n.get_I18n_string("Set_as_backup_source_folder",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.enter_fusk_pin_code());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_set_as_fusk_source_menu_item()
+    //**********************************************************
+    {
+        String text = "Set this folder as fusk source";//My_I18n.get_I18n_string("Set_as_backup_source_folder",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.you_are_fusk_source());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_set_as_fusk_destination_menu_item()
+    //**********************************************************
+    {
+        String text = "Set this folder as fusk destination";//My_I18n.get_I18n_string("dsfsdfdsf",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.you_are_fusk_destination());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_start_fusk_menu_item()
+    //**********************************************************
+    {
+        String text = "start fusk (experimental!)";//My_I18n.get_I18n_string("Start_backup",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.start_fusk());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_start_defusk_menu_item()
+    //**********************************************************
+    {
+        String text = "start defusk (experimental!)";//My_I18n.get_I18n_string("Start_backup",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.start_defusk());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_abort_fusk_menu_item()
+    //**********************************************************
+    {
+        String text = "Abort fusk";//My_I18n.get_I18n_string("Abort_backup",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.abort_fusk());
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_show_how_many_files_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Show_How_Many_Files_Are_In_Each_Folder",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.show_how_many_files_deep_in_each_folder());
+        return item;
+    }
+
+
+    //**********************************************************
+    public MenuItem make_show_folder_size_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Show_How_Each_Folder_Total_Size",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> browser.show_total_size_deep_in_each_folder());
+        return item;
+    }
+    //**********************************************************
+    public MenuItem make_clear_folder_icon_disk_cache_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Clear_Folder_Icon_Cache_Folder",logger);
+
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger));
+        return item;
+    }
+
 }

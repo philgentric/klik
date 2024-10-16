@@ -22,7 +22,11 @@ public class Keyboard_handling_for_Image_window
 {
     private static final boolean keyword_dbg = false;
     //**********************************************************
-    static void handle_keyboard(Browser the_browser, Image_window image_window, final KeyEvent key_event, Logger logger)
+    static void handle_keyboard(
+            Browser the_browser,
+            Image_window image_window,
+            final KeyEvent key_event,
+            Logger logger)
     //**********************************************************
     {
 

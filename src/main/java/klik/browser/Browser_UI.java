@@ -2,6 +2,7 @@
 package klik.browser;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -11,11 +12,16 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_manager;
+import klik.browser.meter.Meters_stage;
+import klik.images.Image_context;
 import klik.level2.deduplicate.Deduplication_engine;
+import klik.level3.metadata.Tag_items_management_stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Popups;
 
 import java.util.ArrayList;
@@ -295,36 +301,37 @@ public class Browser_UI
         ContextMenu view_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(view_menu);
 
-        view_menu.getItems().add(browser_menus.make_new_window_menu_item());
-        view_menu.getItems().add(browser_menus.make_new_window2_menu_item());
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> Browser_creation_context.additional_same_folder(browser,logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> Browser_creation_context.additional_same_folder_twin(browser,logger)));
+
+
         {
-            start_full_screen_menu_item = browser_menus.make_start_fullscreen_menu_item();
+            start_full_screen_menu_item = browser_menus.make_menu_item("Go_full_screen",event -> browser.go_full_screen());
             start_full_screen_menu_item.setDisable(false);
             view_menu.getItems().add(start_full_screen_menu_item);
         }
         {
-            stop_full_screen_menu_item = browser_menus.make_stop_fullscreen_menu_item();
+            stop_full_screen_menu_item = browser_menus.make_menu_item("Stop_full_screen",event -> browser.stop_full_screen());
             stop_full_screen_menu_item.setDisable(true);
             view_menu.getItems().add(stop_full_screen_menu_item);
         }
         {
             Menu scan = new Menu("Scan show");
-            scan.getItems().add(browser_menus.make_start_stop_slideshow_menu_item());
-            scan.getItems().add(browser_menus.make_slow_down_scan_slideshow_menu_item());
-            scan.getItems().add(browser_menus.make_speed_up_scan_slideshow_menu_item());
-
+            scan.getItems().add(browser_menus.make_menu_item("Start_stop_slow_scan",event -> browser.handle_scan_switch()));
+            scan.getItems().add(browser_menus.make_menu_item("Slow_down_scan",event -> browser.slow_down_scan()));
+            scan.getItems().add(browser_menus.make_menu_item("Speed_up_scan",event -> browser.speed_up_scan()));
             view_menu.getItems().add(scan);
         }
-        view_menu.getItems().add(browser_menus.make_show_how_many_files_menu_item());
-        view_menu.getItems().add(browser_menus.make_show_folder_size_menu_item());
+        view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> browser.show_how_many_files_deep_in_each_folder()));
+        view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Each_Folder_Total_Size",event -> browser.show_total_size_deep_in_each_folder()));
+        view_menu.getItems().add(browser_menus.make_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage()));
+        view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx_1("refresh",Change_type.files_or_folders_changed)));
 
 
-        view_menu.getItems().add(browser_menus.make_about_menu_item(logger));
-        view_menu.getItems().add(browser_menus.make_refresh_menu_item());
-        view_menu.getItems().add(browser_menus.make_meters_menu_item(logger));
-        view_menu.getItems().add(browser_menus.make_perfmon_menu_item(logger));
+        view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> Meters_stage.show_stage(logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("Show_Perfmon",event -> Performance_monitor.show(logger)));
 
-        if (level3) view_menu.getItems().add(browser_menus.make_stored_tag_management_menu_item(logger));
+        if (level3) view_menu.getItems().add(browser_menus.make_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(logger)));
 
         return view_menu;
     }
@@ -336,24 +343,23 @@ public class Browser_UI
         ContextMenu files_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(files_menu);
 
-        //files_menu.getItems().add(browser_menus.make_undo_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_files_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
 
         {
             String create_string = My_I18n.get_I18n_string("Create",logger);
             Menu create = new Menu(create_string);
-            create.getItems().add(browser_menus.make_create_empty_directory_menu_item());
-            create.getItems().add(browser_menus.make_create_PDF_contact_sheet_menu_item());
-            create.getItems().add(browser_menus.make_sort_by_year_menu_item());
+            create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> browser.create_new_directory()));
+            create.getItems().add(browser_menus.make_menu_item("Create_PDF_contact_sheet",event -> browser.create_PDF_contact_sheet()));
+            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> browser.sort_by_year()));
             create.getItems().add(browser_menus.make_import_menu());
             files_menu.getItems().add(create);
         }
         {
             String search_string = My_I18n.get_I18n_string("Search",logger);
             Menu search = new Menu(search_string);
-            search.getItems().add(browser_menus.make_search_by_keywords_menu_item());
-            search.getItems().add(browser_menus.make_show_where_are_images_menu_item(logger));
+            search.getItems().add(browser_menus.make_menu_item("Search_by_keywords",event -> search_files_by_keyworks_fx()));
+            search.getItems().add(browser_menus.make_menu_item("Show_Where_Are_Images",event -> browser.show_where_are_images()));
             search.getItems().add(browser_menus.make_add_to_face_recognition_training_set_menu_item());
 
 
@@ -375,17 +381,22 @@ public class Browser_UI
             String cleanup = My_I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (level3) clean.getItems().add(browser_menus.make_remove_recursively_empty_folders_menu_item());
-            clean.getItems().add(browser_menus.make_clear_trash_menu_item(logger));
+            if (level3) clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively",event -> browser_menus.remove_empty_folders_recursively_fx()));
+            clean.getItems().add(browser_menus.make_menu_item(
+                    "Clear_Trash_Folder",
+                    event -> Static_files_and_paths_utilities.clear_trash_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
             clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
             if (level3) {
-                clean.getItems().add(browser_menus.make_clear_all_RAM_caches_menu_item(logger));
-                clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item(logger));
-                clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item(logger));
+                clean.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
+                        event -> browser.icon_manager.clear_image_properties_RAM_cache_fx()));
+                clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item());
+                clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item());
                 clean.getItems().add(browser_menus.make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(logger));
-                clean.getItems().add(browser_menus.make_clear_folder_icon_disk_cache_menu_item(logger));
-                clean.getItems().add(browser_menus.make_clean_names_menu_item());
-                clean.getItems().add(browser_menus.make_remove_corrupted_images_menu_item());
+                clean.getItems().add(browser_menus.make_menu_item(
+                        "Clear_Folder_Icon_Cache_Folder",
+                        event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
+                clean.getItems().add(browser_menus.make_menu_item("Clean up names (experimental)",event -> browser_menus.clean_up_names_fx()));
+                clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images",event -> browser_menus.remove_corrupted_images_fx()));
 
 
             }
@@ -413,6 +424,20 @@ public class Browser_UI
         return files_menu;
     }
 
+    //**********************************************************
+    void search_files_by_keyworks_fx()
+    //**********************************************************
+    {
+        List<String> given = new ArrayList<>();
+        Image_context.ask_user_and_find(
+                browser,
+                browser.displayed_folder_path,
+                given,
+                false,
+                logger
+        );
+
+    }
     //**********************************************************
     private ContextMenu define_contextmenu_preferences()
     //**********************************************************

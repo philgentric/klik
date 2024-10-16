@@ -566,7 +566,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
             if (keyEvent.getCharacter().equals("k")) {
                 if (keyboard_dbg) logger.log("character is k = keyword search");
-                browser_menus.search_files_by_keyworks_fx();
+                browser_ui.search_files_by_keyworks_fx();
             }
             if (keyEvent.getCharacter().equals("s")) {
                 if (keyboard_dbg) logger.log("character is s = start/stop scan");

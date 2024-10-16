@@ -1,12 +1,4 @@
 module klikmodule {
-    //requires org.bytedeco.javacv;
-    //requires org.bytedeco.javacv.platform;
-    //requires org.bytedeco.flandmark.platform;
-    //requires org.bytedeco.openblas.platform;
-
-
-    //requires org.bytedeco.opencv;
-    //requires org.opencv;
 
 
     requires javafx.base;
