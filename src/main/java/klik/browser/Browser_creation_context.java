@@ -18,7 +18,7 @@ public class Browser_creation_context
     public final boolean keep_offset;
     public final boolean additional_window; // if false, the old_browser is closed and de-registered, then a new one is used in the SAME window
     public final boolean move_a_bit; // if true the new instance is at the same location on screen s the old one
-    public final Browser old_browser; // if null, there is no previous guy
+    public Browser old_browser; // if null, there is no previous guy
     //**********************************************************
     Browser_creation_context(
             My_Stage previous_stage,
@@ -48,7 +48,7 @@ public class Browser_creation_context
     }
 
     //**********************************************************
-    public static Browser first(My_Stage stage, Path path, Logger logger)
+    public static void first(My_Stage stage, Path path, Logger logger)
     //**********************************************************
     {
         Browser_creation_context context = new Browser_creation_context(
@@ -60,7 +60,7 @@ public class Browser_creation_context
                 false,
                 null);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        return new Browser(context, logger);
+        new Browser(context, logger);
     }
 
     //**********************************************************
@@ -77,7 +77,7 @@ public class Browser_creation_context
                 true,
                 null);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        Browser b = new Browser(context, logger);
+        new Browser(context, logger);
     }
 
     //**********************************************************
@@ -85,7 +85,7 @@ public class Browser_creation_context
     //**********************************************************
     {
         My_Stage stage = new My_Stage(new Stage(),logger);
-        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
         Browser_creation_context context =  new Browser_creation_context(
                 stage,
                 parent.displayed_folder_path,
@@ -100,7 +100,7 @@ public class Browser_creation_context
     public static void additional_same_folder_twin(Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
 
         Stage parent_stage = parent.my_Stage.the_Stage;
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(parent_stage.getX(), parent_stage.getY(), parent_stage.getWidth(), parent_stage.getHeight());
@@ -134,7 +134,7 @@ public class Browser_creation_context
     public static void additional_different_folder(Path path, Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
 
         My_Stage stage = new My_Stage(new Stage(),logger);
         Browser_creation_context context =  new Browser_creation_context(
@@ -153,7 +153,7 @@ public class Browser_creation_context
     public static void replace_same_folder(Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
 
         Browser_creation_context context =  new Browser_creation_context(
                 parent.my_Stage,
@@ -171,7 +171,7 @@ public class Browser_creation_context
     public static void replace_different_folder(Path path, Browser parent, Logger logger)
     //**********************************************************
     {
-        Browser.scroll_memory.put(parent.displayed_folder_path,parent.get_top_left());
+        Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
 
 
         Browser_creation_context context =  new Browser_creation_context(

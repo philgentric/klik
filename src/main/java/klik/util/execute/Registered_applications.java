@@ -81,7 +81,7 @@ public class Registered_applications
         for (String key : map.keySet())
         {
             String value = map.get(key);
-            properties_manager.save_unico(key,value,false);
+            properties_manager.add_and_save(key,value);
             logger.log("Registered_applications.save_map: "+key+" "+value);
         }
     }

@@ -123,7 +123,7 @@ public class RAM_disk
     public static void set_use_RAM_disk(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(USE_RAM_DISK, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(USE_RAM_DISK, String.valueOf(b));
     }
 
     //**********************************************************
@@ -132,7 +132,7 @@ public class RAM_disk
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(USE_RAM_DISK);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(USE_RAM_DISK, "false", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(USE_RAM_DISK, "false");
             return false;
         } else {
             return Boolean.parseBoolean(s);

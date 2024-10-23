@@ -652,7 +652,7 @@ public class Audio_player
         if ( playlist_file_name == null)
         {
             playlist_file_name = "playlist."+ Audio_player.PLAYLIST_EXTENSION;
-            Static_application_properties.get_main_properties_manager(logger).save_unico(PLAYLIST_FILE_NAME,playlist_file_name,false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
         }
         else
         {
@@ -667,7 +667,7 @@ public class Audio_player
     public static void set_playlist_file_name(String playlist_file_name, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(PLAYLIST_FILE_NAME,playlist_file_name,false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
     }
 
 }

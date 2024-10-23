@@ -628,7 +628,7 @@ public class Moving_files
 
     }
 
-    private static Random r = new Random();
+    private static final Random random = new Random();
     //**********************************************************
     private static Path name_is_alredy_a_count(Path old_path, String prefix, String base_name, String extension, Logger logger)
     //**********************************************************
@@ -662,7 +662,7 @@ public class Moving_files
         for(int i = 1; i< 10000; i++)
         {
             int ii = i;
-            if (i > 500) ii = r.nextInt(10000000);
+            if (i > 500) ii = random.nextInt(10000000);
             String new_integer_with_leading_zeroes = String.format("%0"+lenght_of_trailing_numbers+"d",(k+ii));
             String new_name = prefix+base_name.substring(0, base_name.length() - lenght_of_trailing_numbers) + new_integer_with_leading_zeroes+ "." + extension;
             if (moving_files_dbg) logger.log("candidate new_name? ->" + new_name+"<-");

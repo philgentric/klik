@@ -301,7 +301,7 @@ public abstract class Look_and_feel
         if (look_and_feel == null) {
             look_and_feel = new Look_and_feel_light(logger);
         }
-        Static_application_properties.get_main_properties_manager(logger).save_unico(STYLE, look_and_feel.name,false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(STYLE, look_and_feel.name);
         return look_and_feel;
     }
 
@@ -309,7 +309,7 @@ public abstract class Look_and_feel
     public static void set_style(Look_and_feel style,Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(STYLE, style.name,false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(STYLE, style.name);
     }
 
 

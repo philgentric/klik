@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -247,7 +248,6 @@ public class Icon_manager
     {
         items_are_ready.set(true);
         map_buttons_and_icons_guard.set(false);
-        //has_to_call_check_visibility_latter.set(false);
         Jfx_batch_injector.inject(()->
                 {
                     check_visibility_11(pane, reason+" map_buttons_and_icons "+from_thread);
@@ -263,7 +263,7 @@ public class Icon_manager
         current_vertical_offset = get_y_offset_of(scroll_to);
         if ( scroll_to_listener == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOUKLD NOT HAPPEN"));
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             return;
         }
         scroll_to_listener.perform_scroll_to(current_vertical_offset,this);
@@ -297,10 +297,25 @@ public class Icon_manager
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = 0;
         List<Item> current_row = new ArrayList<>();
-        // manage iconized items
-        AtomicInteger image_properties_in_flight = new AtomicInteger(0);
-        Job_termination_reporter tr = (message, job) -> image_properties_in_flight.decrementAndGet();
 
+        int image_properties_in_flight = 0;
+        for (Path path : paths_manager.iconized_paths )
+        {
+            Item item;
+            if (show_icons_instead_of_text)
+            {
+                item = all_items_map.get(path);
+                if (item == null)
+                {
+                    image_properties_in_flight++;
+                }
+            }
+        }
+
+        CountDownLatch wait_for_end = new CountDownLatch(image_properties_in_flight);
+        Job_termination_reporter tr = (message, job) -> {
+             wait_for_end.countDown();
+        };
         for (Path path : paths_manager.iconized_paths )
         {
             if (dbg) logger.log("Icon_manager process_iconified_items " + path);
@@ -310,7 +325,7 @@ public class Icon_manager
                 item = all_items_map.get(path);
                 if (item == null)
                 {
-                    image_properties_in_flight.incrementAndGet();
+                    wait_for_end.countDown();
                     // ask for image properties fetch in threads
                     paths_manager.image_properties_cache.get_from_cache(path,tr, false);
                 }
@@ -328,21 +343,16 @@ public class Icon_manager
                 }
             }
         }
-        // wait for all properties to become available
-        long start = System.currentTimeMillis();
-        for(;;)
-        {
-           try {
-                Thread.sleep(10);
+        if ( image_properties_in_flight > 1) {
+            // wait for all properties to become available
+            //logger.log("going to wait");
+            try {
+                wait_for_end.await();
             } catch (InterruptedException e) {
-                logger.log(Stack_trace_getter.get_stack_trace("oho"));
+                logger.log("" + e);
             }
-            int k = image_properties_in_flight.get();
-            if (dbg) logger.log("icons in flight = "+k);
-            if (k == 0 ) break;
+            //logger.log("wait terminated");
         }
-        if (dbg) logger.log("total wait time for image properties = "+(System.currentTimeMillis()-start)+"ms");
-
         for ( Path path : paths_manager.iconized_paths)
         {
             Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path,null, true);

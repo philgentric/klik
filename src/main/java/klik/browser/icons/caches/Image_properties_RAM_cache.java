@@ -7,6 +7,10 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Change_type;
+import klik.browser.comparators.Aspect_ratio_comparator;
+import klik.browser.comparators.Aspect_ratio_comparator_random;
+import klik.browser.comparators.Image_height_comparator;
+import klik.browser.comparators.Image_width_comparator;
 import klik.browser.icons.Paths_manager;
 import klik.browser.icons.Refresh_target;
 import klik.util.files_and_paths.Ding;
@@ -14,6 +18,7 @@ import klik.level3.experimental.RAM_disk;
 import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
+import klik.util.log.Stack_trace_getter;
 import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Hourglass;
 import klik.util.log.Logger;
@@ -28,17 +33,20 @@ public class Image_properties_RAM_cache
 {
     public final static boolean dbg = false;
     protected final Logger logger;
-    protected final Aborter aborter;
+    private final Aborter aborter;
     protected final String cache_name;
     protected final Path cache_file_path;
     private final Map<String, Image_properties> cache = new ConcurrentHashMap<>();
     protected final Properties_manager pm;
-    Image_properties_actor image_properties_actor;
+    private final Image_properties_actor image_properties_actor;
 
+    private final int instance_number;
+    private static int instance_number_generator = 0;
     //**********************************************************
     public Image_properties_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
+        instance_number = instance_number_generator++;
         logger = logger_;
         aborter = aborter_;
         cache_name = cache_name_;
@@ -86,11 +94,24 @@ public class Image_properties_RAM_cache
             if ( tr != null) tr.has_ended("found in cache",null);
             return image_properties;
         }
+        if ( aborter.should_abort())
+        {
+            logger.log((instance_number+" PANIC aborter "+aborter.name+" reason="+aborter.reason+ " target path="+p));
+            return null;
+        }
+        else {
+            //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
+        }
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
         if ( wait_if_needed)
         {
-            image_properties_actor.run(imp);
-            return cache.get(key_from_path(p));
+            image_properties_actor.run(imp); // blocking call
+            Image_properties x = cache.get(key_from_path(p));
+            if ( x == null)
+            {
+                logger.log("PANIC null Image_properties in cache after blocking call ");
+            }
+            return x;
         }
         Actor_engine.run(image_properties_actor,imp,tr,logger);
         return null;
@@ -105,12 +126,12 @@ public class Image_properties_RAM_cache
         return local;//UUID.nameUUIDFromBytes(local.getBytes()).toString();
     }
     //**********************************************************
-    public void inject(Path path, Image_properties val, boolean and_save)
+    public void inject(Path path, Image_properties val, boolean and_save_to_disk)
     //**********************************************************
     {
         if(dbg) logger.log(cache_name+" inject "+path+" value="+val );
         cache.put(key_from_path(path),val);
-        if ( and_save) save_one_item_to_disk(path,val);
+        if ( and_save_to_disk) save_one_item_to_disk(path,val);
     }
 
     //**********************************************************
@@ -184,7 +205,7 @@ public class Image_properties_RAM_cache
         for(Map.Entry<String, Image_properties> e : cache.entrySet())
         {
             saved++;
-            pm.imperative_store(e.getKey(), e.getValue().to_string(), false, false);
+            pm.add(e.getKey(), e.getValue().to_string(), false);
         }
         pm.store_properties();
         if (dbg) logger.log(saved +" TRUE items of aspect ratio cache saved to file");
@@ -193,7 +214,7 @@ public class Image_properties_RAM_cache
     public void save_one_item_to_disk(Path path, Image_properties ip)
     //**********************************************************
     {
-        pm.imperative_store(key_from_path(path), ip.to_string(), false, true);
+        pm.add_and_save(key_from_path(path), ip.to_string());
     }
 
 
@@ -202,26 +223,14 @@ public class Image_properties_RAM_cache
     //**********************************************************
     {
         //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
-        Actor_engine.execute(()->save_whole_cache_to_disk(),logger);
+        Actor_engine.execute(this::save_whole_cache_to_disk,logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
             if (Static_application_properties.get_ding(logger)) {
                 Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }
-        Comparator<Path> local_file_comparator = null;
-        switch (File_sort_by.get_sort_files_by(logger))
-        {
-            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator();
-            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random();
-            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator();
-            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator();
-            default -> local_file_comparator = null;
-        }
-        if (local_file_comparator != null)
-        {
-            paths_manager.set_new_iconized_items_comparator(local_file_comparator);
-        }
+        determine_file_comparator(paths_manager);
         //logger.log("all_image_properties_acquired, going to refresh");
         refresh_target.refresh_UI_after_scan_dir_5(change_type,"all_image_properties_acquired", running_man);
 
@@ -229,129 +238,49 @@ public class Image_properties_RAM_cache
         Performance_monitor.register_new_record("Browser",paths_manager.folder_path.toString(),end-start,logger);
     }
 
+    record File_comp_cache(File_sort_by file_sort_by, Comparator<Path> comparator){}
 
-
-
+    private File_comp_cache file_comp_cache;
 
     //**********************************************************
-    class Aspect_ratio_comparator implements Comparator<Path>
+    private void determine_file_comparator(Paths_manager paths_manager)
     //**********************************************************
     {
-        @Override
-        public int compare(Path p1, Path p2)
+        Comparator<Path> local_file_comparator = null;
+        if ( file_comp_cache != null)
         {
-            Image_properties ip1 = get_from_cache(p1,null,true);
-            if ( ip1 == null)
+            if ( file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(logger))
             {
-                logger.log("panic234");
-                return 0;
+                logger.log("getting file comparator from cache="+file_comp_cache);
+                local_file_comparator = file_comp_cache.comparator();
             }
-            Double d1 = ip1.get_aspect_ratio();
-            Image_properties ip2 = get_from_cache(p2,null,true);
-            if ( ip2 == null)
-            {
-                logger.log("panic235");
-                return 0;
-            }
-            Double d2 = ip2.get_aspect_ratio();
-            int diff =  d1.compareTo(d2);
-            if ( diff != 0) return diff;
-            return (p1.toString().compareTo(p2.toString()));
         }
-    };
-
-    //**********************************************************
-    class Aspect_ratio_comparator_random implements Comparator<Path>
-    //**********************************************************
-    {
-        long seed;
-        HashMap<Path,Long> cache_local = new HashMap<>();
-        public Aspect_ratio_comparator_random()
+        if ( local_file_comparator == null) {
+            local_file_comparator = create_new_file_comparator();
+        }
+        if (local_file_comparator != null)
         {
-            Random r = new Random();
-            seed = r.nextLong();
-
+            //logger.log("setting file_comp_cache ="+file_comp_cache);
+            file_comp_cache =  new File_comp_cache(File_sort_by.get_sort_files_by(logger),local_file_comparator);
+            paths_manager.set_new_iconized_items_comparator(local_file_comparator);
         }
-        @Override
-        public int compare(Path p1, Path p2) {
-            Image_properties ip1 = get_from_cache(p1,null, true);
-            if ( ip1 == null)
-            {
-                System.out.println("should not happen");
-                return 0;
-            }
-            Double d1 = ip1.get_aspect_ratio();
-            Image_properties ip2 = get_from_cache(p2,null, true);
-            if ( ip2 == null)
-            {
-                System.out.println("should not happen");
-                return 0;
-            }
-            Double d2 = ip2.get_aspect_ratio();
-
-            int diff = d1.compareTo(d2);
-            if (diff != 0) return diff;
-
-            Long l1 = cache_local.get(p1);
-            if ( l1 == null) {
-                // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
-                long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
-                l1 = new Random(seed * s1).nextLong();
-                cache_local.put(p1,l1);
-            }
-
-            Long l2 = cache_local.get(p2);
-            if ( l2 == null) {
-                // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
-                long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
-                l2 = new Random(seed * s2).nextLong();
-                cache_local.put(p2, l2);
-            }
-
-            return l1.compareTo(l2);
-        }
-    };
+    }
 
     //**********************************************************
-    class Image_width_comparator implements Comparator<Path>
-    {
-        @Override
-        public int compare(Path p1, Path p2) {
-            Image_properties ip1 = get_from_cache(p1,null, true);
-            if ( ip1 == null) return 0;
-            Double d1 = ip1.get_image_width();
-            if ( d1 == null) return 0;
-            Image_properties ip2 = get_from_cache(p2,null, true);
-            if ( ip2 == null) return 0;
-            Double d2 = ip2.get_image_width();
-            if ( d2 == null) return 0;
-
-            int diff =  d1.compareTo(d2);
-            if ( diff != 0) return diff;
-            return (p1.toString().compareTo(p2.toString()));
-        }
-    };
-
-
+    Comparator<Path> create_new_file_comparator()
     //**********************************************************
-    class Image_height_comparator implements Comparator<Path>
     {
-        @Override
-        public int compare(Path p1, Path p2) {
-            Image_properties ip1 = get_from_cache(p1,null, true);
-            if ( ip1 == null) return 0;
-            Double d1 = ip1.get_image_height();
-            if ( d1 == null) return 0;
-            Image_properties ip2 = get_from_cache(p2,null, true);
-            if ( ip2 == null) return 0;
-            Double d2 = ip2.get_image_height();
-            if ( d2 == null) return 0;
-
-            int diff =  d1.compareTo(d2);
-            if ( diff != 0) return diff;
-            //System.out.println("Image_height_comparator " + "\n"+p1+" h="+d1+"\n"+p2+" h="+d2+" ==>"+diff);
-
-            return (p1.toString().compareTo(p2.toString()));
+        Comparator<Path> local_file_comparator = null;
+        switch (File_sort_by.get_sort_files_by(logger))
+        {
+            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(this);
+            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(this);
+            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(this);
+            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(this);
         }
-    };
+        return local_file_comparator;
+    }
+
+
+
 }

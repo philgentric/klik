@@ -7,6 +7,10 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
+import klik.browser.comparators.Alphabetical_file_name_comparator;
+import klik.browser.comparators.Alphabetical_file_name_comparator_gif_first;
+import klik.browser.comparators.Date_comparator;
+import klik.browser.comparators.Decreasing_file_size_comparator;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
 import klik.properties.File_sort_by;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -41,7 +45,7 @@ public class Paths_manager
     public ConcurrentSkipListMap<Path,Boolean> folders;
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
 
-    private List<Path> iconized_sorted = new ArrayList<>();
+    private final List<Path> iconized_sorted = new ArrayList<>();
     public ConcurrentLinkedQueue<Path> iconized_paths = new ConcurrentLinkedQueue<>();
 
     public Comparator<? super Path> image_file_comparator = null;
@@ -68,6 +72,7 @@ public class Paths_manager
         aborter = aborter_;
         this.icon_factory_actor = icon_factory_actor;
 
+        Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
         switch (File_sort_by.get_sort_files_by(logger))
         {
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
@@ -77,13 +82,13 @@ public class Paths_manager
                 other_file_comparator = new Random_comparator();
                 break;
             case DATE:
-                other_file_comparator = new Date_comparator();
+                other_file_comparator = new Date_comparator(logger);
                 break;
             case SIZE:
-                other_file_comparator = decreasing_file_size_comparator;
+                other_file_comparator = new Decreasing_file_size_comparator();
                 break;
             case NAME_GIFS_FIRST:
-                other_file_comparator = alphabetical_file_name_comparator_gif_first;
+                other_file_comparator = new Alphabetical_file_name_comparator_gif_first();
                 break;
         }
         image_file_comparator = other_file_comparator;
@@ -295,97 +300,12 @@ public class Paths_manager
         }
     };
 
-    //**********************************************************
-    public final static Comparator<Path> alphabetical_file_name_comparator = new Comparator<>()
-    //**********************************************************
-    {
-        @Override
-        public int compare(Path f1, Path f2)
-        {
-            int diff = f1.getFileName().toString().compareToIgnoreCase(f2.getFileName().toString());
-            if (diff != 0) return diff;
-            // in case the file names differ by case
-            return f1.getFileName().toString().compareTo(f2.getFileName().toString());
-        }
-    };
-
-
-    //**********************************************************
-    class Date_comparator implements Comparator<Path>
-    //**********************************************************
-    {
-
-        @Override
-        public int compare(Path p1, Path p2) {
-            FileTime ldt1 = Fast_date_from_OS.get_date(p1,logger);
-            FileTime ldt2 = Fast_date_from_OS.get_date(p2,logger);
-            int diff= ldt2.compareTo(ldt1); // most recent first
-            if ( diff != 0) return diff;
-            return (p1.toString().compareTo(p2.toString()));
-        }
-    };
-
-
-
-    //**********************************************************
-    public final static Comparator<Path> alphabetical_file_name_comparator_gif_first = new Comparator<>()
-    //**********************************************************
-    {
-        @Override
-        public int compare(Path f1, Path f2)
-        {
-            Boolean is_gif1 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f1.getFileName().toString()));
-            Boolean is_gif2 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f2.getFileName().toString()));
-            if ( is_gif1 && is_gif2)
-            {
-                return f1.getFileName().toString().compareToIgnoreCase(f2.getFileName().toString());
-            }
-            else if ( is_gif1 )
-            {
-                return -1;
-            }
-            else if ( is_gif2 )
-            {
-                return 1;
-            }
-            else
-            {
-                return f1.getFileName().toString().compareToIgnoreCase(f2.getFileName().toString());
-            }
-        }
-    };
-
-
-    //**********************************************************
-    public final static Comparator<Path> decreasing_file_size_comparator = new Comparator<>()
-    //**********************************************************
-    {
-        @Override
-        public int compare(Path p1, Path p2)
-        {
-            int diff = Long.compare(p2.toFile().length(), p1.toFile().length());
-            if ( diff != 0) return diff;
-            return (p1.toString().compareTo(p2.toString()));
-        }
-    };
 
 
 
 
-    //**********************************************************
-    public final static Comparator<Path> decreasing_file_size_comparator_gifs_fist = new Comparator<>()
-    //**********************************************************
-    {
-        @Override
-        public int compare(Path f1, Path f2)
-        {
-            int i = Long.compare(f2.toFile().length(), f1.toFile().length());
-            if ( i != 0) return i;
-            Boolean is_gif1 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f1.getFileName().toString()));
-            Boolean is_gif2 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f2.getFileName().toString()));
-            return is_gif1.compareTo(is_gif2);
-        }
-    };
+
+
 
     //**********************************************************
     public List<File> get_file_list()
@@ -449,7 +369,7 @@ public class Paths_manager
     synchronized public void redo_iconized_sorted_7(String from)
     //**********************************************************
     {
-        logger.log("making & sorting iconized_sorted");
+        logger.log("making & sorting iconized_sorted with comparator:"+image_file_comparator);
         iconized_sorted_ready.set(false);
         iconized_sorted.clear();
         for ( Path path : iconized_paths)

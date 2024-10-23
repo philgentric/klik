@@ -36,7 +36,7 @@ public class Metadata_handler
     public void add(String key, String value)
     //**********************************************************
     {
-        properties_manager.imperative_store(key,value,false,true);
+        properties_manager.add_and_save(key,value);
     }
 
     //**********************************************************

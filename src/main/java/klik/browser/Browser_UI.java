@@ -395,7 +395,7 @@ public class Browser_UI
                 clean.getItems().add(browser_menus.make_menu_item(
                         "Clear_Folder_Icon_Cache_Folder",
                         event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
-                clean.getItems().add(browser_menus.make_menu_item("Clean up names (experimental)",event -> browser_menus.clean_up_names_fx()));
+                clean.getItems().add(browser_menus.make_menu_item("Clean_up_names",event -> browser_menus.clean_up_names_fx()));
                 clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images",event -> browser_menus.remove_corrupted_images_fx()));
 
 

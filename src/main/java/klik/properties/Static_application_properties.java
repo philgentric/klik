@@ -104,7 +104,7 @@ public class Static_application_properties
     {
         String s = get_main_properties_manager(logger).get(SHOW_HIDDEN_FILES);
         if (s == null) {
-            get_main_properties_manager(logger).save_unico(SHOW_HIDDEN_FILES, "false", false);
+            get_main_properties_manager(logger).add_and_save(SHOW_HIDDEN_FILES, "false");
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -116,7 +116,7 @@ public class Static_application_properties
     public static void set_monitor_browsed_folders_fx(boolean b, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(MONITOR_BROWSED_FOLDERS, String.valueOf(b), false);
+        get_main_properties_manager(logger).add_and_save(MONITOR_BROWSED_FOLDERS, String.valueOf(b));
     }
 
     //**********************************************************
@@ -125,7 +125,7 @@ public class Static_application_properties
     {
         String s = get_main_properties_manager(logger).get(MONITOR_BROWSED_FOLDERS);
         if (s == null) {
-            get_main_properties_manager(logger).save_unico(MONITOR_BROWSED_FOLDERS, "true", false);
+            get_main_properties_manager(logger).add_and_save(MONITOR_BROWSED_FOLDERS, "true");
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -141,7 +141,7 @@ public class Static_application_properties
     {
         String s = get_main_properties_manager(logger).get(SHOW_HIDDEN_DIRECTORIES);
         if (s == null) {
-            get_main_properties_manager(logger).save_unico(SHOW_HIDDEN_DIRECTORIES, "false", false);
+            get_main_properties_manager(logger).add_and_save(SHOW_HIDDEN_DIRECTORIES, "false");
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -155,7 +155,7 @@ public class Static_application_properties
     {
         String s = get_main_properties_manager(logger).get(AUTO_PURGE_DISK_CACHES);
         if (s == null) {
-            get_main_properties_manager(logger).save_unico(AUTO_PURGE_DISK_CACHES, "false", false);
+            get_main_properties_manager(logger).add_and_save(AUTO_PURGE_DISK_CACHES, "false");
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -165,7 +165,7 @@ public class Static_application_properties
     public static void set_auto_purge_icon_disk_cache(boolean b, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(AUTO_PURGE_DISK_CACHES, String.valueOf(b), false);
+        get_main_properties_manager(logger).add_and_save(AUTO_PURGE_DISK_CACHES, String.valueOf(b));
     }
 
     //**********************************************************
@@ -174,7 +174,7 @@ public class Static_application_properties
     {
         String s = get_main_properties_manager(logger).get(ENABLE_FUSK);
         if (s == null) {
-            get_main_properties_manager(logger).save_unico(ENABLE_FUSK, "false", false);
+            get_main_properties_manager(logger).add_and_save(ENABLE_FUSK, "false");
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -184,7 +184,7 @@ public class Static_application_properties
     public static void set_enable_fusk(boolean b, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(ENABLE_FUSK, String.valueOf(b), false);
+        get_main_properties_manager(logger).add_and_save(ENABLE_FUSK, String.valueOf(b));
     }
 
 
@@ -192,14 +192,14 @@ public class Static_application_properties
     public static void set_show_hidden_files(boolean b, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(SHOW_HIDDEN_FILES, String.valueOf(b), false);
+        get_main_properties_manager(logger).add_and_save(SHOW_HIDDEN_FILES, String.valueOf(b));
     }
 
     //**********************************************************
     public static void set_show_hidden_directories(boolean b, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(SHOW_HIDDEN_DIRECTORIES, String.valueOf(b), false);
+        get_main_properties_manager(logger).add_and_save(SHOW_HIDDEN_DIRECTORIES, String.valueOf(b));
     }
 
     //**********************************************************
@@ -229,10 +229,10 @@ public class Static_application_properties
         Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
         if ( dbg) logger.log("saving bounds="+r);
         Properties_manager pm = get_main_properties_manager(logger);
-        pm.save_unico(key+ SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()), false);
-        pm.save_unico(key+ SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()), false);
-        pm.save_unico(key+ SCREEN_WIDTH, String.valueOf(r.getWidth()), false);
-        pm.save_unico(key+ SCREEN_HEIGHT, String.valueOf(r.getHeight()), false);
+        pm.add_and_save(key+ SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
+        pm.add_and_save(key+ SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
+        pm.add_and_save(key+ SCREEN_WIDTH, String.valueOf(r.getWidth()));
+        pm.add_and_save(key+ SCREEN_HEIGHT, String.valueOf(r.getHeight()));
     }
 
 
@@ -257,7 +257,7 @@ public class Static_application_properties
             double d_video_length = Double.parseDouble(video_length_s);
             video_length = (int) d_video_length;
         }
-        get_main_properties_manager(logger).save_unico(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length), false);
+        get_main_properties_manager(logger).add_and_save(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return video_length;
     }
@@ -267,7 +267,7 @@ public class Static_application_properties
     //**********************************************************
     {
         video_length = l;
-        get_main_properties_manager(logger).save_unico(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length), false);
+        get_main_properties_manager(logger).add_and_save(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
     }
 
 
@@ -285,7 +285,7 @@ public class Static_application_properties
             double local = Double.parseDouble(column_width_s);
             column_width = (int) local;
         }
-        get_main_properties_manager(logger).save_unico(COLUMN_WIDTH, String.valueOf(column_width), false);
+        get_main_properties_manager(logger).add_and_save(COLUMN_WIDTH, String.valueOf(column_width));
         return column_width;
     }
 
@@ -294,7 +294,7 @@ public class Static_application_properties
     //**********************************************************
     {
         column_width = l;
-        get_main_properties_manager(logger).save_unico(COLUMN_WIDTH, String.valueOf(column_width), false);
+        get_main_properties_manager(logger).add_and_save(COLUMN_WIDTH, String.valueOf(column_width));
     }
 
 
@@ -313,7 +313,7 @@ public class Static_application_properties
             double d_icon_size = Double.parseDouble(icon_size_s);
             icon_size = (int) d_icon_size;
         }
-        get_main_properties_manager(logger).save_unico(ICON_SIZE, String.valueOf(icon_size), false);
+        get_main_properties_manager(logger).add_and_save(ICON_SIZE, String.valueOf(icon_size));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return icon_size;
     }
@@ -331,7 +331,7 @@ public class Static_application_properties
             double d_icon_size = Double.parseDouble(folder_icon_size_s);
             folder_icon_size = (int) d_icon_size;
         }
-        get_main_properties_manager(logger).save_unico(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size), false);
+        get_main_properties_manager(logger).add_and_save(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return folder_icon_size;
     }
@@ -342,7 +342,7 @@ public class Static_application_properties
     public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes), false);
+        get_main_properties_manager(logger).add_and_save(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
     }
 
     //**********************************************************
@@ -355,7 +355,7 @@ public class Static_application_properties
         {
             warning_megabytes = (int)Double.parseDouble(warning_bytes_s);
         }
-        get_main_properties_manager(logger).save_unico(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes), false);
+        get_main_properties_manager(logger).add_and_save(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
         return warning_megabytes;
     }
 
@@ -367,7 +367,7 @@ public class Static_application_properties
     //**********************************************************
     {
         icon_size = target_size;
-        get_main_properties_manager(logger).save_unico(ICON_SIZE, String.valueOf(icon_size), false);
+        get_main_properties_manager(logger).add_and_save(ICON_SIZE, String.valueOf(icon_size));
     }
 
 
@@ -377,7 +377,7 @@ public class Static_application_properties
     //**********************************************************
     {
         folder_icon_size = target_size;
-        get_main_properties_manager(logger).save_unico(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size), false);
+        get_main_properties_manager(logger).add_and_save(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
     }
 
 
@@ -399,7 +399,7 @@ public class Static_application_properties
                 logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
             }
         }
-        get_main_properties_manager(logger).save_unico(FONT_SIZE, String.valueOf(font_size), false);
+        get_main_properties_manager(logger).add_and_save(FONT_SIZE, String.valueOf(font_size));
         font_size_cache = font_size;
         return font_size;
     }
@@ -410,7 +410,7 @@ public class Static_application_properties
     //**********************************************************
     {
         font_size_cache = target_size;
-        get_main_properties_manager(logger).save_unico(FONT_SIZE, String.valueOf(target_size), false);
+        get_main_properties_manager(logger).add_and_save(FONT_SIZE, String.valueOf(target_size));
     }
 
 
@@ -436,7 +436,7 @@ public class Static_application_properties
         if (s == null) {
             s = "english-US";
         }
-        get_main_properties_manager(logger).save_unico(LANGUAGE, s, false);
+        get_main_properties_manager(logger).add_and_save(LANGUAGE, s);
         return s;
     }
 
@@ -444,7 +444,7 @@ public class Static_application_properties
     public static void set_language(String s, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).save_unico(LANGUAGE, s, false);
+        get_main_properties_manager(logger).add_and_save(LANGUAGE, s);
 
     }
 
@@ -455,7 +455,7 @@ public class Static_application_properties
         String s = Static_application_properties.get_main_properties_manager(logger).get(SHOW_ICONS);
         if (s == null) {
             // happens after install or after erasing properties
-            Static_application_properties.get_main_properties_manager(logger).save_unico(SHOW_ICONS, "true", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(SHOW_ICONS, "true");
             return false;
         } else {
             return Boolean.parseBoolean(s);
@@ -466,7 +466,7 @@ public class Static_application_properties
     public static void set_show_icons(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(SHOW_ICONS, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(SHOW_ICONS, String.valueOf(b));
 
     }
 
@@ -474,7 +474,7 @@ public class Static_application_properties
     public static void set_vertical_scroll_inverted(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(VERTICAL_SCROLL_INVERTED, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(VERTICAL_SCROLL_INVERTED, String.valueOf(b));
     }
 
     //**********************************************************
@@ -483,7 +483,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(VERTICAL_SCROLL_INVERTED);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(VERTICAL_SCROLL_INVERTED, "true", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(VERTICAL_SCROLL_INVERTED, "true");
             return true;
         } else {
             return Boolean.parseBoolean(s);
@@ -684,7 +684,7 @@ public class Static_application_properties
     public static void set_escape(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(ESCAPE, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(ESCAPE, String.valueOf(b));
     }
 
     //**********************************************************
@@ -693,7 +693,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(ESCAPE);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(ESCAPE, "true", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(ESCAPE, "true");
             return true;
         } else {
             return Boolean.parseBoolean(s);
@@ -705,7 +705,7 @@ public class Static_application_properties
     public static void set_ding(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(DING, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(DING, String.valueOf(b));
     }
 
     //**********************************************************
@@ -714,7 +714,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(DING);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(DING, "true", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(DING, "true");
             return true;
         } else {
             return Boolean.parseBoolean(s);
@@ -729,7 +729,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(ICONS_FOR_FOLDERS);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(ICONS_FOR_FOLDERS, "false", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(ICONS_FOR_FOLDERS, "false");
             return false;
         }
         else
@@ -741,7 +741,7 @@ public class Static_application_properties
     public static void set_show_icons_for_folders(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(ICONS_FOR_FOLDERS, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(ICONS_FOR_FOLDERS, String.valueOf(b));
     }
 
     //**********************************************************
@@ -750,7 +750,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(SINGLE_COLUMN);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(SINGLE_COLUMN, "false", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(SINGLE_COLUMN, "false");
             return false;
         }
         else
@@ -762,7 +762,7 @@ public class Static_application_properties
     public static void set_single_column(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(SINGLE_COLUMN, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(SINGLE_COLUMN, String.valueOf(b));
     }
 
     //**********************************************************
@@ -778,7 +778,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(SHOW_FFMPEG_INSTALL_WARNING);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(SHOW_FFMPEG_INSTALL_WARNING, "true", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(SHOW_FFMPEG_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -790,7 +790,7 @@ public class Static_application_properties
     public static void set_show_ffmpeg_install_warning(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
     }
 
     //**********************************************************
@@ -799,7 +799,7 @@ public class Static_application_properties
     {
         String s = Static_application_properties.get_main_properties_manager(logger).get(SHOW_GraphicsMagick_INSTALL_WARNING);
         if (s == null) {
-            Static_application_properties.get_main_properties_manager(logger).save_unico(SHOW_GraphicsMagick_INSTALL_WARNING, "true", false);
+            Static_application_properties.get_main_properties_manager(logger).add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -811,7 +811,7 @@ public class Static_application_properties
     public static void set_show_GraphicsMagick_install_warning(boolean b, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).save_unico(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b), false);
+        Static_application_properties.get_main_properties_manager(logger).add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
     }
 
     static boolean ffmpeg_popup_done = false;
@@ -859,19 +859,6 @@ public class Static_application_properties
 
 
 
-    /*
-    // not used at this time? ... the idea being that the user should edit the properties file "manually"
-    // as this is about "semi advanced" features, the user should be at least capable on opening abd editing a properties file?
-
-    //**********************************************************
-    public static void set_level2(boolean b, Logger logger)
-    //**********************************************************
-    {
-        level2_cache = b;
-        Static_application_properties.get_properties_manager(logger).save_unico(LEVEL2, String.valueOf(b), false);
-    }
-    */
-
 
     static Boolean level2_capabilities = null;
     //**********************************************************
@@ -882,7 +869,7 @@ public class Static_application_properties
         {
             String s = Static_application_properties.get_main_properties_manager(logger).get(LEVEL2);
             if (s == null) {
-                Static_application_properties.get_main_properties_manager(logger).save_unico(LEVEL2, "false", false);
+                Static_application_properties.get_main_properties_manager(logger).add_and_save(LEVEL2, "false");
                 level2_capabilities = false;
             } else {
                 logger.log("LEVEL2=" + s);
@@ -900,7 +887,7 @@ public class Static_application_properties
         {
             String s = Static_application_properties.get_main_properties_manager(logger).get(LEVEL3);
             if (s == null) {
-                Static_application_properties.get_main_properties_manager(logger).save_unico(LEVEL3, "false", false);
+                Static_application_properties.get_main_properties_manager(logger).add_and_save(LEVEL3, "false");
                 level3_capabilities = false;
             } else {
                 logger.log("LEVEL3=" + s);

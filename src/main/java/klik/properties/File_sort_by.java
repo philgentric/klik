@@ -23,7 +23,7 @@ public enum File_sort_by {
   {
     String s = Static_application_properties.get_main_properties_manager(logger).get(SORT_FILES_BY);
     if (s == null) {
-      Static_application_properties.get_main_properties_manager(logger).save_unico(SORT_FILES_BY, File_sort_by.NAME.name(), false);
+      Static_application_properties.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, File_sort_by.NAME.name());
       return File_sort_by.NAME;
     }
     else
@@ -42,7 +42,7 @@ public enum File_sort_by {
   public static void set_sort_files_by(File_sort_by b, Logger logger)
   //**********************************************************
   {
-    Static_application_properties.get_main_properties_manager(logger).save_unico(SORT_FILES_BY, b.name(), false);
+    Static_application_properties.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, b.name());
   }
 
 }

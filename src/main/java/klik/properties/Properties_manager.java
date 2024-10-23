@@ -159,7 +159,15 @@ public class Properties_manager
      * it will be erased
      */
     //**********************************************************
-    public void imperative_store(String key, String value, boolean with_age, boolean and_save)
+    public void add(String key, String value, boolean and_save)
+    //**********************************************************
+    {
+        if (dbg) logger.log("Static_application_properties: imperative_store " + key + "=" + value);
+        the_Properties.put(key, value);
+        if (and_save) store_properties();
+    }
+    //**********************************************************
+    public void add_with_age(String key, String value, boolean with_age, boolean and_save)
     //**********************************************************
     {
         if (dbg) logger.log("Static_application_properties: imperative_store " + key + "=" + value);
@@ -254,12 +262,6 @@ public class Properties_manager
         return new Pair<>(key,value);
     }
     //**********************************************************
-    public void add(String key, String value)
-    //**********************************************************
-    {
-        imperative_store(key,value,false,true);
-    }
-    //**********************************************************
     public void delete(String key, boolean and_save, Logger logger)
     //**********************************************************
     {
@@ -286,19 +288,27 @@ public class Properties_manager
         }
         String key = get_one_empty_key_for_base(key_base);
 
-        imperative_store(key, value, with_age, true);
+        add_with_age(key, value, with_age, true);
         return key;
     }
 
     // saves a value for a base-key, handling oldest-replacement silently
     // does NOT look for a free seat: the key is the full key
     //**********************************************************
-    public boolean save_unico(String full_key, String value, boolean with_age)
+    public boolean save_unico2(String full_key, String value, boolean with_age)
     //**********************************************************
     {
-        imperative_store(full_key, value, with_age, true);
+        add_with_age(full_key, value, with_age, true);
         return true;
     }
+    //**********************************************************
+    public boolean add_and_save(String full_key, String value)
+    //**********************************************************
+    {
+        add(full_key, value, true);
+        return true;
+    }
+
 
 
     // if there are no more available slots,
@@ -394,7 +404,7 @@ public class Properties_manager
         {
             String s = pm.get_one_empty_key_for_base(TOTO);
             String value = "value for " + s;
-            pm.imperative_store(s, value, true, true);
+            pm.add(s, value, true);
         }
 
         for (String s : pm.get_values_for_base(TOTO))
@@ -409,7 +419,7 @@ public class Properties_manager
             return;
         }
         String value = "value for REPLACED " + s;
-        pm.imperative_store(s, value, true, true);
+        pm.add(s, value, true);
         logger.log(s + " is now key for: " + value);
     }
 

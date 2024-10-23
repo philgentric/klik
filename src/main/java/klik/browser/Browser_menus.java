@@ -261,7 +261,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_single_column(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_single_column(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),Change_type.layout_changed);
+            browser.redraw_fx_1("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected(),Change_type.files_or_folders_changed);
         });
         return item;
     }
@@ -437,7 +437,7 @@ public class Browser_menus
         return item;
     }
 
-
+/*
     //**********************************************************
     public MenuItem make_undo_menu_item(Logger logger)
     //**********************************************************
@@ -468,7 +468,7 @@ public class Browser_menus
         item.setOnAction(event -> clean_up_names_fx());
         return item;
     }
-
+*/
     //**********************************************************
     public MenuItem make_add_to_face_recognition_training_set_menu_item()
     //**********************************************************

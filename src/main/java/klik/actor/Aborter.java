@@ -2,6 +2,7 @@ package klik.actor;
 
 
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,6 @@ public class Aborter
     //**********************************************************
     {
         reason = reason_;
-        //if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("abort "+name));
         if ( dbg) logger.log(("Aborter, aborting this: "+name+" because: "+reason));
         abort.set(true);
     }

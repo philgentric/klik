@@ -24,6 +24,7 @@ import klik.properties.Static_application_properties;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Popups;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
@@ -536,6 +537,15 @@ public class Image_window
     //**********************************************************
     {
         if ( image_display_handler.get_image_context().isEmpty()) return Optional.empty();
+
+        // check if there is a ALREADY a file with the new name
+        if (new_path.toFile().exists())
+        {
+            logger.log("name change aborted: there is already a file with that name!");
+            Popups.popup_warning(the_Stage,"Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false,logger);
+            return Optional.empty();
+        }
+
         // remember the true file name
         Path old_path = image_display_handler.get_image_context().get().path;
 

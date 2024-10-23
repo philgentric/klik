@@ -1,15 +1,15 @@
 package klik.browser.icons;
 
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 //**********************************************************
 public class Random_comparator implements Comparator<Path>
 //**********************************************************
 {
-
+    // make sure the randomness
+    // is consistent during the life time of the comparator
+    Map<Path,Long> memory = new HashMap<>();
     long seed;
     public Random_comparator()
     {
@@ -18,14 +18,20 @@ public class Random_comparator implements Comparator<Path>
     }
     @Override
     public int compare(Path p1, Path p2) {
-
-        // same aspect ratio so the order must be pseudo random... but consistent for each comparator instance
-        long s1 = UUID.nameUUIDFromBytes(p1.getFileName().toString().getBytes()).getMostSignificantBits();
-        Long l1 = new Random(seed*s1).nextLong();
-        long s2 = UUID.nameUUIDFromBytes(p2.getFileName().toString().getBytes()).getMostSignificantBits();
-        Long l2 = new Random(seed*s2).nextLong();
+        Long l1 = path_to_long(p1);
+        Long l2 = path_to_long(p2);
         return l1.compareTo(l2);
+    }
 
+    private Long path_to_long(Path p)
+    {
+        Long l = memory.get(p);
+        if ( l == null) {
+            long s1 = UUID.nameUUIDFromBytes(p.getFileName().toString().getBytes()).getMostSignificantBits();
+            l = new Random(seed * s1).nextLong();
+            memory.put(p,l);
+        }
+        return l;
     }
 
 };

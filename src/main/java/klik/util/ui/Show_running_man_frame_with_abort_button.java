@@ -69,7 +69,7 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
-		logger.log("Show_running_man_frame: "+wait_message);
+		//logger.log("Show_running_man_frame: "+wait_message);
 		stage = new Stage();
 		VBox vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox);

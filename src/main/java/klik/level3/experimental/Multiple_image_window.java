@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.browser.comparators.Alphabetical_file_name_comparator;
 import klik.browser.icons.Paths_manager;
 import klik.image_indexer.Image_indexer;
 import klik.images.Image_context;
@@ -217,7 +218,7 @@ public class Multiple_image_window
     {
         if (image_indexer == null)
         {
-            image_indexer = Image_indexer.get_Image_indexer(ic.path.getParent(),Paths_manager.alphabetical_file_name_comparator,logger);
+            image_indexer = Image_indexer.get_Image_indexer(ic.path.getParent(),new Alphabetical_file_name_comparator(),logger);
         }
         return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, aborter, logger);
 

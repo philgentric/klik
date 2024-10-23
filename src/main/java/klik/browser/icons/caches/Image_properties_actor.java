@@ -20,11 +20,12 @@ public class Image_properties_actor implements Actor
 
         if (image_properties_message.aborter.should_abort())
         {
-            //aspect_ratio_message.logger.log("Aspect_ratio_actor aborting 1");
+            image_properties_message.logger.log("Aspect_ratio_actor aborting "+image_properties_message.path);
             return "aborted";
         }
 
         Image_properties ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(image_properties_message.path,true,image_properties_message.aborter, image_properties_message.logger);
+
         image_properties_message.image_properties_cache.inject(image_properties_message.path,ip,false);
         return "ok";
     }

@@ -159,8 +159,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public Error_type error_type = Error_type.OK;
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
-    // make sure we go gain at the same scroll point when we enter a given folder
-    static Map<Path, Path> scroll_memory = new HashMap<>();
+    // make sure we go again at the same scroll point when we enter a given folder
+    static Map<Path, Path> scroll_position_cache = new HashMap<>();
 
 
     //**********************************************************
@@ -244,10 +244,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private Scan_state scan_state = Scan_state.off;
 
     //**********************************************************
-    public Browser(Browser_creation_context context, Logger logger_)
+    public Browser(
+            Browser_creation_context context,
+            Logger logger_)
     //**********************************************************
     {
-        if (context.old_browser != null) {
+        if (context.old_browser != null)
+        {
             context.old_browser.cleanup();
         }
 
@@ -255,6 +258,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         displayed_folder_path = context.folder_path;
 
         aborter = new Aborter("Browser" + displayed_folder_path.toAbsolutePath().toString(), logger);
+
+        //logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+aborter.name);
         ID = ID_generator.getAndIncrement();
         my_Stage = new My_Stage(new Stage(), logger);// context.stage;//new My_Stage(context.stage,logger);
 
@@ -316,14 +321,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         set_icon();
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
-        History_engine.get_instance(logger).add(context.folder_path);
+        History_engine.get_instance(logger).add(displayed_folder_path);
 
 
         Change_gang.register(this, aborter, logger);
         set_title();
         the_Pane = new Pane();
 
-
+        logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
         image_properties_cache = new Image_properties_RAM_cache(displayed_folder_path, "Image properties cache", aborter, logger);
         icon_factory_actor = new Icon_factory_actor(image_properties_cache, my_Stage.the_Stage, aborter, logger);
         paths_manager = new Paths_manager(image_properties_cache, icon_factory_actor, displayed_folder_path, this, aborter, logger);
@@ -412,7 +417,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     void cleanup()
     //**********************************************************
     {
-        aborter.abort("Browser is closing ");
+        aborter.abort("Browser is closing for "+displayed_folder_path);
         if (dbg) logger.log("Browser cleanup " + signature());
         // when we change dir, we need to de-register the old browser
         // otherwise the list in the change_gang keeps growing
@@ -955,7 +960,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Runnable r = () -> {
             if ( scan_dir_guard.get())
             {
-                logger.log("scan_dir_fx guard activated");
+                //logger.log("scan_dir_fx guard activated");
                 return;
             }
             scan_dir_guard.set(true);
@@ -1128,7 +1133,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                 try {
                     Path new_dir = displayed_folder_path.resolve(new_name);
                     Files.createDirectory(new_dir);
-                    scroll_memory.put(displayed_folder_path, new_dir);
+                    scroll_position_cache.put(displayed_folder_path, new_dir);
                     redraw_fx_1("created new empty dir", Change_type.files_or_folders_changed);
                     break;
                 } catch (IOException e) {
@@ -1146,14 +1151,31 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
     {
+
         if (!my_Stage.the_Stage.isShowing()) {
             logger.log("you_receive_this_because_a_file_event_occurred_somewhere event ignored");
             return;
         }
-        switch (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger)) {
+
+        logger.log("Browser "+displayed_folder_path+ " CHANGE GANG CALL");
+
+        switch (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger))
+        {
             case more_changes: {
                 if (dbg)
                     logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+
+                for ( Old_and_new_Path oan : l)
+                {
+                    // the events of interest are ONLY the ones
+                    // when a file is dropped in.
+                    // if a file was moved away or deleted
+                    // recording its new path would be a bad bug
+                    if (oan.new_Path.startsWith(displayed_folder_path))
+                    {
+                        scroll_position_cache.put(displayed_folder_path, oan.new_Path);
+                    }
+                }
                 redraw_fx_1("change gang for dir: " + displayed_folder_path, Change_type.files_or_folders_changed);
             }
             ;
@@ -1225,14 +1247,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         Path tl = get_top_left();
         //logger.log("record_scroll_to " + displayed_folder_path + " => " + tl);
-        scroll_memory.put(displayed_folder_path, tl);
+        scroll_position_cache.put(displayed_folder_path, tl);
     }
 
     //**********************************************************
     private Path get_scroll_to()
     //**********************************************************
     {
-        Path scroll_to = scroll_memory.get(displayed_folder_path);
+        Path scroll_to = scroll_position_cache.get(displayed_folder_path);
         if (scroll_to == null) {
             //if (dbg)
             logger.log((" scroll_to == null "));

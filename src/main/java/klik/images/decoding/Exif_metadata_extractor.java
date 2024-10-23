@@ -100,11 +100,11 @@ public class Exif_metadata_extractor
         }
 
         Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger);
-        exif_metadata.add("width="+image_properties.get_image_width());
-        exif_metadata.add("height="+image_properties.get_image_height());
-        exif_metadata.add("aspect_ratio(1)="+image_properties.get_aspect_ratio());
+        exif_metadata.add("EXIF width="+image_properties.get_image_width());
+        exif_metadata.add("EXIF height="+image_properties.get_image_height());
+        exif_metadata.add("==> EXIF aspect_ratio="+image_properties.get_aspect_ratio());
         double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger);
-        exif_metadata.add("aspect_ratio(2)="+aspect_ratio);
+        exif_metadata.add("Alternative aspect_ratio="+aspect_ratio);
 
 
         {

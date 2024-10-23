@@ -49,6 +49,10 @@ public class Fast_image_property_from_exif_metadata_extractor
 
             for (Directory directory : metadata.getDirectories())
             {
+                if ( directory.toString().contains("Canon Makernote"))
+                {
+                    continue;
+                }
                 for (Tag tag : directory.getTags())
                 {
                     if (tag.toString().contains("Width"))

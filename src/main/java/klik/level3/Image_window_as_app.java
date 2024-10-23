@@ -24,7 +24,7 @@ public class Image_window_as_app extends Application
     public void start(Stage stage) throws Exception
     {
         Logger logger = new System_out_logger();
-        Browser browser = Browser_creation_context.first(new My_Stage(stage, logger), Path.of("."), logger);
+        Browser_creation_context.first(new My_Stage(stage, logger), Path.of("."), logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
         Language_manager.init_registered_languages(logger);
 
