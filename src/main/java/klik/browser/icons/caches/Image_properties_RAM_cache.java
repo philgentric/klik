@@ -276,7 +276,7 @@ public class Image_properties_RAM_cache
             case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(this);
             case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(this);
             case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(this);
-            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(this);
+            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(this,logger);
         }
         return local_file_comparator;
     }

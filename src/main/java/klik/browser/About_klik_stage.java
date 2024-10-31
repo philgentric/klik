@@ -1,7 +1,5 @@
 package klik.browser;
 
-import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.Icon_manager;
 import klik.properties.Static_application_properties;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;

@@ -1,3 +1,7 @@
+//SOURCES ../comparators/Alphabetical_file_name_comparator.java
+//SOURCES ../comparators/Alphabetical_file_name_comparator_gif_first.java
+//SOURCES ../comparators/
+
 package klik.browser.icons;
 
 import javafx.application.Platform;
@@ -15,7 +19,6 @@ import klik.browser.icons.caches.Image_properties_RAM_cache;
 import klik.properties.File_sort_by;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.images.decoding.Fast_date_from_OS;
 import klik.properties.Static_application_properties;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Show_running_man_frame;
@@ -25,7 +28,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -93,7 +95,6 @@ public class Paths_manager
         }
         image_file_comparator = other_file_comparator;
 
-        //logger.log("Path_manager image_file_comparator init\n\n"+image_file_comparator.toString());
         // these MUST be mutually exclusive:
         folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
         non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);

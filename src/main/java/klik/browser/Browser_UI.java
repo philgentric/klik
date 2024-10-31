@@ -303,6 +303,7 @@ public class Browser_UI
 
         view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> Browser_creation_context.additional_same_folder(browser,logger)));
         view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> Browser_creation_context.additional_same_folder_twin(browser,logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> Browser_creation_context.additional_same_folder_fat_tall(browser,logger)));
 
 
         {

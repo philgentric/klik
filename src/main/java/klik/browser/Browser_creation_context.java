@@ -96,28 +96,46 @@ public class Browser_creation_context
         Browser b = new Browser(context, logger);
     }
 
+
+    //**********************************************************
+    public static void additional_same_folder_fat_tall(Browser parent, Logger logger)
+    //**********************************************************
+    {
+        additional_same_folder_ratio(parent,5,logger);
+
+    }
     //**********************************************************
     public static void additional_same_folder_twin(Browser parent, Logger logger)
+    //**********************************************************
+    {
+        additional_same_folder_ratio(parent,2,logger);
+    }
+    //**********************************************************
+    public static void additional_same_folder_ratio(Browser parent, int ratio, Logger logger)
     //**********************************************************
     {
         Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
 
         Stage parent_stage = parent.my_Stage.the_Stage;
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(parent_stage.getX(), parent_stage.getY(), parent_stage.getWidth(), parent_stage.getHeight());
-        //ObservableList<Screen> screens = Screen.getScreens();
-        //for (int i = 0; i < intersecting_screens.size(); i++)
 
         Screen s = intersecting_screens.get(0);
         logger.log("    getBounds" + s.getBounds());
         Rectangle2D r = s.getBounds();
         parent_stage.setX(r.getMinX());
         parent_stage.setY(r.getMinY());
-        double w = s.getBounds().getWidth() / 2;
-        parent_stage.setWidth(w);
         double h = s.getBounds().getHeight();
+
+        // adjust existing window to "fat"
+        double ratio_fat = ((double) ratio - 1.0)/ (double) ratio;
+        double w_fat = s.getBounds().getWidth() * ratio_fat;
+        parent_stage.setWidth(w_fat);
         parent_stage.setHeight(h);
 
-        r = new Rectangle2D(r.getMinX()+w, r.getMinY(), w, h);
+        // create new "tall" window
+        double ratio_tall = 1.0 / (double) ratio;
+        double w2 = s.getBounds().getWidth() * ratio_tall;
+        r = new Rectangle2D(r.getMinX()+w_fat, r.getMinY(), w2, h);
 
         My_Stage stage = new My_Stage(new Stage(), logger);
         Browser_creation_context context = new Browser_creation_context(
@@ -129,6 +147,7 @@ public class Browser_creation_context
         if (dbg) logger.log(("\nadditional_same_folder\n" + context.to_string()));
         Browser b = new Browser(context, logger);
     }
+
 
     //**********************************************************
     public static void additional_different_folder(Path path, Browser parent, Logger logger)
