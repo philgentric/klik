@@ -469,10 +469,11 @@ public class Browser_UI
 
             pref.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
             if (level3) {
-                Menu cleanup = new Menu("Clean up caches (debug)");
+
+                Menu cleanup = new Menu(My_I18n.get_I18n_string("Clean_Up_Caches",logger));
                 pref.getItems().add(cleanup);
                 {
-                    Menu ram = new Menu("Clean up RAM caches (debug)");
+                    Menu ram = new Menu(My_I18n.get_I18n_string("Clean_Up_RAM_Caches",logger));
                     cleanup.getItems().add(ram);
                     ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
                             event -> browser.clear_all_RAM_caches()));
@@ -485,9 +486,8 @@ public class Browser_UI
 
                 }
                 {
-                    Menu disk = new Menu("Clean up DISK caches (debug)");
+                    Menu disk = new Menu(My_I18n.get_I18n_string("Clean_Up_DISK_Caches",logger));
                     cleanup.getItems().add(disk);
-
 
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_All_Disk_Caches",
@@ -495,13 +495,13 @@ public class Browser_UI
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_Icon_Cache_On_Disk",
                             event -> Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
-                    disk.getItems().add(browser_menus.make_menu_item(
-                            "Clear_Image_Properties_DISK_Cache",
-                            event -> Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage,logger)));
 
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_Folders_Icon_Cache_Folder",
                             event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage, browser.aborter, logger)));
+                    disk.getItems().add(browser_menus.make_menu_item(
+                            "Clear_Image_Properties_DISK_Cache",
+                            event -> Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage,logger)));
                 }
             }
         }

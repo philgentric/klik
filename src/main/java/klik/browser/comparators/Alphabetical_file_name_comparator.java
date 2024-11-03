@@ -1,3 +1,4 @@
+//SOURCES ../Clearable_cache.java
 package klik.browser.comparators;
 
 import klik.browser.Clearable_cache;

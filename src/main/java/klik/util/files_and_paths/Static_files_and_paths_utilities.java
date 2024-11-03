@@ -226,10 +226,10 @@ public class Static_files_and_paths_utilities
     public static void clear_image_properties_DISK_cache_no_warning_fx(Stage owner, Logger logger)
     //**********************************************************
     {
-        Path icons = Image_properties_RAM_cache.get_image_properties_cache_dir(owner, logger);
+        Path image_properties = Image_properties_RAM_cache.get_image_properties_cache_dir(owner, logger);
         logger.log("Images' properties cache on disk cleared");
 
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(image_properties, false, logger);
     }
 
     //**********************************************************
