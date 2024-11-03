@@ -19,7 +19,7 @@ public class Disk_usage_monitor
 {
 
     public static final String ICON_CACHE_FOLDER = "Icon cache folder";
-    public static final String ASPECT_RATIO_CACHE_FOLDER = "Aspect ratio cache folder";
+    public static final String IMAGE_PROPERTIES_CACHE_FOLDER = "Aspect ratio cache folder";
     public static final String TRASH_FOLDER = "Trash folder";
     public final Logger logger;
     public final Aborter aborter;
@@ -38,9 +38,9 @@ public class Disk_usage_monitor
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER, Static_files_and_paths_utilities.get_icon_cache_dir(owner, logger),true));
-        monitored_folders.add(new Monitored_folder(ASPECT_RATIO_CACHE_FOLDER, Image_properties_RAM_cache.get_aspect_ratio_and_rotation_cache_dir(owner, logger),true));
-        monitored_folders.add(new Monitored_folder("Folder's icon cache folder", Static_files_and_paths_utilities.get_folder_icon_cache_dir(logger),true));
+        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER, Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger),true));
+        monitored_folders.add(new Monitored_folder(IMAGE_PROPERTIES_CACHE_FOLDER, Image_properties_RAM_cache.get_image_properties_cache_dir(owner, logger),true));
+        monitored_folders.add(new Monitored_folder("Folder's icon cache folder", Static_files_and_paths_utilities.get_folders_icons_cache_dir(logger),true));
 
         for ( Path t : Static_application_properties.get_existing_trash_dirs(logger))
         {
@@ -94,11 +94,11 @@ public class Disk_usage_monitor
                         continue;
                     }
                 }
-                if( monitored_folder.name.equals(ASPECT_RATIO_CACHE_FOLDER))
+                if( monitored_folder.name.equals(IMAGE_PROPERTIES_CACHE_FOLDER))
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Static_files_and_paths_utilities.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(null,logger);
+                        Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(null,logger);
                         continue;
                     }
                 }

@@ -74,7 +74,7 @@ public class Icon_factory_actor implements Actor
         owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
-        icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(owner, logger);
+        icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger);
         writer = new Icon_writer_actor(icon_cache_dir, logger);
         //writer = Icon_writer_actor.launch_icon_writer(icon_cache_dir, logger);
     }

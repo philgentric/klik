@@ -1,5 +1,6 @@
 package klik.browser.comparators;
 
+import klik.browser.Clearable_cache;
 import klik.browser.icons.caches.Image_properties;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
 import klik.util.log.Logger;
@@ -9,7 +10,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Image_height_comparator implements Comparator<Path>
+public class Image_height_comparator implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
     private final Image_properties_RAM_cache image_properties_ram_cache;
@@ -21,6 +22,12 @@ public class Image_height_comparator implements Comparator<Path>
     {
         this.image_properties_ram_cache = image_properties_ram_cache;
         this.logger = logger;
+    }
+
+
+    @Override
+    public void clear_RAM_cache() {
+
     }
 
     //**********************************************************

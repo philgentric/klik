@@ -38,12 +38,9 @@ public class Cache_auto_clean
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder("Icon cache folder", Static_files_and_paths_utilities.get_icon_cache_dir(owner,logger)));
-        monitored_folders.add(new Monitored_folder("Folder's icon cache folder", Static_files_and_paths_utilities.get_folder_icon_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder("Aspect ratio cache folder", Image_properties_RAM_cache.get_aspect_ratio_and_rotation_cache_dir(owner,logger)));
-        
-        //monitored_folders.add(new Monitored_folder("Trash folder",Static_application_properties.get_trash_dir(logger)));
-
+        monitored_folders.add(new Monitored_folder("Icon cache folder", Static_files_and_paths_utilities.get_icons_cache_dir(owner,logger)));
+        monitored_folders.add(new Monitored_folder("Folder's icon cache folder", Static_files_and_paths_utilities.get_folders_icons_cache_dir(logger)));
+        monitored_folders.add(new Monitored_folder("Image properties cache folder", Image_properties_RAM_cache.get_image_properties_cache_dir(owner,logger)));
     }
 
     //**********************************************************

@@ -581,8 +581,9 @@ public class Icon_manager
     //**********************************************************
     {
         if ( paths_manager.image_properties_cache == null) return;
-        paths_manager.image_properties_cache.clear_RAM_cache_fx();
+        paths_manager.image_properties_cache.clear_image_properties_RAM_cache_fx();
     }
+
 
     //**********************************************************
     public void geometry_changed_7(Browser b,

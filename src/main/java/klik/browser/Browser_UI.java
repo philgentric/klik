@@ -2,7 +2,6 @@
 package klik.browser;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -374,33 +373,20 @@ public class Browser_UI
             face_recognition.getItems().add(browser_menus.make_start_auto_face_recog_menu_item());
             face_recognition.getItems().add(browser_menus.make_start_self_face_recog_menu_item());
 
-
-
             files_menu.getItems().add(face_recognition);
         }
         {
             String cleanup = My_I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (level3) clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively",event -> browser_menus.remove_empty_folders_recursively_fx()));
-            clean.getItems().add(browser_menus.make_menu_item(
-                    "Clear_Trash_Folder",
-                    event -> Static_files_and_paths_utilities.clear_trash_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
-            clean.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
-            if (level3) {
-                clean.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
-                        event -> browser.icon_manager.clear_image_properties_RAM_cache_fx()));
-                clean.getItems().add(browser_menus.make_clear_all_disk_caches_menu_item());
-                clean.getItems().add(browser_menus.make_clear_icon_disk_cache_menu_item());
-                clean.getItems().add(browser_menus.make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(logger));
-                clean.getItems().add(browser_menus.make_menu_item(
-                        "Clear_Folder_Icon_Cache_Folder",
-                        event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
-                clean.getItems().add(browser_menus.make_menu_item("Clean_up_names",event -> browser_menus.clean_up_names_fx()));
-                clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images",event -> browser_menus.remove_corrupted_images_fx()));
-
-
+            if (level3)
+            {
+                clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
+                clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
+                clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
             }
+
+
             if (level2)
             {
                 Menu deduplicate = new Menu("File deduplication tool");
@@ -457,8 +443,6 @@ public class Browser_UI
             pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
             pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
             pref.getItems().add(browser_menus.make_use_RAM_disk_menu_item());
-
-
         }
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
@@ -476,6 +460,51 @@ public class Browser_UI
         if (level3) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
         pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item(logger));
 
+
+        {
+
+            pref.getItems().add(browser_menus.make_menu_item(
+                    "Clear_Trash_Folder",
+                    event -> Static_files_and_paths_utilities.clear_trash_with_warning_fx(browser.my_Stage.the_Stage, browser.aborter, logger)));
+
+            pref.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
+            if (level3) {
+                Menu cleanup = new Menu("Clean up caches (debug)");
+                pref.getItems().add(cleanup);
+                {
+                    Menu ram = new Menu("Clean up RAM caches (debug)");
+                    cleanup.getItems().add(ram);
+                    ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
+                            event -> browser.clear_all_RAM_caches()));
+                    ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Properties_RAM_Cache",
+                            event -> browser.icon_manager.clear_image_properties_RAM_cache_fx()));
+                    ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Comparators_Caches",
+                            event -> browser.clear_image_comparators_caches()));
+                    ram.getItems().add(browser_menus.make_menu_item("Clear_Scroll_Position_Cache",
+                            event ->         Browser.scroll_position_cache.clear()));
+
+                }
+                {
+                    Menu disk = new Menu("Clean up DISK caches (debug)");
+                    cleanup.getItems().add(disk);
+
+
+                    disk.getItems().add(browser_menus.make_menu_item(
+                            "Clear_All_Disk_Caches",
+                            event -> browser.clear_all_DISK_caches()));
+                    disk.getItems().add(browser_menus.make_menu_item(
+                            "Clear_Icon_Cache_On_Disk",
+                            event -> Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger)));
+                    disk.getItems().add(browser_menus.make_menu_item(
+                            "Clear_Image_Properties_DISK_Cache",
+                            event -> Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage,logger)));
+
+                    disk.getItems().add(browser_menus.make_menu_item(
+                            "Clear_Folders_Icon_Cache_Folder",
+                            event -> Static_files_and_paths_utilities.clear_folder_icon_cache_on_disk_with_warning_fx(browser.my_Stage.the_Stage, browser.aborter, logger)));
+                }
+            }
+        }
         return pref;
     }
 

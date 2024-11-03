@@ -1,5 +1,6 @@
 package klik.browser.comparators;
 
+import klik.browser.Clearable_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import org.apache.commons.io.FilenameUtils;
 
@@ -7,9 +8,15 @@ import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Alphabetical_file_name_comparator_gif_first implements Comparator<Path>
+public class Alphabetical_file_name_comparator_gif_first implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
+
+    @Override
+    public void clear_RAM_cache() {
+
+    }
+
     @Override
     public int compare(Path f1, Path f2)
     {

@@ -1,5 +1,6 @@
 package klik.browser.comparators;
 
+import klik.browser.Clearable_cache;
 import klik.browser.icons.caches.Image_properties;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
 
@@ -8,7 +9,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 //**********************************************************
-public class Aspect_ratio_comparator implements Comparator<Path>
+public class Aspect_ratio_comparator implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
     private final Image_properties_RAM_cache image_properties_ram_cache;
@@ -18,6 +19,11 @@ public class Aspect_ratio_comparator implements Comparator<Path>
         this.image_properties_ram_cache = image_properties_ram_cache;
     }
 
+
+    @Override
+    public void clear_RAM_cache() {
+
+    }
     @Override
     public int compare(Path p1, Path p2)
     {

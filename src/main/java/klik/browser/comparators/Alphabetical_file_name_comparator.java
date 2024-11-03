@@ -1,10 +1,12 @@
 package klik.browser.comparators;
 
+import klik.browser.Clearable_cache;
+
 import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Alphabetical_file_name_comparator implements Comparator<Path>
+public class Alphabetical_file_name_comparator implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
     @Override
@@ -14,5 +16,10 @@ public class Alphabetical_file_name_comparator implements Comparator<Path>
         if (diff != 0) return diff;
         // in case the file names differ by case
         return f1.getFileName().toString().compareTo(f2.getFileName().toString());
+    }
+
+    @Override
+    public void clear_RAM_cache() {
+
     }
 };

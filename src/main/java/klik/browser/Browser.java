@@ -235,6 +235,36 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
 
+    //**********************************************************
+    public void clear_all_RAM_caches()
+    //**********************************************************
+    {
+        icon_manager.clear_image_properties_RAM_cache_fx();
+        logger.log("Image properties cache cleared");
+        Browser.scroll_position_cache.clear();
+        logger.log("Return-to scroll positions cache cleared");
+        clear_image_comparators_caches();
+        logger.log("Image comparators caches cleared");
+    }
+
+
+    //**********************************************************
+    public void clear_all_DISK_caches()
+    //**********************************************************
+    {
+        Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(my_Stage.the_Stage,this.aborter,logger);
+        Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(my_Stage.the_Stage, logger);
+        Static_files_and_paths_utilities.clear_folder_icon_DISK_cache_no_warning_fx(logger);
+    }
+
+    //**********************************************************
+    public void clear_image_comparators_caches()
+    //**********************************************************
+    {
+        ((Clearable_cache) (paths_manager.image_file_comparator)).clear_RAM_cache();
+        ((Clearable_cache) (paths_manager.other_file_comparator)).clear_RAM_cache();
+    }
+
     enum Scan_state {
         off,
         down,

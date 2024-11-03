@@ -18,7 +18,6 @@ import klik.level3.experimental.RAM_disk;
 import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.log.Stack_trace_getter;
 import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Hourglass;
 import klik.util.log.Logger;
@@ -52,7 +51,7 @@ public class Image_properties_RAM_cache
         cache_name = cache_name_;
         String local = cache_name+ path.toAbsolutePath();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
-        Path dir = get_aspect_ratio_and_rotation_cache_dir(null,logger);
+        Path dir = get_image_properties_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 
@@ -61,7 +60,7 @@ public class Image_properties_RAM_cache
     }
 
     //**********************************************************
-    public static Path get_aspect_ratio_and_rotation_cache_dir(Stage owner, Logger logger)
+    public static Path get_image_properties_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
         if ( RAM_disk.get_use_RAM_disk(logger))
@@ -135,7 +134,7 @@ public class Image_properties_RAM_cache
     }
 
     //**********************************************************
-    public void clear_RAM_cache_fx()
+    public void clear_image_properties_RAM_cache_fx()
     //**********************************************************
     {
         cache.clear();

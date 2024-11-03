@@ -52,8 +52,8 @@ public class Animated_gif_from_folder
 
 
         Collections.sort(images_in_folder);
-        Path actual_icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(owner, logger);
-        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_folder_icon_cache_dir(logger);
+        Path actual_icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger);
+        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_folders_icons_cache_dir(logger);
 
         int icon_size = Static_application_properties.get_icon_size(logger);
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(in,"ANIMATED_FOLDER_"+icon_size, "gif");

@@ -163,7 +163,7 @@ public class Moving_files
 
             {
                 // we rename the ICON to avoid remaking one
-                Path icon_cache_dir = Static_files_and_paths_utilities.get_icon_cache_dir(owner,logger);
+                Path icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner,logger);
                 int icon_size = Static_application_properties.get_icon_size(logger);
                 File current_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.old_Path,String.valueOf(icon_size), Icon_factory_actor.png_extension);
                 if (current_icon.exists()) {

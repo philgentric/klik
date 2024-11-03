@@ -22,7 +22,6 @@ import klik.change.undo.Undo_item;
 import klik.face_recognition.Face_recognition_service;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.*;
-import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.level3.experimental.RAM_disk;
 import klik.level3.metadata.Tag_items_management_stage;
@@ -45,7 +44,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Consumer;
 
 //**********************************************************
 public class Browser_menus
@@ -145,67 +143,12 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Clear_All_Caches",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Static_files_and_paths_utilities.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage, logger);
-            Static_files_and_paths_utilities.clear_folder_icon_DISK_cache_no_warning_fx(logger);
-            browser.icon_manager.clear_image_properties_RAM_cache_fx();
+            browser.clear_all_RAM_caches();
+            browser.clear_all_DISK_caches();
         });
         return item;
     }
 
-    //**********************************************************
-    public MenuItem make_clear_all_RAM_caches_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Clear_All_RAM_Caches",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event ->
-            browser.icon_manager.clear_image_properties_RAM_cache_fx()
-        );
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_clear_all_disk_caches_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Clear_All_Disk_Caches",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> {
-            Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            Static_files_and_paths_utilities.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage, logger);
-            Static_files_and_paths_utilities.clear_folder_icon_DISK_cache_no_warning_fx(logger);
-        });
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_clear_icon_disk_cache_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Clear_Icon_Cache_Folder",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> {
-            Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger);
-            browser.icon_manager.clear_image_properties_RAM_cache_fx();
-        });
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_clear_aspect_ratio_and_rotation_disk_caches_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Clear_Aspect_Ratio_Cache",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> {
-            Static_files_and_paths_utilities.clear_aspect_ratio_and_rotation_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage,logger);
-            browser.icon_manager.clear_image_properties_RAM_cache_fx();
-        });
-        return item;
-    }
 
 
 

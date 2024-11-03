@@ -1,12 +1,20 @@
 package klik.browser.comparators;
 
+import klik.browser.Clearable_cache;
+
 import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Decreasing_file_size_comparator implements Comparator<Path>
+public class Decreasing_file_size_comparator implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
+
+    @Override
+    public void clear_RAM_cache() {
+
+    }
+
     @Override
     public int compare(Path p1, Path p2)
     {
