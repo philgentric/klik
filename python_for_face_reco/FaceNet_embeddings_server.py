@@ -56,5 +56,5 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 def run_server(port):
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
-    print("Starting local IMAGE EMBEDDINGS server on port: "+str(port))
+    print("Starting local FaceNet IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

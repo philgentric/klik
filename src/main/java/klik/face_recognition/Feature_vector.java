@@ -1,31 +1,19 @@
 package klik.face_recognition;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.nio.file.Path;
-import java.util.Random;
-
 //**********************************************************
 public class Feature_vector
 //**********************************************************
 {
     // server's port to get embeddings:
-    static int[] port = {8020, 8021};//, 8022, 8023, 8024};//, 8025, 8026, 8027, 8028, 8029};
-    static Random random = new Random();
+    //static int[] port = {8020, 8021};//, 8022, 8023, 8024};//, 8025, 8026, 8027, 8028, 8029};
+    //static Random random = new Random();
     //**********************************************************
-    public static int get_random_port()
+    //public static int get_random_port()
     //**********************************************************
-    {
-        int returned = random.nextInt(port[0],port[0]+port.length);
-        return returned;
-    }
+    //{
+    //    int returned = random.nextInt(port[0],port[0]+port.length);
+    //    return returned;
+    //}
 
     public double[] features;
 
@@ -34,7 +22,7 @@ public class Feature_vector
     }
 
 
-
+/*
     //**********************************************************
     public static Feature_vector get_feature_vector_from_server(Path path, Logger logger)
     //**********************************************************
@@ -133,7 +121,7 @@ public class Feature_vector
         //logger.log("parsed a feature vector, length: " + fv.features.length);
         return fv;
     }
-
+*/
     //**********************************************************
     public String to_string()
     //**********************************************************

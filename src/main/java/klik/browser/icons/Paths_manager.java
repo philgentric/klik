@@ -11,10 +11,7 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
-import klik.browser.comparators.Alphabetical_file_name_comparator;
-import klik.browser.comparators.Alphabetical_file_name_comparator_gif_first;
-import klik.browser.comparators.Date_comparator;
-import klik.browser.comparators.Decreasing_file_size_comparator;
+import klik.browser.comparators.*;
 import klik.browser.icons.caches.Image_properties_RAM_cache;
 import klik.properties.File_sort_by;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -77,6 +74,9 @@ public class Paths_manager
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
         switch (File_sort_by.get_sort_files_by(logger))
         {
+            case SIMILARITY:
+                other_file_comparator = new Similarity_comparator(logger);
+                break;
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
                 other_file_comparator = alphabetical_file_name_comparator;
                 break;

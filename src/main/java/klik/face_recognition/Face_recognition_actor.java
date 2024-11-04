@@ -287,7 +287,9 @@ public class Face_recognition_actor implements Actor
     //**********************************************************
     {
         start = System.nanoTime();
-        Feature_vector the_feature_vector_to_be_identified = Feature_vector.get_feature_vector_from_server(face, service.logger);
+        Feature_vector_source feature_vector_source = new Feature_vector_source_face();
+
+        Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {
             service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed "));
@@ -441,7 +443,8 @@ public class Face_recognition_actor implements Actor
     //**********************************************************
     {
         start = System.nanoTime();
-        Feature_vector the_feature_vector_to_be_identified = Feature_vector.get_feature_vector_from_server(face, service.logger);
+        Feature_vector_source feature_vector_source = new Feature_vector_source_face();
+        Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {
             service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed "));

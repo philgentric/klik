@@ -41,7 +41,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #model = inceptionV3
         feature_vector = model.predict(x)
         #print("feature_vector: "+str(feature_vector))
-        print("VGGface feature vector size: "+str(feature_vector.size))
+        print("VGG19 feature vector size: "+str(feature_vector.size))
 
         double_values = [np.float64(i) for i in x.flatten()]
 
@@ -82,5 +82,5 @@ def parse_feature_vector(s):
 def run_server(port):
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
-    print("Starting local IMAGE EMBEDDINGS server on port: "+str(port))
+    print("Starting local VGG19 IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

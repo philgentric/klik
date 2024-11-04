@@ -3,10 +3,7 @@
 # need to copy here the lists from  "launch_servers" ... bit dirty
 
 
-EMBEDDINGS_PORTS=(8020 8021)
-#8022 8023 8024 )
-#8025 8026 8027 8028 8029)
-#8030 8031 8032 8033 8034 8035 8036 8037 8038 8039)
+EMBEDDINGS_PORTS=(8020 8021 8030 8031 8032 8033 8034 8035 8036 8037 8038 8039)
 
 for PORT in "${EMBEDDINGS_PORTS[@]}"; do
     pids=$(pgrep -f "python.*run_server.*${PORT}" | xargs)

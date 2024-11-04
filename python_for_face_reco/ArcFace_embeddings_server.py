@@ -55,5 +55,5 @@ def parse_feature_vector(s):
 def run_server(port):
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
-    print("Starting local IMAGE EMBEDDINGS server on port: "+str(port))
+    print("Starting local ArcFace IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

@@ -1,20 +1,16 @@
 #!/bin/bash
 
-EMBEDDINGS_PORTS=(8020 8021)
-#8022 8023 8024)
-#8025 8026 8027 8028 8029)
-
-for PORT in "${EMBEDDINGS_PORTS[@]}"; do
+FACENET_EMBEDDINGS_PORTS=(8020 8021)
+for PORT in "${FACENET_EMBEDDINGS_PORTS[@]}"; do
     python3 -c "import FaceNet_embeddings_server;
 FaceNet_embeddings_server.run_server(${PORT})" &
 done
 
-#EMBEDDINGS_PORTS=(8030 8031 8032 8033 8034 8035 8036 8037 8038 8039)
-#
-#for PORT in "${EMBEDDINGS_PORTS[@]}"; do
-#    python -c "import ArcNet_embeddings_server;
-#ArcNet_embeddings_server.run_server(${PORT})" &
-#done
+VGG19_EMBEDDINGS_PORTS=(8030 8031 8032 8033 8034 8035 8036 8037 8038 8039)
+for PORT in "${VGG19_EMBEDDINGS_PORTS[@]}"; do
+    python -c "import VGG19_embeddings_server;
+VGG19_embeddings_server.run_server(${PORT})" &
+done
 
 
 
