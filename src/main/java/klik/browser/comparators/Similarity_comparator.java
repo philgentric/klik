@@ -55,10 +55,18 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
             cache.put(p2,emb2);
         }
 
+        double diff =  emb1.compare(emb2);
+        int difference = (int) (diff);
+
+        /*
         double diff =  emb1.cosine_similarity(emb2);
         int difference = (int) (diff*Integer.MAX_VALUE);
+
+         */
+
         logger.log("image similarity "+difference+" for:\n"+p1.toAbsolutePath()+"\n"+p2.toAbsolutePath());
         if ( difference != 0) return difference;
+
         return (p1.getFileName().toString().compareTo(p2.getFileName().toString()));
     }
 
