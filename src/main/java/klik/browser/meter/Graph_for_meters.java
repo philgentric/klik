@@ -14,11 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 
 //**********************************************************
-public class Graph
+public class Graph_for_meters
 //**********************************************************
 {
     String name;
-    Runnable runnable;
     VBox vbox;
     double the_scale_max;
     Value_getter value_getter;
@@ -42,7 +41,14 @@ public class Graph
     HBox the_hbox;
 
     //**********************************************************
-    public Graph(String name_, double the_scale_max_, Value_getter value_getter_, Real_to_pixel real_to_pixel_, int x_offset_, Color color_, Logger logger_)
+    public Graph_for_meters(
+            String name_,
+            double the_scale_max_,
+            Value_getter value_getter_,
+            Real_to_pixel real_to_pixel_,
+            int x_offset_,
+            Color color_,
+            Logger logger_)
     //**********************************************************
     {
         name = name_;

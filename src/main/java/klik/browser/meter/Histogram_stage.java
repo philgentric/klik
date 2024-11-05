@@ -9,18 +9,17 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
-import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
+import klik.util.log.Logger;
 
 import java.util.concurrent.TimeUnit;
 
 //**********************************************************
-public class Meters_stage
+public class Histogram_stage
 //**********************************************************
 {
 
     public static final double DISPLAY_PIXEL_HEIGHT = 600;
-    private final static long HEARTH_BEAT = 50; //ms
     private static Stage instance;
 
     //**********************************************************
@@ -51,10 +50,9 @@ public class Meters_stage
                     return  0.8*DISPLAY_PIXEL_HEIGHT*val/max_val;
                 }
             };
-            Graph_for_meters graph = new Graph_for_meters("Threads",the_scale_max, value_getter, real_to_pixel, x_offset,Color.RED, logger);
+            Graph_for_histograms graph = new Graph_for_histograms("Histogram",the_scale_max, value_getter, real_to_pixel, x_offset,Color.RED, logger);
             hbox.getChildren().add(graph.vbox);
             width+= graph.get_width();
-            Scheduled_thread_pool.execute(graph.runnable, HEARTH_BEAT, TimeUnit.MILLISECONDS);
 
         }
         {
