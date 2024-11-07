@@ -68,7 +68,7 @@ import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.*;
-import klik.browser.icons.caches.Image_properties_RAM_cache;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item;
 import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;

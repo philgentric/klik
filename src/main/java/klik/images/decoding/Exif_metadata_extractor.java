@@ -6,7 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
-import klik.browser.icons.caches.Image_properties;
+import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.From_disk;

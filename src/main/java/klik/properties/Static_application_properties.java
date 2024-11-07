@@ -65,6 +65,8 @@ public class Static_application_properties
 
     public static final String ICON_CACHE_DIR = "klik_icon_cache";
     public static final String IMAGE_PROPERTIES_CACHE_DIR = "klik_image_properties_cache";
+    public static final String IMAGE_FEATURE_VECTOR_CACHE_DIR = "klik_image_feature_vectors_cache";
+
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
 
 

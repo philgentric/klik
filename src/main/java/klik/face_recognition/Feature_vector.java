@@ -1,5 +1,8 @@
 package klik.face_recognition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 //**********************************************************
 public class Feature_vector
 //**********************************************************
@@ -13,13 +16,27 @@ public class Feature_vector
     }
 
     //**********************************************************
+    public static Feature_vector from_string(String in) throws NumberFormatException
+//**********************************************************
+    {
+        String[] parts = in.split(" ");
+        double[] returned = new double[parts.length];
+        for ( int i = 0; i < parts.length; i++)
+        {
+            returned[i] = Double.parseDouble(parts[i]);
+        }
+        return new Feature_vector(returned);
+    }
+
+    //**********************************************************
     public String to_string()
     //**********************************************************
     {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < features.length; i++) {
+        for (int i = 0; i < features.length; i++)
+        {
             sb.append(features[i]);
-            sb.append(", ");
+            sb.append(" ");
         }
         return sb.toString();
     }
@@ -28,10 +45,7 @@ public class Feature_vector
     public double compare(Feature_vector feature_vector)
     //**********************************************************
     {
-
-        //return compare_max(feature_vector);
-        return compare_sum(feature_vector);
-
+        return cosine_similarity(feature_vector);
     }
 
     //**********************************************************
@@ -61,6 +75,8 @@ public class Feature_vector
         return sum;
 
     }
+
+
     //**********************************************************
     public double cosine_similarity(Feature_vector feature_vector)
     //**********************************************************

@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import klik.actor.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
-import klik.browser.icons.caches.*;
+import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;

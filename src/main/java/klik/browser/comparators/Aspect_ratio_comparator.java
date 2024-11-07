@@ -1,12 +1,11 @@
 package klik.browser.comparators;
 
 import klik.browser.Clearable_cache;
-import klik.browser.icons.caches.Image_properties;
-import klik.browser.icons.caches.Image_properties_RAM_cache;
+import klik.browser.icons.image_properties_cache.Image_properties;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.Random;
 
 //**********************************************************
 public class Aspect_ratio_comparator implements Comparator<Path>, Clearable_cache

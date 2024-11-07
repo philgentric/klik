@@ -1,5 +1,6 @@
 import json
 import re
+import socket
 
 import keras
 from http.server import HTTPServer
@@ -82,5 +83,7 @@ def parse_feature_vector(s):
 def run_server(port):
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
+    httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+    httpd.socket.listen(1024)
     print("Starting local VGG19 IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

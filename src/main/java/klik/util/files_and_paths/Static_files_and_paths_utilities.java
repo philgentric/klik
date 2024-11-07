@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
-import klik.browser.icons.caches.Image_properties_RAM_cache;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.undo.Undo_engine;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;

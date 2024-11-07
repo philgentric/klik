@@ -1,5 +1,5 @@
 //SOURCES ./Rotation.java
-package klik.browser.icons.caches;
+package klik.browser.icons.image_properties_cache;
 
 
 import klik.util.log.Stack_trace_getter;
@@ -8,17 +8,7 @@ import klik.util.log.Stack_trace_getter;
 public record Image_properties(double w, double h, Rotation rotation)
 //**********************************************************
 {
-/*
-    //**********************************************************
-    public static Image_properties from(Image_and_properties image_and_rotation)
-    //**********************************************************
-    {
-        double w = image_and_rotation.image().getWidth();
-        double h = image_and_rotation.image().getHeight();
-        Rotation rotation = image_and_rotation.rotation();
-        return new Image_properties(w,h, rotation);
-    }
-*/
+
     //**********************************************************
     public String to_string()
     //**********************************************************

@@ -384,6 +384,7 @@ public class Browser_UI
                 clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
                 clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
                 clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
+                clean.getItems().add(browser_menus.make_menu_item("Compute_similarities", event -> browser_menus.compute_similarities()));
             }
 
 

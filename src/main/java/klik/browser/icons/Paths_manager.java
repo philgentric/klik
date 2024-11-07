@@ -12,7 +12,7 @@ import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Error_receiver;
 import klik.browser.comparators.*;
-import klik.browser.icons.caches.Image_properties_RAM_cache;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.File_sort_by;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;

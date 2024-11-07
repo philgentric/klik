@@ -1,6 +1,6 @@
 //SOURCES ./Image_properties_actor.java
 //SOURCES ./Image_properties_message.java
-package klik.browser.icons.caches;
+package klik.browser.icons.image_properties_cache;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;

@@ -2,7 +2,7 @@ package klik.util.cache_auto_clean;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.icons.caches.Image_properties_RAM_cache;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.properties.Static_application_properties;

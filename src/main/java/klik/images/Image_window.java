@@ -102,7 +102,7 @@ public class Image_window
 
 
     //**********************************************************
-    private Image_window(
+    public Image_window(
             Browser the_browser,
             Path first_image_path,
             double x, double y,

@@ -1,4 +1,4 @@
-package klik.browser.icons.caches;
+package klik.browser.icons.image_properties_cache;
 
 public enum Rotation
 {

@@ -21,7 +21,7 @@ import klik.browser.Browser;
 import klik.browser.Change_type;
 import klik.browser.Landscape_height_listener;
 import klik.browser.Scroll_to_listener;
-import klik.browser.icons.caches.Image_properties;
+import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.items.*;
 import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel;

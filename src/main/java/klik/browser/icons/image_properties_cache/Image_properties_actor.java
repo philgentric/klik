@@ -1,4 +1,4 @@
-package klik.browser.icons.caches;
+package klik.browser.icons.image_properties_cache;
 
 import klik.actor.Actor;
 import klik.actor.Message;
@@ -16,11 +16,11 @@ public class Image_properties_actor implements Actor
     //**********************************************************
     {
         Image_properties_message image_properties_message = (Image_properties_message) m;
-        if (dbg) image_properties_message.logger.log("Aspect_ratio_actor START for"+image_properties_message.path);
+        if (dbg) image_properties_message.logger.log("Image_properties_actor START for"+image_properties_message.path);
 
         if (image_properties_message.aborter.should_abort())
         {
-            image_properties_message.logger.log("Aspect_ratio_actor aborting "+image_properties_message.path);
+            image_properties_message.logger.log("Image_properties_actor aborting "+image_properties_message.path);
             return "aborted";
         }
 

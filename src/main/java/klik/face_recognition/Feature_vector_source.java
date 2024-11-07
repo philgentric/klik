@@ -25,6 +25,7 @@ public interface Feature_vector_source {
         return fv;
     }
 
+    //**********************************************************
     static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Logger logger)
     //**********************************************************
     {

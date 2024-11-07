@@ -1,4 +1,4 @@
-package klik.browser.icons.caches;
+package klik.browser.icons.image_properties_cache;
 
 import klik.actor.Aborter;
 import klik.actor.Message;

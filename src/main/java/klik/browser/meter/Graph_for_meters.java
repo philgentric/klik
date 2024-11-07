@@ -22,6 +22,7 @@ public class Graph_for_meters
     double the_scale_max;
     Value_getter value_getter;
     Real_to_pixel real_to_pixel;
+    Runnable runnable;
     Color color;
     Logger logger;
     int x_offset;

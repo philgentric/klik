@@ -8,8 +8,11 @@ import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_manager;
+import klik.browser.icons.image_properties_cache.Image_feature_vector_RAM_cache;
 import klik.browser.items.Item_button;
+import klik.browser.meter.Histogram_stage;
 import klik.browser.meter.Meters_stage;
 import klik.change.Change_receiver;
 import klik.change.active_list_stage.Active_list_stage;
@@ -20,6 +23,9 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.face_recognition.Face_recognition_service;
+import klik.face_recognition.Feature_vector;
+import klik.face_recognition.Feature_vector_source;
+import klik.face_recognition.Feature_vector_source_vgg19;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -32,12 +38,14 @@ import klik.properties.Bookmarks;
 import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
 import klik.util.performance_monitor.Performance_monitor;
+import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
+import klik.util.ui.Show_running_man_frame_with_abort_button;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -79,60 +87,6 @@ public class Browser_menus
         return item;
     }
 
-/*
-    //**********************************************************
-    public MenuItem make_about_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("About_klik",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> About_klik_stage.show_about_klik_stage());
-        return item;
-    }
-
-*/
-
-    //**********************************************************
-    public MenuItem make_meters_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_Meters",logger);
-        MenuItem item = new MenuItem(text);
-        EventHandler<ActionEvent> p = event -> Meters_stage.show_stage(logger);
-        item.setOnAction(p);
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_perfmon_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_Perfmon",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Performance_monitor.show(logger));
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_clear_trash_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Clear_Trash_Folder",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Static_files_and_paths_utilities.clear_trash_with_warning_fx(browser.my_Stage.the_Stage,browser.aborter,logger));
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_stored_tag_management_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Open_tag_management",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Tag_items_management_stage.open_tag_management_stage(logger));
-        return item;
-    }
 
 
 
@@ -380,38 +334,6 @@ public class Browser_menus
         return item;
     }
 
-/*
-    //**********************************************************
-    public MenuItem make_undo_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Undo_LAST_move_or_delete",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Undo_engine.perform_last_undo_fx(browser.my_Stage.the_Stage,browser.aborter, logger));
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_remove_corrupted_images_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Remove_corrupted_images",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> remove_corrupted_images_fx());
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_clean_names_menu_item()
-    //**********************************************************
-    {
-        String text = "Clean up names (experimental)";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
-
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> clean_up_names_fx());
-        return item;
-    }
-*/
     //**********************************************************
     public MenuItem make_add_to_face_recognition_training_set_menu_item()
     //**********************************************************
@@ -1290,6 +1212,73 @@ public class Browser_menus
     }
 
 
+    static Image_feature_vector_RAM_cache image_feature_vector_ram_cache;
+
+    static Map<Path,Map<Path,Double>> similarities = new HashMap<>();
+    //**********************************************************
+    void compute_similarities()
+    //**********************************************************
+    {
+        Runnable r =new Runnable() {
+            @Override
+            public void run() {
+
+                Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000,logger);
+                image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(browser.displayed_folder_path,"image_feature_vectors", new Aborter("fv_c",logger),logger);
+
+                image_feature_vector_ram_cache.reload_cache_from_disk();
+
+                similarities.clear();
+                Path dir = browser.displayed_folder_path;
+                File[] files = dir.toFile().listFiles();
+                List<File> targets = new ArrayList<>();
+                List<Double> values = new ArrayList<>();
+                if ( files == null) return;
+                for (File f : files)
+                {
+                    if ( f.isDirectory()) continue;
+
+                    if ( f.getName().startsWith("._"))
+                    {
+                        continue;
+                    }
+
+                    if ( !Guess_file_type.is_file_an_image(f)) continue;
+                    targets.add(f);
+                }
+                if ( targets.isEmpty()) return;
+                double min = Double.MAX_VALUE;
+                Path min_p1 = null;
+                Path min_p2 = null;
+                for ( int i = 0 ; i < targets.size(); i++)
+                {
+                    Path p1 = targets.get(i).toPath();
+                    Map<Path, Double> simil = similarities.computeIfAbsent(p1, k -> new HashMap<>());
+                    Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p1,null,true);
+
+                    for ( int j = i+1 ; j < targets.size(); j++)
+                    {
+                        Path p2 = targets.get(j).toPath();
+                        Feature_vector fv2 = image_feature_vector_ram_cache.get_from_cache(p2,null,true);
+                        double s = fv1.cosine_similarity(fv2);
+                        if ( s < min)
+                        {
+                            min = s;
+                            min_p1 = p1;
+                            min_p2 = p2;
+                        }
+                        values.add(s);
+                        simil.put(p2,s);
+                    }
+                }
+                logger.log("min similarity "+min+" for paths:\n"+min_p1.getFileName()+" "+min_p2.getFileName());
+                image_feature_vector_ram_cache.save_whole_cache_to_disk();
+                Jfx_batch_injector.inject(()-> Histogram_stage.show_stage(values, logger),logger);
+                x.close();
+            }
+        };
+        Actor_engine.execute(r,logger);
+    }
 
     //**********************************************************
     void remove_corrupted_images_fx()
@@ -1319,6 +1308,7 @@ public class Browser_menus
         Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,to_be_deleted, null, browser.aborter, logger);
 
     }
+
 
 
 
