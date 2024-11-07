@@ -7,7 +7,7 @@ public enum File_sort_by {
   NAME,
   DATE,
   SIZE,
-  SIMILARITY,
+  //SIMILARITY,
   IMAGE_WIDTH,
   IMAGE_HEIGHT,
   ASPECT_RATIO,

@@ -4,7 +4,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.face_recognition.Face_detection_type;
+import klik.image_ml.face_recognition.Face_detection_type;
 import klik.level3.metadata.Tag_stage;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;

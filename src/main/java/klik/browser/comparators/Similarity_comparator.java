@@ -1,9 +1,9 @@
 package klik.browser.comparators;
 
 import klik.browser.Clearable_cache;
-import klik.face_recognition.Feature_vector;
-import klik.face_recognition.Feature_vector_source;
-import klik.face_recognition.Feature_vector_source_vgg19;
+import klik.image_ml.Feature_vector;
+import klik.image_ml.Feature_vector_source;
+import klik.image_ml.image_similarity.Feature_vector_source_vgg19;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 

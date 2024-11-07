@@ -13,6 +13,8 @@ module klikmodule {
     requires javafx.web;
 
 
-    exports klik.face_recognition; // required for parsing json from embeddings server
+    exports klik.image_ml.face_recognition; // required for parsing json from embeddings server
     exports klik;
+    exports klik.image_ml;
+    exports klik.image_ml.image_similarity;
 }

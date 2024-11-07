@@ -74,9 +74,9 @@ public class Paths_manager
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
         switch (File_sort_by.get_sort_files_by(logger))
         {
-            case SIMILARITY:
-                other_file_comparator = new Similarity_comparator(logger);
-                break;
+            //case SIMILARITY:
+            //    other_file_comparator = new Similarity_comparator(logger);
+            //    break;
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
                 other_file_comparator = alphabetical_file_name_comparator;
                 break;
