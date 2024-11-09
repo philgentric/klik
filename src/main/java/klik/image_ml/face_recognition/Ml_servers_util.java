@@ -46,9 +46,19 @@ public class Ml_servers_util
     synchronized public static boolean init_image_similarity(Logger logger)
     //**********************************************************
     {
-        if( image_similarity_servers_started) return true;
-        image_similarity_servers_started = true;
+        //if( image_similarity_servers_started) return true;
+        //image_similarity_servers_started = true;
 
+        List<String> ll = new ArrayList<>();
+        ll.add("/bin/bash");
+        ll.add("-ch");
+        ll.add("./launch_vgg19");
+        File wd = new File("./python_for_face_reco");
+        StringBuilder sb = new StringBuilder();
+        boolean status = Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        logger.log(sb.toString());
+
+        /*
         if (!init_venv(logger)) {
             logger.log("failed to init python venv");
             return false;
@@ -68,7 +78,7 @@ public class Ml_servers_util
             return false;
         }
         logger.log("OK: init image similarity done");
-
+        */
         return true;
     }
 

@@ -47,6 +47,7 @@ public class Image_window
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
     public final Aborter aborter;
+    private final String title_optional_addendum;
 
     private Slide_show slide_show; // not null if a Slide_show is ongoing
     boolean ultim_mode = false;
@@ -85,7 +86,7 @@ public class Image_window
                 h = bounds.getHeight();
             }
 
-            return new Image_window(b, path, x,y, w,h, logger_);
+            return new Image_window(b, path, x,y, w,h, null,logger_);
         }
 
         Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
@@ -94,7 +95,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(b, path, x, y,w, h, logger_);
+        Image_window returned = new Image_window(b, path, x, y,w, h, null, logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -107,9 +108,11 @@ public class Image_window
             Path first_image_path,
             double x, double y,
             double w, double h,
+            String title_optional_addendum,
             Logger logger_)
     //**********************************************************
     {
+        this.title_optional_addendum = title_optional_addendum;
         logger = logger_;
         dir = first_image_path.getParent();
         aborter = new Aborter("Image_window",logger);
@@ -180,6 +183,7 @@ public class Image_window
             }
             //logger.log("SCROLL after round up=" + yy);
             image_display_handler.change_image_relative(yy, false);
+
         });
 
 
@@ -392,6 +396,7 @@ public class Image_window
         StringBuilder local_title = new StringBuilder();
 
 
+        if ( title_optional_addendum !=null) local_title.append(title_optional_addendum).append(" ");
         if (ic.path == null)
         {
             local_title.append(" no image ");

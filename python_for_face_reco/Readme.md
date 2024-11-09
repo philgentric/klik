@@ -1,34 +1,43 @@
-to make face recognition work :
-- run the face detection servers
-- run the face embeddings servers
+there are 2 different image ML services
+- face recognition
+- image similarity
 
+both use python-based tensorflow
 
+0) install tensorflow
 
-for these servers to work, you need to install a few things:
+WARNING: tensorflow installation can be super tedious... YMMV
+Only provided here is a recipe that leverages 
+the hardware acceleration (metal) for ARM64 Macs:
+(at least for my MBP-M3 ...)
 
-1) need to install python + pip
-
-on macos:
-brew install python
-or
-brew install python@3.10 to get a specific version
-(in case pip install -r requirements.txt ./la   fails with a python version error)
-
-2) open a shell/terminal
-preferably: create a venv environment
-python3.10 -m venv venv1
-activate it:
-source ./venv1/bin/activate
-3) install python dependencies
-   (in this folder)
+open a shell/terminal, type:
+brew install python@3.10
+/opt/homebrew/bin/python3.10 -m venv ~/venv-metal
+source ~/venv-metal/bin/activate
+pip install -U pip
+pip install tensorflow
+pip install tensorflow-macos
+pip install tensorflow-metal
 pip install -r requirements.txt
 
-4) run the servers:
 
-invoke the script "launch_servers"
-you may need to execute first:
-chmod +x launch_servers
+1) vgg19 image similarity python service
+to start the vgg19 embeddings servers:
+open a shell/terminal, cd to this folder, type:
+source ~/venv-metal/bin/activate
+./launch_vgg19_servers
 
-to stop the servers, invoke "kill_servers"
-you may need to execute first:
-chmod +x kill_servers
+to kill the servers:
+./kill_vgg19_servers
+
+2) face recognition servers
+to start the face detection and face embeddings servers:
+open a shell/terminal, cd to this folder, type:
+source ~/venv-metal/bin/activate
+./launch_face_servers
+
+to kill the servers:
+./kill_face_servers
+
+

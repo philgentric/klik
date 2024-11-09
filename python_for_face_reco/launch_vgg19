@@ -1,0 +1,11 @@
+#!/bin/bash
+# note: at the time pf writing this tensorflow works with python3.9,
+# NOT with more recent ones
+# on mac:
+# brew install python@3.9
+python3.9 -m venv venv
+source venv/bin/activate
+pip3.9 install -r requirements.txt
+./launch_vgg19_servers
+
+

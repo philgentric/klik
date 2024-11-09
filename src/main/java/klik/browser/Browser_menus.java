@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_manager;
+import klik.image_ml.face_recognition.Ml_servers_util;
 import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
 import klik.browser.items.Item_button;
 import klik.browser.meter.Histogram_stage;
@@ -1214,6 +1215,9 @@ public class Browser_menus
     void compute_similarities()
     //**********************************************************
     {
+        Ml_servers_util.init_image_similarity(logger);
+
+        /*
         Runnable r =new Runnable() {
             @Override
             public void run() {
@@ -1273,6 +1277,8 @@ public class Browser_menus
             }
         };
         Actor_engine.execute(r,logger);
+
+         */
     }
 
     //**********************************************************

@@ -2,8 +2,8 @@ opencv-python
 HTTPServer
 requests
 matplotlib
-keras
 tensorflow
+keras
 keras.preprocessing
 keras.applications
 pillow

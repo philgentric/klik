@@ -2,13 +2,12 @@ import json
 import re
 import socket
 
-import keras
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 import urllib.parse
 import tensorflow as tf
 import numpy as np
-
+import keras
 from keras.models import Model
 from keras.applications.vgg19 import VGG19
 from keras.applications.vgg19 import preprocess_input

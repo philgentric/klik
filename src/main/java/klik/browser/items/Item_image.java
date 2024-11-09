@@ -15,7 +15,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.actor.Job;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
@@ -51,6 +50,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Item_image extends Item
 //**********************************************************
 {
+    public static final double W = 300;
+    public static final double H = 300;
     protected ImageView image_view;
     Pane image_pane;
     public Double aspect_ratio;
@@ -253,94 +254,153 @@ public class Item_image extends Item
 
     static  Map<Path,Map<Path,Double>> similarities = new HashMap<>();
 
+    static final int N = 5;
     //**********************************************************
     public MenuItem create_show_similar_menu_item(Path path, Logger logger)
     //**********************************************************
     {
-        String txt = "Show 3 similar images";//My_I18n.get_I18n_string("Info_about", logger);
+        String txt = "Show "+N+" similar images";//My_I18n.get_I18n_string("Info_about", logger);
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
-            Runnable r =new Runnable() {
-                @Override
-                public void run() {
-
-                    Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000,logger);
-                    Image_feature_vector_RAM_cache image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(browser.displayed_folder_path,"image_feature_vectors", new Aborter("fv_c",logger),logger);
-
-                    image_feature_vector_ram_cache.reload_cache_from_disk();
-
-                    Path dir = browser.displayed_folder_path;
-                    File[] files = dir.toFile().listFiles();
-                    List<Path> targets = new ArrayList<>();
-                    if ( files == null) return;
-                    for (File f : files)
-                    {
-                        if ( f.isDirectory()) continue;
-
-                        if ( f.getName().startsWith("._"))
-                        {
-                            continue;
-                        }
-                        if ( f.getName().equals(path.getFileName().toString())) continue;
-
-                        if ( !Guess_file_type.is_file_an_image(f)) continue;
-                        targets.add(f.toPath());
-                    }
-                    if ( targets.isEmpty()) return;
-                    CountDownLatch cdl = new CountDownLatch(targets.size()+1);
-                    Job_termination_reporter tr = new Job_termination_reporter() {
-                        @Override
-                        public void has_ended(String message, Job job) {
-                            cdl.countDown();
-                            if ( cdl.getCount() % 100 == 0) logger.log(""+cdl.getCount());
-                        }
-                    };
-                    image_feature_vector_ram_cache.get_from_cache(path,tr,false);
-                    for ( int i = 0 ; i < targets.size(); i++)
-                    {
-                        Path p1 = targets.get(i);
-                        image_feature_vector_ram_cache.get_from_cache(p1,tr,false);
-                    }
-                    try {
-                        cdl.await();
-                    } catch (InterruptedException e) {
-                        logger.log(""+e);
-                        return;
-                    }
-                    image_feature_vector_ram_cache.save_whole_cache_to_disk();
-                    Feature_vector fv2 = image_feature_vector_ram_cache.get_from_cache(path,tr,true);
-                    Path min_p1 = find_min(targets, image_feature_vector_ram_cache, fv2, path);
-                    targets.remove(min_p1);
-                    Path min_p2 = find_min(targets,image_feature_vector_ram_cache,fv2,path);
-                    targets.remove(min_p2);
-                    Path min_p3 = find_min(targets,image_feature_vector_ram_cache,fv2,path);
-                    Runnable rr = new Runnable() {
-                        @Override
-                        public void run() {
-                            double zz = 10;
-                            show_one_at(path,zz,200);
-                            zz += 300;
-                            if ( min_p1 != null) show_one_at(min_p1,zz,200);
-                            zz += 300;
-                            if ( min_p2 != null) show_one_at(min_p2,zz,200);
-                            zz += 300;
-                            if ( min_p3 != null) show_one_at(min_p3,zz,200);
-                        }
-                    };
-                    Jfx_batch_injector.inject(rr,logger);
-                    x.close();
-                }
-            };
+            Runnable r = () -> find_and_show_similars(logger, path);
             Actor_engine.execute(r,logger);
-
-
         });
 
         return menu_item;
     }
 
-    private Path find_min(List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    //**********************************************************
+    private void find_and_show_similars(Logger logger, Path path)
+    //**********************************************************
+    {
+        Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
+        Image_feature_vector_RAM_cache image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(browser.displayed_folder_path,"image_feature_vectors", new Aborter("fv_c", logger), logger);
+
+        image_feature_vector_ram_cache.reload_cache_from_disk();
+
+        Path dir = browser.displayed_folder_path;
+        File[] files = dir.toFile().listFiles();
+        List<Path> targets = new ArrayList<>();
+        if ( files == null) return;
+        for (File f : files)
+        {
+            if ( f.isDirectory()) continue;
+
+            if ( f.getName().startsWith("._"))
+            {
+                continue;
+            }
+            if ( f.getName().equals(path.getFileName().toString())) continue;
+
+            if ( !Guess_file_type.is_file_an_image(f)) continue;
+            targets.add(f.toPath());
+        }
+        if ( targets.isEmpty()) return;
+        CountDownLatch cdl = new CountDownLatch(targets.size()+1);
+        Job_termination_reporter tr = (message, job) -> {
+            cdl.countDown();
+            if ( cdl.getCount() % 100 == 0) logger.log(""+cdl.getCount());
+        };
+        // start the cache warming on many threads
+        image_feature_vector_ram_cache.get_from_cache(path,tr,false);
+        for ( int i = 0 ; i < targets.size(); i++)
+        {
+            Path p1 = targets.get(i);
+            image_feature_vector_ram_cache.get_from_cache(p1,tr,false);
+        }
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            logger.log(""+e);
+            return;
+        }
+        image_feature_vector_ram_cache.save_whole_cache_to_disk();
+        Feature_vector fv2 = image_feature_vector_ram_cache.get_from_cache(path,tr,true);
+        //List<Most_similar> most_similars = find_most_similars(N, targets, image_feature_vector_ram_cache, fv2, path);
+        List<Most_similar> most_similars = find_most_similars2(N, targets, image_feature_vector_ram_cache, fv2, path);
+
+        Runnable rr = new Runnable() {
+            @Override
+            public void run() {
+                double x = 10;
+                double y = 10;
+                show_one_at(new Most_similar(path,0.0),x,y);
+                y += H;
+                for ( Most_similar ms : most_similars)
+                {
+                    show_one_at(ms,x,y);
+                    x += W;
+                }
+            }
+        };
+        Jfx_batch_injector.inject(rr, logger);
+        x.close();
+    }
+
+
+    //**********************************************************
+    private List<Most_similar> find_most_similars2(int N, List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    //**********************************************************
+    {
+        List<Most_similar> returned =  new ArrayList<>();
+        double min = Double.MAX_VALUE;
+        for(Path p : targets)
+        {
+            Double similarity = read_similarity(path,p);
+            if ( similarity == null)
+            {
+                Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p, null,true);
+                if (fv1 == null) continue; // server failure
+                similarity = fv1.cosine_similarity(fv2);
+                store_similarity(similarity, path, p);
+            }
+            Most_similar ms = new Most_similar(p,similarity);
+            min = crounch(N,returned,ms, min);
+        }
+        return returned;
+    }
+
+    //**********************************************************
+    Comparator<? super Most_similar> comp = new Comparator<Most_similar>()
+    //**********************************************************
+    {
+        @Override
+        public int compare(Most_similar o1, Most_similar o2) {
+            return o1.similarity().compareTo(o2.similarity());
+        }
+    };
+
+    //**********************************************************
+    private double crounch(int N, List<Most_similar> local, Most_similar ms, double min)
+    //**********************************************************
+    {
+        local.add(ms);
+        local.sort(comp);
+        if ( local.size() > N) local.removeLast();
+        return local.get(0).similarity();
+    }
+
+    //**********************************************************
+    private List<Most_similar> find_most_similars(int N, List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    //**********************************************************
+    {
+        List<Most_similar> returned =  new ArrayList<>();
+        for ( int i = 0 ; i < N ; i ++)
+        {
+            Most_similar ms = find_min(targets, image_feature_vector_ram_cache, fv2, path);
+            if ( ms.path == null) break;
+            targets.remove(ms.path());
+            returned.add(ms);
+        }
+        return returned;
+    }
+
+    record Most_similar(Path path,Double similarity){};
+
+    //**********************************************************
+    private Most_similar find_min(List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    //**********************************************************
     {
         Path min_p1 = null;
         double min = Double.MAX_VALUE;
@@ -361,12 +421,15 @@ public class Item_image extends Item
                 min_p1 = p1;
             }
         }
-        return min_p1;
+        return new Most_similar(min_p1,min);
     }
 
-    private void show_one_at(Path target_path,double x, double y)
+    //**********************************************************
+    private void show_one_at(Most_similar ms,double x, double y)
+    //**********************************************************
     {
-        Image_window returned = new Image_window(browser, target_path, x, y,300,300, logger);
+        String s = String.format("%.4f",ms.similarity());
+        Image_window returned = new Image_window(browser, ms.path(), x, y, W, H, s, logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         logger.log("x="+returned.the_Stage.getX());

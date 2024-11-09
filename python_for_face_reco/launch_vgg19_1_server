@@ -1,0 +1,4 @@
+#!/bin/bash
+python3 -c "import VGG19_embeddings_server;
+VGG19_embeddings_server.run_server(8200)"
+
