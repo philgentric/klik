@@ -1,5 +1,7 @@
 //SOURCES ./Eval_result_for_one_prototype.java
-//SOURCES ./Feature_vector.java
+//SOURCES ../Feature_vector.java
+//SOURCES ../Feature_vector_source.java
+//SOURCES ./Feature_vector_source_face.java
 //SOURCES ./Face_detection_type.java
 //SOURCES ./Face_recognition_status.java
 //SOURCES ./Face_detector.java

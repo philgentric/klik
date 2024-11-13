@@ -1,5 +1,8 @@
-//SOURCES ./Icon_size.java
 //SOURCES ./About_klik_stage.java
+//SOURCES ./Icon_size.java
+//SOURCES ../image_ml/face_recognition/Face_recognition_service.java
+//SOURCES ../image_ml/Ml_servers_util.java
+//SOURCES ../image_ml/image_similarity/Image_feature_vector_RAM_cache.java
 //SOURCES ../util/files_and_paths/Name_cleaner.java
 //SOURCES ../level3/experimental/RAM_disk.java
 package klik.browser;
@@ -8,12 +11,10 @@ import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_manager;
-import klik.image_ml.face_recognition.Ml_servers_util;
+import klik.image_ml.Ml_servers_util;
 import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
 import klik.browser.items.Item_button;
-import klik.browser.meter.Histogram_stage;
 import klik.change.Change_receiver;
 import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Active_list_stage_action;
@@ -23,7 +24,6 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.image_ml.face_recognition.Face_recognition_service;
-import klik.image_ml.Feature_vector;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -34,14 +34,12 @@ import klik.look.my_i18n.Language_manager;
 import klik.properties.Bookmarks;
 import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
-import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
-import klik.util.ui.Show_running_man_frame_with_abort_button;
 
 import java.io.File;
 import java.nio.file.Path;

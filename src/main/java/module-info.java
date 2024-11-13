@@ -17,4 +17,5 @@ module klikmodule {
     exports klik;
     exports klik.image_ml;
     exports klik.image_ml.image_similarity;
+    exports klik.actor;
 }

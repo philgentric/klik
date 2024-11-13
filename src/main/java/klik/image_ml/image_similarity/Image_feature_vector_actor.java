@@ -1,5 +1,7 @@
 package klik.image_ml.image_similarity;
 
+//SOURCES ../Feature_vector_source.java
+
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.image_ml.Feature_vector;

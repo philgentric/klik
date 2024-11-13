@@ -1,4 +1,4 @@
-package klik.image_ml.face_recognition;
+package klik.image_ml;
 
 import klik.util.log.Logger;
 import klik.util.execute.Execute_command;

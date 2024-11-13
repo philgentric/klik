@@ -1,17 +1,19 @@
-//SOURCES ./Image_properties_actor.java
-//SOURCES ./Image_properties_message.java
 package klik.image_ml.image_similarity;
+
+//SOURCES ./Image_feature_vector_actor.java
+//SOURCES ./Image_feature_vector_message.java
+
+
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
+import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.image_ml.Feature_vector;
 import klik.level3.experimental.RAM_disk;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
@@ -31,6 +33,8 @@ public class Image_feature_vector_RAM_cache
 
     private final int instance_number;
     private static int instance_number_generator = 0;
+    private Actor_engine_based_on_workers local_actor_engine;
+
     //**********************************************************
     public Image_feature_vector_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************
@@ -45,6 +49,8 @@ public class Image_feature_vector_RAM_cache
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
         image_feature_vector_actor = new Image_feature_vector_actor();
+        local_actor_engine = new Actor_engine_based_on_workers(logger);
+
     }
 
     //**********************************************************
@@ -100,7 +106,7 @@ public class Image_feature_vector_RAM_cache
             }
             return x;
         }
-        Actor_engine.run(image_feature_vector_actor,imp,tr,logger);
+        local_actor_engine.run(image_feature_vector_actor,imp,tr,logger);
         return null;
     }
 

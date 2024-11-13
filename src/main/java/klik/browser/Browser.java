@@ -26,7 +26,7 @@
 
 //SOURCES ../properties/Static_application_properties.java
 //SOURCES ../properties/Static_application_properties.java
-//SOURCES ./icons/caches/Image_properties_RAM_cache.java
+//SOURCES ./icons/image_properties_cache/Image_properties_RAM_cache.java
 //SOURCES ./icons/Refresh_target.java
 //SOURCES ./icons/Icon_factory_actor.java
 //SOURCES ./icons/Paths_manager.java

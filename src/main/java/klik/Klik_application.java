@@ -95,7 +95,7 @@
 //SOURCES change/history/History_item.java
 //SOURCES change/undo/Undo_engine.java
 //SOURCES change/undo/Undo_item.java
-//SOURCES face_recognition/Face_recognition_service.java
+//SOURCES image_ml/face_recognition/Face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES util/info_stage/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java

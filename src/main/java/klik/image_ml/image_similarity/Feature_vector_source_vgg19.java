@@ -2,12 +2,10 @@ package klik.image_ml.image_similarity;
 
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
-import klik.image_ml.face_recognition.Ml_servers_util;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Random;
 
 //**********************************************************
