@@ -303,6 +303,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
             image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.drag_and_drop);
         }
+        if (delta !=0) image_window.title_optional_addendum = null;
 
         if ( image_context.isEmpty()) return;
         

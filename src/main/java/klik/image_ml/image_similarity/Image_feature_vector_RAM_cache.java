@@ -33,7 +33,7 @@ public class Image_feature_vector_RAM_cache
 
     private final int instance_number;
     private static int instance_number_generator = 0;
-    private Actor_engine_based_on_workers local_actor_engine;
+    private final Actor_engine_based_on_workers local_actor_engine;
 
     //**********************************************************
     public Image_feature_vector_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
@@ -73,9 +73,6 @@ public class Image_feature_vector_RAM_cache
         }
         return tmp_dir;
     }
-
-
-
 
     //**********************************************************
     public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)

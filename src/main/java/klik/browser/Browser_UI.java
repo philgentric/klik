@@ -471,10 +471,10 @@ public class Browser_UI
             pref.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
             if (level3) {
 
-                Menu cleanup = new Menu(My_I18n.get_I18n_string("Clean_Up_Caches",logger));
+                Menu cleanup = new Menu(My_I18n.get_I18n_string("Cache_cleaning",logger));
                 pref.getItems().add(cleanup);
                 {
-                    Menu ram = new Menu(My_I18n.get_I18n_string("Clean_Up_RAM_Caches",logger));
+                    Menu ram = new Menu(My_I18n.get_I18n_string("RAM_Caches_Cleaming",logger));
                     cleanup.getItems().add(ram);
                     ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
                             event -> browser.clear_all_RAM_caches()));
@@ -487,7 +487,7 @@ public class Browser_UI
 
                 }
                 {
-                    Menu disk = new Menu(My_I18n.get_I18n_string("Clean_Up_DISK_Caches",logger));
+                    Menu disk = new Menu(My_I18n.get_I18n_string("DISK_Caches_Cleaning",logger));
                     cleanup.getItems().add(disk);
 
                     disk.getItems().add(browser_menus.make_menu_item(
@@ -503,7 +503,12 @@ public class Browser_UI
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_Image_Properties_DISK_Cache",
                             event -> Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage,logger)));
+
+                    disk.getItems().add(browser_menus.make_menu_item("Clear_Image_Feature_Vector_DISK_Cache",
+                            event -> Static_files_and_paths_utilities.clear_image_feature_vectors_DISK_cache_no_warning_fx(browser.my_Stage.the_Stage, logger)));
+
                 }
+
             }
         }
         return pref;

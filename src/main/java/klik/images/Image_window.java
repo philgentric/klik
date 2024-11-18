@@ -47,7 +47,7 @@ public class Image_window
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
     public final Aborter aborter;
-    private final String title_optional_addendum;
+    public String title_optional_addendum;
 
     private Slide_show slide_show; // not null if a Slide_show is ongoing
     boolean ultim_mode = false;
@@ -86,7 +86,7 @@ public class Image_window
                 h = bounds.getHeight();
             }
 
-            return new Image_window(b, path, x,y, w,h, null,logger_);
+            return new Image_window(b, path, x,y, w,h, null,true,logger_);
         }
 
         Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
@@ -95,7 +95,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(b, path, x, y,w, h, null, logger_);
+        Image_window returned = new Image_window(b, path, x, y,w, h, null, true,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -108,7 +108,8 @@ public class Image_window
             Path first_image_path,
             double x, double y,
             double w, double h,
-            String title_optional_addendum,
+            String title_optional_addendum, // this is used to display image similarity
+            boolean save_window_bounds,
             Logger logger_)
     //**********************************************************
     {
@@ -158,7 +159,7 @@ public class Image_window
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            Static_application_properties.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
+            if ( save_window_bounds) Static_application_properties.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
         };
         the_Stage.xProperty().addListener(change_listener);
         the_Stage.yProperty().addListener(change_listener);

@@ -1,11 +1,11 @@
 import json
 import re
-import keras
 import torch
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 import urllib.parse
 import tensorflow as tf
+import keras
 import numpy as np
 from keras.models import Model
 from facenet_pytorch import InceptionResnetV1

@@ -23,6 +23,7 @@ import klik.browser.Landscape_height_listener;
 import klik.browser.Scroll_to_listener;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.items.*;
+import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
 import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -582,6 +583,13 @@ public class Icon_manager
     {
         if ( paths_manager.image_properties_cache == null) return;
         paths_manager.image_properties_cache.clear_image_properties_RAM_cache_fx();
+    }
+
+    //**********************************************************
+    public void clear_image_feature_vector_RAM_cache_fx()
+    //**********************************************************
+    {
+        logger.log("clear_image_feature_vector_RAM_cache_fx is NOP");
     }
 
 

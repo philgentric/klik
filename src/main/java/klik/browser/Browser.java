@@ -255,6 +255,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(my_Stage.the_Stage,this.aborter,logger);
         Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(my_Stage.the_Stage, logger);
         Static_files_and_paths_utilities.clear_folder_icon_DISK_cache_no_warning_fx(logger);
+        Static_files_and_paths_utilities.clear_image_feature_vectors_DISK_cache_no_warning_fx(my_Stage.the_Stage,logger);
     }
 
     //**********************************************************
@@ -983,7 +984,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
 
-        if (dbg)
+        //if (dbg)
         logger.log("Browser redraw from:" + from + " change_type=" + change_type);
 
         long start = System.currentTimeMillis();

@@ -12,6 +12,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
+import klik.browser.items.Item_image;
 import klik.change.undo.Undo_engine;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
@@ -482,6 +483,9 @@ public class Menus_for_image_window
         if (Static_application_properties.get_level2(image_window.logger)) {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
+
+        context_menu.getItems().add(Item_image.create_show_similar_menu_item(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
+
         context_menu.getItems().add(make_menu_item(
                 image_window,
                 "Perform_face_recognition_with_high_precision_face_detector",

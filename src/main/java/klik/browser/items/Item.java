@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Item implements Icon_destination
 //**********************************************************
 {
-    protected final boolean dbg = false;
+    protected static final boolean dbg = false;
     public static final boolean layout_dbg = false;
     public final int icon_size;
     public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);

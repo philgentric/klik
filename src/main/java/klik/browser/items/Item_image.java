@@ -145,7 +145,7 @@ public class Item_image extends Item
     public void open_an_image(Logger logger)
     //**********************************************************
     {
-        Image_window s = Image_window.get_Image_window(browser, path, logger);
+        Image_window.get_Image_window(browser, path, logger);
         if ( dbg) logger.log("\n\nImage_stage opening for path:" + path.toString());
     }
 
@@ -190,7 +190,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(path,logger);
+            MenuItem menu_item = create_show_similar_menu_item(path,browser,logger);
             context_menu.getItems().add(menu_item);
         }
         {
@@ -247,12 +247,12 @@ public class Item_image extends Item
 
 
     static final int N = 5;
-    static Image_similarity image_similarity;
+    public static Image_similarity image_similarity;
     //**********************************************************
-    public MenuItem create_show_similar_menu_item(Path path, Logger logger)
+    public static MenuItem create_show_similar_menu_item(Path path, Browser browser, Logger logger)
     //**********************************************************
     {
-        String txt = "Show "+N+" similar images";//My_I18n.get_I18n_string("Info_about", logger);
+        String txt = "Show "+N+" similar images in same folder";//My_I18n.get_I18n_string("Info_about", logger);
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
@@ -331,7 +331,7 @@ public class Item_image extends Item
             // the item is not visible anymore typically because the user scrolled away
             if ( dbg)
                 logger.log("!visible_in_scene.get() : calling you_are_invisible");
-            Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
+            Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
         if ( image_and_rotation == null)
@@ -352,7 +352,7 @@ public class Item_image extends Item
         if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
-            Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
+            Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
 
@@ -404,7 +404,7 @@ public class Item_image extends Item
                             (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
                     ) {
                         if (dbg) logger.log("PDF or video => rot=0");
-                        local_rot = Double.valueOf(0);
+                        local_rot = 0;
                     } else {
                         local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, browser_aborter, logger);
                     }

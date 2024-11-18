@@ -27,7 +27,9 @@ public class Image_similarity
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
     public final Browser browser;
     public final Logger logger;
+    //**********************************************************
     public Image_similarity(Browser browser, Logger logger)
+    //**********************************************************
     {
         this.browser = browser;
         this.logger = logger;
@@ -107,7 +109,7 @@ public class Image_similarity
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
-        Image_window returned = new Image_window(browser, ms.path(), x, y, W, H, s, logger);
+        Image_window returned = new Image_window(browser, ms.path(), x, y, W, H, s, false,logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         logger.log("x="+returned.the_Stage.getX());
@@ -170,6 +172,7 @@ public class Image_similarity
         }
         return returned;
     }
+
 
     record Most_similar(Path path,Double similarity){};
 
