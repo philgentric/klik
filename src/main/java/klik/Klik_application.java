@@ -82,7 +82,7 @@
 //SOURCES util/log/Logger.java
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
-//SOURCES browser/icons/Icon_manager.java
+//SOURCES browser/icons/Virtual_landscape.java
 //SOURCES properties/File_sort_by.java
 //SOURCES properties/Properties_manager.java
 //SOURCES browser/Vertical_slider.java

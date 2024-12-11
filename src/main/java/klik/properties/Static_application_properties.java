@@ -3,7 +3,7 @@ package klik.properties;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
-import klik.browser.icons.Icon_manager;
+import klik.browser.icons.Virtual_landscape;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -282,7 +282,7 @@ public class Static_application_properties
         // first time, we look it up on disk
         String column_width_s = get_main_properties_manager(logger).get(COLUMN_WIDTH);
         if (column_width_s == null) {
-            column_width = Icon_manager.MIN_COLUMN_WIDTH;
+            column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
         } else {
             double local = Double.parseDouble(column_width_s);
             column_width = (int) local;

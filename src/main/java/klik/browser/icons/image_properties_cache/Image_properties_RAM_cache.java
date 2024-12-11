@@ -219,7 +219,7 @@ public class Image_properties_RAM_cache
 
 
     //**********************************************************
-    public void all_image_properties_acquired_4(Paths_manager paths_manager, Refresh_target refresh_target, Change_type change_type, long start, Hourglass running_man)
+    public void all_image_properties_acquired_4(Paths_manager paths_manager, Refresh_target refresh_target,  long start, Hourglass running_man)
     //**********************************************************
     {
         //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
@@ -232,7 +232,7 @@ public class Image_properties_RAM_cache
         }
         determine_file_comparator(paths_manager);
         //logger.log("all_image_properties_acquired, going to refresh");
-        refresh_target.refresh_UI_after_scan_dir_5(change_type,"all_image_properties_acquired", running_man);
+        refresh_target.refresh_UI_after_scan_dir_5("all_image_properties_acquired", running_man);
 
         long end = System.currentTimeMillis();
         Performance_monitor.register_new_record("Browser",paths_manager.folder_path.toString(),end-start,logger);

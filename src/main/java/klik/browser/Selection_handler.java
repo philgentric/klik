@@ -7,7 +7,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import klik.browser.icons.Icon_manager;
+import klik.browser.icons.Virtual_landscape;
 import klik.browser.items.Item;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -26,7 +26,7 @@ public class Selection_handler
 {
 
     private final Pane the_pane;
-    private final Icon_manager icon_manager;
+    private final Virtual_landscape virtual_landscape;
     private final Logger logger;
     private final Selection_reporter selection_reporter;
 
@@ -40,6 +40,16 @@ public class Selection_handler
     private static final boolean enable_multiple_selections = true;
 
     Selection_state selection_state = Selection_state.nothing_selected;
+
+    //**********************************************************
+    public Selection_handler(Pane the_pane_, Virtual_landscape icon_manager_, Selection_reporter selection_reporter_, Logger logger_)
+    //**********************************************************
+    {
+        the_pane = the_pane_;
+        virtual_landscape = icon_manager_;
+        selection_reporter = selection_reporter_;
+        logger = logger_;
+    }
 
     //**********************************************************
     public void on_drag_over()
@@ -76,15 +86,6 @@ public class Selection_handler
 
     }
 
-    //**********************************************************
-    public Selection_handler(Pane the_pane_, Icon_manager icon_manager_, Selection_reporter selection_reporter_, Logger logger_)
-    //**********************************************************
-    {
-        the_pane = the_pane_;
-        icon_manager = icon_manager_;
-        selection_reporter = selection_reporter_;
-        logger = logger_;
-    }
 
     //**********************************************************
     public boolean add_to_selected_files(Path path)
@@ -303,7 +304,7 @@ public class Selection_handler
     {
         if ( Drag_and_drop.drag_and_drop_dbg) logger.log("selection area is: x=" + x + ", y=" + y + ", w= " + w + ", h= " + h);
 
-        List<Item> items = icon_manager.get_items_in(the_pane, x, y, w, h);
+        List<Item> items = virtual_landscape.get_items_in(the_pane, x, y, w, h);
         if (Drag_and_drop.drag_and_drop_dbg) logger.log("=============selection=============");
         for (Item i : items)
         {
@@ -327,7 +328,7 @@ public class Selection_handler
     //**********************************************************
     {
         selected_files.clear();
-        icon_manager.clear_all_selected_images();
+        virtual_landscape.clear_all_selected_images();
     }
 
     //**********************************************************

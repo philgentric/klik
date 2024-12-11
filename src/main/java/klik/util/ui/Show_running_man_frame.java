@@ -137,7 +137,7 @@ public class Show_running_man_frame implements Hourglass
 		//logger.log("running man has ended "+message);
 
 		long sleep_time = System.currentTimeMillis()-start;
-		if ( sleep_time > 3000) sleep_time = 3000;
+		if ( sleep_time > 1000) sleep_time = 1000;
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(message);//My_I18n.get_I18n_string("Search_Results_Ended", logger));
 			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());

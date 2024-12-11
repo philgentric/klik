@@ -44,7 +44,7 @@ public class Paths_manager
     public ConcurrentSkipListMap<Path,Boolean> folders;
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
 
-    private final List<Path> iconized_sorted = new ArrayList<>();
+    public ConcurrentLinkedQueue<List<Path>> iconized_sorted_queue = new ConcurrentLinkedQueue<>();
     public ConcurrentLinkedQueue<Path> iconized_paths = new ConcurrentLinkedQueue<>();
 
     public Comparator<? super Path> image_file_comparator = null;
@@ -102,7 +102,7 @@ public class Paths_manager
 
     //long scan_dir_elapsed = 0;
     //**********************************************************
-    public void scan_dir_in_a_thread_2(Stage stage, Change_type change_type, long start)
+    public void scan_dir_in_a_thread_2(Stage stage, long start)
     //**********************************************************
     {
 
@@ -120,11 +120,14 @@ public class Paths_manager
         iconized_paths.clear();
         non_iconized.clear();
         folders.clear();
+        iconized_sorted_queue.clear();
+
+
 
         image_properties_cache.reload_cache_from_disk();
         do_the_hard_work_of_scan_dir_3(folder_path, stage, show_hidden_directories, show_icons_for_folders, show_hidden_files, show_icons_instead_of_text);
 
-        image_properties_cache.all_image_properties_acquired_4(this,refresh_target,change_type,start, running_man);
+        image_properties_cache.all_image_properties_acquired_4(this,refresh_target,start, running_man);
 
     }
 
@@ -143,7 +146,7 @@ public class Paths_manager
         if ( hard_part_guard.get()) return;
 
         hard_part_guard.set(true);
-        iconized_sorted_ready.set(false);
+        iconized_sorted_queue.clear();
         try
         {
             File files[] = folder_path.toFile().listFiles();
@@ -286,25 +289,6 @@ public class Paths_manager
     }
 
 
-    //**********************************************************
-    public final static Comparator<Path> alphabetical_file_name_comparator_gifs_fist = new Comparator<>()
-    //**********************************************************
-    {
-        @Override
-        public int compare(Path f1, Path f2)
-        {
-            int i =  f1.getFileName().toString().compareTo(f2.getFileName().toString());
-            if ( i != 0) return i;
-            Boolean is_gif1 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f1.getFileName().toString()));
-            Boolean is_gif2 = Guess_file_type.is_this_extension_a_gif(FilenameUtils.getExtension(f2.getFileName().toString()));
-            return is_gif1.compareTo(is_gif2);
-        }
-    };
-
-
-
-
-
 
 
 
@@ -347,14 +331,12 @@ public class Paths_manager
         }
     }
 
-    public AtomicBoolean iconized_sorted_ready = new AtomicBoolean(false);
 
     //**********************************************************
     public void set_new_iconized_items_comparator(Comparator<Path> local_file_comparator)
     //**********************************************************
     {
         image_file_comparator = local_file_comparator;
-        iconized_sorted_ready.set(false);
     }
 
 
@@ -362,8 +344,10 @@ public class Paths_manager
     public List<Path> get_iconized_sorted(String from)
     //**********************************************************
     {
-        if ( !iconized_sorted_ready.get()) redo_iconized_sorted_7(from);
-        return iconized_sorted;
+        List<Path> returned = iconized_sorted_queue.poll();
+        if ( returned != null) return returned;
+        redo_iconized_sorted_7(from);
+        return iconized_sorted_queue.poll();
     }
 
     //**********************************************************
@@ -371,13 +355,8 @@ public class Paths_manager
     //**********************************************************
     {
         logger.log("making & sorting iconized_sorted with comparator:"+image_file_comparator);
-        iconized_sorted_ready.set(false);
-        iconized_sorted.clear();
-        for ( Path path : iconized_paths)
-        {
-            iconized_sorted.add(path);
-        }
-        Collections.sort(iconized_sorted,image_file_comparator);
-        iconized_sorted_ready.set(true);
+        List<Path> local_iconized_sorted = new ArrayList<>(iconized_paths);
+        local_iconized_sorted.sort(image_file_comparator);
+        iconized_sorted_queue.add(local_iconized_sorted);
     }
 }

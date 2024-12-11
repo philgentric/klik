@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import klik.browser.icons.Error_type;
-import klik.browser.icons.Icon_manager;
+import klik.browser.icons.Virtual_landscape;
 import klik.browser.meter.Meters_stage;
 import klik.images.Image_context;
 import klik.level2.deduplicate.Deduplication_engine;
@@ -73,7 +73,7 @@ public class Browser_UI
                     browser.displayed_folder_path.getParent(),
                     go_up_text,
                     height,
-                    Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
+                    Virtual_landscape.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
                     false,
                     true,
                     logger);
@@ -96,7 +96,7 @@ public class Browser_UI
                     Static_application_properties.get_trash_dir(browser.displayed_folder_path,logger),
                     trash_text,
                     height,
-                    Icon_manager.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
+                    Virtual_landscape.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
                     true,
                     false,
                     logger);
@@ -119,14 +119,14 @@ public class Browser_UI
 
         {
             //logger.log("creating vertical slider");
-            browser.vertical_slider = new Vertical_slider(browser.the_Scene, browser.the_Pane, browser.icon_manager, logger);
+            browser.vertical_slider = new Vertical_slider(browser.the_Scene, browser.the_Fucking_Pane, browser.the_Fucking_Pane.getHeight() , browser.virtual_landscape, logger);
             browser.mandatory_in_pane.add(browser.vertical_slider.the_Slider);
             browser.always_on_front_nodes.add(browser.vertical_slider.the_Slider);
             browser.slider_width = 2 * Vertical_slider.half_slider_width;
         }
         //set the view order (smaller means closer to viewer = on top)
         for (Node n : browser.always_on_front_nodes) n.setViewOrder(0);
-        browser.the_Pane.setViewOrder(100);
+        browser.the_Fucking_Pane.setViewOrder(100);
         browser.apply_font();
 
     }
@@ -138,7 +138,7 @@ public class Browser_UI
     {
         BorderPane returned = new BorderPane();
         returned.setTop(top_pane);
-        returned.setCenter(browser.the_Pane);
+        returned.setCenter(browser.the_Fucking_Pane);
         VBox the_status_bar = new VBox();
         browser.status = new TextField("Status: OK");
         Look_and_feel_manager.set_region_look(browser.status);
@@ -325,7 +325,7 @@ public class Browser_UI
         view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> browser.show_how_many_files_deep_in_each_folder()));
         view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Each_Folder_Total_Size",event -> browser.show_total_size_deep_in_each_folder()));
         view_menu.getItems().add(browser_menus.make_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage()));
-        view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx_1("refresh",Change_type.files_or_folders_changed)));
+        view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx_1("refresh")));
 
 
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> Meters_stage.show_stage(logger)));
@@ -479,7 +479,7 @@ public class Browser_UI
                     ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
                             event -> browser.clear_all_RAM_caches()));
                     ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Properties_RAM_Cache",
-                            event -> browser.icon_manager.clear_image_properties_RAM_cache_fx()));
+                            event -> browser.virtual_landscape.clear_image_properties_RAM_cache_fx()));
                     ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Comparators_Caches",
                             event -> browser.clear_image_comparators_caches()));
                     ram.getItems().add(browser_menus.make_menu_item("Clear_Scroll_Position_Cache",

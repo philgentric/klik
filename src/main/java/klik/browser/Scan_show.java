@@ -31,7 +31,7 @@ public class Scan_show
         scan_show_slave = scan_show_slave_;
         logger = logger_;
         int number_of_rows = scan_show_slave.how_many_rows();
-        double slider_unit_per_row = slider.get_slider_max()/(double)number_of_rows;
+        double slider_unit_per_row = slider.the_Slider.getMax()/(double)number_of_rows;
         if ( dbg) logger.log("slider_unit_per_row="+slider_unit_per_row);
         MIN_SPEED = slider_unit_per_row/3000.0;
         if ( dbg) logger.log("MIN_SPEED="+MIN_SPEED);

@@ -80,10 +80,10 @@ public abstract class Item implements Icon_destination
     private double javafx_x;
     private double javafx_y;
     // this is the (top-left) position of the image
-    // in the possibly hugely tall virtual screen
+    // in the possibly hugely tall virtual landscape
     // that contains all icons
-    private double screen_x_of_image = 0;
-    private double screen_y_of_image = 0;
+    private double virtual_landscape_x = 0;
+    private double virtual_landscape_y = 0;
 
     //**********************************************************
     public Item(Browser browser,
@@ -130,10 +130,11 @@ public abstract class Item implements Icon_destination
         return javafx_y;
     }
 
-    public void set_screen_x_of_image(double x_) { screen_x_of_image = x_; }
-    public void set_screen_y_of_image(double y_) {screen_y_of_image = y_;}
-    public double get_screen_x_of_image() { return screen_x_of_image; }
-    public double get_screen_y_of_image() {return screen_y_of_image;}
+    public void set_screen_x_of_image(double x_) { virtual_landscape_x = x_; }
+    public void set_screen_y_of_image(double y_) {
+        virtual_landscape_y = y_;}
+    public double get_screen_x_of_image() { return virtual_landscape_x; }
+    public double get_screen_y_of_image() {return virtual_landscape_y;}
 
     public abstract Node get_Node();
 
@@ -169,7 +170,6 @@ public abstract class Item implements Icon_destination
     public void request_icon_to_factory(int target_icon_size)
     //**********************************************************
     {
-
         if ( dbg) logger.log("request_icon_to_factory for:"+path);
         Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,
                 new Aborter("Icon creation for "+path,logger));
@@ -190,6 +190,8 @@ public abstract class Item implements Icon_destination
         icon_factory_request.destination.set_icon_fabrication_requested(true);
 
         icon_job = Actor_engine.run(browser.icon_factory_actor, icon_factory_request, null,logger);
+
+
     }
 
 
@@ -649,8 +651,6 @@ public abstract class Item implements Icon_destination
     public void you_are_invisible()
     //**********************************************************
     {
-        //logger.log("Invisible: "+path.getFileName());
-        //get_Node().setVisible(false); OHOH
         you_are_invisible_specific();
         cancel_icon();
 
@@ -704,8 +704,6 @@ public abstract class Item implements Icon_destination
         {
             visible_in_scene.set(false);
             you_are_invisible();
-            //if (visible_dbg) logger.log("removing from Pane invisible Item: " + get_string());
-            //pane.getChildren().remove(get_Node());
         }
     }
 

@@ -19,7 +19,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Icon_manager;
+import klik.browser.icons.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.look.my_i18n.My_I18n;
@@ -132,8 +132,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     {
         if ( Static_application_properties.get_single_column(logger))
         {
-            button.setPrefWidth(browser.my_Stage.the_Stage.getWidth()-Icon_manager.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
-            button.setMinWidth(browser.my_Stage.the_Stage.getWidth()-Icon_manager.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setPrefWidth(browser.my_Stage.the_Stage.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setMinWidth(browser.my_Stage.the_Stage.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
         }
         else
         {

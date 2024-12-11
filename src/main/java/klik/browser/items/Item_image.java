@@ -49,8 +49,8 @@ public class Item_image extends Item
     Pane image_pane;
     public Double aspect_ratio;
     public static Image default_icon;
-    double actual_icon_size;
 
+    public static List<Item_image> currently = new ArrayList<>();
     //**********************************************************
     public Item_image(
             Browser b,
@@ -60,7 +60,7 @@ public class Item_image extends Item
     {
         super(b,p, null, logger);
         this.aspect_ratio = aspect_ratio;
-        actual_icon_size = icon_size / 3.0;
+        double actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
 
 
@@ -75,7 +75,6 @@ public class Item_image extends Item
         image_view.setSmooth(true);
         image_view.setFitWidth(actual_icon_size);
         image_view.setFitHeight(actual_icon_size);
-        //the_image_view.setManaged(false);
         image_view.setCache(false);
         //image_view.setCacheHint(CacheHint.SPEED);
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);

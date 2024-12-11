@@ -19,7 +19,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Icon_manager;
+import klik.browser.icons.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
@@ -87,7 +87,7 @@ public class Item_button extends Item implements Icon_destination
         }
 
         double button_width = Static_application_properties.get_column_width(logger);
-        if ( button_width < Icon_manager.MIN_COLUMN_WIDTH) button_width = Icon_manager.MIN_COLUMN_WIDTH;
+        if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         if (Files.isDirectory(path))
         {
