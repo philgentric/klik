@@ -171,7 +171,7 @@ public class Menus_for_image_window
         MenuItem copy = new MenuItem(My_I18n.get_I18n_string("Copy", image_window.logger));
         copy.setOnAction(event -> {
 
-            Runnable r = image_window.image_display_handler.image_indexer::signal_file_copied;
+            Runnable r = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
             image_window.image_display_handler.get_image_context().get().copy(the_browser, r);
         });
         return copy;

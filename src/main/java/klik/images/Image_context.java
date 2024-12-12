@@ -22,6 +22,7 @@ import klik.properties.Static_application_properties;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
 import klik.util.files_and_paths.From_disk;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
@@ -60,6 +61,7 @@ public class Image_context
     public static Optional<Image_context> get_Image_context(Path path, Aborter aborter,Logger logger_)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         if ( !Files.exists(path)) return Optional.empty();
         Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, aborter,logger_);
         if ( local_image == null)
@@ -71,7 +73,9 @@ public class Image_context
             Image broken = Jar_utils.get_broken_icon(300,logger_);
             return Optional.of(new Image_context(path,path,broken,logger_));
         }
-        return Optional.of(new Image_context(path,path, local_image,logger_));
+        Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image, logger_));
+        Performance_monitor.register_new_record("get_Image_context", path.toString(), System.currentTimeMillis() - start, logger_);
+        return returned;
     }
 
 

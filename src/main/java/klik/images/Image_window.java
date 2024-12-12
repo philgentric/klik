@@ -21,6 +21,7 @@ import klik.level3.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -61,9 +62,12 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         Stage from_stage = null;
         if ( b != null) from_stage = b.my_Stage.the_Stage; // for on same screen
-        return on_same_screen(b, from_stage, path, logger_);
+        Image_window returned = on_same_screen(b, from_stage, path, logger_);
+        Performance_monitor.register_new_record("get_Image_window", path.toString(), System.currentTimeMillis() - start, logger_);
+        return returned;
     }
 
     //**********************************************************
@@ -453,8 +457,12 @@ public class Image_window
         budjet -= 4;
         if ( budjet < 10) budjet = 10;
         {
-            int max_progress_bar = image_display_handler.image_indexer.get_max();
-            if (max_progress_bar > budjet) max_progress_bar = budjet;
+            int max_progress_bar = budjet;
+            if ( image_display_handler.image_indexer.isPresent())
+            {
+                max_progress_bar = image_display_handler.image_indexer.get().get_max();
+                if (max_progress_bar > budjet) max_progress_bar = budjet;
+            }
             int filler = budjet - max_progress_bar;
             for (int j = 0; j < filler; j++) local_title.append(" ");
             local_title.append("   ");

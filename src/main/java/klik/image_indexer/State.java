@@ -4,6 +4,7 @@ import klik.util.files_and_paths.Guess_file_type;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.performance_monitor.Performance_monitor;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -46,6 +47,7 @@ class State
     public synchronized void rescan()
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
 
         boolean consider_also_hidden_files =  Static_application_properties.get_show_hidden_files(logger);
@@ -88,6 +90,7 @@ class State
             path_to_index.put(p,index);
             index++;
         }
+        Performance_monitor.register_new_record("image file source rescan", current_dir.toString(), System.currentTimeMillis() - start, logger);
     }
 
     public Integer index_from_path(Path path) {

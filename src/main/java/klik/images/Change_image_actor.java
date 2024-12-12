@@ -3,6 +3,7 @@ package klik.images;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.change.Change_gang;
+import klik.image_indexer.Image_indexer;
 import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 
@@ -82,8 +83,27 @@ public class Change_image_actor implements Actor
 
         //cim.image_stage.show_wait_cursor();
        //if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current OLD path="+change_image_message.input_image_context.path);
-        Path target_path = change_image_message.image_window.image_display_handler.image_indexer.get_new_path_relative(
-                change_image_message.input_image_context.previous_path,change_image_message.delta,change_image_message.ultimate);
+
+        Path target_path;
+        if ( change_image_message.delta != 0) {
+            for (; ; ) {
+                if (change_image_message.image_window.image_display_handler.image_indexer.isPresent()) break;
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            Image_indexer x = change_image_message.image_window.image_display_handler.image_indexer.get();
+            target_path = x.get_new_path_relative(
+                    change_image_message.input_image_context.previous_path, change_image_message.delta, change_image_message.ultimate);
+        }
+        else
+        {
+            target_path = change_image_message.input_image_context.path;
+        }
+
         if ( dbg) change_image_message.image_window.logger.log("Change_image_actor target_path="+target_path);
         if ( target_path == null)
         {
@@ -97,7 +117,7 @@ public class Change_image_actor implements Actor
         String returned =  display_target_path(target_path, change_image_message);
 
         long end = System.currentTimeMillis();
-        Performance_monitor.register_new_record("Image display",target_path.toString(),end-start,change_image_message.logger);
+        Performance_monitor.register_new_record("Change image actor: image ready for display",target_path.toString(),end-start,change_image_message.logger);
         return returned;
     }
 

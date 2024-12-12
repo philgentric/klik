@@ -24,6 +24,7 @@ import klik.util.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
 import klik.look.Look_and_feel_manager;
 import klik.util.files_and_paths.From_disk;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -46,7 +47,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public final Cache_interface image_cache;
 
     // STATE: when the image changes a new context is created
-    public final Image_indexer image_indexer;
+    public Optional<Image_indexer> image_indexer;
     private Optional<Image_context> image_context;
 
     // alternate rescaler:
@@ -58,13 +59,16 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public static Optional<Image_display_handler> get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         Optional<Image_context> image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
         if (image_context_.isEmpty())
         {
             logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
         }
-        return Optional.of(new Image_display_handler(image_context_.get(),v_,file_comparator,aborter, logger_));
+        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(image_context_.get(), v_, file_comparator, aborter, logger_));
+        Performance_monitor.register_new_record("Image_display_handler.get_Image_display_handler_instance", path.toAbsolutePath().toString(),System.currentTimeMillis() - start,logger_);
+        return returned;
     }
 
     //**********************************************************
@@ -93,8 +97,15 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         logger = logger_;
         image_window = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context_.path.toAbsolutePath().getParent());
+        image_indexer = Optional.empty();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                image_indexer = Optional.of(Image_indexer.get_Image_indexer(image_context_.path.toAbsolutePath().getParent(), file_comparator, logger));
 
-        image_indexer = Image_indexer.get_Image_indexer(image_context_.path.toAbsolutePath().getParent(),file_comparator,logger);
+            }
+        };
+        Actor_engine.execute(r,logger);
 
         Change_gang.register(this,aborter,logger); // image_context must be valid!
 
@@ -222,7 +233,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
                 // the case we care for HERE is when another type of event occurred
                 // for example the image was renamed
-                if (image_indexer.exists(oanf.new_Path))
+                if (image_indexer.get().exists(oanf.new_Path))
                 {
                     if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.get_string());
                     Jfx_batch_injector.inject(() -> {
@@ -272,7 +283,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         if ( image_context.isEmpty()) return;
         Path to_be_deleted = image_context.get().path;
         change_image_relative(1, image_window.ultim_mode);
-        Runnable r = () -> image_indexer.signal_deleted_file(to_be_deleted);
+        Runnable r = () -> image_indexer.get().signal_deleted_file(to_be_deleted);
         Static_files_and_paths_utilities.move_to_trash(image_window.the_Stage,to_be_deleted, r, aborter,logger);
     }
 
@@ -284,6 +295,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public void change_image_relative(int delta, boolean ultimate)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         if ( block.get())
         {
             if ( dbg) logger.log("change_image_relative BLOCKED");
@@ -292,7 +304,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         block.set(true);
         if ( image_context.isEmpty())
         {
-            Path p = image_indexer.path_from_index(0);
+            Path p = image_indexer.get().path_from_index(0);
             if ( p == null) return;
             image_context = Image_context.get_Image_context(p,aborter,logger);
         }
@@ -333,13 +345,11 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 return;
             }
             image_context = Optional.of(local);
-            if ( image_indexer != null)
-            {
-                index_reporter.report_index((double)image_indexer.get_index(local.path)/(double)image_indexer.get_max());
-            }
+            image_indexer.ifPresent(imageIndexer -> index_reporter.report_index((double) imageIndexer.get_index(local.path) / (double) imageIndexer.get_max()));
         };
         Actor_engine.run(Change_image_actor.get_instance(), change_image_message, tr,logger);
 
+        Performance_monitor.register_new_record("change_image_relative",image_context.get().path.toString(),System.currentTimeMillis()-start,logger);
     }
 
     @Override // Slide_show_slave

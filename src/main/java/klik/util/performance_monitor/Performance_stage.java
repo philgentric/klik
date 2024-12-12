@@ -12,6 +12,7 @@ import klik.util.ui.Jfx_batch_injector;
 public class Performance_stage
 //**********************************************************
 {
+    public static final double WIDTH = 1200;
     private static Performance_stage instance;
     private TextFlow textFlow;
     private final Logger logger;
@@ -36,16 +37,16 @@ public class Performance_stage
 
 
         ScrollPane sp = new ScrollPane();
-        sp.setPrefSize(1000, 1000);
+        sp.setPrefSize(WIDTH, 1000);
         sp.setContent(textFlow);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         the_stage = new Stage();
         the_stage.setHeight(600);
-        the_stage.setWidth(1000);
+        the_stage.setWidth(WIDTH);
 
-        Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
+        Scene scene = new Scene(sp, WIDTH, 600, Color.WHITE);
         the_stage.setTitle("Performance history");
         the_stage.setScene(scene);
         the_stage.show();
@@ -87,6 +88,7 @@ public class Performance_stage
             public void run() {
                 Text text = new Text(line+"\n");
                 text.setFont(Font.font("verdana", FontWeight.NORMAL, FontPosture.REGULAR,24));
+                text.setWrappingWidth(WIDTH);
                 textFlow.getChildren().add(text);
             }
         },instance.logger);
