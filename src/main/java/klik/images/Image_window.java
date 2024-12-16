@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -43,7 +44,7 @@ public class Image_window
     static boolean dbg = false;
     public final Scene the_Scene;
     public final Stage the_Stage;
-    final Pane the_image_Pane;
+    public final Pane the_image_Pane;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
@@ -529,14 +530,42 @@ public class Image_window
             // but the proposed solution does not work well
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
-            if (( rot == 90) || ( rot == 270))
+
+            boolean dont_zoom = Static_application_properties.get_dont_zoom_small_images(logger);
+            boolean normal = true;
+            if (dont_zoom)
             {
-                local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
-                local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
+                Image image = local_image_context.image;
+                double pane_height = the_image_Pane.getHeight();
+                double pane_width = the_image_Pane.getWidth();
+                if (( image.getHeight() < pane_height ) && (image.getWidth() < pane_width))
+                {
+                    if ( dbg) logger.log("preventing resize since "+image.getHeight() +" < "+pane_height+" and "+image.getWidth() +" < "+ pane_width);
+
+                    local_image_context.the_image_view.fitWidthProperty().unbind();
+                    local_image_context.the_image_view.fitHeightProperty().unbind();
+                    local_image_context.the_image_view.setFitWidth(local_image_context.image.getWidth());
+                    local_image_context.the_image_view.setFitHeight(local_image_context.image.getHeight());
+                    normal = false;
+                }
+                else
+                {
+                    if ( dbg) logger.log("NOT preventing resize");
+                }
             }
-            else {
-                local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
-                local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
+            if ( normal)
+            {
+
+                if ((rot == 90) || (rot == 270))
+                {
+                    local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
+                    local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
+                }
+                else
+                {
+                    local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
+                    local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
+                }
             }
             set_background(the_image_Pane,FilenameUtils.getExtension(local_image_context.get_image_name()));
 

@@ -18,15 +18,17 @@ public record Image_properties(double w, double h, Rotation rotation)
 
 
     //**********************************************************
-    public static Image_properties from_string(String value)
+    public static Image_properties from_string(String value) throws NumberFormatException
     //**********************************************************
     {
         int first_space = value.indexOf(" ");
+        if ( first_space == -1) return null;
         int second_space = value.indexOf(" ",first_space+1);
+        if ( second_space == -1) return null;
         String ws = value.substring(0,first_space);
-        double w = Double.valueOf(ws.trim());
+        double w = Double.parseDouble(ws.trim());
         String hs = value.substring(first_space, second_space);
-        double h = Double.valueOf(hs.trim());
+        double h = Double.parseDouble(hs.trim());
         String rots = value.substring(second_space+1);
         Rotation rotation = Rotation.valueOf(rots.trim());
         return new Image_properties(w,h, rotation);

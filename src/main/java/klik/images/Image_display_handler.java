@@ -15,6 +15,7 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
+import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
@@ -66,6 +67,8 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
         }
+
+
         Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(image_context_.get(), v_, file_comparator, aborter, logger_));
         Performance_monitor.register_new_record("Image_display_handler.get_Image_display_handler_instance", path.toAbsolutePath().toString(),System.currentTimeMillis() - start,logger_);
         return returned;

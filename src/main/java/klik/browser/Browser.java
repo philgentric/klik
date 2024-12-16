@@ -1373,7 +1373,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         if (dbg) logger.log("adapt_slider_to_scene");
         {
-            vertical_slider.adapt_slider_to_scene(the_Scene, the_Fucking_Pane.getHeight());
+            vertical_slider.adapt_slider_to_scene(the_Scene);
         }
         //if (keep_scroll)
         {

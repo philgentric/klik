@@ -159,10 +159,17 @@ public class Image_properties_RAM_cache
                 try
                 {
                     Image_properties ip = Image_properties.from_string(value);
-                    if ( dbg) logger.log("reloading : "+key+" => "+ ip.to_string());
-                    cache.put(key, ip);
-                    reloaded++;
-                    if ( dbg) logger.log("reloading : "+reloaded);
+                    if ( ip == null)
+                    {
+                        cleanup.add(key);
+                    }
+                    else
+                    {
+                        if ( dbg) logger.log("reloading : "+key+" => "+ ip.to_string());
+                        cache.put(key, ip);
+                        reloaded++;
+                        if ( dbg) logger.log("reloading : "+reloaded);
+                    }
 
                 }
                 catch(NumberFormatException x)

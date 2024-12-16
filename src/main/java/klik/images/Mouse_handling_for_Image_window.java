@@ -306,11 +306,11 @@ public class Mouse_handling_for_Image_window
             return;
         }
         if ( tmp.get_image_context().isEmpty()) return;
-        Image_context local = tmp.get_image_context().get();
-        local.the_image_view.fitWidthProperty().unbind();
-        local.the_image_view.fitHeightProperty().unbind();
-        local.the_image_view.setFitWidth(local.image.getWidth());
-        local.the_image_view.setFitHeight(local.image.getHeight());
+        Image_context local_image_context = tmp.get_image_context().get();
+        local_image_context.the_image_view.fitWidthProperty().unbind();
+        local_image_context.the_image_view.fitHeightProperty().unbind();
+        local_image_context.the_image_view.setFitWidth(local_image_context.image.getWidth());
+        local_image_context.the_image_view.setFitHeight(local_image_context.image.getHeight());
     }
 
 

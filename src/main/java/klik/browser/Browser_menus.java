@@ -199,6 +199,21 @@ public class Browser_menus
         return item;
     }
 
+    //**********************************************************
+    public MenuItem make_dont_zoom_small_images_check_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("DONT_ZOOM_SMALL_IMAGES",logger);
+
+        CheckMenuItem item = new CheckMenuItem(text);
+        item.setSelected(Static_application_properties.get_dont_zoom_small_images(logger));
+        item.setOnAction(actionEvent -> {
+            Static_application_properties.set_dont_zoom_small_images(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            browser.redraw_fx_1("dont_zoom_small_images boolean changed");
+        });
+        return item;
+    }
+
 
 
     //**********************************************************

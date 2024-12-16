@@ -89,6 +89,8 @@ public class Image_context
         image = image_;
         the_image_view = new ImageView(image);
         the_image_view.setCacheHint(CacheHint.QUALITY);
+
+
         creation_time = Fast_date_from_OS.get_date(current_path,logger);
         //if ( get_rotation) get_rotation();
         if ( dbg)

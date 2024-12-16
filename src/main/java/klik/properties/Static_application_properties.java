@@ -39,6 +39,7 @@ public class Static_application_properties
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
+    public static final String DONT_ZOOM_SMALL_IMAGES = "dont_zoom_small_images";
     private static final String ENABLE_FUSK = "enable_fusk";
     private static final String SHOW_FFMPEG_INSTALL_WARNING = "SHOW_FFMPEG_INSTALL_WARNING";
     private static final String SHOW_GraphicsMagick_INSTALL_WARNING = "SHOW_GraphicsMagick_INSTALL_WARNING";
@@ -138,6 +139,19 @@ public class Static_application_properties
 
 
     //**********************************************************
+    public static boolean get_dont_zoom_small_images(Logger logger)
+    //**********************************************************
+    {
+        String s = get_main_properties_manager(logger).get(DONT_ZOOM_SMALL_IMAGES);
+        if (s == null) {
+            get_main_properties_manager(logger).add_and_save(DONT_ZOOM_SMALL_IMAGES, "false");
+            return false;
+        } else {
+            return Boolean.parseBoolean(s);
+        }
+    }
+
+    //**********************************************************
     public static boolean get_show_hidden_directories(Logger logger)
     //**********************************************************
     {
@@ -202,6 +216,13 @@ public class Static_application_properties
     //**********************************************************
     {
         get_main_properties_manager(logger).add_and_save(SHOW_HIDDEN_DIRECTORIES, String.valueOf(b));
+    }
+
+    //**********************************************************
+    public static void set_dont_zoom_small_images(boolean b, Logger logger)
+    //**********************************************************
+    {
+        get_main_properties_manager(logger).add_and_save(DONT_ZOOM_SMALL_IMAGES, String.valueOf(b));
     }
 
     //**********************************************************

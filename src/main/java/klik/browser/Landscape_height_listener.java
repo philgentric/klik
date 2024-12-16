@@ -2,5 +2,5 @@ package klik.browser;
 
 public interface Landscape_height_listener
 {
-    void browsed_landscape_height_has_changed(double new_landscape_height, double pane_height, double current_vertical_offset);
+    void browsed_landscape_height_has_changed(double new_landscape_height, double current_vertical_offset);
 }

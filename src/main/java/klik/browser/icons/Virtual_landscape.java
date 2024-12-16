@@ -82,7 +82,7 @@ public class Virtual_landscape
     Map<Path,Long> folder_total_sizes_cache;
     Map<Path,Long> folder_file_count_cache;
 
-    private List<Item> future_pane_content = new ArrayList<>();
+    private final List<Item> future_pane_content = new ArrayList<>();
     //**********************************************************
     public Virtual_landscape(Pane the_Pane, Paths_manager paths_manager, Aborter aborter, Logger logger_)
     //**********************************************************
@@ -165,19 +165,19 @@ public class Virtual_landscape
         double top_delta_y = 2 * Static_application_properties.get_font_size(logger);
         if (the_browser.error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
-            show_error_icon(the_browser, iv_denied, pane_height,top_delta_y);
+            show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_man != null) running_man.close();
             return;
         }
         if (the_browser.error_type == Error_type.NOT_FOUND) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
-            show_error_icon(the_browser, iv_denied, pane_height,top_delta_y);
+            show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_man != null) running_man.close();
             return;
         }
         if (the_browser.error_type == Error_type.ERROR) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
-            show_error_icon(the_browser, iv_denied, pane_height,top_delta_y);
+            show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_man != null) running_man.close();
             return;
         }
@@ -222,7 +222,7 @@ public class Virtual_landscape
 
         process_iconified_items(the_browser, single_column, icon_size, final_column_increment_for_icons, scene_width, p);
 
-        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY(), pane_height);
+        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
         map_buttons_and_icons_elapsed += (System.nanoTime()- start);
         //logger.log("map_buttons_and_icons_elapsed= "+String.format("%.2f",map_buttons_and_icons_elapsed/1000_000.0)+" ms "+reason);
 
@@ -297,7 +297,7 @@ public class Virtual_landscape
         scroll_to_listener.perform_scroll_to(current_vertical_offset,this, pane_height);
     }
     //**********************************************************
-    private void show_error_icon(Browser the_browser, ImageView iv_denied, double pane_height, double top_delta_y)
+    private void show_error_icon(Browser the_browser, ImageView iv_denied, double top_delta_y)
     //**********************************************************
     {
         iv_denied.setPreserveRatio(true);
@@ -311,7 +311,7 @@ public class Virtual_landscape
         {
             Jfx_batch_injector.inject(()-> the_Pane.getChildren().add(iv_denied),logger);
         }
-        compute_bounding_rectangle(the_browser.error_type.toString(), pane_height);
+        compute_bounding_rectangle(the_browser.error_type.toString());
     }
 
     //**********************************************************
@@ -633,7 +633,7 @@ public class Virtual_landscape
         if (scroll_dbg)
             logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset);
         boolean single_column = Static_application_properties.get_single_column(logger);
-        if (scroll_dbg) logger.log(Stack_trace_getter.get_stack_trace("geometry_changed single_column="+single_column));
+        if (scroll_dbg) logger.log(("geometry_changed single_column="+single_column));
         map_buttons_and_icons_8(b, mandatory, single_column, reason, pane_width,pane_height, scroll_to, running_man);
 
     }
@@ -1013,7 +1013,7 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void compute_bounding_rectangle(String reason, double pane_height)
+    private void compute_bounding_rectangle(String reason)
     //**********************************************************
     {
         if (scroll_dbg) logger.log("compute_bounding_rectangle() "+reason);
@@ -1048,7 +1048,7 @@ public class Virtual_landscape
             logger.log("landscape_height="+ virtual_landscape_height);
         if ( landscape_height_listener != null)
         {
-            landscape_height_listener.browsed_landscape_height_has_changed(virtual_landscape_height,pane_height,current_vertical_offset);
+            landscape_height_listener.browsed_landscape_height_has_changed(virtual_landscape_height,current_vertical_offset);
         }
     }
 

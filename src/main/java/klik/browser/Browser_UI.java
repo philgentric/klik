@@ -119,7 +119,7 @@ public class Browser_UI
 
         {
             //logger.log("creating vertical slider");
-            browser.vertical_slider = new Vertical_slider(browser.the_Scene, browser.the_Fucking_Pane, browser.the_Fucking_Pane.getHeight() , browser.virtual_landscape, logger);
+            browser.vertical_slider = new Vertical_slider(browser.the_Scene, browser.the_Fucking_Pane , browser.virtual_landscape, logger);
             browser.mandatory_in_pane.add(browser.vertical_slider.the_Slider);
             browser.always_on_front_nodes.add(browser.vertical_slider.the_Slider);
             browser.slider_width = 2 * Vertical_slider.half_slider_width;
@@ -438,6 +438,10 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_directories_check_menu_item());
         pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
+        pref.getItems().add(browser_menus.make_dont_zoom_small_images_check_menu_item());
+
+
+
         if (level2)
         {
             pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
