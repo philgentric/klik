@@ -119,7 +119,6 @@ public class Per_folder_mini_console
 
         for (File f : all_files)
         {
-
             if (!f.isDirectory())
             {
                 if (!Guess_file_type.should_ignore(f.toPath()))

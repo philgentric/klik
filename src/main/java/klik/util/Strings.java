@@ -38,7 +38,7 @@ public class Strings
     }
 
     //**********************************************************
-    public static String create_nice_bytes_per_second_string(int speed)
+    public static String create_nice_bytes_per_second_string(long speed)
     //**********************************************************
     {
         if ( speed > 1_000_000_000)

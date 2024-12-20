@@ -46,7 +46,7 @@ dependencies {
 def main_class_name = 'klik.Klik_application'
 
 application {
-    mainModule = 'klikmodule'
+    //mainModule = 'klikmodule'
     mainClass = main_class_name
 
     // Java VM RAM size options:

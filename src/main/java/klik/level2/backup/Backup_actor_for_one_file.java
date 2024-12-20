@@ -210,6 +210,7 @@ public class Backup_actor_for_one_file implements Actor
                 Path source = destination_file.toPath();
                 try {
                     //Files.move(obsolete_name, source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()));
+                    logger.log("renaming a destination file: " + obsolete_name.toFile().getName() + " to " + file_backup_job_request.file_to_be_copied.getName());
                     FileUtils.moveFile(obsolete_name.toFile(), source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()).toFile());
                 } catch (IOException e) {
                     logger.log("WARNING: attempt to rename failed " + e);
@@ -244,7 +245,9 @@ public class Backup_actor_for_one_file implements Actor
         // perform the copy
         try
         {
+            logger.log("starting to COPY: " + file_backup_job_request.file_to_be_copied.getAbsolutePath() + " -> " + destination_file.getAbsolutePath());
             long b = File_copier.copy_file_NIO(destination_file, file_backup_job_request.file_to_be_copied);
+            logger.log("done COPY: " + file_backup_job_request.file_to_be_copied.getAbsolutePath() + " -> " + destination_file.getAbsolutePath());
             if ( file_backup_job_request.mini_console != null) file_backup_job_request.mini_console.add_to_copied_bytes(b);
         }
         catch (Exception eee) {
