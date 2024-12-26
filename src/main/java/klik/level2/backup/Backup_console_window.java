@@ -136,8 +136,8 @@ public class Backup_console_window
         }
         {
             remaining_time = new TextField("0");
-            remaining_time.setPrefColumnCount(70);
-            remaining_time.setAlignment(Pos.BASELINE_LEFT);
+            //remaining_time.setPrefColumnCount(70);
+            //remaining_time.setAlignment(Pos.BASELINE_LEFT);
             add_one_line(vbox, remaining_time, "Remaining time:");
         }
         textArea = new TextArea();
@@ -205,14 +205,15 @@ public class Backup_console_window
         number_of_bytes_processed.setText(Strings.create_nice_bytes_string(stats.number_of_bytes_processed.get()));
 
         long now = System.currentTimeMillis();
+        double delta_t = (double)(now-start)/1000.0;
         {
-            double speed = (double) stats.number_of_bytes_processed.get() / (double) (now - start);
+            double speed = (double) stats.number_of_bytes_processed.get() / delta_t;
             application_bytes_per_second.setText(Strings.create_nice_bytes_per_second_string((long) speed));
             long remaining = (long)((double)(stats.source_byte_count-stats.number_of_bytes_processed.get())/speed);
-            remaining_time.setText(Strings.create_nice_remaining_time_string(remaining));
+            remaining_time.setText(Strings.create_nice_remaining_time_string(1000*remaining));
         }
         {
-            double read_speed = (double) stats.number_of_bytes_read.get() / (double) (now - start);
+            double read_speed = (double) stats.number_of_bytes_read.get() / delta_t;
             bytes_read_per_second_for_file_bit_level_compare.setText(Strings.create_nice_bytes_per_second_string((long) read_speed));
         }
         {
@@ -221,7 +222,8 @@ public class Backup_console_window
             long recently_elapsed = now-previous_ms;
             if ( recently_elapsed > MILLISECONDS)
             {
-                int last_minute_speed = (int)((double) (now_bytes - previous_bytes) / (double) (recently_elapsed));
+                double recently_elapsed_d = (double) recently_elapsed/1000.0;
+                int last_minute_speed = (int)((double) (now_bytes - previous_bytes) / recently_elapsed_d);
                 last_minute_bytes_per_second.setText(Strings.create_nice_bytes_per_second_string(last_minute_speed));
                 previous_bytes = now_bytes;
                 previous_ms = now;
