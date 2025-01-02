@@ -211,10 +211,8 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         //logger.log("adapt_slider_to_scene scene.getWidth() "+scene.getWidth());
         the_Slider.setTranslateX(scene.getWidth() - half_slider_width);//vertical.getWidth());
         the_Slider.setTranslateY(half_slider_width);//vertical.getWidth());
-        double height = pane.getHeight() - 200;
-        if ( height < 300) height = 300;
+        double height = pane.getHeight() - 80;
         the_Slider.setPrefHeight(height);//2 * half_slider_width);
-
 
     }
 
