@@ -104,9 +104,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -290,7 +289,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger = logger_;
         displayed_folder_path = context.folder_path;
 
-        aborter = new Aborter("Browser" + displayed_folder_path.toAbsolutePath().toString(), logger);
+        aborter = new Aborter("Browser for: " + displayed_folder_path.toAbsolutePath().toString(), logger);
 
         //logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+aborter.name);
         ID = ID_generator.getAndIncrement();

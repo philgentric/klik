@@ -7,7 +7,6 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.Change_type;
 import klik.browser.comparators.Aspect_ratio_comparator;
 import klik.browser.comparators.Aspect_ratio_comparator_random;
 import klik.browser.comparators.Image_height_comparator;

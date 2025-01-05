@@ -1,7 +1,6 @@
 //SOURCES ../../util/ui/Hourglass.java
 package klik.browser.icons;
 
-import klik.browser.Change_type;
 import klik.util.ui.Hourglass;
 
 public interface Refresh_target {

@@ -9,7 +9,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
-import klik.browser.Change_type;
 import klik.browser.Error_receiver;
 import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
