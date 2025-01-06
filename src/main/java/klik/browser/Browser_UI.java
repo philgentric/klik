@@ -365,6 +365,7 @@ public class Browser_UI
 
             files_menu.getItems().add(search);
         }
+        if (Static_application_properties.get_level3(logger))
         {
             Menu face_recognition = new Menu("Face recognition");
             face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());

@@ -480,7 +480,7 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Static_application_properties.get_level2(image_window.logger)) {
+        if (Static_application_properties.get_level3(image_window.logger)) {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 

@@ -347,7 +347,7 @@ public class Browser_menus
     public MenuItem make_add_to_face_recognition_training_set_menu_item()
     //**********************************************************
     {
-        String text = "Add all images to face recognition training set";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = "Add all images to face recognition training set";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             Face_recognition_service i = Face_recognition_service.get_instance(browser);
@@ -361,11 +361,9 @@ public class Browser_menus
     public MenuItem make_save_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "Save face recognition";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
-
+        String text = "Save face recognition";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Face_recognition_service.save());
-
         return item;
     }
 
@@ -373,11 +371,9 @@ public class Browser_menus
     public MenuItem make_load_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "Load face recognition";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
-
+        String text = "Load face recognition";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Face_recognition_service.load(browser));
-
         return item;
     }
 
@@ -386,7 +382,7 @@ public class Browser_menus
     public MenuItem make_reset_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "Reset/init face recognition";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = "Reset/init face recognition";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Face_recognition_service.start_new(browser));
         return item;
@@ -397,7 +393,7 @@ public class Browser_menus
     public MenuItem make_start_auto_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "Auto face recognition";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = "Auto face recognition";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Face_recognition_service.auto(browser));
         return item;
@@ -407,7 +403,7 @@ public class Browser_menus
     public MenuItem make_start_self_face_recog_menu_item()
     //**********************************************************
     {
-        String text = "SELF face recognition";//My_I18n.get_I18n_string("Search_images_by_keywords",logger);
+        String text = "SELF face recognition";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> Face_recognition_service.self(browser));
         return item;

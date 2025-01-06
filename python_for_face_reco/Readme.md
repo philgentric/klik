@@ -9,7 +9,7 @@ both use python-based tensorflow
 WARNING: tensorflow installation can be super tedious... YMMV
 Only provided here is a recipe that leverages 
 the hardware acceleration (metal) for ARM64 Macs:
-(at least for my MBP-M3 ...)
+(works on my MBP-M3)
 
 open a shell/terminal, type:
 brew install python@3.10

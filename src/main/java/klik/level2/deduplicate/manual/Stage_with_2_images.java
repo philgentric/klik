@@ -77,6 +77,7 @@ public class Stage_with_2_images
 		Jfx_batch_injector.inject(() ->{
 				stage = new Stage();
 				the_big_vbox = new VBox();
+				Look_and_feel_manager.set_region_look(the_big_vbox);
 				Scene scene = new Scene(the_big_vbox);
 				stage.setScene(scene);//, W, H));
 				stage.setOnCloseRequest((e) -> private_aborter.abort("Stage_with_2_images closing"));

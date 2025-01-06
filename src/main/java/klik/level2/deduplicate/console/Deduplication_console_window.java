@@ -81,6 +81,7 @@ public class Deduplication_console_window
 
         stage.setTitle(title);
         VBox vbox = new VBox();
+        Look_and_feel_manager.set_region_look(vbox);
         Scene scene = new Scene(vbox);//, w, h, Color.WHITE);
         stage.setScene(scene);
         stage.show();

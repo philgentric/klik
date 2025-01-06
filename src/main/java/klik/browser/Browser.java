@@ -36,7 +36,6 @@
 //SOURCES ./Scan_show.java
 //SOURCES ./External_close_event_handler.java
 //SOURCES ./Static_backup_paths.java
-//SOURCES ./Change_type.java
 //SOURCES ./Error_receiver.java
 //SOURCES ./Scan_show_slave.java
 //SOURCES ./Selection_reporter.java
