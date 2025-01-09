@@ -248,7 +248,7 @@ public class Item_image extends Item
     static final int N = 5;
     public static Image_similarity image_similarity;
     //**********************************************************
-    public static MenuItem create_show_similar_menu_item(Path path, Browser browser, Logger logger)
+    public static MenuItem create_show_similar_menu_item(Path image_path, Browser browser, Logger logger)
     //**********************************************************
     {
         String txt = "Show "+N+" similar images in same folder";//My_I18n.get_I18n_string("Info_about", logger);
@@ -256,7 +256,7 @@ public class Item_image extends Item
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
             image_similarity = new Image_similarity(browser,logger);
-            Runnable r = () -> image_similarity.find_and_show_similars(path,N);
+            Runnable r = () -> image_similarity.find_and_show_similars(image_path,N);
             Actor_engine.execute(r,logger);
         });
 

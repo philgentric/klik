@@ -75,6 +75,7 @@ public class Image_feature_vector_RAM_cache
     }
 
     //**********************************************************
+    // if wait_if_needed is true, tr can be null
     public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)
     //**********************************************************
     {
@@ -122,7 +123,7 @@ public class Image_feature_vector_RAM_cache
     }
 
     //**********************************************************
-    public void clear_feature_vector_RAM_cache_fx()
+    public void clear_feature_vector_RAM_cache()
     //**********************************************************
     {
         cache.clear();
