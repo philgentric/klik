@@ -1,0 +1,25 @@
+
+API is:
+- create (Path from)
+- next(boolean forward)
+- current()
+- refresh(Cause cause)
+
+Cause can be:
+- parano (want to be sure that the index is OK)
+- file moved out (possibly deleted)
+- file moved in
+
+implementation:
+
+choice 1:
+cache an ordered list (using the same comparator as the browser)
+
+problem: when a file is moved in or out, we have to refresh the whole list and re-order it
+
+choice 2:
+cache only next(s) and previous(s) files
+
+
+choice3:
+no cache, re-order the list at every "next"
