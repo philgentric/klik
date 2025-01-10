@@ -49,6 +49,9 @@ public class Image_feature_vector_RAM_cache
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
         image_feature_vector_actor = new Image_feature_vector_actor();
+
+        // reason to use workers is to limit the number of concurrent HTTP requests
+        // to the vgg19 python servers that are not good at queuing requests
         local_actor_engine = new Actor_engine_based_on_workers(logger);
 
     }
@@ -130,7 +133,7 @@ public class Image_feature_vector_RAM_cache
         if (dbg) logger.log("feature vector cache file cleared");
     }
     //**********************************************************
-    public synchronized void reload_cache_from_disk()
+    public synchronized void reload_cache_from_disk(Aborter aborter)
     //**********************************************************
     {
         int reloaded = 0;
@@ -139,6 +142,7 @@ public class Image_feature_vector_RAM_cache
             int number_of_vectors = dis.readInt();
             for ( int i = 0; i < number_of_vectors; i++)
             {
+                if ( aborter.should_abort()) return;
                 String path_string = dis.readUTF();
                 int size_of_vector = dis.readInt();
                 double[] vector = new double[size_of_vector];
@@ -200,7 +204,8 @@ public class Image_feature_vector_RAM_cache
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
 
-        if (dbg) logger.log(saved +" feature vectors from cache saved to file");
+        //if (dbg)
+            logger.log(saved +" feature vectors from cache saved to file");
     }
 
 

@@ -41,7 +41,7 @@ public class Image_similarity
     {
         Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
 
-        Result result = preload_all_feature_vector_in_cache(image_path.getParent(),logger);
+        Result result = preload_all_feature_vector_in_cache(image_path.getParent(),browser.aborter,logger);
         if (result == null)
         {
             return;
@@ -72,11 +72,13 @@ public class Image_similarity
         x.close();
     }
 
-    public static Result preload_all_feature_vector_in_cache(Path folder_path, Logger logger)
+    //**********************************************************
+    public static Result preload_all_feature_vector_in_cache(Path folder_path, Aborter aborter, Logger logger)
+    //**********************************************************
     {
-        Image_feature_vector_RAM_cache image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(folder_path,"image_feature_vectors", new Aborter("fv_c", logger), logger);
+        Image_feature_vector_RAM_cache image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(folder_path,"image_feature_vectors", aborter, logger);
 
-        image_feature_vector_ram_cache.reload_cache_from_disk();
+        image_feature_vector_ram_cache.reload_cache_from_disk(aborter);
 
         File[] files = folder_path.toFile().listFiles();
         List<Path> targets = new ArrayList<>();
@@ -97,7 +99,7 @@ public class Image_similarity
         CountDownLatch cdl = new CountDownLatch(targets.size());
         Job_termination_reporter tr = (message, job) -> {
             cdl.countDown();
-            if ( cdl.getCount() % 100 == 0) logger.log(""+cdl.getCount());
+            if ( cdl.getCount() % 100 == 0) logger.log("preloading FVs into cache: "+cdl.getCount());
         };
         // start the cache warming on many threads
         for ( int i = 0 ; i < targets.size(); i++)

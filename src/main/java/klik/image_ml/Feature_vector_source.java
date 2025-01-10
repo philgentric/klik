@@ -11,7 +11,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.file.Path;
 
-public interface Feature_vector_source {
+//**********************************************************
+public interface Feature_vector_source
+//**********************************************************
+{
     Feature_vector get_feature_vector_from_server(Path path, Logger logger);
 
 
@@ -67,13 +70,15 @@ public interface Feature_vector_source {
         try {
             connection.connect();
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            //logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log((""+e));
             return null;
         }
         try {
             int response_code = connection.getResponseCode();
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            //logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log((""+e));
             return null;
         }
         try {
