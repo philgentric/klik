@@ -19,6 +19,7 @@ public class Actor_engine // is a singleton
     public static final boolean cancel_dbg = false;
     private static Actor_engine_interface instance;
     public static final AtomicInteger threads_in_flight = new AtomicInteger(0);
+    public static int recent_max_threads = 0;
 
 
     //**********************************************************
@@ -48,8 +49,12 @@ public class Actor_engine // is a singleton
     public static int how_many_threads_are_in_flight(Logger logger)
     //**********************************************************
     {
+        return threads_in_flight.get();
+    }
+    public static int max_threads_in_flight(Logger logger)
+    {
         if ( instance == null) return 0;
-        return instance.how_many_threads_are_in_flight();
+        return recent_max_threads;
     }
 
     //**********************************************************

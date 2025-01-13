@@ -70,6 +70,8 @@ public class Static_application_properties
 
     public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
 
+    public static final String IMAGE_SIMILARITY_CACHE_DIR = "klik_image_similarity_cache";
+
 
     public static final String USER_HOME = "user.home";
     public static final String SINGLE_COLUMN = "single_column";

@@ -32,7 +32,8 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
         Job job = new Job(actor,message,tr,logger);
         Runnable r = () -> {
             int now = Actor_engine.threads_in_flight.incrementAndGet();
-            //if ( now > recent_max_threads) recent_max_threads = now;
+            //logger.log("Actor_engine_with_virtual_threads: "+now+" threads in flight");
+            if ( now > Actor_engine.recent_max_threads) Actor_engine.recent_max_threads = now;
             String msg = job.actor.run(job.message);
             job.has_ended(msg);
             Actor_engine.threads_in_flight.decrementAndGet();
@@ -43,22 +44,6 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     }
 
 
-    //**********************************************************
-    @Override
-    public int how_many_threads_are_in_flight()
-    //**********************************************************
-    {
-        //return recent_max_threads;
-        return Actor_engine.threads_in_flight.get();
-/*
-        int returned = Actor_engine.threads_in_flight.get();
-        if ( returned != 0) return returned;
-        returned = recent_max_threads;
-        recent_max_threads = 0;
-        return returned;
-
- */
-    }
     //**********************************************************
     public void stop()
     //**********************************************************

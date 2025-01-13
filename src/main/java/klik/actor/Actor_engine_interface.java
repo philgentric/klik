@@ -11,7 +11,8 @@ public interface Actor_engine_interface
     Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger); // message and/or tr may be null
     void cancel_job(Job canceled);
     void stop();
-    int how_many_threads_are_in_flight();
+    //int how_many_threads_are_in_flight();
+    //int max_threads_in_flight();
 
     //**********************************************************
     default void cancel_all(ConcurrentLinkedQueue<Job> jobs)

@@ -79,14 +79,6 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
 
     //**********************************************************
     @Override
-    public int how_many_threads_are_in_flight()
-    //**********************************************************
-    {
-        return Actor_engine.threads_in_flight.get();
-    }
-
-    //**********************************************************
-    @Override
     public void cancel_job(Job job)
     //**********************************************************
     {

@@ -8,33 +8,43 @@ import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Dummy_name_actor implements Actor {
+//**********************************************************
+public class Similarity_cache_warmer_actor implements Actor
+//**********************************************************
+{
 
-    private final File[] p2s;
+    private final List<Path> images;
     private final ConcurrentHashMap<Path_pair, Double> similarities;
     private final Image_feature_vector_RAM_cache cache;
     private final Logger logger;
+    private final List<Path> int_to_path;
+    private final Map<Path,Integer> path_to_int;
 
-    public Dummy_name_actor(File[] p2s, Image_feature_vector_RAM_cache cache,ConcurrentHashMap<Path_pair, Double> similarities, Logger logger)
+    //**********************************************************
+    public Similarity_cache_warmer_actor(List<Path> int_to_path, Map<Path,Integer> path_to_int, List<Path> images, Image_feature_vector_RAM_cache cache, ConcurrentHashMap<Path_pair, Double> similarities, Logger logger)
+    //**********************************************************
     {
-        this.p2s = p2s;
+        this.images = images;
         this.cache = cache;
         this.similarities = similarities;
         this.logger = logger;
+        this.int_to_path = int_to_path;
+        this.path_to_int = path_to_int;
     }
 
+    //**********************************************************
     @Override
     public String run(Message m)
+    //**********************************************************
     {
 
-        int count2 =0;
-        Dummy_name_message dnm = (Dummy_name_message)m;
-        Path p1 = dnm.p1;
+        Similarity_cache_warmer_message dnm = (Similarity_cache_warmer_message)m;
+        Path p1 = int_to_path.get(dnm.i1);
         Feature_vector emb1 = cache.get_from_cache(p1,null,true);
         if ( emb1 == null)
         {
@@ -47,10 +57,18 @@ public class Dummy_name_actor implements Actor {
         }
 
         Aborter aborter = dnm.get_aborter();
-        for ( File f2 : p2s) {
+        for (Path p2 : images)
+        {
+            int j = path_to_int.get(p2);
+            if ( j <= dnm.i1) continue; // half matrix
+            // already in cache?
+            if ( similarities.get(Path_pair.get(dnm.i1, j)) != null)
+            {
+                logger.log("not computed: similarity already in cache "+p1+" vs "+p2);
+                continue;
+            }
             if (aborter.should_abort()) return "aborted";
-            Path p2 = f2.toPath();
-            if (!Guess_file_type.is_file_an_image(f2)) {
+            if (!Guess_file_type.is_file_an_image(p2.toFile())) {
                 continue;
             }
             //logger.log("processing "+p1+" vs "+p2);
@@ -63,10 +81,7 @@ public class Dummy_name_actor implements Actor {
                 }
             }
             double diff = emb1.compare(emb2);
-            similarities.put(new Path_pair(p1, p2), diff);
-
-            count2++;
-            if (count2 % 1000 == 0) logger.log(" Dummy name actor " + count2 + " for: "+p1.getFileName());
+            similarities.put(Path_pair.get(dnm.i1, j), diff);
         }
 
         return "Done";

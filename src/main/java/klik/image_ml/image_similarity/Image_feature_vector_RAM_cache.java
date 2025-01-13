@@ -72,7 +72,7 @@ public class Image_feature_vector_RAM_cache
 
         Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_FEATURE_VECTOR_CACHE_DIR, false,logger);
         if (dbg) if (tmp_dir != null) {
-            logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
+            logger.log("Image feature vector cache folder=" + tmp_dir.toAbsolutePath());
         }
         return tmp_dir;
     }
@@ -90,7 +90,7 @@ public class Image_feature_vector_RAM_cache
         }
         if ( aborter.should_abort())
         {
-            logger.log((instance_number+" PANIC aborter "+aborter.name+" reason="+aborter.reason+ " target path="+p));
+            logger.log(("image feature vector cache instance#"+instance_number+" shutting down on aborter: ->"+aborter.name+"<- reason="+aborter.reason+ " target path="+p));
             return null;
         }
         else {

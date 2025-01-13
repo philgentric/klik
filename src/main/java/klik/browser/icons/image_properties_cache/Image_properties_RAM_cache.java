@@ -68,14 +68,14 @@ public class Image_properties_RAM_cache
             Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, owner, logger);
             //if (dbg)
             if (tmp_dir != null) {
-                logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
+                logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
             }
             return tmp_dir;
         }
 
         Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, false,logger);
         if (dbg) if (tmp_dir != null) {
-            logger.log("Aspect ratio and rotation cache folder=" + tmp_dir.toAbsolutePath());
+            logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
         }
         return tmp_dir;
     }

@@ -2,7 +2,11 @@ there are 2 different image ML services
 - face recognition
 - image similarity
 
-both use python-based tensorflow
+both use open-source code and models python-based tensorflow
+
+IMPORTANT WARNING: without hardware acceleration, this is a no-go.
+In other words it will not 'work' if you do not have a machine with a graphic card 
+and a lot of RAM for it, so typically a unified memory machine like an ARM-based MacBook
 
 0) install tensorflow
 
@@ -41,3 +45,11 @@ to kill the servers:
 ./kill_face_servers
 
 
+Caveats:
+the python image reader is not tolerant to truncated images 
+(unlike a lot of jpeg decoders including ImageIO used by klik) 
+and a single bad image can cause the whole scheme to hiccup seriously
+because the feature vector extraction will fail and every thing is based 
+on comparing images by their feature vectors. 
+The good thing id: you will get error messages on the console:
+identify the wrong images and fix them (edit them or remove them!)
