@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 //**********************************************************
-public class Image_feature_vector_RAM_cache
+public class Image_feature_vector_cache
 //**********************************************************
 {
     public final static boolean dbg = false;
@@ -36,7 +36,7 @@ public class Image_feature_vector_RAM_cache
     private final Actor_engine_based_on_workers local_actor_engine;
 
     //**********************************************************
-    public Image_feature_vector_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
+    public Image_feature_vector_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         instance_number = instance_number_generator++;

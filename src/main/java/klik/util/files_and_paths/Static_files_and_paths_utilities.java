@@ -13,7 +13,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.undo.Undo_engine;
-import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
@@ -239,7 +239,7 @@ public class Static_files_and_paths_utilities
     {
         logger.log("Images' feature vectors cache on disk cleared");
 
-        Path image_feature_vectors_folder = Image_feature_vector_RAM_cache.get_image_feature_vector_cache_dir(null,logger);
+        Path image_feature_vectors_folder = Image_feature_vector_cache.get_image_feature_vector_cache_dir(null,logger);
         logger.log("Images' feature vectors cache on disk cleared :"+image_feature_vectors_folder.toAbsolutePath());
 
         delete_for_ever_all_files_in_dir_in_a_thread(image_feature_vectors_folder, false, logger);

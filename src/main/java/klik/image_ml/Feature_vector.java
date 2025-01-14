@@ -43,6 +43,7 @@ public class Feature_vector
     //**********************************************************
     {
         return cosine_similarity(feature_vector);
+        //return hamming_similarity(feature_vector);
     }
 
     //**********************************************************
@@ -96,6 +97,23 @@ public class Feature_vector
 
         double cosineSimilarity = dotProduct / mag;
         return 1 - cosineSimilarity;
+    }
+
+
+
+    //**********************************************************
+    public double hamming_similarity(Feature_vector feature_vector)
+    //**********************************************************
+    {
+        int n = features.length;
+        double sum = 0.0;
+
+        for (int i = 0; i < n; i++)
+        {
+            double diff = Math.abs(features[i] -feature_vector.features[i]);
+            sum += diff;
+        }
+        return sum;
     }
 
 

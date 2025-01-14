@@ -2,7 +2,7 @@
 //SOURCES ./Icon_size.java
 //SOURCES ../image_ml/face_recognition/Face_recognition_service.java
 //SOURCES ../image_ml/Ml_servers_util.java
-//SOURCES ../image_ml/image_similarity/Image_feature_vector_RAM_cache.java
+//SOURCES ../image_ml/image_similarity/Image_feature_vector_cache.java
 //SOURCES ../util/files_and_paths/Name_cleaner.java
 //SOURCES ../level3/experimental/RAM_disk.java
 package klik.browser;
@@ -13,7 +13,7 @@ import javafx.event.ActionEvent;
 import klik.actor.Aborter;
 import klik.browser.icons.Virtual_landscape;
 import klik.image_ml.Ml_servers_util;
-import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.browser.items.Item_button;
 import klik.change.Change_receiver;
 import klik.change.active_list_stage.Active_list_stage;
@@ -1217,7 +1217,7 @@ public class Browser_menus
     }
 
 
-    static Image_feature_vector_RAM_cache image_feature_vector_ram_cache;
+    static Image_feature_vector_cache image_feature_vector_ram_cache;
 
     static Map<Path,Map<Path,Double>> similarities = new HashMap<>();
     //**********************************************************
@@ -1232,14 +1232,14 @@ public class Browser_menus
             public void run() {
 
                 Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000,logger);
-                image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(browser.displayed_folder_path,"image_feature_vectors", new Aborter("fv_c",logger),logger);
+                image_feature_vector_ram_cache = new Image_feature_vector_cache(browser.displayed_folder_path,"image_feature_vectors", new Aborter("fv_c",logger),logger);
 
                 image_feature_vector_ram_cache.reload_cache_from_disk();
 
                 similarities.clear();
                 Path dir = browser.displayed_folder_path;
                 File[] files = dir.toFile().listFiles();
-                List<File> targets = new ArrayList<>();
+                List<File> images = new ArrayList<>();
                 List<Double> values = new ArrayList<>();
                 if ( files == null) return;
                 for (File f : files)
@@ -1252,21 +1252,21 @@ public class Browser_menus
                     }
 
                     if ( !Guess_file_type.is_file_an_image(f)) continue;
-                    targets.add(f);
+                    images.add(f);
                 }
-                if ( targets.isEmpty()) return;
+                if ( images.isEmpty()) return;
                 double min = Double.MAX_VALUE;
                 Path min_p1 = null;
                 Path min_p2 = null;
-                for ( int i = 0 ; i < targets.size(); i++)
+                for ( int i = 0 ; i < images.size(); i++)
                 {
-                    Path p1 = targets.get(i).toPath();
+                    Path p1 = images.get(i).toPath();
                     Map<Path, Double> simil = similarities.computeIfAbsent(p1, k -> new HashMap<>());
                     Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p1,null,true);
 
-                    for ( int j = i+1 ; j < targets.size(); j++)
+                    for ( int j = i+1 ; j < images.size(); j++)
                     {
-                        Path p2 = targets.get(j).toPath();
+                        Path p2 = images.get(j).toPath();
                         Feature_vector fv2 = image_feature_vector_ram_cache.get_from_cache(p2,null,true);
                         double s = fv1.cosine_similarity(fv2);
                         if ( s < min)

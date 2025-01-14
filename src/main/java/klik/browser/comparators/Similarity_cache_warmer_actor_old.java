@@ -4,7 +4,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.image_ml.Feature_vector;
-import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 
@@ -20,13 +20,13 @@ public class Similarity_cache_warmer_actor_old implements Actor
 
     private final List<Path> images;
     private final ConcurrentHashMap<Path_pair_int, Double> similarities;
-    private final Image_feature_vector_RAM_cache cache;
+    private final Image_feature_vector_cache cache;
     private final Logger logger;
     private final List<Path> int_to_path;
     private final Map<Path,Integer> path_to_int;
 
     //**********************************************************
-    public Similarity_cache_warmer_actor_old(List<Path> int_to_path, Map<Path,Integer> path_to_int, List<Path> images, Image_feature_vector_RAM_cache cache, ConcurrentHashMap<Path_pair_int, Double> similarities, Logger logger)
+    public Similarity_cache_warmer_actor_old(List<Path> int_to_path, Map<Path,Integer> path_to_int, List<Path> images, Image_feature_vector_cache cache, ConcurrentHashMap<Path_pair_int, Double> similarities, Logger logger)
     //**********************************************************
     {
         this.images = images;

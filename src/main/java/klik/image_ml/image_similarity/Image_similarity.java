@@ -49,9 +49,9 @@ public class Image_similarity
 
 
         Feature_vector fv2 = result.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
-        result.targets.remove(image_path);
+        result.images.remove(image_path);
         List<Most_similar> most_similars = find_most_similars(N,
-                                                              result.targets(),
+                                                              result.images(),
                                                               result.image_feature_vector_ram_cache(), fv2, image_path);
 
         Runnable rr = new Runnable() {
@@ -76,12 +76,12 @@ public class Image_similarity
     public static Result preload_all_feature_vector_in_cache(Path folder_path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Image_feature_vector_RAM_cache image_feature_vector_ram_cache = new Image_feature_vector_RAM_cache(folder_path,"image_feature_vectors", aborter, logger);
+        Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(folder_path,"image_feature_vectors", aborter, logger);
 
         image_feature_vector_ram_cache.reload_cache_from_disk(aborter);
 
         File[] files = folder_path.toFile().listFiles();
-        List<Path> targets = new ArrayList<>();
+        List<Path> images = new ArrayList<>();
         if ( files == null) return null;
         for (File f : files)
         {
@@ -93,18 +93,18 @@ public class Image_similarity
             }
 
             if ( !Guess_file_type.is_file_an_image(f)) continue;
-            targets.add(f.toPath());
+            images.add(f.toPath());
         }
-        if ( targets.isEmpty()) return null;
-        CountDownLatch cdl = new CountDownLatch(targets.size());
+        if ( images.isEmpty()) return null;
+        CountDownLatch cdl = new CountDownLatch(images.size());
         Job_termination_reporter tr = (message, job) -> {
             cdl.countDown();
             if ( cdl.getCount() % 100 == 0) logger.log("preloading FVs into cache: "+cdl.getCount());
         };
         // start the cache warming on many threads
-        for ( int i = 0 ; i < targets.size(); i++)
+        for ( int i = 0 ; i < images.size(); i++)
         {
-            Path p1 = targets.get(i);
+            Path p1 = images.get(i);
             image_feature_vector_ram_cache.get_from_cache(p1,tr,false);
         }
         try {
@@ -113,13 +113,13 @@ public class Image_similarity
             logger.log(""+e);
             return null;
         }
-        logger.log("preloading FVs into cache done :"+targets.size());
+        logger.log("preloading FVs into cache done :"+images.size());
         image_feature_vector_ram_cache.save_whole_cache_to_disk();
-        Result result = new Result(image_feature_vector_ram_cache, targets);
+        Result result = new Result(image_feature_vector_ram_cache, images);
         return result;
     }
 
-    public record Result(Image_feature_vector_RAM_cache image_feature_vector_ram_cache, List<Path> targets)
+    public record Result(Image_feature_vector_cache image_feature_vector_ram_cache, List<Path> images)
     {
     }
 
@@ -137,7 +137,7 @@ public class Image_similarity
 
     }
     //**********************************************************
-    private List<Most_similar> find_most_similars(int N, List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    private List<Most_similar> find_most_similars(int N, List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
     //**********************************************************
     {
         List<Most_similar> returned =  new ArrayList<>();
@@ -179,7 +179,7 @@ public class Image_similarity
     }
 
     //**********************************************************
-    private List<Most_similar> find_most_similars_old(int N, List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    private List<Most_similar> find_most_similars_old(int N, List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
     //**********************************************************
     {
         List<Most_similar> returned =  new ArrayList<>();
@@ -197,7 +197,7 @@ public class Image_similarity
     record Most_similar(Path path,Double similarity){};
 
     //**********************************************************
-    private Most_similar find_min(List<Path> targets, Image_feature_vector_RAM_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    private Most_similar find_min(List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
     //**********************************************************
     {
         Path min_p1 = null;

@@ -6,7 +6,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Clearable_cache;
-import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.Guess_file_type;
@@ -18,6 +18,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+
+import static klik.browser.comparators.Similarity_comparator.THRESHOLD;
 
 
 //**********************************************************
@@ -31,13 +33,12 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
     private final ConcurrentHashMap<Path_pair_int, Double> similarities = new ConcurrentHashMap<>();
     Map<Path_pair_int, Integer> distances  = new HashMap<>();
 
-
     List<Path> int_to_path = new ArrayList<>();
     private final Map<Path, Integer> path_to_int = new HashMap<>();
 
 
 
-    private Image_feature_vector_RAM_cache fv_cache = null;
+    private Image_feature_vector_cache fv_cache = null;
     Logger logger;
     private final Aborter aborter;
     private boolean initialized = false;
@@ -205,7 +206,7 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
             Path p1 = int_to_path.get(i);
             Path p2 = int_to_path.get(j);
             double diff = similarities.get(p);
-            if ( diff > 0.2)
+            if ( diff > THRESHOLD)
             {
                 logger.log("WTF????? diff > 0.2 for "+p1+" vs "+p2+" == "+diff);
             }
@@ -217,7 +218,7 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
     }
 
     //**********************************************************
-    private void fill_similarity_cache(List<Path> images, Image_feature_vector_RAM_cache fv_cache, File[] files_)
+    private void fill_similarity_cache(List<Path> images, Image_feature_vector_cache fv_cache, File[] files_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
@@ -251,7 +252,7 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
                     logger.log("WTF similarity == null for " + p);
                     continue;
                 }
-                if ( x > 0.2)
+                if ( x > THRESHOLD)
                 {
                     similarities.remove(p);
                 }

@@ -4,13 +4,14 @@ import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.image_ml.Feature_vector;
-import klik.image_ml.image_similarity.Image_feature_vector_RAM_cache;
-import klik.util.files_and_paths.Guess_file_type;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static klik.browser.comparators.Similarity_comparator.THRESHOLD;
 
 //**********************************************************
 public class Similarity_cache_warmer_actor implements Actor
@@ -18,11 +19,11 @@ public class Similarity_cache_warmer_actor implements Actor
 {
     private final List<Path> images;
     private final ConcurrentHashMap<Path_pair, Double> similarities;
-    private final Image_feature_vector_RAM_cache cache;
+    private final Image_feature_vector_cache cache;
     private final Logger logger;
 
     //**********************************************************
-    public Similarity_cache_warmer_actor(List<Path> images, Image_feature_vector_RAM_cache cache, ConcurrentHashMap<Path_pair, Double> similarities, Logger logger)
+    public Similarity_cache_warmer_actor(List<Path> images, Image_feature_vector_cache cache, ConcurrentHashMap<Path_pair, Double> similarities, Logger logger)
     //**********************************************************
     {
         this.images = images;
@@ -52,6 +53,10 @@ public class Similarity_cache_warmer_actor implements Actor
         Aborter aborter = dnm.get_aborter();
         for (Path p2 : images)
         {
+            if ( p2.getFileName().toString().equals(dnm.p1.getFileName().toString())) continue;
+            //if (!Guess_file_type.is_file_an_image(p2.toFile())) {
+            //    continue;
+            //}
             Path_pair pp = Path_pair.get(dnm.p1, p2);
             // already in cache?
             if ( similarities.get(pp) != null)
@@ -60,9 +65,7 @@ public class Similarity_cache_warmer_actor implements Actor
                 continue;
             }
             if (aborter.should_abort()) return "aborted";
-            if (!Guess_file_type.is_file_an_image(p2.toFile())) {
-                continue;
-            }
+
             //logger.log("processing "+p1+" vs "+p2);
             Feature_vector emb2 = cache.get_from_cache(p2, null, true);
             if (emb2 == null) {
@@ -73,14 +76,23 @@ public class Similarity_cache_warmer_actor implements Actor
                 }
             }
             double diff = emb1.compare(emb2);
-            similarities.put(pp, diff);
+            //logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
+            //if ( diff < min) min = diff;
+            //if ( diff > max) max = diff;
+            if ( diff < THRESHOLD)
+            {
+                similarities.put(pp, diff);
+            }
         }
 
         return "Done";
     }
 
+    //public static double min = Double.MAX_VALUE;
+    //public static double max = Double.MIN_VALUE;
+
     @Override
     public String name() {
-        return Actor.super.name();
+        return "Similarity_cache_warmer_actor";
     }
 }
