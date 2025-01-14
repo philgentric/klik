@@ -24,15 +24,17 @@ import java.util.concurrent.CountDownLatch;
 public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
-    //private final static Map<Path, Feature_vector> cache = new HashMap<>();
-    private final static ConcurrentHashMap<Integer, String> dummy_names = new ConcurrentHashMap<>();
-    private final static ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
+    // can be static as Path
+    private final static ConcurrentHashMap<Path, String> dummy_names = new ConcurrentHashMap<>();
+
+    // cannot be static as Path_pair is instable with dir content
+    private final ConcurrentHashMap<Path_pair_int, Double> similarities = new ConcurrentHashMap<>();
+    Map<Path_pair_int, Integer> distances  = new HashMap<>();
 
 
     List<Path> int_to_path = new ArrayList<>();
     private final Map<Path, Integer> path_to_int = new HashMap<>();
 
-    Map<Path_pair, Integer> distances  = new HashMap<>();
 
 
     private Image_feature_vector_RAM_cache fv_cache = null;
@@ -82,24 +84,24 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
             return -1;
         }
         {
-            Path_pair p = Path_pair.get(i,j);
+            Path_pair_int p = Path_pair_int.get(i,j);
             Integer d = distances.get(p);
             if (d != null) return d;
         }
-        String dummy_name1 = dummy_names.get(i);
+        String dummy_name1 = dummy_names.get(p1);
         if ( dummy_name1 == null)
         {
             dummy_name1 = p1.getFileName().toString();
         }
 
-        String dummy_name2 = dummy_names.get(j);
+        String dummy_name2 = dummy_names.get(p2);
         if ( dummy_name2 == null)
         {
             dummy_name2 = p2.getFileName().toString();
         }
 
         Integer d =  dummy_name1.compareTo(dummy_name2);
-        Path_pair p = Path_pair.get(i,j);
+        Path_pair_int p = Path_pair_int.get(i,j);
         distances.put(p, d);
 
         //logger.log("compare "+p1+" vs "+p2+" == "+d);
@@ -168,85 +170,92 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
         {
             return;
         }
-        Image_feature_vector_RAM_cache cache = result.image_feature_vector_ram_cache();
+        fv_cache = result.image_feature_vector_ram_cache();
         logger.log("fv preloaded in "+(System.currentTimeMillis() - start)+" ms");
 
         //reload_similarity_cache_from_disk(folder.toAbsolutePath().toString(),aborter);
 
-        fill_similarity_cache(images, cache, files_);
+        fill_similarity_cache(images, fv_cache, files_);
         if ( aborter.should_abort()) return;
-        fill_dummy_names(folder,images);
+        fill_dummy_names(files_,images);
 
         //save_similarity_cache_to_disk(int_to_path);
         logger.log("init_dummy_names done !"+(System.currentTimeMillis() - start)+" ms");
     }
 
     //**********************************************************
-    private boolean fill_dummy_names(Path folder,List<Path> images)
+    private void fill_dummy_names(File[] files_, List<Path> images)
     //**********************************************************
     {
-        // pick one file at random and find its 1 closest neighbor, using actors
-        Collections.shuffle(images);
-        //CountDownLatch cdl = new CountDownLatch(images.size());
-        Most_similar_actor most_similar_actor = new Most_similar_actor(int_to_path,path_to_int,similarities,dummy_names,logger);
-        for(;;)
+
+        for ( Path_pair_int p : similarities.keySet())
         {
-            if ( aborter.should_abort()) return true;
-            Path p1 = images.removeFirst();
-            if ( images.isEmpty()) break;
-            logger.log("images size: "+images.size());
-            List<Path> images_copy = new ArrayList<>(images);
-            Most_similar_message m = new Most_similar_message(p1,images_copy,aborter);
-            /*Job_termination_reporter tr = (message, job) -> {
-                cdl.countDown();
-                if ( cdl.getCount() % 100 == 0) logger.log("init_dummy_names: "+cdl.getCount());
-            };*/
-            //Actor_engine.run(most_similar_actor, m,tr, logger);
-            String closest_path = most_similar_actor.run(m);
-            if (closest_path!= null)
+            int i = p.i();
+            if ( i >= int_to_path.size())
             {
-                images.remove(Path.of(folder.toAbsolutePath().toString(),closest_path));
-                if ( images.isEmpty()) break;
+                logger.log("WTF i >= int_to_path.size() for "+p);
+                continue;
             }
+            int j = p.j();
+            if ( j >= int_to_path.size())
+            {
+                logger.log("WTF j >= int_to_path.size() for "+p);
+                continue;
+            }
+            Path p1 = int_to_path.get(i);
+            Path p2 = int_to_path.get(j);
+            double diff = similarities.get(p);
+            if ( diff > 0.2)
+            {
+                logger.log("WTF????? diff > 0.2 for "+p1+" vs "+p2+" == "+diff);
+            }
+            dummy_names.put(p2,p1.getFileName().toString()+diff+p2.getFileName().toString());
         }
 
-        /*try {
-            cdl.await();
-        } catch (InterruptedException e) {
-            logger.log("init_dummy_names interrupted (2) "+e);
-        }*/
+
         logger.log("Dummy Names cache done");
-        return true;
     }
 
     //**********************************************************
-    private void fill_similarity_cache(List<Path> images, Image_feature_vector_RAM_cache cache, File[] files_)
+    private void fill_similarity_cache(List<Path> images, Image_feature_vector_RAM_cache fv_cache, File[] files_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
+        Similarity_cache_warmer_actor_old actor = new Similarity_cache_warmer_actor_old(int_to_path,path_to_int,images, fv_cache, similarities,logger);
         CountDownLatch cdl = new CountDownLatch(images.size());
-        Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(int_to_path,path_to_int,images, cache, similarities,logger);
-        for (int i = 0; i < files_.length; i++)
+        for (Path p1 : images)
         {
-            if ( aborter.should_abort()) return;
-            File f1 = files_[i];
-            if (!Guess_file_type.is_file_an_image(f1)) continue;
-            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, i);
-            int finalI = i;
+            int i =  path_to_int.get(p1);
+            Similarity_cache_warmer_message_old m = new Similarity_cache_warmer_message_old(aborter,i);
             Job_termination_reporter tr = (message, job) -> {
                 cdl.countDown();
-                if ( cdl.getCount() % 100 == 0) logger.log(finalI + " similarity cache warmer: "+cdl.getCount());
+                if ( cdl.getCount() % 100 == 0) logger.log(" similarity cache filler: "+cdl.getCount()+" for "+p1);
             };
             Actor_engine.run(actor, m,tr, logger);
         }
 
-        logger.log("similarity cache warmer, going to wait on :"+cdl.getCount());
-
-        // wait for the actors to fill the similarity cache
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            logger.log("similarity cache warmer interrupted"+e);
+            logger.log("similarity cache interrupted"+e);
+        }
+
+        for ( int i = 0; i < files_.length; i++)
+        {
+            for ( int j = i+1; j < files_.length; j++)
+            {
+                Path_pair_int p = Path_pair_int.get(i,j);
+                Double x = similarities.get(p);
+                if ( x == null)
+                {
+                    logger.log("WTF similarity == null for " + p);
+                    continue;
+                }
+                if ( x > 0.2)
+                {
+                    similarities.remove(p);
+                }
+            }
         }
         logger.log("similarity cache done in: "+(System.currentTimeMillis() - start)+" ms");
     }
@@ -271,7 +280,7 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
                 if ( i == null) continue;
                 Integer j = path_to_int.get(Path.of(folder,path2_string));
                 if ( j == null) continue;
-                Path_pair p = Path_pair.get(i,j);
+                Path_pair_int p = Path_pair_int.get(i,j);
                 similarities.put(p,val);
                 logger.log("from disk similarity "+val+" for "+path1_string+" "+path2_string);
                 reloaded++;
@@ -299,9 +308,9 @@ public class Similarity_comparator_1 implements Comparator<Path>, Clearable_cach
         try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(similarity_cache_file_path.toFile()))))
         {
             dos.writeInt(similarities.size());
-            for(Map.Entry<Path_pair, Double> e : similarities.entrySet())
+            for(Map.Entry<Path_pair_int, Double> e : similarities.entrySet())
             {
-                Path_pair pp = e.getKey();
+                Path_pair_int pp = e.getKey();
                 Path pi1 = int_to_path.get(pp.i());
                 Path pi2 = int_to_path.get(pp.j());
                 dos.writeUTF(pi1.getFileName().toString());

@@ -13,14 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Most_similar_actor implements Actor
 //**********************************************************
 {
-    public final ConcurrentHashMap<Path_pair, Double> similarities;
+    public final ConcurrentHashMap<Path_pair_int, Double> similarities;
     public final Logger logger;
     private final Map<Integer, String> dummy_names;
     public final List<Path> int_to_path;
     public final Map<Path,Integer> path_to_int;
 
     //**********************************************************
-    public Most_similar_actor(List<Path> int_to_path, Map<Path,Integer> path_to_int, ConcurrentHashMap<Path_pair, Double> similarities, Map<Integer, String> dummy_names, Logger logger)
+    public Most_similar_actor(List<Path> int_to_path, Map<Path,Integer> path_to_int, ConcurrentHashMap<Path_pair_int, Double> similarities, Map<Integer, String> dummy_names, Logger logger)
     //**********************************************************
     {
         this.similarities = similarities;
@@ -46,7 +46,7 @@ public class Most_similar_actor implements Actor
             int j = path_to_int.get(p2);
             logger.log("Most similar actor processing "+mm.p1+" vs "+p2);
             int i = path_to_int.get(mm.p1);
-            Path_pair pair = Path_pair.get(i,j);
+            Path_pair_int pair = Path_pair_int.get(i,j);
             Double diff = similarities.get(pair);
             if ( diff == null)
             {

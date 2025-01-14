@@ -113,6 +113,7 @@ public class Image_similarity
             logger.log(""+e);
             return null;
         }
+        logger.log("preloading FVs into cache done :"+targets.size());
         image_feature_vector_ram_cache.save_whole_cache_to_disk();
         Result result = new Result(image_feature_vector_ram_cache, targets);
         return result;
