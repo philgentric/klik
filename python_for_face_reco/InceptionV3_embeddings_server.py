@@ -80,5 +80,5 @@ def run_server(port):
     httpd = HTTPServer(server_address, EmbeddingGenerator)
     httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     httpd.socket.listen(1024)
-    print("Starting local VGG19 IMAGE EMBEDDINGS server on port: "+str(port))
+    print("Starting local InceptionV3 IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

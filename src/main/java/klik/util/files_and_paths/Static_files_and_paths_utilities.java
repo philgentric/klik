@@ -245,6 +245,23 @@ public class Static_files_and_paths_utilities
         delete_for_ever_all_files_in_dir_in_a_thread(image_feature_vectors_folder, false, logger);
     }
 
+
+    //**********************************************************
+    public static void clear_image_similarity_DISK_cache_no_warning_fx(Stage owner, Logger logger)
+    //**********************************************************
+    {
+        logger.log("Images' feature vectors cache on disk cleared");
+
+        Path dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_SIMILARITY_CACHE_DIR, false, logger);
+        if (dir != null)
+        {
+            logger.log("similarity cache folder=" + dir.toAbsolutePath());
+        }
+        logger.log("Images' similarity cache on disk cleared :"+dir.toAbsolutePath());
+
+        delete_for_ever_all_files_in_dir_in_a_thread(dir, false, logger);
+    }
+
     //**********************************************************
     public static void clear_folder_icon_cache_on_disk_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************

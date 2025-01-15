@@ -28,7 +28,7 @@ public class Image_feature_vector_cache
     private final Aborter aborter;
     protected final String cache_name;
     protected final Path cache_file_path;
-    private final Map<String, Feature_vector> cache = new ConcurrentHashMap<>();
+    private final Map<String, Feature_vector> fv_cache = new ConcurrentHashMap<>();
     private final Image_feature_vector_actor image_feature_vector_actor;
 
     private final int instance_number;
@@ -82,7 +82,7 @@ public class Image_feature_vector_cache
     public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)
     //**********************************************************
     {
-        Feature_vector feature_vector =  cache.get(key_from_path(p));
+        Feature_vector feature_vector =  fv_cache.get(key_from_path(p));
         if ( feature_vector != null)
         {
             if ( tr != null) tr.has_ended("found in cache",null);
@@ -100,7 +100,7 @@ public class Image_feature_vector_cache
         if ( wait_if_needed)
         {
             image_feature_vector_actor.run(imp); // blocking call
-            Feature_vector x = cache.get(key_from_path(p));
+            Feature_vector x = fv_cache.get(key_from_path(p));
             if ( x == null)
             {
                 logger.log("PANIC null Feature_vector in cache after blocking call ");
@@ -122,14 +122,14 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
         if(dbg) logger.log(cache_name+" inject "+path+" value="+fv );
-        cache.put(key_from_path(path),fv);
+        fv_cache.put(key_from_path(path), fv);
     }
 
     //**********************************************************
     public void clear_feature_vector_RAM_cache()
     //**********************************************************
     {
-        cache.clear();
+        fv_cache.clear();
         if (dbg) logger.log("feature vector cache file cleared");
     }
     //**********************************************************
@@ -152,7 +152,7 @@ public class Image_feature_vector_cache
                     vector[j] = val;
                 }
                 Feature_vector fv = new Feature_vector(vector);
-                cache.put(path_string,fv);
+                fv_cache.put(path_string, fv);
                 reloaded++;
             }
         }
@@ -171,9 +171,9 @@ public class Image_feature_vector_cache
         if ( dbg)
         {
             logger.log("\n\n\n********************* "+cache_name+ " CACHE************************");
-            for (String s  : cache.keySet())
+            for (String s  : fv_cache.keySet())
             {
-                logger.log(s+" => "+cache.get(s));
+                logger.log(s+" => "+ fv_cache.get(s));
             }
             logger.log("****************************************************************\n\n\n");
         }
@@ -186,8 +186,8 @@ public class Image_feature_vector_cache
         int saved = 0;
         try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(cache_file_path.toFile()))))
         {
-            dos.writeInt(cache.size());
-            for(Map.Entry<String, Feature_vector> e : cache.entrySet())
+            dos.writeInt(fv_cache.size());
+            for(Map.Entry<String, Feature_vector> e : fv_cache.entrySet())
             {
                 saved++;
                 dos.writeUTF(e.getKey());

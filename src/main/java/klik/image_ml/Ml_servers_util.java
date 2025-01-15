@@ -1,7 +1,8 @@
 package klik.image_ml;
 
-import klik.util.log.Logger;
+import klik.image_ml.image_similarity.Feature_vector_source_embeddings;
 import klik.util.execute.Execute_command;
+import klik.util.log.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,39 +47,27 @@ public class Ml_servers_util
     synchronized public static boolean init_image_similarity(Logger logger)
     //**********************************************************
     {
-        //if( image_similarity_servers_started) return true;
-        //image_similarity_servers_started = true;
+        if( image_similarity_servers_started) return true;
+        image_similarity_servers_started = true;
+
+        String list_of_ports = "";
+        for ( int port : Feature_vector_source_embeddings.ports)
+        {
+            list_of_ports += port + " ";
+        }
 
         List<String> ll = new ArrayList<>();
         ll.add("/bin/bash");
-        ll.add("-ch");
-        ll.add("./launch_vgg19");
+        ll.add("-c");
+        //ll.add("\"source ~/venv-metal/bin/activate; ./python_for_face_reco/launch_MobileNetV2_servers\"");
+        ll.add("nohup bash -c 'source ~/venv-metal/bin/activate; ./python_for_face_reco/launch_MobileNetV2_servers "+list_of_ports+"' &");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status = Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        boolean status = Execute_command.execute_command_list(ll,wd,Integer.MAX_VALUE,sb,logger);
         logger.log(sb.toString());
 
-        /*
-        if (!init_venv(logger)) {
-            logger.log("failed to init python venv");
-            return false;
-        }
+        logger.log("MobileNetV2 image similarity servers started");
 
-
-        if ( !install_requirements(logger))
-        {
-            logger.log("failed to install requirements");
-            return false;
-        }
-
-        stop_image_similarity_servers(logger);
-        if ( !start_image_similarity_servers(logger))
-        {
-            logger.log("failed to init image embbedings");
-            return false;
-        }
-        logger.log("OK: init image similarity done");
-        */
         return true;
     }
 

@@ -1,11 +1,12 @@
 package klik.browser.comparators;
 
-//SOURCES ../../image_ml/image_similarity/Feature_vector_source_vgg19.java;
+//SOURCES ../../image_ml/image_similarity/Feature_vector_source_embeddings.java;
 
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Clearable_cache;
+import klik.image_ml.Ml_servers_util;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.properties.Static_application_properties;
@@ -25,10 +26,11 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
 //**********************************************************
 {
     private final static Map<Path, String> dummy_names = new HashMap<>();
-    public static final double THRESHOLD = 0.1;
+    public static final double THRESHOLD = 0.5;
     //public static final double THRESHOLD = 1_000_000;
     private Map<Path_pair, Integer> distances  = new HashMap<>();
     private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Path_pair, Boolean> is_close = new ConcurrentHashMap<>();
 
     private Image_feature_vector_cache fv_cache = null;
     Logger logger;
@@ -52,6 +54,8 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
     {
         if(fv_cache != null) fv_cache.clear_feature_vector_RAM_cache();
         distances.clear();
+        dummy_names.clear();
+        similarities.clear();
     }
 
 
@@ -71,15 +75,17 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
         }
         if ( dummy_name1 == null)
         {
-            logger.log("WTF dummy_name1 == null for "+p1);
+            //logger.log("WTF dummy_name1 == null for "+p1);
             dummy_name1 = p1.getFileName().toString();
+            dummy_names.put(p1,dummy_name1);
         }
 
         String dummy_name2 = dummy_names.get(p2);
         if ( dummy_name2 == null)
         {
-            logger.log("WTF dummy_name2 == null for "+p2);
+            //logger.log("WTF dummy_name2 == null for "+p2);
             dummy_name2 = p2.getFileName().toString();
+            dummy_names.put(p2,dummy_name2);
         }
 
         d =  dummy_name1.compareTo(dummy_name2);
@@ -95,6 +101,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
     {
         if ( initialized) return;
         initialized = true;
+        Ml_servers_util.init_image_similarity(logger);
 
 
 
@@ -134,7 +141,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
         if ( !reload_similarity_cache_from_disk(folder.toAbsolutePath().toString(), aborter))
         {
             // no cache on disk, have to recalculate
-            Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities, logger);
+            Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities, is_close,logger);
             CountDownLatch cdl = new CountDownLatch(images.size());
             for (Path p1 : images) {
                 Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
@@ -153,7 +160,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
             }
             save_similarity_cache_to_disk();
         }
-        //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
+        logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
         if ( aborter.should_abort()) return;
         Collections.shuffle(images);
         while (!images.isEmpty())
@@ -166,17 +173,37 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
             {
                 if ( aborter.should_abort()) return;
                 Path p2 = it.next();
+                /*
                 Double diff = similarities.get(Path_pair.get(p1,p2));
                 if ( diff == null)
                 {
-                    logger.log("WTF diff == null for "+p1+" vs "+p2);
+                    //logger.log("WTF diff == null for "+p1+" vs "+p2);
                     continue;
                 }
                 if ( diff < THRESHOLD)
                 {
                     it.remove();
                     dummy_names.put(p2,p1.getFileName().toString()+diff+p2.getFileName().toString());
+                }*/
+                Boolean close = is_close.get(Path_pair.get(p1,p2));
+                if( close == null)
+                {
+                    logger.log("WTF close == null for "+p1+" vs "+p2);
+                    continue;
                 }
+                logger.log(" close != null for "+p1+" vs "+p2);
+
+                if ( close)
+                {
+                    logger.log(" close = true for "+p1+" vs "+p2);
+
+                    it.remove();
+                    dummy_names.put(p2,p1.getFileName().toString());
+                }
+                else {
+                    logger.log(" close = false for "+p1+" vs "+p2);
+                }
+
             }
         }
         for (Path p: images)

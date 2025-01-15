@@ -1,6 +1,6 @@
 package klik.browser.comparators;
 
-//SOURCES ../../image_ml/image_similarity/Feature_vector_source_vgg19.java;
+//SOURCES ../../image_ml/image_similarity/Feature_vector_source_embeddings.java;
 
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;

@@ -171,7 +171,7 @@ public class Face_recognition_service
         File check = new File (target.toFile(),".folder_name_is_recognition_label");
         if ( !check.exists())
         {
-            logger.log("auto_internal skipping1 "+target);
+            logger.log("auto_internal skipping1 "+target+" as it does not contain a file named .folder_name_is_recognition_label");
             return;
         }
         logger.log("doing AUTO on: "+target);
