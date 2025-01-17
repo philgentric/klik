@@ -32,7 +32,7 @@ public class Image_feature_vector_actor implements Actor
 
         if ( fv == null)
         {
-            image_feature_vector_message.logger.log("BADBADBAD VGG19 server failed");
+            image_feature_vector_message.logger.log("Warning: embeddings server failed");
             return "error";
         }
         image_feature_vector_message.image_feature_vector_cache.inject(image_feature_vector_message.path,fv);

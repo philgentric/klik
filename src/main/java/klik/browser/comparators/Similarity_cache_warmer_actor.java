@@ -11,25 +11,25 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static klik.browser.comparators.Similarity_comparator.THRESHOLD;
+
 //**********************************************************
 public class Similarity_cache_warmer_actor implements Actor
 //**********************************************************
 {
     private final List<Path> images;
-    private final ConcurrentHashMap<Path_pair, Double> similarities;
-    private final ConcurrentHashMap<Path_pair, Boolean> is_close;
+    private final ConcurrentHashMap<Path_pair, Double> similarities_hashtable;
     private final Image_feature_vector_cache cache;
     private final Logger logger;
 
     //**********************************************************
-    public Similarity_cache_warmer_actor(List<Path> images, Image_feature_vector_cache cache, ConcurrentHashMap<Path_pair, Double> similarities, ConcurrentHashMap<Path_pair, Boolean> is_close, Logger logger)
+    public Similarity_cache_warmer_actor(List<Path> images, Image_feature_vector_cache cache, ConcurrentHashMap<Path_pair, Double> similarities, Logger logger)
     //**********************************************************
     {
         this.images = images;
         this.cache = cache;
-        this.similarities = similarities;
+        this.similarities_hashtable = similarities;
         this.logger = logger;
-        this.is_close= is_close;
     }
 
     //**********************************************************
@@ -59,7 +59,7 @@ public class Similarity_cache_warmer_actor implements Actor
             //}
             Path_pair pp = Path_pair.get(dnm.p1, p2);
             // already in cache?
-            if ( similarities.get(pp) != null)
+            if ( similarities_hashtable.get(pp) != null)
             {
                 //logger.log("not computed: similarity already in cache "+p1+" vs "+p2);
                 continue;
@@ -76,26 +76,19 @@ public class Similarity_cache_warmer_actor implements Actor
                 }
             }
             double diff = emb1.compare(emb2);
-            logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
-            if ( diff < min) min = diff;
-            if ( diff > max) max = diff;
-            if ( diff < Similarity_comparator.THRESHOLD)
-            {
-                similarities.put(pp, diff);
-                is_close.put(pp, true);
-            }
-            else
-            {
-                //similarities.put(pp, diff);
-                is_close.put(pp, false);
-            }
+            //logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
+            //if ( diff < min) min = diff;
+            //if ( diff > max) max = diff;
+            // to avoid 'OutOfMemoryError: Java heap space'
+            // we limit the number of entries
+            if ( diff < THRESHOLD) similarities_hashtable.put(pp, diff);
         }
 
         return "Done";
     }
 
-    public static double min = Double.MAX_VALUE;
-    public static double max = Double.MIN_VALUE;
+    //public static double min = Double.MAX_VALUE;
+    //public static double max = Double.MIN_VALUE;
 
     @Override
     public String name() {

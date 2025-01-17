@@ -23,9 +23,17 @@ public interface Feature_vector_source
     //**********************************************************
     {
         Gson gson = new GsonBuilder().create();
-        Feature_vector fv = gson.fromJson(response, Feature_vector.class);
-        //logger.log("parsed a feature vector, length: " + fv.features.length);
-        return fv;
+        try
+        {
+            Feature_vector fv = gson.fromJson(response, Feature_vector.class);
+            //logger.log("parsed a feature vector, length: " + fv.features.length);
+            return fv;
+        }
+        catch (com.google.gson.JsonSyntaxException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("parse_json: "+e));
+            return null;
+        }
     }
 
     //**********************************************************
@@ -34,7 +42,7 @@ public interface Feature_vector_source
     {
         if ( path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING"));
+            logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
             return null;
         }
 
@@ -43,48 +51,48 @@ public interface Feature_vector_source
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
             url_string = "http://localhost:" + random_port + "/" + encodedPath;
         } catch (UnsupportedEncodingException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
             return null;
         }
         URL url = null;
         try {
             url = new URL(url_string);
         } catch (MalformedURLException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
             return null;
         }
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic:"+e));
             return null;
         }
         try {
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(120_000);
+            connection.setConnectTimeout(0); // infinite
         } catch (ProtocolException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
             return null;
         }
         try {
             connection.connect();
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            logger.log((""+e));
+            logger.log(("get_feature_vector_from_server_generic: "+e));
             return null;
         }
         try {
             int response_code = connection.getResponseCode();
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            logger.log((""+e));
+            logger.log(("get_feature_vector_from_server_generic:"+e));
             return null;
         }
         try {
             String response_message = connection.getResponseMessage();
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
             return null;
         }
 
@@ -101,7 +109,7 @@ public interface Feature_vector_source
             }
         } catch (IOException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
             return null;
         }
 
@@ -110,7 +118,7 @@ public interface Feature_vector_source
         //logger.log("json ="+json);
         Feature_vector fv = Feature_vector_source.parse_json(json,logger);
         if ( fv == null) {
-            logger.log("feature vector is null");
+            logger.log("json parsing failed: feature vector is null");
         }
         else {
             //logger.log("feature vector size:"+fv.features.length);

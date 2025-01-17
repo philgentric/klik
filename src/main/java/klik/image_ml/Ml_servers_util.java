@@ -44,11 +44,13 @@ public class Ml_servers_util
 
 
     //**********************************************************
-    synchronized public static boolean init_image_similarity(Logger logger)
+    public static boolean init_image_similarity(Logger logger)
     //**********************************************************
     {
         if( image_similarity_servers_started) return true;
         image_similarity_servers_started = true;
+
+        logger.log("MobileNetV2 image similarity servers INIT");
 
         String list_of_ports = "";
         for ( int port : Feature_vector_source_embeddings.ports)

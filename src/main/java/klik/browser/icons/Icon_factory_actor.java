@@ -285,7 +285,7 @@ public class Icon_factory_actor implements Actor
                 break;
         }
 
-        Image_properties properties = image_properties_cache.get_from_cache(destination.get_path_for_display_icon_destination(),null,true);
+        Image_properties properties = image_properties_cache.get_from_cache(destination.get_path_for_display_icon_destination(),null);
         return new Image_and_properties(image_from_disk,properties);
     }
 

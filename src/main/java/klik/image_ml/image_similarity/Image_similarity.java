@@ -1,28 +1,39 @@
 package klik.image_ml.image_similarity;
 
-import klik.actor.Aborter;
-import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
+import klik.browser.Clearable_RAM_cache;
+import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.image_ml.Feature_vector;
 import klik.images.Image_window;
-import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Show_running_man_frame_with_abort_button;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 //**********************************************************
-public class Image_similarity
+public class Image_similarity implements Clearable_RAM_cache
 //**********************************************************
 {
+
+    //**********************************************************
+    @Override
+    public void clear_RAM_cache()
+    //**********************************************************
+    {
+        similarities.clear();
+        images_and_feature_vectors.image_feature_vector_ram_cache().clear_feature_vector_RAM_cache();
+    }
+
+
+
     public static final double W = 300;
     public static final double H = 300;
 
+    Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors;
 
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
     public final Browser browser;
@@ -33,27 +44,35 @@ public class Image_similarity
     {
         this.browser = browser;
         this.logger = logger;
+        Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
+        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(browser.displayed_folder_path,browser.aborter,logger);
+        x.close();
     }
 
     //**********************************************************
-    public void find_and_show_similars(Path image_path, int N)
+    public List<Most_similar> find_similars(boolean quasi_same, Path image_path, int N, boolean and_show, double threshold, AtomicLong count_pairs_examined)
     //**********************************************************
     {
-        Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
+        Hourglass x = null;
+        if ( and_show) x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
 
-        Result result = preload_all_feature_vector_in_cache(image_path.getParent(),browser.aborter,logger);
-        if (result == null)
+        if (images_and_feature_vectors == null)
         {
-            return;
+            return null;
         }
 
+        Feature_vector fv2 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
 
-        Feature_vector fv2 = result.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
-        result.images.remove(image_path);
-        List<Most_similar> most_similars = find_most_similars(N,
-                                                              result.images(),
-                                                              result.image_feature_vector_ram_cache(), fv2, image_path);
+        List<Path> images_copy = new ArrayList<>(images_and_feature_vectors.images());
+        images_copy.remove(image_path);
+        List<Most_similar> most_similars = find_most_similars(quasi_same,N, threshold,
+                images_copy,
+                images_and_feature_vectors.image_feature_vector_ram_cache(), fv2, image_path, count_pairs_examined);
 
+        if ( !and_show)
+        {
+            return most_similars;
+        }
         Runnable rr = new Runnable() {
             @Override
             public void run() {
@@ -70,57 +89,7 @@ public class Image_similarity
         };
         Jfx_batch_injector.inject(rr, logger);
         x.close();
-    }
-
-    //**********************************************************
-    public static Result preload_all_feature_vector_in_cache(Path folder_path, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(folder_path,"image_feature_vectors", aborter, logger);
-
-        image_feature_vector_ram_cache.reload_cache_from_disk(aborter);
-
-        File[] files = folder_path.toFile().listFiles();
-        List<Path> images = new ArrayList<>();
-        if ( files == null) return null;
-        for (File f : files)
-        {
-            if ( f.isDirectory()) continue;
-
-            if ( f.getName().startsWith("._"))
-            {
-                continue;
-            }
-
-            if ( !Guess_file_type.is_file_an_image(f)) continue;
-            images.add(f.toPath());
-        }
-        if ( images.isEmpty()) return null;
-        CountDownLatch cdl = new CountDownLatch(images.size());
-        Job_termination_reporter tr = (message, job) -> {
-            cdl.countDown();
-            if ( cdl.getCount() % 100 == 0) logger.log("preloading FVs into cache: "+cdl.getCount());
-        };
-        // start the cache warming on many threads
-        for ( int i = 0 ; i < images.size(); i++)
-        {
-            Path p1 = images.get(i);
-            image_feature_vector_ram_cache.get_from_cache(p1,tr,false);
-        }
-        try {
-            cdl.await();
-        } catch (InterruptedException e) {
-            logger.log(""+e);
-            return null;
-        }
-        logger.log("preloading FVs into cache done :"+images.size());
-        image_feature_vector_ram_cache.save_whole_cache_to_disk();
-        Result result = new Result(image_feature_vector_ram_cache, images);
-        return result;
-    }
-
-    public record Result(Image_feature_vector_cache image_feature_vector_ram_cache, List<Path> images)
-    {
+        return most_similars;
     }
 
 
@@ -137,23 +106,50 @@ public class Image_similarity
 
     }
     //**********************************************************
-    private List<Most_similar> find_most_similars(int N, List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
+    private List<Most_similar> find_most_similars(boolean quasi_same, int N, double threshold, List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path, AtomicLong count_pairs_examined)
     //**********************************************************
     {
         List<Most_similar> returned =  new ArrayList<>();
         double min = Double.MAX_VALUE;
+        //int count = 0;
+        Image_properties ip1 = null;
+        if ( quasi_same)
+        {
+            ip1 = browser.image_properties_cache.get_from_cache(path,null);
+        }
+        //int discarded = 0;
         for(Path p : targets)
         {
-            Double similarity = read_similarity(path,p);
+            if ( count_pairs_examined!= null) count_pairs_examined.incrementAndGet();
+            if ( quasi_same)
+            {
+                Image_properties ip2 = browser.image_properties_cache.get_from_cache(p,null);
+                if ( ip1.w() != ip2.w()) continue;
+                if ( ip1.h() != ip2.h()) continue;
+            }
+
+            Double similarity = read_similarity_from_cache(path,p);
             if ( similarity == null)
             {
                 Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p, null,true);
                 if (fv1 == null) continue; // server failure
                 similarity = fv1.cosine_similarity(fv2);
-                store_similarity(similarity, path, p);
+                save_similarity_in_cache(similarity, path, p);
             }
+            if ( quasi_same)
+            {
+                if ( similarity > 0)
+                {
+                    //discarded++;
+                    //if ( discarded%1000 == 0) logger.log("images discarded, too far: "+discarded);
+                    continue;
+                }
+            }
+            if ( similarity > threshold) continue;
             Most_similar ms = new Most_similar(p,similarity);
-            min = crounch(N,returned,ms, min);
+            min = keep_N_closest(N,returned,ms, min);
+            //count++;
+            //if ( count % 100 == 0) logger.log("image compared count="+count);
         }
         return returned;
     }
@@ -169,62 +165,23 @@ public class Image_similarity
     };
 
     //**********************************************************
-    private double crounch(int N, List<Most_similar> local, Most_similar ms, double min)
+    private double keep_N_closest(int N, List<Most_similar> local, Most_similar ms, double min)
     //**********************************************************
     {
         local.add(ms);
         local.sort(comp);
         if ( local.size() > N) local.removeLast();
-        return local.get(0).similarity();
+        return local.getFirst().similarity();
     }
 
-    //**********************************************************
-    private List<Most_similar> find_most_similars_old(int N, List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
-    //**********************************************************
-    {
-        List<Most_similar> returned =  new ArrayList<>();
-        for ( int i = 0 ; i < N ; i ++)
-        {
-            Most_similar ms = find_min(targets, image_feature_vector_ram_cache, fv2, path);
-            if ( ms.path == null) break;
-            targets.remove(ms.path());
-            returned.add(ms);
-        }
-        return returned;
-    }
+
 
 
     record Most_similar(Path path,Double similarity){};
 
-    //**********************************************************
-    private Most_similar find_min(List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path)
-    //**********************************************************
-    {
-        Path min_p1 = null;
-        double min = Double.MAX_VALUE;
-        for (int i = 0; i < targets.size(); i++)
-        {
-            Path p1 = targets.get(i);
-            Double similarity = read_similarity(path,p1);
-            if ( similarity == null)
-            {
-                Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p1, null,true);
-                if (fv1 == null) continue; // server failure
-                similarity = fv1.cosine_similarity(fv2);
-                store_similarity(similarity, path, p1);
-            }
-            if ( similarity < min)
-            {
-                min = similarity;
-                min_p1 = p1;
-            }
-        }
-        return new Most_similar(min_p1,min);
-    }
-
 
     //**********************************************************
-    private void store_similarity(Double similarity, Path p1, Path p2)
+    private void save_similarity_in_cache(Double similarity, Path p1, Path p2)
     //**********************************************************
     {
         Map<Path, Double> m1 = similarities.get(p1);
@@ -246,7 +203,7 @@ public class Image_similarity
     }
 
     //**********************************************************
-    private Double read_similarity(Path p1, Path p2)
+    private Double read_similarity_from_cache(Path p1, Path p2)
     //**********************************************************
     {
         Map<Path, Double> m1 = similarities.get(p1);
@@ -263,31 +220,6 @@ public class Image_similarity
         }
         return null;
     }
-    //**********************************************************
-    private Double get_similarity_from_RAM_cache(Path p1, Path p2)
-    //**********************************************************
-    {
-        {
-            Map<Path, Double> m = similarities.get(p1);
-            if ( m != null)
-            {
-                Double s = m.get(p2);
-                if ( s != null) return s;
-                else return null;
-            }
-        }
-        {
-            Map<Path, Double> m = similarities.get(p2);
-            if ( m != null)
-            {
-                Double s = m.get(p1);
-                return s;
-            }
-            else
-            {
-                return null;
-            }
-        }
-    }
+
 
 }

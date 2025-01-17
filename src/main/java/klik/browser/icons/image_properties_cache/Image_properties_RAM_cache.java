@@ -84,7 +84,13 @@ public class Image_properties_RAM_cache
 
 
     //**********************************************************
-    public Image_properties get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)
+    // this routine will return the Image_properties if it is in the cache, if not
+    // if tr is null then this routine will BLOCK until the Image_properties is in the cache
+    // if tr is not null then this routine will return null and start the cache filling
+    // in a separate thread, which will call tr.has_ended when finished
+
+
+    public Image_properties get_from_cache(Path p, Job_termination_reporter tr)
     //**********************************************************
     {
         Image_properties image_properties =  cache.get(key_from_path(p));
@@ -102,7 +108,7 @@ public class Image_properties_RAM_cache
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
-        if ( wait_if_needed)
+        if ( tr == null)
         {
             image_properties_actor.run(imp); // blocking call
             Image_properties x = cache.get(key_from_path(p));
@@ -114,6 +120,14 @@ public class Image_properties_RAM_cache
         }
         Actor_engine.run(image_properties_actor,imp,tr,logger);
         return null;
+    }
+
+    //**********************************************************
+    public void fill_cache(Path p)
+    //**********************************************************
+    {
+        Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
+        Actor_engine.run(image_properties_actor,imp,null,logger);
     }
 
     //**********************************************************

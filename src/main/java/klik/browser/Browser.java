@@ -73,6 +73,8 @@ import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.image_ml.image_similarity.Image_similarity;
 import klik.look.my_i18n.My_I18n;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
@@ -144,7 +146,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public final Selection_handler selection_handler;
     public final Aborter aborter;
     public final Paths_manager paths_manager;
-    private final Image_properties_RAM_cache image_properties_cache;
+    public final Image_properties_RAM_cache image_properties_cache;
 
 
     TextField status;
@@ -245,6 +247,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger.log("Return-to scroll positions cache cleared");
         clear_image_comparators_caches();
         logger.log("Image comparators caches cleared");
+        clear_image_similarity_RAM_cache();
     }
 
 
@@ -263,8 +266,15 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void clear_image_comparators_caches()
     //**********************************************************
     {
-        ((Clearable_cache) (paths_manager.image_file_comparator)).clear_RAM_cache();
-        ((Clearable_cache) (paths_manager.other_file_comparator)).clear_RAM_cache();
+        ((Clearable_RAM_cache) (paths_manager.image_file_comparator)).clear_RAM_cache();
+        ((Clearable_RAM_cache) (paths_manager.other_file_comparator)).clear_RAM_cache();
+    }
+
+    //**********************************************************
+    public void clear_image_similarity_RAM_cache()
+    //**********************************************************
+    {
+        Image_feature_vector_cache.images_and_feature_vectors_cache.clear();
     }
 
     enum Scan_state {

@@ -12,12 +12,14 @@ import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.image_ml.Feature_vector;
 import klik.level3.experimental.RAM_disk;
 import klik.properties.Static_application_properties;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 //**********************************************************
 public class Image_feature_vector_cache
@@ -28,6 +30,12 @@ public class Image_feature_vector_cache
     private final Aborter aborter;
     protected final String cache_name;
     protected final Path cache_file_path;
+
+
+    public record Images_and_feature_vectors(Image_feature_vector_cache image_feature_vector_ram_cache, List<Path> images)
+    {
+    }
+    public final static Map<Path, Images_and_feature_vectors> images_and_feature_vectors_cache = new HashMap<>();
     private final Map<String, Feature_vector> fv_cache = new ConcurrentHashMap<>();
     private final Image_feature_vector_actor image_feature_vector_actor;
 
@@ -154,6 +162,7 @@ public class Image_feature_vector_cache
                 Feature_vector fv = new Feature_vector(vector);
                 fv_cache.put(path_string, fv);
                 reloaded++;
+                if ( i%1000==0) logger.log(i+" feature vectors loaded from disk");
             }
         }
         catch (FileNotFoundException e)
@@ -208,6 +217,103 @@ public class Image_feature_vector_cache
             logger.log(saved +" feature vectors from cache saved to file");
     }
 
+
+    //**********************************************************
+    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path folder_path, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        Images_and_feature_vectors images_and_feature_vectors = images_and_feature_vectors_cache.get(folder_path);
+        if ( images_and_feature_vectors == null)
+        {
+            images_and_feature_vectors = read_from_disk_and_update(folder_path,aborter,logger);
+            images_and_feature_vectors_cache.put(folder_path,images_and_feature_vectors);
+            return images_and_feature_vectors;
+        }
+        images_and_feature_vectors.image_feature_vector_ram_cache.update(folder_path,aborter,logger);
+        return images_and_feature_vectors;
+    }
+
+     /*
+        if ( images.isEmpty()) return null;
+        CountDownLatch cdl = new CountDownLatch(images.size());
+        Job_termination_reporter tr = (message, job) -> {
+            cdl.countDown();
+            if ( cdl.getCount() % 100 == 0) logger.log("preloading FVs into cache: "+cdl.getCount());
+        };
+        // start the cache warming on many threads
+        for ( int i = 0 ; i < images.size(); i++)
+        {
+            Path p1 = images.get(i);
+            image_feature_vector_ram_cache.get_from_cache(p1,tr,false);
+        }
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            logger.log(""+e);
+            return null;
+        }
+        logger.log("preloading FVs into cache done :"+images.size());
+        image_feature_vector_ram_cache.save_whole_cache_to_disk();
+        result = new Images_and_feature_vectors(image_feature_vector_ram_cache, images);
+        images_and_feature_vectors_cache.put(folder_path,result);
+        return result;
+    }*/
+
+    //**********************************************************
+    private static Images_and_feature_vectors read_from_disk_and_update(Path folder_path, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(folder_path, "image_feature_vectors", aborter, logger);
+        image_feature_vector_ram_cache.reload_cache_from_disk(aborter);
+
+        logger.log("read_from_disk "+image_feature_vector_ram_cache.fv_cache.size()+" fv from disk for:"+folder_path);
+        return image_feature_vector_ram_cache.update( folder_path, aborter, logger);
+    }
+
+    //**********************************************************
+    private  Images_and_feature_vectors update(Path folder_path, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        File[] files = folder_path.toFile().listFiles();
+        if ( files == null) return null;
+        List<Path> images = new ArrayList<>();
+        List<Path> missing_images = new ArrayList<>();
+        for (File f : files)
+        {
+            if ( f.isDirectory()) continue;
+            if ( f.getName().startsWith("._")) continue;
+            if ( !Guess_file_type.is_file_an_image(f)) continue;
+            images.add(f.toPath());
+            if ( !fv_cache.containsKey(f.toPath().getFileName().toString()))
+            {
+                missing_images.add(f.toPath());
+            }
+        }
+        CountDownLatch cdl = new CountDownLatch(missing_images.size());
+        Job_termination_reporter tr = (message, job) -> {
+            cdl.countDown();
+        };
+        for (Path p :missing_images)
+        {
+            get_from_cache(p,tr,false);
+        }
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            logger.log("Images_and_feature_vectors from_disk interrupted:"+e);
+        }
+        logger.log("update: "+missing_images.size()+" new images added for:"+folder_path);
+
+        if (!missing_images.isEmpty()) save_whole_cache_to_disk();
+        return new Images_and_feature_vectors(this, images);
+    }
+
+    //**********************************************************
+    private boolean has(Path path)
+    //**********************************************************
+    {
+        return fv_cache.containsKey(path.toString());
+    }
 
 
 }

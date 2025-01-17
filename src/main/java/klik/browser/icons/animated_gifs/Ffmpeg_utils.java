@@ -75,7 +75,7 @@ public class Ffmpeg_utils
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man("Wait for animated gifs to be generated",20*60,logger);
+        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(in_flight,"Wait for animated gifs to be generated",20*60,logger);
         aborter = running_man.aborter;
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
@@ -95,7 +95,7 @@ public class Ffmpeg_utils
                     logger);
         }
 
-        running_man.wait_and_block_until_finished(in_flight);
+        //running_man.report_progress_and_close_when_finished(in_flight);
     }
 
 

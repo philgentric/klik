@@ -40,6 +40,17 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 		launch(local, wait_message,logger);
 		return local;
 	}
+
+	//**********************************************************
+	public static Show_running_man_frame_with_abort_button show_running_man(AtomicInteger in_flight, String wait_message, int timeout_s, Logger logger)
+	//**********************************************************
+	{
+		Show_running_man_frame_with_abort_button local = new Show_running_man_frame_with_abort_button(timeout_s, logger);
+		launch(local, wait_message,logger);
+		local.report_progress_and_close_when_finished(in_flight);
+		return local;
+	}
+
 	//**********************************************************
 	private static Hourglass launch(Show_running_man_frame_with_abort_button local, String wait_message, Logger logger)
 	//**********************************************************
@@ -82,7 +93,7 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 		vbox.getChildren().add(iv);
 
 		{
-			in_flight_label = new Label("In flight items: ");
+			in_flight_label = new Label();
 			vbox.getChildren().add(in_flight_label);
 		}
 		{
@@ -184,7 +195,7 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 
 
 	//**********************************************************
-	public void wait_and_block_until_finished(AtomicInteger in_flight)
+	private void report_progress_and_close_when_finished(AtomicInteger in_flight)
 	//**********************************************************
 	{
 		Runnable tracker = () -> {

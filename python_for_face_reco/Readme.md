@@ -37,6 +37,8 @@ pip install tensorflow-macos
 
 pip install tensorflow-metal
 
+cd ./python_for_face_reco
+
 pip install -r requirements.txt
 
 2.AFTER a reboot: activate the virtual environment

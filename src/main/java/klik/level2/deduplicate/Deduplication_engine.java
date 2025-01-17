@@ -1,7 +1,7 @@
 //SOURCES ./manual/Stage_with_2_images.java
 //SOURCES ./console/Deduplication_console_window.java
 //SOURCES ./manual/Againor.java
-//SOURCES ./File_pair.java
+//SOURCES ./File_pair_deduplication.java
 //SOURCES ./Runnable_for_finding_duplicate_file_pairs.java
 
 package klik.level2.deduplicate;
@@ -31,12 +31,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Deduplication_engine implements Againor
+public class Deduplication_engine implements Againor, Abortable
 //**********************************************************
 {
     Browser browser;
     Logger logger;
-    BlockingQueue<File_pair> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
+    BlockingQueue<File_pair_deduplication> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
     //int n_threads;
     AtomicInteger threads_in_flight = new AtomicInteger(0);
     AtomicInteger duplicates_found = new AtomicInteger(0);
@@ -77,6 +77,7 @@ public class Deduplication_engine implements Againor
 
 
     //**********************************************************
+    @Override // Abortable
     public void abort()
     //**********************************************************
     {
@@ -166,7 +167,7 @@ public class Deduplication_engine implements Againor
                 logger.log("Deduplicator::deduplicate_all abort");
                 return;
             }
-            File_pair p = null;
+            File_pair_deduplication p = null;
             try {
                 p = same_file_pairs_input_queue.poll(300, TimeUnit.MILLISECONDS);
             }
@@ -235,7 +236,7 @@ public class Deduplication_engine implements Againor
     }
 
     //**********************************************************
-    private File which_one_to_delete(File_pair p)
+    private File which_one_to_delete(File_pair_deduplication p)
     //**********************************************************
     {
         if ( p.f1.to_be_deleted)
@@ -282,7 +283,7 @@ public class Deduplication_engine implements Againor
                 logger.log("Deduplicator::deduplicate_all abort");
                 return false;
             }
-            File_pair p = same_file_pairs_input_queue.peek();
+            File_pair_deduplication p = same_file_pairs_input_queue.peek();
             if (p != null) return true;
 
             if ( are_threaded_finders_finished())
@@ -306,7 +307,7 @@ public class Deduplication_engine implements Againor
 
 
     //**********************************************************
-    private void ask_user_about_a_duplicate_pair(File_pair file_pair)
+    private void ask_user_about_a_duplicate_pair(File_pair_deduplication file_pair)
     //**********************************************************
     {
         if (!file_pair.f1.my_file.file.exists()) {
@@ -326,10 +327,12 @@ public class Deduplication_engine implements Againor
 
         logger.log("deduplicate:" + file_pair.f1.my_file.file.getAbsolutePath() + "-" + file_pair.f2.my_file.file.getAbsolutePath() + " is_image=" + file_pair.is_image);
 
+        String title = "Deduplication";
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(browser, file_pair, local_againor, private_aborter, logger);
-            else stage_with_2_images.set_pair(file_pair);
+            File_pair local = new File_pair(file_pair.f1.my_file.file, file_pair.f2.my_file.file);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, browser, local, local_againor, private_aborter, logger);
+            else stage_with_2_images.set_pair(title,local);
         },logger);
     }
 /*
@@ -338,14 +341,14 @@ public class Deduplication_engine implements Againor
     void sort_pairs_by_file_size()
     //**********************************************************
     {
-        Comparator<File_pair> comp = new Comparator<File_pair>() {
+        Comparator<File_pair_deduplication> comp = new Comparator<File_pair_deduplication>() {
 
             @Override
-            public int compare(File_pair o1, File_pair o2) {
+            public int compare(File_pair_deduplication o1, File_pair_deduplication o2) {
                 return Long.valueOf(o1.f1.my_file.file.length()).compareTo(Long.valueOf(o2.f1.my_file.file.length()));
             }
         };
-        List<File_pair> same_in_pairs2 = new ArrayList<File_pair>(same_file_pairs_input_queue);
+        List<File_pair_deduplication> same_in_pairs2 = new ArrayList<File_pair_deduplication>(same_file_pairs_input_queue);
         Collections.sort(same_in_pairs2, comp);
         Collections.reverse(same_in_pairs2);
         same_file_pairs_input_queue.clear();
@@ -365,31 +368,31 @@ public class Deduplication_engine implements Againor
         logger.log("manual deduplicator: again called !");
         Runnable r = () -> {
             {
-                File_pair p;
-                try {
-                    p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    logger.log(""+e);
-                    return;
-                }
-                if (p != null) {
-                    logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
-                    ask_user_about_a_duplicate_pair(p);
-                }
-                else
-                {
-                    if (are_threaded_finders_finished())
-                    {
-                        logger.log("\nduplicate finder is finished !!");
-                        if ( !end_reported)
-                        {
-                            Popups.popup_warning(browser.my_Stage.the_Stage,"Search for duplicates ENDED", "(no duplicates found)", true, logger);
-                            end_reported = true;
-                        }
-                        console_window.set_end_examined();
-                    }
-                    logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
+                for(;;) {
+                    if (private_aborter.should_abort()) return;
 
+                    File_pair_deduplication p;
+                    try {
+                        p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        logger.log("" + e);
+                        return;
+                    }
+                    if (p != null) {
+                        logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
+                        ask_user_about_a_duplicate_pair(p);
+                    } else {
+                        if (are_threaded_finders_finished()) {
+                            logger.log("\nduplicate finder is finished !!");
+                            if (!end_reported) {
+                                Popups.popup_warning(browser.my_Stage.the_Stage, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
+                                end_reported = true;
+                            }
+                            console_window.set_end_examined();
+                        }
+                        logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
+
+                    }
                 }
             }
         };
@@ -426,7 +429,7 @@ public class Deduplication_engine implements Againor
         find_duplicate_pairs(local_deduplication);
         int count = 0;
         for (;;) {
-            File_pair p = null;
+            File_pair_deduplication p = null;
             try {
                 p = same_file_pairs_input_queue.poll(300, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {

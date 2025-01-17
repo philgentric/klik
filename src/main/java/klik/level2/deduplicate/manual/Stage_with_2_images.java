@@ -6,19 +6,22 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.level2.deduplicate.File_pair_deduplication;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
-import klik.level2.deduplicate.File_pair;
 import klik.level2.deduplicate.My_File_and_status;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
@@ -27,6 +30,7 @@ import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -49,8 +53,10 @@ public class Stage_with_2_images
 	VBox the_big_vbox;
 	Againor againor;
 
+
 	//**********************************************************
 	public Stage_with_2_images(
+			String title,
 			Browser browser_,
 			File_pair pair,
 			Againor againor_,
@@ -82,7 +88,7 @@ public class Stage_with_2_images
 				stage.setScene(scene);//, W, H));
 				stage.setOnCloseRequest((e) -> private_aborter.abort("Stage_with_2_images closing"));
 
-				if (!set_images_by_files(pair,browser))
+				if (!set_images_by_files(title,pair,browser))
 				{
 					stage.hide();
 					againor.again(true);
@@ -95,20 +101,19 @@ public class Stage_with_2_images
 
 	}
 
-	static Comparator<? super My_File_and_status> comp_by_path_length = new Comparator<My_File_and_status>() {
+	static Comparator<? super File> comp_by_path_length = new Comparator<File>() {
 		@Override
-		public int compare(My_File_and_status o1, My_File_and_status o2) {
-			Integer i1 = o1.my_file.file.getAbsolutePath().toString().length();
-			Integer i2 = o2.my_file.file.getAbsolutePath().toString().length();
+		public int compare(File o1, File o2) {
+			Integer i1 = o1.getAbsolutePath().length();
+			Integer i2 = o2.getAbsolutePath().length();
 			return i1.compareTo(i2);
 		}
 	};
 
 	//**********************************************************
-	protected boolean set_images_by_files(File_pair the_pair, Browser browser)
+	protected boolean set_images_by_files(String title, File_pair the_pair, Browser browser)
 	//**********************************************************
 	{
-		String title = "";
 		the_big_vbox.getChildren().clear();
 
 		Button skip = new Button("Skip this pair");
@@ -123,17 +128,18 @@ public class Stage_with_2_images
 			}
 		});
 
-		My_File_and_status the_image_files[] = new My_File_and_status[2];
-		the_image_files[0] = the_pair.f1;
-		the_image_files[1] = the_pair.f2;
+		File[] the_image_files = new File[2];
+		the_image_files[0] = the_pair.f1();
+		the_image_files[1] = the_pair.f2();
 		Arrays.sort(the_image_files,comp_by_path_length);
 
 		HBox hbox = new HBox();
 		the_big_vbox.getChildren().add(hbox);
+		Display_data dd = new Display_data(title, 0, 0);
 		for ( int i = 0 ; i < the_image_files.length ; i++)
 		{
-			title = display_one_picture_with_buttons(the_pair, browser, title, hbox, the_image_files[i]);
-			if (title == null) return false;
+			dd = display_one_picture_with_buttons(the_pair, browser, dd, hbox, the_image_files[i]);
+			if (dd == null) return false;
 
 			if ( i == 0) {
 				Separator separator = new Separator();
@@ -144,35 +150,40 @@ public class Stage_with_2_images
 		}
 		stage.setWidth(W);
 		//stage.setHeight(H);
-		stage.setTitle(title);
+		stage.setTitle("Distance: "+title);
 		return true;
 	}
 
+	record Display_data(String title, double image_width, double image_height){}
 	//**********************************************************
-	private String display_one_picture_with_buttons(File_pair the_pair, Browser browser, String title, HBox hbox, My_File_and_status file_and_status)
+	private Display_data display_one_picture_with_buttons(File_pair the_pair, Browser browser, Display_data previous, HBox hbox, File file)
 	//**********************************************************
 	{
 		VBox the_vbox = new VBox();
-		if ( file_and_status == null)
+		if ( file == null)
 		{
-			logger.log("file_and_status == null");
+			logger.log("file == null");
 			return null;
 		}
-		if (!file_and_status.my_file.file.exists())
+		if (!file.exists())
 		{
 			logger.log("file already gone");
 			return null;
 		}
-		title += file_and_status.my_file.file.getName()+"-";
-
+		String title = previous.title()+" "+file.getName();
+		double width = 0;
+		double height = 0;
 
 		Button view = new Button("View this one");
 		Look_and_feel_manager.set_button_look(view,true);
 		view.setOnAction(event -> {
-            if (the_pair.is_image) {
-                Image_window is = Image_window.get_Image_window(browser, file_and_status.my_file.file.toPath(), logger);
+			boolean is_image = true;
+			if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
+			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
+            if (is_image) {
+                Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
             } else {
-                System_open_actor.open_with_system(browser, file_and_status.my_file.file.toPath(), logger);
+                System_open_actor.open_with_system(browser, file.toPath(), logger);
             }
         });
 		the_vbox.getChildren().add(view);
@@ -181,7 +192,7 @@ public class Stage_with_2_images
 		Look_and_feel_manager.set_button_look(delete_button,true);
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
-			Path p = file_and_status.my_file.file.toPath();
+			Path p = file.toPath();
 			Path trash_dir = Static_application_properties.get_trash_dir(p,logger);
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
@@ -195,7 +206,7 @@ public class Stage_with_2_images
 		{
 			HBox hbox2 = new HBox();
 			{
-				Label label = new Label("Folder:"+file_and_status.my_file.file.getParentFile().getAbsolutePath());
+				Label label = new Label("Folder:"+file.getParentFile().getAbsolutePath());
 				Look_and_feel_manager.set_region_look(label);
 				label.setMinWidth(w);
 				label.setWrapText(true);
@@ -210,7 +221,7 @@ public class Stage_with_2_images
 		{
 			HBox hbox2 = new HBox();
 			{
-				Label label = new Label("File:"+file_and_status.my_file.file.getName());
+				Label label = new Label("File:"+file.getName());
 				Look_and_feel_manager.set_region_look(label);
 				label.setMinWidth(w);
 				label.setWrapText(true);
@@ -222,9 +233,52 @@ public class Stage_with_2_images
 			hbox2.getChildren().add(spacer);
 			the_vbox.getChildren().add(hbox2);
 		}
-		if ( the_pair.is_image)
 		{
-			Image image = From_disk.load_native_resolution_image_from_disk(file_and_status.my_file.file.toPath(), true, private_aborter, logger);
+			HBox hbox2 = new HBox();
+			{
+				String size_in_kB = file.length()/1000+"kB";
+				Label label = new Label("File size: "+size_in_kB);
+				Look_and_feel_manager.set_region_look(label);
+				label.setMinWidth(w);
+				label.setWrapText(true);
+				hbox2.getChildren().add(label);
+
+			}
+			Region spacer = new Region();
+			HBox.setHgrow(spacer, Priority.ALWAYS);
+			hbox2.getChildren().add(spacer);
+			the_vbox.getChildren().add(hbox2);
+		}
+		boolean is_image = true;
+		if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
+		if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
+		if ( is_image)
+		{
+			Image image = From_disk.load_native_resolution_image_from_disk(file.toPath(), true, private_aborter, logger);
+			HBox hbox2 = new HBox();
+			{
+				width = image.getWidth();
+				height = image.getHeight();
+				String lab = "Image size: "+width+" x "+height;
+				boolean same = true;
+				if ( previous.image_width() != width) same = false;
+				if ( previous.image_height() != height) same = false;
+				if ( same)
+				{
+					lab += " ========  SAME SIZE";
+				}
+				Label label = new Label(lab);
+				Look_and_feel_manager.set_region_look(label);
+				label.setMinWidth(w);
+				label.setWrapText(true);
+				hbox2.getChildren().add(label);
+
+			}
+			Region spacer = new Region();
+			HBox.setHgrow(spacer, Priority.ALWAYS);
+			hbox2.getChildren().add(spacer);
+			the_vbox.getChildren().add(hbox2);
+
 			ImageView image_view = new ImageView(image);
 			image_view.setPreserveRatio(true);
 			image_view.setFitWidth(w);
@@ -233,16 +287,16 @@ public class Stage_with_2_images
 		}
 
 		hbox.getChildren().add(the_vbox);
-		return title;
+		return new Display_data(title,width,height);
 	}
 
 	public void close() {
 		if ( stage != null) stage.close();
 	}
 
-	public void set_pair(File_pair pair)
+	public void set_pair(String title,File_pair pair)
 	{
-		set_images_by_files(pair,browser);
+		set_images_by_files(title,pair,browser);
 		stage.show();
 	}
 

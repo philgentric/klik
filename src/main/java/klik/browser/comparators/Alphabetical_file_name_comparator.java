@@ -1,13 +1,13 @@
-//SOURCES ../Clearable_cache.java
+//SOURCES ../Clearable_RAM_cache.java
 package klik.browser.comparators;
 
-import klik.browser.Clearable_cache;
+import klik.browser.Clearable_RAM_cache;
 
 import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Alphabetical_file_name_comparator implements Comparator<Path>, Clearable_cache
+public class Alphabetical_file_name_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
     @Override

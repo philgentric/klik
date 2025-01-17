@@ -89,7 +89,7 @@ public class Item_image extends Item
                     return;
                 }
                 if (event.isMetaDown()) {
-                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window(browser.my_Stage.the_Stage, path, false, logger);
+                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",browser.my_Stage.the_Stage, path, false, logger);
                     if (option.isEmpty()) {
                         // let us a bit of checking about why this failed
                         Change_gang.report_anomaly(path);
@@ -256,7 +256,7 @@ public class Item_image extends Item
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
             image_similarity = new Image_similarity(browser,logger);
-            Runnable r = () -> image_similarity.find_and_show_similars(image_path,N);
+            Runnable r = () -> image_similarity.find_similars(false, image_path,N,true, Double.MAX_VALUE, null);
             Actor_engine.execute(r,logger);
         });
 

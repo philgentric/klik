@@ -51,6 +51,7 @@ public class Multiple_image_window
     public final Aborter aborter;
     //**********************************************************
     public static Optional<Multiple_image_window> get_Multiple_image_window(
+            String title,
             Stage from_stage, // for on same screen
             Path path,
             boolean smaller,
@@ -65,7 +66,7 @@ public class Multiple_image_window
         }
         logger_.log("Multiple_image_stage OK: image loaded" + path.toAbsolutePath());
         if (from_stage == null) {
-            return Optional.of(new Multiple_image_window(option.get(), smaller, 800, 600, aborter, logger_));
+            return Optional.of(new Multiple_image_window(title,option.get(), smaller, 800, 600, aborter, logger_));
         }
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
@@ -101,7 +102,7 @@ public class Multiple_image_window
             y += 100;
 
         }
-        Multiple_image_window returned = new Multiple_image_window(option.get(), smaller, w, h, aborter, logger_);//, tpe_);
+        Multiple_image_window returned = new Multiple_image_window(title, option.get(), smaller, w, h, aborter, logger_);//, tpe_);
 
         returned.the_stage.setX(x);
         returned.the_stage.setY(y);
@@ -110,7 +111,7 @@ public class Multiple_image_window
 
     //**********************************************************
     private Multiple_image_window(
-            //List<Image_play> image_plays_,
+            String title,
             Image_context local_ic,
             boolean smaller,
             double w, double h,
@@ -131,6 +132,7 @@ public class Multiple_image_window
         }
         the_stage.setWidth(w);
         the_stage.setHeight(h);
+        the_stage.setTitle(title);
         tile_pane = new TilePane();
 
         set_background();

@@ -157,7 +157,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man("Wait for auto train to complete",20*3600,logger);
+        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(files_in_flight,"Wait for auto train to complete",20*3600,logger);
         Aborter aborter_for_auto_train = running_man.aborter;
 
 
@@ -238,7 +238,7 @@ public class Face_recognition_service
 
         // DONT save_internal(aborter_for_auto_train);
 
-        running_man.wait_and_block_until_finished(files_in_flight);
+        //running_man.report_progress_and_close_when_finished(files_in_flight);
         logger.log("Finished Face Recognition AUTO: "+recognition_stats.to_string());
     }
 
@@ -584,7 +584,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button x = Show_running_man_frame_with_abort_button.show_running_man("Loading face recognition prototypes", 20_100, logger);
+        Show_running_man_frame_with_abort_button x = Show_running_man_frame_with_abort_button.show_running_man(in_flight,"Loading face recognition prototypes", 20_100, logger);
         Load_one_prototype_actor actor = new Load_one_prototype_actor();
         Runnable r = () -> {
             Path p = Path.of(face_recognizer_path.toAbsolutePath().toString());
@@ -603,7 +603,7 @@ public class Face_recognition_service
         };
         Actor_engine.execute(r,logger);
 
-        x.wait_and_block_until_finished(in_flight);
+        //x.report_progress_and_close_when_finished(in_flight);
     }
 
     //**********************************************************
@@ -795,7 +795,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man("Wait for SELF face recognition to complete",20*60,logger);
+        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(files_in_flight,"Wait for SELF face recognition to complete",20*60,logger);
         Aborter aborter_for_self = running_man.aborter;
 
         last_report = System.currentTimeMillis();
@@ -828,7 +828,7 @@ public class Face_recognition_service
             self_file(f,files,aborter_for_self);
         }
 
-        running_man.wait_and_block_until_finished(files_in_flight);
+        //running_man.report_progress_and_close_when_finished(files_in_flight);
         logger.log("Finished Face Recognition");
     }
 

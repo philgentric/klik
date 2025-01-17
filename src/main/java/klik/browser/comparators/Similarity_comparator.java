@@ -5,8 +5,7 @@ package klik.browser.comparators;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.Clearable_cache;
-import klik.image_ml.Ml_servers_util;
+import klik.browser.Clearable_RAM_cache;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.properties.Static_application_properties;
@@ -22,15 +21,14 @@ import java.util.concurrent.CountDownLatch;
 
 
 //**********************************************************
-public class Similarity_comparator implements Comparator<Path>, Clearable_cache
+public class Similarity_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
     private final static Map<Path, String> dummy_names = new HashMap<>();
-    public static final double THRESHOLD = 0.5;
-    //public static final double THRESHOLD = 1_000_000;
+    public static final double THRESHOLD = 0.4;
     private Map<Path_pair, Integer> distances  = new HashMap<>();
     private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Path_pair, Boolean> is_close = new ConcurrentHashMap<>();
+    //private final ConcurrentHashMap<Path_pair, Boolean> is_close = new ConcurrentHashMap<>();
 
     private Image_feature_vector_cache fv_cache = null;
     Logger logger;
@@ -101,31 +99,18 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
     {
         if ( initialized) return;
         initialized = true;
-        Ml_servers_util.init_image_similarity(logger);
+        //Ml_servers_util.init_image_similarity(logger);
 
 
 
         logger.log("init_dummy_names for: "+folder);
-        Image_similarity.Result result = Image_similarity.preload_all_feature_vector_in_cache(folder, aborter, logger);
+        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(folder, aborter, logger);
         if (result == null)
         {
             return;
         }
         fv_cache = result.image_feature_vector_ram_cache();
-        File[] files_ = folder.toFile().listFiles();
-        List<Path> images = new ArrayList<>();
-
-        for (int i = 0 ; i < files_.length; i++)
-        {
-            if (aborter.should_abort()) return;
-            File f1 = files_[i];
-            Path p1 = f1.toPath();
-            if (Guess_file_type.is_file_an_image(f1))
-            {
-                images.add(p1);
-            }
-        }
-
+        List<Path> images = new ArrayList<>(result.images());
 
         {
             String cache_name = "similarity";
@@ -141,7 +126,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
         if ( !reload_similarity_cache_from_disk(folder.toAbsolutePath().toString(), aborter))
         {
             // no cache on disk, have to recalculate
-            Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities, is_close,logger);
+            Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities,logger);
             CountDownLatch cdl = new CountDownLatch(images.size());
             for (Path p1 : images) {
                 Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
@@ -160,7 +145,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
             }
             save_similarity_cache_to_disk();
         }
-        logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
+        //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
         if ( aborter.should_abort()) return;
         Collections.shuffle(images);
         while (!images.isEmpty())
@@ -173,7 +158,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
             {
                 if ( aborter.should_abort()) return;
                 Path p2 = it.next();
-                /*
+
                 Double diff = similarities.get(Path_pair.get(p1,p2));
                 if ( diff == null)
                 {
@@ -184,11 +169,12 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
                 {
                     it.remove();
                     dummy_names.put(p2,p1.getFileName().toString()+diff+p2.getFileName().toString());
-                }*/
+                }
+                /*
                 Boolean close = is_close.get(Path_pair.get(p1,p2));
                 if( close == null)
                 {
-                    logger.log("WTF close == null for "+p1+" vs "+p2);
+                    //logger.log("WTF close == null for "+p1+" vs "+p2);
                     continue;
                 }
                 logger.log(" close != null for "+p1+" vs "+p2);
@@ -203,7 +189,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
                 else {
                     logger.log(" close = false for "+p1+" vs "+p2);
                 }
-
+                   */
             }
         }
         for (Path p: images)
@@ -233,7 +219,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_cache
                 Path p2 = Path.of(folder,path2_string);
                 Path_pair p = Path_pair.get(p1,p2);
                 similarities.put(p,val);
-                logger.log("from disk similarity "+val+" for "+path1_string+" "+path2_string);
+                //logger.log("from disk similarity "+val+" for "+path1_string+" "+path2_string);
                 reloaded++;
             }
             logger.log(reloaded+" similarities reloaded from file");

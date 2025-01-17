@@ -354,7 +354,7 @@ public class Virtual_landscape
                 {
                     wait_for_end.countDown();
                     // ask for image properties fetch in threads
-                    paths_manager.image_properties_cache.get_from_cache(path,tr, false);
+                    paths_manager.image_properties_cache.get_from_cache(path,tr);
                 }
             }
             else
@@ -382,7 +382,7 @@ public class Virtual_landscape
         }
         for ( Path path : paths_manager.iconized_paths)
         {
-            Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path,null, true);
+            Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path,null);
             if ( ip == null) {
                 logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
                 continue;
@@ -790,7 +790,7 @@ public class Virtual_landscape
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Virtual_landscape: show_total_size_deep_in_each_folder");
         AtomicInteger count = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button show_running_man_frame = Show_running_man_frame_with_abort_button.show_running_man("Computing folder sizes", 300, logger);
+        Show_running_man_frame_with_abort_button show_running_man_frame = Show_running_man_frame_with_abort_button.show_running_man(count,"Computing folder sizes", 300, logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button item_button)

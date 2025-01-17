@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.level2.deduplicate.Abortable;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.My_File;
 import klik.level2.deduplicate.Deduplication_engine;
@@ -55,12 +56,11 @@ public class Deduplication_console_window
 
     Logger logger;
 
-    //Deduplication_console_interface the_console;
-    Deduplication_engine engine;
+    Abortable abortable;
 
     //**********************************************************
     public Deduplication_console_window(
-            Deduplication_engine engine_,
+            Abortable abortable_,
             String title,
             double w, double h,
             boolean just_count_,
@@ -70,7 +70,7 @@ public class Deduplication_console_window
     //**********************************************************
     {
         browser = browser_;
-        engine = engine_;
+        abortable = abortable_;
         private_aborter = aborter_;
         just_count = just_count_;
         this.logger = logger;
@@ -161,7 +161,7 @@ public class Deduplication_console_window
     public void abort()
     //**********************************************************
     {
-        engine.abort();
+        abortable.abort();
         private_aborter.abort("Deduplication_console_window::abort()");
     }
 

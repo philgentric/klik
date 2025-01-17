@@ -3,6 +3,7 @@ package klik.image_ml.image_similarity;
 import klik.actor.Actor_engine;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
+import klik.image_ml.Ml_servers_util;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_out_logger;
@@ -64,7 +65,7 @@ public class Feature_vector_source_embeddings implements Feature_vector_source
         long local_start = System.currentTimeMillis();
         if ( path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING"));
+            logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
             return null;
         }
         //Ml_servers_util.init_image_similarity(logger);
@@ -83,10 +84,10 @@ public class Feature_vector_source_embeddings implements Feature_vector_source
     {
         long end = System.currentTimeMillis();
         long local_dur = end - start;
-        double dur_minutes = (double)local_dur/60_000.0;
-        logger.log("TX_rate="+(double)tx_count/(double)dur_minutes+" tx/min (tx_count="+tx_count+" for: "+dur_minutes+" minutes)");
+        double dur_s = (double)local_dur/1_000.0;
+        logger.log("TX_rate="+(double)tx_count/(double)dur_s+" tx/s (tx_count="+tx_count+" for: "+dur_s+" secconds)");
 
-        logger.log("total server call time="+ SUM_dur +"ms, average concurency="+(double) SUM_dur /(double)local_dur);
+        logger.log("total server call time="+ SUM_dur/1000 +"s, average concurency="+(double) SUM_dur /(double)local_dur);
 
     }
 

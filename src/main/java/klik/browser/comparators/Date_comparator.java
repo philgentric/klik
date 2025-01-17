@@ -1,6 +1,6 @@
 package klik.browser.comparators;
 
-import klik.browser.Clearable_cache;
+import klik.browser.Clearable_RAM_cache;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.util.log.Logger;
 
@@ -9,7 +9,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 
 //**********************************************************
-public class Date_comparator implements Comparator<Path>, Clearable_cache
+public class Date_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
     private final Logger logger;

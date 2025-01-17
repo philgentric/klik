@@ -24,7 +24,12 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         decoded_url = urllib.parse.unquote_plus(image_raw_url)
 
         #print("decoded url:"+decoded_url)
-        img = keras.utils.load_img(decoded_url, target_size=(224, 224))
+        img = None
+        try:
+            img = keras.utils.load_img(decoded_url, target_size=(224, 224))
+        except Exception as e:
+            print(f"error loading image: {decoded_url} {e}")
+            return
 
         #plt.imshow(img)
         #plt.title('SERVER SIDE INPUT Face')

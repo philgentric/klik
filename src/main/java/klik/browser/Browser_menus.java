@@ -1224,7 +1224,7 @@ public class Browser_menus
     void compute_similarities()
     //**********************************************************
     {
-        Ml_servers_util.init_image_similarity(logger);
+        //Ml_servers_util.init_image_similarity(logger);
 
         /*
         Runnable r =new Runnable() {

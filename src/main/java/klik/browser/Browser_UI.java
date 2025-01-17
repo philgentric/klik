@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Virtual_landscape;
 import klik.browser.meter.Meters_stage;
+import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
 import klik.images.Image_context;
 import klik.level2.deduplicate.Deduplication_engine;
 import klik.level3.metadata.Tag_items_management_stage;
@@ -323,7 +324,7 @@ public class Browser_UI
             view_menu.getItems().add(scan);
         }
         view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> browser.show_how_many_files_deep_in_each_folder()));
-        view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Each_Folder_Total_Size",event -> browser.show_total_size_deep_in_each_folder()));
+        view_menu.getItems().add(browser_menus.make_menu_item("Show_Each_Folder_Total_Size",event -> browser.show_total_size_deep_in_each_folder()));
         view_menu.getItems().add(browser_menus.make_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage()));
         view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx_1("refresh")));
 
@@ -385,7 +386,7 @@ public class Browser_UI
                 clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
                 clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
                 clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
-                clean.getItems().add(browser_menus.make_menu_item("Compute_similarities", event -> browser_menus.compute_similarities()));
+                //clean.getItems().add(browser_menus.make_menu_item("Compute_similarities", event -> browser_menus.compute_similarities()));
             }
 
 
@@ -397,6 +398,15 @@ public class Browser_UI
                 deduplicate.getItems().add(create_manual_deduplication_menu_item());
                 deduplicate.getItems().add(create_auto_deduplication_menu_item());
                 clean.getItems().add(deduplicate);
+            }
+            {
+                MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item();
+                clean.getItems().add(deduplicate2_menu_item);
+            }
+            {
+                MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item2();
+                clean.getItems().add(deduplicate2_menu_item);
+
             }
             files_menu.getItems().add(clean);
         }
@@ -538,6 +548,36 @@ public class Browser_UI
 
 
 
+
+    //**********************************************************
+    private MenuItem create_manual_deduplication_by_similarity_menu_item()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Deduplicate_manual_similarity",logger);
+
+        MenuItem item0 = new MenuItem(text);
+        item0.setOnAction(event -> {
+            //logger.log("Deduplicate manually");
+            (new Deduplication_by_similarity_engine(false,browser, browser.displayed_folder_path.toFile(), logger)).do_your_job();
+        });
+        return item0;
+    }
+
+
+    //**********************************************************
+    private MenuItem create_manual_deduplication_by_similarity_menu_item2()
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Deduplicate_manual_similarity2",logger);
+
+        MenuItem item0 = new MenuItem(text);
+        item0.setOnAction(event -> {
+            //logger.log("Deduplicate manually");
+            (new Deduplication_by_similarity_engine(true,browser, browser.displayed_folder_path.toFile(), logger)).do_your_job();
+        });
+        return item0;
+    }
+
     //**********************************************************
     private MenuItem create_manual_deduplication_menu_item()
     //**********************************************************
@@ -551,6 +591,7 @@ public class Browser_UI
         });
         return item0;
     }
+
     //**********************************************************
     private MenuItem create_deduplication_count_menu_item()
     //**********************************************************

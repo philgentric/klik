@@ -20,7 +20,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	private final List<My_File> all_files;
 	private final int i_min;
 	private final int i_max;
-	BlockingQueue<File_pair> output_queue_of_same_in_pairs;
+	BlockingQueue<File_pair_deduplication> output_queue_of_same_in_pairs;
 	Deduplication_engine deduplication_engine;
 	private final Aborter private_aborter;
 	//**********************************************************
@@ -29,7 +29,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			List<My_File> all_files_,
 			int i_min_,
 			int i_max_,
-			BlockingQueue<File_pair> output_queue,
+			BlockingQueue<File_pair_deduplication> output_queue,
 			Aborter private_aborter_,
 			Logger logger_)
 	//**********************************************************
@@ -76,7 +76,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 					deduplication_engine.duplicates_found.incrementAndGet();
 					//if (dbg) logger.log("duplicate fond:\n     " + all_files.get(i).file.getAbsolutePath() + "\n    " + all_files.get(j).file.getAbsolutePath());
 
-					File_pair pair_after = decide_which_to_delete(i,j);
+					File_pair_deduplication pair_after = decide_which_to_delete(i,j);
 					deduplication_engine.console_window.count_duplicates.incrementAndGet();
 					//logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>finder 1 more TO_BE_DELETED = "+duplicates_found_by_this_thread);
 
@@ -105,7 +105,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 
 
 	//**********************************************************
-	private File_pair decide_which_to_delete(int i, int j)
+	private File_pair_deduplication decide_which_to_delete(int i, int j)
 	//**********************************************************
 	{
 		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath());
@@ -179,19 +179,19 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		}
 	}
 
-	private File_pair make_pair(int i, int j, boolean is_image) {
+	private File_pair_deduplication make_pair(int i, int j, boolean is_image) {
 		My_File_and_status mf1 = new My_File_and_status(all_files.get(i));
 		My_File_and_status mf2 = new My_File_and_status(all_files.get(j));
-		return  new File_pair(mf1, mf2, is_image);
+		return  new File_pair_deduplication(mf1, mf2, is_image);
 	}
 
-	private  File_pair set_f1_to_be_deleted(int i, int j,  boolean is_image) {
-		File_pair out = make_pair(i,j,is_image);
+	private File_pair_deduplication set_f1_to_be_deleted(int i, int j, boolean is_image) {
+		File_pair_deduplication out = make_pair(i,j,is_image);
 		out.f1.to_be_deleted = true;
 		return out;
 	}
-	private  File_pair set_f2_to_be_deleted(int i, int j,  boolean is_image) {
-		File_pair out = make_pair(i,j,is_image);
+	private File_pair_deduplication set_f2_to_be_deleted(int i, int j, boolean is_image) {
+		File_pair_deduplication out = make_pair(i,j,is_image);
 		out.f2.to_be_deleted = true;
 		return out;
 	}

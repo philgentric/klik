@@ -69,7 +69,10 @@ public class Paths_manager
         ID = ig_gen.getAndIncrement();
         aborter = aborter_;
         this.icon_factory_actor = icon_factory_actor;
+    }
 
+    private void set_comparators()
+    {
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
         switch (File_sort_by.get_sort_files_by(logger))
         {
@@ -77,7 +80,7 @@ public class Paths_manager
                 other_file_comparator = new Similarity_comparator(aborter,logger);
                 break;
             case SIMILARITY1:
-                other_file_comparator = new Similarity_comparator_1(aborter,logger);
+                other_file_comparator = new Similarity_comparator_1(folder_path, aborter,logger);
                 break;
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
                 other_file_comparator = alphabetical_file_name_comparator;
@@ -113,6 +116,8 @@ public class Paths_manager
         {
             running_man = Show_running_man_frame.show_running_man("Scanning folder", 20*60,  aborter, logger);
         }
+
+        set_comparators();
 
         boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
         boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
@@ -262,12 +267,10 @@ public class Paths_manager
         {
             if (show_icons_instead_of_text)
             {
+                // calling this will pre-populate the cache
+                image_properties_cache.fill_cache(path);
                 iconized_paths.add(path);
-                {
-                    if (dbg) logger.log("calling image properties cache from path manager do_file()");
-                    // calling this will pre-populate the cache
-                    image_properties_cache.get_from_cache(path,null, false);
-                }
+                if (dbg) logger.log("calling image properties cache from path manager do_file()");
                 return;
             }
         }
