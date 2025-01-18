@@ -3,6 +3,7 @@
 //SOURCES ./manual/Againor.java
 //SOURCES ./File_pair_deduplication.java
 //SOURCES ./Runnable_for_finding_duplicate_file_pairs.java
+//SOURCES ./Abortable.java
 
 package klik.level2.deduplicate;
 

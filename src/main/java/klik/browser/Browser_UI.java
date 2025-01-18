@@ -1,4 +1,5 @@
 //SOURCES ../level2/deduplicate/Deduplication_engine.java
+//SOURCES ../image_ml/image_similarity/Deduplication_by_similarity_engine.java
 package klik.browser;
 
 import javafx.event.ActionEvent;

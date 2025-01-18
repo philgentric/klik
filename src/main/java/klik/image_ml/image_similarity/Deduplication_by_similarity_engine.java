@@ -1,7 +1,8 @@
-//SOURCES ./manual/Stage_with_2_images.java
-//SOURCES ./console/Deduplication_console_window.java
-//SOURCES ./manual/Againor.java
-//SOURCES ./Runnable_for_finding_duplicate_file_pairs.java
+//SOURCES ../../level2/deduplicate/manual/Stage_with_2_images.java
+//SOURCES ../../level2/deduplicate/console/Deduplication_console_window.java
+//SOURCES ../../level2/deduplicate/manual/Againor.java
+//SOURCES ./Runnable_for_finding_duplicate_file_pairs_similarity.java
+//SOURCES ./Similarity_file_pair.java
 
 package klik.image_ml.image_similarity;
 

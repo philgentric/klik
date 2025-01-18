@@ -1,4 +1,5 @@
 //SOURCES ../My_File_and_status.java
+//SOURCES ../../../util/files_and_paths/File_pair.java
 package klik.level2.deduplicate.manual;
 
 import javafx.event.ActionEvent;
