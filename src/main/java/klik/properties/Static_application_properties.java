@@ -64,14 +64,6 @@ public class Static_application_properties
     // they can be either in the "home"/.klik folder
     // or if activated, in the RAM disk
 
-    public static final String ICON_CACHE_DIR = "klik_icon_cache";
-    public static final String IMAGE_PROPERTIES_CACHE_DIR = "klik_image_properties_cache";
-    public static final String IMAGE_FEATURE_VECTOR_CACHE_DIR = "klik_image_feature_vectors_cache";
-
-    public static final String FOLDER_ICON_CACHE_DIR = "klik_folder_icon_cache";
-
-    public static final String IMAGE_SIMILARITY_CACHE_DIR = "klik_image_similarity_cache";
-
 
     public static final String USER_HOME = "user.home";
     public static final String SINGLE_COLUMN = "single_column";

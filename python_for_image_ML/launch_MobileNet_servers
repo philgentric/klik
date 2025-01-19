@@ -7,6 +7,6 @@ python3 --version
 EMBEDDINGS_PORTS=("$@")
 
 for PORT in "${EMBEDDINGS_PORTS[@]}"; do
-    python3 -c "import MobileNetV2_embeddings_server;
-MobileNetV2_embeddings_server.run_server(${PORT})" &
+    python3 -c "import MobileNet_embeddings_server;
+MobileNet_embeddings_server.run_server(${PORT})" &
 done

@@ -63,7 +63,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         logger.log("Deduplication::look_for_all_files()");
 
 
-        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
+        console_window = new Deduplication_console_window(this,"Looking for similar pictures in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
 
         Runnable r = () -> runnable_deduplication();
         Actor_engine.execute(r,logger);
@@ -104,7 +104,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         //for(My_File mf : files) logger.log(mf.file.getAbsolutePath());
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
-        console_window.set_status_text("Found " + files.size() + " files ... comparison for identity started...");
+        console_window.set_status_text("Found " + files.size() + " files ... comparison by similarity started...");
         console_window.total_files_to_be_examined.addAndGet(files.size());
 
         long pairs = (long)files.size()*((long)files.size()-1L);

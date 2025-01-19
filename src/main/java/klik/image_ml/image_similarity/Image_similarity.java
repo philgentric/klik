@@ -44,9 +44,7 @@ public class Image_similarity implements Clearable_RAM_cache
     {
         this.browser = browser;
         this.logger = logger;
-        Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
         this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(browser.displayed_folder_path,browser.aborter,logger);
-        x.close();
     }
 
     //**********************************************************

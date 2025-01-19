@@ -13,6 +13,7 @@ import klik.browser.comparators.Image_height_comparator;
 import klik.browser.comparators.Image_width_comparator;
 import klik.browser.icons.Paths_manager;
 import klik.browser.icons.Refresh_target;
+import klik.properties.Cache_folders;
 import klik.util.files_and_paths.Ding;
 import klik.level3.experimental.RAM_disk;
 import klik.properties.File_sort_by;
@@ -65,7 +66,7 @@ public class Image_properties_RAM_cache
     {
         if ( RAM_disk.get_use_RAM_disk(logger))
         {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, owner, logger);
+            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folders.klik_image_properties_cache.name(), owner, logger);
             //if (dbg)
             if (tmp_dir != null) {
                 logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
@@ -73,7 +74,7 @@ public class Image_properties_RAM_cache
             return tmp_dir;
         }
 
-        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, false,logger);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_image_properties_cache.name(), false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
         }

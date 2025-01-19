@@ -118,7 +118,7 @@ public class Deduplication_engine implements Againor, Abortable
         //for(My_File mf : files) logger.log(mf.file.getAbsolutePath());
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
-        console_window.set_status_text("Found " + files.size() + " files ... comparison for identity started...");
+        console_window.set_status_text("Found " + files.size() + " files ... comparison for bit-size identity started...");
         console_window.total_files_to_be_examined.addAndGet(files.size());
 
         long pairs = (long)files.size()*((long)files.size()-1L);

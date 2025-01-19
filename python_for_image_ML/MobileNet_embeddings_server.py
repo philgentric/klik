@@ -9,11 +9,14 @@ import tensorflow as tf
 import numpy as np
 import keras
 from tensorflow.keras.models import Model
-from keras.applications import MobileNetV2
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+#from keras.applications import MobileNetV2
+#from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from keras.applications import MobileNetV3Large
+from tensorflow.keras.applications.mobilenet_v3 import preprocess_input
 
 
-base_model = MobileNetV2(include_top=False, input_shape=(224, 224, 3),weights='imagenet')
+#base_model = MobileNetV2(include_top=False, pooling='avg', input_shape=(224, 224, 3),weights='imagenet')
+base_model = MobileNetV3Large(include_top=False, pooling='avg', input_shape=(224, 224, 3),weights='imagenet')
 #model = Model(inputs=base_model.input, outputs=base_model.get_layer('block4_pool').output)
 model = Model(inputs=base_model.input, outputs=base_model.output)
 
@@ -40,8 +43,9 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         x = preprocess_input(x)
         feature_vector = model.predict(x)
         #print("feature_vector: "+str(feature_vector))
-        # size is 62720 for MobileNetV2
-        print("MobileNetV2 feature vector size: "+str(feature_vector.size))
+        # size is 62720 for MobileNetV2 "full" and reduced to 1280 with 'pooling=avg'
+        # and 960 with MobileNetV3Large
+        print("feature vector size: "+str(feature_vector.size))
 
         double_values = [np.float64(i) for i in x.flatten()]
 
@@ -84,5 +88,5 @@ def run_server(port):
     httpd = HTTPServer(server_address, EmbeddingGenerator)
     httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     httpd.socket.listen(1024)
-    print("Starting local MobileNetV2 IMAGE EMBEDDINGS server on port: "+str(port))
+    print("Starting local MobileNet IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

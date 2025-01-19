@@ -11,15 +11,19 @@ import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.image_ml.Feature_vector;
 import klik.level3.experimental.RAM_disk;
+import klik.properties.Cache_folders;
 import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Show_running_man_frame_with_abort_button;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Image_feature_vector_cache
@@ -70,7 +74,7 @@ public class Image_feature_vector_cache
     {
         if ( RAM_disk.get_use_RAM_disk(logger))
         {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Static_application_properties.IMAGE_PROPERTIES_CACHE_DIR, owner, logger);
+            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folders.klik_image_properties_cache.name(), owner, logger);
             //if (dbg)
             if (tmp_dir != null) {
                 logger.log("Image feature vector cache folder=" + tmp_dir.toAbsolutePath());
@@ -78,7 +82,7 @@ public class Image_feature_vector_cache
             return tmp_dir;
         }
 
-        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_FEATURE_VECTOR_CACHE_DIR, false,logger);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_image_feature_vectors_cache.name(), false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image feature vector cache folder=" + tmp_dir.toAbsolutePath());
         }
@@ -141,13 +145,14 @@ public class Image_feature_vector_cache
         if (dbg) logger.log("feature vector cache file cleared");
     }
     //**********************************************************
-    public synchronized void reload_cache_from_disk(Aborter aborter)
+    public synchronized void reload_cache_from_disk(AtomicInteger in_flight, Aborter aborter)
     //**********************************************************
     {
         int reloaded = 0;
         try(DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(cache_file_path.toFile()))))
         {
             int number_of_vectors = dis.readInt();
+            in_flight.set(number_of_vectors);
             for ( int i = 0; i < number_of_vectors; i++)
             {
                 if ( aborter.should_abort()) return;
@@ -161,6 +166,7 @@ public class Image_feature_vector_cache
                 }
                 Feature_vector fv = new Feature_vector(vector);
                 fv_cache.put(path_string, fv);
+                in_flight.decrementAndGet();
                 reloaded++;
                 if ( i%1000==0) logger.log(i+" feature vectors loaded from disk");
             }
@@ -223,13 +229,15 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
         Images_and_feature_vectors images_and_feature_vectors = images_and_feature_vectors_cache.get(folder_path);
+        AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( images_and_feature_vectors == null)
         {
-            images_and_feature_vectors = read_from_disk_and_update(folder_path,aborter,logger);
+            Show_running_man_frame_with_abort_button.show_running_man(in_flight,"Wait, acquiring feature vectors",20000, logger);
+            images_and_feature_vectors = read_from_disk_and_update(folder_path,in_flight, aborter,logger);
             images_and_feature_vectors_cache.put(folder_path,images_and_feature_vectors);
             return images_and_feature_vectors;
         }
-        images_and_feature_vectors.image_feature_vector_ram_cache.update(folder_path,aborter,logger);
+        images_and_feature_vectors.image_feature_vector_ram_cache.update(folder_path, in_flight, aborter,logger);
         return images_and_feature_vectors;
     }
 
@@ -260,18 +268,18 @@ public class Image_feature_vector_cache
     }*/
 
     //**********************************************************
-    private static Images_and_feature_vectors read_from_disk_and_update(Path folder_path, Aborter aborter, Logger logger)
+    private static Images_and_feature_vectors read_from_disk_and_update(Path folder_path, AtomicInteger in_flight, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(folder_path, "image_feature_vectors", aborter, logger);
-        image_feature_vector_ram_cache.reload_cache_from_disk(aborter);
+        image_feature_vector_ram_cache.reload_cache_from_disk(in_flight,aborter);
 
         logger.log("read_from_disk "+image_feature_vector_ram_cache.fv_cache.size()+" fv from disk for:"+folder_path);
-        return image_feature_vector_ram_cache.update( folder_path, aborter, logger);
+        return image_feature_vector_ram_cache.update( folder_path, in_flight,aborter, logger);
     }
 
     //**********************************************************
-    private  Images_and_feature_vectors update(Path folder_path, Aborter aborter, Logger logger)
+    private  Images_and_feature_vectors update(Path folder_path, AtomicInteger in_flight, Aborter aborter, Logger logger)
     //**********************************************************
     {
         File[] files = folder_path.toFile().listFiles();
@@ -289,8 +297,10 @@ public class Image_feature_vector_cache
                 missing_images.add(f.toPath());
             }
         }
+        in_flight.addAndGet(missing_images.size()-1); //-1 to compensate the +1 "keep alive" in preload_all_feature_vector_in_cache
         CountDownLatch cdl = new CountDownLatch(missing_images.size());
         Job_termination_reporter tr = (message, job) -> {
+            in_flight.decrementAndGet();
             cdl.countDown();
         };
         for (Path p :missing_images)

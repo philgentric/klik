@@ -4,6 +4,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Cache_folders;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
@@ -23,6 +24,7 @@ public class Disk_usage_monitor
     public static final String TRASH_FOLDER = "Trash folder";
     public final Logger logger;
     public final Aborter aborter;
+    public final Stage owner;
     private volatile boolean warning_issued = false;
 
     record Monitored_folder(String name, Path path, boolean auto_delete){}
@@ -35,12 +37,14 @@ public class Disk_usage_monitor
     public Disk_usage_monitor(Stage owner, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
-        aborter= aborter_;
+        aborter = aborter_;
         logger = logger_;
+        this.owner = owner;
 
-        monitored_folders.add(new Monitored_folder(ICON_CACHE_FOLDER, Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger),true));
-        monitored_folders.add(new Monitored_folder(IMAGE_PROPERTIES_CACHE_FOLDER, Image_properties_RAM_cache.get_image_properties_cache_dir(owner, logger),true));
-        monitored_folders.add(new Monitored_folder("Folder's icon cache folder", Static_files_and_paths_utilities.get_folders_icons_cache_dir(logger),true));
+        for (Cache_folders cache_folder : Cache_folders.values())
+        {
+            monitored_folders.add(new Monitored_folder(cache_folder.name(), Static_files_and_paths_utilities.get_cache_folder(cache_folder,logger), true));
+        }
 
         for ( Path t : Static_application_properties.get_existing_trash_dirs(logger))
         {
@@ -89,8 +93,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Static_files_and_paths_utilities.clear_icon_cache_on_disk_no_warning(null,logger);
-                        Static_files_and_paths_utilities.clear_folder_icon_DISK_cache_no_warning_fx(logger);
+                        Static_files_and_paths_utilities.clear_icon_DISK_cache(false,owner,aborter,logger);
                         continue;
                     }
                 }
@@ -98,7 +101,7 @@ public class Disk_usage_monitor
                 {
                     if (Static_application_properties.get_auto_purge_disk_caches(logger))
                     {
-                        Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(null,logger);
+                        Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,owner,aborter,logger);
                         continue;
                     }
                 }

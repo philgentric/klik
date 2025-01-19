@@ -15,7 +15,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 //**********************************************************
 {
 	private static final boolean dbg = true;
-	public static final double THRESHOLD = 0.12;
+	private static final double SPECIAL_SIMILARITY_THRESHOLD = 0.024;
 	Logger logger;
 	private final List<My_File> all_files;
 	BlockingQueue<Similarity_file_pair> output_queue_of_same_in_pairs;
@@ -60,7 +60,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		{
 			if ( private_aborter.should_abort()) return;
 			if (!Guess_file_type.is_file_an_image(f.file)) continue;
-			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), 1, false, THRESHOLD, deduplication_by_similarity_engine.console_window.count_pairs_examined);
+			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), 1, false, SPECIAL_SIMILARITY_THRESHOLD, deduplication_by_similarity_engine.console_window.count_pairs_examined);
 
 
 			if ( similars.isEmpty()) continue;

@@ -3,34 +3,77 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.Job_termination_reporter;
-import klik.browser.Clearable_RAM_cache;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
-import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 
 //**********************************************************
-public class Similarity_comparator_1 extends Similarity_comparator
+public class Similarity_comparator_N extends Similarity_comparator
 //**********************************************************
 {
 
     //**********************************************************
-    public Similarity_comparator_1(Path folder, Aborter aborter, Logger logger_)
+    public Similarity_comparator_N(Path folder, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        super(folder, aborter, logger_);
+        super(folder, aborter,logger_);
 
         //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
         if ( aborter.should_abort()) return;
+
+
+        while (!images.isEmpty())
+        {
+            if ( aborter.should_abort()) return;
+            Path p1 = images.remove(0);
+            dummy_names.put(p1,p1.getFileName().toString());
+            Iterator<Path> it = images.iterator();
+            while (it.hasNext())
+            {
+                if ( aborter.should_abort()) return;
+                Path p2 = it.next();
+
+                Double diff = similarity_cache.get(Path_pair.get(p1,p2));
+                if ( diff == null)
+                {
+                    //logger.log("WTF diff == null for "+p1+" vs "+p2);
+                    continue;
+                }
+                if ( diff < SIMILARITY_THRESHOLD)
+                {
+                    it.remove();
+                    dummy_names.put(p2,p1.getFileName().toString()+diff+p2.getFileName().toString());
+                }
+                /*
+                Boolean close = is_close.get(Path_pair.get(p1,p2));
+                if( close == null)
+                {
+                    //logger.log("WTF close == null for "+p1+" vs "+p2);
+                    continue;
+                }
+                logger.log(" close != null for "+p1+" vs "+p2);
+
+                if ( close)
+                {
+                    logger.log(" close = true for "+p1+" vs "+p2);
+
+                    it.remove();
+                    dummy_names.put(p2,p1.getFileName().toString());
+                }
+                else {
+                    logger.log(" close = false for "+p1+" vs "+p2);
+                }
+                   */
+            }
+        }
+        for (Path p: images)
+        {
+            dummy_names.put(p,p.getFileName().toString());
+        }
+
+        logger.log("init_dummy_names done !");
 
         List<Closest_neighbor> candidates = new ArrayList<>();
         List<Closest_neighbor> done = new ArrayList<>();
@@ -107,9 +150,6 @@ public class Similarity_comparator_1 extends Similarity_comparator
 
 
     }
-
-
-
 
     //**********************************************************
     private Closest_neighbor find_closest_of(Path p1, List<Path> images)

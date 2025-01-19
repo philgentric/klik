@@ -251,12 +251,15 @@ public class Item_image extends Item
     public static MenuItem create_show_similar_menu_item(Path image_path, Browser browser, Logger logger)
     //**********************************************************
     {
-        String txt = "Show "+N+" similar images in same folder";//My_I18n.get_I18n_string("Info_about", logger);
+        String txt = "Show "+N+" similar images in this folder";//My_I18n.get_I18n_string("Info_about", logger);
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
-            image_similarity = new Image_similarity(browser,logger);
-            Runnable r = () -> image_similarity.find_similars(false, image_path,N,true, Double.MAX_VALUE, null);
+            Runnable r = () ->
+            {
+                image_similarity = new Image_similarity(browser,logger);
+                image_similarity.find_similars(false, image_path,N,true, Double.MAX_VALUE, null);
+            };
             Actor_engine.execute(r,logger);
         });
 

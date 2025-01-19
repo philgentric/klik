@@ -2,8 +2,10 @@ package klik.image_ml;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import klik.actor.Actor_engine;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.log.System_out_logger;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -12,11 +14,65 @@ import java.net.*;
 import java.nio.file.Path;
 
 //**********************************************************
-public interface Feature_vector_source
+public abstract class Feature_vector_source
 //**********************************************************
 {
-    Feature_vector get_feature_vector_from_server(Path path, Logger logger);
+    //Feature_vector get_feature_vector_from_server(Path path, Logger logger);
 
+    protected abstract int get_random_port();
+
+
+    static long start = System.currentTimeMillis();
+    static long tx_count = 0;
+    static long SUM_dur = 0;
+    static{
+        Logger l = new System_out_logger();
+        Runnable r = () ->
+        {
+            for(;;)
+            {
+                try {
+                    Thread.sleep(60_000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                get_embeddings_stats(l);
+            }
+        };
+        Actor_engine.execute(r, l);
+    }
+
+
+    //**********************************************************
+    public Feature_vector get_feature_vector_from_server(Path path, Logger logger)
+    //**********************************************************
+    {
+        long local_start = System.currentTimeMillis();
+        if ( path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
+            return null;
+        }
+        //Ml_servers_util.init_image_similarity(logger);
+        int random_port = get_random_port();
+        Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, logger);
+        long local_end = System.currentTimeMillis();
+        long local_dur = local_end - local_start;
+        SUM_dur += local_dur;
+        tx_count++;
+        return x;
+    }
+
+    //**********************************************************
+    public static void get_embeddings_stats(Logger logger)
+    //**********************************************************
+    {
+        long end = System.currentTimeMillis();
+        long local_dur = end - start;
+        double dur_s = (double)local_dur/1_000.0;
+        logger.log("TX_rate="+(double)tx_count/(double)dur_s+" tx/s (tx_count="+tx_count+" for: "+dur_s+" secconds)");
+        logger.log("total server call time="+ SUM_dur/1000 +"s, average concurency="+(double) SUM_dur /(double)local_dur);
+    }
 
     //**********************************************************
     static Feature_vector parse_json(String response, Logger logger)

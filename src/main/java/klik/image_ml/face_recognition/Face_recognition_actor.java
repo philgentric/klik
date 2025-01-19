@@ -1,7 +1,7 @@
 //SOURCES ./Eval_result_for_one_prototype.java
 //SOURCES ../Feature_vector.java
 //SOURCES ../Feature_vector_source.java
-//SOURCES ./Feature_vector_source_face.java
+//SOURCES ./Feature_vector_source_for_face_recognition.java
 //SOURCES ./Face_detection_type.java
 //SOURCES ./Face_recognition_status.java
 //SOURCES ./Face_detector.java
@@ -291,7 +291,7 @@ public class Face_recognition_actor implements Actor
     //**********************************************************
     {
         start = System.nanoTime();
-        Feature_vector_source feature_vector_source = new Feature_vector_source_face();
+        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition();
 
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
@@ -447,7 +447,7 @@ public class Face_recognition_actor implements Actor
     //**********************************************************
     {
         start = System.nanoTime();
-        Feature_vector_source feature_vector_source = new Feature_vector_source_face();
+        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition();
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {

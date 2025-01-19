@@ -30,6 +30,7 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 	long start;
 	public final CountDownLatch latch = new CountDownLatch(1);
 	Label in_flight_label;
+	Label ETA_label;
 
 
 	//**********************************************************
@@ -95,6 +96,10 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 		{
 			in_flight_label = new Label();
 			vbox.getChildren().add(in_flight_label);
+		}
+		{
+			ETA_label = new Label();
+			vbox.getChildren().add(ETA_label);
 		}
 		{
 			Button abort = new Button("Abort");
@@ -198,7 +203,10 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 	private void report_progress_and_close_when_finished(AtomicInteger in_flight)
 	//**********************************************************
 	{
+
 		Runnable tracker = () -> {
+			long start = System.currentTimeMillis();
+			int start_amount = in_flight.get();
             for(;;)
             {
                 try {
@@ -208,13 +216,47 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
                 }
 				int in_flight_local = in_flight.get();
 
-				Jfx_batch_injector.inject(()-> in_flight_label.setText("Items in flight: " +in_flight_local),logger);
+				if( in_flight_local<= 0)
+				{
+					close();
+					return;
+				}
 
-                if( in_flight_local == 0)
-                {
-                    close();
-                    return;
-                }
+				// in case in_flight increases in the meantime...
+				if ( in_flight_local > start_amount)
+				{
+					start = System.currentTimeMillis();
+					start_amount = in_flight_local;
+				}
+
+				long elapsed = System.currentTimeMillis() - start;
+				int done = start_amount - in_flight_local;
+				double speed = (double)done / elapsed * 1000; // items/s
+				int eta_s = (int)((double)in_flight_local / speed);
+				int eta_m = 0;
+				int eta_h = 0;
+				if ( eta_s > 60)
+				{
+					eta_m = eta_s / 60;
+					eta_s = eta_s % 60;
+					if ( eta_m > 60)
+					{
+						eta_h = eta_m / 60;
+						eta_m = eta_m % 60;
+					}
+				}
+				String eta_string;
+				if ( eta_h > 0) eta_string = String.format("ETA: %02d hours %02d minutes %02d seconds", eta_h, eta_m, eta_s);
+				else if ( eta_m > 0) eta_string = String.format("ETA: %02d m %02d s", eta_m, eta_s);
+				else eta_string = String.format("ETA: %02d s", eta_s);
+
+				String finalEta_string = eta_string;
+				Jfx_batch_injector.inject(()->
+				{
+					ETA_label.setText(finalEta_string);
+					in_flight_label.setText("Items in flight: " +in_flight_local);
+				},logger);
+
             }
         };
 		Actor_engine.execute(tracker, logger);

@@ -297,74 +297,10 @@ public class Stage_with_2_images
 
 	public void set_pair(String title,File_pair pair)
 	{
+		if ( !pair.both_file_exist()) return;
 		set_images_by_files(title,pair,browser);
 		stage.show();
 	}
-
-	/*
-	//**********************************************************
-	private void handle_mouse(Browser b, Stage the_Stage, MouseEvent e, Logger logger)
-	//**********************************************************
-	{
-		logger.log("handle_mouse");
-		final ContextMenu context_menu = new ContextMenu();
-		Look_and_feel_manager.set_context_menu_look(context_menu);
-
-
-		for ( int i = 0 ; i < file_of_the_images.length ; i++)
-		{
-			My_File_and_status f = file_of_the_images[i];
-			MenuItem file_info = new MenuItem("INFO File"+i+"="+ f.my_file.file.getAbsolutePath());
-			context_menu.getItems().add(file_info);
-			file_info.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event)
-				{
-					String title = f.my_file.file.getAbsolutePath();
-					Deduplication_console_window p = new Deduplication_console_window(title , 600, 600, false, aborter, logger);
-				}
-			});
-
-			MenuItem file_open = new MenuItem("Open File"+i+"="+ f.my_file.file.getAbsolutePath());
-			context_menu.getItems().add(file_open);
-			file_open.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event)
-				{
-
-					Image_window is = Image_window.get_Image_window(b,f.my_file.file.toPath(),logger);
-				}
-			});
-
-			MenuItem delete_file_info = new MenuItem("Delete File"+i+"="+ f.my_file.file.getAbsolutePath());
-			context_menu.getItems().add(delete_file_info);
-			delete_file_info.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event)
-				{
-					List<Old_and_new_Path> l = new ArrayList<>();
-					l.add(new Old_and_new_Path(f.my_file.file.toPath(), null, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
-					Moving_files.safe_delete_files(the_Stage,l,aborter,logger);
-					againor.again(true);
-					the_Stage.close();
-				}
-			});
-		}
-
-		MenuItem skip = new MenuItem("Skip this pair");
-		context_menu.getItems().add(skip);
-		skip.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event)
-			{
-				againor.again(false);
-				the_Stage.close();
-			}
-		});
-		context_menu.show(hbox, e.getScreenX(), e.getScreenY());
-	}
-*/
-
 
 }
 

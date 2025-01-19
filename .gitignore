@@ -11,4 +11,4 @@ out/*
 nohup.out
 .aider*
 *.jfr
-/python_for_face_reco/__pycache__
+/python_for_image_ML/__pycache__

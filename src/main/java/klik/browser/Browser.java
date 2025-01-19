@@ -251,16 +251,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
 
-    //**********************************************************
-    public void clear_all_DISK_caches()
-    //**********************************************************
-    {
-        Static_files_and_paths_utilities.clear_icon_DISK_cache_with_warning_fx(my_Stage.the_Stage,this.aborter,logger);
-        Static_files_and_paths_utilities.clear_image_properties_DISK_cache_no_warning_fx(my_Stage.the_Stage, logger);
-        Static_files_and_paths_utilities.clear_folder_icon_DISK_cache_no_warning_fx(logger);
-        Static_files_and_paths_utilities.clear_image_feature_vectors_DISK_cache_no_warning_fx(my_Stage.the_Stage,logger);
-        Static_files_and_paths_utilities.clear_image_similarity_DISK_cache_no_warning_fx(my_Stage.the_Stage,logger);
-    }
 
     //**********************************************************
     public void clear_image_comparators_caches()

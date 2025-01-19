@@ -77,7 +77,7 @@ public class Paths_manager
         switch (File_sort_by.get_sort_files_by(logger))
         {
             case SIMILARITY:
-                other_file_comparator = new Similarity_comparator(aborter,logger);
+                other_file_comparator = new Similarity_comparator_N(folder_path,aborter,logger);
                 break;
             case SIMILARITY1:
                 other_file_comparator = new Similarity_comparator_1(folder_path, aborter,logger);

@@ -1,6 +1,6 @@
 package klik.image_ml;
 
-import klik.image_ml.image_similarity.Feature_vector_source_embeddings;
+import klik.image_ml.image_similarity.Feature_vector_source_for_image_similarity;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
@@ -53,7 +53,7 @@ public class Ml_servers_util
         logger.log("MobileNetV2 image similarity servers INIT");
 
         String list_of_ports = "";
-        for ( int port : Feature_vector_source_embeddings.ports)
+        for ( int port : Feature_vector_source_for_image_similarity.ports)
         {
             list_of_ports += port + " ";
         }

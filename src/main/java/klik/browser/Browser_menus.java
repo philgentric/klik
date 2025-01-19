@@ -92,7 +92,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             browser.clear_all_RAM_caches();
-            browser.clear_all_DISK_caches();
+            Static_files_and_paths_utilities.clear_all_DISK_caches(browser.my_Stage.the_Stage,browser.aborter,logger);
         });
         return item;
     }
@@ -1181,8 +1181,6 @@ public class Browser_menus
     }
 
 
-
-
     //**********************************************************
     void clean_up_names_fx()
     //**********************************************************
@@ -1216,79 +1214,6 @@ public class Browser_menus
 
     }
 
-
-    static Image_feature_vector_cache image_feature_vector_ram_cache;
-
-    static Map<Path,Map<Path,Double>> similarities = new HashMap<>();
-    //**********************************************************
-    void compute_similarities()
-    //**********************************************************
-    {
-        //Ml_servers_util.init_image_similarity(logger);
-
-        /*
-        Runnable r =new Runnable() {
-            @Override
-            public void run() {
-
-                Hourglass x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000,logger);
-                image_feature_vector_ram_cache = new Image_feature_vector_cache(browser.displayed_folder_path,"image_feature_vectors", new Aborter("fv_c",logger),logger);
-
-                image_feature_vector_ram_cache.reload_cache_from_disk();
-
-                similarities.clear();
-                Path dir = browser.displayed_folder_path;
-                File[] files = dir.toFile().listFiles();
-                List<File> images = new ArrayList<>();
-                List<Double> values = new ArrayList<>();
-                if ( files == null) return;
-                for (File f : files)
-                {
-                    if ( f.isDirectory()) continue;
-
-                    if ( f.getName().startsWith("._"))
-                    {
-                        continue;
-                    }
-
-                    if ( !Guess_file_type.is_file_an_image(f)) continue;
-                    images.add(f);
-                }
-                if ( images.isEmpty()) return;
-                double min = Double.MAX_VALUE;
-                Path min_p1 = null;
-                Path min_p2 = null;
-                for ( int i = 0 ; i < images.size(); i++)
-                {
-                    Path p1 = images.get(i).toPath();
-                    Map<Path, Double> simil = similarities.computeIfAbsent(p1, k -> new HashMap<>());
-                    Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p1,null,true);
-
-                    for ( int j = i+1 ; j < images.size(); j++)
-                    {
-                        Path p2 = images.get(j).toPath();
-                        Feature_vector fv2 = image_feature_vector_ram_cache.get_from_cache(p2,null,true);
-                        double s = fv1.cosine_similarity(fv2);
-                        if ( s < min)
-                        {
-                            min = s;
-                            min_p1 = p1;
-                            min_p2 = p2;
-                        }
-                        values.add(s);
-                        simil.put(p2,s);
-                    }
-                }
-                logger.log("min similarity "+min+" for paths:\n"+min_p1.getFileName()+" "+min_p2.getFileName());
-                image_feature_vector_ram_cache.save_whole_cache_to_disk();
-                Jfx_batch_injector.inject(()-> Histogram_stage.show_stage(values, logger),logger);
-                x.close();
-            }
-        };
-        Actor_engine.execute(r,logger);
-
-         */
-    }
 
     //**********************************************************
     void remove_corrupted_images_fx()

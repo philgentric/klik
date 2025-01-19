@@ -4,6 +4,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.properties.Cache_folders;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -36,7 +37,7 @@ public class Similarity_cache
         String cache_name = "similarity";
         String local = cache_name + folder.toAbsolutePath();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_SIMILARITY_CACHE_DIR, false, logger);
+        Path dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_image_similarity_cache.name(), false, logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());
@@ -64,6 +65,8 @@ public class Similarity_cache
                 logger.log("similarity cache interrupted" + e);
             }
             save_similarity_cache_to_disk();
+
+            logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
         }
     }
 

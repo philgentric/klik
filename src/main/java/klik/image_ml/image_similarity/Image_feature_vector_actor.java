@@ -12,7 +12,7 @@ public class Image_feature_vector_actor implements Actor
 //**********************************************************
 {
     public static final boolean dbg = false;
-    Feature_vector_source fvs = new Feature_vector_source_embeddings();
+    Feature_vector_source fvs = new Feature_vector_source_for_image_similarity();
 
     //**********************************************************
     @Override

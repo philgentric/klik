@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static klik.browser.comparators.Similarity_comparator.THRESHOLD;
 
 //**********************************************************
 public class Similarity_cache_warmer_actor implements Actor
@@ -76,19 +75,19 @@ public class Similarity_cache_warmer_actor implements Actor
                 }
             }
             double diff = emb1.compare(emb2);
-            //logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
-            //if ( diff < min) min = diff;
-            //if ( diff > max) max = diff;
+            logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
+            if ( diff < min_similarity) min_similarity = diff;
+            if ( diff > max_similarity) max_similarity = diff;
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries
-            if ( diff < THRESHOLD) similarities_hashtable.put(pp, diff);
+            if ( diff < Similarity_comparator.SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
         }
 
         return "Done";
     }
 
-    //public static double min = Double.MAX_VALUE;
-    //public static double max = Double.MIN_VALUE;
+    public static double min_similarity = Double.MAX_VALUE;
+    public static double max_similarity = Double.MIN_VALUE;
 
     @Override
     public String name() {

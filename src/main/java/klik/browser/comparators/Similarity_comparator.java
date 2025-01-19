@@ -1,49 +1,46 @@
 package klik.browser.comparators;
 
-//SOURCES ../../image_ml/image_similarity/Feature_vector_source_embeddings.java;
+//SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.Job_termination_reporter;
 import klik.browser.Clearable_RAM_cache;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.image_ml.image_similarity.Image_similarity;
-import klik.properties.Static_application_properties;
-import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
-import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 
 //**********************************************************
-public class Similarity_comparator implements Comparator<Path>, Clearable_RAM_cache
+public abstract class Similarity_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
-    private final static Map<Path, String> dummy_names = new HashMap<>();
-    public static final double THRESHOLD = 0.4;
-    private Map<Path_pair, Integer> distances  = new HashMap<>();
-    private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
-    //private final ConcurrentHashMap<Path_pair, Boolean> is_close = new ConcurrentHashMap<>();
+    protected final static Map<Path, String> dummy_names = new HashMap<>();
 
-    private Image_feature_vector_cache fv_cache = null;
+    public static final double SIMILARITY_THRESHOLD = 0.14;
+    private final Map<Path_pair, Integer> distances  = new HashMap<>();
+    protected Image_feature_vector_cache fv_cache = null;
     Logger logger;
-    private final Aborter aborter;
-    boolean initialized = false;
-    Path similarity_cache_file_path = null;
+    protected Similarity_cache similarity_cache;
+    protected List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Aborter aborter, Logger logger_)
+    public Similarity_comparator(Path folder, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        this.aborter = aborter;
+        //this.aborter = aborter;
         logger = logger_;
-    }
 
+        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(folder, aborter, logger);
+        if (result == null) {
+            return;
+        }
+        fv_cache = result.image_feature_vector_ram_cache();
+        images = new ArrayList<>(result.images());
+
+        similarity_cache = new Similarity_cache(folder, images, fv_cache, aborter, logger);
+        Collections.shuffle(images);
+    }
 
     //**********************************************************
     @Override
@@ -53,7 +50,8 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_RAM_ca
         if(fv_cache != null) fv_cache.clear_feature_vector_RAM_cache();
         distances.clear();
         dummy_names.clear();
-        similarities.clear();
+        if ( similarity_cache != null) similarity_cache.clear();
+        images.clear();
     }
 
 
@@ -67,10 +65,7 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_RAM_ca
         if (d != null) return d;
 
         String dummy_name1 = dummy_names.get(p1);
-        if ( dummy_name1 == null)
-        {
-            init(p1.getParent());
-        }
+
         if ( dummy_name1 == null)
         {
             //logger.log("WTF dummy_name1 == null for "+p1);
@@ -92,178 +87,62 @@ public class Similarity_comparator implements Comparator<Path>, Clearable_RAM_ca
         return d;
     }
 
+    /*
 
     //**********************************************************
-    void init(Path folder)
-    //**********************************************************
-    {
-        if ( initialized) return;
-        initialized = true;
-        //Ml_servers_util.init_image_similarity(logger);
-
-
-
-        logger.log("init_dummy_names for: "+folder);
-        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(folder, aborter, logger);
-        if (result == null)
-        {
-            return;
-        }
-        fv_cache = result.image_feature_vector_ram_cache();
-        List<Path> images = new ArrayList<>(result.images());
-
-        {
-            String cache_name = "similarity";
-            String local = cache_name + folder.toAbsolutePath();
-            String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-            Path dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_SIMILARITY_CACHE_DIR, false, logger);
-            if (dir != null)
-            {
-                logger.log("similarity cache folder=" + dir.toAbsolutePath());
-            }
-            similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
-        }
-        if ( !reload_similarity_cache_from_disk(folder.toAbsolutePath().toString(), aborter))
-        {
-            // no cache on disk, have to recalculate
-            Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities,logger);
-            CountDownLatch cdl = new CountDownLatch(images.size());
-            for (Path p1 : images) {
-                Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
-                Job_termination_reporter tr = (message, job) -> {
-                    cdl.countDown();
-                    if (cdl.getCount() % 100 == 0)
-                        logger.log(" similarity cache filler: " + cdl.getCount() + " for " + p1);
-                };
-                Actor_engine.run(actor, m, tr, logger);
-            }
-
-            try {
-                cdl.await();
-            } catch (InterruptedException e) {
-                logger.log("similarity cache interrupted" + e);
-            }
-            save_similarity_cache_to_disk();
-        }
-        //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
-        if ( aborter.should_abort()) return;
-        Collections.shuffle(images);
-        while (!images.isEmpty())
-        {
-            if ( aborter.should_abort()) return;
-            Path p1 = images.remove(0);
-            dummy_names.put(p1,p1.getFileName().toString());
-            Iterator<Path> it = images.iterator();
-            while (it.hasNext())
-            {
-                if ( aborter.should_abort()) return;
-                Path p2 = it.next();
-
-                Double diff = similarities.get(Path_pair.get(p1,p2));
-                if ( diff == null)
-                {
-                    //logger.log("WTF diff == null for "+p1+" vs "+p2);
-                    continue;
-                }
-                if ( diff < THRESHOLD)
-                {
-                    it.remove();
-                    dummy_names.put(p2,p1.getFileName().toString()+diff+p2.getFileName().toString());
-                }
-                /*
-                Boolean close = is_close.get(Path_pair.get(p1,p2));
-                if( close == null)
-                {
-                    //logger.log("WTF close == null for "+p1+" vs "+p2);
-                    continue;
-                }
-                logger.log(" close != null for "+p1+" vs "+p2);
-
-                if ( close)
-                {
-                    logger.log(" close = true for "+p1+" vs "+p2);
-
-                    it.remove();
-                    dummy_names.put(p2,p1.getFileName().toString());
-                }
-                else {
-                    logger.log(" close = false for "+p1+" vs "+p2);
-                }
-                   */
-            }
-        }
-        for (Path p: images)
-        {
-            dummy_names.put(p,p.getFileName().toString());
-        }
-
-        logger.log("init_dummy_names done !");
-    }
-
-
-    //**********************************************************
-    public synchronized boolean reload_similarity_cache_from_disk(String folder, Aborter aborter)
+    private Closest_neighbor find_closest_of(Path p1, List<Path> images)
     //**********************************************************
     {
-        int reloaded = 0;
-        try(DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(similarity_cache_file_path.toFile()))))
+        double min = Double.MAX_VALUE;
+        Path closest = null;
+        for ( Path p2 : images)
         {
-            int number_of_items = dis.readInt();
-            for ( int k = 0; k < number_of_items; k++)
+            if ( p1.equals(p2)) continue;
+            Double d = similarity_cache.get(Path_pair.get(p1,p2));
+            if ( d == null)
             {
-                if ( aborter.should_abort()) return false;
-                String path1_string = dis.readUTF();
-                String path2_string = dis.readUTF();
-                double val = dis.readDouble();
-                Path p1 = Path.of(folder,path1_string);
-                Path p2 = Path.of(folder,path2_string);
-                Path_pair p = Path_pair.get(p1,p2);
-                similarities.put(p,val);
-                //logger.log("from disk similarity "+val+" for "+path1_string+" "+path2_string);
-                reloaded++;
+                // typically means the similarity is above the THRESHOLD
+                //logger.log("WTF no similarity for "+p1+" and "+p2);
+                continue;
             }
-            logger.log(reloaded+" similarities reloaded from file");
-            return true;
+            if (  d < min)
+            {
+                min = d;
+                closest = p2;
+            }
         }
-        catch (FileNotFoundException e)
-        {
-            logger.log("first time in this folder: "+e);
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
-        return false;
+        if ( closest == null) return null;
+        Closest_neighbor cn = new Closest_neighbor(p1, closest,min);
+        return cn;
     }
 
+    record Closest_neighbor(Path p1, Path closest, double dist){} // P1 has P2 as its closest neighbor (but maybe P2 has P3 as its closest neighbor)
+
+
     //**********************************************************
-    public void save_similarity_cache_to_disk()
+    private void secouer(List<Closest_neighbor> candidates, List<Closest_neighbor> done, Map<Path, Closest_neighbor> map)
     //**********************************************************
     {
-
-        int saved = 0;
-        try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(similarity_cache_file_path.toFile()))))
+        Iterator<Closest_neighbor> it = candidates.iterator();
+        while (it.hasNext())
         {
-            dos.writeInt(similarities.size());
-            for(Map.Entry<Path_pair, Double> e : similarities.entrySet())
+            Closest_neighbor cn = it.next();
+            // we know that cn.p2() IS the closest image to cn.p1()
+            // but is it symetric?
+            Closest_neighbor cn2 = map.get(cn.closest());
+
+            if ( cn2.closest().equals(cn.p1()))
             {
-                Path_pair pp = e.getKey();
-                Path pi1 = pp.i();
-                Path pi2 = pp.j();
-                dos.writeUTF(pi1.getFileName().toString());
-                dos.writeUTF(pi2.getFileName().toString());
-                dos.writeDouble(e.getValue());
-                saved++;
-                logger.log("to disk similarity "+e.getValue()+" for "+pi1.getFileName().toString()+" "+pi2.getFileName().toString());
+                logger.log("symetric "+cn.p1()+" "+cn.closest()+" "+cn.dist());
+                if ( !done.contains(cn)) done.add(cn);
+            }
+            else
+            {
+                it.remove();
             }
         }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
-
-        //if (dbg)
-        logger.log(saved +" similarities from cache saved to file");
     }
+
+*/
 
 }

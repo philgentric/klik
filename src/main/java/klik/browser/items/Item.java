@@ -327,7 +327,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Clear_Trash_Folder",logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("clearing trash!");
-            Static_files_and_paths_utilities.clear_trash_with_warning_fx(browser.my_Stage.the_Stage, browser_aborter,logger);
+            Static_files_and_paths_utilities.clear_trash(true,browser.my_Stage.the_Stage, browser_aborter,logger);
         });
         return menu_item;
     }

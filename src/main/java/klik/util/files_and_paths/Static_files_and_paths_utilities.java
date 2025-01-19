@@ -15,6 +15,7 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.undo.Undo_engine;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Cache_folders;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
@@ -150,7 +151,7 @@ public class Static_files_and_paths_utilities
     {
         if ( RAM_disk.get_use_RAM_disk(logger))
         {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Static_application_properties.ICON_CACHE_DIR, owner, logger);
+            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folders.klik_folder_icon_cache.name(), owner, logger);
             //if (dbg)
             if (tmp_dir != null) {
                 logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
@@ -158,7 +159,7 @@ public class Static_files_and_paths_utilities
             return tmp_dir;
         }
 
-        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.ICON_CACHE_DIR, false, logger);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -169,7 +170,7 @@ public class Static_files_and_paths_utilities
     public static Path get_folders_icons_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.FOLDER_ICON_CACHE_DIR, false, logger);
+        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("folder icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -195,107 +196,97 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static void clear_icon_DISK_cache_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
+    public static double clear_icon_DISK_cache(boolean show_popup,Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_icons_cache_dir(owner, logger);
+        return clear_folder(icons, "Image icons' cache on disk", show_popup, owner, aborter, logger);
+    }
 
-        double size = get_size_on_disk(icons, aborter, logger);
-        String s1 = My_I18n.get_I18n_string("Warning_deleting_icon", logger);
+    //**********************************************************
+    public static void clear_all_DISK_caches(Stage owner, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        double size = 0.0;
+        size += Static_files_and_paths_utilities.clear_icon_DISK_cache(false,owner,aborter,logger);
+        size += Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,owner, aborter,logger);
+        size += Static_files_and_paths_utilities.clear_folder_icon_DISK_cache(false,owner,aborter,logger);
+        size += Static_files_and_paths_utilities.clear_image_feature_vectors_DISK_cache(false,owner,aborter,logger);
+        size += Static_files_and_paths_utilities.clear_image_similarity_DISK_cache(false,owner,aborter,logger);
+
+        Static_files_and_paths_utilities.user_cancel("All disk caches",size,owner,logger);
+    }
+
+    //**********************************************************
+    public static double clear_folder(Path folder, String tag, boolean show_popup,Stage owner, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        double size = get_size_on_disk(folder, aborter, logger);
+        if ( show_popup)
+        {
+            if (user_cancel(tag, size, owner, logger)) return 0.0;
+        }
+        logger.log(tag+", disk cleared: "+size);
+        delete_for_ever_all_files_in_dir_in_a_thread(folder, true, logger);
+        return size;
+    }
+
+
+    //**********************************************************
+    public static boolean user_cancel(String tag, double size, Stage owner, Logger logger)
+    //**********************************************************
+    {
+        String s1 = "Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
         String s2 = size / 1000_000_000.0 + My_I18n.get_I18n_string("GB_deleted", logger);
         if (size < 1_000_000_000) {
             s2 = size / 1000_000.0 + My_I18n.get_I18n_string("MB_deleted", logger);
         }
-        if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-
-        logger.log("Image icons' cache on disk cleared (&): "+s2);
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, true, logger);
-    }
-
-    //**********************************************************
-    public static void clear_icon_cache_on_disk_no_warning(Stage owner, Logger logger)
-    //**********************************************************
-    {
-        Path icons = get_icons_cache_dir(owner, logger);
-
-        logger.log("Image icons' cache on disk cleared (2) ");
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false, logger);
+        return !Popups.popup_ask_for_confirmation(owner, s1, s2, logger);
     }
 
 
     //**********************************************************
-    public static void clear_image_properties_DISK_cache_no_warning_fx(Stage owner, Logger logger)
+    public static double clear_image_properties_DISK_cache(boolean show_popup,Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path image_properties = Image_properties_RAM_cache.get_image_properties_cache_dir(owner, logger);
-        logger.log("Images' properties cache on disk cleared");
-
-        delete_for_ever_all_files_in_dir_in_a_thread(image_properties, false, logger);
+        return clear_folder(image_properties, "Images' properties cache on disk", show_popup, owner, aborter, logger);
     }
 
     //**********************************************************
-    public static void clear_image_feature_vectors_DISK_cache_no_warning_fx(Stage owner, Logger logger)
+    public static double clear_image_feature_vectors_DISK_cache(boolean show_popup,Stage owner, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        logger.log("Images' feature vectors cache on disk cleared");
-
-        Path image_feature_vectors_folder = Image_feature_vector_cache.get_image_feature_vector_cache_dir(null,logger);
-        logger.log("Images' feature vectors cache on disk cleared :"+image_feature_vectors_folder.toAbsolutePath());
-
-        delete_for_ever_all_files_in_dir_in_a_thread(image_feature_vectors_folder, false, logger);
+        Path image_feature_vectors_folder = Image_feature_vector_cache.get_image_feature_vector_cache_dir(owner,logger);
+        return clear_folder(image_feature_vectors_folder, "Images' feature vectors cache on disk", show_popup, owner, aborter, logger);
     }
 
 
     //**********************************************************
-    public static void clear_image_similarity_DISK_cache_no_warning_fx(Stage owner, Logger logger)
+    public static double clear_image_similarity_DISK_cache(boolean show_popup,Stage owner, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        logger.log("Images' feature vectors cache on disk cleared");
-
-        Path dir = Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.IMAGE_SIMILARITY_CACHE_DIR, false, logger);
+        Path dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_image_similarity_cache.name(), false, logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());
         }
         logger.log("Images' similarity cache on disk cleared :"+dir.toAbsolutePath());
-
-        delete_for_ever_all_files_in_dir_in_a_thread(dir, false, logger);
+        return clear_folder(dir, "Images' similarity cache on disk", show_popup, owner, aborter, logger);
     }
 
     //**********************************************************
-    public static void clear_folder_icon_cache_on_disk_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
+    public static double clear_folder_icon_DISK_cache(boolean show_popup,Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_folders_icons_cache_dir(logger);
-
-        double size = get_size_on_disk(icons, aborter, logger);
-
-        String s1 = "Warning deleting folder icons";//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
-        String s2 = size / 1000_000_000.0 + My_I18n.get_I18n_string("GB_deleted", logger);
-        if (size < 1_000_000_000) {
-            s2 = size / 1000_000.0 + My_I18n.get_I18n_string("MB_deleted", logger);
-        }
-        if (!Popups.popup_ask_for_confirmation(owner, s1, s2, logger)) return;
-
-        logger.log("Folder icons' cache on disk cleared (1): "+s2);
-
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, true,logger);
-    }
-
-    //**********************************************************
-    public static void clear_folder_icon_DISK_cache_no_warning_fx(Logger logger)
-    //**********************************************************
-    {
-        Path icons = get_folders_icons_cache_dir(logger);
-        logger.log("Folder icons' cache on disk cleared (2) ");
-
-        delete_for_ever_all_files_in_dir_in_a_thread(icons, false,logger);
+        return clear_folder(icons, "Folder icons' cache on disk", show_popup, owner, aborter, logger);
     }
 
 
 
     //**********************************************************
-    public static void clear_trash_with_warning_fx(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_trash(boolean show_popup, Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -316,7 +307,10 @@ public class Static_files_and_paths_utilities
             }
             String finalS = s2;
             Runnable r2 = () -> {
-                if (!Popups.popup_ask_for_confirmation(owner, s1, finalS, logger)) return;
+                if ( show_popup)
+                {
+                    if (!Popups.popup_ask_for_confirmation(owner, s1, finalS, logger)) return;
+                }
                 for (Path trash : trashes) {
                     delete_for_ever_all_files_in_dir_in_a_thread(trash, true,logger);
                     logger.log("deletion ongoing: "+trash);
@@ -712,6 +706,7 @@ public class Static_files_and_paths_utilities
         try
         {
             Files.delete(p);
+            logger.log("Deleted for ever: " + p);
             l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done, false));
         } catch (NoSuchFileException x) {
             logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
@@ -1065,6 +1060,11 @@ public class Static_files_and_paths_utilities
 
         Duration age = Duration.between(c,now);
         return age;
+    }
+
+    public static Path get_cache_folder(Cache_folders cache_folder, Logger logger)
+    {
+        return Static_application_properties.get_absolute_dir_on_user_home(cache_folder.name(), false, logger);
     }
 
 
