@@ -75,19 +75,19 @@ public class Similarity_cache_warmer_actor implements Actor
                 }
             }
             double diff = emb1.compare(emb2);
-            logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
-            if ( diff < min_similarity) min_similarity = diff;
-            if ( diff > max_similarity) max_similarity = diff;
+            //logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
+            //if ( diff < min_similarity) min_similarity = diff;
+            //if ( diff > max_similarity) max_similarity = diff;
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries
-            if ( diff < Similarity_comparator.SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
+            if ( diff < Similarity_comparator_N.SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
         }
 
         return "Done";
     }
 
-    public static double min_similarity = Double.MAX_VALUE;
-    public static double max_similarity = Double.MIN_VALUE;
+    //public static double min_similarity = Double.MAX_VALUE;
+    //public static double max_similarity = Double.MIN_VALUE;
 
     @Override
     public String name() {

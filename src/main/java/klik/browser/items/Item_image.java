@@ -257,7 +257,7 @@ public class Item_image extends Item
             if (dbg) logger.log("show similar");
             Runnable r = () ->
             {
-                image_similarity = new Image_similarity(browser,logger);
+                image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
                 image_similarity.find_similars(false, image_path,N,true, Double.MAX_VALUE, null);
             };
             Actor_engine.execute(r,logger);

@@ -1,8 +1,9 @@
 import json
-#import re
+import re
 import socket
 
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import HTTPServer
+from http.server import SimpleHTTPRequestHandler
 import urllib.parse
 import tensorflow as tf
 import numpy as np

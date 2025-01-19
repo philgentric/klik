@@ -1,5 +1,6 @@
 package klik.image_ml.image_similarity;
 
+import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.icons.image_properties_cache.Image_properties;
@@ -28,27 +29,31 @@ public class Image_similarity implements Clearable_RAM_cache
         images_and_feature_vectors.image_feature_vector_ram_cache().clear_feature_vector_RAM_cache();
     }
 
-
-
     public static final double W = 300;
     public static final double H = 300;
 
     Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors;
 
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
-    public final Browser browser;
+    public final Browser browser; // maybe null
     public final Logger logger;
     //**********************************************************
-    public Image_similarity(Browser browser, Logger logger)
+    public Image_similarity(Path displayed_folder_path, Browser browser, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.browser = browser;
         this.logger = logger;
-        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(browser.displayed_folder_path,browser.aborter,logger);
+        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(displayed_folder_path,aborter,logger);
     }
 
     //**********************************************************
-    public List<Most_similar> find_similars(boolean quasi_same, Path image_path, int N, boolean and_show, double threshold, AtomicLong count_pairs_examined)
+    public List<Most_similar> find_similars(
+            boolean quasi_same,
+            Path image_path,
+            int N,
+            boolean and_show,
+            double threshold,
+            AtomicLong count_pairs_examined)
     //**********************************************************
     {
         Hourglass x = null;
@@ -63,9 +68,10 @@ public class Image_similarity implements Clearable_RAM_cache
 
         List<Path> images_copy = new ArrayList<>(images_and_feature_vectors.images());
         images_copy.remove(image_path);
-        List<Most_similar> most_similars = find_most_similars(quasi_same,N, threshold,
+        List<Most_similar> most_similars = find_similars_of(image_path, fv2,
+                quasi_same,N, threshold,
                 images_copy,
-                images_and_feature_vectors.image_feature_vector_ram_cache(), fv2, image_path, count_pairs_examined);
+                count_pairs_examined);
 
         if ( !and_show)
         {
@@ -104,7 +110,14 @@ public class Image_similarity implements Clearable_RAM_cache
 
     }
     //**********************************************************
-    private List<Most_similar> find_most_similars(boolean quasi_same, int N, double threshold, List<Path> targets, Image_feature_vector_cache image_feature_vector_ram_cache, Feature_vector fv2, Path path, AtomicLong count_pairs_examined)
+    public List<Most_similar> find_similars_of(
+            Path path,
+            Feature_vector fv2,
+            boolean quasi_same,
+            int N,
+            double threshold,
+            List<Path> targets,
+            AtomicLong count_pairs_examined)
     //**********************************************************
     {
         List<Most_similar> returned =  new ArrayList<>();
@@ -129,7 +142,8 @@ public class Image_similarity implements Clearable_RAM_cache
             Double similarity = read_similarity_from_cache(path,p);
             if ( similarity == null)
             {
-                Feature_vector fv1 = image_feature_vector_ram_cache.get_from_cache(p, null,true);
+
+                Feature_vector fv1 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(p, null,true);
                 if (fv1 == null) continue; // server failure
                 similarity = fv1.cosine_similarity(fv2);
                 save_similarity_in_cache(similarity, path, p);
@@ -175,7 +189,7 @@ public class Image_similarity implements Clearable_RAM_cache
 
 
 
-    record Most_similar(Path path,Double similarity){};
+    public record Most_similar(Path path, Double similarity){};
 
 
     //**********************************************************

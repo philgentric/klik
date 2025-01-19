@@ -80,7 +80,7 @@ public class Paths_manager
                 other_file_comparator = new Similarity_comparator_N(folder_path,aborter,logger);
                 break;
             case SIMILARITY1:
-                other_file_comparator = new Similarity_comparator_1(folder_path, aborter,logger);
+                other_file_comparator = new Similarity_comparator_pairs_of_closests(folder_path, aborter,logger);
                 break;
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
                 other_file_comparator = alphabetical_file_name_comparator;

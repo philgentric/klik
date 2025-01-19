@@ -66,7 +66,7 @@ public class Similarity_cache
             }
             save_similarity_cache_to_disk();
 
-            logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
+            //logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
         }
     }
 
