@@ -485,6 +485,7 @@ public class Menus_for_image_window
         }
 
         context_menu.getItems().add(Item_image.create_show_similar_menu_item(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
+        context_menu.getItems().add(Item_image.create_show_similar_menu_item2(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
 
         context_menu.getItems().add(make_menu_item(
                 image_window,

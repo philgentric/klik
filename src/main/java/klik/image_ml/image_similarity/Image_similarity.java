@@ -5,6 +5,7 @@ import klik.browser.Browser;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.image_ml.Feature_vector;
+import klik.image_ml.Feature_vector_mask;
 import klik.images.Image_window;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
@@ -53,6 +54,7 @@ public class Image_similarity implements Clearable_RAM_cache
             int N,
             boolean and_show,
             double threshold,
+            boolean use_mask,
             AtomicLong count_pairs_examined)
     //**********************************************************
     {
@@ -64,12 +66,13 @@ public class Image_similarity implements Clearable_RAM_cache
             return null;
         }
 
-        Feature_vector fv2 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
+        Feature_vector fv0 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
 
         List<Path> images_copy = new ArrayList<>(images_and_feature_vectors.images());
         images_copy.remove(image_path);
-        List<Most_similar> most_similars = find_similars_of(image_path, fv2,
-                quasi_same,N, threshold,
+        List<Most_similar> most_similars = find_similars_of(image_path, fv0,
+                quasi_same,use_mask,
+                N, threshold,
                 images_copy,
                 count_pairs_examined);
 
@@ -82,11 +85,11 @@ public class Image_similarity implements Clearable_RAM_cache
             public void run() {
                 double x = 10;
                 double y = 10;
-                show_one_at(new Most_similar(image_path,0.0),x,y);
+                show_one_at(new Most_similar(image_path,fv0,fv0,0.0),false,x,y);
                 y += H;
                 for ( Most_similar ms : most_similars)
                 {
-                    show_one_at(ms,x,y);
+                    show_one_at(ms,true,x,y);
                     x += W;
                 }
             }
@@ -98,7 +101,7 @@ public class Image_similarity implements Clearable_RAM_cache
 
 
     //**********************************************************
-    private void show_one_at(Most_similar ms,double x, double y)
+    private void show_one_at(Most_similar ms,boolean not_same,double x, double y)
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
@@ -108,12 +111,22 @@ public class Image_similarity implements Clearable_RAM_cache
         logger.log("x="+returned.the_Stage.getX());
         logger.log("y="+returned.the_Stage.getY());
 
+        show_vector_differences(ms,not_same, x,y+H);
+
     }
+
+    private void show_vector_differences(Most_similar ms, boolean not_same, double x, double y)
+    {
+        Vector_window vw = new Vector_window("Distance: "+ms.similarity,x,y,ms.fv1,ms.fv2,not_same,true,logger);
+
+    }
+
     //**********************************************************
     public List<Most_similar> find_similars_of(
-            Path path,
-            Feature_vector fv2,
+            Path path0,
+            Feature_vector fv0,
             boolean quasi_same,
+            boolean use_mask,
             int N,
             double threshold,
             List<Path> targets,
@@ -123,30 +136,45 @@ public class Image_similarity implements Clearable_RAM_cache
         List<Most_similar> returned =  new ArrayList<>();
         double min = Double.MAX_VALUE;
         //int count = 0;
-        Image_properties ip1 = null;
+        Image_properties ip0 = null;
         if ( quasi_same)
         {
-            ip1 = browser.image_properties_cache.get_from_cache(path,null);
+            ip0 = browser.image_properties_cache.get_from_cache(path0,null);
         }
+        Feature_vector_mask mask = null;
         //int discarded = 0;
-        for(Path p : targets)
+        for(Path path1 : targets)
         {
             if ( count_pairs_examined!= null) count_pairs_examined.incrementAndGet();
             if ( quasi_same)
             {
-                Image_properties ip2 = browser.image_properties_cache.get_from_cache(p,null);
-                if ( ip1.w() != ip2.w()) continue;
-                if ( ip1.h() != ip2.h()) continue;
+                Image_properties ip1 = browser.image_properties_cache.get_from_cache(path1,null);
+                if ( ip0.w() != ip1.w()) continue;
+                if ( ip0.h() != ip1.h()) continue;
             }
 
-            Double similarity = read_similarity_from_cache(path,p);
-            if ( similarity == null)
-            {
+            Feature_vector fv1 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(path1, null,true);
+            if (fv1 == null) continue; // server failure
 
-                Feature_vector fv1 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(p, null,true);
-                if (fv1 == null) continue; // server failure
-                similarity = fv1.cosine_similarity(fv2);
-                save_similarity_in_cache(similarity, path, p);
+            Double similarity = null;
+            if ( mask!= null)
+            {
+                similarity = mask.similarity_with_mask(fv0,fv1);
+            }
+            else
+            {
+                similarity = read_similarity_from_cache(path0, path1);
+                if (similarity == null) {
+                    similarity = fv0.cosine_similarity(fv1);
+                    save_similarity_in_cache(similarity, path0, path1);
+                }
+            }
+            if (use_mask)
+            {
+                if ( mask == null)
+                {
+                    mask = new Feature_vector_mask(fv0, fv1,true,logger);
+                }
             }
             if ( quasi_same)
             {
@@ -158,7 +186,8 @@ public class Image_similarity implements Clearable_RAM_cache
                 }
             }
             if ( similarity > threshold) continue;
-            Most_similar ms = new Most_similar(p,similarity);
+
+            Most_similar ms = new Most_similar(path1,fv0,fv1,similarity);
             min = keep_N_closest(N,returned,ms, min);
             //count++;
             //if ( count % 100 == 0) logger.log("image compared count="+count);
@@ -189,7 +218,7 @@ public class Image_similarity implements Clearable_RAM_cache
 
 
 
-    public record Most_similar(Path path, Double similarity){};
+    public record Most_similar(Path path, Feature_vector fv1, Feature_vector fv2, Double similarity){};
 
 
     //**********************************************************

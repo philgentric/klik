@@ -54,7 +54,7 @@ public class Similarity_cache
                 Job_termination_reporter tr = (message, job) -> {
                     cdl.countDown();
                     if (cdl.getCount() % 100 == 0)
-                        logger.log(" similarity cache filler: " + cdl.getCount() + " for " + p1);
+                        logger.log(" Remaining to fill similarity cache: " + cdl.getCount());
                 };
                 Actor_engine.run(actor, m, tr, logger);
             }

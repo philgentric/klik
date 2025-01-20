@@ -14,7 +14,7 @@ public class Feature_vector
 
     //**********************************************************
     public static Feature_vector from_string(String in) throws NumberFormatException
-//**********************************************************
+    //**********************************************************
     {
         String[] parts = in.split(" ");
         double[] returned = new double[parts.length];

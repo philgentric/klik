@@ -199,6 +199,8 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
         int saved = 0;
+        //double min = Double.MAX_VALUE;
+        //double max = -Double.MAX_VALUE;
         try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(cache_file_path.toFile()))))
         {
             dos.writeInt(fv_cache.size());
@@ -210,6 +212,8 @@ public class Image_feature_vector_cache
                 dos.writeInt(fv.features.length);
                 for ( int i = 0 ; i < fv.features.length; i++)
                 {
+                    //if ( fv.features[i] > max) max = fv.features[i];
+                    //if ( fv.features[i] < min) min = fv.features[i];
                     dos.writeDouble(fv.features[i]);
                 }
             }
@@ -219,6 +223,7 @@ public class Image_feature_vector_cache
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
 
+       // logger.log("feature vector components min = "+min+" max = "+ max);
         //if (dbg)
             logger.log(saved +" feature vectors from cache saved to file");
     }

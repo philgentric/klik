@@ -77,9 +77,11 @@ public class Similarity_comparator_N extends Similarity_comparator
             remaining.remove(p1);
         }
 
+        // we "extend" each pair by looking for the closest neighbors of each pair member
         Image_similarity similarity = new Image_similarity(folder,null,aborter, logger);
 
         dummy_names.clear();
+        int max_friend = 2;
         int i = 0;
         for ( Closest_neighbor cn : done)
         {
@@ -91,19 +93,11 @@ public class Similarity_comparator_N extends Similarity_comparator
             dummy_names.put(p2, i);
             //logger.log(p2+" -> "+i);
             i++;
-            Feature_vector fv = fv_cache.get_from_cache(p1, null, true);
-            List<Image_similarity.Most_similar> ms = similarity.find_similars_of(p1, fv,
-                    false, 4, Double.MAX_VALUE,
-                    remaining, null);
-
-            for ( Image_similarity.Most_similar m : ms)
-            {
-                Path p3 = m.path();
-                if ( p3.equals(p2)) continue;
-                dummy_names.put(p3, i);
-                //logger.log(p3+" -> "+i);
-                i++;
-            }
+            List<Path> excluded = new ArrayList<>();
+            excluded.add(p1);
+            excluded.add(p2);
+            i = extend(p1, excluded, similarity, remaining, i, max_friend);
+            i = extend(p2, excluded, similarity, remaining, i, max_friend);
         }
 
         // then we complete the fill 'blindly'
@@ -117,6 +111,30 @@ public class Similarity_comparator_N extends Similarity_comparator
             }
         }
 
+    }
+
+    //**********************************************************
+    private int extend(Path p1, List<Path> excluding, Image_similarity similarity, List<Path> remaining, int i, int max_friend)
+    //**********************************************************
+    {
+        Feature_vector fv = fv_cache.get_from_cache(p1, null, true);
+        List<Image_similarity.Most_similar> ms = similarity.find_similars_of(p1, fv,
+                false, true,max_friend+3, Double.MAX_VALUE,
+                remaining, null);
+
+        int how_many = 0;
+        for (Image_similarity.Most_similar m : ms)
+        {
+            Path p3 = m.path();
+            if (excluding.contains(p3)) continue;
+            dummy_names.put(p3, i);
+            excluding.add(p3);
+            //logger.log(p3+" -> "+i);
+            i++;
+            how_many++;
+            if (how_many > max_friend) break;
+        }
+        return i;
     }
 
     /*
