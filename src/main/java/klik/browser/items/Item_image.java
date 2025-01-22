@@ -192,10 +192,10 @@ public class Item_image extends Item
             MenuItem menu_item = create_show_similar_menu_item(path,browser,logger);
             context_menu.getItems().add(menu_item);
         }
-        {
+        /*{
             MenuItem menu_item = create_show_similar_menu_item2(path,browser,logger);
             context_menu.getItems().add(menu_item);
-        }
+        }*/
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
             menu_item.setOnAction(event -> {

@@ -113,10 +113,7 @@ public class Image_feature_vector_cache
         {
             image_feature_vector_actor.run(imp); // blocking call
             Feature_vector x = fv_cache.get(key_from_path(p));
-            if ( x == null)
-            {
-                logger.log("PANIC null Feature_vector in cache after blocking call ");
-            }
+            //if ( x == null) logger.log("PANIC null Feature_vector in cache after blocking call ");
             return x;
         }
         local_actor_engine.run(image_feature_vector_actor,imp,tr,logger);

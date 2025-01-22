@@ -60,10 +60,7 @@ public class System_open_actor implements Actor
     //**********************************************************
     {
         System_open_message som = (System_open_message) m;
-
-
         if (som.special) return special(som);
-
         try
         {
             Desktop.getDesktop().open(som.path.toAbsolutePath().toFile());

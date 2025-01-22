@@ -1,10 +1,18 @@
 package klik.image_ml;
 
+import javafx.scene.Scene;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import klik.image_ml.image_similarity.Feature_vector_source_for_image_similarity;
+import klik.look.Look_and_feel_manager;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,4 +203,69 @@ public class Ml_servers_util
     }
 
 
+    static String[] lines =
+    {
+        "For Image ML to work e.g. search by similarity",
+        "Feature vector servers must be first installed (once) see manual",
+        "To start the image similarity servers copy paste this line in a terminal:",
+        "",
+
+    };
+
+    static String[] lines2 =
+            {
+                    "For face recognition",
+                    "Face detection and specific feature vector servers must be first installed (once) see manual",
+                    "To start the face recognition servers copy paste this line in a terminal:",
+                    "",
+
+            };
+
+    public static void show_manual()
+    {
+        Stage stage = new Stage();
+        VBox vb = new VBox();
+        for ( String l : lines)
+        {
+            TextField tf = new TextField(l);
+            Look_and_feel_manager.set_region_look(tf);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+
+        Path p = Paths.get("");
+        {
+            String list_of_ports = "";
+            for ( int port : Feature_vector_source_for_image_similarity.ports)
+            {
+                list_of_ports += port + " ";
+            }
+            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath().toString()+"/python_for_image_ML; ./launch_MobileNet_servers "+list_of_ports;
+            TextField tf = new TextField(cmd);
+            Look_and_feel_manager.set_region_look(tf);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+        for ( String l : lines2)
+        {
+            TextField tf = new TextField(l);
+            Look_and_feel_manager.set_region_look(tf);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+        {
+            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath().toString()+"/python_for_image_ML; ./launch_face_servers ";
+            TextField tf = new TextField(cmd);
+            Look_and_feel_manager.set_region_look(tf);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+
+
+        Scene scene = new Scene(vb);
+        stage.setScene(scene);
+        stage.setWidth(1000);
+        stage.setHeight(1000);
+        stage.show();
+    }
 }

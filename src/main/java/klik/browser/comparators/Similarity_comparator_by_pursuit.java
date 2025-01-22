@@ -3,24 +3,22 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
-import klik.browser.Browser;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 
 //**********************************************************
-public class Similarity_comparator_N extends Similarity_comparator
+public class Similarity_comparator_by_pursuit extends Similarity_comparator
 //**********************************************************
 {
     public static final double SIMILARITY_THRESHOLD = 0.14;
 
     //**********************************************************
-    public Similarity_comparator_N(Path folder, Aborter aborter, Logger logger_)
+    public Similarity_comparator_by_pursuit(Path folder, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         super(folder, aborter, logger_);
@@ -137,83 +135,4 @@ public class Similarity_comparator_N extends Similarity_comparator
         return i;
     }
 
-    /*
-        int i = 0;
-        record Dost(Path p, Double dist){}
-        Comparator<? super Dost> comp = new Comparator<Dost>() {
-            @Override
-            public int compare(Dost o1, Dost o2)
-            {
-                    return o1.dist.compareTo(o2.dist);
-            }
-        };
-
-        class Ensemble
-        {
-            List<Dost> dosts = new ArrayList<>();
-        }
-        List<Ensemble> sets  = new ArrayList<>();
-        while (!images.isEmpty())
-        {
-            if ( aborter.should_abort()) return;
-            Path p1 = images.remove(0);
-            Dost d = new Dost(p1,0.0);
-            Ensemble ensemble = new Ensemble();
-            ensemble.dosts.add(d);
-            sets.add(ensemble);
-
-            Iterator<Path> it = images.iterator();
-            while (it.hasNext())
-            {
-                if ( aborter.should_abort()) return;
-                Path p2 = it.next();
-                Double diff = similarity_cache.get(Path_pair.get(p1,p2));
-                if ( diff == null)
-                {
-                    //logger.log("WTF diff == null for "+p1+" vs "+p2);
-                    continue;
-                }
-                if ( diff < SIMILARITY_THRESHOLD)
-                {
-                    Dost d2 = new Dost(p2,diff);
-                    ensemble.dosts.add(d2);
-                    it.remove();
-                }
-            }
-        }
-        for ( Ensemble ensemble : sets)
-        {
-            Collections.sort(ensemble.dosts, comp);
-
-            int count = 0;
-            for ( Dost dost : ensemble.dosts)
-            {
-                if ( dummy_names.containsKey(dost.p())) continue;
-                count++;
-                if ( count >= 4) break;
-            }
-            if ( count< 2) continue;
-            int count2 = 0;
-            for ( Dost dost : ensemble.dosts)
-            {
-                logger.log(" "+dost.p()+" "+dost.dist());
-                if ( dummy_names.containsKey(dost.p())) continue;
-                dummy_names.put(dost.p(), i);
-                i++;
-                count2++;
-                if ( count2 >= 4) break;
-            }
-        }
-        for (Path p: images)
-        {
-            if ( dummy_names.containsKey(p)) continue;
-            dummy_names.put(p,i);
-            i++;
-        }
-
-        logger.log("init_dummy_names done !");
-
-    }
-
-*/
 }

@@ -44,7 +44,7 @@ public interface Embeddings_prototype
         {
             Path image_path = make_image_path(face_recognizer_path, tag, logger);
 
-            logger.log("trying to load image ->" + image_path + "<-");
+            //logger.log("trying to load image ->" + image_path + "<-");
             image_file = new File(image_path.toAbsolutePath().toString());
             if (!image_file.exists())
             {

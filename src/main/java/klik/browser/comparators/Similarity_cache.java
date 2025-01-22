@@ -90,7 +90,7 @@ public class Similarity_cache
                 Path p2 = folder.resolve(path2_string);
                 Path_pair p = Path_pair.get(p1,p2);
                 similarities.put(p,val);
-                if ( k%1000000 == 0) logger.log(k +"similarities loaded from disk ");
+                if ( k%10000 == 0) logger.log(k +" similarities loaded from disk ");
                 reloaded++;
             }
             logger.log(reloaded+" similarities reloaded from file");

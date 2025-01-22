@@ -67,7 +67,10 @@ public class Image_similarity implements Clearable_RAM_cache
         }
 
         Feature_vector fv0 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
-
+        if ( fv0 ==null)
+        {
+            return null;
+        }
         List<Path> images_copy = new ArrayList<>(images_and_feature_vectors.images());
         images_copy.remove(image_path);
         List<Most_similar> most_similars = find_similars_of(image_path, fv0,
@@ -111,7 +114,7 @@ public class Image_similarity implements Clearable_RAM_cache
         logger.log("x="+returned.the_Stage.getX());
         logger.log("y="+returned.the_Stage.getY());
 
-        show_vector_differences(ms,not_same, x,y+H);
+        //show_vector_differences(ms,not_same, x,y+H);
 
     }
 

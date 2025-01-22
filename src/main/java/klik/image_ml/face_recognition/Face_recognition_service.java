@@ -15,6 +15,7 @@
 package klik.image_ml.face_recognition;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -33,7 +34,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.image_ml.Feature_vector;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.properties.Static_application_properties;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Show_running_man_frame_with_abort_button;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -64,7 +65,7 @@ public class Face_recognition_service
     Map<String,Embeddings_prototype> tag_to_prototype = new ConcurrentHashMap<>();
     Map<String,Integer> label_to_prototype_count = new ConcurrentHashMap<>();
     public final String face_recognizer_name;
-    public final Path face_recognizer_path;
+    public static Path face_recognizer_path;
     Recognition_stats recognition_stats;
     Training_stats training_stats;
     long last_report;
@@ -78,7 +79,8 @@ public class Face_recognition_service
         face_recognizer_name = name_;
         this.browser = browser;
         this.logger = browser.browser_ui.logger;
-        this.face_recognizer_path = Static_application_properties.get_absolute_dir_on_user_home(face_recognizer_name,true, logger);
+        Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(logger);
+        face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
         Browser_creation_context.additional_different_folder(face_recognizer_path,browser,logger);
 
         last_report = System.currentTimeMillis();
@@ -100,7 +102,7 @@ public class Face_recognition_service
     public static void start_new(Browser browser)
     //**********************************************************
     {
-        Optional<String> localo = get_face_recognition_name(browser.my_Stage.the_Stage);
+        Optional<String> localo = get_face_recognition_model_name(browser.logger);
 
         if ( localo.isEmpty()) return;
 
@@ -126,13 +128,33 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    private static Optional<String> get_face_recognition_name(Stage stage)
+    private static Optional<String> get_face_recognition_model_name(Logger logger)
     //**********************************************************
     {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Give recognition system tag");
-        dialog.setHeaderText("Give recognition system tag");
-        return dialog.showAndWait();
+
+        Path p = Static_files_and_paths_utilities.get_face_reco_folder(logger);
+        File[] files = p.toFile().listFiles();
+
+        ChoiceDialog<String> cd = new ChoiceDialog<>("Select face recognition model");
+        ObservableList<String> list = cd.getItems();
+        for ( File f : files)
+        {
+            list.add(f.getName());
+        }
+        String new_model = "new model";
+        list.add(new_model);
+        cd.setTitle("Select face recognition model");
+        Optional<String> x = cd.showAndWait();
+        if ( x.get().equals(new_model))
+        {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Give recognition system tag");
+            dialog.setHeaderText("Give recognition system tag");
+            return dialog.showAndWait();
+        }
+        return x;
+
+
     }
 
     //**********************************************************

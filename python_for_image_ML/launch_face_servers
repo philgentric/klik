@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 FACENET_EMBEDDINGS_PORTS=(8020 8021)
 for PORT in "${FACENET_EMBEDDINGS_PORTS[@]}"; do
     python3 -c "import FaceNet_embeddings_server;

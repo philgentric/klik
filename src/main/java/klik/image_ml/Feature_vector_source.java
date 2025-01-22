@@ -2,26 +2,31 @@ package klik.image_ml;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import javafx.stage.Stage;
 import klik.actor.Actor_engine;
+import klik.image_ml.image_similarity.Feature_vector_source_for_image_similarity;
+import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_out_logger;
+import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Popups;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public abstract class Feature_vector_source
 //**********************************************************
 {
-    //Feature_vector get_feature_vector_from_server(Path path, Logger logger);
-
     protected abstract int get_random_port();
-
-
     static long start = System.currentTimeMillis();
     static long tx_count = 0;
     static long SUM_dur = 0;
@@ -92,10 +97,31 @@ public abstract class Feature_vector_source
         }
     }
 
+    static AtomicBoolean server_started = new AtomicBoolean(false);
+    static AtomicBoolean popup_done = new AtomicBoolean(false);
+
     //**********************************************************
     static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Logger logger)
     //**********************************************************
     {
+        if (!server_started.get())
+        {
+
+            if ( check(logger))
+            {
+                server_started.set(true);
+            }
+            else
+            {
+                if ( !popup_done.get())
+                {
+                    popup_done.set(true);
+                    popup(null,logger);
+                }
+                return null;
+            }
+        }
+
         if ( path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
@@ -136,6 +162,7 @@ public abstract class Feature_vector_source
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             logger.log(("get_feature_vector_from_server_generic: "+e));
+            server_started.set(false);
             return null;
         }
         try {
@@ -181,5 +208,52 @@ public abstract class Feature_vector_source
         }
 
         return fv;
+    }
+
+    //**********************************************************
+    private static boolean check(Logger logger)
+    //**********************************************************
+    {
+        List<String> list = new ArrayList<>();
+        list.add("pgrep");
+        list.add("-f");
+        list.add("python");
+        //list.add("python.*run_server.*");
+        StringBuilder sb = new StringBuilder();
+        File wd = new File (".");
+        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
+        {
+            logger.log("failed:\n"+ sb );
+            return false;
+        }
+        // scan sb looking for integers (PIDs)
+        String result = sb.toString();
+        String[] parts = result.split("\\s+"); // Split on non-digit sequences
+        for (String part : parts)
+        {
+            try
+            {
+                int pid = Integer.parseInt(part);
+                //System.out.println("found PID: " + part+" in:"+result);
+                return true;
+            }
+            catch ( NumberFormatException e)
+            {
+
+            }
+        }
+        // no PIDs found
+        return false;
+    }
+    //**********************************************************
+    private static void popup(Stage owner, Logger logger)
+    //**********************************************************
+    {
+        Jfx_batch_injector.inject(() -> Popups.popup_warning(owner,
+                "Servers not started.",
+                "This feature requires to start the Image Feature Extraction Servers\n" +
+                        "Look in the menu 'preferences' for instructions",
+                false,logger), logger);
+
     }
 }

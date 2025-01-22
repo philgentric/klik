@@ -76,10 +76,10 @@ public class Paths_manager
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
         switch (File_sort_by.get_sort_files_by(logger))
         {
-            case SIMILARITY:
-                other_file_comparator = new Similarity_comparator_N(folder_path,aborter,logger);
+            case SIMILARITY_BY_PURSUIT:
+                other_file_comparator = new Similarity_comparator_by_pursuit(folder_path,aborter,logger);
                 break;
-            case SIMILARITY1:
+            case SIMILARITY_BY_PAIRS:
                 other_file_comparator = new Similarity_comparator_pairs_of_closests(folder_path, aborter,logger);
                 break;
             case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
@@ -361,7 +361,24 @@ public class Paths_manager
     {
         logger.log("making & sorting iconized_sorted with comparator:"+image_file_comparator);
         List<Path> local_iconized_sorted = new ArrayList<>(iconized_paths);
-        local_iconized_sorted.sort(image_file_comparator);
+        for(int tentative =0; tentative<3; tentative++)
+        {
+            try
+            {
+                local_iconized_sorted.sort(image_file_comparator);
+                break;
+            }
+            catch (IllegalArgumentException e)
+            {
+                // let us retry!
+                logger.log("image sorting failed, let's retry");
+                if (image_file_comparator instanceof Similarity_comparator)
+                {
+                    Similarity_comparator sc = (Similarity_comparator)image_file_comparator;
+                    sc.shuffle();
+                }
+            }
+        }
         iconized_sorted_queue.add(local_iconized_sorted);
     }
 }

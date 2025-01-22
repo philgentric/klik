@@ -37,7 +37,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         images = new ArrayList<>(result.images());
 
         similarity_cache = new Similarity_cache(folder, images, fv_cache, aborter, logger);
-        Collections.shuffle(images);
+        shuffle();
     }
 
     //**********************************************************
@@ -66,7 +66,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
         if ( dummy_name1 == null)
         {
-            //logger.log("WTF dummy_name1 == null for "+p1);
+            logger.log("WTF dummy_name1 == null for "+p1);
             dummy_name1 = 8888888;//p1.getFileName().toString();
             dummy_names.put(p1,dummy_name1);
         }
@@ -74,7 +74,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         Integer dummy_name2 = dummy_names.get(p2);
         if ( dummy_name2 == null)
         {
-            //logger.log("WTF dummy_name2 == null for "+p2);
+            logger.log("WTF dummy_name2 == null for "+p2);
             dummy_name2 = 9999999;//p2.getFileName().toString();
             dummy_names.put(p2,dummy_name2);
         }
@@ -83,6 +83,10 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         distances.put(pp, d);
         //logger.log("compare "+p1+" vs "+p2+" == "+d);
         return d;
+    }
+
+    public void shuffle() {
+        Collections.shuffle(images);
     }
 
     /*

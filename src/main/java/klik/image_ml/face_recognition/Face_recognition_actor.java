@@ -446,6 +446,8 @@ public class Face_recognition_actor implements Actor
     private static Eval_results eval_a_face(Path face, Face_recognition_service service)
     //**********************************************************
     {
+        service.logger.log("crumbeval_a_face");
+
         start = System.nanoTime();
         Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition();
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
@@ -454,6 +456,7 @@ public class Face_recognition_actor implements Actor
             service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed "));
             return new Eval_results("error",null,Eval_situation.nothing_found,false,"error",new ArrayList<>());
         }
+        service.logger.log("crumbeval_a_face  b");
         long fv_time = System.nanoTime()-start;
         feature_vector_total_ns += fv_time;
 
@@ -618,6 +621,7 @@ public class Face_recognition_actor implements Actor
         Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(tested, face_detection_type, display_face_reco_window,service.logger);
         if (face_detection_result.status() == Face_recognition_status.server_not_reacheable)
         {
+            service.logger.log("face detection server unreachable");
             if ( display_face_reco_window) Face_detector.warn_about_face_detector_server(service.logger);
             return new Face_recognition_results(null, null, null,null,Face_recognition_status.server_not_reacheable);
         }

@@ -80,7 +80,7 @@ public class Similarity_cache_warmer_actor implements Actor
             //if ( diff > max_similarity) max_similarity = diff;
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries
-            if ( diff < Similarity_comparator_N.SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
+            if ( diff < Similarity_comparator_by_pursuit.SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
         }
 
         return "Done";

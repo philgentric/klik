@@ -1067,6 +1067,12 @@ public class Static_files_and_paths_utilities
         return Static_application_properties.get_absolute_dir_on_user_home(cache_folder.name(), false, logger);
     }
 
+    public static Path get_face_reco_folder(Logger logger)
+    {
+        return Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.FACE_RECO_DIR, false, logger);
+    }
+
+
 
 
 

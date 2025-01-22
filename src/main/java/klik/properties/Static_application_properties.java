@@ -58,6 +58,8 @@ public class Static_application_properties
     public static final String CONF_DIR = ".klik";
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
     public static final String TRASH_DIR = "klik_trash";
+    public static final String FACE_RECO_DIR = "face_reco";
+
 
 
     // cache directories

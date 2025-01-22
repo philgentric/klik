@@ -24,6 +24,7 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.image_ml.face_recognition.Face_recognition_service;
+import klik.image_ml.image_similarity.Image_similarity;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -98,10 +99,6 @@ public class Browser_menus
     }
 
 
-
-
-
-
     //**********************************************************
     public CheckMenuItem make_invert_vertical_scroll_menu_item(Logger logger)
     //**********************************************************
@@ -111,6 +108,18 @@ public class Browser_menus
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Static_application_properties.get_vertical_scroll_inverted(logger));
         item.setOnAction(actionEvent -> Static_application_properties.set_vertical_scroll_inverted(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        return item;
+    }
+
+    //**********************************************************
+    public MenuItem make_start_servers_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = "Show manual about how to start servers";//My_I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> {
+            Ml_servers_util.show_manual();
+        });
         return item;
     }
 

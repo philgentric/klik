@@ -115,14 +115,14 @@ public class Face_detector
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null,Face_recognition_status.error);
         }
-        logger.log("Connection ready: "+connection.toString());
+        logger.log("Face detection client: connection ready: "+connection.toString());
         // Send a GET request to the server
         try {
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(120_000);
+            connection.setConnectTimeout(0);// infinite
         } catch (ProtocolException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            return new Face_detection_result(null,Face_recognition_status.error);
+            return new Face_detection_result(null,Face_recognition_status.server_not_reacheable);
         }
 
         boolean done = false;

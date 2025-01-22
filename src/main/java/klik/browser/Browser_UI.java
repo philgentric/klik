@@ -400,14 +400,14 @@ public class Browser_UI
                 deduplicate.getItems().add(create_auto_deduplication_menu_item());
                 clean.getItems().add(deduplicate);
             }
-            {
-                MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item();
-                clean.getItems().add(deduplicate2_menu_item);
-            }
+
             {
                 MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item2();
                 clean.getItems().add(deduplicate2_menu_item);
-
+            }
+            {
+                MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item();
+                clean.getItems().add(deduplicate2_menu_item);
             }
             files_menu.getItems().add(clean);
         }
@@ -474,6 +474,7 @@ public class Browser_UI
         pref.getItems().add(browser_menus.make_ding_menu_item());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
+        if (level2) pref.getItems().add(browser_menus.make_start_servers_menu_item(logger));
         if (level3) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
         pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item(logger));
 

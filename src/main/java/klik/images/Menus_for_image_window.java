@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.print.PrinterJob;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -485,21 +486,24 @@ public class Menus_for_image_window
         }
 
         context_menu.getItems().add(Item_image.create_show_similar_menu_item(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
-        context_menu.getItems().add(Item_image.create_show_similar_menu_item2(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
+        //context_menu.getItems().add(Item_image.create_show_similar_menu_item2(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
 
-        context_menu.getItems().add(make_menu_item(
+        String s = My_I18n.get_I18n_string("Face_recognition",logger);
+        Menu fr_context_menu = new Menu(s);
+        context_menu.getItems().add(fr_context_menu);
+        fr_context_menu.getItems().add(make_menu_item(
                 image_window,
                 "Perform_face_recognition_with_high_precision_face_detector",
                 event -> face_rec(Face_detection_type.MTCNN,image_window, the_browser)));
-        context_menu.getItems().add(make_menu_item(
+        fr_context_menu.getItems().add(make_menu_item(
                 image_window,
                 "Perform_face_recognition_with_optimistic_face_detector",
                 event -> face_rec(Face_detection_type.haars_false_positioves,image_window, the_browser)));
-        context_menu.getItems().add(make_menu_item(
+        fr_context_menu.getItems().add(make_menu_item(
                 image_window,
                 "Perform_face_recognition_with_ALT1_face_detector",
                 event -> face_rec(Face_detection_type.haars_alt1,image_window, the_browser)));
-        context_menu.getItems().add(make_menu_item(
+        fr_context_menu.getItems().add(make_menu_item(
                 image_window,
                 "Perform_face_recognition_with_ALT2_face_detector",
                 event -> face_rec(Face_detection_type.haars_alt2,image_window, the_browser)));
