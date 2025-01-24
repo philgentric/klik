@@ -42,9 +42,6 @@ public class Deduplication_engine implements Againor, Abortable
     AtomicInteger threads_in_flight = new AtomicInteger(0);
     AtomicInteger duplicates_found = new AtomicInteger(0);
     File target_dir;
-    //private final Aborter browser_aborter;
-    //private Runnable_for_finding_duplicate_file_pairs finder;
-    //private Runnable_for_finding_duplicate_file_pairs duplicate_finder;
     Deduplication_console_window console_window;
     boolean end_reported = false;
     private Aborter private_aborter = new Aborter("Deduplication_engine",logger);
@@ -336,40 +333,27 @@ public class Deduplication_engine implements Againor, Abortable
             else stage_with_2_images.set_pair(title,local);
         },logger);
     }
-/*
 
-    //**********************************************************
-    void sort_pairs_by_file_size()
-    //**********************************************************
-    {
-        Comparator<File_pair_deduplication> comp = new Comparator<File_pair_deduplication>() {
-
-            @Override
-            public int compare(File_pair_deduplication o1, File_pair_deduplication o2) {
-                return Long.valueOf(o1.f1.my_file.file.length()).compareTo(Long.valueOf(o2.f1.my_file.file.length()));
-            }
-        };
-        List<File_pair_deduplication> same_in_pairs2 = new ArrayList<File_pair_deduplication>(same_file_pairs_input_queue);
-        Collections.sort(same_in_pairs2, comp);
-        Collections.reverse(same_in_pairs2);
-        same_file_pairs_input_queue.clear();
-        same_file_pairs_input_queue.addAll(same_in_pairs2);
-        files_are_sorted_by_size = true;
-    }
-*/
 
     //**********************************************************
     @Override
     public void again(boolean previous_file_deleted)
     //**********************************************************
     {
+        // "again" is called after user action in a window:
+        // it is intended to catch 1 File_pair_deduplication and call ONCE
+        // ask_user_about_a_duplicate_pair
+        // so the forever loop in the thread is just here
+        // to manage the end and aborting
+        // with the 3s timeout on the queue
         if ( private_aborter.should_abort()) return;
         if ( previous_file_deleted) console_window.count_deleted.incrementAndGet();
 
         logger.log("manual deduplicator: again called !");
         Runnable r = () -> {
             {
-                for(;;) {
+                for(;;) // just retry relative to the 3 second timeout
+                {
                     if (private_aborter.should_abort()) return;
 
                     File_pair_deduplication p;
@@ -382,7 +366,10 @@ public class Deduplication_engine implements Againor, Abortable
                     if (p != null) {
                         logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
                         ask_user_about_a_duplicate_pair(p);
-                    } else {
+                        return;
+                    }
+                    else
+                    {
                         if (are_threaded_finders_finished()) {
                             logger.log("\nduplicate finder is finished !!");
                             if (!end_reported) {

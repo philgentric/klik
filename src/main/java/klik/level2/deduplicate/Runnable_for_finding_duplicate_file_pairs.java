@@ -72,7 +72,9 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				if (!My_File.files_have_same_content(all_files.get(i), all_files.get(j), private_aborter, logger)) {
 					if (ultra_dbg)
 						logger.log(" not same CONTENT:" + all_files.get(i).file.getAbsolutePath() + " - " + all_files.get(j).file.getAbsolutePath());
-				} else {
+				}
+				else
+				{
 					deduplication_engine.duplicates_found.incrementAndGet();
 					//if (dbg) logger.log("duplicate fond:\n     " + all_files.get(i).file.getAbsolutePath() + "\n    " + all_files.get(j).file.getAbsolutePath());
 

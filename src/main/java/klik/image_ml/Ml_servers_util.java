@@ -206,17 +206,18 @@ public class Ml_servers_util
     static String[] lines =
     {
         "For Image ML to work e.g. search by similarity",
-        "Feature vector servers must be first installed (once) see manual",
-        "To start the image similarity servers copy paste this line in a terminal:",
+        "Feature vector servers must first be installed (once) see manual",
+        "Then, to start the image similarity servers copy paste this line in a terminal:",
         "",
 
     };
 
     static String[] lines2 =
             {
+                    "",
                     "For face recognition",
                     "Face detection and specific feature vector servers must be first installed (once) see manual",
-                    "To start the face recognition servers copy paste this line in a terminal:",
+                    "Then to start the face recognition servers copy paste this line in a terminal:",
                     "",
 
             };
