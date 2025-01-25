@@ -130,6 +130,7 @@ public class Virtual_landscape
                                          Hourglass running_man)
     //**********************************************************
     {
+
         if ( map_buttons_and_icons_guard.get())
         {
             logger.log("map_buttons_and_icons_guard activated " +reason);
@@ -166,18 +167,21 @@ public class Virtual_landscape
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
             show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_man != null) running_man.close();
+            map_buttons_and_icons_guard.set(false);
             return;
         }
         if (the_browser.error_type == Error_type.NOT_FOUND) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
             show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_man != null) running_man.close();
+            map_buttons_and_icons_guard.set(false);
             return;
         }
         if (the_browser.error_type == Error_type.ERROR) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
             show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_man != null) running_man.close();
+            map_buttons_and_icons_guard.set(false);
             return;
         }
 
