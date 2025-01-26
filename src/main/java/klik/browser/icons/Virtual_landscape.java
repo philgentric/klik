@@ -11,6 +11,7 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -20,23 +21,29 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
 import klik.browser.Scroll_to_listener;
+import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.*;
+import klik.properties.File_sort_by;
 import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Show_running_man_frame;
 import klik.util.ui.Show_running_man_frame_with_abort_button;
 
+import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -62,38 +69,530 @@ public class Virtual_landscape
     private Landscape_height_listener landscape_height_listener;
     private Scroll_to_listener scroll_to_listener;
     private final Paths_manager paths_manager;
+    public Comparator<? super Path> image_file_comparator = null;
+    public Comparator<? super Path> other_file_comparator;
+    public Icon_factory_actor icon_factory_actor;
+    public final Image_properties_RAM_cache image_properties_cache;
 
-    // state:
+
+    public final BlockingQueue<Boolean> request_queue = new LinkedBlockingQueue<>();
     private final ConcurrentHashMap<Path, Item> all_items_map = new ConcurrentHashMap<>();
-    AtomicBoolean items_are_ready = new AtomicBoolean(false);
+    private final AtomicBoolean items_are_ready = new AtomicBoolean(false);
 
     private double virtual_landscape_height = -Double.MAX_VALUE;
     private double current_vertical_offset = 0;
     private int how_many_rows;
     private Path top_left;
     public final double icon_height;
+    private final AtomicBoolean the_guard = new AtomicBoolean(false);
 
     boolean show_how_many_files_deep_in_each_folder = false;
     boolean show_total_size_deep_in_each_folder = false;
-
+    private final Browser the_browser;
     private final Pane the_Pane;
+    public Error_type error_type = Error_type.OK;
+
 
     Map<Path,Long> folder_total_sizes_cache;
     Map<Path,Long> folder_file_count_cache;
 
     private final List<Item> future_pane_content = new ArrayList<>();
     //**********************************************************
-    public Virtual_landscape(Pane the_Pane, Paths_manager paths_manager, Aborter aborter, Logger logger_)
+    public Virtual_landscape(Browser the_browser_, Pane the_pane_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        this.the_Pane = the_Pane;
-        this.paths_manager = paths_manager;
+        error_type = Error_type.OK;
+        this.the_browser = the_browser_;
+        the_Pane = the_pane_;
         this.aborter = aborter;
         logger = logger_;
+        image_properties_cache = new Image_properties_RAM_cache(the_browser.displayed_folder_path, "Image properties cache", aborter, logger);
+        icon_factory_actor = new Icon_factory_actor(image_properties_cache, the_browser.my_Stage.the_Stage, aborter, logger);
+        paths_manager = new Paths_manager(icon_factory_actor, the_browser.displayed_folder_path, aborter, logger);
+
         if ( dbg) logger.log("Virtual_landscape constructor");
         double font_size = Static_application_properties.get_font_size(logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                for(;;)
+                {
+                    try {
+                        Boolean x = request_queue.poll(3, TimeUnit.SECONDS);
+                        if (x != null) redraw();
+                        if (aborter.should_abort()) return;
 
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        };
+        Actor_engine.execute(r,logger);
+    }
+
+    //**********************************************************
+    private void redraw()
+    //**********************************************************
+    {
+        if ( the_guard.get())
+        {
+            logger.log("nope, guard is set");
+            return;
+        }
+        the_guard.set(true);
+        aborter.add_on_abort(() -> the_guard.set(false));
+
+        long start = System.currentTimeMillis();
+        all_items_map.clear();
+
+
+        Hourglass running_man = null;
+        if (Browser.show_running_man)
+        {
+            running_man = Show_running_man_frame.show_running_man("Scanning folder", 20*60,  aborter, logger);
+        }
+
+        set_comparators();
+
+         the_browser.max_dir_text_length = 0;
+        paths_manager.iconized_paths.clear();
+        paths_manager.non_iconized.clear();
+        paths_manager.folders.clear();
+        paths_manager.iconized_sorted_queue.clear();
+
+        image_properties_cache.reload_cache_from_disk();
+        do_the_hard_work_of_scan_dir_3();
+
+        all_image_properties_acquired_4(start, running_man);
+
+    }
+
+
+    //**********************************************************
+    private void do_the_hard_work_of_scan_dir_3()
+    //**********************************************************
+    {
+        boolean show_icons_instead_of_text = Static_application_properties.get_show_icons(logger);
+        boolean show_hidden_files = Static_application_properties.get_show_hidden_files(logger);
+        boolean show_hidden_directories = Static_application_properties.get_show_hidden_directories(logger);
+        boolean show_icons_for_folders = Static_application_properties.get_show_icons_for_folders(logger);
+
+        if (Platform.isFxApplicationThread())
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        }
+        paths_manager.iconized_sorted_queue.clear();
+        try
+        {
+            File files[] = the_browser.displayed_folder_path.toFile().listFiles();
+            for ( File f : files)
+            {
+                if ( aborter.should_abort())
+                {
+                    logger.log("path manager aborting1");
+                    aborter.on_abort();
+                    return;
+                }
+
+                Path path  = f.toPath();
+                if ( f.isDirectory())
+                {
+                    paths_manager.do_folder(the_browser,path, show_hidden_directories, show_icons_for_folders);
+                }
+                else
+                {
+                    // this will start one virtual thread per image to prefill the image property cache
+                    paths_manager.do_file(the_browser,path, show_hidden_files, show_icons_instead_of_text, the_browser.my_Stage.the_Stage);
+                }
+            }
+        }
+        catch (InvalidPathException e)
+        {
+            logger.log(""+e);
+            receive_error(Error_type.NOT_FOUND);
+        }
+        catch (SecurityException e)
+        {
+            logger.log(""+e);
+            receive_error(Error_type.DENIED);
+        }
+        catch (Exception e)
+        {
+            logger.log(""+e);
+            receive_error(Error_type.ERROR);
+        }
+    }
+
+
+    //**********************************************************
+    private void refresh_UI(String from, Hourglass running_man)
+    //**********************************************************
+    {
+        sort_iconized_items(from);
+
+        Runnable r = () -> {
+            //logger.log("refresh_UI_after_scan_dir " + from);
+            Path scroll_to = the_browser.get_scroll_to();
+            update_UI_on_fx_thread("refresh_UI_after_scan_dir ... " + from, scroll_to,running_man);
+        };
+        if (Platform.isFxApplicationThread()) {
+            //logger.log("refresh_UI_after_scan_dir WAS on FX thread from=" + from);
+            r.run();
+        } else {
+            //logger.log("refresh_UI_after_scan_dir was NOT on FX thread, injected, from=" + from);
+            Jfx_batch_injector.inject(r, logger);
+        }
+
+    }
+
+
+    //**********************************************************
+    private void update_UI_on_fx_thread(String from, Path scroll_to, Hourglass running_man)
+    //**********************************************************
+    {
+        if (!Platform.isFxApplicationThread()) {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        }
+        logger.log("update_UI from: " + from);
+
+        geometry_changed_8(the_Pane.getWidth(), the_Pane.getHeight(), the_browser.mandatory_in_pane, "scene_geometry_changed from: " + from, scroll_to, running_man);
+
+        if (dbg) logger.log("adapt_slider_to_scene");
+        {
+            the_browser.vertical_slider.adapt_slider_to_scene(the_browser.the_Scene);
+        }
+        //if (keep_scroll)
+        {
+            //vertical_slider.scroll_absolute(0,icon_manager);
+        }
+
+        the_browser.set_title();
+
+        {
+            double title_height = the_browser.my_Stage.the_Stage.getHeight() - the_browser.the_Scene.getHeight();
+            if (title_height > 60)
+            {
+                logger.log("WARNING: " +
+                        "title_height>60 \nmy_Stage.the_Stage.getHeight()=" +
+                        the_browser.my_Stage.the_Stage.getHeight() + "\nthe_Scene.getHeight()=" + the_browser.the_Scene.getHeight());
+            }
+            else
+            {
+                for (Button b : the_browser.browser_ui.top_buttons) {
+                    b.setMinHeight(title_height);
+                }
+            }
+        }
+    }
+
+    //**********************************************************
+    public void geometry_changed_8(double pane_width,
+                                   double pane_height,
+                                   List<Node> mandatory,
+                                   String reason,
+                                   Path scroll_to,
+                                   Hourglass running_man)
+    //**********************************************************
+    {
+        if (scroll_dbg)
+            logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset);
+        boolean single_column = Static_application_properties.get_single_column(logger);
+        if (scroll_dbg) logger.log(("geometry_changed single_column="+single_column));
+
+        long start = System.nanoTime();
+        if ( dbg) logger.log("Virtual_landscape map_buttons_and_icons");
+
+        double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
+        int folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
+        int column_increment_for_folders = Static_application_properties.get_column_width(logger);
+        if ( column_increment_for_folders < folder_icon_size) column_increment_for_folders = folder_icon_size;
+
+        int icon_size = Static_application_properties.get_icon_size(logger);
+        int column_increment_for_icons = icon_size;
+
+        if ( single_column)
+        {
+            // the -100 is to make the button shorter than the full width so that
+            // the mouse selection can "start" in the rightmost part of the pane
+            column_increment_for_icons = (int)(pane_width-RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            column_increment_for_folders = column_increment_for_icons;
+        }
+        double row_increment_for_dirs_with_picture = row_increment_for_dirs + folder_icon_size;
+
+        double scene_width = the_browser.the_Scene.getWidth();
+
+        double top_delta_y = 2 * Static_application_properties.get_font_size(logger);
+        if (error_type == Error_type.DENIED) {
+            ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
+            show_error_icon(the_browser, iv_denied,top_delta_y);
+            if ( running_man != null) running_man.close();
+            the_guard.set(false);
+            logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
+            return;
+        }
+        if (error_type == Error_type.NOT_FOUND) {
+            ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
+            show_error_icon(the_browser, not_found,top_delta_y);
+            if ( running_man != null) running_man.close();
+            the_guard.set(false);
+            logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
+            return;
+        }
+        if (error_type == Error_type.ERROR) {
+            ImageView unknown_error = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
+            show_error_icon(the_browser, unknown_error,top_delta_y);
+            if ( running_man != null) running_man.close();
+            the_guard.set(false);
+            logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
+            return;
+        }
+
+        {
+            the_Pane.getChildren().clear();
+            //Item_image.currently.clear();
+            the_Pane.getChildren().addAll(mandatory);
+        }
+
+        int final_column_increment_for_folders = column_increment_for_folders;
+        int final_column_increment_for_icons = column_increment_for_icons;
+
+        items_are_ready.set(false);
+        future_pane_content.clear();
+        how_many_rows = 0;
+
+        Point2D p = new Point2D(0, 0);
+        p = process_folders(the_browser, single_column, row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
+        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
+        p = process_non_iconized_files(the_browser, single_column, final_column_increment_for_folders, scene_width, p);
+        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
+
+        process_iconified_items(the_browser, single_column, icon_size, final_column_increment_for_icons, scene_width, p);
+
+        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
+        logger.log("Going to remap all items");
+        long start2 = System.currentTimeMillis();
+        future_pane_content.addAll(all_items_map.values());
+
+        items_are_ready.set(true);
+        the_guard.set(false);
+
+        logger.log("END, the_guard => "+the_guard.get()+" for "+paths_manager.folder_path);
+
+        Jfx_batch_injector.inject(()->
+        {
+            if ( running_man != null) running_man.close();
+
+            for (Item item : future_pane_content)
+            {
+                if (item.visible_in_scene.get())
+                {
+                    if (!the_Pane.getChildren().contains(item.get_Node()))
+                    {
+                        the_Pane.getChildren().add(item.get_Node());
+                    }
+                }
+            }
+            logger.log("Scroll to: "+scroll_to);
+            scroll_to(scroll_to,pane_height);
+
+            set_visibility_on_fx_thread(reason+" map_buttons_and_icons ");
+
+        },logger);
+    }
+
+
+    //**********************************************************
+    public void receive_error(Error_type error_type)
+    //**********************************************************
+    {
+        logger.log("receive_error");
+        Error_type finalError_type = error_type;
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                switch (finalError_type) {
+                    case OK:
+                        break;
+                    case DENIED:
+                        logger.log("access denied");
+                        the_browser.set_status("Acces denied for:" + the_browser.displayed_folder_path);
+                        geometry_changed_8( the_Pane.getWidth(), the_Pane.getHeight(), the_browser.mandatory_in_pane, "access denied", null, null);
+                        break;
+                    case NOT_FOUND:
+                    case ERROR:
+                        logger.log("directory gone");
+                        the_browser.set_status("Folder is gone:" + the_browser.displayed_folder_path);
+                        geometry_changed_8(the_Pane.getWidth(), the_Pane.getHeight(), the_browser.mandatory_in_pane, "gone",  null, null);
+                        break;
+                }
+            }
+        };
+        Jfx_batch_injector.inject(r, logger);
+    }
+
+
+    //**********************************************************
+    synchronized private void sort_iconized_items(String from)
+    //**********************************************************
+    {
+        logger.log("making & sorting iconized_sorted with comparator:"+image_file_comparator);
+        List<Path> local_iconized_sorted = new ArrayList<>(paths_manager.iconized_paths);
+        for(int tentative =0; tentative<3; tentative++)
+        {
+            try
+            {
+                local_iconized_sorted.sort(image_file_comparator);
+                break;
+            }
+            catch (IllegalArgumentException e)
+            {
+                // let us retry!
+                logger.log("image sorting failed, retrying: "+tentative);
+                if (image_file_comparator instanceof Similarity_comparator)
+                {
+                    Similarity_comparator sc = (Similarity_comparator)image_file_comparator;
+                    sc.shuffle();
+                }
+            }
+        }
+        paths_manager.iconized_sorted_queue.add(local_iconized_sorted);
+    }
+
+
+    //**********************************************************
+    private void set_comparators()
+    //**********************************************************
+    {
+        Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
+        switch (File_sort_by.get_sort_files_by(logger))
+        {
+            case SIMILARITY_BY_PURSUIT:
+                other_file_comparator = new Similarity_comparator_by_pursuit(the_browser.displayed_folder_path,aborter,logger);
+                break;
+            case SIMILARITY_BY_PAIRS:
+                other_file_comparator = new Similarity_comparator_pairs_of_closests(the_browser.displayed_folder_path, aborter,logger);
+                break;
+            case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
+                other_file_comparator = alphabetical_file_name_comparator;
+                break;
+            case RANDOM:
+                other_file_comparator = new Random_comparator();
+                break;
+            case DATE:
+                other_file_comparator = new Date_comparator(logger);
+                break;
+            case SIZE:
+                other_file_comparator = new Decreasing_file_size_comparator();
+                break;
+            case NAME_GIFS_FIRST:
+                other_file_comparator = new Alphabetical_file_name_comparator_gif_first();
+                break;
+        }
+        image_file_comparator = other_file_comparator;
+
+        // these MUST be mutually exclusive:
+        paths_manager.folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
+        paths_manager.non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
+    }
+
+    //**********************************************************
+    private void set_new_iconized_items_comparator(Comparator<Path> local_file_comparator)
+    //**********************************************************
+    {
+        image_file_comparator = local_file_comparator;
+    }
+
+    //**********************************************************
+    private void all_image_properties_acquired_4(long start, Hourglass running_man)
+    //**********************************************************
+    {
+        //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                image_properties_cache.save_whole_cache_to_disk();
+            }
+        };
+        Actor_engine.execute(r,logger);
+
+        if (System.currentTimeMillis() - start > 5_000) {
+            if (Static_application_properties.get_ding(logger)) {
+                Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
+            }
+        }
+        determine_file_comparator(paths_manager);
+        //logger.log("all_image_properties_acquired, going to refresh");
+        refresh_UI("all_image_properties_acquired", running_man);
+
+        long end = System.currentTimeMillis();
+        Performance_monitor.register_new_record("Browser",paths_manager.folder_path.toString(),end-start,logger);
+    }
+
+    public void remove_empty_folders(boolean recursively) {
+        paths_manager.remove_empty_folders(recursively);
+    }
+
+
+    record File_comp_cache(File_sort_by file_sort_by, Comparator<Path> comparator){}
+
+    private File_comp_cache file_comp_cache;
+
+    //**********************************************************
+    private void determine_file_comparator(Paths_manager paths_manager)
+    //**********************************************************
+    {
+        Comparator<Path> local_file_comparator = null;
+        if ( file_comp_cache != null)
+        {
+            if ( file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(logger))
+            {
+                logger.log("getting file comparator from cache="+file_comp_cache);
+                local_file_comparator = file_comp_cache.comparator();
+            }
+        }
+        if ( local_file_comparator == null) {
+            local_file_comparator = create_new_file_comparator();
+        }
+        if (local_file_comparator != null)
+        {
+            //logger.log("setting file_comp_cache ="+file_comp_cache);
+            file_comp_cache =  new File_comp_cache(File_sort_by.get_sort_files_by(logger),local_file_comparator);
+            set_new_iconized_items_comparator(local_file_comparator);
+        }
+    }
+
+    //**********************************************************
+    private Comparator<Path> create_new_file_comparator()
+    //**********************************************************
+    {
+        Comparator<Path> local_file_comparator = null;
+        switch (File_sort_by.get_sort_files_by(logger))
+        {
+            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(image_properties_cache);
+            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(image_properties_cache);
+            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(image_properties_cache);
+            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(image_properties_cache,logger);
+        }
+        return local_file_comparator;
+    }
+
+
+
+
+
+
+
+
+    //**********************************************************
+    private List<Path> get_iconized_sorted(String from)
+    //**********************************************************
+    {
+        List<Path> returned = paths_manager.iconized_sorted_queue.poll();
+        if ( returned != null) return returned;
+        sort_iconized_items(from);
+        return paths_manager.iconized_sorted_queue.poll();
     }
 
     //**********************************************************
@@ -116,176 +615,9 @@ public class Virtual_landscape
     // make sure map_buttons_and_icons is not called again before it is finished
     // cannot use "synchronized" because part of the job is performed
     // on another thread
-    AtomicBoolean map_buttons_and_icons_guard = new AtomicBoolean(false);
-
-    long map_buttons_and_icons_elapsed = 0;
-    //**********************************************************
-    private void map_buttons_and_icons_8(Browser the_browser,
-                                         List<Node> mandatory,
-                                         boolean single_column,
-                                         String reason,
-                                         double pane_width,
-                                         double pane_height,
-                                         Path scroll_to,
-                                         Hourglass running_man)
-    //**********************************************************
-    {
-
-        if ( map_buttons_and_icons_guard.get())
-        {
-            logger.log("map_buttons_and_icons_guard activated " +reason);
-            if ( running_man != null) running_man.close();
-            return;
-        }
-        map_buttons_and_icons_guard.set(true);
-
-        long start = System.nanoTime();
-         if ( dbg) logger.log("Virtual_landscape map_buttons_and_icons");
-
-        double row_increment_for_dirs = 2 * Static_application_properties.get_font_size(logger);
-        int folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
-        int column_width = Static_application_properties.get_column_width(logger);
-        int column_increment_for_folders = column_width;
-        if ( column_increment_for_folders < folder_icon_size) column_increment_for_folders = folder_icon_size;
-
-        int icon_size = Static_application_properties.get_icon_size(logger);
-        int column_increment_for_icons = icon_size;
-
-        if ( single_column)
-        {
-            // the -100 is to make the button shorter than the full width so that
-            // the mouse selection can "start" in the rightmost part of the pane
-            column_increment_for_icons = (int)(pane_width-RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
-            column_increment_for_folders = column_increment_for_icons;
-        }
-        double row_increment_for_dirs_with_picture = row_increment_for_dirs + folder_icon_size;
-
-        double scene_width = the_browser.the_Scene.getWidth();
-
-        double top_delta_y = 2 * Static_application_properties.get_font_size(logger);
-        if (the_browser.error_type == Error_type.DENIED) {
-            ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
-            show_error_icon(the_browser, iv_denied,top_delta_y);
-            if ( running_man != null) running_man.close();
-            map_buttons_and_icons_guard.set(false);
-            return;
-        }
-        if (the_browser.error_type == Error_type.NOT_FOUND) {
-            ImageView iv_denied = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
-            show_error_icon(the_browser, iv_denied,top_delta_y);
-            if ( running_man != null) running_man.close();
-            map_buttons_and_icons_guard.set(false);
-            return;
-        }
-        if (the_browser.error_type == Error_type.ERROR) {
-            ImageView iv_denied = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
-            show_error_icon(the_browser, iv_denied,top_delta_y);
-            if ( running_man != null) running_man.close();
-            map_buttons_and_icons_guard.set(false);
-            return;
-        }
 
 
-        //if (( change_type ==  Change_type.files_or_folders_changed) || (change_type == Change_type.layout_changed))
-        {
-            the_Pane.getChildren().clear();
-            Item_image.currently.clear();
-            the_Pane.getChildren().addAll(mandatory);
-        }
 
-        int final_column_increment_for_folders = column_increment_for_folders;
-        int final_column_increment_for_icons = column_increment_for_icons;
-
-        Runnable r = () -> map_it(the_browser, single_column, reason, scroll_to, running_man, row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, pane_height,icon_size, final_column_increment_for_icons, start);
-        Actor_engine.execute(r,logger);
-    }
-
-    //**********************************************************
-    private void map_it(Browser the_browser, boolean single_column, String reason, Path scroll_to, Hourglass running_man, double row_increment_for_dirs, int final_column_increment_for_folders, double row_increment_for_dirs_with_picture, double scene_width, double pane_height, int icon_size, int final_column_increment_for_icons, long start)
-    //**********************************************************
-    {
-        //logger.log("map_buttons_and_icons thread started");
-
-        //if ( change_type ==  Change_type.files_or_folders_changed)
-        {
-            logger.log("Virtual_landscape all_items_map.clear()");
-            all_items_map.clear();
-            items_are_ready.set(false);
-            future_pane_content.clear();
-        }
-
-        how_many_rows = 0;
-
-        Point2D p = new Point2D(0, 0);
-        p = process_folders(the_browser, single_column, row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
-        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
-        p = process_non_iconized_files(the_browser, single_column, final_column_increment_for_folders, scene_width, p);
-        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
-
-
-        process_iconified_items(the_browser, single_column, icon_size, final_column_increment_for_icons, scene_width, p);
-
-        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
-        map_buttons_and_icons_elapsed += (System.nanoTime()- start);
-        //logger.log("map_buttons_and_icons_elapsed= "+String.format("%.2f",map_buttons_and_icons_elapsed/1000_000.0)+" ms "+reason);
-
-        //if (( change_type ==  Change_type.files_or_folders_changed) || (change_type == Change_type.layout_changed))
-        {
-            logger.log("Going to remap all items");
-            long start2 = System.currentTimeMillis();
-            Jfx_batch_injector.inject(() -> {
-                for (Item ii : all_items_map.values())
-                {
-                    if ( delirium) future_pane_content.add(ii);
-                    else {
-                        if (the_Pane.getChildren().contains(ii.get_Node()))
-                        {
-                            logger.log("shit happens " + ii.get_item_path());
-                        }
-                        else
-                        {
-                            the_Pane.getChildren().add(ii.get_Node());
-                            logger.log("adding to the pane" + ii.get_item_path());
-
-                        }
-                    }
-                }
-                end_map(reason, pane_height, true, scroll_to, running_man);
-                logger.log("remap done : "+(System.currentTimeMillis()-start2));
-
-            }, logger);
-        }
-        //else
-        {
-        //    end_map(reason, pane_height,false, scroll_to, running_man);
-        }
-    }
-
-    //**********************************************************
-    private void end_map(String reason, double pane_height, boolean from_thread, Path scroll_to, Hourglass running_man)
-    //**********************************************************
-    {
-        items_are_ready.set(true);
-        map_buttons_and_icons_guard.set(false);
-        Jfx_batch_injector.inject(()->
-                {
-                    check_visibility_11(reason+" map_buttons_and_icons "+from_thread);
-                    if ( running_man != null) running_man.close();
-
-                    if ( delirium) {
-                        for (Item item : future_pane_content) {
-                            if (item.visible_in_scene.get()) {
-                                if (!the_Pane.getChildren().contains(item.get_Node()))
-                                {
-                                    the_Pane.getChildren().add(item.get_Node());
-                                }
-                            }
-                        }
-                    }
-                    logger.log("Scroll to: "+scroll_to);
-                    scroll_to(scroll_to,pane_height);
-                },logger);
-    }
 
     //**********************************************************
     void scroll_to(Path scroll_to, double pane_height)
@@ -314,7 +646,7 @@ public class Virtual_landscape
         {
             Jfx_batch_injector.inject(()-> the_Pane.getChildren().add(iv_denied),logger);
         }
-        compute_bounding_rectangle(the_browser.error_type.toString());
+        compute_bounding_rectangle(error_type.toString());
     }
 
     //**********************************************************
@@ -358,7 +690,7 @@ public class Virtual_landscape
                 {
                     wait_for_end.countDown();
                     // ask for image properties fetch in threads
-                    paths_manager.image_properties_cache.get_from_cache(path,tr);
+                    image_properties_cache.get_from_cache(path,tr);
                 }
             }
             else
@@ -386,7 +718,7 @@ public class Virtual_landscape
         }
         for ( Path path : paths_manager.iconized_paths)
         {
-            Image_properties ip = paths_manager.image_properties_cache.get_from_cache(path,null);
+            Image_properties ip = image_properties_cache.get_from_cache(path,null);
             if ( ip == null) {
                 logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
                 continue;
@@ -400,7 +732,7 @@ public class Virtual_landscape
 
         /// at this stage we MUST have get_iconized_sorted() in the proper order
         // that will define the x,y layout
-        List<Path> ll = paths_manager.get_iconized_sorted("process_iconified_items");
+        List<Path> ll = get_iconized_sorted("process_iconified_items");
         for (Path path : ll )
         {
             Item item = all_items_map.get(path);
@@ -611,40 +943,15 @@ public class Virtual_landscape
     public void clear_image_properties_RAM_cache_fx()
     //**********************************************************
     {
-        if ( paths_manager.image_properties_cache == null) return;
-        paths_manager.image_properties_cache.clear_image_properties_RAM_cache_fx();
-    }
-
-    //**********************************************************
-    public void clear_image_feature_vector_RAM_cache_fx()
-    //**********************************************************
-    {
-        logger.log("clear_image_feature_vector_RAM_cache_fx is NOP");
+        if ( image_properties_cache == null) return;
+        image_properties_cache.clear_image_properties_RAM_cache_fx();
     }
 
 
-    //**********************************************************
-    public void geometry_changed_7(Browser b,
-                                   double pane_width,
-                                   double pane_height,
-                                   List<Node> mandatory,
-                                   String reason,
-                                   Path scroll_to,
-                                   Hourglass running_man)
-    //**********************************************************
-    {
-        if (scroll_dbg)
-            logger.log("geometry_changed reason="+reason+" current_vertical_offset="+current_vertical_offset);
-        boolean single_column = Static_application_properties.get_single_column(logger);
-        if (scroll_dbg) logger.log(("geometry_changed single_column="+single_column));
-        map_buttons_and_icons_8(b, mandatory, single_column, reason, pane_width,pane_height, scroll_to, running_man);
-
-    }
 
 
     //**********************************************************
     public void move_absolute(
-            Pane pane,
             double new_vertical_offset,
             String reason)
     //**********************************************************
@@ -652,13 +959,13 @@ public class Virtual_landscape
         if (scroll_dbg)
             logger.log("move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
         current_vertical_offset = new_vertical_offset;
-        check_visibility_11( "move_absolute");
+        set_visibility_on_fx_thread( "move_absolute");
     }
 
     // this is on the FX thread
     // and it is called very often for example when scrolling
     //**********************************************************
-    void check_visibility_11(String from)
+    void set_visibility_on_fx_thread(String from)
     //**********************************************************
     {
         if ( !items_are_ready.get())
@@ -681,7 +988,7 @@ public class Virtual_landscape
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
                 item.process_is_invisible(current_vertical_offset);
                 the_Pane.getChildren().remove(item.get_Node());
-                if ( item instanceof Item_image ii) Item_image.currently.remove(ii);
+                //if ( item instanceof Item_image ii) Item_image.currently.remove(ii);
                 continue;
             }
             if (item.get_javafx_y()  > pane_height+current_vertical_offset+icon_size)
@@ -689,7 +996,7 @@ public class Virtual_landscape
                 if (invisible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 item.process_is_invisible(current_vertical_offset);
                 the_Pane.getChildren().remove(item.get_Node());
-                if ( item instanceof Item_image ii) Item_image.currently.remove(ii);
+                //if ( item instanceof Item_image ii) Item_image.currently.remove(ii);
                 continue;
             }
             if (visible_dbg)
@@ -698,7 +1005,7 @@ public class Virtual_landscape
             if ( !the_Pane.getChildren().contains(item.get_Node()))
             {
                 the_Pane.getChildren().add(item.get_Node());
-                if ( item instanceof Item_image ii) Item_image.currently.add(ii);
+                //if ( item instanceof Item_image ii) Item_image.currently.add(ii);
             }
 
 
@@ -815,7 +1122,7 @@ public class Virtual_landscape
                 }
                 if (count.get() == 0)
                 {
-                    Jfx_batch_injector.inject(()-> geometry_changed_7(browser,pane_width,pane_height,mandatory,"sort by size",null, show_running_man_frame),logger);
+                    Jfx_batch_injector.inject(()-> geometry_changed_8(pane_width,pane_height,mandatory,"sort by size",null, show_running_man_frame),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display all folder sizes", logger);
                     }
@@ -1042,7 +1349,7 @@ public class Virtual_landscape
             if (item.get_javafx_y() + h > virtual_landscape_height) virtual_landscape_height = item.get_javafx_y() + h;
         }
 
-        if (paths_manager.get_iconized_sorted("compute_bounding_rectangle").isEmpty()) {
+        if (get_iconized_sorted("compute_bounding_rectangle").isEmpty()) {
             // when there is no iconized items in the folder
             // it may happen that the height of the last row of buttons at the bottom is underestimated
             virtual_landscape_height += 100;
@@ -1063,10 +1370,35 @@ public class Virtual_landscape
         scroll_to_listener = vertical_slider;
     }
 
+
+
     //**********************************************************
-    public void clear()
+    public Comparator<? super Path> get_file_comparator()
     //**********************************************************
     {
-        all_items_map.clear();
+        if (paths_manager == null) {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC browser getting the current file comparator paths_manager==null"));
+            return null;
+        }
+        if (image_file_comparator == null) {
+            logger.log(Stack_trace_getter.get_stack_trace("PANIC browser getting the current file comparator paths_manager.image_file_comparator==null"));
+            return null;
+        }
+        //logger.log(Stack_trace_getter.get_stack_trace("browser getting the current file comparator"+paths_manager.image_file_comparator.toString()));
+        return image_file_comparator;
+    }
+
+    //**********************************************************
+    public List<File> get_file_list()
+    //**********************************************************
+    {
+        return paths_manager.get_file_list();
+    }
+
+    //**********************************************************
+    public List<File> get_folder_list()
+    //**********************************************************
+    {
+        return paths_manager.get_folder_list();
     }
 }

@@ -7,20 +7,10 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.comparators.Aspect_ratio_comparator;
-import klik.browser.comparators.Aspect_ratio_comparator_random;
-import klik.browser.comparators.Image_height_comparator;
-import klik.browser.comparators.Image_width_comparator;
-import klik.browser.icons.Paths_manager;
-import klik.browser.icons.Refresh_target;
 import klik.properties.Cache_folders;
-import klik.util.files_and_paths.Ding;
 import klik.level3.experimental.RAM_disk;
-import klik.properties.File_sort_by;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
-import klik.util.performance_monitor.Performance_monitor;
-import klik.util.ui.Hourglass;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -124,7 +114,7 @@ public class Image_properties_RAM_cache
     }
 
     //**********************************************************
-    public void fill_cache(Path p)
+    public void prefill_cache(Path p)
     //**********************************************************
     {
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
@@ -239,68 +229,9 @@ public class Image_properties_RAM_cache
     }
 
 
-    //**********************************************************
-    public void all_image_properties_acquired_4(Paths_manager paths_manager, Refresh_target refresh_target,  long start, Hourglass running_man)
-    //**********************************************************
-    {
-        //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
-        Actor_engine.execute(this::save_whole_cache_to_disk,logger);
 
-        if (System.currentTimeMillis() - start > 5_000) {
-            if (Static_application_properties.get_ding(logger)) {
-                Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
-            }
-        }
-        determine_file_comparator(paths_manager);
-        //logger.log("all_image_properties_acquired, going to refresh");
-        refresh_target.refresh_UI_after_scan_dir_5("all_image_properties_acquired", running_man);
 
-        long end = System.currentTimeMillis();
-        Performance_monitor.register_new_record("Browser",paths_manager.folder_path.toString(),end-start,logger);
-    }
 
-    record File_comp_cache(File_sort_by file_sort_by, Comparator<Path> comparator){}
-
-    private File_comp_cache file_comp_cache;
-
-    //**********************************************************
-    private void determine_file_comparator(Paths_manager paths_manager)
-    //**********************************************************
-    {
-        Comparator<Path> local_file_comparator = null;
-        if ( file_comp_cache != null)
-        {
-            if ( file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(logger))
-            {
-                logger.log("getting file comparator from cache="+file_comp_cache);
-                local_file_comparator = file_comp_cache.comparator();
-            }
-        }
-        if ( local_file_comparator == null) {
-            local_file_comparator = create_new_file_comparator();
-        }
-        if (local_file_comparator != null)
-        {
-            //logger.log("setting file_comp_cache ="+file_comp_cache);
-            file_comp_cache =  new File_comp_cache(File_sort_by.get_sort_files_by(logger),local_file_comparator);
-            paths_manager.set_new_iconized_items_comparator(local_file_comparator);
-        }
-    }
-
-    //**********************************************************
-    Comparator<Path> create_new_file_comparator()
-    //**********************************************************
-    {
-        Comparator<Path> local_file_comparator = null;
-        switch (File_sort_by.get_sort_files_by(logger))
-        {
-            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(this);
-            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(this);
-            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(this);
-            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(this,logger);
-        }
-        return local_file_comparator;
-    }
 
 
 

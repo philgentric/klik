@@ -51,6 +51,7 @@ public class Image_similarity implements Clearable_RAM_cache
     public List<Most_similar> find_similars(
             boolean quasi_same,
             Path image_path,
+            List<Path> already_done,//maybe null
             int N,
             boolean and_show,
             double threshold,
@@ -71,14 +72,16 @@ public class Image_similarity implements Clearable_RAM_cache
         {
             return null;
         }
-        List<Path> images_copy = new ArrayList<>(images_and_feature_vectors.images());
-        images_copy.remove(image_path);
+        List<Path> to_be_compared = new ArrayList<>(images_and_feature_vectors.images());
+        to_be_compared.remove(image_path);
+        if ( already_done!= null) to_be_compared.removeAll(already_done);
         List<Most_similar> most_similars = find_similars_of(image_path, fv0,
                 quasi_same,use_mask,
                 N, threshold,
-                images_copy,
+                to_be_compared,
                 count_pairs_examined);
 
+        if ( already_done!= null) already_done.add(image_path);
         if ( !and_show)
         {
             return most_similars;
@@ -138,20 +141,18 @@ public class Image_similarity implements Clearable_RAM_cache
     {
         List<Most_similar> returned =  new ArrayList<>();
         double min = Double.MAX_VALUE;
-        //int count = 0;
         Image_properties ip0 = null;
         if ( quasi_same)
         {
-            ip0 = browser.image_properties_cache.get_from_cache(path0,null);
+            ip0 = browser.virtual_landscape.image_properties_cache.get_from_cache(path0,null);
         }
         Feature_vector_mask mask = null;
-        //int discarded = 0;
         for(Path path1 : targets)
         {
             if ( count_pairs_examined!= null) count_pairs_examined.incrementAndGet();
             if ( quasi_same)
             {
-                Image_properties ip1 = browser.image_properties_cache.get_from_cache(path1,null);
+                Image_properties ip1 = browser.virtual_landscape.image_properties_cache.get_from_cache(path1,null);
                 if ( ip0.w() != ip1.w()) continue;
                 if ( ip0.h() != ip1.h()) continue;
             }
@@ -181,14 +182,15 @@ public class Image_similarity implements Clearable_RAM_cache
             }
             if ( quasi_same)
             {
-                if ( similarity > 0)
+                if ( similarity > 0) // i.e. not zero, for a double
                 {
-                    //discarded++;
-                    //if ( discarded%1000 == 0) logger.log("images discarded, too far: "+discarded);
                     continue;
                 }
             }
-            if ( similarity > threshold) continue;
+            if ( similarity > threshold) // ignore if too far
+            {
+                continue;
+            }
 
             Most_similar ms = new Most_similar(path1,fv0,fv1,similarity);
             min = keep_N_closest(N,returned,ms, min);

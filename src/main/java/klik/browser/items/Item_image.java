@@ -50,7 +50,7 @@ public class Item_image extends Item
     public Double aspect_ratio;
     public static Image default_icon;
 
-    public static List<Item_image> currently = new ArrayList<>();
+    //public static List<Item_image> currently = new ArrayList<>();
     //**********************************************************
     public Item_image(
             Browser b,
@@ -262,7 +262,7 @@ public class Item_image extends Item
             Runnable r = () ->
             {
                 image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,N,true, Double.MAX_VALUE, false,null);
+                image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE, false,null);
             };
             Actor_engine.execute(r,logger);
         });
@@ -281,7 +281,7 @@ public class Item_image extends Item
             Runnable r = () ->
             {
                 image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,N,true, Double.MAX_VALUE, true,null);
+                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, true,null);
             };
             Actor_engine.execute(r,logger);
         });

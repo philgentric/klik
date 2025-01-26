@@ -13,7 +13,6 @@ import javafx.event.ActionEvent;
 import klik.actor.Aborter;
 import klik.browser.icons.Virtual_landscape;
 import klik.image_ml.Ml_servers_util;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.browser.items.Item_button;
 import klik.change.Change_receiver;
 import klik.change.active_list_stage.Active_list_stage;
@@ -24,7 +23,6 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.image_ml.face_recognition.Face_recognition_service;
-import klik.image_ml.image_similarity.Image_similarity;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -132,7 +130,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected());
+            browser.redraw_fx("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
     }
@@ -148,7 +146,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_icons_for_folders(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_icons_for_folders(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected());
+            browser.redraw_fx("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
     }
@@ -161,7 +159,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_single_column(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_single_column(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected());
+            browser.redraw_fx("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
     }
@@ -203,7 +201,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_hidden_directories(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_hidden_directories(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("show hidden file boolean changed");
+            browser.redraw_fx("show hidden file boolean changed");
         });
         return item;
     }
@@ -218,7 +216,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_dont_zoom_small_images(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_dont_zoom_small_images(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("dont_zoom_small_images boolean changed");
+            browser.redraw_fx("dont_zoom_small_images boolean changed");
         });
         return item;
     }
@@ -316,7 +314,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_enable_fusk(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("enable fusk boolean changed");
+            browser.redraw_fx("enable fusk boolean changed");
 
         });
         return item;
@@ -347,7 +345,7 @@ public class Browser_menus
         item.setSelected(Static_application_properties.get_show_hidden_files(logger));
         item.setOnAction(actionEvent -> {
             Static_application_properties.set_show_hidden_files(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            browser.redraw_fx_1("show hidden file boolean changed");
+            browser.redraw_fx("show hidden file boolean changed");
         });
         return item;
     }
@@ -447,9 +445,9 @@ public class Browser_menus
     public void remove_empty_folders_fx(boolean recursively)
     //**********************************************************
     {
-        browser.paths_manager.remove_empty_folders(recursively);
+        browser.virtual_landscape.remove_empty_folders(recursively);
         // can be called from a thread which is NOT the FX event thread
-        Jfx_batch_injector.inject(() -> browser.redraw_fx_1("remove empty folder"),logger);
+        Jfx_batch_injector.inject(() -> browser.redraw_fx("remove empty folder"),logger);
     }
 
     //**********************************************************
@@ -575,7 +573,7 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Refresh",logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.redraw_fx_1("refresh"));
+        item.setOnAction(event -> browser.redraw_fx("refresh"));
         return item;
     }
 
@@ -938,7 +936,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_column_width(length,logger);
-                browser.redraw_fx_1("column width changed");
+                browser.redraw_fx("column width changed");
             }
         });
         menu.getItems().add(item);
@@ -971,7 +969,7 @@ public class Browser_menus
                 }
                 Static_application_properties.set_icon_size(target_size,logger);
                 logger.log("icon size changed to "+target_size);
-                browser.redraw_fx_1("icon size changed");
+                browser.redraw_fx("icon size changed");
             }
         });
         menu.getItems().add(item);
@@ -994,7 +992,7 @@ public class Browser_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_folder_icon_size(target_size,logger);
-                browser.redraw_fx_1("folder icon size changed");
+                browser.redraw_fx("folder icon size changed");
             }
         });
         menu.getItems().add(item);
@@ -1017,7 +1015,7 @@ public class Browser_menus
                     if (cmi != local) cmi.setSelected(false);
                 }
                 Static_application_properties.set_font_size(target_size,logger);
-                browser.redraw_fx_1("font size changed");
+                browser.redraw_fx("font size changed");
             }
         });
         menu.getItems().add(item);

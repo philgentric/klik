@@ -6,6 +6,8 @@ import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.My_File;
 import klik.util.log.Logger;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -48,21 +50,17 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	public void run()
 	//**********************************************************
 	{
-
 		deduplication_by_similarity_engine.threads_in_flight.incrementAndGet();
 		int duplicates_found_by_this_thread = 0;
-
-		//boolean[] stop = new boolean[1];
 		if ( dbg) logger.log("Runnable_for_finding_duplicate_file_pair_similarity RUN starts");
-
 		int ignored = 0;
+		List<Path> already_done = new ArrayList<>();
 		for (My_File f : all_files)
 		{
 			if ( private_aborter.should_abort()) return;
 			if (!Guess_file_type.is_file_an_image(f.file)) continue;
-			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), 1, false, SPECIAL_SIMILARITY_THRESHOLD, false,deduplication_by_similarity_engine.console_window.count_pairs_examined);
-
-
+			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), already_done,1, false, SPECIAL_SIMILARITY_THRESHOLD, false,deduplication_by_similarity_engine.console_window.count_pairs_examined);
+			already_done.add(f.file.toPath());
 			if ( similars.isEmpty()) continue;
 			deduplication_by_similarity_engine.duplicates_found.incrementAndGet();
 			Image_similarity.Most_similar most_similar = similars.getFirst();

@@ -189,7 +189,7 @@ public abstract class Item implements Icon_destination
         }
         icon_factory_request.destination.set_icon_fabrication_requested(true);
 
-        icon_job = Actor_engine.run(browser.icon_factory_actor, icon_factory_request, null,logger);
+        icon_job = Actor_engine.run(browser.virtual_landscape.icon_factory_actor, icon_factory_request, null,logger);
 
 
     }

@@ -39,7 +39,7 @@ public class Browser_UI
     public final Browser_menus browser_menus;
     MenuItem stop_full_screen_menu_item;
     MenuItem start_full_screen_menu_item;
-    List<Button> top_buttons = new ArrayList<>();
+    public List<Button> top_buttons = new ArrayList<>();
     private final boolean level2;
     private final boolean level3;
 
@@ -116,7 +116,6 @@ public class Browser_UI
         Pane top_pane = define_top_bar_using_buttons_deep(height, up_button, trash);
         BorderPane bottom_border_pane = define_bottom_pane(top_pane);
         browser.the_Scene = new Scene(bottom_border_pane);//, W, H);
-        browser.error_type = Error_type.OK;
 
 
         {
@@ -327,7 +326,7 @@ public class Browser_UI
         view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> browser.show_how_many_files_deep_in_each_folder()));
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Each_Folder_Total_Size",event -> browser.show_total_size_deep_in_each_folder()));
         view_menu.getItems().add(browser_menus.make_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage()));
-        view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx_1("refresh")));
+        view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx("refresh")));
 
 
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> Meters_stage.show_stage(logger)));

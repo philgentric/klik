@@ -59,13 +59,11 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		{
 			for ( int j = i+1; j < all_files.size(); j++)
 			{
-
 				if (private_aborter.should_abort()) {
 					if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");
 					deduplication_engine.threads_in_flight.decrementAndGet();
 					return;
 				}
-
 				deduplication_engine.console_window.count_pairs_examined.incrementAndGet ();
 
 				//File_pair2 pair = new File_pair2(i, j);

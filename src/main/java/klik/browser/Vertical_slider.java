@@ -19,7 +19,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     Pane pane;
 
     //**********************************************************
-    public Vertical_slider(Scene scene, Pane pane_, Virtual_landscape icon_manager, Logger logger_)
+    public Vertical_slider(Scene scene, Pane pane_, Virtual_landscape virtual_landscape, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -30,7 +30,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         double min = 0;
         double max = 100;
         double val = 0;
-        the_Slider = new Slider(min,max,val);//icon_manager.landscape_height);
+        the_Slider = new Slider(min,max,val);//virtual_landscape.landscape_height);
 
         pane.getChildren().add(the_Slider);
 
@@ -43,15 +43,15 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         the_Slider.valueProperty().addListener((ov, old_val_, new_val_) -> {
             double slider = new_val_.doubleValue();
             if ( Virtual_landscape.scroll_dbg) logger.log("slider property changed: OLD= "+ old_val_.doubleValue()+" ==> NEW= "+ slider);
-            slider_moved_by_user(slider, icon_manager);
+            slider_moved_by_user(slider, virtual_landscape);
         });
     }
 
     //**********************************************************
-    private void slider_moved_by_user(double slider, Virtual_landscape icon_manager)
+    private void slider_moved_by_user(double slider, Virtual_landscape virtual_landscape)
     //**********************************************************
     {
-        double pixel_height = get_pixel_height(icon_manager.get_virtual_landscape_height());
+        double pixel_height = get_pixel_height(virtual_landscape.get_virtual_landscape_height());
         double new_pixel = slider_to_pixels(slider, pixel_height);
 
         String reason = "";
@@ -60,7 +60,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             reason = "(normalized+inverted with pixel_height= "+pixel_height+") slider = "+ slider +"  ==> " +new_pixel;
             logger.log(reason);
         }
-        icon_manager.move_absolute(pane, new_pixel, "move absolute = slider moved! " +reason);
+        virtual_landscape.move_absolute(new_pixel, "move absolute = slider moved! " +reason);
     }
 
     //**********************************************************
@@ -219,9 +219,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     @Override // Scroll_to_listener
     public void perform_scroll_to(double y_offset, Virtual_landscape icon_manager, double pane_height)
     {
-
         //logger.log("got a scroll_to  target y offset = "+y_offset);
-
         scroll_absolute(y_offset, icon_manager, pane_height);
     }
 

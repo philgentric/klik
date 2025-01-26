@@ -97,12 +97,15 @@ public class Deduplication_engine implements Againor, Abortable
             return;
         }
 
-        if (auto) {
+        if (auto)
+        {
             logger.log("\n\n\nAUTO MODE!\n\n\n");
             deduplicate_auto();
-        } else {
+        }
+        else
+        {
             logger.log("\n\n\nMANUAL MODE: ask_user_about_each_pair\n\n\n");
-            again(false);
+            again();
         }
 
     }
@@ -149,7 +152,6 @@ public class Deduplication_engine implements Againor, Abortable
 
         }
     }
-
 
     //**********************************************************
     private void deduplicate_auto()
@@ -308,20 +310,9 @@ public class Deduplication_engine implements Againor, Abortable
     private void ask_user_about_a_duplicate_pair(File_pair_deduplication file_pair)
     //**********************************************************
     {
-        if (!file_pair.f1.my_file.file.exists()) {
-            logger.log("giving up:" + file_pair.f1.my_file.file.getAbsolutePath() + " does not exist anymore");
-            again(true);
-            return;
-        }
-        if (!file_pair.f2.my_file.file.exists()) {
-            logger.log("giving up:" + file_pair.f2.my_file.file.getAbsolutePath() + " does not exist anymore");
-            again(true);
-            return;
-        }
-        My_File_and_status files[] = new My_File_and_status[2];
-        files[0] = file_pair.f1;
-        files[1] = file_pair.f2;
-
+        //My_File_and_status files[] = new My_File_and_status[2];
+        //files[0] = file_pair.f1;
+        //files[1] = file_pair.f2;
 
         logger.log("deduplicate:" + file_pair.f1.my_file.file.getAbsolutePath() + "-" + file_pair.f2.my_file.file.getAbsolutePath() + " is_image=" + file_pair.is_image);
 
@@ -329,7 +320,7 @@ public class Deduplication_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             File_pair local = new File_pair(file_pair.f1.my_file.file, file_pair.f2.my_file.file);
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, browser, local, local_againor, private_aborter, logger);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, browser, local, local_againor, console_window.count_deleted,private_aborter, logger);
             else stage_with_2_images.set_pair(title,local);
         },logger);
     }
@@ -337,51 +328,62 @@ public class Deduplication_engine implements Againor, Abortable
 
     //**********************************************************
     @Override
-    public void again(boolean previous_file_deleted)
+    public void again()
     //**********************************************************
     {
         // "again" is called after user action in a window:
         // it is intended to catch 1 File_pair_deduplication and call ONCE
         // ask_user_about_a_duplicate_pair
         // so the forever loop in the thread is just here
-        // to manage the end and aborting
-        // with the 3s timeout on the queue
+        // to manage (1) the end and (2) aborting
+        // leveraging the 3s timeout on the queue
         if ( private_aborter.should_abort()) return;
-        if ( previous_file_deleted) console_window.count_deleted.incrementAndGet();
 
         logger.log("manual deduplicator: again called !");
         Runnable r = () -> {
+
+            for(;;) // just retry relative to the 3 second timeout
             {
-                for(;;) // just retry relative to the 3 second timeout
-                {
-                    if (private_aborter.should_abort()) return;
+                if (private_aborter.should_abort()) return;
 
-                    File_pair_deduplication p;
-                    try {
-                        p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        logger.log("" + e);
-                        return;
-                    }
-                    if (p != null) {
-                        logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
-                        ask_user_about_a_duplicate_pair(p);
-                        return;
-                    }
-                    else
-                    {
-                        if (are_threaded_finders_finished()) {
-                            logger.log("\nduplicate finder is finished !!");
-                            if (!end_reported) {
-                                Popups.popup_warning(browser.my_Stage.the_Stage, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
-                                end_reported = true;
-                            }
-                            console_window.set_end_examined();
-                        }
-                        logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
-
-                    }
+                File_pair_deduplication p;
+                try {
+                    p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    logger.log("" + e);
+                    return;
                 }
+                if (p != null)
+                {
+                    if (!p.f1.my_file.file.exists()) {
+                        logger.log("skipping result because " + p.f1.my_file.file.getAbsolutePath() + " does not exist anymore");
+                        again();
+                        return;
+                    }
+                    if (!p.f2.my_file.file.exists()) {
+                        logger.log("skipping result because " + p.f2.my_file.file.getAbsolutePath() + " does not exist anymore");
+                        again();
+                        return;
+                    }
+
+                    logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
+                    ask_user_about_a_duplicate_pair(p);
+                    return;
+                }
+                // p == null means timeout
+                if (are_threaded_finders_finished())
+                {
+                    logger.log("\nduplicate finder is finished !!");
+                    if (!end_reported)
+                    {
+
+                        Popups.popup_warning(browser.my_Stage.the_Stage, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
+                        end_reported = true;
+                        return;
+                    }
+                    console_window.set_end_examined();
+                }
+                logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
             }
         };
         Actor_engine.execute(r,logger);

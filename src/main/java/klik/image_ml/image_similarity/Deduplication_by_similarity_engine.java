@@ -13,7 +13,6 @@ import klik.level2.deduplicate.Abortable;
 import klik.level2.deduplicate.console.Deduplication_console_window;
 import klik.level2.deduplicate.manual.Againor;
 import klik.level2.deduplicate.manual.Stage_with_2_images;
-import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
@@ -21,7 +20,6 @@ import klik.util.ui.Popups;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -40,7 +38,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     File target_dir;
      Deduplication_console_window console_window;
     boolean end_reported = false;
-    private Aborter private_aborter = new Aborter("Deduplication_engine",logger);
+    private final Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     boolean quasi_same;
 
@@ -65,7 +63,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
 
         console_window = new Deduplication_console_window(this,"Looking for similar pictures in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
 
-        Runnable r = () -> runnable_deduplication();
+        Runnable r = this::runnable_deduplication;
         Actor_engine.execute(r,logger);
         logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
@@ -93,14 +91,14 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             logger.log("wait_for_finder_to_find_something returns false");
             return;
         }
-        again(false);
+        again();
     }
 
     //**********************************************************
     private void find_duplicate_pairs()
     //**********************************************************
     {
-        List<My_File> files = scan();
+        List<My_File> files = get_all_images();
         //for(My_File mf : files) logger.log(mf.file.getAbsolutePath());
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
@@ -154,7 +152,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
 
             if ( are_threaded_finders_finished())
             {
-                logger.log("wait_for_finder_to_find_something: FINISHED ????? ");
+                logger.log("wait_for_finder_to_find_something: FINISHED, there was nothing to find ");
 
                 abort();
                 return false;
@@ -176,23 +174,12 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     private void ask_user_about_a_duplicate_pair(Similarity_file_pair sim_file_pair)
     //**********************************************************
     {
-        if (!sim_file_pair.file_pair().f1().exists()) {
-            logger.log("giving up:" + sim_file_pair.file_pair().f1().getAbsolutePath() + " does not exist anymore");
-            again(true);
-            return;
-        }
-        if (!sim_file_pair.file_pair().f2().exists()) {
-            logger.log("giving up:" + sim_file_pair.file_pair().f2().getAbsolutePath() + " does not exist anymore");
-            again(true);
-            return;
-        }
-
         logger.log("Similar:" + sim_file_pair.file_pair().f1().getAbsolutePath() + "-" + sim_file_pair.file_pair().f2().getAbsolutePath());
 
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             String similarity = ""+sim_file_pair.similarity();
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,browser, sim_file_pair.file_pair(), local_againor, private_aborter, logger);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,browser, sim_file_pair.file_pair(), local_againor, console_window.count_deleted, private_aborter, logger);
             else stage_with_2_images.set_pair(similarity,sim_file_pair.file_pair());
         },logger);
     }
@@ -200,107 +187,65 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
 
     //**********************************************************
     @Override
-    public void again(boolean previous_file_deleted)
+    public void again()
     //**********************************************************
     {
         if ( private_aborter.should_abort()) return;
-        if ( previous_file_deleted) console_window.count_deleted.incrementAndGet();
 
         logger.log("manual deduplicator: again called !");
         Runnable r = () -> {
+            // this loop is only to manage the 3 second timeout on the queue
+            for(;;)
             {
-                // the loop is only to manage the 3 second timeout on the queue
-                for(;;)
+                if ( private_aborter.should_abort()) return;
+                Similarity_file_pair p;
+                try
                 {
-                    if ( private_aborter.should_abort()) return;
-                    Similarity_file_pair p;
-                    try {
-                        p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        logger.log("" + e);
-                        return;
-                    }
-                    if (p != null) {
-                        logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
-                        ask_user_about_a_duplicate_pair(p);
-                        return;
-                    }
-                    else
-                    {
-                        if (are_threaded_finders_finished())
-                        {
-                            logger.log("\nduplicate finder is finished !!");
-                            if (!end_reported) {
-                                Popups.popup_warning(browser.my_Stage.the_Stage, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
-                                end_reported = true;
-                            }
-                            console_window.set_end_examined();
-                        }
-                        logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
-
-                    }
+                    p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
                 }
+                catch (InterruptedException e)
+                {
+                    logger.log("" + e);
+                    return;
+                }
+                if (p != null)
+                {
+                    logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
+                    if (!p.file_pair().f1().exists())
+                    {
+                        logger.log("skipping search result because " + p.file_pair().f1().getAbsolutePath() + " does not exist anymore");
+                        continue;
+                    }
+                    if (!p.file_pair().f2().exists()) {
+                        logger.log("skipping search result because " + p.file_pair().f2().getAbsolutePath() + " does not exist anymore");
+                        continue;
+                    }
+
+                    ask_user_about_a_duplicate_pair(p);
+                    return;
+                }
+                // p == null means timeout
+                if (are_threaded_finders_finished())
+                {
+                    logger.log("\nduplicate finder is finished !!");
+                    if (!end_reported) {
+                        Popups.popup_warning(browser.my_Stage.the_Stage, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
+                        end_reported = true;
+                    }
+                    console_window.set_end_examined();
+                    return;
+                }
+                logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
             }
         };
         Actor_engine.execute(r,logger);
 
     }
 
-
     //**********************************************************
-    public void count(boolean b)
-    //**********************************************************
-    {
-        logger.log("Deduplication::count()");
-        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, true, browser, private_aborter, logger);
-
-        Runnable r = () -> just_count();
-        Actor_engine.execute(r,logger);
-        logger.log("Deduplication::count() runnable_deduplication thread launched");
-    }
-
-    //**********************************************************
-    private void just_count()
+    private List<My_File> get_all_images()
     //**********************************************************
     {
-
-        find_duplicate_pairs();
-        int count = 0;
-        for (;;) {
-            Similarity_file_pair p = null;
-            try {
-                p = same_file_pairs_input_queue.poll(300, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (p == null)
-            {
-                if ( are_threaded_finders_finished())
-                {
-                    console_window.set_end_examined();
-                    break;
-                }
-            }
-            count++;
-        }
-        logger.log("found "+count+" identical file pairs");
-        //Popups.popup_warning("Duplicate file count",""+count,false,logger);
-    }
-
-    //**********************************************************
-    private List<My_File> scan()
-    //**********************************************************
-    {
-        /*
-        console_window.set_status_text("Scanning directories");
-        boolean also_hidden_files = Static_application_properties.get_show_hidden_files(logger);
-
-        List<My_File> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
-        //Collections.sort(files, by_path_length);
-        logger.log("deduplication scan done "+files.size()+" files found");
-
-        Collections.shuffle(files);
-        */
         List<My_File> returned = new ArrayList<>();
         File[] files = target_dir.listFiles();
         if ( files == null) return returned;
@@ -310,8 +255,6 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             My_File mf = new My_File(f,logger);
             returned.add(mf);
         }
-
-
         return returned;
     }
 

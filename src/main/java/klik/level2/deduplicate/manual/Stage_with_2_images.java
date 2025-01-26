@@ -15,15 +15,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
-import klik.level2.deduplicate.File_pair_deduplication;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
-import klik.level2.deduplicate.My_File_and_status;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.properties.File_sort_by;
@@ -38,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
@@ -53,7 +51,7 @@ public class Stage_with_2_images
 	public final Aborter private_aborter;
 	VBox the_big_vbox;
 	Againor againor;
-
+	private final AtomicInteger count_deleted;
 
 	//**********************************************************
 	public Stage_with_2_images(
@@ -61,6 +59,7 @@ public class Stage_with_2_images
 			Browser browser_,
 			File_pair pair,
 			Againor againor_,
+			AtomicInteger count_deleted_,
 			Aborter private_aborter_,
 			Logger logger_
 			)
@@ -68,6 +67,7 @@ public class Stage_with_2_images
 	{
 		browser = browser_;
 		logger = logger_;
+		count_deleted = count_deleted_;
 		private_aborter = private_aborter_;
 
 		// there is an obscure bug with random order
@@ -92,7 +92,7 @@ public class Stage_with_2_images
 				if (!set_images_by_files(title,pair,browser))
 				{
 					stage.hide();
-					againor.again(true);
+					againor.again();
 					return;
 				}
 				stage.show();
@@ -124,7 +124,7 @@ public class Stage_with_2_images
 			@Override
 			public void handle(ActionEvent event)
 			{
-				againor.again(false);
+				againor.again();
 				if ( stage != null) stage.hide();
 			}
 		});
@@ -199,7 +199,9 @@ public class Stage_with_2_images
 
 			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
             Moving_files.safe_delete_files(stage,l, private_aborter,logger);
-            againor.again(true);
+			count_deleted.incrementAndGet();
+
+			againor.again();
             if ( stage != null) stage.close();
         });
 		the_vbox.getChildren().add(delete_button);
