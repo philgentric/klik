@@ -510,8 +510,11 @@ public class Item_button extends Item implements Icon_destination
         if ( button.getHeight() == 0)
         {
             // for some reason until some scroll is applied the height info is 0 ???
-            //logger.log("implausible button.getHeight() == 0");
+            logger.log("implausible button.getHeight() == 0");
             return 40;
+        }
+        else {
+            logger.log("plausible button.getHeight() == "+button.getHeight());
         }
         return button.getHeight();
     }

@@ -8,8 +8,8 @@ package klik.level2.backup;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
+import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Moving_files;
-import klik.util.files_and_paths.My_File;
 import klik.util.log.Logger;
 import org.apache.commons.io.FileUtils;
 
@@ -284,15 +284,15 @@ public class Backup_actor_for_one_file implements Actor
                                                     Aborter aborter, Logger logger)
     //**********************************************************
     {
-        My_File fr = new My_File(file_to_be_copied,logger);
+        File_with_a_few_bytes fr = new File_with_a_few_bytes(file_to_be_copied,logger);
         File[] files = destination_dir.listFiles();
         if ( files ==null) return null;
         for ( File f : files)
         {
 
-            My_File ff = new My_File(f,logger);
+            File_with_a_few_bytes ff = new File_with_a_few_bytes(f,logger);
 
-            if ( My_File.files_have_same_content(fr,ff, aborter, logger))
+            if ( File_with_a_few_bytes.files_have_same_content(fr,ff, aborter, logger))
             {
                 logger.log("Found 2 files with same content:\n   "+file_to_be_copied.getAbsolutePath()+"\n   "+f.getAbsolutePath());
                 return ff.file.toPath();

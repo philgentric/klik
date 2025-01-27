@@ -114,8 +114,8 @@ public class Deduplication_engine implements Againor, Abortable
     private void find_duplicate_pairs(Deduplication_engine local_deduplication)
     //**********************************************************
     {
-        List<My_File> files = scan();
-        //for(My_File mf : files) logger.log(mf.file.getAbsolutePath());
+        List<File_with_a_few_bytes> files = scan();
+        //for(File_with_a_few_bytes mf : files) logger.log(mf.file.getAbsolutePath());
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
         console_window.set_status_text("Found " + files.size() + " files ... comparison for bit-size identity started...");
@@ -409,7 +409,7 @@ public class Deduplication_engine implements Againor, Abortable
     {
         Deduplication_engine local_deduplication = this;
         /*
-        List<My_File> files = scan();
+        List<File_with_a_few_bytes> files = scan();
         console_window.get_interface().set_status_text("Found " + files.size() + " files ... comparison for identity started...");
         // launch actor (feeder) in another tread
         finder2 = new Runnable_for_finding_duplicate_file_pairs2(local_deduplication, files, same_file_pairs_input_queue, browser_aborter, logger);
@@ -440,13 +440,13 @@ public class Deduplication_engine implements Againor, Abortable
     }
 
     //**********************************************************
-    private List<My_File> scan()
+    private List<File_with_a_few_bytes> scan()
     //**********************************************************
     {
         console_window.set_status_text("Scanning directories");
         boolean also_hidden_files = Static_application_properties.get_show_hidden_files(logger);
 
-        List<My_File> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
+        List<File_with_a_few_bytes> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
         //Collections.sort(files, by_path_length);
         logger.log("deduplication scan done "+files.size()+" files found");
 

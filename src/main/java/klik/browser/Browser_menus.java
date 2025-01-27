@@ -1236,6 +1236,8 @@ public class Browser_menus
 
             if ( f.getName().startsWith("._"))
             {
+                // this is 'debatable' since it removes MacOs extended attributes in extFat
+                // but is suoer useful e.g when one reloads files from a backup USB drive
                 logger.log("file name starts with ._, removed "+f.getName());
                 to_be_deleted.add(f.toPath());
                 continue;

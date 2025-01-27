@@ -134,13 +134,14 @@ public class Backup_actor_for_one_folder implements Actor
             if ( Guess_file_type.should_ignore(file_to_be_copied.toPath())) continue;
 
             /*
-            //this is to do 1 thread per file, benchmarks indicate this is bad on small machines
+            //this is to do 1 thread per file, benchmarks indicate this is bad on small machines and/or slow (e.g. external) disks
             Actor_engine.run(
                     new Backup_actor_for_one_file(stats, logger), // need on actor instance per task because the file comparator is not reentrant
                     new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger),
                     null,
                     logger
             );
+            so instead we do it on the current thread:
             */
             file_actor.run(new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, local_enable_check_for_same_file_different_name, enable_deep_byte_check,request.aborter,logger));
             count++;

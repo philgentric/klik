@@ -1,4 +1,4 @@
-//SOURCES ../../../util/files_and_paths/My_File.java
+//SOURCES ../../../util/files_and_paths/File_with_a_few_bytes.java
 package klik.level2.deduplicate.console;
 
 import javafx.event.ActionEvent;
@@ -13,9 +13,8 @@ import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.level2.deduplicate.Abortable;
+import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.util.files_and_paths.My_File;
-import klik.level2.deduplicate.Deduplication_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -231,10 +230,10 @@ public class Deduplication_console_window
     }
 
     //**********************************************************
-    public static List<My_File> get_all_files_down(File cwd, Deduplication_console_window popup, boolean consider_also_hidden_files, Logger logger)
+    public static List<File_with_a_few_bytes> get_all_files_down(File cwd, Deduplication_console_window popup, boolean consider_also_hidden_files, Logger logger)
     //**********************************************************
     {
-        List<My_File> returned = new ArrayList<>();
+        List<File_with_a_few_bytes> returned = new ArrayList<>();
         File[] files = cwd.listFiles();
         if (files == null) return returned;
         for (File f : files) {
@@ -250,7 +249,7 @@ public class Deduplication_console_window
                     logger.log("WARNING: empty file found:" + f.getAbsolutePath());
                     continue;
                 }
-                My_File mf = new My_File(f, logger);
+                File_with_a_few_bytes mf = new File_with_a_few_bytes(f, logger);
                 returned.add(mf);
             }
         }

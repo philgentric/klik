@@ -4,6 +4,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import klik.browser.icons.Virtual_landscape;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
@@ -19,7 +20,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     Pane pane;
 
     //**********************************************************
-    public Vertical_slider(Scene scene, Pane pane_, Virtual_landscape virtual_landscape, Logger logger_)
+    public Vertical_slider(Stage stage, Pane pane_, Virtual_landscape virtual_landscape, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -38,11 +39,11 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         the_Slider.toFront();
         the_Slider.setVisible(true);
 
-        adapt_slider_to_scene(scene);
+        adapt_slider_to_scene(stage);
 
         the_Slider.valueProperty().addListener((ov, old_val_, new_val_) -> {
             double slider = new_val_.doubleValue();
-            if ( Virtual_landscape.scroll_dbg) logger.log("slider property changed: OLD= "+ old_val_.doubleValue()+" ==> NEW= "+ slider);
+            if ( Virtual_landscape.scroll_dbg) logger.log("LISTENER: slider property changed: OLD= "+ old_val_.doubleValue()+" ==> NEW= "+ slider);
             slider_moved_by_user(slider, virtual_landscape);
         });
     }
@@ -60,7 +61,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             reason = "(normalized+inverted with pixel_height= "+pixel_height+") slider = "+ slider +"  ==> " +new_pixel;
             logger.log(reason);
         }
-        virtual_landscape.move_absolute(new_pixel, "move absolute = slider moved! " +reason);
+        virtual_landscape.move_absolute(new_pixel, "VIRTUAL LANDSCAPE move absolute = slider moved! " +reason);
     }
 
     //**********************************************************
@@ -76,7 +77,8 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             // the virtual landscape height is smaller than the pane's height
             pixel_height = pane.getHeight();
         }
-        if ( dbg) logger.log("pixel_height (slider set max to) ="+pixel_height);
+        //if ( dbg)
+            logger.log("pixel_height (slider SETMAX to) ="+pixel_height);
         the_Slider.setMax(pixel_height); // when the pixel height is very large this is key to get good manual (mouse/trackpad) scroll accuracy
         return pixel_height;
     }
@@ -133,22 +135,25 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         return new_slider;
     }
 
+
+
     //**********************************************************
-    public void scroll_absolute(double pixels, Virtual_landscape icon_manager, double pane_height)
+    @Override // Scroll_to_listener
+    public void perform_scroll_to(double y_offset_in_pixels, Virtual_landscape virtual_landscape)
     //**********************************************************
     {
-        double pixel_height = get_pixel_height(icon_manager.get_virtual_landscape_height());
-        if ( Virtual_landscape.scroll_dbg) logger.log("pixels = "+pixels);
+        double pixel_height = get_pixel_height(virtual_landscape.get_virtual_landscape_height());
+        if ( Virtual_landscape.scroll_dbg) logger.log("y_offset_in_pixels = "+y_offset_in_pixels);
         if ( Virtual_landscape.scroll_dbg) logger.log("pixel_height = "+pixel_height);
 
-        double slider = pixels_to_slider(pixels,pixel_height);
+        double slider = pixels_to_slider(y_offset_in_pixels,pixel_height);
         if ( Virtual_landscape.scroll_dbg) logger.log("scroll_absolute NEW slider value = "+slider);
         the_Slider.adjustValue(slider);
     }
 
 
     //**********************************************************
-    public boolean scroll_relative(double dy)
+    public boolean request_scroll_relative(double dy)
     //**********************************************************
     {
         boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
@@ -205,22 +210,15 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
 
 
     //**********************************************************
-    public void adapt_slider_to_scene(Scene scene)
+    public void adapt_slider_to_scene(Stage stage)
     //**********************************************************
     {
-        //logger.log("adapt_slider_to_scene scene.getWidth() "+scene.getWidth());
-        the_Slider.setTranslateX(scene.getWidth() - half_slider_width);//vertical.getWidth());
+        logger.log("adapt_slider_to_scene stage.getWidth() "+stage.getWidth()+" h = "+stage.getHeight());
+        the_Slider.setTranslateX(stage.getWidth() - half_slider_width);//vertical.getWidth());
         the_Slider.setTranslateY(half_slider_width);//vertical.getWidth());
-        double height = pane.getHeight() - 80;
+        double height = stage.getHeight() - 100;
         the_Slider.setPrefHeight(height);//2 * half_slider_width);
 
-    }
-
-    @Override // Scroll_to_listener
-    public void perform_scroll_to(double y_offset, Virtual_landscape icon_manager, double pane_height)
-    {
-        //logger.log("got a scroll_to  target y offset = "+y_offset);
-        scroll_absolute(y_offset, icon_manager, pane_height);
     }
 
 

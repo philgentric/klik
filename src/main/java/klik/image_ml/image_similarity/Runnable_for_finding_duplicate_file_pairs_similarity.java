@@ -2,8 +2,8 @@ package klik.image_ml.image_similarity;
 
 import klik.actor.Aborter;
 import klik.util.files_and_paths.File_pair;
+import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.util.files_and_paths.My_File;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -19,7 +19,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	private static final boolean dbg = true;
 	private static final double SPECIAL_SIMILARITY_THRESHOLD = 0.024;
 	Logger logger;
-	private final List<My_File> all_files;
+	private final List<File_with_a_few_bytes> all_files;
 	BlockingQueue<Similarity_file_pair> output_queue_of_same_in_pairs;
 	Deduplication_by_similarity_engine deduplication_by_similarity_engine;
 	private final Aborter private_aborter;
@@ -29,7 +29,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
 			boolean quasi_same,
 			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
-			List<My_File> all_files_,
+			List<File_with_a_few_bytes> all_files_,
 			BlockingQueue<Similarity_file_pair> output_queue,
 			Aborter private_aborter_,
 			Logger logger_)
@@ -55,7 +55,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		if ( dbg) logger.log("Runnable_for_finding_duplicate_file_pair_similarity RUN starts");
 		int ignored = 0;
 		List<Path> already_done = new ArrayList<>();
-		for (My_File f : all_files)
+		for (File_with_a_few_bytes f : all_files)
 		{
 			if ( private_aborter.should_abort()) return;
 			if (!Guess_file_type.is_file_an_image(f.file)) continue;

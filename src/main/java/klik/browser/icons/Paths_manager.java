@@ -32,7 +32,6 @@ public class Paths_manager
     public ConcurrentSkipListMap<Path,Boolean> folders;
     public ConcurrentSkipListMap<Path,Boolean> non_iconized;
 
-    public ConcurrentLinkedQueue<List<Path>> iconized_sorted_queue = new ConcurrentLinkedQueue<>();
     public ConcurrentLinkedQueue<Path> iconized_paths = new ConcurrentLinkedQueue<>();
 
 
@@ -63,16 +62,10 @@ public class Paths_manager
     //long scan_dir_elapsed = 0;
 
     //**********************************************************
-    void do_file(Browser the_browser, Path path, boolean show_hidden_files, boolean show_icons_instead_of_text, Stage stage)
+    void do_file(Browser the_browser, Path path, boolean show_icons_instead_of_text, Stage stage)
     //**********************************************************
     {
-        if (!show_hidden_files)
-        {
-            if (Guess_file_type.is_this_path_invisible_when_browsing(path))
-            {
-                return; // invisible
-            }
-        }
+
         if ( aborter.should_abort())
         {
             logger.log("path manager aborting2");
@@ -150,15 +143,10 @@ public class Paths_manager
     }
 
     //**********************************************************
-    void do_folder(Browser the_browser, Path path, boolean show_hidden_directories, boolean show_icons_for_folders)
+    void do_folder(Browser the_browser, Path path)
     //**********************************************************
     {
-        if (!show_hidden_directories)
-        {
-            if (Guess_file_type.is_this_path_invisible_when_browsing(path)) return; // invisible
-        }
         folders.put(path,true);
-
         Text t = new Text(path.getFileName().toString());
         double l = t.getLayoutBounds().getWidth();
         if (l > the_browser.max_dir_text_length) the_browser.max_dir_text_length = l;
@@ -206,11 +194,5 @@ public class Paths_manager
             Static_files_and_paths_utilities.remove_empty_folders(p, recursively, logger);
         }
     }
-
-
-
-
-
-
 
 }

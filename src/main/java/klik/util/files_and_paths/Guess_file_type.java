@@ -31,6 +31,20 @@ public class Guess_file_type
     private static final String[] supported_text_formats = {"TXT","NFO","RTF","MD","PY","C","C++","CPP","JAVA","JS","HTML"};
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"WAV","AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};
+
+    // portability notes:
+    // "._" when a Mac writes a file into an external drive (or NAS via AFP or SMB)
+    // or if the file system of the disk does not support Extended Attributes
+    // typically FAT32 and extFAT
+    // a file like this is created for EACH file in the folder
+    // e.g. 'file_name.xxx' creates a file ._filename.xxx
+    // this is an issue because when "show hidden file" is true
+    // since the ._zzzz file has the extension of the original file
+    // it may be processed, say as an image ... causing all sorts of trouble
+    //
+    // .DS_Store is similar: this is meta data for the MAC Finder (one file per folder)
+    //
+    // .color is klik specific: when present, it is the color tag for a folder
     public static final String[] ignored_prefixes = {"._",".DS_Store",".color"};
     static String[] supported_non_gif_non_png_image_formats = null;
 

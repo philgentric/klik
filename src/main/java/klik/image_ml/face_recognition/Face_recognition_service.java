@@ -182,9 +182,7 @@ public class Face_recognition_service
         Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(files_in_flight,"Wait for auto train to complete",20*3600,logger);
         Aborter aborter_for_auto_train = running_man.aborter;
 
-
         Face_recognition_actor face_recognition_actor = new Face_recognition_actor(this);
-
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -211,11 +209,6 @@ public class Face_recognition_service
         int i = 0;
         for ( File f : folders)
         {
-            if ( !f.isDirectory())
-            {
-                logger.log("auto_internal skipping2 "+f.getAbsolutePath());
-                continue;
-            }
             if ( aborter_for_auto_train.should_abort()) return;
 
             String label = f.getName();
@@ -241,8 +234,8 @@ public class Face_recognition_service
 
             for(;;)
             {
-                int T = Actor_engine.how_many_threads_are_in_flight(logger);
-                if (T < MAX_THREADS) break;
+                int in_flight = Actor_engine.how_many_threads_are_in_flight(logger);
+                if (in_flight < MAX_THREADS) break;
                 {
                     try {
                         logger.log("\n\nAUTO going to sleep :1s, too many threads");

@@ -98,8 +98,8 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     private void find_duplicate_pairs()
     //**********************************************************
     {
-        List<My_File> files = get_all_images();
-        //for(My_File mf : files) logger.log(mf.file.getAbsolutePath());
+        List<File_with_a_few_bytes> files = get_all_images();
+        //for(File_with_a_few_bytes mf : files) logger.log(mf.file.getAbsolutePath());
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
         console_window.set_status_text("Found " + files.size() + " files ... comparison by similarity started...");
@@ -243,16 +243,16 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     }
 
     //**********************************************************
-    private List<My_File> get_all_images()
+    private List<File_with_a_few_bytes> get_all_images()
     //**********************************************************
     {
-        List<My_File> returned = new ArrayList<>();
+        List<File_with_a_few_bytes> returned = new ArrayList<>();
         File[] files = target_dir.listFiles();
         if ( files == null) return returned;
         for (File f : files)
         {
             if ( !Guess_file_type.is_file_an_image(f)) continue;
-            My_File mf = new My_File(f,logger);
+            File_with_a_few_bytes mf = new File_with_a_few_bytes(f,logger);
             returned.add(mf);
         }
         return returned;

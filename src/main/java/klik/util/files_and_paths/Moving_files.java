@@ -404,11 +404,11 @@ public class Moving_files
     //**********************************************************
     {
         if (Files.exists(oandn.get_new_Path())) {
-            My_File mf1 = new My_File(oandn.old_Path.toFile(), logger);
-            My_File mf2 = new My_File(oandn.new_Path.toFile(), logger);
+            File_with_a_few_bytes mf1 = new File_with_a_few_bytes(oandn.old_Path.toFile(), logger);
+            File_with_a_few_bytes mf2 = new File_with_a_few_bytes(oandn.new_Path.toFile(), logger);
 
             // identical or not ?
-            return My_File.files_have_same_content(mf1, mf2, aborter, logger);
+            return File_with_a_few_bytes.files_have_same_content(mf1, mf2, aborter, logger);
         }
         if (moving_files_dbg) logger.log("new path does not exist, so not identical " + oandn.get_string());
         return false;

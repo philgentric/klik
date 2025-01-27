@@ -149,7 +149,8 @@ public class Folders_with_large_images_locator
             return;
         }
         int count_images = 0;
-        for (File f : all_files) {
+        for (File f : all_files)
+        {
             if ((browser.aborter.should_abort())||(private_aborter.should_abort()))
             {
                 if ( dbg) logger.log("Folders_with_large_images_locator thread aborting");

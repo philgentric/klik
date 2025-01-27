@@ -133,7 +133,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     Filesystem_item_modification_watcher filesystem_item_modification_watcher;
     public final My_Stage my_Stage;
     public Scene the_Scene;
-    final Pane the_Fucking_Pane;
+    public final Pane the_Fucking_Pane;
     public final Virtual_landscape virtual_landscape;
     public final Logger logger;
     public final Path displayed_folder_path;
@@ -143,7 +143,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     TextField status;
     public Vertical_slider vertical_slider;
-    public double slider_width = 400;
+    public double slider_width = 40;
 
     boolean exit_on_escape_preference;
     boolean ignore_escape_as_the_stage_is_full_screen = false;
@@ -232,6 +232,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             Logger logger_)
     //**********************************************************
     {
+
         if (context.old_browser != null)
         {
             context.old_browser.cleanup();
@@ -239,10 +240,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         logger = logger_;
         displayed_folder_path = context.folder_path;
+        logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
 
         aborter = new Aborter("Browser for: " + displayed_folder_path.toAbsolutePath().toString(), logger);
 
-        //logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+aborter.name);
         ID = ID_generator.getAndIncrement();
         my_Stage = new My_Stage(new Stage(), logger);// context.stage;//new My_Stage(context.stage,logger);
 
@@ -312,7 +313,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Fucking_Pane = new Pane();
 
         logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
-        virtual_landscape = new Virtual_landscape(this, the_Fucking_Pane,aborter, logger);
+        virtual_landscape = new Virtual_landscape(this,aborter, logger);
         selection_handler = new Selection_handler(the_Fucking_Pane, virtual_landscape, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
         exit_on_escape_preference = Static_application_properties.get_escape(logger);
@@ -473,7 +474,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_total_size_deep_in_each_folder()
     //**********************************************************
     {
-        virtual_landscape.show_total_size_deep_in_each_folder(this, the_Fucking_Pane.getWidth(), the_Fucking_Pane.getHeight(), mandatory_in_pane);
+        virtual_landscape.show_total_size_deep_in_each_folder(mandatory_in_pane);
     }
 
 
@@ -734,7 +735,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     //**********************************************************
     {
         record_scroll_to();
-        return vertical_slider.scroll_relative(dy);
+        return vertical_slider.request_scroll_relative(dy);
     }
 
 
@@ -934,23 +935,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         if (displayed_folder_path == null) return;
         my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath().toString());// fast temporary
+        Browser browser = this;
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                //listFiles can be super slow on network drives or slow drives  (e.g. USB)  ==> run in a thread
-
-                File[] x = displayed_folder_path.toFile().listFiles();
-                if (x == null) return;
-                long how_many_files = x.length;
-                if (!Static_application_properties.get_show_hidden_files(logger)) {
-                    for (File f : x) {
-                        if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath())) {
-                            how_many_files--;
-                        }
-                    }
-                }
-                long finalHow_many_files = how_many_files;
-                Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + finalHow_many_files + " files & folders"), logger);
+                //listFiles can be super slow on network drives or slow drives
+                // (e.g. USB)  ==> run in a thread
+                int how_many_files = Get_folder_files.how_many_files(browser,logger);
+                Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + (long) how_many_files + " files & folders"), logger);
 
             }
         };

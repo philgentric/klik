@@ -2,7 +2,7 @@ package klik.level2.deduplicate;
 
 import klik.actor.Aborter;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.util.files_and_paths.My_File;
+import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Name_cleaner;
 import klik.util.log.Logger;
 
@@ -17,7 +17,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	private static final boolean dbg = false;
 	private static final boolean ultra_dbg = false;
 	Logger logger;
-	private final List<My_File> all_files;
+	private final List<File_with_a_few_bytes> all_files;
 	private final int i_min;
 	private final int i_max;
 	BlockingQueue<File_pair_deduplication> output_queue_of_same_in_pairs;
@@ -26,7 +26,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs(
 			Deduplication_engine deduplication_,
-			List<My_File> all_files_,
+			List<File_with_a_few_bytes> all_files_,
 			int i_min_,
 			int i_max_,
 			BlockingQueue<File_pair_deduplication> output_queue,
@@ -67,7 +67,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				deduplication_engine.console_window.count_pairs_examined.incrementAndGet ();
 
 				//File_pair2 pair = new File_pair2(i, j);
-				if (!My_File.files_have_same_content(all_files.get(i), all_files.get(j), private_aborter, logger)) {
+				if (!File_with_a_few_bytes.files_have_same_content(all_files.get(i), all_files.get(j), private_aborter, logger)) {
 					if (ultra_dbg)
 						logger.log(" not same CONTENT:" + all_files.get(i).file.getAbsolutePath() + " - " + all_files.get(j).file.getAbsolutePath());
 				}

@@ -120,7 +120,7 @@ public class Browser_UI
 
         {
             //logger.log("creating vertical slider");
-            browser.vertical_slider = new Vertical_slider(browser.the_Scene, browser.the_Fucking_Pane , browser.virtual_landscape, logger);
+            browser.vertical_slider = new Vertical_slider(browser.my_Stage.the_Stage, browser.the_Fucking_Pane , browser.virtual_landscape, logger);
             browser.mandatory_in_pane.add(browser.vertical_slider.the_Slider);
             browser.always_on_front_nodes.add(browser.vertical_slider.the_Slider);
             browser.slider_width = 2 * Vertical_slider.half_slider_width;

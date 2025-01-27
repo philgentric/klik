@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 // for fast file processing we keep in RAM the file length and the first few bytes
 //**********************************************************
-public class My_File
+public class File_with_a_few_bytes
 //**********************************************************
 {
 	private static final boolean ultra_dbg = false;
@@ -26,7 +26,7 @@ public class My_File
 	private static int warnings = 0;
 
 	//**********************************************************
-	public My_File(File f_, Logger logger)
+	public File_with_a_few_bytes(File f_, Logger logger)
 	//**********************************************************
 	{
 		file = f_;
@@ -45,13 +45,13 @@ public class My_File
 		{
 			warnings++;
 			//if ( warnings < 100)
-			logger.log("WARNING (My_File): empty file found:"+ file.getAbsolutePath());
+			logger.log("WARNING (File_with_a_few_bytes): empty file found:"+ file.getAbsolutePath());
 		}
 
 	}
 
 	//**********************************************************
-	public static boolean files_have_same_content(My_File mf1, My_File mf2, Aborter aborter, Logger logger)
+	public static boolean files_have_same_content(File_with_a_few_bytes mf1, File_with_a_few_bytes mf2, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
 
