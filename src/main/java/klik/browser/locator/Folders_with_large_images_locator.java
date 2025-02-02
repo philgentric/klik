@@ -370,8 +370,7 @@ public class Folders_with_large_images_locator
         int count = 0;
         for ( String s : final_choice)
         {
-            //if ( dbg)
-            logger.log("final choice: "+s);
+            if ( dbg) logger.log("final choice: "+s);
 
             if ( count < MAX_WINDOWS)
             {

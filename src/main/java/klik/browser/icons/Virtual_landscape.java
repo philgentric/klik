@@ -53,11 +53,10 @@ public class Virtual_landscape
 //**********************************************************
 {
 
-    private static final boolean delirium = true;
     public static final boolean dbg = false;
     public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
-    public static final boolean scroll_dbg = true;
+    public static final boolean scroll_dbg = false;
 
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
     public static final int MIN_COLUMN_WIDTH = 300;
@@ -1348,7 +1347,8 @@ public class Virtual_landscape
         double x_max = -Double.MAX_VALUE;
         double y_min = Double.MAX_VALUE;
         virtual_landscape_height = -Double.MAX_VALUE;
-        for (Item item : all_items_map.values()) {
+        for (Item item : all_items_map.values())
+        {
             if (item.get_javafx_x() < x_min) x_min = item.get_javafx_x();
             if (item.get_javafx_x() + item.get_Width() > x_max)
             {

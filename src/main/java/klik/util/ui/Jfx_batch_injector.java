@@ -10,15 +10,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-// rationale: it is not a good idea to call
-// Platform.runLater(()) too often
-// so, we BATCH it here
+// crazy ideaz:
+// rationale: it is not a good idea to call Platform.runLater(()) too often
+// here, we BATCH the runnables
+// verdict: does not work well enough
+// it creates mysterious/spurious bugs where the browser does not
+// always display the full content !!!
 
 //**********************************************************
 public class Jfx_batch_injector
 //**********************************************************
 {
-    private static final boolean enable = true;
+    private static final boolean enable = false;
     private static final boolean dbg = false;
     private final LinkedBlockingQueue<Runnable> input = new LinkedBlockingQueue<>();
 
@@ -32,8 +35,13 @@ public class Jfx_batch_injector
     public static void inject(Runnable r, Logger logger)
     //**********************************************************
     {
-        if (instance == null) instance = new Jfx_batch_injector(logger);
-        instance.inject(r);
+        if ( enable) {
+            if (instance == null) instance = new Jfx_batch_injector(logger);
+            instance.inject(r);
+        }
+        else {
+            Platform.runLater(r);
+        }
     }
 
     //**********************************************************
@@ -47,14 +55,7 @@ public class Jfx_batch_injector
     private void inject(Runnable r)
     //**********************************************************
     {
-        if ( enable)
-        {
-            input.add(r);
-        }
-        else
-        {
-            Platform.runLater(r);
-        }
+        input.add(r);
     }
 
     //**********************************************************

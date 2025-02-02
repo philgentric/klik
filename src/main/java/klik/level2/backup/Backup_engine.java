@@ -126,8 +126,7 @@ public class Backup_engine
             }
             else
             {
-                //if ( dbg)
-                    logger.log("not finished since done dirs= "+done_dirs+" target dirs="+target_dirs);
+                logger.log("not finished since done dirs= "+done_dirs+" target dirs="+target_dirs);
             }
             backup_console_window.update_later();
         };

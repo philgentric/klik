@@ -184,10 +184,7 @@ public class Backup_actor_for_one_folder implements Actor
             if (mini_console != null) mini_console.show_progress();
 
         }
-
-
-        //if ( dbg)
-            logger.log("Folder "+request.source_dir.getAbsolutePath()+" DONE");
+        if ( dbg) logger.log("Folder "+request.source_dir.getAbsolutePath()+" DONE");
 
         // tell above folder that this subfolder is done
         stats.done_dir_count.incrementAndGet();

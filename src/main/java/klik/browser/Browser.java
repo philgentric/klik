@@ -1115,8 +1115,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
         StringBuilder sb = null;
-        //if ( dbg)
-            sb = new StringBuilder();
+        if ( dbg) sb = new StringBuilder();
         if ( !Execute_command.execute_command_list(graphicsMagick_command_line, displayed_folder_path.toFile(), 2000, sb, logger))
         {
 

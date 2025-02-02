@@ -47,8 +47,7 @@ public class Font_size
             if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
             return;
         }
-        //if ( dbg)
-            logger.log("Node style->" + style + "<-");
+        if ( dbg) logger.log("Node style->" + style + "<-");
         int index = style.indexOf(FX_FONT_SIZE);
 
         if (index < 0) {
@@ -95,8 +94,7 @@ public class Font_size
             if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
             return;
         }
-        //if ( dbg)
-            logger.log("PopupControl style->" + style + "<-");
+        if ( dbg) logger.log("PopupControl style->" + style + "<-");
         int index = style.indexOf(FX_FONT_SIZE);
 
         if (index < 0) {

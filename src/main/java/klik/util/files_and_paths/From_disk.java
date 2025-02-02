@@ -197,8 +197,7 @@ public class From_disk
         {
             if ( input_stream == null)
             {
-                //if ( dbg)
-                    logger.log(Stack_trace_getter.get_stack_trace("input_stream == null for"+original_image_file));
+                logger.log(Stack_trace_getter.get_stack_trace("input_stream == null for"+original_image_file));
                 return null;
             }
             if ( aborter.should_abort())

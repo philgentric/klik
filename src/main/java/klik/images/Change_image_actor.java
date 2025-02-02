@@ -66,8 +66,7 @@ public class Change_image_actor implements Actor
         }
         if (change_image_message.input_image_context.previous_path == null)
         {
-            //if ( dbg)
-                change_image_message.logger.log("change_image_message.input_image_context.previous_path == null");
+            if ( dbg) change_image_message.logger.log("change_image_message.input_image_context.previous_path == null");
             change_image_message.image_window.set_nothing_to_display(null);
             return "Failed change_image_message.input_image_context.previous_path == null";
         }
@@ -80,9 +79,6 @@ public class Change_image_actor implements Actor
         // the safe way is to get the index of the current image from its path
         // however, when renaming a sequence of image this is annoying
         // since when you press next, you are in the new name context...
-
-        //cim.image_stage.show_wait_cursor();
-       //if ( dbg) change_image_message.image_stage.logger.log("Change_image_actor current OLD path="+change_image_message.input_image_context.path);
 
         Path target_path;
         if ( change_image_message.delta != 0) {

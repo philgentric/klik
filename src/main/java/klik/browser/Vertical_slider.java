@@ -77,7 +77,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             // the virtual landscape height is smaller than the pane's height
             pixel_height = pane.getHeight();
         }
-        //if ( dbg)
+        if ( dbg)
             logger.log("pixel_height (slider SETMAX to) ="+pixel_height);
         the_Slider.setMax(pixel_height); // when the pixel height is very large this is key to get good manual (mouse/trackpad) scroll accuracy
         return pixel_height;

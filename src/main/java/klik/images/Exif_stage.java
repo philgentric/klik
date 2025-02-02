@@ -19,6 +19,7 @@ import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
+import klik.util.ui.Jfx_batch_injector;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
@@ -45,7 +46,7 @@ public class Exif_stage
         else
         {
             Runnable r = () -> show_exif_stage_(image,path,aborter,logger);
-            Platform.runLater(r);
+            Jfx_batch_injector.inject(r,logger);
         }
     }
 
