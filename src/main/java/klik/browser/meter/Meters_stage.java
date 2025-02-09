@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class Meters_stage
 //**********************************************************
 {
-
     public static final double DISPLAY_PIXEL_HEIGHT = 600;
     private final static long HEARTH_BEAT = 50; //ms
     private static Stage instance;
@@ -31,7 +30,9 @@ public class Meters_stage
         else instance.show();
     }
 
+    //**********************************************************
     private static Stage create_stage(Logger logger)
+    //**********************************************************
     {
         Stage stage = new Stage();
         HBox hbox = new HBox();
