@@ -10,11 +10,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-// crazy ideaz:
+// crazy idea:
 // rationale: it is not a good idea to call Platform.runLater(()) too often
 // here, we BATCH the runnables
 // verdict: does not work well enough
-// it creates mysterious/spurious bugs where the browser does not
+// especially it creates mysterious/spurious bugs where the browser does not
 // always display the full content !!!
 
 //**********************************************************

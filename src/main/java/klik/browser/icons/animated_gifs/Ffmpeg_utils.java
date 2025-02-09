@@ -133,6 +133,49 @@ public class Ffmpeg_utils
         return duration;
     }
 
+
+    //**********************************************************
+    public static double get_audio_bitrate(
+            Stage owner,
+            Path audio_path,
+            Logger logger)
+    //**********************************************************
+    {
+        List<String> list = new ArrayList<>();
+        list.add("ffprobe");
+        list.add("-i");
+        list.add(audio_path.toAbsolutePath().toString());
+
+        StringBuilder sb = new StringBuilder();
+        File wd = audio_path.getParent().toFile();
+        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
+        {
+            Static_application_properties.manage_show_ffmpeg_install_warning(owner,logger);
+        }
+        //logger.log("->"+sb.toString()+"<-");
+
+        double bitrate = -1;
+        String[] x = sb.toString().split("\\s+");//split on spaces
+        boolean get_next = false;
+        for (String l : x)
+        {
+            //logger.log("FOUND ->" + l +"<-");
+            if ( get_next)
+            {
+
+                bitrate = Double.parseDouble(l.trim());
+                //if (dbg)
+                logger.log("FOUND bitrate: " + bitrate + "kb/s");
+                break;
+            }
+            if (l.equals("bitrate:"))
+            {
+                get_next = true;
+            }
+        }
+        return bitrate;
+    }
+
     //**********************************************************
     public static void video_to_mp4_in_a_thread(
             Stage owner,

@@ -4,21 +4,24 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
@@ -30,6 +33,8 @@ import javax.swing.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static klik.properties.Static_application_properties.USER_HOME;
@@ -40,6 +45,7 @@ public class Audio_player
 {
 
 
+    private static final boolean use_list_view =  false;
     private static final boolean dbg =  false;
     private static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
     public static final String PLAYLIST_EXTENSION = "klik_playlist";
@@ -55,6 +61,10 @@ public class Audio_player
     Label now_value;
     Label duration_value;
     ObservableList<File> observable_playlist = FXCollections.observableArrayList();
+    Map<File, Button> file_to_button;
+    Button selected = null;
+    ScrollPane scroll_pane;
+
     ListView<File> the_playlist_view;
     Logger logger;
     File the_song_file;
@@ -96,13 +106,16 @@ public class Audio_player
     private void play_song(File the_song_file_)
     //**********************************************************
     {
+        double bitrate = Ffmpeg_utils.get_audio_bitrate(null,the_song_file_.toPath(),logger);
+        logger.log("bitrate= "+bitrate);
+
         //logger.log("play() "+the_song_file_.getAbsolutePath());
 
         clean_up();
         the_song_file = the_song_file_;
         add_and_save_if_needed();
 
-        stage.setTitle(the_song_file.getName());
+        stage.setTitle(the_song_file.getName() +"       bitrate= "+bitrate+" kb/s");
 
         String encoded;
         try {
@@ -149,13 +162,41 @@ public class Audio_player
         {
             if (file.getAbsolutePath().equals(the_song_file.getAbsolutePath()))
             {
-                the_playlist_view.getSelectionModel().select(the_song_file);
+                set_selected(the_song_file);
                 return;
             }
         }
         observable_playlist.add(the_song_file);
-        the_playlist_view.getSelectionModel().select(the_song_file);
+        set_selected(the_song_file);
+        scroll_pane.setVvalue(1.0);           //1.0 means 100% at the bottom
+
         save();
+    }
+
+    private void set_selected(File f)
+    {
+        if( use_list_view)
+        {
+            the_playlist_view.getSelectionModel().select(f);
+        }
+        else
+        {
+            logger.log("set_selected "+f);
+            Button b = file_to_button.get(f);
+            if ( selected == b) return;
+            if ( b!=null) b.setStyle("-fx-background-color: #90D5FF");
+            else logger.log("wtf1");
+            if ( selected != null)
+            {
+                logger.log("resetting background for previously selected");
+                selected.setStyle("-fx-background-color: #ffffff");
+                //selected.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+            selected = b;
+
+            //b.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        }
     }
 
     //**********************************************************
@@ -234,29 +275,35 @@ public class Audio_player
 
         stage.setMinWidth(WIDTH);
         VBox vbox = new VBox();
-        HBox hb1 = new HBox();
-        Label duration_text = new Label("Duration: ");
-        hb1.getChildren().add(duration_text);
-        duration_value = new Label("0.0s");
-        hb1.getChildren().add(duration_value);
+        {
+            HBox hb1 = new HBox();
+            Label duration_text = new Label("Duration: ");
+            Look_and_feel_manager.set_region_look(duration_text);
+            hb1.getChildren().add(duration_text);
+            duration_value = new Label("0.0s");
+            Look_and_feel_manager.set_region_look(duration_value);
+            hb1.getChildren().add(duration_value);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        hb1.getChildren().add(spacer);
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            hb1.getChildren().add(spacer);
 
-        Label now_text = new Label("Now: ");
-        hb1.getChildren().add(now_text);
-        now_value = new Label("0.0s");
-        hb1.getChildren().add(now_value);
-        vbox.getChildren().add(hb1);
+            Label now_text = new Label("Now: ");
+            Look_and_feel_manager.set_region_look(now_text);
+            hb1.getChildren().add(now_text);
+            now_value = new Label("0.0s");
+            Look_and_feel_manager.set_region_look(now_value);
+
+            hb1.getChildren().add(now_value);
+            vbox.getChildren().add(hb1);
+        }
+
 
         slider = new Slider();
+        //Look_and_feel_manager.set_region_look(slider);
         slider.setMinWidth(WIDTH);
         slider.setPrefWidth(WIDTH);
         vbox.getChildren().add(slider);
-
-
-
 
         // but the user may click/slide the slider
         slider.setOnMouseReleased(event -> {
@@ -273,18 +320,34 @@ public class Audio_player
 
         HBox hb3 = new HBox();
         vbox.getChildren().add(hb3);
-        previous = new Button("Jump to previous");
-        hb3.getChildren().add(previous);
+        {
+            previous = new Button("Jump to previous");
+            Look_and_feel_manager.set_button_look(previous,true);
+            hb3.getChildren().add(previous);
+        }
+
         Button pause = new Button("Pause");
+        Look_and_feel_manager.set_button_look(pause,true);
         hb3.getChildren().add(pause);
+
+
         Button restart = new Button("Restart");
+        Look_and_feel_manager.set_button_look(restart,true);
         restart.setDisable(true);
         hb3.getChildren().add(restart);
+
         Button rewind = new Button("Rewind");
+        Look_and_feel_manager.set_button_look(rewind,true);
         hb3.getChildren().add(rewind);
-        next = new Button("Jump to next ");
-        hb3.getChildren().add(next);
+
+        {
+            next = new Button("Jump to next ");
+            Look_and_feel_manager.set_button_look(next,true);
+            hb3.getChildren().add(next);
+        }
+
         Button delete = new Button("Remove from playlist ");
+        Look_and_feel_manager.set_button_look(delete,true);
         hb3.getChildren().add(delete);
         {
             ImageView iv = new ImageView(Look_and_feel_manager.get_speaker_icon());
@@ -294,6 +357,7 @@ public class Audio_player
         }
 
         Slider volume_slider = new Slider(0,1, 0.5);
+        volume_slider.setMinWidth(200);
         hb3.getChildren().add(volume_slider);
 
         volume_slider.valueProperty().addListener((observableValue, number, t1) -> {
@@ -304,7 +368,7 @@ public class Audio_player
 
         {
             previous.setOnAction(actionEvent -> jump_to_previous(the_song_file, logger));
-            if ( observable_playlist.isEmpty()) previous.setDisable(true);
+            //if ( observable_playlist.isEmpty()) previous.setDisable(true);
 
             pause.setOnAction(actionEvent -> {
                 if ( the_media_player_option.isEmpty()) return;
@@ -328,12 +392,13 @@ public class Audio_player
                 restart.setDisable(true);
             });
             next.setOnAction(actionEvent -> jump_to_next(the_song_file, logger));
-            if ( observable_playlist.isEmpty()) next.setDisable(true);
+            //if ( observable_playlist.isEmpty()) next.setDisable(true);
 
             delete.setOnAction(actionEvent -> remove_from_playlist());
         }
 
         Button cancel = new Button("Stop & close");
+        Look_and_feel_manager.set_button_look(cancel,true);
         {
             cancel.setOnAction(actionEvent -> {
                 clean_up();
@@ -352,6 +417,8 @@ public class Audio_player
         //logger.log("playlist_name="+play_list_name_s);
 
         play_list_name = new Label(play_list_name_s);
+        play_list_name.setMinWidth(200);
+        Look_and_feel_manager.set_region_look(play_list_name);
         hb4.getChildren().add(play_list_name);
 
 
@@ -359,6 +426,7 @@ public class Audio_player
         {
             save_as_new_playlist.setOnAction(actionEvent -> save_new_playlist());
         }
+        Look_and_feel_manager.set_button_look(save_as_new_playlist,true);
         hb4.getChildren().add(save_as_new_playlist);
 
 
@@ -372,42 +440,100 @@ public class Audio_player
             instance = null;
         });
 
-        the_playlist_view = new ListView<>();
-        vbox.getChildren().add(the_playlist_view);
-        the_playlist_view.setItems(observable_playlist);
-        the_playlist_view.setCellFactory(new Callback<>() {
-            @Override
-            public ListCell<File> call(ListView<File> fileListView) {
-                return new ListCell<>() {
-                    @Override
-                    protected void updateItem(File item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null) {
-                            //logger.log("shit happens 1");
-                            setText(null);
-                        } else if (empty) {
-                            logger.log("shit happens 2");
-                            setText(null);
-                        } else {
-                            //logger.log("setting style for " + item.getAbsolutePath());
-                            setText(item.getAbsolutePath());
-                            setStyle("-fx-control-inner-background: derive(#add8e6,15%)");
+        if ( use_list_view) {
+
+            the_playlist_view = new ListView<>();
+            Look_and_feel_manager.set_region_look(the_playlist_view);
+            vbox.getChildren().add(the_playlist_view);
+            the_playlist_view.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            the_playlist_view.setItems(observable_playlist);
+            the_playlist_view.setCellFactory(new Callback<>() {
+                @Override
+                public ListCell<File> call(ListView<File> fileListView) {
+                    return new ListCell<>() {
+                        @Override
+                        protected void updateItem(File item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (item == null) {
+                                //logger.log("shit happens 1");
+                                setText(null);
+                            } else if (empty) {
+                                logger.log("shit happens 2");
+                                setText(null);
+                            } else {
+                                logger.log("setting style for " + item.getAbsolutePath());
+                                setText(item.getAbsolutePath());
+
+                                //the_playlist_view.getSelectionModel().clearSelection();
+
+                                set_background();
+                            }
+                        }
+
+                        private void set_background() {
+                            if (isSelected())
+                                this.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                        }
+                    };
+                }
+            });
+
+            the_playlist_view.setPrefHeight(3000);
+            the_playlist_view.getSelectionModel().selectedItemProperty().addListener((observableValue, old_file, new_file) -> {
+                if (new_file == null) {
+                    logger.log("PANIC event +new_file.==null ???");
+                    return;
+                }
+                //logger.log("list item selected: "+ Objects.requireNonNull(new_file).getAbsolutePath());
+                play_song(new_file);
+            });
+        }
+        else
+        {
+            file_to_button = new HashMap<>();
+            scroll_pane = new ScrollPane();
+            Look_and_feel_manager.set_region_look(scroll_pane);
+            scroll_pane.setPrefSize(WIDTH, 600);
+            VBox vb = new VBox();
+            scroll_pane.setContent(vb);
+
+            scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+            scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scroll_pane.setPrefHeight(3000);
+            vbox.getChildren().add(scroll_pane);
+            observable_playlist.addListener(new ListChangeListener<File>() {
+                @Override
+                public void onChanged(Change<? extends File> change) {
+                    while ( change.next())
+                    {
+                        for (File f : change.getRemoved())
+                        {
+                            Button b = file_to_button.get(f);
+                            if ( b != null) vb.getChildren().remove(b);
+                        }
+                        for (File f : change.getAddedSubList())
+                        {
+                            Button b = new Button(f.getName());
+                            vb.getChildren().add(b);
+                            Look_and_feel_manager.set_button_look(b,false);
+                            file_to_button.put(f,b);
+                            b.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent actionEvent) {
+                                    play_song(f);
+                                    set_selected(f);
+                                }
+                            });
                         }
                     }
-                };
-            }
-        });
+                    if (change.wasAdded())
+                    {
 
-        the_playlist_view.getSelectionModel().selectedItemProperty().addListener((observableValue, old_file, new_file) -> {
-            if ( new_file==null)
-            {
-                logger.log("PANIC event +new_file.==null ???");
-                return;
-            }
-            //logger.log("list item selected: "+ Objects.requireNonNull(new_file).getAbsolutePath());
-            play_song(new_file);
-        });
 
+                    }
+                }
+            });
+        }
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
         stage.show();
@@ -461,14 +587,15 @@ public class Audio_player
 
         for (int i = 0; i < observable_playlist.size(); i++)
         {
-            if ( observable_playlist.get(i).getAbsolutePath().equals(f.getAbsolutePath()))
+            File file = observable_playlist.get(i);
+            if ( file.getAbsolutePath().equals(f.getAbsolutePath()))
             {
                 int k = i+1;
                 if (k >= observable_playlist.size()) k = 0;
                 //play(observable_playlist.get(k), logger);
-                the_playlist_view.scrollTo(k);
-                //logger.log("setting selection at "+k+" for "+f.getAbsolutePath());
-                the_playlist_view.getSelectionModel().select(k);
+                set_selected(file);
+                //the_playlist_view.scrollTo(k);
+                //the_playlist_view.getSelectionModel().select(k);
             }
         }
 
@@ -480,14 +607,16 @@ public class Audio_player
         if ( observable_playlist.isEmpty()) return;
         for (int i = 0; i < observable_playlist.size(); i++)
         {
-            if ( observable_playlist.get(i).getAbsolutePath().equals(f.getAbsolutePath()))
+            File file = observable_playlist.get(i);
+            if ( file.getAbsolutePath().equals(f.getAbsolutePath()))
             {
                 int k = i-1;
                 if (k < 0 ) k = observable_playlist.size()-1;
                 //play(observable_playlist.get(k), logger);
-                the_playlist_view.scrollTo(k);
-                //logger.log("setting selection at "+k+" for "+f.getAbsolutePath());
-                the_playlist_view.getSelectionModel().select(k);
+                set_selected(file);
+
+                //the_playlist_view.scrollTo(k);
+                //the_playlist_view.getSelectionModel().select(k);
             }
         }
     }
@@ -623,6 +752,10 @@ public class Audio_player
                 String song = br.readLine();
                 if ( song == null ) break;
                 observable_playlist.add(new File(song));
+            }
+            if (! use_list_view)
+            {
+
             }
             playlist_file = playlist_file_;
         } catch (FileNotFoundException e) {
