@@ -13,6 +13,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
@@ -105,6 +106,7 @@ public class Audio_player
 
 
 
+
         // called only on EXTERNAL close requests i.e. hitting the cross in the title
         stage.setOnCloseRequest(windowEvent -> {
             logger.log("Audio player closing");
@@ -143,7 +145,7 @@ public class Audio_player
 
         {
 
-            Button remove_from_playlist = new Button("Remove from playlist ");
+            Button remove_from_playlist = new Button("Remove active song from playlist ");
             Look_and_feel_manager.set_button_look(remove_from_playlist, true);
             remove_from_playlist.setOnAction(actionEvent -> remove_from_playlist());
             returned.getChildren().add(remove_from_playlist);
@@ -339,7 +341,7 @@ public class Audio_player
 
         previous = new Button("Jump to previous");
         Look_and_feel_manager.set_button_look(previous, true);
-        previous.setOnAction(actionEvent -> jump_to_previous(the_song_file, logger));
+        previous.setOnAction(actionEvent -> jump_to_previous(the_song_file));
         returned.getChildren().add(previous);
 
 
@@ -360,6 +362,22 @@ public class Audio_player
     {
         file_to_button = new HashMap<>();
         scroll_pane = new ScrollPane();
+        scroll_pane.addEventFilter(KeyEvent.KEY_PRESSED, key_event -> {
+            logger.log("trapping event "+key_event);
+            key_event.consume(); // prevent default key handling
+            switch (key_event.getCode())
+            {
+            case UP:
+                logger.log("handle event: UP");
+                jump_to_previous(the_song_file);
+                break;
+            case DOWN:
+                logger.log("handle event: DOWN");
+                jump_to_next(the_song_file);
+                break;
+            }
+        });
+
         the_big_vbox.getChildren().add(scroll_pane);
         Look_and_feel_manager.set_region_look(scroll_pane);
         scroll_pane.setPrefSize(WIDTH, 600);
@@ -813,7 +831,7 @@ public class Audio_player
 
     }
     //**********************************************************
-    private  void jump_to_previous(File f, Logger logger)
+    private  void jump_to_previous(File f)
     //**********************************************************
     {
         if ( observable_playlist.isEmpty()) return;
