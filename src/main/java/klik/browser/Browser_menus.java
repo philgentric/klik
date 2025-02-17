@@ -514,68 +514,6 @@ public class Browser_menus
         if(select_all_files_menu_item != null) select_all_files_menu_item.setSelected(false);
         if(select_all_folders_menu_item != null) select_all_folders_menu_item.setSelected(false);
     }
-    //**********************************************************
-    public MenuItem make_create_empty_directory_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Create_new_empty_directory",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.create_new_directory());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_create_PDF_contact_sheet_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Create_PDF_contact_sheet",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.create_PDF_contact_sheet());
-        return item;
-    }
-
-
-    //**********************************************************
-    public MenuItem make_sort_by_year_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Sort_Files_In_Folders_By_Year",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.sort_by_year());
-        return item;
-    }
-
-
-
-    //**********************************************************
-    public MenuItem make_stop_fullscreen_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Stop_full_screen",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.stop_full_screen());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_start_fullscreen_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Go_full_screen",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.go_full_screen());
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_refresh_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Refresh",logger);
-        MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> browser.redraw_fx("refresh"));
-        return item;
-    }
 
     //**********************************************************
     public Menu make_history_menu()
@@ -838,9 +776,9 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Language",logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
-        for( String locale : Language_manager.get_registered_languages())
+        for( String language_key : Language_manager.get_registered_language_keys())
         {
-            create_check_menu_item_for_language(browser, menu, locale, all_check_menu_items, logger);
+            create_check_menu_item_for_language(browser, menu, language_key, all_check_menu_items, logger);
         }
         return menu;
     }
@@ -874,12 +812,12 @@ public class Browser_menus
     }
 
     //**********************************************************
-    public void create_check_menu_item_for_language(Browser browser, Menu menu, String language, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    public void create_check_menu_item_for_language(Browser browser, Menu menu, String language_key, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
     {
-        CheckMenuItem item = new CheckMenuItem(language);
-        String current = Static_application_properties.get_language(logger);
-        item.setSelected(current.equals(language));
+        CheckMenuItem item = new CheckMenuItem(language_key);
+        String current = Static_application_properties.get_language_key(logger);
+        item.setSelected(current.equals(language_key));
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
             if (local.isSelected())
@@ -888,7 +826,7 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Language_manager.set_current_language(language);
+                Language_manager.set_current_language_key(language_key);
                 My_I18n.reset();
                 Browser_creation_context.replace_same_folder(browser,logger);
             }

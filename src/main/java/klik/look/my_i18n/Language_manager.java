@@ -1,6 +1,6 @@
 //SOURCES ./Language.java
-//SOURCES ./FR.java
-//SOURCES ./US.java
+//SOURCES ./French.java
+//SOURCES ./English.java
 package klik.look.my_i18n;
 
 
@@ -19,8 +19,14 @@ public class Language_manager
     private static Language instance = null;
     public static Map<String, Language> registered_languages = new HashMap<>();
     private static final Language[] languages = {
-            new FR(),
-            new US(),
+            new Chinese(),
+            new English(),
+            new French(),
+            new German(),
+            new Italian(),
+            new Japanese(),
+            new Korean(),
+            new Spanish()
     };
 
     //**********************************************************
@@ -36,11 +42,11 @@ public class Language_manager
 
 
     //**********************************************************
-    public static List<String> get_registered_languages()
+    public static List<String> get_registered_language_keys()
     //**********************************************************
     {
         List<String> returned = new ArrayList<>();
-        for(Language l : languages) returned.add(l.display_name);
+        for(Language l : languages) returned.add(l.language_key());
         return returned;
     }
 
@@ -53,23 +59,25 @@ public class Language_manager
 
         for ( Language l : languages)
         {
-            registered_languages.put(l.display_name, l);
+            l.print_all();
+            registered_languages.put(l.language_key(), l);
         }
-        String l = Static_application_properties.get_language(logger_);
-        instance = registered_languages.get(l);
+        String language_key = Static_application_properties.get_language_key(logger_);
+        instance = registered_languages.get(language_key);
 
-        if (instance == null) instance = registered_languages.get((new US()).display_name);
+        if (instance == null) instance = registered_languages.get((new English()).language_key());
 
     }
 
 
     //**********************************************************
-    public static void set_current_language(String language)
+    public static void set_current_language_key(String language_key)
     //**********************************************************
     {
-        instance = registered_languages.get(language);
-        Static_application_properties.set_language(language, logger);
-        Locale.setDefault(Locale.FRANCE);
+        System.out.println("using language_key ->"+language_key+"<-");
+        instance = registered_languages.get(language_key);
+        Static_application_properties.set_language_key(language_key, logger);
+        Locale.setDefault(instance.locale);
 
     }
 }

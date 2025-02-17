@@ -16,10 +16,9 @@ public class My_I18n
     private ResourceBundle the_resource_bundle;
 
     //**********************************************************
-    private My_I18n(String language, String country, Logger logger)
+    private My_I18n(Locale the_locale, Logger logger)
     //**********************************************************
     {
-        Locale the_locale = new Locale.Builder().setLanguage(language).setRegion(country).build();
         Locale.setDefault(the_locale);
         try
         {
@@ -32,7 +31,7 @@ public class My_I18n
 
             // this method work with jbang
             try {
-                String name = "MessagesBundle" + "_" + language + "_" + country+".properties";
+                String name = "MessagesBundle" + "_" + the_locale.getLanguage() + "_" + the_locale.getCountry()+".properties";
                 logger.log("trying get_jar_InputStream_by_name with name : "+name);
 
                 InputStream is = Jar_utils.get_jar_InputStream_by_name(name);
@@ -46,7 +45,7 @@ public class My_I18n
         }
         if ( the_resource_bundle == null)
         {
-            logger.log("BAD WARNING failed to load language resource"+language);
+            logger.log("BAD WARNING failed to load language resource: "+the_locale);
             return;
         }
         if ( dbg)
@@ -72,9 +71,8 @@ public class My_I18n
         }
         catch (MissingResourceException e)
         {
-            String classpath  = System.getProperty("java.class.path");
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<-\nnot found in classpath = "+classpath));
-            logger.log("the_resource_bundle contains:");
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<- not found"));
+            logger.log("the resource bundle contains these keys:");
             Enumeration<String> es = the_resource_bundle.getKeys();
             while (es.hasMoreElements()) {
                 logger.log("->"+es.nextElement()+"<-");
@@ -95,7 +93,12 @@ public class My_I18n
         if (cache == null)
         {
             Language language = Language_manager.get_current_language(logger);
-            cache = new My_I18n(language.language, language.country, logger);
+            if ( language == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("PANIC current language is null"));
+                return key;
+            }
+            cache = new My_I18n(language.locale, logger);
         }
         if ( cache.the_resource_bundle == null)
         {

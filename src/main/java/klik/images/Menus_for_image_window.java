@@ -376,10 +376,10 @@ public class Menus_for_image_window
 
         boolean slide_show_is_running = image_window.is_slide_show_running();
 
-        MenuItem slide_show_start = new MenuItem(My_I18n.get_I18n_string("Start_slide_show", image_window.logger)+" (s)");
-        returned.add(slide_show_start);
-        MenuItem slide_show_stop = new MenuItem(My_I18n.get_I18n_string("Stop_slide_show", image_window.logger)+" (s)");
-        returned.add(slide_show_stop);
+        MenuItem slide_show = new MenuItem(My_I18n.get_I18n_string("Start_slide_show", image_window.logger)+" (s)");
+        returned.add(slide_show);
+        //MenuItem slide_show_stop = new MenuItem(My_I18n.get_I18n_string("Stop_slide_show", image_window.logger)+" (s)");
+        //returned.add(slide_show_stop);
         MenuItem faster = new MenuItem("Slide show: faster (x)");
         returned.add(faster);
         faster.setOnAction(actionEvent -> {
@@ -393,76 +393,64 @@ public class Menus_for_image_window
 
         if( slide_show_is_running)
         {
-            slide_show_start.setDisable(true);
-            slide_show_stop.setDisable(false);
+            slide_show.setText(My_I18n.get_I18n_string("Stop_slide_show", image_window.logger));
             faster.setDisable(false);
             slower.setDisable(false);
         }
         else
         {
-            slide_show_start.setDisable(false);
-            slide_show_stop.setDisable(true);
+            slide_show.setText(My_I18n.get_I18n_string("Start_slide_show", image_window.logger));
             faster.setDisable(true);
             slower.setDisable(true);
         }
 
-        slide_show_start.setOnAction(event -> {
-            System.out.println("slide_show_start OnAction");
-            image_window.start_slide_show();
-            slide_show_start.setDisable(true);
-            slide_show_stop.setDisable(false);
-            faster.setDisable(false);
-            slower.setDisable(false);
+        slide_show.setOnAction(event -> {
+            System.out.println("slide_show OnAction");
+            if( slide_show_is_running)
+            {
+                image_window.stop_slide_show();
+                faster.setDisable(true);
+                slower.setDisable(true);
+            }
+            else
+            {
+                image_window.start_slide_show();
+                faster.setDisable(false);
+                slower.setDisable(false);
+            }
         });
 
-        slide_show_stop.setOnAction(event -> {
-            image_window.stop_slide_show();
-            slide_show_start.setDisable(false);
-            slide_show_stop.setDisable(true);
-            faster.setDisable(true);
-            slower.setDisable(true);
-        });
 
         return returned;
     }
 
 
     //**********************************************************
-    private static List<MenuItem> manage_full_screen(Image_window image_window)
+    private static MenuItem manage_full_screen(Image_window image_window)
     //**********************************************************
     {
-        MenuItem start_fullscreen = new MenuItem(My_I18n.get_I18n_string("Go_full_screen", image_window.logger));
-        MenuItem stop_fullscreen = new MenuItem(My_I18n.get_I18n_string("Stop_full_screen", image_window.logger));
-
-        if ( image_window.is_full_screen)
+        MenuItem fullscreen = new MenuItem(My_I18n.get_I18n_string("Go_full_screen", image_window.logger));
+        if (image_window.is_full_screen )
         {
-            start_fullscreen.setDisable(true);
-            stop_fullscreen.setDisable(false);
-
-        }
-        else {
-            start_fullscreen.setDisable(false);
-            stop_fullscreen.setDisable(true);
+            fullscreen.setText(My_I18n.get_I18n_string("Stop_full_screen",image_window.logger));
         }
 
-        start_fullscreen.setOnAction(event -> {
-            image_window.the_Stage.setFullScreen(true);
-            image_window.is_full_screen = true;
-            stop_fullscreen.setDisable(false);
-            start_fullscreen.setDisable(true);
-        });
-        stop_fullscreen.setOnAction(event -> {
-            image_window.the_Stage.setFullScreen(false);
-            image_window.is_full_screen = false;
-            stop_fullscreen.setDisable(true);
-            start_fullscreen.setDisable(false);
+        fullscreen.setOnAction(event -> {
+            if (image_window.is_full_screen )
+            {
+                image_window.the_Stage.setFullScreen(false);
+                image_window.is_full_screen = false;
+                fullscreen.setText(My_I18n.get_I18n_string("Go_full_screen",image_window.logger));
+            }
+            else
+            {
+                image_window.the_Stage.setFullScreen(true);
+                image_window.is_full_screen = true;
+                fullscreen.setText(My_I18n.get_I18n_string("Stop_full_screen",image_window.logger));
+            }
         });
 
-
-        List<MenuItem> returned = new ArrayList<>();
-        returned .add(start_fullscreen);
-        returned .add(stop_fullscreen);
-        return returned;
+        return fullscreen;
     }
 
     //**********************************************************
@@ -471,8 +459,7 @@ public class Menus_for_image_window
     {
         final ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu);
-        List<MenuItem> fullscreen = manage_full_screen(image_window);
-        for (MenuItem mi : fullscreen) context_menu.getItems().add(mi);
+        context_menu.getItems().add(manage_full_screen(image_window));
 
         List<MenuItem> l = manage_slide_show(image_window);
         for (MenuItem mi : l) context_menu.getItems().add(mi);

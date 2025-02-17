@@ -48,7 +48,7 @@ public class Static_application_properties
     public static final String ICON_SIZE = "ICON_SIZE";
     public static final String FOLDER_ICON_SIZE = "FOLDER_ICON_SIZE";
     public static final String VIDEO_SAMPLE_LENGTH = "VIDEO_SAMPLE_LENGTH";
-    public static final String LANGUAGE = "LANGUAGE";
+    public static final String LANGUAGE_KEY = "LANGUAGE";
     public static final String FONT_SIZE = "FONT_SIZE";
     public static final String COLUMN_WIDTH = "Column_width"; //this must match the resource bundles
     public static final String VERTICAL_SCROLL_INVERTED = "vertical_scroll_inverted";
@@ -448,22 +448,22 @@ public class Static_application_properties
     }
 
     //**********************************************************
-    public static String get_language(Logger logger)
+    public static String get_language_key(Logger logger)
     //**********************************************************
     {
-        String s = get_main_properties_manager(logger).get(LANGUAGE);
+        String s = get_main_properties_manager(logger).get(LANGUAGE_KEY);
         if (s == null) {
-            s = "english-US";
+            s = "English";
         }
-        get_main_properties_manager(logger).add_and_save(LANGUAGE, s);
+        get_main_properties_manager(logger).add_and_save(LANGUAGE_KEY, s);
         return s;
     }
 
     //**********************************************************
-    public static void set_language(String s, Logger logger)
+    public static void set_language_key(String s, Logger logger)
     //**********************************************************
     {
-        get_main_properties_manager(logger).add_and_save(LANGUAGE, s);
+        get_main_properties_manager(logger).add_and_save(LANGUAGE_KEY, s);
 
     }
 
