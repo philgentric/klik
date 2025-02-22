@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.browser.comparators.Alphabetical_file_name_comparator;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.*;
 import klik.level3.fusk.Fusk_static_core;
@@ -31,6 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,7 +146,17 @@ public class Image_window
         }
 
         boolean high_quality = false;
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, the_browser.get_file_comparator(), aborter, logger);
+
+        Comparator<? super Path> local_comp = null;
+        if ( the_browser == null)
+        {
+            local_comp = new Alphabetical_file_name_comparator();
+        }
+        else
+        {
+            local_comp = the_browser.get_file_comparator();
+        }
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, local_comp, aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;

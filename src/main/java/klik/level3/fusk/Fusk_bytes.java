@@ -19,6 +19,7 @@ public class Fusk_bytes implements Pin_code_client
     private static byte[] signature_clear;
     static byte[] signature_fusk;
     private static AtomicBoolean initialized = new AtomicBoolean(false);
+    private static AtomicBoolean pincode_popup = new AtomicBoolean(false);
     private static String pin_code = null;
     public final Logger logger;
     public final Aborter aborter;
@@ -99,10 +100,14 @@ public class Fusk_bytes implements Pin_code_client
         }
         if ( pin_code == null)
         {
-            logger.log("getting pin code from user");
+            if ( !pincode_popup.get())
+            {
+                pincode_popup.set(true);
+                logger.log("getting pin code from user");
 
-            Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage(aborter,logger);
-            pin_code_getter_stage.ask_pin_code_in_a_thread(this,logger);
+                Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage(aborter, logger);
+                pin_code_getter_stage.ask_pin_code_in_a_thread(this, logger);
+            }
             return false; // not ready yet
         }
 

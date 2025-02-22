@@ -34,12 +34,12 @@ public class Keyboard_handling_for_Image_window
         if (key_event.getCode() == KeyCode.ESCAPE)
         {
             key_event.consume();
-            if (!the_browser.get_escape_preference())
-            {
-                logger.log("Image_stage : ignoring escape by user preference");
-                return;
+            if ( the_browser != null) {
+                if (!the_browser.get_escape_preference()) {
+                    logger.log("Image_stage : ignoring escape by user preference");
+                    return;
+                }
             }
-
             if (image_window.is_full_screen)
             {
                 logger.log("Image_stage : ignoring escape as a way to close the image window, because we were in full screen");

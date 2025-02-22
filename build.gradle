@@ -13,6 +13,9 @@ plugins {
     // non modular:
     //https://badass-runtime-plugin.beryx.org/releases/latest/
     id 'org.beryx.runtime' version '1.13.1'
+
+    id 'org.graalvm.buildtools.native' version '0.10.5'
+
 }
 
 ext {
@@ -25,15 +28,15 @@ repositories {
     mavenCentral()
 }
 
-compileJava {
+/*compileJava {
     // this is needed to enable the virtual threads preview feature in java20
     //options.compilerArgs += ['--enable-preview']
     options.compilerArgs += ['-Xlint:-options']
-}
+}*/
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
 }
 
 
@@ -71,11 +74,24 @@ application {
 
 }
 
+// this is REQUIRED with a JDK that does not bundle javaFX
 javafx {
-    version = "23-ea+22"
+    version = "23"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media','javafx.web' ]
 }
 
+
+// these "tasks.register" items work only with a JDK that bundles javafx such as 23.0.2.fx-zulu
+tasks.register('image_viewer', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.level3.Image_window_as_app'
+    classpath = sourceSets.main.runtimeClasspath
+}
+tasks.register('music_player', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.audio.Audio_player_application'
+    classpath = sourceSets.main.runtimeClasspath
+}
 
 //jar {
 //    manifest {
@@ -86,20 +102,27 @@ javafx {
 //}
 
 /*
+// fails with ClassNotFoundException
 graalvmNative {
-    binaries {
-        main {
-            imageName = "klik"
-            mainClass = main_class_name
-            buildArgs.add("-O4")
-        }
-        test {
-            buildArgs.add("-O0")
-        }
+    agent {
+        enabled = true
     }
-    binaries.all {
-        buildArgs.add("--verbose")
+    binaries.main {
+        imageName = "klik"
+        mainClass = main_class_name
+        //buildArgs.add("-O4")
+        useFatJar = true
+        buildArgs.add('--link-at-build-time')
+        debug = true
+        verbose = true
+        fallback = true
+        sharedLibrary = false
+        quickBuild = false
+        richOutput = false
     }
+    toolchainDetection.set(true)
 }
-*/
+
+ */
+
 
