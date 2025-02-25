@@ -64,13 +64,13 @@ public class Image_similarity implements Clearable_RAM_cache
 
         if (images_and_feature_vectors == null)
         {
-            return null;
+            return new ArrayList<>();
         }
 
         Feature_vector fv0 = images_and_feature_vectors.image_feature_vector_ram_cache().get_from_cache(image_path, null, true);
         if ( fv0 ==null)
         {
-            return null;
+            return new ArrayList<>();
         }
         List<Path> to_be_compared = new ArrayList<>(images_and_feature_vectors.images());
         to_be_compared.remove(image_path);

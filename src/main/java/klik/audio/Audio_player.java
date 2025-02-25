@@ -400,6 +400,7 @@ public class Audio_player
                     for (File f : change.getAddedSubList())
                     {
                         Button b = new Button(f.getName());
+                        b.setPrefWidth(2000);
                         vb.getChildren().add(b);
                         Look_and_feel_manager.set_button_look(b,false);
                         file_to_button.put(f,b);
