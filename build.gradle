@@ -5,7 +5,7 @@ plugins {
 
     // not required with the beryx runtime plugin
     //id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 
     // if modular:
     //id 'org.beryx.jlink' version '3.0.1'
@@ -44,9 +44,9 @@ dependencies {
     // EXIF reader
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
       // Cache
-    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.0'
     // files etc
-    implementation group: 'commons-io', name: 'commons-io', version: '2.16.1'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
     // for face recognition: gson is used to serialise the feature vectors between the python server and this app
     implementation 'com.google.code.gson:gson:2.8.6'
 
@@ -70,7 +70,9 @@ application {
     //applicationDefaultJvmArgs = ["-Xms1G"]
 
     // if you have a lot of RAM say 64GB or more
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC"]//"-Xlog:class+init=info:file=trace.log"]
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
 
 }
 
@@ -82,15 +84,23 @@ javafx {
 
 
 // these "tasks.register" items work only with a JDK that bundles javafx such as 23.0.2.fx-zulu
+tasks.register('klik', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.Klik_application'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+}
 tasks.register('image_viewer', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.level3.Image_window_as_app'
     classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
 }
-tasks.register('music_player', JavaExec) {
+tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.audio.Audio_player_application'
     classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
 }
 
 //jar {

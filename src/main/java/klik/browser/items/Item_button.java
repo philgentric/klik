@@ -352,8 +352,8 @@ public class Item_button extends Item implements Icon_destination
             {
                 if ( !Guess_file_type.is_this_a_video_or_audio_file(browser.my_Stage.the_Stage,path,logger))
                 {
-                    logger.log("opening audio file: " + path.toAbsolutePath());
-                    Audio_player.play_song(path.toFile(),logger);
+                    logger.log("Item_button, opening audio file: " + path.toAbsolutePath());
+                    Audio_player.play_song_new_process(path.toFile(),logger);
                     return;
                 }
             }

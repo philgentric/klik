@@ -23,7 +23,6 @@ public class Execute_command
     public static boolean execute_command_list(List<String> command_tokens, File wd, int max_ms_wait_time, StringBuilder to_be_returned, Logger logger)
     //**********************************************************
     {
-
         StringBuilder received_line = new StringBuilder();
         for ( String s : command_tokens)
         {
@@ -79,6 +78,7 @@ public class Execute_command
             }
             return false;
         }
+        System.out.println("going to wait");
         try
         {
             p.waitFor(max_ms_wait_time, TimeUnit.MILLISECONDS);
@@ -100,6 +100,46 @@ public class Execute_command
         {
             to_be_returned.append(EXECUTE_COMMAND_END_OF_WAIT_OK);
         }
+
+        return true;
+    }
+
+
+    //**********************************************************
+    public static boolean execute_command_list_no_wait(List<String> command_tokens, File wd, int max_ms_wait_time, StringBuilder to_be_returned, Logger logger)
+    //**********************************************************
+    {
+        StringBuilder received_line = new StringBuilder();
+        for ( String s : command_tokens)
+        {
+            received_line.append(s).append(" ");
+        }
+        if ( to_be_returned != null) to_be_returned.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
+
+        ProcessBuilder process_builder = new ProcessBuilder(command_tokens);
+        process_builder.directory(wd);
+        process_builder.redirectErrorStream(true);
+        Process p;
+        try
+        {
+            p = process_builder.start();
+        }
+        catch (Exception e1)
+        {
+            if ( to_be_returned != null)
+            {
+                to_be_returned.append("EXEC error: ").append(e1).append("\n");
+                logger.log(to_be_returned.toString());
+            }
+            else
+            {
+                logger.log("EXEC error: " + e1 + "\n");
+            }
+            return false;
+        }
+
+        System.out.println("NO wait");
+
         return true;
     }
 

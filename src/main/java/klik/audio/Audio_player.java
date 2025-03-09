@@ -21,6 +21,7 @@ import javafx.util.Duration;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
+import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
@@ -499,8 +500,31 @@ public class Audio_player
         return hbox;
     }
 
+
+    // entry #1
     //**********************************************************
-    public static void play_song(File the_song_file, Logger logger)
+    public static void play_song_new_process(File the_song_file, Logger logger)
+    //**********************************************************
+    {
+        List<String> cmds = new ArrayList<>();
+        logger.log("play_song_new_process()");
+
+        cmds.add("gradle");// --args= "+the_song_file.getAbsolutePath());
+        cmds.add("audio_player");// --args= "+the_song_file.getAbsolutePath());
+
+        String path =  "--args=\""+the_song_file.getAbsolutePath()+"\"";
+        cmds.add(path);
+
+
+        //cmds.add("--args=\""+the_song_file.getAbsolutePath().replaceAll(" ", "\\ ")+"\"");
+        StringBuilder sb = new StringBuilder();
+        Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
+        logger.log(sb.toString());
+
+    }
+
+    //**********************************************************
+    public static void play_song_same_process(File the_song_file, Logger logger)
     //**********************************************************
     {
         if ( instance == null)
@@ -513,7 +537,6 @@ public class Audio_player
         }
         instance.load_playlist(playlist_file);
         instance.play_song(the_song_file);
-
     }
     //**********************************************************
     public static void play_playlist(File file, Logger logger)
@@ -533,6 +556,11 @@ public class Audio_player
     private void play_song(File the_song_file_)
     //**********************************************************
     {
+        if ( the_song_file_ == null)
+        {
+            logger.log("FATAL: the_song_file_ is null");
+            return;
+        }
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,the_song_file_.toPath(),logger);
         logger.log("bitrate= "+bitrate);
         clean_up();
@@ -987,7 +1015,7 @@ public class Audio_player
         previous.setDisable(false);
         next.setDisable(false);
         File first = observable_playlist.get(0);
-        play_song(first,logger);
+        play_song_same_process(first,logger);
 
     }
 
