@@ -115,7 +115,7 @@ public class Results_frame
 				Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
-				Audio_player.play_song_same_process(path.toFile(), logger);
+				Audio_player.play_song(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
 				Text_frame.show(path, logger);

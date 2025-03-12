@@ -92,7 +92,7 @@ tasks.register('klik', JavaExec) {
 }
 tasks.register('image_viewer', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.level3.Image_window_as_app'
+    mainClass = 'klik.images.Image_viewer_application'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
 }
@@ -101,6 +101,19 @@ tasks.register('audio_player', JavaExec) {
     mainClass = 'klik.audio.Audio_player_application'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
+}
+
+tasks.register('TCP_server', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.util.tcp.TCP_server'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'unit tests'
+}
+tasks.register('TCP_client', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.util.tcp.TCP_client'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'unit tests'
 }
 
 //jar {

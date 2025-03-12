@@ -13,16 +13,21 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import klik.browser.Browser;
+import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
+import klik.util.tcp.TCP_client;
+import klik.util.tcp.TCP_client_out;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
 import org.apache.commons.io.FilenameUtils;
@@ -46,6 +51,8 @@ public class Audio_player
     public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
     private static final String PAUSE = "Pause";
     private static final String PLAY = "Play";
+    public static final int AUDIO_PLAYER_PORT = 34539;
+    public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
     private static File playlist_file = null;
     File saving_dir = null;
     Stage stage;
@@ -75,6 +82,7 @@ public class Audio_player
     double balance = 0.0;
     static Audio_player instance = null;
     Label play_list_name;
+    Browser browser = null;
 
     //**********************************************************
     private Audio_player(Logger logger_)
@@ -98,6 +106,7 @@ public class Audio_player
         stage.heightProperty().addListener(change_listener);
         stage.setMinWidth(WIDTH);
         VBox the_big_vbox = new VBox();
+        Look_and_feel_manager.set_region_look(the_big_vbox);
 
         VBox duration_vbox = define_duration_vbox();
         the_big_vbox.getChildren().add(duration_vbox);
@@ -127,6 +136,7 @@ public class Audio_player
     //**********************************************************
     {
         VBox returned = new VBox();
+        Look_and_feel_manager.set_region_look(returned);
         HBox h1 = define_duration_hbox();
         returned.getChildren().add(h1);
 
@@ -142,6 +152,7 @@ public class Audio_player
     //**********************************************************
     {
         HBox returned = new HBox();
+        Look_and_feel_manager.set_region_look(returned);
 
 
         {
@@ -153,6 +164,7 @@ public class Audio_player
         }
         {
             Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
@@ -217,6 +229,7 @@ public class Audio_player
 
         {
             Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
             VBox.setVgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
@@ -339,6 +352,7 @@ public class Audio_player
     //**********************************************************
     {
         VBox returned = new VBox();
+        Look_and_feel_manager.set_region_look(returned);
 
         previous = new Button("Jump to previous");
         Look_and_feel_manager.set_button_look(previous, true);
@@ -363,6 +377,7 @@ public class Audio_player
     {
         file_to_button = new HashMap<>();
         scroll_pane = new ScrollPane();
+        Look_and_feel_manager.set_region_look(scroll_pane);
         scroll_pane.addEventFilter(KeyEvent.KEY_PRESSED, key_event -> {
             logger.log("trapping event "+key_event);
             key_event.consume(); // prevent default key handling
@@ -401,6 +416,31 @@ public class Audio_player
                     for (File f : change.getAddedSubList())
                     {
                         Button b = new Button(f.getName());
+                        {
+                            ContextMenu the_context_menu = new ContextMenu();
+                            Look_and_feel_manager.set_context_menu_look(the_context_menu);
+                            MenuItem the_menu_item = new MenuItem("Browse in new window");
+                            the_menu_item.setOnAction(event -> {
+                                Path parent = f.toPath().getParent();
+                                if ( browser != null)
+                                {
+                                    logger.log("additional_different_folder");
+                                    Browser_creation_context.additional_different_folder(parent,browser,logger);
+                                }
+                                else
+                                {
+                                    logger.log("additional_no_past");
+                                    browser = Browser_creation_context.additional_no_past(parent, logger);
+                                }
+                            });
+                            the_context_menu.getItems().add(the_menu_item);
+                            b.setOnContextMenuRequested((ContextMenuEvent event) -> {
+                                //if ( dbg)
+                                    logger.log("show context menu of button:"+ f.toPath().toAbsolutePath());
+                                the_context_menu.show(b, event.getScreenX(), event.getScreenY());
+                            });
+
+                        }
                         b.setPrefWidth(2000);
                         vb.getChildren().add(b);
                         Look_and_feel_manager.set_button_look(b,false);
@@ -423,6 +463,7 @@ public class Audio_player
     //**********************************************************
     {
         the_timeline_slider = new Slider();
+        //image_viewerLook_and_feel_manager.set_region_look(the_timeline_slider);
         the_timeline_slider.setMinWidth(WIDTH);
         the_timeline_slider.setPrefWidth(WIDTH);
         // but the user may click/slide the slider
@@ -444,6 +485,7 @@ public class Audio_player
     //**********************************************************
     {
         HBox hbox = new HBox();
+        Look_and_feel_manager.set_region_look(hbox);
         Label duration_text = new Label("Duration: ");
         Look_and_feel_manager.set_region_look(duration_text);
         hbox.getChildren().add(duration_text);
@@ -453,6 +495,7 @@ public class Audio_player
 
         {
             Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             hbox.getChildren().add(spacer);
         }
@@ -470,6 +513,7 @@ public class Audio_player
 
         {
             Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             hbox.getChildren().add(spacer);
         }
@@ -486,6 +530,7 @@ public class Audio_player
 
         {
             Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             hbox.getChildren().add(spacer);
         }
@@ -501,43 +546,69 @@ public class Audio_player
     }
 
 
+    //**********************************************************
+    public static void play_song(File the_song_file, Logger logger)
+    //**********************************************************
+    {
+        Runnable r = () ->
+        {
+            if (instance == null) {
+                instance = new Audio_player(logger);
+            }
+            if (playlist_file == null) {
+                playlist_file = get_playlist_file(logger);
+            }
+            instance.load_playlist(playlist_file);
+            instance.play_song(the_song_file);
+        };
+        if (Platform.isFxApplicationThread()) r.run();
+        else Platform.runLater(r);
+    }
+
+
     // entry #1
     //**********************************************************
-    public static void play_song_new_process(File the_song_file, Logger logger)
+    public static void play_song_in_separate_process(File the_song_file, Logger logger)
+    //**********************************************************
+    {
+        // try to connect in case an audio player is already started
+        TCP_client_out tco = TCP_client.request("localhost",AUDIO_PLAYER_PORT,the_song_file.getAbsolutePath().toString(),logger);
+        if ( tco.status())
+        {
+            if ( tco.reply().equals(PLAY_REQUEST_ACCEPTED)) {
+                logger.log("apparently the TCP server in the separate audio_player process accepted the song");
+                return;
+            }
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            logger.log("status: "+tco.status());
+            logger.log("reply: "+tco.reply());
+            logger.log("message: "+tco.message());
+        }
+        else
+        {
+            logger.log("there is no separate audio_player process, let us start one");
+            start_new_process_to_play_song(the_song_file,logger);
+        }
+    }
+
+    //**********************************************************
+    public static void start_new_process_to_play_song(File the_song_file, Logger logger)
     //**********************************************************
     {
         List<String> cmds = new ArrayList<>();
-        logger.log("play_song_new_process()");
-
-        cmds.add("gradle");// --args= "+the_song_file.getAbsolutePath());
-        cmds.add("audio_player");// --args= "+the_song_file.getAbsolutePath());
-
+        logger.log("start_new_process_to_play_song()");
+        cmds.add("gradle");
+        cmds.add("audio_player");
         String path =  "--args=\""+the_song_file.getAbsolutePath()+"\"";
         cmds.add(path);
-
 
         //cmds.add("--args=\""+the_song_file.getAbsolutePath().replaceAll(" ", "\\ ")+"\"");
         StringBuilder sb = new StringBuilder();
         Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
         logger.log(sb.toString());
-
     }
 
-    //**********************************************************
-    public static void play_song_same_process(File the_song_file, Logger logger)
-    //**********************************************************
-    {
-        if ( instance == null)
-        {
-            instance = new Audio_player(logger);
-        }
-        if ( playlist_file == null)
-        {
-            playlist_file = get_playlist_file(logger);
-        }
-        instance.load_playlist(playlist_file);
-        instance.play_song(the_song_file);
-    }
+
     //**********************************************************
     public static void play_playlist(File file, Logger logger)
     //**********************************************************
@@ -558,14 +629,20 @@ public class Audio_player
     {
         if ( the_song_file_ == null)
         {
-            logger.log("FATAL: the_song_file_ is null");
-            return;
+            the_song_file_ = observable_playlist.get(0);
+
+            if ( the_song_file_ == null) {
+
+                logger.log("FATAL: the_song_file_ is null");
+                return;
+            }
         }
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,the_song_file_.toPath(),logger);
         logger.log("bitrate= "+bitrate);
         clean_up();
         the_song_file = the_song_file_;
         add_and_save_if_needed();
+
         stage.setTitle(the_song_file.getName() +"       bitrate= "+bitrate+" kb/s");
 
         String encoded;
@@ -1015,7 +1092,7 @@ public class Audio_player
         previous.setDisable(false);
         next.setDisable(false);
         File first = observable_playlist.get(0);
-        play_song_same_process(first,logger);
+        play_song(first,logger);
 
     }
 

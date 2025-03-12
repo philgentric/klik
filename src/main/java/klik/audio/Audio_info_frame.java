@@ -14,21 +14,24 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Audio_info_frame {
+//**********************************************************
+public class Audio_info_frame
+//**********************************************************
+{
 
     public static final String warning_mediainfo = "This feature requires mediainfo\n . for mac: brew install mediainfo\n . for any system, download from mediaarea.net\n";
 
-    public static void show(Path path, Logger logger) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                show_(path,logger);
-            }
-        };
+    //**********************************************************
+    public static void show(Path path, Logger logger)
+    //**********************************************************
+    {
+        Runnable r = () -> show_(path,logger);
         Actor_engine.execute(r,logger);
     }
 
+    //**********************************************************
     private static void show_(Path path, Logger logger)
+    //**********************************************************
     {
 
         Hourglass running_man = Show_running_man_frame.show_running_man("Calling mediainfo", 30, new Aborter("mediainfo", logger), logger);

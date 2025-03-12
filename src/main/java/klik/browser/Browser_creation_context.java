@@ -64,7 +64,7 @@ public class Browser_creation_context
     }
 
     //**********************************************************
-    public static void additional_no_past(Path path, Logger logger)
+    public static Browser additional_no_past(Path path, Logger logger)
     //**********************************************************
     {
         My_Stage stage = new My_Stage(new Stage(),logger);
@@ -77,7 +77,7 @@ public class Browser_creation_context
                 true,
                 null);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        new Browser(context, logger);
+        return new Browser(context, logger);
     }
 
     //**********************************************************
