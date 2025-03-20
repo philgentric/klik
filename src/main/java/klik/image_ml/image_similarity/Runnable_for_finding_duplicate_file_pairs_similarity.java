@@ -1,6 +1,7 @@
 package klik.image_ml.image_similarity;
 
 import klik.actor.Aborter;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.files_and_paths.File_pair;
 import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Guess_file_type;
@@ -25,8 +26,10 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	private final Aborter private_aborter;
 	private final Image_similarity image_similarity;
 	private final boolean quasi_same;
+	private final Image_properties_RAM_cache image_properties_cache;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
+			Image_properties_RAM_cache image_properties_cache,
 			boolean quasi_same,
 			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
 			List<File_with_a_few_bytes> all_files_,
@@ -35,6 +38,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 			Logger logger_)
 	//**********************************************************
 	{
+		this.image_properties_cache = image_properties_cache;
 		this.quasi_same = quasi_same;
 		all_files = all_files_;
 		logger = logger_;
@@ -59,7 +63,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		{
 			if ( private_aborter.should_abort()) return;
 			if (!Guess_file_type.is_file_an_image(f.file)) continue;
-			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), already_done,1, false, SPECIAL_SIMILARITY_THRESHOLD, false,deduplication_by_similarity_engine.console_window.count_pairs_examined);
+			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), already_done,1, false, SPECIAL_SIMILARITY_THRESHOLD, image_properties_cache, false,deduplication_by_similarity_engine.console_window.count_pairs_examined);
 			already_done.add(f.file.toPath());
 			if ( similars.isEmpty()) continue;
 			deduplication_by_similarity_engine.duplicates_found.incrementAndGet();

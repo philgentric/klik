@@ -3,11 +3,11 @@
 package klik.util.execute;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
-import klik.browser.Browser;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -25,12 +25,16 @@ public class System_open_actor implements Actor
 //**********************************************************
 {
     //**********************************************************
-    public static void open_with_system(Browser browser, Path path, Logger logger)
+    public static void open_with_system(
+            Window window,
+            Path path,
+            Aborter aborter,
+            Logger logger)
     //**********************************************************
     {
     Actor_engine.run(
             System_open_actor.get(),
-            new System_open_message(false,browser.my_Stage.the_Stage, path, browser.aborter,logger),null,logger);
+            new System_open_message(false,window, path, aborter,logger),null,logger);
     }
 
     private static System_open_actor instance;
@@ -44,7 +48,7 @@ public class System_open_actor implements Actor
 
 
     //**********************************************************
-    public static void open_special(Stage owner, Path path, Aborter aborter, Logger logger)
+    public static void open_special(Window owner, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("open_special " + path);
@@ -71,11 +75,11 @@ public class System_open_actor implements Actor
 
             if (e.toString().contains("doesn't exist."))
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(som.the_Stage, "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e,false,som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(som.window, "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e,false,som.logger), som.logger);
             }
             else
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(som.the_Stage, "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false,som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(som.window, "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false,som.logger), som.logger);
             }
         }
         return null;
@@ -88,7 +92,7 @@ public class System_open_actor implements Actor
     {
         String extension = FilenameUtils.getExtension(som.path.toFile().getName());
 
-        String app = Registered_applications.get_registered_application(extension, som.the_Stage, som.logger);
+        String app = Registered_applications.get_registered_application(extension, som.window, som.logger);
 
         if ( app == null)
         {
@@ -96,7 +100,7 @@ public class System_open_actor implements Actor
             return null;
         }
         som.logger.log("special open for " + som.path + " with " + app);
-        Jfx_batch_injector.inject(() -> Popups.popup_warning(som.the_Stage, "Calling MacOS open for: ", "Please wait " + som.path,true,som.logger), som.logger);
+        Jfx_batch_injector.inject(() -> Popups.popup_warning(som.window, "Calling MacOS open for: ", "Please wait " + som.path,true,som.logger), som.logger);
 
         call_MACOS_open(som, app);
         //call_exec(som, app));

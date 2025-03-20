@@ -8,7 +8,7 @@ public class Language
 
     public Language(Locale l) {
         locale = l;
-        print_all();
+        //print_all();
     }
 
     public void print_all()

@@ -162,7 +162,7 @@ public class Name_cleaner
     public static void main(String[] args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("name cleaner test");
         {
             String test =" $fsd,de  :dfd- _hd<gd. ___---84565FTaMere dwedsds .jpg";
             logger.log(test+" => "+clean(test,true,logger));

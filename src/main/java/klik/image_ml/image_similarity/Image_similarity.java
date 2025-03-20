@@ -1,9 +1,11 @@
 package klik.image_ml.image_similarity;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.icons.image_properties_cache.Image_properties;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
 import klik.images.Image_window;
@@ -36,10 +38,13 @@ public class Image_similarity implements Clearable_RAM_cache
     Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors;
 
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
-    public final Browser browser; // maybe null
+    public final Browser browser;
     public final Logger logger;
     //**********************************************************
-    public Image_similarity(Path displayed_folder_path, Browser browser, Aborter aborter, Logger logger)
+    public Image_similarity(
+            Path displayed_folder_path,
+            Browser browser,
+            Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.browser = browser;
@@ -55,6 +60,7 @@ public class Image_similarity implements Clearable_RAM_cache
             int N,
             boolean and_show,
             double threshold,
+            Image_properties_RAM_cache image_properties_cache,
             boolean use_mask,
             AtomicLong count_pairs_examined)
     //**********************************************************
@@ -78,6 +84,7 @@ public class Image_similarity implements Clearable_RAM_cache
         List<Most_similar> most_similars = find_similars_of(image_path, fv0,
                 quasi_same,use_mask,
                 N, threshold,
+                image_properties_cache,
                 to_be_compared,
                 count_pairs_examined);
 
@@ -135,6 +142,7 @@ public class Image_similarity implements Clearable_RAM_cache
             boolean use_mask,
             int N,
             double threshold,
+            Image_properties_RAM_cache image_properties_cache,
             List<Path> targets,
             AtomicLong count_pairs_examined)
     //**********************************************************
@@ -144,7 +152,7 @@ public class Image_similarity implements Clearable_RAM_cache
         Image_properties ip0 = null;
         if ( quasi_same)
         {
-            ip0 = browser.virtual_landscape.image_properties_cache.get_from_cache(path0,null);
+            ip0 = image_properties_cache.get_from_cache(path0,null);
         }
         Feature_vector_mask mask = null;
         for(Path path1 : targets)
@@ -152,7 +160,7 @@ public class Image_similarity implements Clearable_RAM_cache
             if ( count_pairs_examined!= null) count_pairs_examined.incrementAndGet();
             if ( quasi_same)
             {
-                Image_properties ip1 = browser.virtual_landscape.image_properties_cache.get_from_cache(path1,null);
+                Image_properties ip1 = image_properties_cache.get_from_cache(path1,null);
                 if ( ip0.w() != ip1.w()) continue;
                 if ( ip0.h() != ip1.h()) continue;
             }

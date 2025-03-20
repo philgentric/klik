@@ -5,6 +5,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
@@ -39,7 +40,7 @@ public class Popups
     }
 
     //**********************************************************
-    public static void popup_warning(Stage owner, String header, String content, boolean for_3_seconds_only, Logger logger)
+    public static void popup_warning(Window owner, String header, String content, boolean for_3_seconds_only, Logger logger)
     //**********************************************************
     {
         Jfx_batch_injector.inject(() -> {

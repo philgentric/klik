@@ -8,6 +8,7 @@ package klik.util.files_and_paths;
 
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
@@ -146,7 +147,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path get_icons_cache_dir(Stage owner, Logger logger)
+    public static Path get_icons_cache_dir(Window owner, Logger logger)
     //**********************************************************
     {
         if ( RAM_disk.get_use_RAM_disk(logger))

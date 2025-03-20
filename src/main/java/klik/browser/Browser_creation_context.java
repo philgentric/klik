@@ -20,7 +20,7 @@ public class Browser_creation_context
     public final boolean move_a_bit; // if true the new instance is at the same location on screen s the old one
     public Browser old_browser; // if null, there is no previous guy
     //**********************************************************
-    Browser_creation_context(
+    private Browser_creation_context(
             My_Stage previous_stage,
             Path dir,
             Rectangle2D rectangle,
@@ -48,7 +48,7 @@ public class Browser_creation_context
     }
 
     //**********************************************************
-    public static void first(My_Stage stage, Path path, Logger logger)
+    public static Browser first(My_Stage stage, Path path, Logger logger)
     //**********************************************************
     {
         Browser_creation_context context = new Browser_creation_context(
@@ -60,7 +60,7 @@ public class Browser_creation_context
                 false,
                 null);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        new Browser(context, logger);
+        return new Browser(context, logger);
     }
 
     //**********************************************************
@@ -150,16 +150,18 @@ public class Browser_creation_context
 
 
     //**********************************************************
-    public static void additional_different_folder(Path path, Browser parent, Logger logger)
+    public static void additional_different_folder(
+            Path path,
+            Rectangle2D rectangle,
+            Logger logger)
     //**********************************************************
     {
-        Browser.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
 
         My_Stage stage = new My_Stage(new Stage(),logger);
         Browser_creation_context context =  new Browser_creation_context(
                 stage,
                 path,
-                parent.get_rectangle(),
+                rectangle,
                 false,
                 true,
                 true,

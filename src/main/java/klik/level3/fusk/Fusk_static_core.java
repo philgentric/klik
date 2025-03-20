@@ -166,7 +166,7 @@ public class Fusk_static_core
     public static void main(String[] args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("fusk test");
         Aborter aborter = new Aborter("fusk core test",logger);
         Fusk_bytes.initialize(aborter, logger);
         {

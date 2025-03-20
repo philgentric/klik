@@ -119,6 +119,7 @@ public class Execute_command
         ProcessBuilder process_builder = new ProcessBuilder(command_tokens);
         process_builder.directory(wd);
         process_builder.redirectErrorStream(true);
+        process_builder.inheritIO(); // so that when the new process prints, it goes to the caller console
         Process p;
         try
         {
@@ -138,7 +139,7 @@ public class Execute_command
             return false;
         }
 
-        System.out.println("NO wait");
+        System.out.println("execute_command_list_no_wait done!");
 
         return true;
     }

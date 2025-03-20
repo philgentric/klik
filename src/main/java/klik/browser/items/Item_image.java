@@ -14,16 +14,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.look.my_i18n.My_I18n;
+import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
@@ -35,6 +38,7 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.execute.System_open_actor;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -115,12 +119,11 @@ public class Item_image extends Item
 
         if ( Guess_file_type.is_this_path_an_image(path))
         {
-            open_an_image(logger);
+            open_an_image(true,browser,path,logger);
         }
         else
         {
-            System_open_actor.open_with_system(browser,path,logger);
-            //open_with_system(logger);
+            System_open_actor.open_with_system(browser.my_Stage.the_Stage,path,browser.aborter,logger);
         }
     }
 
@@ -141,11 +144,29 @@ public class Item_image extends Item
     }
 
     //**********************************************************
-    public void open_an_image(Logger logger)
+    public static void open_an_image(boolean same_process, Browser browser, Path path, Logger logger)
     //**********************************************************
     {
-        Image_window.get_Image_window(browser, path, logger);
-        if ( dbg) logger.log("\n\nImage_stage opening for path:" + path.toString());
+        if ( same_process)
+        {
+            Image_window.get_Image_window(browser, path, logger);
+            if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
+        }
+        else
+        {
+            List<String> cmds = new ArrayList<>();
+            logger.log("open image in new process");
+            cmds.add("gradle");
+            cmds.add("clean");
+            cmds.add("image_viewer");
+            String arg =  "--args=\""+path.toAbsolutePath()+"\"";
+            cmds.add(arg);
+
+            StringBuilder sb = new StringBuilder();
+            Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
+            logger.log(sb.toString());
+            if ( dbg) logger.log("\n\nImage_stage opening (different process) for path:" + path);
+        }
     }
 
 
@@ -189,13 +210,10 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(path,browser,logger);
+            MenuItem menu_item = create_show_similar_menu_item(path,browser.virtual_landscape.image_properties_cache,browser,browser.aborter,logger);
             context_menu.getItems().add(menu_item);
         }
-        /*{
-            MenuItem menu_item = create_show_similar_menu_item2(path,browser,logger);
-            context_menu.getItems().add(menu_item);
-        }*/
+        
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
             menu_item.setOnAction(event -> {
@@ -212,7 +230,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(My_I18n.get_I18n_string("Delete", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
                 Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter, logger);
@@ -220,21 +238,31 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(My_I18n.get_I18n_string("Edit", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Editing "+path);
-                System_open_actor.open_with_system(browser,path,logger);
+                System_open_actor.open_with_system(browser.my_Stage.the_Stage,path,browser_aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening with registered app: "+path);
                 System_open_actor.open_special(browser.my_Stage.the_Stage,path,browser_aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
+        {
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", logger));
+            menu_item.setMnemonicParsing(false);
+            menu_item.setOnAction(event -> {
+                if (dbg) logger.log("Opening as separate process: "+path);
+                Item_image.open_an_image(false,null,path,logger);
+            });
+            context_menu.getItems().add(menu_item);
+        }
+        
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(browser,path, dbg, logger));
             if (Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
@@ -252,7 +280,11 @@ public class Item_image extends Item
     static final int N = 5;
     public static Image_similarity image_similarity;
     //**********************************************************
-    public static MenuItem create_show_similar_menu_item(Path image_path, Browser browser, Logger logger)
+    public static MenuItem create_show_similar_menu_item(Path image_path,
+                                                         Image_properties_RAM_cache image_properties_cache,
+                                                         Browser browser,
+                                                         Aborter aborter,
+                                                         Logger logger)
     //**********************************************************
     {
         String txt = "Show "+N+" similar images in this folder";//My_I18n.get_I18n_string("Info_about", logger);
@@ -261,8 +293,8 @@ public class Item_image extends Item
             if (dbg) logger.log("show similar");
             Runnable r = () ->
             {
-                image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE, false,null);
+                image_similarity = new Image_similarity(image_path.getParent(),browser, aborter,logger);
+                image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE,image_properties_cache, false,null);
             };
             Actor_engine.execute(r,logger);
         });
@@ -281,7 +313,7 @@ public class Item_image extends Item
             Runnable r = () ->
             {
                 image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, true,null);
+                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, browser.virtual_landscape.image_properties_cache, true,null);
             };
             Actor_engine.execute(r,logger);
         });
@@ -293,7 +325,7 @@ public class Item_image extends Item
     //**********************************************************
     {
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("Convert to mp4");
+            MenuItem menu_item = new MenuItem("Convert to mp4");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("convert to mp4");
                 AtomicBoolean abort_reported = new AtomicBoolean(false);
@@ -302,7 +334,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("(experimental) generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
+            MenuItem menu_item = new MenuItem("(experimental) generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Ffmpeg_utils.generate_many_gifs(browser.my_Stage.the_Stage,path,5,5,aborter,logger);
@@ -310,7 +342,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            javafx.scene.control.MenuItem menu_item = new javafx.scene.control.MenuItem("(experimental) generate gif animations from a video, interactively");
+            MenuItem menu_item = new MenuItem("(experimental) generate gif animations from a video, interactively");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Ffmpeg_utils.interactive(path,logger);

@@ -12,13 +12,13 @@ public class Finder_message implements Message
 //**********************************************************
 {
     public final Callback_for_file_found_publish callback;
-    public final Browser the_browser;
+    //public final Browser the_browser;
     public final Aborter aborter;
     public final String extension;
     Search_config search_config;
 
     //**********************************************************
-    public Finder_message(Search_config search_config, Callback_for_file_found_publish callback_, Aborter aborter_, Browser the_browser_)
+    public Finder_message(Search_config search_config, Callback_for_file_found_publish callback_, Aborter aborter_)//, Browser the_browser_)
     //**********************************************************
     {
         this.search_config = search_config;
@@ -38,7 +38,7 @@ public class Finder_message implements Message
             }
         }
         callback = callback_;
-        the_browser = the_browser_;
+       // the_browser = the_browser_;
         aborter = aborter_;
     }
 

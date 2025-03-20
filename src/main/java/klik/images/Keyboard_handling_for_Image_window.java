@@ -2,6 +2,7 @@ package klik.images;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Window;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.image_ml.face_recognition.Face_detection_type;
@@ -23,22 +24,23 @@ public class Keyboard_handling_for_Image_window
     private static final boolean keyword_dbg = false;
     //**********************************************************
     static void handle_keyboard(
-            Browser the_browser,
+            Browser browser,
             Image_window image_window,
+            boolean exit_on_escape_preference,
             final KeyEvent key_event,
             Logger logger)
     //**********************************************************
     {
 
+        Window window = browser.my_Stage.the_Stage;
         if ( keyword_dbg) logger.log("Image_stage KeyEvent="+key_event);
         if (key_event.getCode() == KeyCode.ESCAPE)
         {
             key_event.consume();
-            if ( the_browser != null) {
-                if (!the_browser.get_escape_preference()) {
-                    logger.log("Image_stage : ignoring escape by user preference");
-                    return;
-                }
+            if (!exit_on_escape_preference)
+            {
+                logger.log("Image_stage : ignoring escape by user preference");
+                return;
             }
             if (image_window.is_full_screen)
             {
@@ -79,7 +81,7 @@ public class Keyboard_handling_for_Image_window
                 image_window.image_display_handler.change_image_relative(1, image_window.ultim_mode);
             }
             else {
-                Popups.popup_warning(the_browser.my_Stage.the_Stage,"Ahah!","Using Shift-D for sure-deleting a file requires to be on level2", false,logger);
+                Popups.popup_warning(window,"Ahah!","Using Shift-D for sure-deleting a file requires to be on level2", false,logger);
             }
             return;
         }
@@ -98,7 +100,9 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
-                Browser_creation_context.additional_different_folder(image_window.image_display_handler.get_image_context().get().path.getParent(), the_browser, logger);
+                Browser_creation_context.additional_no_past(
+                        image_window.image_display_handler.get_image_context().get().path.getParent(),
+                        logger);
                 key_event.consume();
                 return;
             }
@@ -107,7 +111,7 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 Runnable after = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
-                image_window.image_display_handler.get_image_context().get().copy(the_browser, after);
+                image_window.image_display_handler.get_image_context().get().copy(browser, after);
                 key_event.consume();
                 return;
             }
@@ -131,7 +135,7 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
-                Menus_for_image_window.face_rec(Face_detection_type.MTCNN,image_window, the_browser);
+                Menus_for_image_window.face_rec(Face_detection_type.MTCNN,image_window);
 
                 key_event.consume();
                 return;
@@ -149,7 +153,7 @@ public class Keyboard_handling_for_Image_window
                 if (keyword_dbg) logger.log("k like search_using_keywords_from_the_name");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(the_browser);
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(browser);
                 key_event.consume();
                 return;
             }

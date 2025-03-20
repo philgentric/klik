@@ -1,6 +1,12 @@
 package klik.properties;
 
+import klik.browser.comparators.*;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.log.Logger;
+import klik.actor.Aborter;
+
+import java.nio.file.Path;
+import java.util.Comparator;
 
 // warning: these names are used as-is in the resource bundles !!!
 public enum File_sort_by {
@@ -19,6 +25,29 @@ public enum File_sort_by {
   public static final String SORT_FILES_BY = "sort_files_by";
 
 
+  //**********************************************************
+  public static Comparator<Path> get_comparator(Path displayed_folder_path, Image_properties_RAM_cache image_properties_cache, Aborter aborter, Logger logger)
+  //**********************************************************
+  {
+    switch(File_sort_by.get_sort_files_by(logger))
+    {
+      case SIMILARITY_BY_PURSUIT:
+        return new Similarity_comparator_by_pursuit(displayed_folder_path, image_properties_cache, aborter, logger);
+      case SIMILARITY_BY_PAIRS:
+        return new Similarity_comparator_pairs_of_closests(displayed_folder_path, aborter, logger);
+      case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
+        return new Alphabetical_file_name_comparator();
+      case RANDOM:
+        return new Random_comparator();
+      case DATE:
+        return new Date_comparator(logger);
+      case SIZE:
+        return new Decreasing_file_size_comparator();
+      case NAME_GIFS_FIRST:
+        return new Alphabetical_file_name_comparator_gif_first();
+    }
+    return null;
+  }
   //**********************************************************
   public static File_sort_by get_sort_files_by(Logger logger)
   //**********************************************************

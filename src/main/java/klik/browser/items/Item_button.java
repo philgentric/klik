@@ -358,7 +358,7 @@ public class Item_button extends Item implements Icon_destination
                 }
             }
             logger.log("asking the system to open: " + path.toAbsolutePath());
-            System_open_actor.open_with_system(browser,path,logger);
+            System_open_actor.open_with_system(browser.my_Stage.the_Stage,path,browser.aborter,logger);
         });
 
         give_a_menu_to_the_button(button,label);

@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
+import klik.browser.items.Item_image;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Fast_date_from_OS;
@@ -43,7 +44,6 @@ public class Image_context
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public static final boolean exif_dbg = false;
     public static final String DELAY = "Delay: ";
 
     public final Path previous_path;
@@ -329,7 +329,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(Browser b)
+    void search_using_keywords_from_the_name(Browser browser)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -355,18 +355,18 @@ public class Image_context
         }
         logger.log("--------------------------------");
 
-        Finder.find(path,b,keywords,true,logger);
+        Finder.find(path,browser,keywords,true,logger);
     }
 
 
 
     List<String> given_keywords = new ArrayList<>();
     //**********************************************************
-    void search_using_keywords_given_by_the_user(Browser b, boolean search_only_for_images)
+    void search_using_keywords_given_by_the_user(Browser browser, boolean search_only_for_images)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find(b, path, given_keywords, search_only_for_images,logger);
+        ask_user_and_find(browser, path, given_keywords, search_only_for_images,logger);
     }
 
 
@@ -407,7 +407,7 @@ public class Image_context
                         keywords.add(s);
                     }
 
-                    Finder.find(target,browser,keywords,search_only_for_images,logger);
+                    Finder.find(target,browser, keywords,search_only_for_images,logger);
                 }
             }
 
@@ -439,7 +439,9 @@ public class Image_context
 
 
     //**********************************************************
-    boolean copy(Browser b, Runnable after)
+    boolean copy(
+            Browser browser,
+            Runnable after)
     //**********************************************************
     {
         //if (Popups.popup_ask_for_confirmation(My_I18n.get_I18n_string("Warning", logger),
@@ -500,7 +502,9 @@ public class Image_context
                 Command_old_and_new_Path.command_copy,
                 Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l);
-        Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
+
+        Item_image.open_an_image(true,browser,new_path,logger);
+        //Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;
     }
 

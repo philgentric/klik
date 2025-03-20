@@ -357,7 +357,7 @@ public class Browser_menus
         String text = "Add all images to face recognition training set";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Face_recognition_service i = Face_recognition_service.get_instance(browser);
+            Face_recognition_service i = Face_recognition_service.get_instance(logger);
             logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+browser.displayed_folder_path);
 
         });
@@ -380,7 +380,7 @@ public class Browser_menus
     {
         String text = "Load face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.load(browser));
+        item.setOnAction(event -> Face_recognition_service.load(logger));
         return item;
     }
 
@@ -391,7 +391,7 @@ public class Browser_menus
     {
         String text = "Reset/init face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.start_new(browser));
+        item.setOnAction(event -> Face_recognition_service.start_new(logger));
         return item;
     }
 
@@ -402,7 +402,7 @@ public class Browser_menus
     {
         String text = "Auto face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.auto(browser));
+        item.setOnAction(event -> Face_recognition_service.auto(browser.displayed_folder_path,logger));
         return item;
     }
 
@@ -412,7 +412,7 @@ public class Browser_menus
     {
         String text = "SELF face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.self(browser));
+        item.setOnAction(event -> Face_recognition_service.self(logger));
         return item;
     }
 

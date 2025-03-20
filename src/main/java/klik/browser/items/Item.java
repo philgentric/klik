@@ -11,6 +11,7 @@
 
 package klik.browser.items;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -225,7 +226,7 @@ public abstract class Item implements Icon_destination
             if(!is_trash() && !is_parent())
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
-                context_menu.getItems().add(create_open_with_system_menu_item(path,logger));
+                context_menu.getItems().add(create_open_with_system_menu_item(path));
                 if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
@@ -249,8 +250,8 @@ public abstract class Item implements Icon_destination
             }
 
             // is a "plain" file
-            context_menu.getItems().add(create_open_with_system_menu_item(path,logger));
-            context_menu.getItems().add(create_open_with_special_app_item(path,logger));
+            context_menu.getItems().add(create_open_with_system_menu_item(path));
+            context_menu.getItems().add(create_open_with_special_app_item(path));
             context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
             context_menu.getItems().add(create_copy_menu_item());
             context_menu.getItems().add(create_delete_menu_item());
@@ -305,7 +306,10 @@ public abstract class Item implements Icon_destination
         MenuItem browse = new MenuItem("Browse in new window");
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
-            Browser_creation_context.additional_different_folder(path,browser,logger);
+            Browser.scroll_position_cache.put(path,browser.get_top_left());
+
+            Rectangle2D rec = browser.get_rectangle();
+            Browser_creation_context.additional_different_folder(path,rec, logger);
         });
         return browse;
     }
@@ -602,14 +606,14 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    public  MenuItem create_open_with_system_menu_item(Path path, Logger logger)
+    public  MenuItem create_open_with_system_menu_item(Path path)
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Open_with_system",logger);
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: System Open");
-            System_open_actor.open_with_system(browser,path,logger);
+            System_open_actor.open_with_system(browser.my_Stage.the_Stage,path,browser_aborter,logger);
         });
 
         return menu_item;
@@ -619,7 +623,7 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    public  MenuItem create_open_with_special_app_item(Path path, Logger logger)
+    public  MenuItem create_open_with_special_app_item(Path path)
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Open_With_Registered_Application",logger);

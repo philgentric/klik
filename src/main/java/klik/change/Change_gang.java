@@ -44,7 +44,7 @@ public class Change_gang
     //**********************************************************
     {
         //dedicated_logger = new Disruptor_logger("Change_gang.txt");
-        dedicated_logger = new System_out_logger();
+        dedicated_logger = new System_out_logger("change gang");
         change_gang_receivers = new ConcurrentLinkedQueue<>();
         house_keeping_actor = new House_keeping_actor(change_gang_receivers);
     }

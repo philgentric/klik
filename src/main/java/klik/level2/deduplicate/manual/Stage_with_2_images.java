@@ -2,8 +2,6 @@
 //SOURCES ../../../util/files_and_paths/File_pair.java
 package klik.level2.deduplicate.manual;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -18,10 +16,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.browser.items.Item_image;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
-import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.properties.File_sort_by;
 import klik.properties.Static_application_properties;
@@ -31,10 +29,7 @@ import klik.util.log.Logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -48,7 +43,7 @@ public class Stage_with_2_images
 	Logger logger;
 
 	public final Browser browser;
-	public final Aborter private_aborter;
+	public final Aborter aborter;
 	VBox the_big_vbox;
 	Againor againor;
 	private final AtomicInteger count_deleted;
@@ -56,7 +51,7 @@ public class Stage_with_2_images
 	//**********************************************************
 	public Stage_with_2_images(
 			String title,
-			Browser browser_,
+			Browser browser,
 			File_pair pair,
 			Againor againor_,
 			AtomicInteger count_deleted_,
@@ -65,10 +60,10 @@ public class Stage_with_2_images
 			)
 	//**********************************************************
 	{
-		browser = browser_;
+		this.browser = browser;
 		logger = logger_;
 		count_deleted = count_deleted_;
-		private_aborter = private_aborter_;
+		aborter = private_aborter_;
 
 		// there is an obscure bug with random order
 		if ( File_sort_by.get_sort_files_by(logger) == File_sort_by.RANDOM_ASPECT_RATIO)
@@ -87,9 +82,9 @@ public class Stage_with_2_images
 				Look_and_feel_manager.set_region_look(the_big_vbox);
 				Scene scene = new Scene(the_big_vbox);
 				stage.setScene(scene);//, W, H));
-				stage.setOnCloseRequest((e) -> private_aborter.abort("Stage_with_2_images closing"));
+				stage.setOnCloseRequest((e) -> aborter.abort("Stage_with_2_images closing"));
 
-				if (!set_images_by_files(title,pair,browser))
+				if (!set_images_by_files(title,pair,browser,aborter))
 				{
 					stage.hide();
 					againor.again();
@@ -102,17 +97,10 @@ public class Stage_with_2_images
 
 	}
 
-	static Comparator<? super File> comp_by_path_length = new Comparator<File>() {
-		@Override
-		public int compare(File o1, File o2) {
-			Integer i1 = o1.getAbsolutePath().length();
-			Integer i2 = o2.getAbsolutePath().length();
-			return i1.compareTo(i2);
-		}
-	};
+	static Comparator<? super File> comp_by_path_length = Comparator.comparingInt((File o) -> o.getAbsolutePath().length());
 
 	//**********************************************************
-	protected boolean set_images_by_files(String title, File_pair the_pair, Browser browser)
+	protected boolean set_images_by_files(String title, File_pair the_pair, Browser browser, Aborter aborter)
 	//**********************************************************
 	{
 		the_big_vbox.getChildren().clear();
@@ -120,14 +108,10 @@ public class Stage_with_2_images
 		Button skip = new Button("Skip this pair");
 		Look_and_feel_manager.set_button_look(skip,true);
 		the_big_vbox.getChildren().add(skip);
-		skip.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event)
-			{
-				againor.again();
-				if ( stage != null) stage.hide();
-			}
-		});
+		skip.setOnAction(_ -> {
+            againor.again();
+            if ( stage != null) stage.hide();
+        });
 
 		File[] the_image_files = new File[2];
 		the_image_files[0] = the_pair.f1();
@@ -139,7 +123,7 @@ public class Stage_with_2_images
 		Display_data dd = new Display_data(title, 0, 0);
 		for ( int i = 0 ; i < the_image_files.length ; i++)
 		{
-			dd = display_one_picture_with_buttons(the_pair, browser, dd, hbox, the_image_files[i]);
+			dd = display_one_picture_with_buttons(the_pair, browser, aborter,dd, hbox, the_image_files[i]);
 			if (dd == null) return false;
 
 			if ( i == 0) {
@@ -157,7 +141,11 @@ public class Stage_with_2_images
 
 	record Display_data(String title, double image_width, double image_height){}
 	//**********************************************************
-	private Display_data display_one_picture_with_buttons(File_pair the_pair, Browser browser, Display_data previous, HBox hbox, File file)
+	private Display_data display_one_picture_with_buttons(
+			File_pair the_pair,
+			Browser browser,
+			Aborter aborter,
+			Display_data previous, HBox hbox, File file)
 	//**********************************************************
 	{
 		VBox the_vbox = new VBox();
@@ -181,10 +169,14 @@ public class Stage_with_2_images
 			boolean is_image = true;
 			if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
 			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
-            if (is_image) {
-                Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
-            } else {
-                System_open_actor.open_with_system(browser, file.toPath(), logger);
+            if (is_image)
+			{
+				Item_image.open_an_image(true,browser,file.toPath(),logger);
+                //Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
+            }
+			else
+			{
+                System_open_actor.open_with_system(browser.my_Stage.the_Stage, file.toPath(), aborter, logger);
             }
         });
 		the_vbox.getChildren().add(view);
@@ -198,7 +190,7 @@ public class Stage_with_2_images
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
 			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
-            Moving_files.safe_delete_files(stage,l, private_aborter,logger);
+            Moving_files.safe_delete_files(stage,l, aborter,logger);
 			count_deleted.incrementAndGet();
 
 			againor.again();
@@ -257,7 +249,7 @@ public class Stage_with_2_images
 		if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
 		if ( is_image)
 		{
-			Image image = From_disk.load_native_resolution_image_from_disk(file.toPath(), true, private_aborter, logger);
+			Image image = From_disk.load_native_resolution_image_from_disk(file.toPath(), true, aborter, logger);
 			HBox hbox2 = new HBox();
 			{
 				width = image.getWidth();
@@ -300,7 +292,7 @@ public class Stage_with_2_images
 	public void set_pair(String title,File_pair pair)
 	{
 		if ( !pair.both_file_exist()) return;
-		set_images_by_files(title,pair,browser);
+		set_images_by_files(title,pair,browser, aborter);
 		stage.show();
 	}
 

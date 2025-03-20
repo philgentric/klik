@@ -38,6 +38,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     File target_dir;
      Deduplication_console_window console_window;
     boolean end_reported = false;
+
     private final Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     boolean quasi_same;
@@ -61,7 +62,13 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         logger.log("Deduplication::look_for_all_files()");
 
 
-        console_window = new Deduplication_console_window(this,"Looking for similar pictures in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
+        console_window = new Deduplication_console_window(
+                this,
+                "Looking for similar pictures in:" + target_dir.getAbsolutePath(),
+                800,
+                800,
+                false,
+                browser.my_Stage.the_Stage, private_aborter, logger);
 
         Runnable r = this::runnable_deduplication;
         Actor_engine.execute(r,logger);
@@ -110,7 +117,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         console_window.total_pairs_to_be_examined.addAndGet(pairs);
 
         // launch actor (feeder) in another tread
-        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
+        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(browser.virtual_landscape.image_properties_cache, quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
         Actor_engine.execute(duplicate_finder,logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");

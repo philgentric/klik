@@ -6,6 +6,7 @@
 //SOURCES ./Finder_message.java
 package klik.search;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
@@ -29,21 +30,27 @@ public class Search_session implements Callback_for_file_found_publish
 	public final Search_config search_config;
 	private final Aborter local_aborter;
 	private final Search_receiver search_receiver;
-	private final Browser the_browser;
+	private final Browser browser;
+	private final Window window;
 	final Results_frame find_result_frame;
 
 
+
 	//**********************************************************
-	public Search_session(Search_config search_config, Browser browser, Search_receiver search_receiver, Logger logger_)
+	public Search_session(Search_config search_config,
+						  Browser browser ,
+						  Search_receiver search_receiver, Logger logger)
 	//**********************************************************
 	{
-		logger = logger_;
+		this.browser = browser;
+		this.window = browser.my_Stage.the_Stage;
+		this.logger = logger;
 		local_aborter = new Aborter("Search_session",logger);
 		status = Search_status.ready;
 		this.search_config = search_config;
 		this.search_receiver = search_receiver;
-		this.the_browser = browser;
-		this.find_result_frame = new Results_frame(browser, search_results, this, logger);
+		//this.the_browser = browser;
+		this.find_result_frame = new Results_frame(browser, local_aborter, logger);
 	}
 
 	//**********************************************************
@@ -52,7 +59,8 @@ public class Search_session implements Callback_for_file_found_publish
 	{
 		status = Search_status.searching;
 		if ( dbg) logger.log("launching search actor on path:"+search_config.path());
-		Actor_engine.run(new Finder_actor(logger),new Finder_message(search_config,this,local_aborter, the_browser),null,logger);
+
+		Actor_engine.run(new Finder_actor(logger),new Finder_message(search_config,this,local_aborter),null,logger);
 	}
 
 	//**********************************************************
@@ -166,7 +174,7 @@ public class Search_session implements Callback_for_file_found_publish
 			if ( find_result_frame != null)
 			{
 				boolean is_max = keys.equals(get_max_key());
-				find_result_frame.inject_search_results(sr,keys, is_max, the_browser);
+				find_result_frame.inject_search_results(sr,keys, is_max, window);
 			}
 		}
 

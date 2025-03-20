@@ -97,7 +97,7 @@ public class Threads
 
     public static void main(String args[])
     {
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("Threads test");
 
         class My_result
         {

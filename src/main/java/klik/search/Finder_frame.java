@@ -6,10 +6,6 @@
 
 package klik.search;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -20,7 +16,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import klik.browser.Browser;
 import klik.util.files_and_paths.Ding;
 import klik.look.Look_and_feel_manager;
@@ -54,7 +49,7 @@ public class Finder_frame implements Search_receiver
 	Search_session session;
 	Path target_path;
 
-	Browser browser;
+	final Browser browser;
 	long start_time;
 	TextField extension_tf;
 	VBox top_keyword_vbox;
@@ -63,23 +58,21 @@ public class Finder_frame implements Search_receiver
 	private boolean new_keyword_textfield_is_red = false;
 
 	//**********************************************************
-	public Finder_frame(Path target_path_, List<String> input_keywords, boolean look_only_for_images_, Browser browser, Logger logger_)
+	public Finder_frame(Path target_path_, List<String> input_keywords, boolean look_only_for_images_,
+						Browser browser,
+						Logger logger_)
 	//**********************************************************
 	{
+		this.browser = browser;
 		this.target_path = target_path_;
 		if ( !target_path.toFile().isDirectory()) target_path = target_path.getParent();
 		look_only_for_images = look_only_for_images_;
-		this.browser = browser;
+		//this.browser = browser;
 		logger = logger_;
 		stage = new Stage();
 
 
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent windowEvent) {
-				session.stop_search();
-			}
-		});
+		stage.setOnCloseRequest(_ -> session.stop_search());
 
 		stage.addEventHandler(KeyEvent.KEY_PRESSED,
 				key_event -> {
@@ -158,44 +151,35 @@ public class Finder_frame implements Search_receiver
 
 			settings_vbox.getChildren().add(up);
 
-			up.setOnAction(new EventHandler<>() {
-				@Override
-				public void handle(ActionEvent actionEvent) {
-					session.stop_search();
-					Path parent = target_path.getParent();
-					if (parent != null)
-					{
-						target_path = parent;
-						target_folder_label.setText(target_path.toAbsolutePath().toString());
-						start_search();
-					}
-				}
-			});
+			up.setOnAction(_ -> {
+                session.stop_search();
+                Path parent = target_path.getParent();
+                if (parent != null)
+                {
+                    target_path = parent;
+                    target_folder_label.setText(target_path.toAbsolutePath().toString());
+                    start_search();
+                }
+            });
 		}
 		{
 			CheckBox search_folder_names_cb = new CheckBox(My_I18n.get_I18n_string("Search_Folder_names", logger));
 			search_folder_names_cb.setSelected(search_folders_names);
 			Look_and_feel_manager.set_CheckBox_look(search_folder_names_cb);
-			search_folder_names_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
-					search_folders_names = new_value;
-					logger.log("search_folders_names = "+ search_folders_names);
-				}
-			});
+			search_folder_names_cb.selectedProperty().addListener((_, _, new_value) -> {
+                search_folders_names = new_value;
+                logger.log("search_folders_names = "+ search_folders_names);
+            });
 			settings_vbox.getChildren().add(search_folder_names_cb);
 		}
 		{
 			CheckBox search_file_names_cb = new CheckBox(My_I18n.get_I18n_string("Search_File_names", logger));
 			search_file_names_cb.setSelected(search_files_names);
 			Look_and_feel_manager.set_CheckBox_look(search_file_names_cb);
-			search_file_names_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
-					search_files_names = new_value;
-					logger.log("search_files_names = "+ search_files_names);
-				}
-			});
+			search_file_names_cb.selectedProperty().addListener((_, _, new_value) -> {
+                search_files_names = new_value;
+                logger.log("search_files_names = "+ search_files_names);
+            });
 			settings_vbox.getChildren().add(search_file_names_cb);
 		}
 		settings_vbox.getChildren().add(vertical_spacer());
@@ -203,12 +187,7 @@ public class Finder_frame implements Search_receiver
 			CheckBox only_images = new CheckBox(My_I18n.get_I18n_string("Search_Only_Images", logger));
 			only_images.setSelected(look_only_for_images);
 			Look_and_feel_manager.set_CheckBox_look(only_images);
-			only_images.selectedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
-					look_only_for_images = new_value;
-				}
-			});
+			only_images.selectedProperty().addListener((_, _, new_value) -> look_only_for_images = new_value);
 			settings_vbox.getChildren().add(only_images);
 		}
 		settings_vbox.getChildren().add(vertical_spacer());
@@ -217,12 +196,7 @@ public class Finder_frame implements Search_receiver
 			CheckBox check_case_cb = new CheckBox(My_I18n.get_I18n_string("Check_Case", logger));
 			check_case_cb.setSelected(check_case);
 			Look_and_feel_manager.set_CheckBox_look(check_case_cb);
-			check_case_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
-					check_case = new_value;
-				}
-			});
+			check_case_cb.selectedProperty().addListener((_, _, new_value) -> check_case = new_value);
 			settings_vbox.getChildren().add(check_case_cb);
 		}
 		settings_vbox.getChildren().add(vertical_spacer());
@@ -232,34 +206,31 @@ public class Finder_frame implements Search_receiver
 			CheckBox use_extension_cb = new CheckBox(My_I18n.get_I18n_string("Use_Extension", logger)+ "(e.g. pdf,jpg)");
 			use_extension_cb.setSelected(use_extension);
 			Look_and_feel_manager.set_CheckBox_look(use_extension_cb);
-			use_extension_cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_value, Boolean new_value) {
-					use_extension = new_value;
-					if (use_extension)
-					{
-						if(!extension_tf.getText().isBlank())
-						{
-							session.stop_search();
-							add_keyword_slot(extension_tf.getText().trim(), true);
-							start_search();
-						}
-					}
-					else
-					{
-						session.stop_search();
-						Keyword_slot kts = keyword_to_slot.get(extension_tf.getText());
-						top_keyword_vbox.getChildren().remove(kts.hbox1);
-						bottom_keyword_vbox.getChildren().remove(kts.hbox2);
-						keyword_to_slot.remove(extension_tf.getText());
-						start_search();
-					}
-				}
-			});
+			use_extension_cb.selectedProperty().addListener((_, _, new_value) -> {
+                use_extension = new_value;
+                if (use_extension)
+                {
+                    if(!extension_tf.getText().isBlank())
+                    {
+                        session.stop_search();
+                        add_keyword_slot(extension_tf.getText().trim(), true);
+                        start_search();
+                    }
+                }
+                else
+                {
+                    session.stop_search();
+                    Keyword_slot kts = keyword_to_slot.get(extension_tf.getText());
+                    top_keyword_vbox.getChildren().remove(kts.hbox1);
+                    bottom_keyword_vbox.getChildren().remove(kts.hbox2);
+                    keyword_to_slot.remove(extension_tf.getText());
+                    start_search();
+                }
+            });
 			hb.getChildren().add(use_extension_cb);
 			extension_tf = new TextField("");
 			extension_tf.setMaxWidth(100);
-			extension_tf.setOnAction(actionEvent -> {
+			extension_tf.setOnAction(_ -> {
 				extension_textfield_is_red = false;
 				extension_tf.setStyle("-fx-text-inner-color: blue;");
 				use_extension = true;
@@ -269,7 +240,7 @@ public class Finder_frame implements Search_receiver
 				start_search();
 			});
 
-			extension_tf.textProperty().addListener((observableValue, old_val, new_val) -> {
+			extension_tf.textProperty().addListener((_, old_val, new_val) -> {
 				if ( !extension_textfield_is_red)
 				{
 					extension_tf.setStyle("-fx-text-inner-color: red;");
@@ -298,7 +269,7 @@ public class Finder_frame implements Search_receiver
 			HBox hbox = new HBox();
 			TextField new_keyword_textfield = new TextField(BASE_);
 			new_keyword_textfield.setStyle("-fx-text-inner-color: blue;");
-			new_keyword_textfield.textProperty().addListener((observableValue, old_val, new_val) -> {
+			new_keyword_textfield.textProperty().addListener((_, old_val, new_val) -> {
 				if ( !new_keyword_textfield_is_red)
 				{
 					new_keyword_textfield.setStyle("-fx-text-inner-color: red;");
@@ -310,18 +281,13 @@ public class Finder_frame implements Search_receiver
 			new_keyword_textfield.setMinWidth(300);
 			Look_and_feel_manager.set_TextField_look(new_keyword_textfield);
 			new_keyword_textfield.setStyle("-fx-text-inner-color: darkgrey;");
-			new_keyword_textfield.setOnAction(actionEvent ->
-					{
-						new_keyword_action(new_keyword_textfield);
-					});
+			new_keyword_textfield.setOnAction(_ ->new_keyword_action(new_keyword_textfield));
 			hbox.getChildren().add(new_keyword_textfield);
 			hbox.getChildren().add(horizontal_spacer());
 
 			Button add_keyword = new Button(My_I18n.get_I18n_string("Add_Keyword", logger));
 			Look_and_feel_manager.set_button_look(add_keyword,true);
-			add_keyword.setOnAction(actionEvent -> {
-				new_keyword_action(new_keyword_textfield);
-			});
+			add_keyword.setOnAction(_ -> new_keyword_action(new_keyword_textfield));
 			hbox.getChildren().add(add_keyword);
 			top_keyword_vbox.getChildren().add(hbox);
 		}
@@ -334,25 +300,17 @@ public class Finder_frame implements Search_receiver
 		top_keyword_vbox.getChildren().add(vertical_spacer());
 
 		start = new Button(My_I18n.get_I18n_string("Start_Search", logger));
-		start.setOnAction(new EventHandler<>() {
-			@Override
-			public void handle(ActionEvent actionEvent) {
-				start_search();
-			}
-		});
+		start.setOnAction(_ -> start_search());
 		settings_vbox.getChildren().add(start);
 		Look_and_feel_manager.set_button_look(start,true);
 
 		settings_vbox.getChildren().add(vertical_spacer());
 		stop = new Button(My_I18n.get_I18n_string("Stop_Search", logger));
 		stop.setDisable(true);
-		stop.setOnAction(new EventHandler<>() {
-			@Override
-			public void handle(ActionEvent actionEvent) {
-				session.stop_search();
-				stop.setDisable(true);
-			}
-		});
+		stop.setOnAction(_ -> {
+            session.stop_search();
+            stop.setDisable(true);
+        });
 		settings_vbox.getChildren().add(stop);
 		Look_and_feel_manager.set_button_look(stop,true);
 		settings_vbox.getChildren().add(vertical_spacer());
@@ -478,12 +436,7 @@ public class Finder_frame implements Search_receiver
 	}
 
 	//**********************************************************
-	private static final Comparator<? super String> string_length_comparator = new Comparator<String>() {
-		@Override
-		public int compare(String o1, String o2) {
-			return (Integer.valueOf(o2.length())).compareTo(Integer.valueOf(o1.length()));
-		}
-	};
+	//private static final Comparator<? super String> string_length_comparator = (Comparator<String>) (o1, o2) -> (Integer.valueOf(o2.length())).compareTo(Integer.valueOf(o1.length()));
 
 
 	//**********************************************************

@@ -20,7 +20,6 @@ import javafx.scene.media.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
@@ -82,7 +81,7 @@ public class Audio_player
     double balance = 0.0;
     static Audio_player instance = null;
     Label play_list_name;
-    Browser browser = null;
+    //Browser browser = null;
 
     //**********************************************************
     private Audio_player(Logger logger_)
@@ -416,12 +415,15 @@ public class Audio_player
                     for (File f : change.getAddedSubList())
                     {
                         Button b = new Button(f.getName());
+                        b.setMnemonicParsing(false);
                         {
                             ContextMenu the_context_menu = new ContextMenu();
                             Look_and_feel_manager.set_context_menu_look(the_context_menu);
-                            MenuItem the_menu_item = new MenuItem("Browse in new window");
+                            MenuItem the_menu_item = new MenuItem("Browse folder");
                             the_menu_item.setOnAction(event -> {
                                 Path parent = f.toPath().getParent();
+                                start_new_process_to_browse(parent,logger);
+                                /*
                                 if ( browser != null)
                                 {
                                     logger.log("additional_different_folder");
@@ -431,7 +433,8 @@ public class Audio_player
                                 {
                                     logger.log("additional_no_past");
                                     browser = Browser_creation_context.additional_no_past(parent, logger);
-                                }
+                                }*/
+
                             });
                             the_context_menu.getItems().add(the_menu_item);
                             b.setOnContextMenuRequested((ContextMenuEvent event) -> {
@@ -502,7 +505,7 @@ public class Audio_player
 
         Button rewind = new Button("Rewind");
         Look_and_feel_manager.set_button_look(rewind, true);
-        rewind.setOnAction(actionEvent -> {
+        rewind.setOnAction(_ -> {
             if (the_media_player_option.isEmpty()) return;
             the_media_player_option.get().stop();
             the_media_player_option.get().play();
@@ -521,7 +524,7 @@ public class Audio_player
         play_pause = new Button(PAUSE);
         is_playing = false;
         Look_and_feel_manager.set_button_look(play_pause, true);
-        play_pause.setOnAction(actionEvent -> {
+        play_pause.setOnAction(_ -> {
             if (the_media_player_option.isEmpty()) return;
             if ( is_playing) set_is_paused();
             else set_is_playing();
@@ -552,10 +555,12 @@ public class Audio_player
     {
         Runnable r = () ->
         {
-            if (instance == null) {
+            if (instance == null)
+            {
                 instance = new Audio_player(logger);
             }
-            if (playlist_file == null) {
+            if (playlist_file == null)
+            {
                 playlist_file = get_playlist_file(logger);
             }
             instance.load_playlist(playlist_file);
@@ -598,6 +603,7 @@ public class Audio_player
         List<String> cmds = new ArrayList<>();
         logger.log("start_new_process_to_play_song()");
         cmds.add("gradle");
+        cmds.add("clean");
         cmds.add("audio_player");
         String path =  "--args=\""+the_song_file.getAbsolutePath()+"\"";
         cmds.add(path);
@@ -607,6 +613,25 @@ public class Audio_player
         Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
         logger.log(sb.toString());
     }
+
+    //**********************************************************
+    public static void start_new_process_to_browse(Path folder, Logger logger)
+    //**********************************************************
+    {
+        List<String> cmds = new ArrayList<>();
+        logger.log("start_new_process_to_browse()");
+        cmds.add("gradle");
+        cmds.add("clean");
+        cmds.add("run");
+        String path =  "--args=\""+folder.toAbsolutePath()+"\"";
+        cmds.add(path);
+
+        //cmds.add("--args=\""+the_song_file.getAbsolutePath().replaceAll(" ", "\\ ")+"\"");
+        StringBuilder sb = new StringBuilder();
+        Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
+        logger.log(sb.toString());
+    }
+
 
 
     //**********************************************************
@@ -630,7 +655,6 @@ public class Audio_player
         if ( the_song_file_ == null)
         {
             the_song_file_ = observable_playlist.get(0);
-
             if ( the_song_file_ == null) {
 
                 logger.log("FATAL: the_song_file_ is null");
@@ -646,9 +670,12 @@ public class Audio_player
         stage.setTitle(the_song_file.getName() +"       bitrate= "+bitrate+" kb/s");
 
         String encoded;
-        try {
+        try
+        {
             encoded = "file://"+the_song_file.getCanonicalPath();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             logger.log("\n\nFATAL: "+e);
             return;
         }
@@ -661,6 +688,9 @@ public class Audio_player
             tmp_media_player.setCycleCount(1);
             tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
             tmp_media_player.setOnReady(() -> on_player_ready(tmp_media_player));
+            is_playing = true;
+            play_pause.setText(PAUSE);
+
         }
         catch (MediaException me)
         {
@@ -773,8 +803,8 @@ public class Audio_player
         if ( seconds > 3600)
         {
             int h = (int)seconds/3600;
-            int m = (int)seconds- h*3600;
-            double ss = seconds- h*3600 - m*60;
+            int m = ((int)seconds - h*3600)/60;
+            double ss = seconds - h*3600 - m*60;
             ss *= 10;
             ss = (double)((int)ss)/10.0;
             s = h+ " hours, "+m+" minutes, "+ ss+ " seconds";

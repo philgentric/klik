@@ -3,6 +3,7 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.util.log.Logger;
@@ -18,7 +19,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
     public static final double SIMILARITY_THRESHOLD = 0.14;
 
     //**********************************************************
-    public Similarity_comparator_by_pursuit(Path folder, Aborter aborter, Logger logger_)
+    public Similarity_comparator_by_pursuit(Path folder, Image_properties_RAM_cache image_properties_cache, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         super(folder, aborter, logger_);
@@ -94,8 +95,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             List<Path> excluded = new ArrayList<>();
             excluded.add(p1);
             excluded.add(p2);
-            i = extend(p1, excluded, similarity, remaining, i, max_friend);
-            i = extend(p2, excluded, similarity, remaining, i, max_friend);
+            i = extend(p1, excluded, similarity, remaining, i, max_friend, image_properties_cache);
+            i = extend(p2, excluded, similarity, remaining, i, max_friend, image_properties_cache);
         }
 
         // then we complete the fill 'blindly'
@@ -112,13 +113,20 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
     }
 
     //**********************************************************
-    private int extend(Path p1, List<Path> excluding, Image_similarity similarity, List<Path> remaining, int i, int max_friend)
+    private int extend(Path p1, List<Path> excluding, Image_similarity similarity, List<Path> remaining, int i, int max_friend, Image_properties_RAM_cache image_properties_cache)
     //**********************************************************
     {
         Feature_vector fv = fv_cache.get_from_cache(p1, null, true);
-        List<Image_similarity.Most_similar> ms = similarity.find_similars_of(p1, fv,
-                false, true,max_friend+3, Double.MAX_VALUE,
-                remaining, null);
+        List<Image_similarity.Most_similar> ms = similarity.find_similars_of(
+                p1,
+                fv,
+                false,
+                true,
+                max_friend+3,
+                Double.MAX_VALUE,
+                image_properties_cache,
+                remaining,
+                null);
 
         int how_many = 0;
         for (Image_similarity.Most_similar m : ms)

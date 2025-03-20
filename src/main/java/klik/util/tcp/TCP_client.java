@@ -70,7 +70,7 @@ public class TCP_client
     public static void main( String []args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("TCP client test");
         TCP_client_out tco = TCP_client.request("localhost",TEST_PORT, "hello", logger);
 
         logger.log("status: "+tco.status());

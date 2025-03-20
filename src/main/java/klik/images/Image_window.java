@@ -13,10 +13,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Browser;
-import klik.browser.comparators.Alphabetical_file_name_comparator;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.Change_gang;
+import klik.properties.File_sort_by;
 import klik.util.files_and_paths.*;
 import klik.level3.fusk.Fusk_static_core;
 import klik.level3.fusk.Fusk_strings;
@@ -47,6 +49,7 @@ public class Image_window
     public final Scene the_Scene;
     public final Stage the_Stage;
     public final Pane the_image_Pane;
+    public final Browser browser;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
@@ -57,44 +60,25 @@ public class Image_window
     boolean ultim_mode = false;
     boolean is_full_screen = false;
     Path dir;
+    private final Image_properties_RAM_cache image_properties_cache;
 
     //**********************************************************
     public static Image_window get_Image_window(
-            Browser b,
+            Browser browser,
             Path path,
             Logger logger_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
-        Stage from_stage = null;
-        if ( b != null) from_stage = b.my_Stage.the_Stage; // for on same screen
-        Image_window returned = on_same_screen(b, from_stage, path, logger_);
+        Image_window returned = on_same_screen(browser, path, logger_);
         Performance_monitor.register_new_record("get_Image_window", path.toString(), System.currentTimeMillis() - start, logger_);
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Browser b, Stage from_stage, Path path, Logger logger_)
+    private static Image_window on_same_screen(Browser browser, Path path, Logger logger_)
     //**********************************************************
     {
-        if (from_stage == null)
-        {
-            double x = 0;
-            double y = 0;
-            double w = 800;
-            double h = 600;
-            Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
-            logger_.log("got bounds from properties="+bounds);
-            if (bounds != null)
-            {
-                x = bounds.getMinX();
-                y = bounds.getMinY();
-                w = bounds.getWidth();
-                h = bounds.getHeight();
-            }
-
-            return new Image_window(b, path, x,y, w,h, null,true,logger_);
-        }
 
         Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
         double x = bounds.getMinX();
@@ -102,7 +86,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(b, path, x, y,w, h, null, true,logger_);
+        Image_window returned = new Image_window(browser,path, x, y,w, h, null, true,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -111,7 +95,7 @@ public class Image_window
 
     //**********************************************************
     public Image_window(
-            Browser the_browser,
+            Browser browser,
             Path first_image_path,
             double x, double y,
             double w, double h,
@@ -120,6 +104,7 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
+        this.browser = browser;
         this.title_optional_addendum = title_optional_addendum;
         logger = logger_;
         dir = first_image_path.getParent();
@@ -128,6 +113,7 @@ public class Image_window
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane);
 
+        image_properties_cache = Image_properties_RAM_cache.get(first_image_path.getParent(),aborter,logger);
         String extension = FilenameUtils.getExtension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
         the_Scene = new Scene(the_image_Pane);
@@ -141,13 +127,15 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
+            boolean exit_on_escape_preference = Static_application_properties.get_escape(logger);
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(the_browser,local, keyEvent, logger));
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(browser,local, exit_on_escape_preference, keyEvent, logger));
         }
 
         boolean high_quality = false;
 
-        Comparator<? super Path> local_comp = null;
+        Comparator<? super Path> local_comp = File_sort_by.get_comparator(first_image_path.getParent(),image_properties_cache, aborter,logger);
+/*
         if ( the_browser == null)
         {
             local_comp = new Alphabetical_file_name_comparator();
@@ -156,6 +144,8 @@ public class Image_window
         {
             local_comp = the_browser.get_file_comparator();
         }
+
+ */
         Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, local_comp, aborter, logger);
         if ( option.isEmpty())
         {
@@ -220,7 +210,7 @@ public class Image_window
         EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY)
             {
-                image_display_handler.handle_mouse_clicked_secondary(the_browser, the_Stage, mouseEvent,logger);
+                image_display_handler.handle_mouse_clicked_secondary(image_properties_cache,the_Stage, mouseEvent,logger);
             }
         };
         the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);

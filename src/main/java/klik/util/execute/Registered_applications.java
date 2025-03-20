@@ -1,6 +1,7 @@
 package klik.util.execute;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.properties.Properties_manager;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
@@ -25,7 +26,7 @@ public class Registered_applications
     private static Properties_manager properties_manager;
 
     //**********************************************************
-    public static String get_registered_application(String extension, Stage owner, Logger logger)
+    public static String get_registered_application(String extension, Window owner, Logger logger)
     //**********************************************************
     {
         extension = extension.toLowerCase();

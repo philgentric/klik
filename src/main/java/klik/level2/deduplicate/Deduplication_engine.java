@@ -7,6 +7,7 @@
 
 package klik.level2.deduplicate;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.files_and_paths.*;
@@ -35,7 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Deduplication_engine implements Againor, Abortable
 //**********************************************************
 {
-    Browser browser;
+
+    private final Browser browser;
     Logger logger;
     BlockingQueue<File_pair_deduplication> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
     //int n_threads;
@@ -48,13 +50,12 @@ public class Deduplication_engine implements Againor, Abortable
     Stage_with_2_images stage_with_2_images;
 
     //**********************************************************
-    public Deduplication_engine(Browser b_, File target_dir_, Logger logger_)
-    //**********************************************************
+    public Deduplication_engine(Browser browser, File target_dir_, Logger logger_)
+    //*************************************w********************
     {
-        browser = b_;
+        this.browser = browser;
         target_dir = target_dir_;
         logger = logger_;
-        //browser_aborter = b_.aborter;
     }
 
 
@@ -66,7 +67,7 @@ public class Deduplication_engine implements Againor, Abortable
         Deduplication_engine local_engine = this;
 
 
-        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, browser, private_aborter, logger);
+        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, browser.my_Stage.the_Stage, private_aborter, logger);
 
         Runnable r = () -> runnable_deduplication(local_engine, auto);
         Actor_engine.execute(r,logger);
@@ -396,7 +397,7 @@ public class Deduplication_engine implements Againor, Abortable
     //**********************************************************
     {
         logger.log("Deduplication::count()");
-        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, true, browser, private_aborter, logger);
+        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, true, browser.my_Stage.the_Stage, private_aborter, logger);
 
         Runnable r = () -> just_count();
         Actor_engine.execute(r,logger);

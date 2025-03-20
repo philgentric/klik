@@ -17,6 +17,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
 //**********************************************************
@@ -33,7 +34,7 @@ public class Audio_player_application extends Application
     public void start(Stage stage) throws Exception
     //**********************************************************
     {
-        Logger logger =  new System_out_logger();
+        Logger logger =  new System_out_logger("Audio_player");
 
         logger.log("Audio_player_application start");
 
@@ -65,38 +66,33 @@ public class Audio_player_application extends Application
 
         Audio_player.play_song(f, logger);
 
-        Session_factory session_factory = new Session_factory() {
+        Session_factory session_factory = () -> new Session() {
             @Override
-            public Session make_session() {
-                return new Session() {
-                    @Override
-                    public void on_client_connection(DataInputStream dis, DataOutputStream dos)
-                    {
-                        try {
-                            int size = dis.readInt();
-                            byte buffer[] = new byte[size];
-                            dis.read(buffer);
-                            String file_path = new String(buffer, StandardCharsets.UTF_8);
-                            File f = new File(file_path);
-                            Audio_player.play_song(f,logger);
-                            String reply = Audio_player.PLAY_REQUEST_ACCEPTED;
-                            buffer = reply.getBytes(StandardCharsets.UTF_8);
-                            dos.writeInt(buffer.length);
-                            dos.write(buffer);
-                            logger.log("accepted file for playing");
-                        }
-                        catch (IOException e)
-                        {
-                            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                        }
+            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            {
+                try {
+                    int size = dis.readInt();
+                    byte buffer[] = new byte[size];
+                    dis.read(buffer);
+                    String file_path = new String(buffer, StandardCharsets.UTF_8);
+                    File f1 = new File(file_path);
+                    Audio_player.play_song(f1,logger);
+                    String reply = Audio_player.PLAY_REQUEST_ACCEPTED;
+                    buffer = reply.getBytes(StandardCharsets.UTF_8);
+                    dos.writeInt(buffer.length);
+                    dos.write(buffer);
+                    logger.log("accepted file for playing");
+                }
+                catch (IOException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                }
 
-                    }
+            }
 
-                    @Override
-                    public String name() {
-                        return "";
-                    }
-                };
+            @Override
+            public String name() {
+                return "";
             }
         };
         TCP_server tcp_server = new TCP_server(session_factory,new Aborter("audio",logger),logger);

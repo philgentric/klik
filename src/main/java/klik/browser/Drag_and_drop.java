@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.items.Item;
 import klik.util.files_and_paths.Moving_files;
@@ -26,16 +27,9 @@ public class Drag_and_drop
 {
     public static boolean drag_and_drop_dbg = false;
 
-
-
-
-
-
-
-
     //**********************************************************
     public static int accept_drag_dropped_as_a_move_in(
-            Stage owner,
+            Window owner,
             DragEvent drag_event,
             Path destination_dir,
             Node excluded,
@@ -180,7 +174,12 @@ public class Drag_and_drop
     }
 
 
-    public static void init_drag_and_drop_sender_side(Node node, Browser browser, Path path, Logger logger) {
+    public static void init_drag_and_drop_sender_side(
+            Node node,
+            Browser browser,
+            Path path,
+            Logger logger)
+    {
         node.setOnDragDetected(drag_event -> {
             if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
             Dragboard db = node.startDragAndDrop(TransferMode.MOVE);

@@ -104,10 +104,14 @@ public class My_I18n
         {
             return key;
         }
-        return cache.get_I18n_string_internal(key,logger);
+        String returned = cache.get_I18n_string_internal(key,logger);
+        if ( returned == null) return key;
+        return returned;
     }
 
+    //**********************************************************
     public static void reset()
+    //**********************************************************
     {
         cache = null;
     }

@@ -1,7 +1,7 @@
 //SOURCES ../../level3/metadata/Metadata_handler.java
 package klik.util.files_and_paths;
 
-import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_factory_actor;
@@ -35,7 +35,7 @@ public class Moving_files
     private static final boolean moving_files_dbg = false;
 
     //**********************************************************
-    public static void safe_move_files_or_dirs(Stage owner,
+    public static void safe_move_files_or_dirs(Window owner,
                                                Path destination_dir,
                                                boolean destination_is_trash,
                                                List<File> the_files_being_moved,
@@ -63,11 +63,11 @@ public class Moving_files
         if (popup) {
             Popups.popup_warning(owner, "Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, logger);
         }
-                perform_safe_moves_in_a_thread(owner, oan_list,  true, aborter,logger);
+        perform_safe_moves_in_a_thread(owner, oan_list,  true, aborter,logger);
     }
 
     //**********************************************************
-    public static void safe_move_a_file_or_dir_in_a_thread(Stage owner, Path destination_dir, File the_file_being_moved, Aborter aborter, Logger logger)
+    public static void safe_move_a_file_or_dir_in_a_thread(Window owner, Path destination_dir, File the_file_being_moved, Aborter aborter, Logger logger)
     //**********************************************************
     {
         List<Old_and_new_Path> oanl = new ArrayList<>();
@@ -80,7 +80,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    public static void safe_move_a_file_or_dir_NOT_in_a_thread(Stage owner, Path new_Path_, File the_file_being_moved, Aborter aborter, Logger logger)
+    public static void safe_move_a_file_or_dir_NOT_in_a_thread(Window owner, Path new_Path_, File the_file_being_moved, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path old_Path_ = the_file_being_moved.toPath();
@@ -95,7 +95,7 @@ public class Moving_files
 
 
     //**********************************************************
-    public static void perform_safe_moves_in_a_thread(Stage owner, List<Old_and_new_Path> the_list,  boolean and_list_for_undo, Aborter aborter, Logger logger)
+    public static void perform_safe_moves_in_a_thread(Window owner, List<Old_and_new_Path> the_list,  boolean and_list_for_undo, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (the_list == null) {
@@ -122,7 +122,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    public static void safe_delete_files(Stage owner, List<Old_and_new_Path> l, Aborter aborter, Logger logger)
+    public static void safe_delete_files(Window owner, List<Old_and_new_Path> l, Aborter aborter, Logger logger)
     //**********************************************************
     {
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -140,7 +140,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    public static List<Old_and_new_Path> actual_safe_moves(Stage owner, List<Old_and_new_Path> the_list,
+    public static List<Old_and_new_Path> actual_safe_moves(Window owner, List<Old_and_new_Path> the_list,
                                           boolean and_list_for_undo, Aborter aborter , Logger logger)
     //**********************************************************
     {
@@ -264,7 +264,7 @@ public class Moving_files
     private static final boolean unsafe = true;
 
     //**********************************************************
-    private static Old_and_new_Path process_one_move(Stage owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
+    private static Old_and_new_Path process_one_move(Window owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (oandn.cmd == Command_old_and_new_Path.command_move)
@@ -416,7 +416,7 @@ public class Moving_files
 
 
     //**********************************************************
-    private static Old_and_new_Path do_the_move_or_delete(Stage owner, Old_and_new_Path oandn, Logger logger)
+    private static Old_and_new_Path do_the_move_or_delete(Window owner, Old_and_new_Path oandn, Logger logger)
     //**********************************************************
     {
         try {
@@ -500,7 +500,7 @@ public class Moving_files
 
 
     //**********************************************************
-    private static Old_and_new_Path move_failed(Stage owner, Old_and_new_Path oandn, IOException e0, Logger logger)
+    private static Old_and_new_Path move_failed(Window owner, Old_and_new_Path oandn, IOException e0, Logger logger)
     //**********************************************************
     {
         logger.log("******* move failed for: *********\n" +

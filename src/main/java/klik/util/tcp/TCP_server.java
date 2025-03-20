@@ -122,7 +122,7 @@ public class TCP_server
     public static void main( String []args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("TCP server test");
 
         CountDownLatch cdl = new CountDownLatch(1);
         Session_factory the_session_factory = () -> new Session()

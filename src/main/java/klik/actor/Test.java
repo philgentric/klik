@@ -13,7 +13,7 @@ public class Test
     public static void main(String args[])
     //**********************************************************
     {
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("actor test");
 
         class Message1 implements Message
         {

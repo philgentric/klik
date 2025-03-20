@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.Browser;
@@ -35,7 +36,8 @@ public class Deduplication_console_window
     private static final boolean dbg = false;
     public static final String STATUS = "Status: ";
     Aborter private_aborter;
-    Browser browser;
+    //Browser browser;
+    Window window;
     public AtomicInteger count_directory_examined = new AtomicInteger(0);
     Label label_directory_examined;
     Label label_total_files_to_be_examined;
@@ -63,12 +65,12 @@ public class Deduplication_console_window
             String title,
             double w, double h,
             boolean just_count_,
-            Browser browser_,
+            Window window,
             Aborter aborter_,
             Logger logger)
     //**********************************************************
     {
-        browser = browser_;
+        this.window = window;
         abortable = abortable_;
         private_aborter = aborter_;
         just_count = just_count_;

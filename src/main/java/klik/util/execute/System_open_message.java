@@ -1,6 +1,7 @@
 package klik.util.execute;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Message;
 import klik.util.log.Logger;
@@ -12,17 +13,17 @@ public class System_open_message implements Message
 //**********************************************************
 {
 
-    public final Stage the_Stage;
+    public final Window window;
     public final Path path;
     public final Logger logger;
     public final Aborter aborter;
     public final boolean special;
     //**********************************************************
-    public System_open_message(boolean special, Stage owner, Path path, Aborter aborter, Logger logger)
+    public System_open_message(boolean special, Window window, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.special = special;
-        the_Stage = owner;
+        this.window = window;
         this.path = path;
         this.logger = logger;
        this.aborter = aborter;

@@ -123,6 +123,7 @@ import klik.util.log.System_out_logger;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 
 //**********************************************************
 public class Klik_application extends Application
@@ -146,7 +147,7 @@ public class Klik_application extends Application
 
         //setUserAgentStylesheet(STYLESHEET_MODENA);
 
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("Klik");
 
         Language_manager.init_registered_languages(logger);
 
@@ -156,7 +157,18 @@ public class Klik_application extends Application
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
 
-        Path path = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
+        Parameters params = getParameters();
+        List<String> list = params.getRaw();
+        Path path;
+        if ( list.isEmpty())
+        {
+            path = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
+        }
+        else
+        {
+            path = Path.of(list.get(0));
+        }
+
         Browser_creation_context.first(new My_Stage(primary_stage,logger),path,logger);
     }
 

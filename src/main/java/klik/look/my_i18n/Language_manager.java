@@ -59,7 +59,7 @@ public class Language_manager
 
         for ( Language l : languages)
         {
-            l.print_all();
+            //l.print_all();
             registered_languages.put(l.language_key(), l);
         }
         String language_key = Static_application_properties.get_language_key(logger_);

@@ -153,7 +153,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
 
     // make sure we go again at the same scroll point when we enter a given folder
-    static Map<Path, Path> scroll_position_cache = new HashMap<>();
+    public static Map<Path, Path> scroll_position_cache = new HashMap<>();
     public double max_dir_text_length;
 
 
@@ -214,17 +214,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Image_feature_vector_cache.images_and_feature_vectors_cache.clear();
     }
 
-    public Comparator<? super Path> get_file_comparator() {
-        return virtual_landscape.get_file_comparator();
-    }
+    //public Comparator<? super Path> get_file_comparator() {return virtual_landscape.get_file_comparator();}
 
-    enum Scan_state {
-        off,
-        down,
-        up
-    }
-
-    private Scan_state scan_state = Scan_state.off;
 
     //**********************************************************
     public Browser(
@@ -261,21 +252,26 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         double width = 2400 / 2.0;
         double height = 1080 - y;
 
-        if (windows_count.get() == 1) {
+        if (windows_count.get() == 1)
+        {
             Rectangle2D r = Static_application_properties.get_window_bounds(BROWSER_WINDOW, logger);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
             y = r.getMinY();
-        } else {
-            if (context.rectangle != null) {
+        }
+        else
+        {
+            if (context.rectangle != null)
+            {
                 width = context.rectangle.getWidth();//old_browser.the_Stage.getWidth();
                 height = context.rectangle.getHeight();//old_browser.the_Stage.getHeight();
                 x = context.rectangle.getMinX();//old_browser.the_Stage.getX();
                 y = context.rectangle.getMinY();//old_browser.the_Stage.getY();
 
             }
-            if (context.move_a_bit) {
+            if (context.move_a_bit)
+            {
                 x += 100;
                 y += 100;
             }
@@ -739,6 +735,20 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
 
+
+
+
+
+    //**********************************************************
+    enum Scan_state
+    //**********************************************************
+    {
+        off,
+        down,
+        up
+    }
+
+    private Scan_state scan_state = Scan_state.off;
     //**********************************************************
     void handle_scan_switch()
     //**********************************************************

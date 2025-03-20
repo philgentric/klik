@@ -502,7 +502,9 @@ public class Virtual_landscape
     //**********************************************************
     {
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
-        switch (File_sort_by.get_sort_files_by(logger))
+
+        other_file_comparator = File_sort_by.get_comparator(the_browser.displayed_folder_path,image_properties_cache,aborter,logger);
+/*        switch (File_sort_by.get_sort_files_by(logger))
         {
             case SIMILARITY_BY_PURSUIT:
                 other_file_comparator = new Similarity_comparator_by_pursuit(the_browser.displayed_folder_path,aborter,logger);
@@ -526,6 +528,8 @@ public class Virtual_landscape
                 other_file_comparator = new Alphabetical_file_name_comparator_gif_first();
                 break;
         }
+
+ */
         image_file_comparator = other_file_comparator;
 
         // these MUST be mutually exclusive:

@@ -31,7 +31,7 @@ public abstract class Feature_vector_source
     static long tx_count = 0;
     static long SUM_dur = 0;
     static{
-        Logger l = new System_out_logger();
+        Logger l = new System_out_logger("embeddings");
         Runnable r = () ->
         {
             for(;;)

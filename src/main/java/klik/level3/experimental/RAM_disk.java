@@ -1,6 +1,7 @@
 package klik.level3.experimental;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -26,7 +27,7 @@ public class RAM_disk
     private static final boolean dbg = false;
 
     //**********************************************************
-    public static boolean init_RAM_disk_path(Stage owner, Logger logger)
+    public static boolean init_RAM_disk_path(Window owner, Logger logger)
     //**********************************************************
     {
         String os = System.getProperty("os.name").toLowerCase();
@@ -49,7 +50,7 @@ public class RAM_disk
     }
 
     //**********************************************************
-    public static boolean init_RAM_disk(long RAM_disk_size_MB, Stage owner, Logger logger)
+    public static boolean init_RAM_disk(long RAM_disk_size_MB, Window owner, Logger logger)
     //**********************************************************
     {
         String os = System.getProperty("os.name").toLowerCase();
@@ -85,7 +86,7 @@ public class RAM_disk
 
 
     //**********************************************************
-    public static String get_top_folder_name(Stage owner, Logger logger)
+    public static String get_top_folder_name(Window owner, Logger logger)
     //**********************************************************
     {
         if ( ram_disk_path == null)
@@ -142,7 +143,7 @@ public class RAM_disk
     // returns a directory using that relative name, on the user home
     // creates it if needed
     //**********************************************************
-    public static Path get_absolute_dir_on_RAM_disk(String relative_dir_name, Stage owner, Logger logger)
+    public static Path get_absolute_dir_on_RAM_disk(String relative_dir_name, Window owner, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("dir_name=" + relative_dir_name);

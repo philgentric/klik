@@ -397,7 +397,7 @@ public class Properties_manager
     {
         String TOTO = "toto";
         File f_ = new File("debil.txt");
-        Logger logger = new System_out_logger();
+        Logger logger = new System_out_logger("Properties test");
         Properties_manager pm = new Properties_manager(f_.toPath(), logger);
 
         for (int i = 0; i < 15; i++)

@@ -12,7 +12,9 @@ public class Finder
 //**********************************************************
 {
     //**********************************************************
-    public static void find(Path path, Browser browser, List<String> keywords, boolean search_only_images, Logger logger)
+    public static void find(Path path,
+                            Browser browser,
+                            List<String> keywords, boolean search_only_images, Logger logger)
     //**********************************************************
     {
         Finder_frame popup = new Finder_frame(
