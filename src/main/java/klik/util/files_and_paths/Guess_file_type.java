@@ -7,7 +7,6 @@ import klik.properties.Static_application_properties;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.level3.fusk.Fusk_static_core;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -79,7 +78,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (should_ignore(path)) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_text(extension);
     }
     //**********************************************************
@@ -87,7 +86,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (should_ignore(path)) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_an_image(extension);
     }
 
@@ -109,7 +108,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (path.getFileName().toString().startsWith("._")) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio(extension);
     }
 
@@ -118,7 +117,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (path.getFileName().toString().startsWith("._")) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_playlist(extension);
     }
     //**********************************************************
@@ -126,7 +125,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (path.getFileName().toString().startsWith("._")) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_pdf(extension);
     }
     //**********************************************************
@@ -134,7 +133,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (path.getFileName().toString().startsWith("._")) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_gif(extension);
     }
 
@@ -143,7 +142,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if (path.getFileName().toString().startsWith("._")) return false;
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_video(extension);
     }
 

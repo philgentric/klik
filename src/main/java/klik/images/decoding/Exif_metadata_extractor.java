@@ -10,11 +10,11 @@ import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.From_disk;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.level3.fusk.Fusk_static_core;
 import klik.level3.fusk.Fusk_strings;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,12 +78,12 @@ public class Exif_metadata_extractor
         //String file = My_I18n.get_I18n_string("File",logger);
 
 
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
             if ( Static_application_properties.get_enable_fusk(logger)) {
                 if (Fusk_static_core.is_fusk(path, aborter,logger)) {
-                    String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
+                    String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
                     exif_metadata.add("... which is a fusk of: ->" + Fusk_strings.defusk_string(base, logger) + "<-");
                 } else {
                     exif_metadata.add("... which has a fusk extension BUT IS NOT!");

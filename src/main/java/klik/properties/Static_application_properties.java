@@ -22,7 +22,7 @@ import java.util.List;
 public class Static_application_properties
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final String SCREEN_TOP_LEFT_X = "_SCREEN_TOP_LEFT_X";
     public static final String SCREEN_TOP_LEFT_Y = "_SCREEN_TOP_LEFT_Y";
     public static final String SCREEN_WIDTH = "_SCREEN_WIDTH";
@@ -521,7 +521,6 @@ public class Static_application_properties
         if (dbg) logger.log("dir_name=" + relative_dir_name);
         String home = System.getProperty(USER_HOME);
         if (dbg) logger.log("user home =" + home);
-
         return from_top_folder(home, relative_dir_name,can_fail, logger);
     }
 

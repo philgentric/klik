@@ -29,7 +29,6 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.image_ml.Feature_vector;
@@ -39,7 +38,6 @@ import klik.util.ui.Show_running_man_frame_with_abort_button;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -625,9 +623,9 @@ public class Face_recognition_service
     public void load_one_prototype(File f)
     //**********************************************************
     {
-        String ext = FilenameUtils.getExtension(f.getName());
+        String ext = Static_files_and_paths_utilities.get_extension(f.getName());
         if ( !ext.equals(EXTENSION_FOR_EP)) return;
-        String tag = FilenameUtils.getBaseName(f.getName());
+        String tag = Static_files_and_paths_utilities.get_base_name(f.getName());
 
         Embeddings_prototype ep = load_ep(f,tag);
         if ( ep == null)
@@ -827,7 +825,7 @@ public class Face_recognition_service
                 continue;
             }
             if ( aborter_for_self.should_abort()) return;
-            if ( ! FilenameUtils.getExtension(f.getName()).equals(EXTENSION_FOR_EP)) continue;
+            if ( ! Static_files_and_paths_utilities.get_extension(f.getName()).equals(EXTENSION_FOR_EP)) continue;
             int N = Actor_engine.how_many_threads_are_in_flight(logger);
             if ( N > MAX_THREADS)
             {
@@ -851,9 +849,9 @@ public class Face_recognition_service
     private void self_file(File f, File[] files, Aborter aborter_for_self)
     //**********************************************************
     {
-        String ext = FilenameUtils.getExtension(f.getName());
+        String ext = Static_files_and_paths_utilities.get_extension(f.getName());
         if ( !ext.equals(EXTENSION_FOR_EP)) return;
-        String self_target_tag = FilenameUtils.getBaseName(f.getName());
+        String self_target_tag = Static_files_and_paths_utilities.get_base_name(f.getName());
 
         boolean part2 = true;
         String label = null;
@@ -885,9 +883,9 @@ public class Face_recognition_service
         for ( File f2 : files)
         {
             if ( f.getAbsolutePath().equals(f2.getAbsolutePath())) continue;
-            if ( ! FilenameUtils.getExtension(f2.getName()).equals(EXTENSION_FOR_EP)) continue;
+            if ( ! Static_files_and_paths_utilities.get_extension(f2.getName()).equals(EXTENSION_FOR_EP)) continue;
             Feature_vector fv2 = null;
-            String tag2 = FilenameUtils.getBaseName(f2.getName());
+            String tag2 = Static_files_and_paths_utilities.get_base_name(f2.getName());
             String label2 = load_label_from_ep_file(f2);
             if ( label2 == null) continue;
             if ( !label2.equals(label)) continue;

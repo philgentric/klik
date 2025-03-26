@@ -1,28 +1,41 @@
-
-
 plugins {
     id 'java'
 
     // not required with the beryx runtime plugin
-    //id 'application'
+    id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    //id("com.gradleup.shadow") version "9.0.0-beta11"
 
     // if modular:
     //id 'org.beryx.jlink' version '3.0.1'
-
     // non modular:
     //https://badass-runtime-plugin.beryx.org/releases/latest/
-    id 'org.beryx.runtime' version '1.13.1'
+    //id 'org.beryx.runtime' version '1.13.1'
 
-    id 'org.graalvm.buildtools.native' version '0.10.5'
+    //id 'org.graalvm.buildtools.native' version '0.10.5'
 
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
+
+/*
 ext {
     javacppPlatform = 'macosx-arm64'
 }
+*/
+
 group = 'klik'
-version = '1.0.0'
+version = '1.0'
+
+
+// this is REQUIRED with a JDK that does not bundle javaFX
+
+javafx {
+    version = "23.0.2"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media','javafx.web' ]
+}
+
+
 
 repositories {
     mavenCentral()
@@ -34,11 +47,12 @@ repositories {
     options.compilerArgs += ['-Xlint:-options']
 }*/
 
+/*
 java {
     sourceCompatibility = JavaVersion.VERSION_23
     targetCompatibility = JavaVersion.VERSION_23
 }
-
+*/
 
 dependencies {
     // EXIF reader
@@ -48,39 +62,17 @@ dependencies {
     // files etc
     implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
     // for face recognition: gson is used to serialise the feature vectors between the python server and this app
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:2.11.0'
 
 }
 
+/*
 // beryx runtime plugin
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     //modules = ['java.naming', 'java.xml']
 }
-
-def main_class_name = 'klik.Klik_application'
-
-application {
-    //mainModule = 'klikmodule'
-    mainClass = main_class_name
-
-    // Java VM RAM size options:
-
-    // if you have only 2GB or not much more:
-    //applicationDefaultJvmArgs = ["-Xms1G"]
-
-    // if you have a lot of RAM say 64GB or more
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC"]
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
-
-}
-
-// this is REQUIRED with a JDK that does not bundle javaFX
-javafx {
-    version = "23"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.graphics','javafx.media','javafx.web' ]
-}
+*/
 
 
 // these "tasks.register" items work only with a JDK that bundles javafx such as 23.0.2.fx-zulu
@@ -116,36 +108,47 @@ tasks.register('TCP_client', JavaExec) {
     group = 'unit tests'
 }
 
-//jar {
-//    manifest {
-//        attributes(
-//                'Main-Class': main_class_name
-//        )
-//    }
-//}
 
-/*
-// fails with ClassNotFoundException
-graalvmNative {
-    agent {
-        enabled = true
-    }
-    binaries.main {
-        imageName = "klik"
-        mainClass = main_class_name
-        //buildArgs.add("-O4")
-        useFatJar = true
-        buildArgs.add('--link-at-build-time')
-        debug = true
-        verbose = true
-        fallback = true
-        sharedLibrary = false
-        quickBuild = false
-        richOutput = false
-    }
-    toolchainDetection.set(true)
+
+
+def main_class_name = 'klik.Klik_application'
+application {
+    //mainModule = 'klikmodule'
+    mainClass = main_class_name
+
+    // Java VM RAM size options:
+
+    // if you have only 2GB or not much more:
+    //applicationDefaultJvmArgs = ["-Xms1G"]
+
+    // if you have a lot of RAM say 64GB or more
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
+
 }
 
- */
+run{
+    standardInput = System.in
+    classpath = sourceSets.main.runtimeClasspath
+}
 
 
+tasks.register('klik_the_jar', Jar) {
+    manifest {
+        attributes('Main-Class': 'klik.Klik_application')
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        sourceSets.main.output
+    }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveBaseName.set('Klik')
+    archiveVersion.set('1.0')
+    destinationDirectory.set(layout.buildDirectory.dir("libs"))
+}
+
+tasks.named('build'){
+    dependsOn tasks.named('klik_the_jar')
+}

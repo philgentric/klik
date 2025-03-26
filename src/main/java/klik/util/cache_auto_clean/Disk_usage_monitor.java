@@ -2,7 +2,6 @@ package klik.util.cache_auto_clean;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Cache_folders;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -43,7 +42,10 @@ public class Disk_usage_monitor
 
         for (Cache_folders cache_folder : Cache_folders.values())
         {
-            monitored_folders.add(new Monitored_folder(cache_folder.name(), Static_files_and_paths_utilities.get_cache_folder(cache_folder,logger), true));
+            System.out.println("Disk_usage_monitor ");
+            Path ff = Static_files_and_paths_utilities.get_cache_folder(cache_folder, logger);
+            Monitored_folder tt = new Monitored_folder(cache_folder.name(), ff, true);
+            monitored_folders.add(tt);
         }
 
         for ( Path t : Static_application_properties.get_existing_trash_dirs(logger))

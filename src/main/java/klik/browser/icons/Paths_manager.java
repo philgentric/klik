@@ -83,7 +83,7 @@ public class Paths_manager
                     non_iconized.put(path,true);
                     return;
                 }
-                String extension = FilenameUtils.getExtension(path.getFileName().toString());
+                String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
                     // special dirty case: MKV can be audio OR video ...

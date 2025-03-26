@@ -1,46 +1,17 @@
 package klik.image_ml.image_similarity;
 
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
-import klik.browser.Browser;
-import klik.change.Change_gang;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
-import klik.images.*;
-import klik.level3.fusk.Fusk_static_core;
-import klik.level3.fusk.Fusk_strings;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
-import klik.util.files_and_paths.Command_old_and_new_Path;
-import klik.util.files_and_paths.Moving_files;
-import klik.util.files_and_paths.Old_and_new_Path;
-import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
-import klik.util.performance_monitor.Performance_monitor;
-import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Popups;
-import org.apache.commons.io.FilenameUtils;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 
 //**********************************************************

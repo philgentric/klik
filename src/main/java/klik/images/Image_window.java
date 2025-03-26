@@ -13,7 +13,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -30,7 +29,6 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
-import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -114,7 +112,7 @@ public class Image_window
         Look_and_feel_manager.set_region_look(the_image_Pane);
 
         image_properties_cache = Image_properties_RAM_cache.get(first_image_path.getParent(),aborter,logger);
-        String extension = FilenameUtils.getExtension(first_image_path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
         the_Scene = new Scene(the_image_Pane);
         Color background = Look_and_feel_manager.get_instance().get_background_color();
@@ -413,10 +411,10 @@ public class Image_window
         {
 
 
-            String extension = FilenameUtils.getExtension(ic.path.getFileName().toString());
+            String extension = Static_files_and_paths_utilities.get_extension(ic.path.getFileName().toString());
             if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
             {
-                String base = FilenameUtils.getBaseName(ic.path.toAbsolutePath().toString());
+                String base = Static_files_and_paths_utilities.get_base_name(ic.path.toAbsolutePath().toString());
                 local_title.append(Fusk_strings.defusk_string(base, logger)).append("*");
             }
             else
@@ -569,7 +567,7 @@ public class Image_window
                     local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
                 }
             }
-            set_background(the_image_Pane,FilenameUtils.getExtension(local_image_context.get_image_name()));
+            set_background(the_image_Pane,Static_files_and_paths_utilities.get_extension(local_image_context.get_image_name()));
 
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed

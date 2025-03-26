@@ -1,7 +1,6 @@
 package klik.util.execute;
 
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
 import java.io.BufferedReader;
 import java.io.File;

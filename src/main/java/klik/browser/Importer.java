@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.my_i18n.My_I18n;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
 import klik.look.Font_size;
@@ -18,7 +19,6 @@ import klik.properties.Static_application_properties;
 import klik.util.execute.Scheduled_thread_pool;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,9 +86,9 @@ public class Importer
 
         File_payload file_payload = f -> {
             logger.log("Importer: looking at file: "+f.getName());
-            if (!(FilenameUtils.getExtension(f.getName()).equals("jpeg")))
+            if (!(Static_files_and_paths_utilities.get_extension(f.getName()).equals("jpeg")))
             {
-                logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+FilenameUtils.getExtension(f.getName()));
+                logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Static_files_and_paths_utilities.get_extension(f.getName()));
                 return;
             }
             try
@@ -171,9 +171,9 @@ public class Importer
             @Override
             public void process_file(File f) {
                 //logger.log("Importer: looking at file: "+f.getName());
-                if (!(FilenameUtils.getExtension(f.getName()).equals("jpeg")))
+                if (!(Static_files_and_paths_utilities.get_extension(f.getName()).equals("jpeg")))
                 {
-                    //logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+FilenameUtils.getExtension(f.getName()));
+                    //logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Static_files_and_paths_utilities.get_extension(f.getName()));
                     return;
                 }
                 size.addAndGet(f.length());

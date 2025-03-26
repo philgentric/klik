@@ -34,8 +34,8 @@ public class Name_cleaner
         String base_name = in;
         if ( check_extension)
         {
-            extension = FilenameUtils.getExtension(in);
-            base_name = FilenameUtils.getBaseName(in);
+            extension = Static_files_and_paths_utilities.get_extension(in);
+            base_name = Static_files_and_paths_utilities.get_base_name(in);
         }
 
         String new_str = base_name.trim();
@@ -122,8 +122,8 @@ public class Name_cleaner
     {
         // trys to remove all SP_EZ_IA_L+N
 
-        String extension = FilenameUtils.getExtension(in);
-        String base_name = FilenameUtils.getBaseName(in);
+        String extension = Static_files_and_paths_utilities.get_extension(in);
+        String base_name = Static_files_and_paths_utilities.get_base_name(in);
 
 
         String result = base_name;

@@ -19,17 +19,16 @@ import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import klik.browser.Browser;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Static_application_properties;
 import klik.util.execute.Execute_command;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 import klik.util.tcp.TCP_client_out;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import java.io.*;
@@ -917,7 +916,7 @@ public class Audio_player
     private String extract_playlist_name()
     //**********************************************************
     {
-        return FilenameUtils.getBaseName(playlist_file.getName());
+        return Static_files_and_paths_utilities.get_base_name(playlist_file.getName());
     }
 
     //**********************************************************

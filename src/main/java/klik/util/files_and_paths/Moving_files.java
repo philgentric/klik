@@ -16,9 +16,6 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Show_running_man_frame;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Popups;
-import org.apache.commons.io.FileExistsException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
 import java.nio.file.*;
@@ -168,14 +165,12 @@ public class Moving_files
                 File current_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.old_Path,String.valueOf(icon_size), Icon_factory_actor.png_extension);
                 if (current_icon.exists()) {
                     File new_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.new_Path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
-                    try {
-                        //Files.move(current_icon.toPath(), new_icon.toPath());
-                        FileUtils.moveFile(current_icon, new_icon, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (FileAlreadyExistsException e) {
-                        logger.log("icon move failed: " + e);
-                    }
-                    catch (IOException e) {
-                        logger.log("icon move failed: " + e);
+
+                    //Files.move(current_icon.toPath(), new_icon.toPath());
+                    //FileUtils.moveFile(current_icon, new_icon, StandardCopyOption.REPLACE_EXISTING);
+                    if ( !Static_files_and_paths_utilities.move_file(current_icon.toPath(),new_icon.toPath(),logger))
+                    {
+                        logger.log("icon move failed");
                     }
                 }
                 //logger.log("renaming icon :"+current_icon.getName()+"==>"+new_icon.getName());
@@ -438,11 +433,14 @@ public class Moving_files
                 if (oandn.get_old_Path().toFile().isFile())
                 {
                     // preserves attributes by default:
-                    FileUtils.moveFile(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
+                    //FileUtils.moveFile(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
+                    Static_files_and_paths_utilities.move_file(oandn.get_old_Path(),oandn.get_new_Path(),logger);
                 }
                 else
                 {
-                    FileUtils.moveDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
+                    Static_files_and_paths_utilities.move_file(oandn.get_old_Path(),oandn.get_new_Path(),logger);
+
+                    //FileUtils.moveDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
 
                 if ( System.currentTimeMillis()-start > 5_000)
@@ -461,10 +459,7 @@ public class Moving_files
             logger.log("WARNING1: move failed " + oandn.get_old_Path() + " ACCESS DENIED exception ");
             return move_failed(owner, oandn, x, logger);
         }
-        catch (FileExistsException x) {
-            logger.log("WARNING2: move failed " + oandn.get_old_Path() + " file exists exception, the destination already exists"+oandn.get_new_Path());
-            return move_failed(owner, oandn, x, logger);
-        }
+
         catch (FileNotFoundException x) {
             logger.log("WARNING3: move failed " + oandn.get_old_Path() + " file not found exception, the source does not exists?"+oandn.get_old_Path());
             return move_failed(owner, oandn, x, logger);
@@ -536,7 +531,8 @@ public class Moving_files
                     Files.copy(oandn.get_old_Path(), oandn.get_new_Path());
 
                 } else {
-                    FileUtils.copyDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
+                    Static_files_and_paths_utilities.copy_dir(oandn.get_old_Path(), oandn.get_new_Path(),logger);
+                    //FileUtils.copyDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
 
 
@@ -600,8 +596,8 @@ public class Moving_files
     public static Path generate_new_candidate_name(Path old_path, String prefix, String postfix, Logger logger)
     //**********************************************************
     {
-        String base_name = FilenameUtils.getBaseName(old_path.getFileName().toString());
-        String extension = FilenameUtils.getExtension(old_path.getFileName().toString());
+        String base_name = Static_files_and_paths_utilities.get_base_name(old_path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(old_path.getFileName().toString());
         String new_name = prefix + base_name + postfix + "." + extension;
         if (moving_files_dbg) logger.log("generate_new_candidate_name=" + new_name);
         return Paths.get(old_path.getParent().toString(), new_name);
@@ -610,8 +606,8 @@ public class Moving_files
     public static Path generate_new_candidate_name_special(Path old_path, String prefix, int index, Logger logger)
     //**********************************************************
     {
-        String base_name = FilenameUtils.getBaseName(old_path.getFileName().toString());
-        String extension = FilenameUtils.getExtension(old_path.getFileName().toString());
+        String base_name = Static_files_and_paths_utilities.get_base_name(old_path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(old_path.getFileName().toString());
 
         {
             Path path = name_is_alredy_a_count(old_path,prefix,base_name,extension,logger);
@@ -682,8 +678,8 @@ public class Moving_files
         // if the file name ends with SP_EZ_IA_L + N,
         // try to check if e can remove this postfix i.e. no file with the same name exist
         String raw = path.getFileName().toString();
-        String base_name = FilenameUtils.getBaseName(raw);
-        String extension = FilenameUtils.getExtension(raw);
+        String base_name = Static_files_and_paths_utilities.get_base_name(raw);
+        String extension = Static_files_and_paths_utilities.get_extension(raw);
         logger.log(base_name + " extension->" + extension + "<-");
         int i = base_name.lastIndexOf(SP_EZ_IA_L);
         if (i < 0) {

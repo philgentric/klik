@@ -1,10 +1,10 @@
 package klik.level3.fusk;
 
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.actor.Aborter;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_out_logger;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -121,8 +121,8 @@ public class Fusk_static_core
         {
             logger.log(" "+out.toAbsolutePath()+" exists");
             String parent = out.getParent().toAbsolutePath().toString();
-            String ext = FilenameUtils.getExtension(out.getFileName().toString());
-            String base = FilenameUtils.getBaseName(out.getFileName().toString());
+            String ext = Static_files_and_paths_utilities.get_extension(out.getFileName().toString());
+            String base = Static_files_and_paths_utilities.get_base_name(out.getFileName().toString());
             if ( ext.isEmpty())
             {
                 out = Paths.get(parent, base + "_" + k );
@@ -158,7 +158,7 @@ public class Fusk_static_core
     private static Path get_defusk_path(Path in, Path destination_folder, Logger logger)
     //**********************************************************
     {
-        String s = FilenameUtils.getBaseName(in.getFileName().toString());
+        String s = Static_files_and_paths_utilities.get_base_name(in.getFileName().toString());
         return Paths.get(destination_folder.toString(),Fusk_strings.defusk_string(s, logger));
     }
 

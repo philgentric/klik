@@ -10,8 +10,8 @@ import klik.actor.Actor;
 import klik.actor.Message;
 import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Moving_files;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -208,12 +208,13 @@ public class Backup_actor_for_one_file implements Actor
             if (obsolete_name != null) {
                 // give the file in the destination the NEW name:
                 Path source = destination_file.toPath();
-                try {
+                //try {
                     //Files.move(obsolete_name, source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()));
                     logger.log("renaming a destination file: " + obsolete_name.toFile().getName() + " to " + file_backup_job_request.file_to_be_copied.getName());
-                    FileUtils.moveFile(obsolete_name.toFile(), source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()).toFile());
-                } catch (IOException e) {
-                    logger.log("WARNING: attempt to rename failed " + e);
+                    if ( !Static_files_and_paths_utilities.move_file(obsolete_name, source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()),logger))
+                //} catch (IOException e)
+                {
+                    logger.log("WARNING: attempt to rename failed ");
                     logger.log("file_to_be_copied name =  " + file_backup_job_request.file_to_be_copied.getName());
                     logger.log("destination_file name =  " + destination_file.getName());
                     returned.was_copied = true;
@@ -356,10 +357,12 @@ public class Backup_actor_for_one_file implements Actor
         {
             Path x = Moving_files.generate_new_candidate_name(destination_file.toPath(), "RENAMED_", ""+i, logger);
             if ( x.toFile().exists()) continue;
-            try {
-                FileUtils.moveFile(destination_file,x.toFile());
-            } catch (IOException e) {
-                logger.log_stack_trace(e.toString());
+            //try {
+                //FileUtils.moveFile(destination_file,x.toFile());
+                if (!Static_files_and_paths_utilities.move_file(destination_file.toPath(),x,logger))
+        //    } catch (IOException e)
+        {
+                logger.log_stack_trace("rename failed");
                 return false;
             }
             return true;

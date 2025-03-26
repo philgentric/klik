@@ -1,7 +1,7 @@
 package klik.browser.items;
 
 import klik.util.files_and_paths.Guess_file_type;
-import org.apache.commons.io.FilenameUtils;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +35,7 @@ public enum Iconifiable_item_type
             return folder;
         }
 
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if (Guess_file_type.is_this_extension_a_video(extension)) return video;
         if (Guess_file_type.is_this_extension_a_pdf(extension)) return pdf;
         if (Guess_file_type.is_this_extension_a_gif(extension)) return image_gif;

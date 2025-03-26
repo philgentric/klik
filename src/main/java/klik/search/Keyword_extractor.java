@@ -1,7 +1,7 @@
 package klik.search;
 
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
-import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -59,7 +59,7 @@ public class Keyword_extractor
     private void extract_keywords(String name, String regex, Set<String> local_keywords)
     //**********************************************************
     {
-        name = FilenameUtils.getBaseName(name);
+        name = Static_files_and_paths_utilities.get_base_name(name);
         String[] res = name.split(regex);
         logger.log("found" + res.length + " pieces in " + name);
 

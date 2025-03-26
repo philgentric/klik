@@ -20,7 +20,6 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.ui.Jfx_batch_injector;
-import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -104,12 +103,12 @@ public class Exif_stage
 
         Scene scene = new Scene(sp, WIDTH, 600);
 
-        String extension = FilenameUtils.getExtension(path.getFileName().toString());
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
             if (Fusk_static_core.is_fusk(path,aborter, logger))
             {
-                String base = FilenameUtils.getBaseName(path.toAbsolutePath().toString());
+                String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
                 local_stage.setTitle(Fusk_strings.defusk_string(base, logger));
             }
             else

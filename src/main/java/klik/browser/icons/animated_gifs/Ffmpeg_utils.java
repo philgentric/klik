@@ -204,7 +204,7 @@ public class Ffmpeg_utils
         list.add(video_path.getFileName().toString());
         list.add("-codec");
         list.add("copy");
-        String new_name = FilenameUtils.getBaseName(video_path.getFileName().toString())+".mp4";
+        String new_name = Static_files_and_paths_utilities.get_base_name(video_path.getFileName().toString())+".mp4";
         list.add(new_name);
 
         File wd = video_path.getParent().toFile();

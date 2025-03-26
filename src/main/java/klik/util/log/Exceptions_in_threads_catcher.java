@@ -28,11 +28,10 @@ public class Exceptions_in_threads_catcher
             String trace = Stack_trace_getter.get_stack_trace_for_throwable(e);
             logger.log("THREAD PANIC:"+trace);
 			if ( thread == null) 			logger.log(" WTF1");
-			else 			logger.log(" WTF2");
+			else {
 
-			logger.log(Stack_trace_getter.get_stack_trace(thread.getName()+" occurred here"));
-			logger.log(" WTF3");
-
+				logger.log(Stack_trace_getter.get_stack_trace(thread.getName() + " occurred here"));
+			}
         });
 
 		logger.log(Stack_trace_getter.get_stack_trace("Exceptions_in_threads_catcher initialized"));
