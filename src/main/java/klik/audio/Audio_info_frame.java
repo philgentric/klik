@@ -5,7 +5,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.ui.Hourglass;
 import klik.util.log.Logger;
-import klik.util.ui.Show_running_man_frame;
+import klik.util.ui.Show_running_film_frame;
 import klik.util.execute.Execute_command;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
@@ -34,7 +34,7 @@ public class Audio_info_frame
     //**********************************************************
     {
 
-        Hourglass running_man = Show_running_man_frame.show_running_man("Calling mediainfo", 30, new Aborter("mediainfo", logger), logger);
+        Hourglass running_film = Show_running_film_frame.show_running_film("Calling mediainfo", 30, new Aborter("mediainfo", logger), logger);
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Information about this file as reported by mediainfo:"));
 
@@ -59,7 +59,7 @@ public class Audio_info_frame
 
         Runnable r = () -> Info_stage.show_info_stage("INFO:",l, null);
         Platform.runLater(r);
-        running_man.close();
+        running_film.close();
 
     }
 }

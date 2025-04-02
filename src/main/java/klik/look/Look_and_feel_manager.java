@@ -935,7 +935,7 @@ public class Look_and_feel_manager
     }
 
     //**********************************************************
-    public static Image get_running_man_icon()
+    public static Image get_running_film_icon()
     //**********************************************************
     {
         Look_and_feel i = get_instance();
@@ -944,7 +944,7 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = i.get_running_man_icon_path();
+        String path = i.get_running_film_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get running man icon path"));

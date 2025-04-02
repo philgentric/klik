@@ -67,7 +67,7 @@ public class Results_frame
 		Look_and_feel_manager.set_region_look(vbox);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
+		iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
 		iv.setFitHeight(100);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);

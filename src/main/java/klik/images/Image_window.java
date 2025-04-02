@@ -216,7 +216,7 @@ public class Image_window
 
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
-        Browser.show_running_man = false;
+        Browser.show_running_film = false;
 
     }
 
@@ -502,7 +502,7 @@ public class Image_window
     {
         logger.log("Image_window is closing");
         aborter.abort("Image_window is closing");
-        Browser.show_running_man = true;
+        Browser.show_running_film = true;
         Change_gang.deregister(image_display_handler, aborter);
     }
 

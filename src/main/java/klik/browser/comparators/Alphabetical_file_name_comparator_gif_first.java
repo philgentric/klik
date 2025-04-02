@@ -3,7 +3,6 @@ package klik.browser.comparators;
 import klik.browser.Clearable_RAM_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
-import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 import java.util.Comparator;

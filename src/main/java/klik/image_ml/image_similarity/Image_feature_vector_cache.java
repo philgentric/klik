@@ -16,7 +16,7 @@ import klik.properties.Static_application_properties;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Show_running_man_frame_with_abort_button;
+import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -234,7 +234,7 @@ public class Image_feature_vector_cache
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( images_and_feature_vectors == null)
         {
-            Show_running_man_frame_with_abort_button.show_running_man(in_flight,"Wait, acquiring feature vectors",20000, logger);
+            Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, acquiring feature vectors",20000, logger);
             images_and_feature_vectors = read_from_disk_and_update(folder_path,in_flight, aborter,logger);
             images_and_feature_vectors_cache.put(folder_path,images_and_feature_vectors);
             return images_and_feature_vectors;

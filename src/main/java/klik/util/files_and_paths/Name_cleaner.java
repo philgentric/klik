@@ -3,7 +3,6 @@ package klik.util.files_and_paths;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.System_out_logger;
-import org.apache.commons.io.FilenameUtils;
 
 import java.util.List;
 import java.util.UUID;

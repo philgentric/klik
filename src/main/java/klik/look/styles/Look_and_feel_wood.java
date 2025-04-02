@@ -18,7 +18,7 @@ public class Look_and_feel_wood extends Look_and_feel
 
     @Override
     public String get_sleeping_man_icon_path() {
-        return "lazy_dark.png";
+        return "dark/lazy_dark.png";
     }
 
     @Override

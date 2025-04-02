@@ -11,7 +11,6 @@ import klik.browser.Browser;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.nio.file.Path;

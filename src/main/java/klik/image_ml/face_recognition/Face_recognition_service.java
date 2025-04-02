@@ -34,7 +34,7 @@ import klik.browser.icons.JavaFX_to_Swing;
 import klik.image_ml.Feature_vector;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
-import klik.util.ui.Show_running_man_frame_with_abort_button;
+import klik.util.ui.Show_running_film_frame_with_abort_button;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -177,8 +177,8 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(files_in_flight,"Wait for auto train to complete",20*3600,logger);
-        Aborter aborter_for_auto_train = running_man.aborter;
+        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for auto train to complete",20*3600,logger);
+        Aborter aborter_for_auto_train = running_film.aborter;
 
         Face_recognition_actor face_recognition_actor = new Face_recognition_actor(this);
 
@@ -212,7 +212,7 @@ public class Face_recognition_service
             String label = f.getName();
             double percent = 100.0*(double)i/(double)folders.size();
             String done =  String.format("%.1f",percent);
-            running_man.set_title(label+", "+done+"% of total");
+            running_film.set_title(label+", "+done+"% of total");
             i++;
             Integer N = label_to_prototype_count.get(label);
             if ( N == null)
@@ -251,7 +251,7 @@ public class Face_recognition_service
 
         // DONT save_internal(aborter_for_auto_train);
 
-        //running_man.report_progress_and_close_when_finished(files_in_flight);
+        //running_film.report_progress_and_close_when_finished(files_in_flight);
         logger.log("Finished Face Recognition AUTO: "+recognition_stats.to_string());
     }
 
@@ -597,7 +597,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button x = Show_running_man_frame_with_abort_button.show_running_man(in_flight,"Loading face recognition prototypes", 20_100, logger);
+        Show_running_film_frame_with_abort_button x = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Loading face recognition prototypes", 20_100, logger);
         Load_one_prototype_actor actor = new Load_one_prototype_actor();
         Runnable r = () -> {
             Path p = Path.of(face_recognizer_path.toAbsolutePath().toString());
@@ -808,8 +808,8 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(files_in_flight,"Wait for SELF face recognition to complete",20*60,logger);
-        Aborter aborter_for_self = running_man.aborter;
+        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for SELF face recognition to complete",20*60,logger);
+        Aborter aborter_for_self = running_film.aborter;
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -841,7 +841,7 @@ public class Face_recognition_service
             self_file(f,files,aborter_for_self);
         }
 
-        //running_man.report_progress_and_close_when_finished(files_in_flight);
+        //running_film.report_progress_and_close_when_finished(files_in_flight);
         logger.log("Finished Face Recognition");
     }
 

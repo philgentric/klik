@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 //**********************************************************
-public class Show_running_man_frame implements Hourglass
+public class Show_running_film_frame implements Hourglass
 //**********************************************************
 {
 	public final Aborter aborter;
@@ -28,20 +28,20 @@ public class Show_running_man_frame implements Hourglass
 	private final CountDownLatch latch = new CountDownLatch(1);
 
 	//**********************************************************
-	public static Hourglass show_running_man(String wait_message, int timeout_s, Aborter aborter, Logger logger)
+	public static Hourglass show_running_film(String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
-		Show_running_man_frame local = new Show_running_man_frame(aborter, timeout_s,logger);
+		Show_running_film_frame local = new Show_running_film_frame(aborter, timeout_s,logger);
 		launch(local, wait_message, logger);
 		return local;
 	}
 
 
 	//**********************************************************
-	private static Hourglass launch(Show_running_man_frame local, String wait_message, Logger logger)
+	private static Hourglass launch(Show_running_film_frame local, String wait_message, Logger logger)
 	//**********************************************************
 	{
-		//logger.log("Show_running_man_frame: wait_message= "+wait_message);
+		//logger.log("Show_running_film_frame: wait_message= "+wait_message);
 		if ( Platform.isFxApplicationThread())
 		{
 			local.define_fx(wait_message);
@@ -54,7 +54,7 @@ public class Show_running_man_frame implements Hourglass
 	}
 
 	//**********************************************************
-	private Show_running_man_frame(Aborter aborter_, int timeout_s_, Logger logger_)
+	private Show_running_film_frame(Aborter aborter_, int timeout_s_, Logger logger_)
 	//**********************************************************
 	{
 		aborter = aborter_;
@@ -67,15 +67,15 @@ public class Show_running_man_frame implements Hourglass
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
-		//logger.log("Show_running_man_frame: "+wait_message);
+		//logger.log("Show_running_film_frame: "+wait_message);
 		stage = new Stage();
 		VBox vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
+		iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
 		iv.setFitHeight(100);
-		stage.setMinWidth(600);
+		stage.setMinWidth(300);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
 

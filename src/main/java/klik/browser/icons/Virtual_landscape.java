@@ -35,8 +35,8 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.performance_monitor.Performance_monitor;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Show_running_man_frame;
-import klik.util.ui.Show_running_man_frame_with_abort_button;
+import klik.util.ui.Show_running_film_frame;
+import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -145,10 +145,10 @@ public class Virtual_landscape
         long start = System.currentTimeMillis();
 
 
-        Hourglass running_man = null;
-        if (Browser.show_running_man)
+        Hourglass running_film = null;
+        if (Browser.show_running_film)
         {
-            running_man = Show_running_man_frame.show_running_man("Scanning folder", 20*60,  aborter, logger);
+            running_film = Show_running_film_frame.show_running_film("Scanning folder", 20*60,  aborter, logger);
         }
 
         set_comparators();
@@ -163,7 +163,7 @@ public class Virtual_landscape
         image_properties_cache.reload_cache_from_disk();
         scan_dir();
 
-        all_image_properties_acquired_4(start, running_man);
+        all_image_properties_acquired_4(start, running_film);
 
     }
 
@@ -250,7 +250,7 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void all_image_properties_acquired_4(long start, Hourglass running_man)
+    private void all_image_properties_acquired_4(long start, Hourglass running_film)
     //**********************************************************
     {
         //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
@@ -269,21 +269,21 @@ public class Virtual_landscape
         }
         determine_file_comparator(paths_manager);
         //logger.log("all_image_properties_acquired, going to refresh");
-        refresh_UI("all_image_properties_acquired", running_man);
+        refresh_UI("all_image_properties_acquired", running_film);
 
         long end = System.currentTimeMillis();
         Performance_monitor.register_new_record("Browser",paths_manager.folder_path.toString(),end-start,logger);
     }
 
     //**********************************************************
-    private void refresh_UI(String from, Hourglass running_man)
+    private void refresh_UI(String from, Hourglass running_film)
     //**********************************************************
     {
         sort_iconized_items(from);
 
         Runnable r = () -> {
             //logger.log("refresh_UI_after_scan_dir " + from);
-            refresh_UI_on_fx_thread( from,running_man);
+            refresh_UI_on_fx_thread( from,running_film);
         };
         Jfx_batch_injector.inject(r, logger);
 
@@ -291,14 +291,14 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void refresh_UI_on_fx_thread(String from, Hourglass running_man)
+    private void refresh_UI_on_fx_thread(String from, Hourglass running_film)
     //**********************************************************
     {
         Path scroll_to = the_browser.get_scroll_to();
 
         logger.log("refresh_UI_on_fx_thread from: " + from);
 
-        compute_geometry(the_browser.mandatory_in_pane, "scene_geometry_changed from: " + from, scroll_to, running_man);
+        compute_geometry(the_browser.mandatory_in_pane, "scene_geometry_changed from: " + from, scroll_to, running_film);
 
         if (dbg) logger.log("adapt_slider_to_scene");
         {
@@ -331,7 +331,7 @@ public class Virtual_landscape
                                  List<Node> mandatory,
                                  String reason,
                                  Path scroll_to,
-                                 Hourglass running_man)
+                                 Hourglass running_film)
     //**********************************************************
     {
 
@@ -365,7 +365,7 @@ public class Virtual_landscape
         if (error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
             show_error_icon(the_browser, iv_denied,top_delta_y);
-            if ( running_man != null) running_man.close();
+            if ( running_film != null) running_film.close();
             the_guard.set(false);
             logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
             return;
@@ -373,7 +373,7 @@ public class Virtual_landscape
         if (error_type == Error_type.NOT_FOUND) {
             ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
             show_error_icon(the_browser, not_found,top_delta_y);
-            if ( running_man != null) running_man.close();
+            if ( running_film != null) running_film.close();
             the_guard.set(false);
             logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
             return;
@@ -381,7 +381,7 @@ public class Virtual_landscape
         if (error_type == Error_type.ERROR) {
             ImageView unknown_error = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
             show_error_icon(the_browser, unknown_error,top_delta_y);
-            if ( running_man != null) running_man.close();
+            if ( running_film != null) running_film.close();
             the_guard.set(false);
             logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
             return;
@@ -419,7 +419,7 @@ public class Virtual_landscape
 
         Jfx_batch_injector.inject(()->
         {
-            if ( running_man != null) running_man.close();
+            if ( running_film != null) running_film.close();
 
             for (Item item : future_pane_content)
             {
@@ -1119,14 +1119,14 @@ public class Virtual_landscape
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Virtual_landscape: show_total_size_deep_in_each_folder");
         AtomicInteger count = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button show_running_man_frame = Show_running_man_frame_with_abort_button.show_running_man(count,"Computing folder sizes", 300, logger);
+        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button item_button)
             {
                 if(Files.isDirectory(item_button.get_true_path()))
                 {
-                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(), folder_total_sizes_cache, show_running_man_frame.aborter, logger);
+                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(), folder_total_sizes_cache, show_running_film_frame.aborter, logger);
                 }
             }
         }
@@ -1140,7 +1140,7 @@ public class Virtual_landscape
                 }
                 if (count.get() == 0)
                 {
-                    Jfx_batch_injector.inject(()-> compute_geometry(mandatory,"sort by size",null, show_running_man_frame),logger);
+                    Jfx_batch_injector.inject(()-> compute_geometry(mandatory,"sort by size",null, show_running_film_frame),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display all folder sizes", logger);
                     }

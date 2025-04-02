@@ -22,7 +22,7 @@ import java.util.List;
 public class Static_application_properties
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final String SCREEN_TOP_LEFT_X = "_SCREEN_TOP_LEFT_X";
     public static final String SCREEN_TOP_LEFT_Y = "_SCREEN_TOP_LEFT_Y";
     public static final String SCREEN_WIDTH = "_SCREEN_WIDTH";

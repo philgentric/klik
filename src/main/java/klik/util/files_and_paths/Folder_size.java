@@ -57,7 +57,7 @@ public class Folder_size {
 
         vbox.setAlignment(javafx.geometry.Pos.CENTER);
         ImageView iv;
-        iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
+        iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
         iv.setFitHeight(icon_height);
         iv.setPreserveRatio(true);
         vbox.getChildren().add(iv);

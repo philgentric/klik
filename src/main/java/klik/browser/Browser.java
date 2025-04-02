@@ -1,6 +1,6 @@
 //SOURCES ../actor/Actor_engine.java
 //SOURCES ../actor/Aborter.java
-//SOURCES ../util/ui/Show_running_man_frame.java
+//SOURCES ../util/ui/Show_running_film_frame.java
 //SOURCES ../util/ui/Popups.java
 //SOURCES ../util/log/Stack_trace_getter.java
 //SOURCES ../util/files_and_paths/Old_and_new_Path.java
@@ -88,7 +88,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
-import klik.util.ui.Show_running_man_frame;
+import klik.util.ui.Show_running_film_frame;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -120,7 +120,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
     public static Aborter monitoring_aborter;
-    public static boolean show_running_man = true;
+    public static boolean show_running_film = true;
     static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
@@ -355,8 +355,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             logger.log("BAD WARNING: cannot get look and feel instance");
             return;
         }
-        String klik_image_path = look_and_feel.get_klik_icon_path();
 
+        String klik_image_path = look_and_feel.get_klik_icon_path();
         my_Stage.the_Stage.getIcons().clear();
         Image taskbar_icon = null;
         int[] icon_sizes = {16, 32, 64, 128};
@@ -1089,7 +1089,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void create_PDF_contact_sheet_in_a_thread()
     //**********************************************************
     {
-        Hourglass x = Show_running_man_frame.show_running_man("Making PDF contact sheet",
+        Hourglass x = Show_running_film_frame.show_running_film("Making PDF contact sheet",
         20_000,new Aborter("contact sheet",logger),logger);
         List<String> graphicsMagick_command_line = new ArrayList<>();
 

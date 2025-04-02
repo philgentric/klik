@@ -1,7 +1,3 @@
-//RUNTIME_OPTIONS -Xms50G
-//RUNTIME_OPTIONS -Xmx50G
-//RUNTIME_OPTIONS -XX:+UseZGC
-//RUNTIME_OPTIONS -XX:+ZGenerational
 
 
 //FILES ../../resources/klik/denied.png
@@ -9,13 +5,12 @@
 //FILES ../../resources/klik/dummy.png
 //FILES ../../resources/klik/haarcascade_frontalface_default.xml
 //FILES ../../resources/klik/lazy.png
-//FILES ../../resources/klik/lazy_dark.png
-//FILES MessagesBundle_en_US.properties=../../resources/klik/MessagesBundle_en_US.properties
-//FILES MessagesBundle_fr_FR.properties=../../resources/klik/MessagesBundle_fr_FR.properties
 //FILES ../../resources/klik/not-found.png
 //FILES ../../resources/klik/speaker.png
 //FILES ../../resources/klik/unknown-error.png
-//FILES ../../resources/klik/running_man.gif
+//FILES ../../resources/klik/running_film.gif
+
+
 
 //FILES dark/bookmarks.png=../../resources/klik/dark/bookmarks.png
 //FILES dark/dark.css=../../resources/klik/dark/dark.css
@@ -25,14 +20,15 @@
 //FILES dark/trash.png=../../resources/klik/dark/trash.png
 //FILES dark/up.png=../../resources/klik/dark/up.png
 //FILES dark/view.png=../../resources/klik/dark/view.png
+//FILES ../../resources/klik/dark/lazy_dark.png
 
 //FILES light/bookmarks.png=../../resources/klik/light/bookmarks.png
-//FILES light/broken.png=../../resources/klik/light/broken.png
+//FILES broken.png=../../resources/klik/broken.png
 //FILES light/camera.png=../../resources/klik/light/camera.png
 //FILES light/denied.png=../../resources/klik/light/denied.png
 //FILES light/folder.png=../../resources/klik/light/folder.png
 //FILES light/image.png=../../resources/klik/light/image.png
-//FILES light/klik.jpg=../../resources/klik/light/klik.jpg
+//FILES klik.png=../../resources/klik/klik.png
 //FILES light/light.css=../../resources/klik/light/light.css
 //FILES light/preferences.png=../../resources/klik/light/preferences.png
 //FILES light/trash.png=../../resources/klik/light/trash.png
@@ -50,15 +46,8 @@
 //FILES wood/wooden_up.png=../../resources/klik/wood/wooden_up.png
 
 
-
-
-
-
-
-
-
-
-
+//FILES MessagesBundle_en_US.properties=../../resources/klik/MessagesBundle_en_US.properties
+//FILES MessagesBundle_fr_FR.properties=../../resources/klik/MessagesBundle_fr_FR.properties
 
 //DEPS com.github.ben-manes.caffeine:caffeine:3.1.8
 //DEPS commons-io:commons-io:2.16.1

@@ -13,7 +13,7 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Show_running_man_frame;
+import klik.util.ui.Show_running_film_frame;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Popups;
 
@@ -143,7 +143,7 @@ public class Moving_files
     {
         Hourglass x = null;
 
-        x = check_show_running_man(the_list, aborter, logger);
+        x = check_show_running_film(the_list, aborter, logger);
 
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
@@ -230,28 +230,28 @@ public class Moving_files
     }
 
     //**********************************************************
-    private static Hourglass check_show_running_man(List<Old_and_new_Path> the_list, Aborter aborter, Logger logger)
+    private static Hourglass check_show_running_film(List<Old_and_new_Path> the_list, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        boolean show_running_man = false;
+        boolean show_running_film = false;
 
-        if ( the_list.size() > 2 ) show_running_man = true;
+        if ( the_list.size() > 2 ) show_running_film = true;
         else {
             Old_and_new_Path oand = the_list.getFirst();
 
             if ( oand.old_Path.toFile().isDirectory())
             {
                 Sizes sizes =   Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(oand.old_Path, aborter, logger);
-                if ( sizes.bytes() > 10_000_000) show_running_man = true;
+                if ( sizes.bytes() > 10_000_000) show_running_film = true;
             }
             else
             {
-                if (oand.old_Path.toFile().length() > 10_000_000) show_running_man = true;
+                if (oand.old_Path.toFile().length() > 10_000_000) show_running_film = true;
             }
         }
-        if ( show_running_man)
+        if ( show_running_film)
         {
-            return Show_running_man_frame.show_running_man("File(s) are being moved", 20000, aborter, logger);
+            return Show_running_film_frame.show_running_film("File(s) are being moved", 20000, aborter, logger);
         }
         return null;
     }

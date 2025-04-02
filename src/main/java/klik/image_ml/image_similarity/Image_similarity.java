@@ -12,7 +12,7 @@ import klik.images.Image_window;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Show_running_man_frame_with_abort_button;
+import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -66,7 +66,7 @@ public class Image_similarity implements Clearable_RAM_cache
     //**********************************************************
     {
         Hourglass x = null;
-        if ( and_show) x = Show_running_man_frame_with_abort_button.show_running_man("wait",20000, logger);
+        if ( and_show) x = Show_running_film_frame_with_abort_button.show_running_film("wait",20000, logger);
 
         if (images_and_feature_vectors == null)
         {

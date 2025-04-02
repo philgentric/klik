@@ -19,12 +19,12 @@ public class Look_and_feel_dark extends Look_and_feel
 
     @Override
     public String get_sleeping_man_icon_path() {
-        return "lazy_dark.png";
+        return "dark/lazy_dark.png";
     }
 
     public String get_broken_icon_path()
     {
-        return "light/broken.png";
+        return "broken.png";
     }
 
     @Override
@@ -40,9 +40,7 @@ public class Look_and_feel_dark extends Look_and_feel
     }
 
     @Override
-    public String get_klik_icon_path() {
-        return "light/klik.jpg";
-    }
+    public String get_klik_icon_path() {return "klik.png";}
 
     @Override
     public String get_default_icon_path()

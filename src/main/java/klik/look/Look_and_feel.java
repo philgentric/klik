@@ -159,10 +159,10 @@ public abstract class Look_and_feel
     }
     
     //**********************************************************
-    public String get_running_man_icon_path()
+    public String get_running_film_icon_path()
     //**********************************************************
     {
-        return "running_man.gif";
+        return "running_film.gif";
     }
 
     //**********************************************************

@@ -15,6 +15,7 @@ import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
+import klik.look.Jar_utils;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.properties.Static_application_properties;
@@ -248,7 +249,8 @@ public class Icon_factory_actor implements Actor
         if (image_from_disk == null) {
             //if (dbg)
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
-            return null;
+
+            image_from_disk = Jar_utils.get_broken_icon(300,logger);
         }
         if (image_from_disk.getWidth() < 1.0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time

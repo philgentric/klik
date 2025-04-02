@@ -15,6 +15,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.audio.Audio_player;
 import klik.browser.Browser;
 import klik.browser.items.Item_image;
 import klik.util.ui.Jfx_batch_injector;
@@ -176,7 +177,14 @@ public class Stage_with_2_images
             }
 			else
 			{
-                System_open_actor.open_with_system(browser.my_Stage.the_Stage, file.toPath(), aborter, logger);
+				if ( Guess_file_type.is_this_extension_an_audio(Static_files_and_paths_utilities.get_extension(file.getName())))
+				{
+					Audio_player.play_song_in_separate_process(file,logger);
+				}
+				else
+				{
+					System_open_actor.open_with_system(browser.my_Stage.the_Stage, file.toPath(), aborter, logger);
+				}
             }
         });
 		the_vbox.getChildren().add(view);

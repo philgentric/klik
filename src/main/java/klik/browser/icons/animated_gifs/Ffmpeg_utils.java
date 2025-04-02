@@ -1,5 +1,5 @@
 //SOURCES ../../../actor/Job_termination_reporter.java
-//SOURCES ../../../util/ui/Show_running_man_frame_with_abort_button.java
+//SOURCES ../../../util/ui/Show_running_film_frame_with_abort_button.java
 //SOURCES ../../../util/ui/Jfx_batch_injector.java
 //SOURCES ../../../util/files_and_paths/From_disk.java
 //SOURCES ./Animated_gif_generation_actor.java
@@ -29,8 +29,7 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
-import klik.util.ui.Show_running_man_frame_with_abort_button;
-import org.apache.commons.io.FilenameUtils;
+import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import javax.swing.*;
 import java.io.File;
@@ -75,11 +74,11 @@ public class Ffmpeg_utils
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_man_frame_with_abort_button running_man = Show_running_man_frame_with_abort_button.show_running_man(in_flight,"Wait for animated gifs to be generated",20*60,logger);
-        aborter = running_man.aborter;
+        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait for animated gifs to be generated",20*60,logger);
+        aborter = running_film.aborter;
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
-            if (running_man.aborter.should_abort())
+            if (running_film.aborter.should_abort())
             {
                 Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,logger), logger);
                 return;
@@ -90,12 +89,12 @@ public class Ffmpeg_utils
             Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
             in_flight.incrementAndGet();
             Actor_engine.run(actor,
-                    new Animated_gif_generation_message(owner,video_path,destination_gif_full_path,clip_lenght,start,running_man.aborter,abort_reported,logger),
+                    new Animated_gif_generation_message(owner,video_path,destination_gif_full_path,clip_lenght,start,running_film.aborter,abort_reported,logger),
                     tr,
                     logger);
         }
 
-        //running_man.report_progress_and_close_when_finished(in_flight);
+        //running_film.report_progress_and_close_when_finished(in_flight);
     }
 
 

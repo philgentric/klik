@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Show_running_man_frame_with_abort_button implements Hourglass
+public class Show_running_film_frame_with_abort_button implements Hourglass
 //**********************************************************
 {
 	public final Aborter aborter;
@@ -34,26 +34,26 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 
 
 	//**********************************************************
-	public static Show_running_man_frame_with_abort_button show_running_man(String wait_message, int timeout_s, Logger logger)
+	public static Show_running_film_frame_with_abort_button show_running_film(String wait_message, int timeout_s, Logger logger)
 	//**********************************************************
 	{
-		Show_running_man_frame_with_abort_button local = new Show_running_man_frame_with_abort_button(timeout_s, logger);
+		Show_running_film_frame_with_abort_button local = new Show_running_film_frame_with_abort_button(timeout_s, logger);
 		launch(local, wait_message,logger);
 		return local;
 	}
 
 	//**********************************************************
-	public static Show_running_man_frame_with_abort_button show_running_man(AtomicInteger in_flight, String wait_message, int timeout_s, Logger logger)
+	public static Show_running_film_frame_with_abort_button show_running_film(AtomicInteger in_flight, String wait_message, int timeout_s, Logger logger)
 	//**********************************************************
 	{
-		Show_running_man_frame_with_abort_button local = new Show_running_man_frame_with_abort_button(timeout_s, logger);
+		Show_running_film_frame_with_abort_button local = new Show_running_film_frame_with_abort_button(timeout_s, logger);
 		launch(local, wait_message,logger);
 		local.report_progress_and_close_when_finished(in_flight);
 		return local;
 	}
 
 	//**********************************************************
-	private static Hourglass launch(Show_running_man_frame_with_abort_button local, String wait_message, Logger logger)
+	private static Hourglass launch(Show_running_film_frame_with_abort_button local, String wait_message, Logger logger)
 	//**********************************************************
 	{
 		if ( Platform.isFxApplicationThread())
@@ -68,10 +68,10 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 	}
 
 	//**********************************************************
-	private Show_running_man_frame_with_abort_button( int timeout_s_, Logger logger_)
+	private Show_running_film_frame_with_abort_button( int timeout_s_, Logger logger_)
 	//**********************************************************
 	{
-		aborter = new Aborter("Show_running_man_frame",logger_);
+		aborter = new Aborter("Show_running_film_frame",logger_);
 		timeout_s = timeout_s_;
         logger = logger_;
 	}
@@ -81,13 +81,13 @@ public class Show_running_man_frame_with_abort_button implements Hourglass
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
-		//logger.log("Show_running_man_frame: "+wait_message);
+		//logger.log("Show_running_film_frame: "+wait_message);
 		stage = new Stage();
 		VBox vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_man_icon());
+		iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
 		iv.setFitHeight(100);
 		stage.setMinWidth(600);
 		iv.setPreserveRatio(true);
