@@ -3,8 +3,8 @@ package klik.image_ml;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.image_ml.image_similarity.Feature_vector_source_for_image_similarity;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -26,6 +26,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Feature_vector_source
 //**********************************************************
 {
+
+    static AtomicBoolean server_started = new AtomicBoolean(false);
+    static AtomicBoolean popup_done = new AtomicBoolean(false);
+
+    protected final Aborter aborter;
+    public Feature_vector_source(Aborter aborter)
+    {
+        this.aborter = aborter;
+    }
+
     protected abstract int get_random_port();
     static long start = System.currentTimeMillis();
     static long tx_count = 0;
@@ -52,6 +62,11 @@ public abstract class Feature_vector_source
     public Feature_vector get_feature_vector_from_server(Path path, Logger logger)
     //**********************************************************
     {
+        if ( aborter.should_abort())
+        {
+            logger.log("aborting Feature_vector_source::get_feature_vector_from_server, reason: "+aborter.reason);
+            return null;
+        }
         long local_start = System.currentTimeMillis();
         if ( path == null)
         {
@@ -60,7 +75,7 @@ public abstract class Feature_vector_source
         }
         //Ml_servers_util.init_image_similarity(logger);
         int random_port = get_random_port();
-        Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, logger);
+        Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, aborter,logger);
         long local_end = System.currentTimeMillis();
         long local_dur = local_end - local_start;
         SUM_dur += local_dur;
@@ -97,13 +112,15 @@ public abstract class Feature_vector_source
         }
     }
 
-    static AtomicBoolean server_started = new AtomicBoolean(false);
-    static AtomicBoolean popup_done = new AtomicBoolean(false);
-
     //**********************************************************
-    static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Logger logger)
+    static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if ( aborter.should_abort())
+        {
+            logger.log("aborting(1) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason);
+            return null;
+        }
         if (!server_started.get())
         {
 
@@ -133,35 +150,40 @@ public abstract class Feature_vector_source
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
             url_string = "http://localhost:" + random_port + "/" + encodedPath;
         } catch (UnsupportedEncodingException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (1): "+e));
             return null;
         }
         URL url = null;
         try {
             url = new URL(url_string);
         } catch (MalformedURLException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (2): "+e));
             return null;
         }
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic:"+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (3)"+e));
             return null;
         }
         try {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(0); // infinite
         } catch (ProtocolException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (4): "+e));
+            return null;
+        }
+        if (aborter.should_abort())
+        {
+            logger.log("aborting(2) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason);
             return null;
         }
         try {
             connection.connect();
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            logger.log(("get_feature_vector_from_server_generic: "+e));
+            logger.log(("get_feature_vector_from_server_generic (5): "+e));
             server_started.set(false);
             return null;
         }
@@ -169,13 +191,13 @@ public abstract class Feature_vector_source
             int response_code = connection.getResponseCode();
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            logger.log(("get_feature_vector_from_server_generic:"+e));
+            logger.log(("get_feature_vector_from_server_generic (6):"+e));
             return null;
         }
         try {
             String response_message = connection.getResponseMessage();
         } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (7): "+e));
             return null;
         }
 
@@ -192,7 +214,7 @@ public abstract class Feature_vector_source
             }
         } catch (IOException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic: "+e));
+            logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (8): "+e));
             return null;
         }
 

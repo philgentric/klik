@@ -192,17 +192,19 @@ public class Menus_for_image_window
 
             PrinterJob job = PrinterJob.createPrinterJob();
             if (job != null) {
-                System.out.println(job.jobStatusProperty().asString());
-
-                boolean printed = job.printPage(image_window.image_display_handler.get_image_context().get().the_image_view);
-                if (printed) {
-                    job.endJob();
-                    image_window.logger.log("Printing done");
+                boolean success = job.showPrintDialog(image_window.the_Stage);
+                if (success) {
+                    System.out.println(job.jobStatusProperty().asString());
+                    boolean printed = job.printPage(image_window.image_display_handler.get_image_context().get().the_image_view);
+                    if (printed) {
+                        job.endJob();
+                        image_window.logger.log("Printing done");
+                    } else {
+                        image_window.logger.log("Printing failed.");
+                    }
                 } else {
-                    image_window.logger.log("Printing failed.");
+                    image_window.logger.log("Could not create a printer job.");
                 }
-            } else {
-                image_window.logger.log("Could not create a printer job.");
             }
         });
         return print;

@@ -89,7 +89,7 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
 		iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
 		iv.setFitHeight(100);
-		stage.setMinWidth(600);
+		stage.setMinWidth(300);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
 

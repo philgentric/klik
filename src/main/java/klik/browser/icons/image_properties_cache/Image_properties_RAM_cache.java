@@ -34,10 +34,13 @@ public class Image_properties_RAM_cache
     private static int instance_number_generator = 0;
 
 
+    //**********************************************************
     public static Image_properties_RAM_cache get(Path displayed_folder_path,Aborter aborter, Logger logger)
+    //**********************************************************
     {
         return new Image_properties_RAM_cache(displayed_folder_path,"Image properties cache", aborter, logger);
     }
+
     //**********************************************************
     public Image_properties_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************

@@ -39,6 +39,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         Map<Path, Closest_neighbor> map = new HashMap<>();
         for ( Path p1 : images)
         {
+            if ( aborter.should_abort()) return;
+
             Closest_neighbor cn = Closest_neighbor.find_closest_of(p1, images, similarity_cache);
             if ( cn == null)
             {
@@ -59,6 +61,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         List<Closest_neighbor> done = new ArrayList<>();
         for( Closest_neighbor cn : candidates)
         {
+            if ( aborter.should_abort()) return;
+
             //cn.closest is the closest of cn.p1
             Closest_neighbor cn2 = map.get(cn.closest());
             // we have cn2.closest is closest to cn.closest
@@ -84,6 +88,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         int i = 0;
         for ( Closest_neighbor cn : done)
         {
+            if ( aborter.should_abort()) return;
+
             Path p1 = cn.p1();
             dummy_names.put(p1, i);
             //logger.log(p1+" -> "+i);

@@ -1,5 +1,7 @@
 package klik.util.tcp;
 
+//SOURCES ./TCP_server.java
+
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_out_logger;
@@ -12,7 +14,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
-import static klik.util.tcp.TCP_server.TEST_PORT;
 
 //**********************************************************
 public class TCP_client
@@ -71,7 +72,7 @@ public class TCP_client
     //**********************************************************
     {
         Logger logger = new System_out_logger("TCP client test");
-        TCP_client_out tco = TCP_client.request("localhost",TEST_PORT, "hello", logger);
+        TCP_client_out tco = TCP_client.request("localhost",TCP_server.TEST_PORT, "hello", logger);
 
         logger.log("status: "+tco.status());
         logger.log("reply: "+tco.reply());

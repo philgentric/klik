@@ -40,7 +40,7 @@ public class Image_feature_vector_cache
     {
     }
     public final static Map<Path, Images_and_feature_vectors> images_and_feature_vectors_cache = new HashMap<>();
-    private final Map<String, Feature_vector> fv_cache = new ConcurrentHashMap<>();
+    private final Map<String, Feature_vector> path_to_feature_vector_cache = new ConcurrentHashMap<>();
     private final Image_feature_vector_actor image_feature_vector_actor;
 
     private final int instance_number;
@@ -60,7 +60,7 @@ public class Image_feature_vector_cache
         Path dir = get_image_feature_vector_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
-        image_feature_vector_actor = new Image_feature_vector_actor();
+        image_feature_vector_actor = new Image_feature_vector_actor(aborter);
 
         // reason to use workers is to limit the number of concurrent HTTP requests
         // to the vgg19 python servers that are not good at queuing requests
@@ -94,7 +94,7 @@ public class Image_feature_vector_cache
     public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)
     //**********************************************************
     {
-        Feature_vector feature_vector =  fv_cache.get(key_from_path(p));
+        Feature_vector feature_vector =  path_to_feature_vector_cache.get(key_from_path(p));
         if ( feature_vector != null)
         {
             if ( tr != null) tr.has_ended("found in cache",null);
@@ -102,17 +102,18 @@ public class Image_feature_vector_cache
         }
         if ( aborter.should_abort())
         {
-            logger.log(("image feature vector cache instance#"+instance_number+" shutting down on aborter: ->"+aborter.name+"<- reason="+aborter.reason+ " target path="+p));
+            logger.log(("image feature vector cache instance#"+instance_number+" request aborted: ->"+aborter.name+"<- reason="+aborter.reason+ " target path="+p));
             return null;
         }
-        else {
+        else
+        {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
         Image_feature_vector_message imp = new Image_feature_vector_message(p,this,aborter,logger);
         if ( wait_if_needed)
         {
             image_feature_vector_actor.run(imp); // blocking call
-            Feature_vector x = fv_cache.get(key_from_path(p));
+            Feature_vector x = path_to_feature_vector_cache.get(key_from_path(p));
             //if ( x == null) logger.log("PANIC null Feature_vector in cache after blocking call ");
             return x;
         }
@@ -131,14 +132,14 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
         if(dbg) logger.log(cache_name+" inject "+path+" value="+fv );
-        fv_cache.put(key_from_path(path), fv);
+        path_to_feature_vector_cache.put(key_from_path(path), fv);
     }
 
     //**********************************************************
     public void clear_feature_vector_RAM_cache()
     //**********************************************************
     {
-        fv_cache.clear();
+        path_to_feature_vector_cache.clear();
         if (dbg) logger.log("feature vector cache file cleared");
     }
     //**********************************************************
@@ -152,7 +153,11 @@ public class Image_feature_vector_cache
             in_flight.set(number_of_vectors);
             for ( int i = 0; i < number_of_vectors; i++)
             {
-                if ( aborter.should_abort()) return;
+                if ( aborter.should_abort())
+                {
+                    logger.log("aborting : Image_feature_vector_cache::reload_cache_from_disk "+aborter.reason);
+                    return;
+                }
                 String path_string = dis.readUTF();
                 int size_of_vector = dis.readInt();
                 double[] vector = new double[size_of_vector];
@@ -162,7 +167,7 @@ public class Image_feature_vector_cache
                     vector[j] = val;
                 }
                 Feature_vector fv = new Feature_vector(vector);
-                fv_cache.put(path_string, fv);
+                path_to_feature_vector_cache.put(path_string, fv);
                 in_flight.decrementAndGet();
                 reloaded++;
                 if ( i%1000==0) logger.log(i+" feature vectors loaded from disk");
@@ -183,9 +188,9 @@ public class Image_feature_vector_cache
         if ( dbg)
         {
             logger.log("\n\n\n********************* "+cache_name+ " CACHE************************");
-            for (String s  : fv_cache.keySet())
+            for (String s  : path_to_feature_vector_cache.keySet())
             {
-                logger.log(s+" => "+ fv_cache.get(s));
+                logger.log(s+" => "+ path_to_feature_vector_cache.get(s));
             }
             logger.log("****************************************************************\n\n\n");
         }
@@ -196,12 +201,10 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
         int saved = 0;
-        //double min = Double.MAX_VALUE;
-        //double max = -Double.MAX_VALUE;
         try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(cache_file_path.toFile()))))
         {
-            dos.writeInt(fv_cache.size());
-            for(Map.Entry<String, Feature_vector> e : fv_cache.entrySet())
+            dos.writeInt(path_to_feature_vector_cache.size());
+            for(Map.Entry<String, Feature_vector> e : path_to_feature_vector_cache.entrySet())
             {
                 saved++;
                 dos.writeUTF(e.getKey());
@@ -209,8 +212,6 @@ public class Image_feature_vector_cache
                 dos.writeInt(fv.features.length);
                 for ( int i = 0 ; i < fv.features.length; i++)
                 {
-                    //if ( fv.features[i] > max) max = fv.features[i];
-                    //if ( fv.features[i] < min) min = fv.features[i];
                     dos.writeDouble(fv.features[i]);
                 }
             }
@@ -224,7 +225,6 @@ public class Image_feature_vector_cache
         //if (dbg)
             logger.log(saved +" feature vectors from cache saved to file");
     }
-
 
     //**********************************************************
     public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path folder_path, Aborter aborter, Logger logger)
@@ -243,32 +243,6 @@ public class Image_feature_vector_cache
         return images_and_feature_vectors;
     }
 
-     /*
-        if ( images.isEmpty()) return null;
-        CountDownLatch cdl = new CountDownLatch(images.size());
-        Job_termination_reporter tr = (message, job) -> {
-            cdl.countDown();
-            if ( cdl.getCount() % 100 == 0) logger.log("preloading FVs into cache: "+cdl.getCount());
-        };
-        // start the cache warming on many threads
-        for ( int i = 0 ; i < images.size(); i++)
-        {
-            Path p1 = images.get(i);
-            image_feature_vector_ram_cache.get_from_cache(p1,tr,false);
-        }
-        try {
-            cdl.await();
-        } catch (InterruptedException e) {
-            logger.log(""+e);
-            return null;
-        }
-        logger.log("preloading FVs into cache done :"+images.size());
-        image_feature_vector_ram_cache.save_whole_cache_to_disk();
-        result = new Images_and_feature_vectors(image_feature_vector_ram_cache, images);
-        images_and_feature_vectors_cache.put(folder_path,result);
-        return result;
-    }*/
-
     //**********************************************************
     private static Images_and_feature_vectors read_from_disk_and_update(Path folder_path, AtomicInteger in_flight, Aborter aborter, Logger logger)
     //**********************************************************
@@ -276,7 +250,7 @@ public class Image_feature_vector_cache
         Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(folder_path, "image_feature_vectors", aborter, logger);
         image_feature_vector_ram_cache.reload_cache_from_disk(in_flight,aborter);
 
-        logger.log("read_from_disk "+image_feature_vector_ram_cache.fv_cache.size()+" fv from disk for:"+folder_path);
+        logger.log("read_from_disk "+image_feature_vector_ram_cache.path_to_feature_vector_cache.size()+" fv from disk for:"+folder_path);
         return image_feature_vector_ram_cache.update( folder_path, in_flight,aborter, logger);
     }
 
@@ -294,7 +268,7 @@ public class Image_feature_vector_cache
             if ( f.getName().startsWith("._")) continue;
             if ( !Guess_file_type.is_file_an_image(f)) continue;
             images.add(f.toPath());
-            if ( !fv_cache.containsKey(f.toPath().getFileName().toString()))
+            if ( !path_to_feature_vector_cache.containsKey(f.toPath().getFileName().toString()))
             {
                 missing_images.add(f.toPath());
             }
@@ -318,13 +292,6 @@ public class Image_feature_vector_cache
 
         if (!missing_images.isEmpty()) save_whole_cache_to_disk();
         return new Images_and_feature_vectors(this, images);
-    }
-
-    //**********************************************************
-    private boolean has(Path path)
-    //**********************************************************
-    {
-        return fv_cache.containsKey(path.toString());
     }
 
 

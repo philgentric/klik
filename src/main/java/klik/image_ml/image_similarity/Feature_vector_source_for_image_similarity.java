@@ -1,5 +1,6 @@
 package klik.image_ml.image_similarity;
 
+import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
@@ -26,6 +27,12 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
 
 
     static Random random = new Random();
+
+    public Feature_vector_source_for_image_similarity(Aborter aborter)
+    {
+        super(aborter);
+    }
+
     //**********************************************************
     public int get_random_port()
     //**********************************************************

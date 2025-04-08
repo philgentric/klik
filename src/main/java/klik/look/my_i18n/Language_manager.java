@@ -1,6 +1,17 @@
 //SOURCES ./Language.java
 //SOURCES ./French.java
 //SOURCES ./English.java
+
+//SOURCES ./Chinese.java
+//SOURCES ./German.java
+//SOURCES ./Italian.java
+//SOURCES ./Japanese.java
+//SOURCES ./Korean.java
+//SOURCES ./Portuguese.java
+//SOURCES ./Spanish.java
+
+
+
 package klik.look.my_i18n;
 
 

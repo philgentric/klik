@@ -41,6 +41,7 @@
 //SOURCES ./Selection_reporter.java
 //SOURCES ./Selection_handler.java
 //SOURCES ./Importer.java
+//SOURCES ./Get_folder_files.java
 
 package klik.browser;
 
@@ -214,7 +215,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Image_feature_vector_cache.images_and_feature_vectors_cache.clear();
     }
 
-    //public Comparator<? super Path> get_file_comparator() {return virtual_landscape.get_file_comparator();}
 
 
     //**********************************************************
@@ -733,9 +733,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         record_scroll_to();
         return vertical_slider.request_scroll_relative(dy);
     }
-
-
-
 
 
 

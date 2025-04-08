@@ -286,12 +286,14 @@ public class Face_recognition_actor implements Actor
     static long count = 0;
     static double feature_vector_total_ns = 0;
     static double total_ns = 0;
+
+    /*
     //**********************************************************
     private static Eval_results eval_a_face3(Path face, Face_recognition_service service)
     //**********************************************************
     {
         start = System.nanoTime();
-        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition();
+        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition(aborter);
 
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
@@ -441,15 +443,16 @@ public class Face_recognition_actor implements Actor
 
         return new Eval_results(label5, the_feature_vector_to_be_identified,Eval_situation.normal,true,null,list_of_Eval_result_for_one_prototype);
     }
+*/
 
     //**********************************************************
-    private static Eval_results eval_a_face(Path face, Face_recognition_service service)
+    private static Eval_results eval_a_face(Path face, Face_recognition_service service, Aborter aborter)
     //**********************************************************
     {
         service.logger.log("crumbeval_a_face");
 
         start = System.nanoTime();
-        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition();
+        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition(aborter);
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {
@@ -646,7 +649,7 @@ public class Face_recognition_actor implements Actor
         Path tmp_image_reco = Static_files_and_paths_utilities.get_icons_cache_dir(null,service.logger);
         Path tmp_path_to_face = Face_recognition_service.write_tmp_image(image_face, tmp_image_reco,tag,service.logger);
 
-        Eval_results eval_result = eval_a_face(tmp_path_to_face,service);
+        Eval_results eval_result = eval_a_face(tmp_path_to_face,service, aborter);
         if (display_face_reco_window) service.show_face_recognition_window(image_face,eval_result, aborter);
 
         String display_label = eval_result.label();
@@ -677,7 +680,7 @@ public class Face_recognition_actor implements Actor
     public static Face_recognition_results recognize_a_face(Path path_of_face, boolean display_face_reco_window, Aborter aborter, Face_recognition_service service)
     //**********************************************************
     {
-        Eval_results eval_result = eval_a_face(path_of_face, service);
+        Eval_results eval_result = eval_a_face(path_of_face, service, aborter);
         Image face = Utils.get_image(path_of_face);
         if (face == null)
         {

@@ -2,6 +2,7 @@ package klik.image_ml.image_similarity;
 
 //SOURCES ../Feature_vector_source.java
 
+import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.image_ml.Feature_vector;
@@ -12,7 +13,14 @@ public class Image_feature_vector_actor implements Actor
 //**********************************************************
 {
     public static final boolean dbg = false;
-    Feature_vector_source fvs = new Feature_vector_source_for_image_similarity();
+    final Feature_vector_source fvs;
+
+    //**********************************************************
+    public Image_feature_vector_actor(Aborter aborter)
+    //**********************************************************
+    {
+        fvs = new Feature_vector_source_for_image_similarity(aborter);
+    }
 
     //**********************************************************
     @Override

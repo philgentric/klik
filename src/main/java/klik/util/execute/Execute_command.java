@@ -77,7 +77,7 @@ public class Execute_command
             }
             return false;
         }
-        System.out.println("going to wait");
+        //System.out.println("going to wait");
         try
         {
             p.waitFor(max_ms_wait_time, TimeUnit.MILLISECONDS);

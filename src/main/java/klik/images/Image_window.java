@@ -132,18 +132,22 @@ public class Image_window
 
         boolean high_quality = false;
 
-        Comparator<? super Path> local_comp = File_sort_by.get_comparator(first_image_path.getParent(),image_properties_cache, aborter,logger);
-/*
-        if ( the_browser == null)
+
+        Comparator<? super Path> local_comp;
+        if ( browser == null)
         {
-            local_comp = new Alphabetical_file_name_comparator();
+            // this is going to take possibly a long time !!!
+            local_comp = File_sort_by.get_comparator(first_image_path.getParent(),image_properties_cache, aborter,logger);
         }
         else
         {
-            local_comp = the_browser.get_file_comparator();
+            // fastest way to get a fully initialized comparator
+            // e.g. the ones that are really expensive to create
+            // are the image similarity ones
+            local_comp = browser.virtual_landscape.image_file_comparator;
         }
 
- */
+
         Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, local_comp, aborter, logger);
         if ( option.isEmpty())
         {

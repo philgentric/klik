@@ -49,7 +49,13 @@ public class Similarity_cache
             // no cache on disk, have to recalculate
             Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities,logger);
             CountDownLatch cdl = new CountDownLatch(images.size());
-            for (Path p1 : images) {
+            for (Path p1 : images)
+            {
+                if ( aborter.should_abort())
+                {
+                    logger.log("aborting Similarity_cache "+aborter.reason);
+                    break;
+                }
                 Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
                 Job_termination_reporter tr = (message, job) -> {
                     cdl.countDown();

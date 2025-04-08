@@ -4,76 +4,66 @@ Sort files by displaying pictures and documents as icons, into folders, intuitiv
 
 # Try klik now!
 
-To get klik running on your system, you need to clone the source code using "git", and run it using "java", which are super easy to install (you dont even need to be root/administrator):
+To get klik running on your system, **you need to know how to open a terminal on your system**.
 
+(the recipe looks complicated, but it is reliable and fast)
 
-#### On MacOS
+Step 1: install sdkman
 
-Open a terminal and copy/paste the **command lines** below:
+Follow instructions at:
 
-Install brew:
+**https://sdkman.io/install/**
+
+or on MacOS, install homebrew first:
 
 **/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
+then
+**brew install sdkman**
 
-Install git:
+Step 2: install gradle
+
+**sdk install gradle 8.13**
+
+Step 3: install java (with fx)
+
+**sdk install java 23.0.2.fx-zulu**
+
+Step 4: install git
+
+Follow instructions at:
+
+https://git-scm.com/downloads
+
+or on MacOS,
 
 **brew install git**
 
-Install sdkman:
-
-**brew install sdkman**
-
-Install java:
-
-**sdk install java**
-
-Install gradle:
-
-**sdk install gradle**
-
-(Optional) install jbang:
-
-**sdk install jbang**
-
-#### On windows or Linux
-
-Mostly similar, (except brew is only for mac)...
-
-type in google: "how to install java and git" !-)
-
-### Once you have installed git, get klik source code
-
-type:
+Step 5: get the source code
 
 **git clone https://github.com/philgentric/klik.git**
 
-the above git clone command will create a folder named "klik", go into this folder:
+this will create a folder "klik"
+
+Step 6: start klik!
 
 **cd klik**
-(or browse using file manager and double click)
 
-### Compile and run klik using gradlew
-
-on a POSIX compliant system (Mac, Linux) type:
-
-**./gradlew run**
-
-in Windows double-click on the file "gradlew.bat"
+**gradle clean run**
 
 
-### Other option: (if you have gradle installed) Compile and run klik using gradle
 
-in the klik folder, type:
+Note: as an alternative to gradle, you can use jbang:
 
-**gradle run**
-
-### Other option: (if you have jbang installed) Compile and run klik using jbang
-
-in the klik folder, type:
+**sdk install jbang**
 
 **jbang src/main/java/klik/Klik_application.java**
 
-(or on Mac: double-click on the file: MacOS_launch.command)
+
+#### On windows or Linux
+
+Same!, except brew is only for mac.
+
+type in google: "how to install java and git" !-)
 
 ### Get klik updates
 
@@ -83,10 +73,7 @@ To get the latest version of klik, just go in the klik folder and type:
 
 this will fetch the last master source code.
 
-
-### For git, if you prefer an application instead of a command line tool
-
-Install  github desktop:
+If you prefer an application instead of a command line tool, install github desktop:
 
 https://desktop.github.com
 
@@ -135,6 +122,7 @@ Klik has 2 types of windows: "Browser" and "Image".
 
 You can open has many windows as you want, the limit is your machine's RAM.
 
+(Klik also includes a music player, single instance/window.)
 
 ## Browser Windows = displays the content of a folder
 
@@ -224,6 +212,7 @@ You can sort folders in many different ways:
 - by image aspect ratio (most compact)
 - random
 - mix of aspect ratio & random
+- image similarity (this option requires a computer with a GPU)
 
 You can visualise how much room a folder takes on disk (folder size = everything including all sub-folder's content).
 
@@ -233,11 +222,11 @@ Klik history can be cleared (and it effectively erases forever the history).
 
 Klik uses system defaults to open files: you can play music, open sheets etc.
 
-Klik uses system defaults to edit files: you can start the system-configured default editor for anything, from Klik.
+Klik uses system defaults to edit files: you can start the system-configured default editor for anything, from Klik, or an application of your choice
 
 You can see the FULL metadata of the pictures; including EXIF, etc
 
-Search: You can find images by keywords (it looks for your keywords in file names).
+Search: You can find files/images by keywords (it looks for your keywords in file names).
 
 You can close Klik windows with a single Escape key stroke.
 
@@ -252,10 +241,10 @@ Q: When I type "git clone...", it says: **git** not found?
 A: You need to install git, it is a safe open source code management tool used by all developers on earth.
 
 Q: It says **java** not found?  
-A: klik requires java, you need to install it, preferably a recent version e.g. 21
+A: klik requires java, you need to install it, version 23
 
 Q: It says **gradle** not found?  
-A: gradle is used to compile klik, but the command **./gradlew** should fix everything your you.
+A: klik requires gradle,  **./gradlew** may work your you, YMMV
 
 Q: Where am I?  
 A: klik navigates your storage following the **directory structure**. The top left button makes you go up the tree (yes, computers are crazy, they have upside-down trees).
@@ -264,7 +253,7 @@ Q: Ok, but where am I?
 A: klik starts in your home folder. On mac it is /Users/yourname. Often people drop things on the desktop, it is located there: /Users/yourname/Desktop
 
 Q: Where are my images?  
-A: To find where your images are on your disk, use klik: the "Files" menu has a "Search" item, or open a terminal and type: **find . -name "*.jpg"**. Then use klik bookmarks to save the paths.
+A: To find where your images are on your disk, use klik: the "Files" menu has a "Search" item. Then use klik bookmarks to save the paths.
 
 Q: Can klik make a slide show?  
 A: Yes, both the image display window and the Browser window support slide shows.
@@ -276,32 +265,32 @@ Q: Why is klik so incredibly fast?
 A: klik uses background worker threads to avoid slowing down the User Interface.
 
 Q: What is a "background worker thread"?  
-A: It is a way to execute code on a different core of your computer. When processing is spread other multiple cores, the job gets done faster, and it does not slow down the user interface; it reacts very fast, this is what you perceive as "speed". The more cores your machine has, the faster klik is.
+A: It is a way to execute code on the different cores of your computer. When processing is spread other multiple cores, the job gets done faster, and it does not slow down the user interface; it reacts very fast, this is what you perceive as "speed". The more cores your machine has, the faster klik is.
 
 Q: Why is klik so slow on large images?  
-A: klik uses java ImageIO library, which is pretty fast but uses a lot of RAM. Large images (say more than 100 MegaPixel) simply need more RAM and computing power to be decoded, if your computer is super recent and has a lot of RAM, it should be OK, but yes, on older machines it is going to take up to several seconds... and the garbage collection will cause hickups... on the other hand, I doubt you will find another tool that can do it faster?
+A: klik uses java ImageIO library, which is pretty fast but on very large images (say more than 100 MegaPixel) it simply requires more RAM and computing power to be decoded, if your computer is super recent and has a lot of RAM, it should be OK, but yes, on older machines it is going to take up to several seconds... and the garbage collection will cause hickups... on the other hand, I doubt you will find another tool that can do it faster?
 
 Q: Why is the "sort files by aspect ratio" mode slow the first time I open a folder?  
-A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder it will take several seconds on an old machine... then klik caches these and the second time you open the folder it should be quite fast.
+A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder it will take several seconds on an old machine... then klik caches these values and the second time you open the folder it should be quite fast.
 
 Q: A popup tells me the cache is getting pretty large, what should I do?  
-A: To make browsing faster klik uses several caches in RAM and on your disk. If you have a lot of images, the caches on disk can grow so large your main storage could become full, which is a bad thing. For this reason klik monitors its disk caches and will warn you when they get larger than a configurable limit. Use the menu: "Preferences/Clean" to clear the caches. Alternatively if you have a lot of spare room, you can change the configuration to increase the limit, to get rid of the annoying popup when you start klik. Note that klik automatically erases items such as "undo" in the disk caches that are older than 2 days.
+A: To make browsing faster klik uses several caches in RAM and on your disk. If you have a lot of images, the caches on disk can grow so large your main storage could become full, which is a bad thing. For this reason klik monitors its disk caches and will warn you when they get larger than a configurable limit. Use the dedicated menu to clear the caches. If you have a lot of spare room, you can change the configuration to increase the limit, to get rid of the annoying popup when you start klik. Note that klik automatically erases items that are older than 2 days from the disk caches .
 
 Q: Should I edit the configuration file?  
-A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean one, but of course you will lose all bookmarks and preferences.
+A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean one, but of course you will lose preferences.
 
 Q: Why should I edit the configuration file?  
 A: To look for easter eggs.
 
 Q: How can I edit the configuration file?  
-A: The file name is klik_properties.txt, it is localted in the .klik folder in your home folder.
+A: The file name is klik_properties.txt, it is located in the .klik folder in your home folder.
 
 
 ## Dependencies
 
 FFMPEG: in order for movies to be displayed as animated gifs, you must have ffmpeg installed and in your path
 
-graphicsMagick: in order to generate PDF contact sheets, you must have graphicsMagick installed and in your path. graphicsMagick is also used to extract  metadata from images (gm identify)
+graphicsMagick: in order to generate PDF contact sheets, you must have graphicsMagick installed and in your path. graphicsMagick is also used to extract metadata from images (gm identify)
 
 
 
@@ -321,23 +310,24 @@ You can repair animated gifs.
 
 Image-ML:
 
-All operations are performed over HTTP to python (python makes my teeth ache) servers that are leveraging (free opensource) opencv + tensorflow python bindings. 
-It requires to have multiple python3 stuff installed: See the dedicated README in the folder python_for_face_reco.
+ML brings to klik (1) image similarity and (2) face recognition  
 
-The main hurdle is that you must "manually" start the python servers, for this, use the shell scripts named "launch_XXX".
+All operations are performed over HTTP to python servers that are leveraging free opensource opencv + tensorflow python bindings. 
+It requires to have multiple python3 stuff installed: See the dedicated README in the folder python_for_image_ML.
 
-Reason: starting a command in a shell from java involves creating a new shell everytime, so that new shell would need to create a python venv, activate it, then run the python libs install... which would take several minutes (or hours if your network is bad)... so in practice this is not a good solution.
-A possible solution could be to have a dedicated java "python primer" app, that would need to stay alive to keep that python venv shell from "evaporating"... not so sexy right?
+The main hurdle is that you must "manually" start the python servers, for this, copy/paste the command given in the help menu.
 
-Image search by similarity: cosine similarity on VGG19 image embeddings. In a folder, you can klik on an image and ask for the 5 most similar images in the folder. Note that images are first down-sampled to the default vgg19 size of 224x224 pixels, so you can guess that "similarity" will not "work" on details!!! Also note that the first step consists in computing all the vgg19 feature vectors (4096 floats each) and store it in a cache, so if your folder contains many images it will take a while
+Image search by similarity: 
+Cosine similarity on VGG19 image embeddings. In a folder, you can sort images by similarity and you can klik on an image and ask for the 5 most similar images in the folder. Note that images are first down-sampled to the default vgg19 size of 224x224 pixels, so you can guess that "similarity" will not "work" on details!!! Also note that the first step consists in computing all the vgg19 feature vectors (4096 floats each) and store it in a cache, so if your folder contains many images it will take a while.
 
 
 Face recognition:
 
-Detect faces in images! Operates in 2 steps:
+Detect faces in images and recognize them.
+It operates in 2 steps:
 
-- you must TRAIN the system, for that you must provide images that contain the face of the persons to be recognized. The way to indicate that is to sort your pictures in folders, one folder per person.
-Then if you create an empty file named ".folder_name_is_recognition_label" in the enclosing folder, each folder/person name will become a class, each image in each folder will become a (possible) training sample. ("possible" is when HC finds a face in a picture, HC makes both false negative (there was a face but HC did not find it) and false positive errors. 
+- You must first TRAIN the system, for that you must provide images that contain the face of the persons to be recognized. The way to "who is who" is to sort your pictures in folders, one folder per person.
+Then if you create an empty file named ".folder_name_is_recognition_label" in the enclosing folder, each folder name will become a class, each image in each folder will become a training sample (note it requires that a face is detected...). 
 
 - Multiple configurations can be named and saved, and training is fully INCREMENTAL: you can add persons/classes in multiple sessions to a given configuration, without having to retrain the whole system.
 
@@ -345,16 +335,14 @@ Then if you create an empty file named ".folder_name_is_recognition_label" in th
 
 a) Haars Cascades is used to detect faces in images.
 
-b) then classification usesKNN with cosine similarity on feature vectors extracted using VGG19 image embeddings. 
+b) then classification uses KNN with cosine similarity on feature vectors extracted using VGG19 image embeddings. 
 
 
-Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you will find weird ones that are caused by Haars-Cascade false positives (sometimes things that HC detects as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased.
+Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by Haars-Cascade false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
 
 
 
 ## TODO list
-
-Support more languages: translators needed!
 
 Try faster jpeg decoding like twelveMonkey
 
@@ -362,48 +350,9 @@ Try supporting more formats via Java Advanced Imaging
 
 Try better down-scaling filters (not needed on mac screens, it is built-in) for example with imgscalr
 
+Native ? (you can install grallVM )
+
 ## Abandoned TODO list
 
-Make an installer for Mac,Linux and windows: too much work to maintain, not competitive with the "from source" methods (gradle, gradlew and jbang)
+Make an installer for Mac,Linux and windows: too much work to maintain, not competitive with the "from source" methods (gradle and jbang)
 
-
-
-## "Installer" and "Java Binaries"
-
-NOTE: These options are not available anymore on recent versions.
-Reason is security vs pain, especially on MacOS, all apps must be signed etc
-
-
-### java binaries from zip
-
-The release folder: https://github.com/philgentric/klik/tree/cda278707b8ff2af04eefc5389f40c551f4e25b1/releases
-contains zip files: unzip and go to the "bin" folder
-- on MacOS and linux: click on klik (shell script)
-- on Windows: click on klik.bat
-
-Note for developers: this is generated using the command:
-
-**gradle distZip**
-or
-**./gradlew distZip**
-
-### java binaries as a pseudo native app
-
-Available for macOS: klik.app is actually a launcher for java binaries
-
-Note for developers: this is generated using the command:
-
-**gradle jpackage**
-or
-**./gradlew jpackage**
-
-
-## Native binaries
-
-At this stage the native application (using graalVM) is not available (due to a bug with javaFX?)
-
-Note for developers: this is done using the command:
-
-**gradle nativeRun**
-or
-**./gradlew nativeRun**

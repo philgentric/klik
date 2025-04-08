@@ -228,9 +228,12 @@ public class Finder_actor implements Actor
                 }
             }
             name = Static_files_and_paths_utilities.get_base_name(target_path.getFileName().toString());
-            if ( !fm.search_config.check_case())
+            if ( name != null)
             {
-                name = name.toLowerCase();
+                if ( !fm.search_config.check_case())
+                {
+                    name = name.toLowerCase();
+                }
             }
         }
 

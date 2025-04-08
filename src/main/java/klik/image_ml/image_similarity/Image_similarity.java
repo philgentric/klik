@@ -1,6 +1,8 @@
 package klik.image_ml.image_similarity;
 
-import javafx.stage.Window;
+//SOURCES ../Feature_vector_mask.java
+//SOURCES ./Vector_window.java
+
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Clearable_RAM_cache;
