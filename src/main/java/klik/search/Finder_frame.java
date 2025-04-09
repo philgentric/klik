@@ -72,7 +72,7 @@ public class Finder_frame implements Search_receiver
 		stage = new Stage();
 
 
-		stage.setOnCloseRequest(_ -> session.stop_search());
+		stage.setOnCloseRequest(_ -> {if ( session !=null) session.stop_search();});
 
 		stage.addEventHandler(KeyEvent.KEY_PRESSED,
 				key_event -> {

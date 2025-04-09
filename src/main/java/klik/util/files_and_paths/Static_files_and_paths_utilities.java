@@ -60,7 +60,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         int index = file_name.lastIndexOf(".");
-        if ( index == -1) return null;
+        if ( index == -1) return file_name;
 
         String extension = file_name.substring(0,index);
         return extension;

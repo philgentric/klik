@@ -60,6 +60,7 @@ public class Keyword_extractor
     //**********************************************************
     {
         name = Static_files_and_paths_utilities.get_base_name(name);
+        if ( name == null) return;
         String[] res = name.split(regex);
         logger.log("found" + res.length + " pieces in " + name);
 

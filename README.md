@@ -120,7 +120,7 @@ Klik relies on your default system applications for:
 
 Klik has 2 types of windows: "Browser" and "Image".
 
-You can open has many windows as you want, the limit is your machine's RAM.
+You can open as many windows as you want, the limit is your machine's RAM.
 
 (Klik also includes a music player, single instance/window.)
 

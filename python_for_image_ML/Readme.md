@@ -44,13 +44,10 @@ pip install -r requirements.txt
 2.AFTER a reboot: activate the virtual environment
 source ~/venv-metal/bin/activate
 
-3. image embeddings python service.
-to start the embeddings servers, use one of the launch commands:
-./launch_MobileNetV2_servers
-./launch_InceptionV3_servers
-./launch_VGG19_servers
+3.Image embeddings python service.
+to start the embeddings servers, use the launch command:
 
-recommended: use MobileNetV2, it is the fastest because it is the smallest model and performance is still good.
+./launch_MobileNet_servers
 
 to kill the embeddings servers:
 ./kill_embeddings_servers
@@ -71,7 +68,8 @@ to kill the face recognition servers:
 The python image reader is not tolerant to truncated images 
 (unlike a lot of jpeg decoders including ImageIO used by klik) which means that feature vector extraction will fail on such images.
 
-When using the "sort by image similarity" folder preferences, a few bad images in a folder can cause the whole scheme to hiccup seriously because the feature vector extraction will fail and every thing is based on comparing images by their feature vectors. The good thing is: you will get error messages on the console:
+When using the "sort by image similarity" folder preferences, a few bad images in a folder can cause the whole scheme to hiccup seriously because the feature vector extraction will fail and everything is based on comparing images by their feature vectors. The good thing is: you will get error messages on the console:
+
 identify the wrong images and fix them (edit them or remove them!)
 
 ## How it works ##
