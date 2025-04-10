@@ -1,3 +1,8 @@
+
+
+
+[En Français](file:LISEZ_MOI.md)
+
 # Klik: a file system explorer/manager with a strong focus on images
 
 Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything.
@@ -8,62 +13,10 @@ To get klik running on your system, **you need to know how to open a terminal on
 
 (the recipe looks complicated, but it is reliable and fast)
 
-Step 1: install sdkman
+[Installation pour MacOS](file:MACOS_en.md)
 
-Follow instructions at:
+[Installation pour Windows](file:WINDOWS_en.md)
 
-**https://sdkman.io/install/**
-
-or on MacOS, install homebrew first:
-
-**/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
-then
-**brew install sdkman**
-
-Step 2: install gradle
-
-**sdk install gradle 8.13**
-
-Step 3: install java (with fx)
-
-**sdk install java 23.0.2.fx-zulu**
-
-Step 4: install git
-
-Follow instructions at:
-
-https://git-scm.com/downloads
-
-or on MacOS,
-
-**brew install git**
-
-Step 5: get the source code
-
-**git clone https://github.com/philgentric/klik.git**
-
-this will create a folder "klik"
-
-Step 6: start klik!
-
-**cd klik**
-
-**gradle clean run**
-
-
-
-Note: as an alternative to gradle, you can use jbang:
-
-**sdk install jbang**
-
-**jbang src/main/java/klik/Klik_application.java**
-
-
-#### On windows or Linux
-
-Same!, except brew is only for mac.
-
-type in google: "how to install java and git" !-)
 
 ### Get klik updates
 
@@ -96,7 +49,7 @@ and enables you to move files from folder to folder.
 
 Klik never deletes a file without asking you for confirmation.
 In Klik, "delete" actually means moving the file into the (klik) "trash" folder (down in .klik)
-There are 2 ways to recover a deleted file or folder: (1) use the undo menu item (2) visit the "trash" folder.
+There are 3 ways to recover a deleted file or folder: (1) use the undo menu item (2) visit the "trash" folder using klik (3) using the trash folder in .klik using your favorite file manager.
 Only clearing the "trash" folder is final, and you will be asked for confirmation.
 If you move a file into a folder where there is already a file with the same name, it is renamed with a postfix.
 When you have duplicates and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the trash folder.

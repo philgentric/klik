@@ -244,6 +244,7 @@ public class Image_window
         if ( slide_show == null)
         {
             start_slide_show();
+            Browser.show_running_film = false;
             return true;
         }
         else
@@ -326,6 +327,7 @@ public class Image_window
         return background_fill;
     }
 
+
     //**********************************************************
     void show_wait_cursor()
     //**********************************************************
@@ -341,6 +343,8 @@ public class Image_window
         the_Stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
         if ( dbg) logger.log("cursor = default");
     }
+
+
 
 /*
     //**********************************************************

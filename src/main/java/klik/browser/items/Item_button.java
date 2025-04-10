@@ -449,7 +449,9 @@ public class Item_button extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void add_total_size_deep_folder(AtomicInteger count, Button button, String text, Path path, Map<Path, Long> folder_total_sizes, Aborter aborter, Logger logger)
+    public void add_total_size_deep_folder(AtomicInteger count, Button button, String text, Path path,
+                                           Map<Path, Long> folder_total_sizes,
+                                           Aborter aborter, Logger logger)
     //**********************************************************
     {
         count.incrementAndGet();
@@ -458,14 +460,15 @@ public class Item_button extends Item implements Icon_destination
             Long bytes = folder_total_sizes.get(path);
             if ( bytes == null)
             {
-                logger.log(path+" size not found in cache");
+                //logger.log(path+" size not found in cache");
                 Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, logger);
                 bytes = sizes.bytes();
-                folder_total_sizes.put(path,bytes);
+                logger.log(path+" not found in cache, size is "+bytes+ "bytes");
+               folder_total_sizes.put(path,bytes);
             }
             else
             {
-                logger.log(path+" size  found in cache "+bytes);
+                logger.log(path+" size found in cache "+bytes);
             }
             count.decrementAndGet();
 

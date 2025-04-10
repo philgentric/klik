@@ -558,10 +558,11 @@ public class Static_files_and_paths_utilities
         AtomicLong files = new AtomicLong(0);
         AtomicLong images = new AtomicLong(0);
 
-        File_payload fp = f -> {
+        File_payload fp = (f, file_count_stop_counter) -> {
             bytes.addAndGet(f.length());
             files.incrementAndGet();
             if ( Guess_file_type.is_file_an_image(f)) images.incrementAndGet();
+            file_count_stop_counter.decrementAndGet();
         };
         Dir_payload dp = f -> {
             folders.incrementAndGet();
@@ -589,7 +590,11 @@ public class Static_files_and_paths_utilities
         // this is a blocking call
         //long start = System.currentTimeMillis();
         AtomicLong bytes = new AtomicLong(0);
-        File_payload fp = f -> bytes.addAndGet(f.length());
+        File_payload fp = (f, file_count_stop_counter) ->
+        {
+            bytes.addAndGet(f.length());
+            file_count_stop_counter.decrementAndGet();
+        };
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(path, "get_size_on_disk_concurrent", fp,null,wp,aborter,logger);
         //long now = System.currentTimeMillis();
@@ -617,7 +622,11 @@ public class Static_files_and_paths_utilities
             return 0L;
         }
         AtomicLong files = new AtomicLong(0);
-        File_payload fp = f -> files.incrementAndGet();
+        File_payload fp = (f, file_count_stop_counter) ->
+        {
+            files.incrementAndGet();
+            file_count_stop_counter.decrementAndGet();
+        };
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(path, "get_how_many_files_deep_concurrent", fp,null, wp,aborter, logger);
         return files.get();

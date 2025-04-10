@@ -84,7 +84,7 @@ public class Importer
 
         logger.log("Importer: copy starting");
 
-        File_payload file_payload = f -> {
+        File_payload file_payload = (f, folder_count_stop_counter) -> {
             logger.log("Importer: looking at file: "+f.getName());
             if (!(Static_files_and_paths_utilities.get_extension(f.getName()).equals("jpeg")))
             {
@@ -169,7 +169,7 @@ public class Importer
 
         File_payload file_payload = new File_payload() {
             @Override
-            public void process_file(File f) {
+            public void process_file(File f, AtomicLong file_count_stop_counter) {
                 //logger.log("Importer: looking at file: "+f.getName());
                 if (!(Static_files_and_paths_utilities.get_extension(f.getName()).equals("jpeg")))
                 {
@@ -177,6 +177,7 @@ public class Importer
                     return;
                 }
                 size.addAndGet(f.length());
+                file_count_stop_counter.decrementAndGet();
             }
         };
 

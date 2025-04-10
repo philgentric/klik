@@ -306,6 +306,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return;
         }
         block.set(true);
+        Browser.show_running_film = false;
         if ( image_context.isEmpty())
         {
             Path p = image_indexer.get().path_from_index(0);

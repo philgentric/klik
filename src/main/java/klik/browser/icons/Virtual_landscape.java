@@ -86,8 +86,8 @@ public class Virtual_landscape
     public final double icon_height;
     private final AtomicBoolean the_guard = new AtomicBoolean(false);
 
-    boolean show_how_many_files_deep_in_each_folder = false;
-    boolean show_total_size_deep_in_each_folder = false;
+    boolean show_how_many_files_deep_in_each_folder_done = false;
+    boolean show_total_size_deep_in_each_folder_done = false;
     private final Browser the_browser;
     public Error_type error_type = Error_type.OK;
 
@@ -846,8 +846,8 @@ public class Virtual_landscape
         else
         {
             actual_row_increment = row_increment_for_dirs;
-            List<Path> keyset = new ArrayList<>(paths_manager.folders.keySet());
-            if ( show_total_size_deep_in_each_folder)
+            List<Path> paths = new ArrayList<>(paths_manager.folders.keySet());
+            if ( show_total_size_deep_in_each_folder_done)
             {
                 Comparator<Path> comp = new Comparator<>() {
                     @Override
@@ -859,9 +859,9 @@ public class Virtual_landscape
                         return l2.compareTo(l1);
                     }
                 };
-                Collections.sort(keyset,comp);
+                Collections.sort(paths,comp);
             }
-            for (Path folder_path : keyset)
+            for (Path folder_path : paths)
             {
                 if (dbg) logger.log("Virtual_landscape process_folders2 "+folder_path);
                 p = process_one_folder_plain(the_browser, single_column, column_increment, actual_row_increment, scene_width, p, folder_path);
@@ -920,27 +920,31 @@ public class Virtual_landscape
 
             String tmp = folder_path.getFileName().toString();
 
-            if ( show_how_many_files_deep_in_each_folder)
+            if ( show_how_many_files_deep_in_each_folder_done)
             {
                 Long how_many_files_deep = folder_file_count_cache.get(folder_path);
                 if ( how_many_files_deep == null)
                 {
-                    logger.log("WARNING: folder_file_count_cache not found for "+folder_path);
+                    logger.log("FATAL: folder_file_count_cache not found in cache for "+folder_path);
                 }
                 else
                 {
+                    logger.log("OK: folder_file_count_cache found in cache for "+folder_path+ " "+how_many_files_deep);
                     tmp +=   " (" + how_many_files_deep + " files)";
                 }
             }
-            else if ( show_total_size_deep_in_each_folder)
+            else if ( show_total_size_deep_in_each_folder_done)
             {
+
                 Long bytes = folder_total_sizes_cache.get(folder_path);
                 if ( bytes == null)
                 {
-                    logger.log("WARNING: folder_total_sizes_cache not found for "+folder_path);
+                    logger.log("FATAL: folder_total_sizes_cache not found in cache for "+folder_path);
                 }
                 else
                 {
+                    logger.log("OK: folder_total_sizes_cache found in cache for "+folder_path+" "+bytes);
+
                     tmp += "       ";
                     tmp += Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,logger);
                 }
@@ -1094,8 +1098,8 @@ public class Virtual_landscape
     public void show_how_many_files_deep_in_each_folder()
     //**********************************************************
     {
-        show_how_many_files_deep_in_each_folder = true;
-        show_total_size_deep_in_each_folder = false;
+        show_total_size_deep_in_each_folder_done = false;
+
         folder_file_count_cache = new HashMap<>();
 
         for ( Item i : all_items_map.values())
@@ -1108,14 +1112,15 @@ public class Virtual_landscape
                 }
             }
         }
+        show_how_many_files_deep_in_each_folder_done = true;
+
     }
 
     //**********************************************************
     public void show_total_size_deep_in_each_folder(List<Node> mandatory)
     //**********************************************************
     {
-        show_total_size_deep_in_each_folder = true;
-        show_how_many_files_deep_in_each_folder = false;
+        show_how_many_files_deep_in_each_folder_done = false;
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Virtual_landscape: show_total_size_deep_in_each_folder");
         AtomicInteger count = new AtomicInteger(0);
@@ -1126,10 +1131,14 @@ public class Virtual_landscape
             {
                 if(Files.isDirectory(item_button.get_true_path()))
                 {
-                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(), folder_total_sizes_cache, show_running_film_frame.aborter, logger);
+                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(),
+                            folder_total_sizes_cache,
+                            show_running_film_frame.aborter, logger);
                 }
             }
         }
+        show_total_size_deep_in_each_folder_done = true;
+
         Runnable monitor = () -> {
             long start = System.currentTimeMillis();
             for(;;) {
