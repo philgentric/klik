@@ -134,7 +134,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     Filesystem_item_modification_watcher filesystem_item_modification_watcher;
     public final My_Stage my_Stage;
     public Scene the_Scene;
-    public final Pane the_Fucking_Pane;
+    public final Pane the_Pane;
     public final Virtual_landscape virtual_landscape;
     public final Logger logger;
     public final Path displayed_folder_path;
@@ -306,11 +306,11 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         Change_gang.register(this, aborter, logger);
         set_title();
-        the_Fucking_Pane = new Pane();
+        the_Pane = new Pane();
 
         logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
         virtual_landscape = new Virtual_landscape(this,aborter, logger);
-        selection_handler = new Selection_handler(the_Fucking_Pane, virtual_landscape, this, logger);
+        selection_handler = new Selection_handler(the_Pane, virtual_landscape, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
         exit_on_escape_preference = Static_application_properties.get_escape(logger);
         {
@@ -320,7 +320,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         virtual_landscape.set_Landscape_height_listener(vertical_slider);
         virtual_landscape.set_scroll_to_listener(vertical_slider);
 
-        set_all_event_handlers(the_Fucking_Pane);
+        set_all_event_handlers(the_Pane);
 
         my_Stage.the_Stage.setScene(the_Scene);
 
@@ -402,7 +402,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Change_gang.deregister(this, aborter);
         if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
         stop_scan();
-        the_Fucking_Pane.getChildren().clear();
+        the_Pane.getChildren().clear();
         //if (icon_manager != null) icon_manager.cancel_all();
     }
 
@@ -627,7 +627,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Scene.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + displayed_folder_path);
-            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(my_Stage.the_Stage, drag_event, displayed_folder_path, the_Fucking_Pane, "browser of dir: " + displayed_folder_path, false, logger);
+            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(my_Stage.the_Stage, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
             drag_event.setDropCompleted(true);
@@ -932,7 +932,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Scene scene = new Scene(new VBox(t));
         WritableImage wi = scene.snapshot(null);
         Paint ppp = new ImagePattern(wi);
-        the_Fucking_Pane.setBackground(new Background(new BackgroundFill(ppp, CornerRadii.EMPTY, Insets.EMPTY)));
+        the_Pane.setBackground(new Background(new BackgroundFill(ppp, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
 

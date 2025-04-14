@@ -463,8 +463,8 @@ public class Item_button extends Item implements Icon_destination
                 //logger.log(path+" size not found in cache");
                 Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, logger);
                 bytes = sizes.bytes();
-                logger.log(path+" not found in cache, size is "+bytes+ "bytes");
-               folder_total_sizes.put(path,bytes);
+                //logger.log(path+" not found in cache, size is "+bytes+ "bytes");
+                folder_total_sizes.put(path,bytes);
             }
             else
             {

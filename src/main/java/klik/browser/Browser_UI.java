@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import klik.browser.icons.Error_type;
 import klik.browser.icons.Virtual_landscape;
 import klik.browser.meter.Meters_stage;
 import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
@@ -120,14 +119,14 @@ public class Browser_UI
 
         {
             //logger.log("creating vertical slider");
-            browser.vertical_slider = new Vertical_slider(browser.my_Stage.the_Stage, browser.the_Fucking_Pane , browser.virtual_landscape, logger);
+            browser.vertical_slider = new Vertical_slider(browser.my_Stage.the_Stage, browser.the_Pane, browser.virtual_landscape, logger);
             browser.mandatory_in_pane.add(browser.vertical_slider.the_Slider);
             browser.always_on_front_nodes.add(browser.vertical_slider.the_Slider);
             browser.slider_width = 2 * Vertical_slider.half_slider_width;
         }
         //set the view order (smaller means closer to viewer = on top)
         for (Node n : browser.always_on_front_nodes) n.setViewOrder(0);
-        browser.the_Fucking_Pane.setViewOrder(100);
+        browser.the_Pane.setViewOrder(100);
         browser.apply_font();
 
     }
@@ -139,7 +138,7 @@ public class Browser_UI
     {
         BorderPane returned = new BorderPane();
         returned.setTop(top_pane);
-        returned.setCenter(browser.the_Fucking_Pane);
+        returned.setCenter(browser.the_Pane);
         VBox the_status_bar = new VBox();
         browser.status = new TextField("Status: OK");
         Look_and_feel_manager.set_region_look(browser.status);

@@ -388,8 +388,8 @@ public class Virtual_landscape
         }
 
         {
-            the_browser.the_Fucking_Pane.getChildren().clear();
-            the_browser.the_Fucking_Pane.getChildren().addAll(mandatory);
+            the_browser.the_Pane.getChildren().clear();
+            the_browser.the_Pane.getChildren().addAll(mandatory);
         }
 
         int final_column_increment_for_folders = column_increment_for_folders;
@@ -425,9 +425,9 @@ public class Virtual_landscape
             {
                 if (item.visible_in_scene.get())
                 {
-                    if (!the_browser.the_Fucking_Pane.getChildren().contains(item.get_Node()))
+                    if (!the_browser.the_Pane.getChildren().contains(item.get_Node()))
                     {
-                        the_browser.the_Fucking_Pane.getChildren().add(item.get_Node());
+                        the_browser.the_Pane.getChildren().add(item.get_Node());
                     }
                 }
             }
@@ -659,11 +659,11 @@ public class Virtual_landscape
         iv_denied.setY(top_delta_y);
         if ( Platform.isFxApplicationThread())
         {
-            the_browser.the_Fucking_Pane.getChildren().add(iv_denied);
+            the_browser.the_Pane.getChildren().add(iv_denied);
         }
         else
         {
-            Jfx_batch_injector.inject(()-> the_browser.the_Fucking_Pane.getChildren().add(iv_denied),logger);
+            Jfx_batch_injector.inject(()-> the_browser.the_Pane.getChildren().add(iv_denied),logger);
         }
         compute_bounding_rectangle(error_type.toString());
     }
@@ -1000,7 +1000,7 @@ public class Virtual_landscape
             return;
         }
         //logger.log("check_visibility: "+ all_items_map.values().size()+" items are ready "+from);
-        double pane_height = the_browser.the_Fucking_Pane.getHeight();
+        double pane_height = the_browser.the_Pane.getHeight();
         int icon_size = Static_application_properties.get_icon_size(logger);
         double min_y = Double.MAX_VALUE;
         for (Item item : all_items_map.values())
@@ -1012,7 +1012,7 @@ public class Virtual_landscape
                 if (invisible_dbg)
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
                 item.process_is_invisible(current_vertical_offset);
-                the_browser.the_Fucking_Pane.getChildren().remove(item.get_Node());
+                the_browser.the_Pane.getChildren().remove(item.get_Node());
                 //if ( item instanceof Item_image ii) Item_image.currently.remove(ii);
                 continue;
             }
@@ -1020,16 +1020,16 @@ public class Virtual_landscape
             {
                 if (invisible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 item.process_is_invisible(current_vertical_offset);
-                the_browser.the_Fucking_Pane.getChildren().remove(item.get_Node());
+                the_browser.the_Pane.getChildren().remove(item.get_Node());
                 //if ( item instanceof Item_image ii) Item_image.currently.remove(ii);
                 continue;
             }
             if (visible_dbg)
                 logger.log(item.get_item_path() + " Item is visible at y=" + item.get_javafx_y() + " item height=" + item.get_Height());
             item.process_is_visible(current_vertical_offset);
-            if ( !the_browser.the_Fucking_Pane.getChildren().contains(item.get_Node()))
+            if ( !the_browser.the_Pane.getChildren().contains(item.get_Node()))
             {
-                the_browser.the_Fucking_Pane.getChildren().add(item.get_Node());
+                the_browser.the_Pane.getChildren().add(item.get_Node());
                 //if ( item instanceof Item_image ii) Item_image.currently.add(ii);
             }
 
