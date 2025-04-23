@@ -1,9 +1,9 @@
 //SOURCES ../../level2/backup/Backup_engine.java
 package klik.change.history;
 
-import klik.level2.backup.Backup_engine;
+import klik.properties.Non_booleans;
+import klik.unstable.backup.Backup_engine;
 import klik.properties.Properties_manager;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -97,8 +97,8 @@ public class History_engine
     //**********************************************************
     {
         this.logger = logger;
-        String home = System.getProperty(Static_application_properties.USER_HOME);
-        Path p = Paths.get(home, Static_application_properties.CONF_DIR, HISTORY_FILENAME);
+        String home = System.getProperty(Non_booleans.USER_HOME);
+        Path p = Paths.get(home, Non_booleans.CONF_DIR, HISTORY_FILENAME);
         properties_manager = new Properties_manager(p, logger);
     }
 

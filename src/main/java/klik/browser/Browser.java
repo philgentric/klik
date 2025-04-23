@@ -24,8 +24,8 @@
 //SOURCES ./items/Item_image.java
 //SOURCES ./items/Item.java
 
-//SOURCES ../properties/Static_application_properties.java
-//SOURCES ../properties/Static_application_properties.java
+//SOURCES ../properties/Non_booleans.java
+//SOURCES ../properties/Non_booleans.java
 //SOURCES ./icons/image_properties_cache/Image_properties_RAM_cache.java
 //SOURCES ./icons/Refresh_target.java
 //SOURCES ./icons/Icon_factory_actor.java
@@ -73,17 +73,18 @@ import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Booleans;
+import klik.properties.Non_booleans;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
-import klik.level2.backup.Backup_singleton;
-import klik.level3.fusk.Fusk_bytes;
-import klik.level3.fusk.Fusk_singleton;
-import klik.level3.fusk.Static_fusk_paths;
+import klik.unstable.backup.Backup_singleton;
+import klik.unstable.fusk.Fusk_bytes;
+import klik.unstable.fusk.Fusk_singleton;
+import klik.unstable.fusk.Static_fusk_paths;
 import klik.look.Font_size;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
@@ -151,7 +152,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     final Browser_menus browser_menus;
     public final Browser_UI browser_ui;
-    static Path home = Paths.get(System.getProperty(Static_application_properties.USER_HOME));
+    static Path home = Paths.get(System.getProperty(Non_booleans.USER_HOME));
 
     // make sure we go again at the same scroll point when we enter a given folder
     public static Map<Path, Path> scroll_position_cache = new HashMap<>();
@@ -254,7 +255,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         if (windows_count.get() == 1)
         {
-            Rectangle2D r = Static_application_properties.get_window_bounds(BROWSER_WINDOW, logger);
+            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, logger);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -279,7 +280,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
         if (dbg) logger.log("NEW browser");
         {
-            double font_size = Static_application_properties.get_font_size(logger);
+            double font_size = Non_booleans.get_font_size(logger);
             double icon_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
             //String icon_path = Look_and_feel_manager.get_instance().get_folder_icon_path();
@@ -312,7 +313,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         virtual_landscape = new Virtual_landscape(this,aborter, logger);
         selection_handler = new Selection_handler(the_Pane, virtual_landscape, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
-        exit_on_escape_preference = Static_application_properties.get_escape(logger);
+        exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
         {
             browser_ui = new Browser_UI(this);
             browser_ui.define_UI();
@@ -343,7 +344,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             return;
         }
         if (dbg) logger.log("ChangeListener: image window position and/or size changed");
-        Static_application_properties.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
+        Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
     }
 
     //**********************************************************
@@ -463,7 +464,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void show_how_many_files_deep_in_each_folder()
     //**********************************************************
     {
-        virtual_landscape.show_how_many_files_deep_in_each_folder();
+        virtual_landscape.show_how_many_files_deep_in_each_folder(mandatory_in_pane);
     }
 
     //**********************************************************
@@ -498,7 +499,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(displayed_folder_path, logger);
 
         if (!monitor_this_folder) {
-            if (Static_application_properties.get_monitor_browsed_folders(logger)) {
+            if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger)) {
                 monitor_this_folder = true;
             }
         }
@@ -976,10 +977,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private void change_icon_size(double fac)
     //**********************************************************
     {
-        int new_icon_size = (int) (Static_application_properties.get_icon_size(logger) * fac);
+        int new_icon_size = (int) (Non_booleans.get_icon_size(logger) * fac);
         if (new_icon_size < 20) new_icon_size = 20;
         if ( keyboard_dbg) logger.log("new icon size = "+new_icon_size);
-        Static_application_properties.set_icon_size(new_icon_size, logger);
+        Non_booleans.set_icon_size(new_icon_size, logger);
         //icon_manager.modify_button_fonts(fac);
         redraw_fx("new icon size "+new_icon_size);
     }
@@ -1005,7 +1006,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void apply_font()
     //**********************************************************
     {
-        if (dbg) logger.log("applying font size " + Static_application_properties.get_font_size(logger));
+        if (dbg) logger.log("applying font size " + Non_booleans.get_font_size(logger));
         for (Node x : always_on_front_nodes) {
             Font_size.apply_font_size(x, logger);
         }
@@ -1126,7 +1127,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         if ( !Execute_command.execute_command_list(graphicsMagick_command_line, displayed_folder_path.toFile(), 2000, sb, logger))
         {
 
-            Static_application_properties.manage_show_GraphicsMagick_install_warning(my_Stage.the_Stage,logger);
+            Booleans.manage_show_GraphicsMagick_install_warning(my_Stage.the_Stage,logger);
 
             Popups.popup_warning(my_Stage.the_Stage, "Contact sheet generation command failed:", warning_GraphicsMagick,false,logger);
         }

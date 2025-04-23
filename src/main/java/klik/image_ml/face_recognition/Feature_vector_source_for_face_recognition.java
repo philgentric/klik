@@ -42,7 +42,7 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING"));
             return null;
         }
-        //Ml_servers_util.init_face_reco(logger);
+        //ML_servers_util.init_face_reco(logger);
         int random_port = get_random_port();
         return Feature_vector_source.get_feature_vector_from_server_generic(path,random_port,logger);
     }

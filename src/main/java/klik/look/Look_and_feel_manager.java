@@ -780,7 +780,7 @@ public class Look_and_feel_manager
             ImageView image_view = new ImageView(image);
             image_view.setPreserveRatio(true);
             {
-                //if (H < Static_application_properties.get_font_size()) H = Static_application_properties.get_font_size();
+                //if (H < Non_booleans.get_font_size()) H = Non_booleans.get_font_size();
                 image_view.setFitHeight(height);
             }
             if (color == null) {

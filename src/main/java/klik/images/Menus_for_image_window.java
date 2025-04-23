@@ -10,7 +10,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -21,9 +20,11 @@ import klik.image_ml.face_recognition.Face_recognition_actor;
 import klik.image_ml.face_recognition.Face_recognition_message;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Advanced_features;
+import klik.properties.Booleans;
+import klik.properties.Experimental_features;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -476,39 +477,45 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Static_application_properties.get_level3(image_window.logger)) {
+        if (Booleans.get_boolean(Experimental_features.enable_different_image_quality.name(), logger))
+        {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 
-        context_menu.getItems().add(Item_image.create_show_similar_menu_item(
-                image_window.image_display_handler.get_image_context().get().path,
-                image_properties_cache,
-                image_window.browser,
-                image_window.aborter,
-                image_window.logger));
-        //context_menu.getItems().add(Item_image.create_show_similar_menu_item2(image_window.image_display_handler.get_image_context().get().path,the_browser, logger));
+        if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name(), logger))
+        {
+            context_menu.getItems().add(Item_image.create_show_similar_menu_item(
+                    image_window.image_display_handler.get_image_context().get().path,
+                    image_properties_cache,
+                    image_window.browser,
+                    image_window.aborter,
+                    image_window.logger));
+        }
 
-        String s = My_I18n.get_I18n_string("Face_recognition",logger);
-        Menu fr_context_menu = new Menu(s);
-        context_menu.getItems().add(fr_context_menu);
-        fr_context_menu.getItems().add(make_menu_item(
-                image_window,
-                "Perform_face_recognition_with_high_precision_face_detector",
-                event -> face_rec(Face_detection_type.MTCNN,image_window)));
-        fr_context_menu.getItems().add(make_menu_item(
-                image_window,
-                "Perform_face_recognition_with_optimistic_face_detector",
-                event -> face_rec(Face_detection_type.haars_false_positioves,image_window)));
-        fr_context_menu.getItems().add(make_menu_item(
-                image_window,
-                "Perform_face_recognition_with_ALT1_face_detector",
-                event -> face_rec(Face_detection_type.haars_alt1,image_window)));
-        fr_context_menu.getItems().add(make_menu_item(
-                image_window,
-                "Perform_face_recognition_with_ALT2_face_detector",
-                event -> face_rec(Face_detection_type.haars_alt2,image_window)));
+        if ( Booleans.get_boolean(Advanced_features.enable_face_recognition.name(), logger))
+        {
+            String s = My_I18n.get_I18n_string("Face_recognition", logger);
+            Menu fr_context_menu = new Menu(s);
+            context_menu.getItems().add(fr_context_menu);
+            fr_context_menu.getItems().add(make_menu_item(
+                    image_window,
+                    "Perform_face_recognition_with_high_precision_face_detector",
+                    event -> face_rec(Face_detection_type.MTCNN, image_window)));
+            fr_context_menu.getItems().add(make_menu_item(
+                    image_window,
+                    "Perform_face_recognition_with_optimistic_face_detector",
+                    event -> face_rec(Face_detection_type.haars_false_positioves, image_window)));
+            fr_context_menu.getItems().add(make_menu_item(
+                    image_window,
+                    "Perform_face_recognition_with_ALT1_face_detector",
+                    event -> face_rec(Face_detection_type.haars_alt1, image_window)));
+            fr_context_menu.getItems().add(make_menu_item(
+                    image_window,
+                    "Perform_face_recognition_with_ALT2_face_detector",
+                    event -> face_rec(Face_detection_type.haars_alt2, image_window)));
 
-        context_menu.getItems().add(get_perform_face_recognition_no_face_detection_menu_item(image_window));
+            context_menu.getItems().add(get_perform_face_recognition_no_face_detection_menu_item(image_window));
+        }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));
         context_menu.getItems().add(get_rename_menu_item(image_window));

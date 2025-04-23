@@ -32,7 +32,11 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Experimental_features;
+import klik.properties.Booleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.Exif_stage;
@@ -42,11 +46,10 @@ import klik.util.execute.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
 import klik.util.files_and_paths.Folder_size;
-import klik.level3.metadata.Tag_stage;
+import klik.unstable.metadata.Tag_stage;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
@@ -99,7 +102,7 @@ public abstract class Item implements Icon_destination
         this.logger = logger;
         this.color = color;
         item_type = Iconifiable_item_type.from_extension(path);
-        icon_size = Static_application_properties.get_icon_size(logger);
+        icon_size = Non_booleans.get_icon_size(logger);
     }
 
     public final Scene getScene()
@@ -171,7 +174,8 @@ public abstract class Item implements Icon_destination
     public void request_icon_to_factory(int target_icon_size)
     //**********************************************************
     {
-        if ( dbg) logger.log("request_icon_to_factory for:"+path);
+        //if ( dbg)
+            logger.log(("request_icon_to_factory for:"+path));
         Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,
                 new Aborter("Icon creation for "+path,logger));
 
@@ -227,7 +231,10 @@ public abstract class Item implements Icon_destination
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(path));
-                if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
+                if ( Booleans.get_boolean(Experimental_features.enable_tags.name(),logger))
+                {
+                    context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
+                }
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
@@ -257,7 +264,10 @@ public abstract class Item implements Icon_destination
             context_menu.getItems().add(create_delete_menu_item());
 
             context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
-            if ( Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            if ( Booleans.get_boolean(Experimental_features.enable_tags.name(), logger))
+            {
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            }
         }
 
 
@@ -593,7 +603,7 @@ public abstract class Item implements Icon_destination
                 if ( this instanceof Item_button)
                 {
                     Item_button ib = (Item_button) this;
-                    double font_size = Static_application_properties.get_font_size(logger);
+                    double font_size = Non_booleans.get_font_size(logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(ib.button, icon_height, color);
                 }

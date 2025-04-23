@@ -16,16 +16,17 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.undo.Undo_engine;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Booleans;
 import klik.properties.Cache_folders;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
-import klik.level3.experimental.RAM_disk;
+import klik.unstable.experimental.RAM_disk;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
-import klik.properties.Static_application_properties;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -199,7 +200,7 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash(Stage owner, List<Path> paths, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Static_application_properties.get_trash_dir(paths.get(0),logger);
+        Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
             return;
@@ -219,7 +220,7 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash(Stage owner, Path path, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Static_application_properties.get_trash_dir(path,logger);
+        Path trash_dir = Non_booleans.get_trash_dir(path,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
             return;
@@ -288,7 +289,7 @@ public class Static_files_and_paths_utilities
     public static Path get_icons_cache_dir(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( RAM_disk.get_use_RAM_disk(logger))
+        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger))
         {
             Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folders.klik_folder_icon_cache.name(), owner, logger);
             //if (dbg)
@@ -298,7 +299,7 @@ public class Static_files_and_paths_utilities
             return tmp_dir;
         }
 
-        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_folder_icon_cache.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folders.klik_folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -309,7 +310,7 @@ public class Static_files_and_paths_utilities
     public static Path get_folders_icons_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_folder_icon_cache.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folders.klik_folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("folder icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -321,7 +322,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Path icon_cache_dir = get_icons_cache_dir(owner, logger);
-        int icon_size = Static_application_properties.get_icon_size(logger);
+        int icon_size = Non_booleans.get_icon_size(logger);
         String name = Icon_writer_actor.make_cache_name(path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
         try {
@@ -348,12 +349,13 @@ public class Static_files_and_paths_utilities
     {
         double size = 0.0;
         size += Static_files_and_paths_utilities.clear_icon_DISK_cache(false,owner,aborter,logger);
-        size += Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,owner, aborter,logger);
         size += Static_files_and_paths_utilities.clear_folder_icon_DISK_cache(false,owner,aborter,logger);
         size += Static_files_and_paths_utilities.clear_image_feature_vectors_DISK_cache(false,owner,aborter,logger);
         size += Static_files_and_paths_utilities.clear_image_similarity_DISK_cache(false,owner,aborter,logger);
+        size += Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,owner, aborter,logger);
 
-        Static_files_and_paths_utilities.user_cancel("All disk caches",size,owner,logger);
+        logger.log(size +" total bytes erased");
+        //Static_files_and_paths_utilities.user_cancel("All disk caches",size,owner,logger);
     }
 
     //**********************************************************
@@ -365,7 +367,7 @@ public class Static_files_and_paths_utilities
         {
             if (user_cancel(tag, size, owner, logger)) return 0.0;
         }
-        logger.log(tag+", disk cleared: "+size);
+        logger.log(tag+", folder cleared: "+folder.toAbsolutePath()+" "+size+" bytes");
         delete_for_ever_all_files_in_dir_in_a_thread(folder, true, logger);
         return size;
     }
@@ -405,7 +407,7 @@ public class Static_files_and_paths_utilities
     public static double clear_image_similarity_DISK_cache(boolean show_popup,Stage owner, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        Path dir = Static_application_properties.get_absolute_dir_on_user_home(Cache_folders.klik_image_similarity_cache.name(), false, logger);
+        Path dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folders.klik_image_similarity_cache.name(), false, logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());
@@ -429,7 +431,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Runnable r = () -> {
-            List<Path> trashes = Static_application_properties.get_existing_trash_dirs(logger);
+            List<Path> trashes = Non_booleans.get_existing_trash_dirs(logger);
             String s1 = My_I18n.get_I18n_string("Warning_delete", logger);
             double size = 0;
             for (Path trash : trashes) {
@@ -616,6 +618,7 @@ public class Static_files_and_paths_utilities
     private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        boolean count_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger);
         if ( !path.toFile().isDirectory())
         {
             logger.log(Stack_trace_getter.get_stack_trace("Stupid4: not a folder: "+path));
@@ -624,6 +627,14 @@ public class Static_files_and_paths_utilities
         AtomicLong files = new AtomicLong(0);
         File_payload fp = (f, file_count_stop_counter) ->
         {
+            if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath()))
+            {
+                if ( !count_hidden_files)
+                {
+                    file_count_stop_counter.decrementAndGet();
+                    return;
+                }
+            }
             files.incrementAndGet();
             file_count_stop_counter.decrementAndGet();
         };
@@ -766,7 +777,7 @@ public class Static_files_and_paths_utilities
                 Runnable rr = new Runnable() {
                     @Override
                     public void run() {
-                        if ( s.contains("AccessDeniedException") && s.contains(Static_application_properties.TRASH_DIR))
+                        if ( s.contains("AccessDeniedException") && s.contains(Non_booleans.TRASH_DIR))
                         {
                             Popups.popup_warning(null,"There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,logger);
                         }
@@ -1200,12 +1211,12 @@ public class Static_files_and_paths_utilities
 
     public static Path get_cache_folder(Cache_folders cache_folder, Logger logger)
     {
-        return Static_application_properties.get_absolute_dir_on_user_home(cache_folder.name(), false, logger);
+        return Non_booleans.get_absolute_dir_on_user_home(cache_folder.name(), false, logger);
     }
 
     public static Path get_face_reco_folder(Logger logger)
     {
-        return Static_application_properties.get_absolute_dir_on_user_home(Static_application_properties.FACE_RECO_DIR, false, logger);
+        return Non_booleans.get_absolute_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, logger);
     }
 
 
@@ -1237,7 +1248,7 @@ public class Static_files_and_paths_utilities
     public static void safe_delete_file(Stage owner, Old_and_new_Path oanf, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Static_application_properties.get_trash_dir(logger);
+        Path trash_dir = Non_booleans.get_trash_dir(logger);
         List<Old_and_new_Path> l2 = new ArrayList<>();
 
         Path new_Path = (Paths.get(trash_dir.toString(), oanf.get_old_Path().getFileName().toString()));

@@ -22,7 +22,7 @@ public class Bookmarks
     //**********************************************************
     {
         key_base = key_base_;
-        pm = Static_application_properties.get_main_properties_manager(logger);
+        pm = Non_booleans.get_main_properties_manager(logger);
         cache = get_bookmarks_of(pm, key_base);
     }
 

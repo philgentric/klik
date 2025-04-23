@@ -1,12 +1,11 @@
 package klik.browser;
 
 import javafx.geometry.Orientation;
-import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import klik.browser.icons.Virtual_landscape;
-import klik.properties.Static_application_properties;
+import klik.properties.Booleans;
 import klik.util.log.Logger;
 
 //**********************************************************
@@ -96,7 +95,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         {
             fraction = slider_value / the_Slider.getMax(); // normalize (0,1)
         }
-        boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
+        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger);
         if (inverted)
         {
             fraction = 1.0 - fraction;
@@ -121,7 +120,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             pixel_height = 42;
         }
         double tmp = pixels/pixel_height; // normalize (0,1)
-        boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
+        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger);
         if (inverted)
         {
             tmp = 1.0 - tmp;
@@ -156,7 +155,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     public boolean request_scroll_relative(double dy)
     //**********************************************************
     {
-        boolean inverted = Static_application_properties.get_vertical_scroll_inverted(logger);
+        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger);
         if (inverted)
         {
             if ( Virtual_landscape.scroll_dbg) logger.log("scroll is inverted="+dy+" ==> "+(-dy));

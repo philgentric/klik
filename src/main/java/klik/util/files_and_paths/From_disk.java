@@ -10,10 +10,10 @@ import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.images.decoding.Fast_width_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
-import klik.level3.fusk.Fusk_static_core;
+import klik.unstable.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
+import klik.properties.Booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
@@ -150,8 +150,8 @@ public class From_disk
             logger.log("load_image_fx NOT DONE because running low on memory ! ");
             return null;
         }
-        boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
-        InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, report_if_not_found, aborter, logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, with_fusk, report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
         Image image = new Image(input_stream);
         try {
@@ -191,9 +191,9 @@ public class From_disk
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
-        boolean enable_fusk = Static_application_properties.get_enable_fusk(logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
         Image image = null;
-        try(InputStream input_stream = get_image_InputStream(original_image_file, enable_fusk, report_if_not_found, aborter,logger))
+        try(InputStream input_stream = get_image_InputStream(original_image_file, with_fusk, report_if_not_found, aborter,logger))
         {
             if ( input_stream == null)
             {

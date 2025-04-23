@@ -11,17 +11,20 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import klik.browser.icons.Virtual_landscape;
-import klik.browser.meter.Meters_stage;
+import klik.browser.ram_and_threads_meter.RAM_and_threads_meters_stage;
 import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
 import klik.images.Image_context;
-import klik.level2.deduplicate.Deduplication_engine;
-import klik.level3.metadata.Tag_items_management_stage;
+import klik.properties.Advanced_features;
+import klik.properties.Booleans;
+import klik.properties.Experimental_features;
+import klik.unstable.deduplicate.Deduplication_engine;
+import klik.unstable.metadata.Tag_items_management_stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
-import klik.util.performance_monitor.Performance_monitor;
+import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Popups;
 
 import java.util.ArrayList;
@@ -39,8 +42,6 @@ public class Browser_UI
     MenuItem stop_full_screen_menu_item;
     MenuItem start_full_screen_menu_item;
     public List<Button> top_buttons = new ArrayList<>();
-    private final boolean level2;
-    private final boolean level3;
 
     //**********************************************************
     public Browser_UI(Browser b)
@@ -49,8 +50,6 @@ public class Browser_UI
         browser = b;
         logger = browser.logger;
         browser_menus = browser.browser_menus;
-        level2 = Static_application_properties.get_level2(logger);
-        level3 = Static_application_properties.get_level3(logger);
 
     }
 
@@ -60,7 +59,7 @@ public class Browser_UI
     {
 
 
-        double font_size = Static_application_properties.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(logger);
         double height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
         Button up_button;
@@ -94,7 +93,7 @@ public class Browser_UI
             String trash_text = My_I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
                     browser,
-                    Static_application_properties.get_trash_dir(browser.displayed_folder_path,logger),
+                    Non_booleans.get_trash_dir(browser.displayed_folder_path,logger),
                     trash_text,
                     height,
                     Virtual_landscape.MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -328,10 +327,16 @@ public class Browser_UI
         view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> browser.redraw_fx("refresh")));
 
 
-        view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> Meters_stage.show_stage(logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("Show_Perfmon",event -> Performance_monitor.show(logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(logger)));
+        if ( Booleans.get_boolean(Experimental_features.enable_perf_monitoring.name(),logger))
+        {
+            view_menu.getItems().add(browser_menus.make_menu_item("Show_Perfmon",event -> Performance_monitor.show(logger)));
+        }
 
-        if (level3) view_menu.getItems().add(browser_menus.make_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(logger)));
+        if (Booleans.get_boolean(Experimental_features.enable_tags.name(),logger))
+        {
+            view_menu.getItems().add(browser_menus.make_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(logger)));
+        }
 
         return view_menu;
     }
@@ -365,7 +370,7 @@ public class Browser_UI
 
             files_menu.getItems().add(search);
         }
-        if (Static_application_properties.get_level3(logger))
+        if (Booleans.get_boolean(Advanced_features.enable_face_recognition.name(),logger))
         {
             Menu face_recognition = new Menu("Face recognition");
             face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());
@@ -380,16 +385,21 @@ public class Browser_UI
             String cleanup = My_I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (level3)
+            if (Booleans.get_boolean(Advanced_features.enable_recursive_empty_folders_removal.name(),logger))
             {
                 clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
+            }
+            if (Booleans.get_boolean(Experimental_features.enable_clean_up_names.name(),logger) )
+            {
                 clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
+            }
+            if ( Booleans.get_boolean(Experimental_features.enable_remove_corrupted_images.name(),logger) )
+            {
                 clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
-                //clean.getItems().add(browser_menus.make_menu_item("Compute_similarities", event -> browser_menus.compute_similarities()));
             }
 
 
-            if (level2)
+            if (Booleans.get_boolean(Advanced_features.enable_bit_level_deduplication.name(),logger) )
             {
                 Menu deduplicate = new Menu("File deduplication tool");
                 deduplicate.getItems().add(create_help_on_deduplication_menu_item());
@@ -399,22 +409,25 @@ public class Browser_UI
                 clean.getItems().add(deduplicate);
             }
 
+            if (Booleans.get_boolean(Advanced_features.enable_image_similarity.name(),logger) )
             {
-                MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item2();
-                clean.getItems().add(deduplicate2_menu_item);
-            }
-            {
-                MenuItem deduplicate2_menu_item = create_manual_deduplication_by_similarity_menu_item();
-                clean.getItems().add(deduplicate2_menu_item);
+                MenuItem deduplicate_menu_item = create_manual_deduplication_by_similarity_menu_item2();
+                clean.getItems().add(deduplicate_menu_item);
+
+                MenuItem deduplicate_menu_item2 = create_manual_deduplication_by_similarity_menu_item();
+                clean.getItems().add(deduplicate_menu_item2);
             }
             files_menu.getItems().add(clean);
         }
 
-        if (level2) files_menu.getItems().add(browser_menus.make_backup_menu());
-
-        if (level3)
+        if (Booleans.get_boolean(Experimental_features.enable_backup.name(),logger))
         {
-            if (Static_application_properties.get_enable_fusk(logger))
+            files_menu.getItems().add(browser_menus.make_backup_menu());
+        }
+
+        if (Booleans.get_boolean(Experimental_features.enable_fusk.name(),logger) )
+        {
+            if (Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger))
             {
                 files_menu.getItems().add(browser_menus.make_fusk_menu());
             }
@@ -443,6 +456,7 @@ public class Browser_UI
         ContextMenu pref = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(pref);
 
+
         pref.getItems().add(browser_menus.make_show_single_column_check_menu_item());
         pref.getItems().add(browser_menus.make_show_icons_for_images_and_videos_check_menu_item());
         pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
@@ -452,28 +466,43 @@ public class Browser_UI
 
 
 
-        if (level2)
-        {
-            pref.getItems().add(browser_menus.make_auto_purge_icon_disk_cache_check_menu_item());
+        //if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger)) {
+            pref.getItems().add(browser_menus.make_auto_purge_disk_caches_check_menu_item());
+        //}
+        //if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger)) {
             pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
             pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
-            pref.getItems().add(browser_menus.make_use_RAM_disk_menu_item());
-        }
+        //}
+
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
-        pref.getItems().add(browser_menus.make_folder_icon_size_menu());
+        if ( Booleans.get_boolean(Booleans.ICONS_FOR_FOLDERS,logger))
+        {
+            pref.getItems().add(browser_menus.make_folder_icon_size_menu());
+        }
         pref.getItems().add(browser_menus.make_column_width_menu());
         pref.getItems().add(browser_menus.make_font_size_menu_item());
         pref.getItems().add(browser_menus.make_style_menu_item());
         pref.getItems().add(browser_menus.make_language_menu());
-        if (level2) pref.getItems().add(browser_menus.make_video_length_menu());
+        pref.getItems().add(browser_menus.make_video_length_menu());
         pref.getItems().add(browser_menus.make_ding_menu_item());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item(logger));
-        if (level2) pref.getItems().add(browser_menus.make_start_servers_menu_item(logger));
-        if (level3) pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
+        if (Booleans.get_boolean(Advanced_features.enable_face_recognition.name(),logger))
+        {
+            pref.getItems().add(browser_menus.make_start_face_recognition_menu_item(logger));
+        }
+        if (Booleans.get_boolean(Advanced_features.enable_image_similarity.name(),logger))
+        {
+            pref.getItems().add(browser_menus.make_start_image_similarity_servers_menu_item(logger));
+        }
+
+        if (Booleans.get_boolean(Experimental_features.enable_fusk.name(),logger))
+        {
+            pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
+        }
         pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item(logger));
 
 
@@ -484,7 +513,8 @@ public class Browser_UI
                     event -> Static_files_and_paths_utilities.clear_trash(true,browser.my_Stage.the_Stage, browser.aborter, logger)));
 
             pref.getItems().add(browser_menus.make_clear_all_caches_menu_item(logger));
-            if (level3) {
+            if (Booleans.get_boolean(Advanced_features.enable_detailed_cache_cleaning_options.name(),logger))
+            {
 
                 Menu cleanup = new Menu(My_I18n.get_I18n_string("Cache_cleaning",logger));
                 pref.getItems().add(cleanup);
@@ -525,6 +555,8 @@ public class Browser_UI
                 }
 
             }
+            pref.getItems().add(browser_menus.get_advanced_preferences());
+
         }
         return pref;
     }
@@ -553,7 +585,7 @@ public class Browser_UI
     private MenuItem create_manual_deduplication_by_similarity_menu_item()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Deduplicate_manual_similarity",logger);
+        String text = My_I18n.get_I18n_string("Deduplicate_with_confirmation_images_looking_a_bit_the_same",logger);
 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
@@ -568,7 +600,7 @@ public class Browser_UI
     private MenuItem create_manual_deduplication_by_similarity_menu_item2()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Deduplicate_manual_similarity2",logger);
+        String text = My_I18n.get_I18n_string("Deduplicate_with_confirmation_quasi_similar_images",logger);
 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {

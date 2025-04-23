@@ -14,16 +14,16 @@ import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.items.Item_image;
 import klik.change.Change_gang;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
 import klik.util.files_and_paths.From_disk;
-import klik.util.performance_monitor.Performance_monitor;
+import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
@@ -315,10 +315,10 @@ public class Image_context
     {
 
         List<String> returned = new ArrayList<>();
-        int max = Static_application_properties.get_excluded_keyword_list_max_size(logger);
+        int max = Non_booleans.get_excluded_keyword_list_max_size(logger);
         for (int i = 0; i < max; i++) {
-            String key = Static_application_properties.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Static_application_properties.get_main_properties_manager(logger).get(key);
+            String key = Non_booleans.EXCLUDED_KEYWORD_PREFIX + i;
+            String kw = Non_booleans.get_main_properties_manager(logger).get(key);
             if (kw != null) {
                 String lower = kw.toLowerCase();
                 returned.add(lower);
@@ -525,13 +525,13 @@ public class Image_context
     //**********************************************************
     {
         String old_file_name = path.getFileName().toString().toLowerCase();
-        if (old_file_name.contains(Static_application_properties.ULTIM))
+        if (old_file_name.contains(Non_booleans.ULTIM))
         {
-            logger.log("no vote, name already contains " + Static_application_properties.ULTIM);
+            logger.log("no vote, name already contains " + Non_booleans.ULTIM);
             return Optional.empty();
         }
 
-        Path new_path = Moving_files.generate_new_candidate_name(path,"",Static_application_properties.ULTIM, logger);
+        Path new_path = Moving_files.generate_new_candidate_name(path,"", Non_booleans.ULTIM, logger);
         return image_stage.change_name_of_file(new_path);
     }
 

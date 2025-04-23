@@ -2,9 +2,10 @@ package klik.browser.icons.animated_gifs;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.properties.Booleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Moving_files;
 import klik.images.Image_context;
-import klik.properties.Static_application_properties;
 import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -39,7 +40,7 @@ public class Gif_repair
         Path target = image_context.path;
         Path this_dir = target.getParent();
 
-        Path tmp_dir = Static_application_properties.get_trash_dir(this_dir,logger);
+        Path tmp_dir = Non_booleans.get_trash_dir(this_dir,logger);
         if ( tmp_dir == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Weird! could not use tmp directory:"));
@@ -67,7 +68,7 @@ public class Gif_repair
         if ( !Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger))
         {
 
-            Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
+            Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 
             Popups.popup_warning(owner, "Repair part1 command failed:", warning_GraphicsMagick,false,logger);
             // and restore the file
@@ -98,7 +99,7 @@ public class Gif_repair
             if ( dbg) sb = new StringBuilder();
             if ( ! Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger))
             {
-                Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
                 logger.log(warning_GraphicsMagick);
                 return null;
             }
@@ -113,7 +114,7 @@ public class Gif_repair
             l.add(image_context.path.getFileName().toString());
             if ( ! Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger))
             {
-                Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 
                 logger.log(warning_GraphicsMagick);
                 return null;

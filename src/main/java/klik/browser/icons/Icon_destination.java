@@ -1,6 +1,7 @@
 package klik.browser.icons;
 
 import klik.browser.Image_and_properties;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Iconifiable_item_type;
 
 import java.nio.file.Path;

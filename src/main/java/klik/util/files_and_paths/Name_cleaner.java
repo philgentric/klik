@@ -1,6 +1,6 @@
 package klik.util.files_and_paths;
 
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 import klik.util.log.System_out_logger;
 
@@ -38,7 +38,7 @@ public class Name_cleaner
         }
 
         String new_str = base_name.trim();
-        List<String> l = Static_application_properties.get_cleanup_tokens(logger);
+        List<String> l = Non_booleans.get_cleanup_tokens(logger);
         for (String s : l)
         {
             logger.log("cleanup token:"+s);

@@ -162,7 +162,7 @@ public class Properties_manager
     public void add(String key, String value, boolean and_save)
     //**********************************************************
     {
-        if (dbg) logger.log("Static_application_properties: imperative_store " + key + "=" + value);
+        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
         the_Properties.put(key, value);
         if (and_save) store_properties();
     }
@@ -170,7 +170,7 @@ public class Properties_manager
     public void add_with_age(String key, String value, boolean with_age, boolean and_save)
     //**********************************************************
     {
-        if (dbg) logger.log("Static_application_properties: imperative_store " + key + "=" + value);
+        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
 
         the_Properties.put(key, value);
         LocalDateTime now = LocalDateTime.now();

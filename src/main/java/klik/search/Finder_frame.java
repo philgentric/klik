@@ -17,10 +17,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import klik.browser.Browser;
+import klik.properties.Booleans;
 import klik.util.files_and_paths.Ding;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Static_application_properties;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 
@@ -415,7 +415,7 @@ public class Finder_frame implements Search_receiver
 		{
 			long now = System.currentTimeMillis();
 			if (now - start_time > 3000) {
-				if (Static_application_properties.get_ding(logger)) {
+				if (Booleans.get_boolean(Booleans.DING_IS_ON,logger)) {
 					Ding.play("File finder took more than 3 seconds", logger);
 				}
 			}

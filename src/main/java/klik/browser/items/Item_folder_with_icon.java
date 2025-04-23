@@ -21,14 +21,16 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -56,6 +58,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     Button the_button;
     private final int folder_icon_size;
     private final int column_width; // as set by the icon manager
+    private  final Image_properties_RAM_cache image_properties_RAM_cache;
+
     //**********************************************************
     public Item_folder_with_icon(
             Browser browser,
@@ -63,18 +67,21 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             Color color,
             String text_,
             int column_width_,
+            Image_properties_RAM_cache image_properties_RAM_cache,
             Logger logger)
     //**********************************************************
     {
         super(browser, path_, color, logger);
         column_width = column_width_;
-        folder_icon_size = Static_application_properties.get_folder_icon_size(logger);
+        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        folder_icon_size = Non_booleans.get_folder_icon_size(logger);
         // launch content icon fabrication:
         text = text_;
-        double font_size = Static_application_properties.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         the_button = new Button(text);
+        the_button.setMnemonicParsing(false);
         the_button.setTextOverrun(OverrunStyle.ELLIPSIS);
         the_image_pane = new FlowPane();//)StackPane();
         the_image_pane.setAlignment(Pos.BOTTOM_LEFT);
@@ -130,7 +137,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     private void resize_the_box(Button button)
     //**********************************************************
     {
-        if ( Static_application_properties.get_single_column(logger))
+        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger))
         {
             button.setPrefWidth(browser.my_Stage.the_Stage.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
             button.setMinWidth(browser.my_Stage.the_Stage.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
@@ -270,7 +277,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage,path,  images_in_folder,  logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(browser.my_Stage.the_Stage,path,  images_in_folder,  image_properties_RAM_cache, logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");

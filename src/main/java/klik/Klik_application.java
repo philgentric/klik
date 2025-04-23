@@ -66,7 +66,7 @@
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
 //SOURCES look/my_i18n/Language_manager.java
-//SOURCES properties/Static_application_properties.java
+//SOURCES properties/Non_booleans.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
 //SOURCES util/log/System_out_logger.java
@@ -85,7 +85,7 @@
 //SOURCES browser/Vertical_slider.java
 //SOURCES browser/Browser_menus.java
 //SOURCES browser/items/Item_button.java
-//SOURCES browser/meter/Meters_stage.java
+//SOURCES browser/meter/RAM_and_threads_meters_stage.java
 //SOURCES change/active_list_stage/Active_list_stage.java
 //SOURCES change/active_list_stage/Active_list_stage_action.java
 //SOURCES change/active_list_stage/Datetime_to_signature_source.java
@@ -109,7 +109,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.My_Stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
@@ -156,7 +156,7 @@ public class Klik_application extends Application
         Path path;
         if ( list.isEmpty())
         {
-            path = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
+            path = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
         }
         else
         {

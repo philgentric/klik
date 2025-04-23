@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 
 
@@ -98,7 +98,7 @@ public class Vector_window
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            if ( save_window_bounds) Static_application_properties.save_window_bounds(the_Stage,VECTOR_WINDOW,logger);
+            if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,VECTOR_WINDOW,logger);
         };
         the_Stage.xProperty().addListener(change_listener);
         the_Stage.yProperty().addListener(change_listener);

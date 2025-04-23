@@ -12,7 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import klik.look.styles.Look_and_feel_light;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 
 import java.net.URL;
@@ -210,14 +210,14 @@ public abstract class Look_and_feel
 /*
         if (node instanceof Button button)
         {
-            button.setFont(Font.font("Monaco", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
+            button.setFont(Font.font("Monaco", FontPosture.ITALIC, Non_booleans.get_font_size( logger)));
             set_text_color(node,"-fx-text-fill: #404040;");
         }
         else
         {
             Font_size.set_preferred_font_size(node,logger);
         }
-        //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Static_application_properties.get_font_size( logger)));
+        //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Non_booleans.get_font_size( logger)));
 
  */
     }
@@ -285,7 +285,7 @@ public abstract class Look_and_feel
     //**********************************************************
     {
         Look_and_feel look_and_feel = null;
-        String style_s = Static_application_properties.get_main_properties_manager(logger).get(STYLE);
+        String style_s = Non_booleans.get_main_properties_manager(logger).get(STYLE);
         if (style_s == null)
         {
             // DEFAULT STYLE, first time klik is launched on the platform
@@ -301,7 +301,7 @@ public abstract class Look_and_feel
         if (look_and_feel == null) {
             look_and_feel = new Look_and_feel_light(logger);
         }
-        Static_application_properties.get_main_properties_manager(logger).add_and_save(STYLE, look_and_feel.name);
+        Non_booleans.get_main_properties_manager(logger).add_and_save(STYLE, look_and_feel.name);
         return look_and_feel;
     }
 
@@ -309,7 +309,7 @@ public abstract class Look_and_feel
     public static void set_style(Look_and_feel style,Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).add_and_save(STYLE, style.name);
+        Non_booleans.get_main_properties_manager(logger).add_and_save(STYLE, style.name);
     }
 
 

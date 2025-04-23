@@ -6,8 +6,8 @@ import javafx.stage.Window;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.image_ml.face_recognition.Face_detection_type;
-import klik.level3.metadata.Tag_stage;
-import klik.properties.Static_application_properties;
+import klik.unstable.metadata.Tag_stage;
+import klik.properties.Booleans;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -64,7 +64,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Static_application_properties.get_level2(logger))
+            if (Booleans.get_boolean(Booleans.ENABLE_SHIFT_D_IS_SURE_DELETE,logger))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;

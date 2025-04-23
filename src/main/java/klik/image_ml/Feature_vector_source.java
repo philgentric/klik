@@ -73,7 +73,7 @@ public abstract class Feature_vector_source
             logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
             return null;
         }
-        //Ml_servers_util.init_image_similarity(logger);
+        //ML_servers_util.init_image_similarity(logger);
         int random_port = get_random_port();
         Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, aborter,logger);
         long local_end = System.currentTimeMillis();

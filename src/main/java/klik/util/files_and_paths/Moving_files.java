@@ -8,9 +8,10 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_engine;
 import klik.images.Redo_same_move_engine;
-import klik.level3.metadata.Metadata_handler;
+import klik.properties.Non_booleans;
+import klik.unstable.metadata.Metadata_handler;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Static_application_properties;
+import klik.properties.Booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Show_running_film_frame;
@@ -124,7 +125,7 @@ public class Moving_files
     {
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for (Old_and_new_Path oanf : l) {
-            Path trash_dir = Static_application_properties.get_trash_dir(oanf.old_Path,logger);
+            Path trash_dir = Non_booleans.get_trash_dir(oanf.old_Path,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), oanf.get_old_Path().getFileName().toString()));
             Old_and_new_Path oanf2 = new Old_and_new_Path(oanf.old_Path, new_Path, oanf.cmd, oanf.status,false);
             l2.add(oanf2);
@@ -161,7 +162,7 @@ public class Moving_files
             {
                 // we rename the ICON to avoid remaking one
                 Path icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner,logger);
-                int icon_size = Static_application_properties.get_icon_size(logger);
+                int icon_size = Non_booleans.get_icon_size(logger);
                 File current_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.old_Path,String.valueOf(icon_size), Icon_factory_actor.png_extension);
                 if (current_icon.exists()) {
                     File new_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.new_Path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
@@ -284,7 +285,7 @@ public class Moving_files
                 }
                 else
                 {
-                    Path new_path = Paths.get(Static_application_properties.get_trash_dir(oandn.old_Path, logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
+                    Path new_path = Paths.get(Non_booleans.get_trash_dir(oandn.old_Path, logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
                     new_path = generate_new_candidate_name(new_path, "", "_identical_file", logger);
                     Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, new_path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.identical_file_moved_to_klik_trash,false);
                     logger.log(oandn.get_old_Path() + " moved to klik_trash because a file at destination has exactly the same content");
@@ -445,7 +446,7 @@ public class Moving_files
 
                 if ( System.currentTimeMillis()-start > 5_000)
                 {
-                    if (Static_application_properties.get_ding(logger))
+                    if (Booleans.get_boolean(Booleans.DING_IS_ON,logger))
                     {
                         Ding.play("file moving takes more than 5s", logger);
                     }
@@ -512,7 +513,7 @@ public class Moving_files
         {
             logger.log("FAILED to move file, target dir does not exists->" + oandn.get_new_Path().getParent() + "<-" + e0);
             Path path = oandn.get_new_Path().getParent();
-            if (Static_application_properties.get_main_properties_manager(logger).remove_invalid_dir(path)) {
+            if (Non_booleans.get_main_properties_manager(logger).remove_invalid_dir(path)) {
                 logger.log("move failed because dir does not exist, so it has been removed from properties : " + path);
             } else {
                 logger.log("WARNING: move failed because dir does not exist, but it could NOT be removed from properties : " + path);

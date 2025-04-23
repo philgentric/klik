@@ -3,9 +3,10 @@ package klik.util.cache_auto_clean;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Booleans;
 import klik.properties.Cache_folders;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -48,12 +49,12 @@ public class Disk_usage_monitor
             monitored_folders.add(tt);
         }
 
-        for ( Path t : Static_application_properties.get_existing_trash_dirs(logger))
+        for ( Path t : Non_booleans.get_existing_trash_dirs(logger))
         {
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Static_application_properties.get_folder_warning_size(logger);
+        warning_limit_bytes = Non_booleans.get_folder_warning_size(logger);
 
 
     }
@@ -93,7 +94,7 @@ public class Disk_usage_monitor
                 }
                 if( monitored_folder.name.equals(ICON_CACHE_FOLDER))
                 {
-                    if (Static_application_properties.get_auto_purge_disk_caches(logger))
+                    if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger))
                     {
                         Static_files_and_paths_utilities.clear_icon_DISK_cache(false,owner,aborter,logger);
                         continue;
@@ -101,7 +102,7 @@ public class Disk_usage_monitor
                 }
                 if( monitored_folder.name.equals(IMAGE_PROPERTIES_CACHE_FOLDER))
                 {
-                    if (Static_application_properties.get_auto_purge_disk_caches(logger))
+                    if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger))
                     {
                         Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,owner,aborter,logger);
                         continue;

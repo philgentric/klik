@@ -20,6 +20,8 @@ public class Icon_writer_actor implements Actor
 //**********************************************************
 {
 	private static final boolean dbg = false;
+	private static final boolean dbg_names = true;
+
 	Path cache_dir;
 	Logger logger;
 	//**********************************************************
@@ -38,9 +40,8 @@ public class Icon_writer_actor implements Actor
 		Actor_engine.run(this, ii, null,logger);
 	}
 
-
 	//**********************************************************
-	private void write_icon_to_cache_on_disk(Icon_write_message iwm)
+	public void write_icon_to_cache_on_disk(Icon_write_message iwm)
 	//**********************************************************
 	{
 		try
@@ -92,7 +93,7 @@ public class Icon_writer_actor implements Actor
 		if ( path == null) return null;
 		String full_name = path.toAbsolutePath().toString();
 		StringBuilder sb = new StringBuilder();
-		if ( dbg)
+		if ( dbg_names)
 		{
 			sb.append(clean_name(full_name));
 		}

@@ -34,7 +34,7 @@ public class Exceptions_in_threads_catcher
 			}
         });
 
-		logger.log(Stack_trace_getter.get_stack_trace("Exceptions_in_threads_catcher initialized"));
+		//logger.log(Stack_trace_getter.get_stack_trace("Exceptions_in_threads_catcher initialized"));
 	}
 
 	/*

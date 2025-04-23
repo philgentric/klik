@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -36,7 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static klik.properties.Static_application_properties.USER_HOME;
+import static klik.properties.Non_booleans.USER_HOME;
 
 //**********************************************************
 public class Audio_player
@@ -88,7 +88,7 @@ public class Audio_player
     {
         logger = logger_;
         stage = new Stage();
-        Rectangle2D r = Static_application_properties.get_window_bounds(AUDIO_PLAYER,logger);
+        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER,logger);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
         stage.setWidth(r.getWidth());
@@ -96,7 +96,7 @@ public class Audio_player
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-            Static_application_properties.save_window_bounds(stage,AUDIO_PLAYER,logger);
+            Non_booleans.save_window_bounds(stage,AUDIO_PLAYER,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -1167,11 +1167,11 @@ public class Audio_player
     public static File get_playlist_file(Logger logger)
     //**********************************************************
     {
-        String playlist_file_name = Static_application_properties.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME);
+        String playlist_file_name = Non_booleans.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME);
         if ( playlist_file_name == null)
         {
             playlist_file_name = "playlist."+ Audio_player.PLAYLIST_EXTENSION;
-            Static_application_properties.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
+            Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
         }
         else
         {
@@ -1179,14 +1179,14 @@ public class Audio_player
             if (p.isAbsolute()) return p.toFile();
         }
         String home = System.getProperty(USER_HOME);
-        Path p = Paths.get(home, Static_application_properties.CONF_DIR, playlist_file_name);
+        Path p = Paths.get(home, Non_booleans.CONF_DIR, playlist_file_name);
         return p.toFile();
     }
     //**********************************************************
     public static void set_playlist_file_name(String playlist_file_name, Logger logger)
     //**********************************************************
     {
-        Static_application_properties.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
+        Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
     }
 
 }

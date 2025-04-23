@@ -9,10 +9,10 @@ package klik.image_ml.image_similarity;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
-import klik.level2.deduplicate.Abortable;
-import klik.level2.deduplicate.console.Deduplication_console_window;
-import klik.level2.deduplicate.manual.Againor;
-import klik.level2.deduplicate.manual.Stage_with_2_images;
+import klik.unstable.deduplicate.Abortable;
+import klik.unstable.deduplicate.console.Deduplication_console_window;
+import klik.unstable.deduplicate.manual.Againor;
+import klik.unstable.deduplicate.manual.Stage_with_2_images;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
@@ -117,7 +117,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         console_window.total_pairs_to_be_examined.addAndGet(pairs);
 
         // launch actor (feeder) in another tread
-        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(browser.virtual_landscape.image_properties_cache, quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
+        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(browser.virtual_landscape.image_properties_RAM_cache, quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
         Actor_engine.execute(duplicate_finder,logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");

@@ -1,7 +1,7 @@
 //SOURCES ./State.java
 package klik.image_indexer;
 
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 
 import java.nio.file.Files;
@@ -126,7 +126,7 @@ public class Image_indexer
             {
                 if (ultimate)
                 {
-                    if (!returned.getFileName().toString().toLowerCase().contains(Static_application_properties.ULTIM) )
+                    if (!returned.getFileName().toString().toLowerCase().contains(Non_booleans.ULTIM) )
                     {
                         target = increment(target);
                         continue;
@@ -195,7 +195,7 @@ public class Image_indexer
         if (p == null) return;
         if (ultimate)
         {
-            if (!p.getFileName().toString().toLowerCase().contains(Static_application_properties.ULTIM)) return;
+            if (!p.getFileName().toString().toLowerCase().contains(Non_booleans.ULTIM)) return;
         }
         returned.add(p);
     }

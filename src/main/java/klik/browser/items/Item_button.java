@@ -21,12 +21,14 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.properties.Booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
+import klik.properties.Non_booleans;
 import klik.util.execute.System_open_actor;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -61,6 +63,8 @@ public class Item_button extends Item implements Icon_destination
     //private Job job;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    private final Image_properties_RAM_cache image_properties_RAM_cache;
+
     //**********************************************************
     public Item_button(
             Browser browser,
@@ -68,11 +72,14 @@ public class Item_button extends Item implements Icon_destination
             Color color,
             String text_,
             double height,
-            boolean is_trash_, boolean is_parent_,
+            boolean is_trash_,
+            boolean is_parent_,
+            Image_properties_RAM_cache image_properties_RAM_cache,
             Logger logger)
     //**********************************************************
     {
         super(browser, path_, color, logger);
+        this.image_properties_RAM_cache = image_properties_RAM_cache;
         text = text_;
         is_trash = is_trash_;
         is_parent = is_parent_;
@@ -86,7 +93,7 @@ public class Item_button extends Item implements Icon_destination
             return;
         }
 
-        double button_width = Static_application_properties.get_column_width(logger);
+        double button_width = Non_booleans.get_column_width(logger);
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         if (Files.isDirectory(path))
@@ -249,7 +256,12 @@ public class Item_button extends Item implements Icon_destination
                 return null;
             }
 
-            Path returned = Animated_gif_from_folder.make_animated_gif_from_all_images_in_folder(browser.my_Stage.the_Stage, local_path,  images_in_folder,  logger);
+            Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
+                    browser.my_Stage.the_Stage,
+                    local_path,
+                    images_in_folder,
+                    image_properties_RAM_cache,
+                    logger);
             if ( returned == null)
             {
                 logger.log("make_animated_gif_from_all_images_in_folder fails");
@@ -292,7 +304,7 @@ public class Item_button extends Item implements Icon_destination
     {
 
 
-        if ( Static_application_properties.get_single_column(logger))
+        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger))
         {
             /*double space_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(" ");// text.length();
             double text_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(text);// text.length();
@@ -370,7 +382,7 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
         String extended_text = text;
-        //if ( Static_application_properties.get_show_folder_size(logger)) {    text2 += "..."; // room reservation since the size will be added later}
+        //if ( Non_booleans.get_show_folder_size(logger)) {    text2 += "..."; // room reservation since the size will be added later}
         if ( path != null)
         {
             if (Files.isSymbolicLink(path)) {
@@ -419,15 +431,16 @@ public class Item_button extends Item implements Icon_destination
 
         give_a_menu_to_the_button(button,label);
 
-        //if ( Static_application_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
+        //if ( Non_booleans.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
 
     }
 
 
     //**********************************************************
-    public void add_how_many_files_deep_folder(Button button, String text, Path path, Map<Path, Long> folder_file_count_cache, Aborter aborter, Logger logger)
+    public void add_how_many_files_deep_folder(AtomicInteger count, Button button, String text, Path path, Map<Path, Long> folder_file_count_cache, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        count.incrementAndGet();
 
         Runnable r = () -> {
             Long how_many_files_deep = folder_file_count_cache.get(path);
@@ -436,6 +449,7 @@ public class Item_button extends Item implements Icon_destination
                 how_many_files_deep = Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
+            count.decrementAndGet();
             String extended_text =  text + " (" + how_many_files_deep + " files)";
 
             String finalExtended_text = extended_text;

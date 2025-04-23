@@ -41,17 +41,13 @@ public class Paths_manager
     public final Path folder_path;
     private final Icon_factory_actor icon_factory_actor;
 
-    //private Refresh_target refresh_target;
-
     //**********************************************************
     public Paths_manager(Icon_factory_actor icon_factory_actor, Path displayed_folder_path,
-                         //Refresh_target refresh_target_,
                          Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         folder_path = displayed_folder_path;
         logger = logger_;
-        //refresh_target = refresh_target_;
         ID = ig_gen.getAndIncrement();
         aborter = aborter_;
         this.icon_factory_actor = icon_factory_actor;
@@ -75,13 +71,14 @@ public class Paths_manager
         {
             if (show_video_as_gif)
             {
+                /*
                 if (icon_factory_actor.videos_for_which_giffing_failed.contains(path))
                 {
                     logger.log("Paths_manager: detected animated icon failure for video:"+path);
                     // if the giffing process failed a video becomes non-iconized
                     non_iconized.put(path,true);
                     return;
-                }
+                }*/
                 String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
@@ -131,7 +128,7 @@ public class Paths_manager
             if (show_icons_instead_of_text)
             {
                 // calling this will pre-populate the cache
-                the_browser.virtual_landscape.image_properties_cache.prefill_cache(path);
+                the_browser.virtual_landscape.image_properties_RAM_cache.prefill_cache(path);
                 iconized_paths.add(path);
                 if (dbg) logger.log("calling image properties cache from path manager do_file()");
                 return;

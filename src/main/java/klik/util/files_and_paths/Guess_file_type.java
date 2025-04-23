@@ -3,10 +3,10 @@ package klik.util.files_and_paths;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.images.decoding.Exif_metadata_extractor;
-import klik.properties.Static_application_properties;
+import klik.properties.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.level3.fusk.Fusk_static_core;
+import klik.unstable.fusk.Fusk_static_core;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -44,7 +44,9 @@ public class Guess_file_type
     // .DS_Store is similar: this is meta data for the MAC Finder (one file per folder)
     //
     // .color is klik specific: when present, it is the color tag for a folder
-    public static final String[] ignored_prefixes = {"._",".DS_Store",".color"};
+    private static final String[] invisible_if_starts_with = {".","._",".DS_Store",".color"};
+    private static final String[] invisible_if_ends_with = {".properties",".prototypes"};
+
     static String[] supported_non_gif_non_png_image_formats = null;
 
     //**********************************************************
@@ -94,9 +96,13 @@ public class Guess_file_type
     public static boolean should_ignore(Path path)
     //**********************************************************
     {
-        for ( String i : ignored_prefixes)
+        for ( String i : invisible_if_starts_with)
         {
             if (path.getFileName().toString().startsWith(i)) return true;
+        }
+        for ( String i : invisible_if_ends_with)
+        {
+            if (path.getFileName().toString().endsWith(i)) return true;
         }
         return false;
     }
@@ -166,7 +172,7 @@ public class Guess_file_type
         File wd = path.getParent().toFile();
         if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
         {
-            Static_application_properties.manage_show_ffmpeg_install_warning(owner,logger);
+            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
         logger.log("->"+sb+"<-");
 
@@ -216,16 +222,7 @@ public class Guess_file_type
     public static boolean is_this_path_invisible_when_browsing(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("."))
-        {
-            return true;
-        }
-        if (path.getFileName().toString().toLowerCase().endsWith(".properties"))
-        {
-            return true;
-        }
         return (should_ignore(path));
-
     }
 
     //**********************************************************

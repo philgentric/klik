@@ -14,7 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
@@ -26,13 +25,14 @@ import klik.browser.icons.image_properties_cache.Rotation;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Experimental_features;
+import klik.properties.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
-import klik.level3.experimental.Multiple_image_window;
+import klik.unstable.experimental.Multiple_image_window;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -210,7 +210,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(path,browser.virtual_landscape.image_properties_cache,browser,browser.aborter,logger);
+            MenuItem menu_item = create_show_similar_menu_item(path,browser.virtual_landscape.image_properties_RAM_cache,browser,browser.aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         
@@ -265,7 +265,10 @@ public class Item_image extends Item
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(browser,path, dbg, logger));
-            if (Static_application_properties.get_level3(logger)) context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            if (Booleans.get_boolean(Experimental_features.enable_tags.name(),logger))
+            {
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+            }
         }
 
         if ( this.item_type == Iconifiable_item_type.video)
@@ -313,7 +316,7 @@ public class Item_image extends Item
             Runnable r = () ->
             {
                 image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, browser.virtual_landscape.image_properties_cache, true,null);
+                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, browser.virtual_landscape.image_properties_RAM_cache, true,null);
             };
             Actor_engine.execute(r,logger);
         });

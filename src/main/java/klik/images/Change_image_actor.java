@@ -4,7 +4,7 @@ import klik.actor.Actor;
 import klik.actor.Message;
 import klik.change.Change_gang;
 import klik.image_indexer.Image_indexer;
-import klik.util.performance_monitor.Performance_monitor;
+import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 
 import java.nio.file.Path;

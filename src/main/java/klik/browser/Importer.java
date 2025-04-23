@@ -10,15 +10,17 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
 import klik.util.execute.Scheduled_thread_pool;
 import klik.util.log.Logger;
+import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Show_running_film_frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,7 @@ public class Importer
     public static void perform_import(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
 
 
         Path target = home.resolve(Path.of("Pictures"));
@@ -140,7 +142,7 @@ public class Importer
     public static void estimate_size(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Static_application_properties.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
 
         Path target = home.resolve(Path.of("Pictures"));
 
@@ -159,7 +161,7 @@ public class Importer
         local_stage.setTitle(target.toAbsolutePath().toString());
         local_stage.setScene(scene);
         local_stage.show();
-        local_stage.setAlwaysOnTop(true);
+        //local_stage.setAlwaysOnTop(true);
 
 
 
@@ -184,41 +186,63 @@ public class Importer
         AtomicBoolean done = new AtomicBoolean(false);
 
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
-        Disk_scanner.process_folder(
-                target,
-                "Photo importer size estimate",
-                file_payload,
-                null,
-                wp,
-                aborter,
-                logger);
 
-        done.set(true);
+        Hourglass hourglass = Show_running_film_frame.show_running_film("wait, counting Apple Photo images",20*3600,aborter, logger);
 
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                Disk_scanner.process_folder(
+                        target,
+                        "Photo importer size estimate",
+                        file_payload,
+                        null,
+                        wp,
+                        aborter,
+                        logger);
 
-
-        // use a scheduled thread to track the process...
-        // not sure a sleep would not be just as good?
-        ScheduledFuture<?>[] progress_tracking_cancel = {null};
-        final String[] progress_string = {"Please wait, scanning folders..."};
-        Runnable progress_tracking = () -> {
-            if (done.get())
-            {
-                logger.log("done!");
-                progress_tracking_cancel[0].cancel(true);
-                String s = "Importation size estimation: "+size.get()/1_000_000+" MBytes";
-                for ( String w : wp) s+="\n"+w;
-                String final_s = s;
-                Jfx_batch_injector.inject(() -> textarea1.setText(final_s),logger);
-                logger.log(s);
-                return;
+                done.set(true);
             }
-            Platform.runLater(() -> textarea1.setText(progress_string[0]));
-            progress_string[0] += "*";
-            if (progress_string[0].length() > 100) progress_string[0] = "Please wait, scanning folders...";
         };
+        Actor_engine.execute(r,logger);
 
-        progress_tracking_cancel[0] = Scheduled_thread_pool.execute(progress_tracking, 300, TimeUnit.MILLISECONDS);
+        Runnable monitor = new Runnable() {
+            @Override
+            public void run() {
+                final String[] progress_string = {"Please wait, scanning folders..."};
+                for(;;)
+                {
+                    if (aborter.should_abort()) break;
+                    if ( done.get()) break;
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        break;
+                    }
+                    Platform.runLater(() -> textarea1.setText(progress_string[0]));
+                    progress_string[0] += "*";
+                    if (progress_string[0].length() > 100) progress_string[0] = "Please wait, scanning folders...";
+                }
+
+                hourglass.close();
+
+
+                {
+                    logger.log("done!");
+                    String s = "Importation size estimation: "+size.get()/1_000_000+" MBytes";
+                    for ( String w : wp) s+="\n"+w;
+                    String final_s = s;
+                    Jfx_batch_injector.inject(() -> textarea1.setText(final_s),logger);
+                    logger.log(s);
+                }
+            }
+        };
+        Actor_engine.execute(monitor,logger);
+
+
 
     }
 }

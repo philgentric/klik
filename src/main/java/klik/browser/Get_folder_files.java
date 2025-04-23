@@ -1,13 +1,11 @@
 package klik.browser;
-import klik.properties.Static_application_properties;
-import klik.util.files_and_paths.Folder_size;
+import klik.properties.Booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Get_folder_files
@@ -33,7 +31,7 @@ public class Get_folder_files
             return 0;
         }
         int how_many_files = files.length;
-        if (!Static_application_properties.get_show_hidden_files(logger))
+        if (!Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger))
         {
             for (File f : files) {
                 if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath())) {

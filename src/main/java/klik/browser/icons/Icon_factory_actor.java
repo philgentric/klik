@@ -16,9 +16,10 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
+import klik.properties.Booleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
-import klik.properties.Static_application_properties;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -44,7 +45,6 @@ public class Icon_factory_actor implements Actor
     private static final boolean dbg = false;
     private static final boolean pdf_dbg = false;
     private static final boolean aborting_dbg = false;
-    private final Image_properties_RAM_cache image_properties_cache;
 
     Logger logger;
     private final Stage owner;
@@ -53,31 +53,32 @@ public class Icon_factory_actor implements Actor
     public static final String gif_extension = "gif";
     public static final String png_extension = "png";
     private final Aborter aborter;
+    private final Image_properties_RAM_cache image_properties_RAM_cache;
 
 
-    public List<Path> videos_for_which_giffing_failed = new ArrayList<>();
+    //public List<Path> videos_for_which_giffing_failed = new ArrayList<>();
 
     //private static AtomicInteger instance = new AtomicInteger(0);
+    /*
     //**********************************************************
     public  void reset_videos_for_which_giffing_failed()
     //**********************************************************
     {
         videos_for_which_giffing_failed.clear();
-    }
+    }*/
 
 
     //**********************************************************
-    public Icon_factory_actor(Image_properties_RAM_cache image_properties_cache, Stage owner_, Aborter aborter, Logger logger_)
+    public Icon_factory_actor(Image_properties_RAM_cache image_properties_RAM_cache, Stage owner_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        this.image_properties_cache = image_properties_cache;
+        this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.aborter = aborter;
         owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
         icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger);
         writer = new Icon_writer_actor(icon_cache_dir, logger);
-        //writer = Icon_writer_actor.launch_icon_writer(icon_cache_dir, logger);
     }
 
 
@@ -134,7 +135,7 @@ public class Icon_factory_actor implements Actor
         Image_properties image_properties = image_and_properties.properties();
         if ( image_properties != null)
         {
-            image_properties_cache.inject(destination.get_item_path(),image_properties,true);
+            image_properties_RAM_cache.inject(destination.get_item_path(),image_properties,true);
         }
         //logger.log("Icon_factory_actor: "+ instance.decrementAndGet());
 
@@ -163,7 +164,7 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    private Image_and_properties try_once(Icon_destination destination, Icon_factory_request icon_factory_request)
+    private Image_and_properties try_once(Icon_destination destination, Icon_factory_request icon_factory_request )
     //**********************************************************
     {
         switch (destination.get_item_type())
@@ -197,7 +198,7 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    private Image_and_properties process_image(Icon_factory_request icon_factory_request, Icon_destination destination)
+    private Image_and_properties process_image(Icon_factory_request icon_factory_request, Icon_destination destination )
     //**********************************************************
     {
         if ( dbg)
@@ -287,7 +288,7 @@ public class Icon_factory_actor implements Actor
                 break;
         }
 
-        Image_properties properties = image_properties_cache.get_from_cache(destination.get_path_for_display_icon_destination(),null);
+        Image_properties properties = image_properties_RAM_cache.get_from_cache(destination.get_path_for_display_icon_destination(),null);
         return new Image_and_properties(image_from_disk,properties);
     }
 
@@ -355,7 +356,7 @@ public class Icon_factory_actor implements Actor
 
             if (dbg)
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            double length = Static_application_properties.get_animated_gif_duration_for_a_video(logger);
+            double length = Non_booleans.get_animated_gif_duration_for_a_video(logger);
 
             File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
@@ -476,7 +477,7 @@ public class Icon_factory_actor implements Actor
             File wd = file_in.getParentFile();
             if ( ! Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger))
             {
-                Static_application_properties.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 
                 logger.log(warning_GraphicsMagick);
                 return null;
@@ -502,7 +503,7 @@ public class Icon_factory_actor implements Actor
                 renderer.setSubsamplingAllowed(true);
                 int i = 0;
                 {
-                    //int dpi = Static_application_properties.get_icon_size(logger);
+                    //int dpi = Non_booleans.get_icon_size(logger);
                     BufferedImage image = renderer.renderImage(i);
                     if (pdf_dbg)
                         logger.log("PDF = " + image.getWidth() + "x" + image.getHeight() + " aspect ratio = " + ((double) (image.getWidth()) / (double) (image.getHeight())));

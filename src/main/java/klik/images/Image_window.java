@@ -17,14 +17,15 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.Change_gang;
+import klik.properties.Booleans;
 import klik.properties.File_sort_by;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
-import klik.level3.fusk.Fusk_static_core;
-import klik.level3.fusk.Fusk_strings;
+import klik.unstable.fusk.Fusk_static_core;
+import klik.unstable.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Static_application_properties;
-import klik.util.performance_monitor.Performance_monitor;
+import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -78,7 +79,7 @@ public class Image_window
     //**********************************************************
     {
 
-        Rectangle2D bounds = Static_application_properties.get_window_bounds(IMAGE_WINDOW,logger_);
+        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW,logger_);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
@@ -125,7 +126,7 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Static_application_properties.get_escape(logger);
+            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
                     keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(browser,local, exit_on_escape_preference, keyEvent, logger));
         }
@@ -137,7 +138,7 @@ public class Image_window
         if ( browser == null)
         {
             // this is going to take possibly a long time !!!
-            local_comp = File_sort_by.get_comparator(first_image_path.getParent(),image_properties_cache, aborter,logger);
+            local_comp = File_sort_by.get_true_comparator(first_image_path.getParent(),image_properties_cache, aborter,logger);
         }
         else
         {
@@ -168,7 +169,7 @@ public class Image_window
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            if ( save_window_bounds) Static_application_properties.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
+            if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
         };
         the_Stage.xProperty().addListener(change_listener);
         the_Stage.yProperty().addListener(change_listener);
@@ -376,12 +377,12 @@ public class Image_window
             screen = Screen.getPrimary();
         }
 
-        Rectangle2D bounds = Static_application_properties.get_bounds(logger);
+        Rectangle2D bounds = Non_booleans.get_bounds(logger);
 
         if (bounds == null)
         {
             bounds = screen.getVisualBounds();
-            Static_application_properties.save_bounds(bounds,logger);
+            Non_booleans.save_bounds(bounds,logger);
         }
         Scene scene = stage.getScene();
         //logger.log("scene getX" + scene.getX());
@@ -539,7 +540,7 @@ public class Image_window
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
 
-            boolean dont_zoom = Static_application_properties.get_dont_zoom_small_images(logger);
+            boolean dont_zoom = Booleans.get_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES,logger);
             boolean normal = true;
             if (dont_zoom)
             {

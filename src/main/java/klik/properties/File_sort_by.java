@@ -26,7 +26,7 @@ public enum File_sort_by {
 
 
   //**********************************************************
-  public static Comparator<Path> get_comparator(Path displayed_folder_path, Image_properties_RAM_cache image_properties_cache, Aborter aborter, Logger logger)
+  public static Comparator<Path> get_preliminary_comparator(Path displayed_folder_path, Image_properties_RAM_cache image_properties_cache, Aborter aborter, Logger logger)
   //**********************************************************
   {
     switch(File_sort_by.get_sort_files_by(logger))
@@ -48,13 +48,46 @@ public enum File_sort_by {
     }
     return null;
   }
+
+
+  //**********************************************************
+  public static Comparator<Path> get_true_comparator(Path displayed_folder_path, Image_properties_RAM_cache image_properties_cache, Aborter aborter, Logger logger)
+  //**********************************************************
+  {
+    switch(File_sort_by.get_sort_files_by(logger))
+    {
+      case SIMILARITY_BY_PURSUIT:
+        return new Similarity_comparator_by_pursuit(displayed_folder_path, image_properties_cache, aborter, logger);
+      case SIMILARITY_BY_PAIRS:
+        return new Similarity_comparator_pairs_of_closests(displayed_folder_path, aborter, logger);
+      case NAME:
+        return new Alphabetical_file_name_comparator();
+      case ASPECT_RATIO:
+        return new Aspect_ratio_comparator(image_properties_cache);
+      case RANDOM_ASPECT_RATIO:
+        return new Aspect_ratio_comparator_random(image_properties_cache);
+      case IMAGE_HEIGHT:
+        return new Image_height_comparator(image_properties_cache,logger);
+      case IMAGE_WIDTH:
+        return new Image_width_comparator(image_properties_cache);
+      case RANDOM:
+        return new Random_comparator();
+      case DATE:
+        return new Date_comparator(logger);
+      case SIZE:
+        return new Decreasing_file_size_comparator();
+      case NAME_GIFS_FIRST:
+        return new Alphabetical_file_name_comparator_gif_first();
+    }
+    return null;
+  }
   //**********************************************************
   public static File_sort_by get_sort_files_by(Logger logger)
   //**********************************************************
   {
-    String s = Static_application_properties.get_main_properties_manager(logger).get(SORT_FILES_BY);
+    String s = Non_booleans.get_main_properties_manager(logger).get(SORT_FILES_BY);
     if (s == null) {
-      Static_application_properties.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, File_sort_by.NAME.name());
+      Non_booleans.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, File_sort_by.NAME.name());
       return File_sort_by.NAME;
     }
     else
@@ -73,7 +106,7 @@ public enum File_sort_by {
   public static void set_sort_files_by(File_sort_by b, Logger logger)
   //**********************************************************
   {
-    Static_application_properties.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, b.name());
+    Non_booleans.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, b.name());
   }
 
 }

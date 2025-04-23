@@ -1,7 +1,7 @@
 //SOURCES ./About_klik_stage.java
 //SOURCES ./Icon_size.java
 //SOURCES ../image_ml/face_recognition/Face_recognition_service.java
-//SOURCES ../image_ml/Ml_servers_util.java
+//SOURCES ../image_ml/ML_servers_util.java
 //SOURCES ../image_ml/image_similarity/Image_feature_vector_cache.java
 //SOURCES ../util/files_and_paths/Name_cleaner.java
 //SOURCES ../level3/experimental/RAM_disk.java
@@ -12,7 +12,7 @@ import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import klik.actor.Aborter;
 import klik.browser.icons.Virtual_landscape;
-import klik.image_ml.Ml_servers_util;
+import klik.image_ml.ML_servers_util;
 import klik.browser.items.Item_button;
 import klik.change.Change_receiver;
 import klik.change.active_list_stage.Active_list_stage;
@@ -24,15 +24,12 @@ import klik.change.undo.Undo_engine;
 import klik.change.undo.Undo_item;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.*;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Exif_metadata_extractor;
-import klik.level3.experimental.RAM_disk;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
-import klik.properties.Bookmarks;
-import klik.properties.File_sort_by;
-import klik.properties.Static_application_properties;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -104,22 +101,36 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_vertical_scroll_inverted(logger));
-        item.setOnAction(actionEvent -> Static_application_properties.set_vertical_scroll_inverted(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        item.setSelected(Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger));
+        item.setOnAction(actionEvent -> Booleans.set_boolean(Booleans.VERTICAL_SCROLL_INVERTED,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
         return item;
     }
 
     //**********************************************************
-    public MenuItem make_start_servers_menu_item(Logger logger)
+    public MenuItem make_start_face_recognition_menu_item(Logger logger)
     //**********************************************************
     {
-        String text = "Show manual about how to start servers";//My_I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);
+        String text = "Show manual about how to start face recognition servers";//My_I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Ml_servers_util.show_manual();
+            ML_servers_util.show_face_recognition_manual();
         });
         return item;
     }
+
+
+    //**********************************************************
+    public MenuItem make_start_image_similarity_servers_menu_item(Logger logger)
+    //**********************************************************
+    {
+        String text = "Show manual about how to start image similarity servers";//My_I18n.get_I18n_string("Invert_vertical_scroll_direction",logger);
+        MenuItem item = new MenuItem(text);
+        item.setOnAction(event -> {
+            ML_servers_util.show_image_similarity_manual();
+        });
+        return item;
+    }
+
 
     //**********************************************************
     public CheckMenuItem make_show_icons_for_images_and_videos_check_menu_item()
@@ -127,9 +138,9 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Show_icons_for_images_and_videos",logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_icons(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.SHOW_ICONS,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_show_icons(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.SHOW_ICONS,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -143,9 +154,9 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Show_icons_for_folders",logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_icons_for_folders(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.ICONS_FOR_FOLDERS,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_show_icons_for_folders(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.ICONS_FOR_FOLDERS,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -156,9 +167,9 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Show_single_column",logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_single_column(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_single_column(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.SINGLE_COLUMN,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -184,6 +195,7 @@ public class Browser_menus
                 height,
                 is_trash,
                 is_parent,
+                browser.virtual_landscape.image_properties_RAM_cache,
                 logger);
         dummy.button_for_a_directory(text, min_width, height, null);
         return dummy.button;
@@ -198,9 +210,9 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Show_hidden_directories",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_hidden_directories(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_show_hidden_directories(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("show hidden file boolean changed");
         });
         return item;
@@ -213,9 +225,9 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("DONT_ZOOM_SMALL_IMAGES",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_dont_zoom_small_images(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_dont_zoom_small_images(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("dont_zoom_small_images boolean changed");
         });
         return item;
@@ -230,8 +242,8 @@ public class Browser_menus
         String text = "Use RAM disk for caches (requires restart)";// My_I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(RAM_disk.get_use_RAM_disk(logger));
-        item.setOnAction(actionEvent -> RAM_disk.set_use_RAM_disk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        item.setSelected(Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger));
+        item.setOnAction(actionEvent -> Booleans.set_boolean(Booleans.RAM_DISK_IS_ACTIVE,((CheckMenuItem)actionEvent.getSource()).isSelected(),logger));
         return item;
 
     }
@@ -241,7 +253,7 @@ public class Browser_menus
     public MenuItem make_stop_monitoring_menu_item()
     //**********************************************************
     {
-        String text = "Stop all monitoring (requires restart to get it back on)";// My_I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
+        String text = My_I18n.get_I18n_string("Stop_all_monitoring",logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(actionEvent->{
             Browser.monitoring_aborter.abort("user stopped all monitoring");
@@ -256,8 +268,8 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Monitor_Browsed_Folders",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_monitor_browsed_folders(logger));
-        item.setOnAction(actionEvent -> Static_application_properties.set_monitor_browsed_folders_fx(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
+        item.setSelected(Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger));
+        item.setOnAction(actionEvent -> Booleans.set_boolean(Booleans.MONITOR_BROWSED_FOLDERS,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger));
         return item;
     }
 
@@ -273,8 +285,8 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
 
         item.setOnAction(actionEvent -> {
-            //Static_application_properties.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
-            TextInputDialog dialog = new TextInputDialog(""+Static_application_properties.get_folder_warning_size(logger));
+            //Non_booleans.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            TextInputDialog dialog = new TextInputDialog(""+ Non_booleans.get_folder_warning_size(logger));
             Look_and_feel_manager.set_dialog_look(dialog);
             dialog.initOwner(browser.my_Stage.the_Stage);
             dialog.setWidth(800);
@@ -289,7 +301,7 @@ public class Browser_menus
                 try
                 {
                     int val = Integer.parseInt(new_val);
-                    Static_application_properties.set_cache_size_limit_warning_megabytes_fx(val,logger);
+                    Non_booleans.set_cache_size_limit_warning_megabytes_fx(val,logger);
 
                 }
                 catch (NumberFormatException e)
@@ -311,9 +323,10 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Enable_fusk",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_enable_fusk(logger));
-        item.setOnAction(actionEvent -> {
-            Static_application_properties.set_enable_fusk(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+        item.setSelected(Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE, logger));
+        item.setOnAction(actionEvent ->
+        {
+            Booleans.set_boolean(Booleans.FUSK_IS_ACTIVE,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("enable fusk boolean changed");
 
         });
@@ -322,15 +335,15 @@ public class Browser_menus
 
 
     //**********************************************************
-    public MenuItem make_auto_purge_icon_disk_cache_check_menu_item()
+    public MenuItem make_auto_purge_disk_caches_check_menu_item()
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Auto_purge_cache",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_auto_purge_disk_caches(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_auto_purge_icon_disk_cache(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.AUTO_PURGE_DISK_CACHES,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
         });
         return item;
     }
@@ -342,9 +355,9 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Show_hidden_files",logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_show_hidden_files(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger));
         item.setOnAction(actionEvent -> {
-            Static_application_properties.set_show_hidden_files(((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
+            Booleans.set_boolean(Booleans.SHOW_HIDDEN_FILES,((CheckMenuItem) actionEvent.getSource()).isSelected(),logger);
             browser.redraw_fx("show hidden file boolean changed");
         });
         return item;
@@ -788,10 +801,10 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Escape",logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_escape(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger));
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Static_application_properties.set_escape(value,logger);
+            Booleans.set_boolean(Booleans.ESCAPE_FAST_EXIT,value,logger);
             browser.set_escape_preference(value);
         });
         return item;
@@ -803,10 +816,10 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Play_Ding_When_Long_Operations_End",logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Static_application_properties.get_ding(logger));
+        item.setSelected(Booleans.get_boolean(Booleans.DING_IS_ON,logger));
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Static_application_properties.set_ding(value,logger);
+            Booleans.set_boolean(Booleans.DING_IS_ON,value,logger);
         });
         return item;
     }
@@ -816,7 +829,7 @@ public class Browser_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(language_key);
-        String current = Static_application_properties.get_language_key(logger);
+        String current = Non_booleans.get_language_key(logger);
         item.setSelected(current.equals(language_key));
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -841,7 +854,7 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Length_of_video_sample",logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length+" s");
-        int actual_size = Static_application_properties.get_animated_gif_duration_for_a_video(logger);
+        int actual_size = Non_booleans.get_animated_gif_duration_for_a_video(logger);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -850,7 +863,7 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_animated_gif_duration_for_a_video(length,logger);
+                Non_booleans.set_animated_gif_duration_for_a_video(length,logger);
                 Popups.popup_warning(browser.my_Stage.the_Stage, "Note well:","You have to clear the icon cache to see the effect for already visited folders",false,logger);
             }
         });
@@ -862,9 +875,9 @@ public class Browser_menus
     public void create_menu_item_for_one_column_width(Browser browser, Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Static_application_properties.COLUMN_WIDTH,logger);
+        String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length);
-        int actual_size = Static_application_properties.get_column_width(logger);
+        int actual_size = Non_booleans.get_column_width(logger);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -873,7 +886,7 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_column_width(length,logger);
+                Non_booleans.set_column_width(length,logger);
                 browser.redraw_fx("column width changed");
             }
         });
@@ -896,7 +909,7 @@ public class Browser_menus
             txt = My_I18n.get_I18n_string("Icon_Size",logger) + " = " +target_size;
         }
         CheckMenuItem item = new CheckMenuItem(txt);
-        int actual_size = Static_application_properties.get_icon_size(logger);
+        int actual_size = Non_booleans.get_icon_size(logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -905,7 +918,7 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_icon_size(target_size,logger);
+                Non_booleans.set_icon_size(target_size,logger);
                 logger.log("icon size changed to "+target_size);
                 browser.redraw_fx("icon size changed");
             }
@@ -920,7 +933,7 @@ public class Browser_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Folder_Icon_Size",logger) + " = " +target_size);
-        int actual_size = Static_application_properties.get_folder_icon_size(logger);
+        int actual_size = Non_booleans.get_folder_icon_size(logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -929,7 +942,7 @@ public class Browser_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_folder_icon_size(target_size,logger);
+                Non_booleans.set_folder_icon_size(target_size,logger);
                 browser.redraw_fx("folder icon size changed");
             }
         });
@@ -942,7 +955,7 @@ public class Browser_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Font_size",logger) + " = " +target_size);
-        double actual_size = Static_application_properties.get_font_size(logger);
+        double actual_size = Non_booleans.get_font_size(logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -952,7 +965,7 @@ public class Browser_menus
                 {
                     if (cmi != local) cmi.setSelected(false);
                 }
-                Static_application_properties.set_font_size(target_size,logger);
+                Non_booleans.set_font_size(target_size,logger);
                 browser.redraw_fx("font size changed");
             }
         });
@@ -968,7 +981,7 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Length_of_video_sample",logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_lenghts ={Static_application_properties.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
+        int[] possible_lenghts ={Non_booleans.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
         for ( int l : possible_lenghts)
         {
             create_menu_item_for_one_video_length(browser, menu, l, all_check_menu_items, logger);
@@ -979,7 +992,7 @@ public class Browser_menus
     public Menu make_column_width_menu()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Static_application_properties.COLUMN_WIDTH,logger);
+        String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
@@ -998,6 +1011,13 @@ public class Browser_menus
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         for ( File_sort_by sort_by : File_sort_by.values())
         {
+            if (( sort_by == File_sort_by.SIMILARITY_BY_PAIRS)||(sort_by == File_sort_by.SIMILARITY_BY_PURSUIT))
+            {
+                if ( !Booleans.get_boolean(Advanced_features.enable_image_similarity.name(), logger))
+                {
+                    continue;
+                }
+            }
             create_menu_item_for_one_file_sort_method(browser, menu, sort_by, all_check_menu_items, logger);
         }
         return menu;
@@ -1059,7 +1079,7 @@ public class Browser_menus
     {
         List<Icon_size> icon_sizes = new ArrayList<>();
         {
-            int[] possible_sizes = {32, 64, 128, Static_application_properties.DEFAULT_ICON_SIZE, 512, 1024};
+            int[] possible_sizes = {32, 64, 128, Non_booleans.DEFAULT_ICON_SIZE, 512, 1024};
             for (int size : possible_sizes)
             {
                 icon_sizes.add(new Icon_size(size, false, 0));
@@ -1075,7 +1095,7 @@ public class Browser_menus
                 icon_sizes.add(new Icon_size(size, true, divider));
             }
         }
-        int current_icon_size = Static_application_properties.get_icon_size(logger);
+        int current_icon_size = Non_booleans.get_icon_size(logger);
         Icon_size cur = new Icon_size(current_icon_size,false,0);
         if ( !icon_sizes.contains(cur)) icon_sizes.add(cur);
         Comparator<? super Icon_size> comp = new Comparator<Icon_size>() {
@@ -1095,7 +1115,7 @@ public class Browser_menus
         String text = My_I18n.get_I18n_string("Folder_Icon_Size",logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_sizes ={Static_application_properties.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
+        int[] possible_sizes ={Non_booleans.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
         for ( int size : possible_sizes)
         {
             create_menu_item_for_one_folder_icon_size(browser, menu, size, all_check_menu_items, logger);
@@ -1111,7 +1131,7 @@ public class Browser_menus
         Menu menu = new Menu(text);
         double[] candidate_sizes = {10,12,14,16,18,20,22,24,26};
         List<Double> possible_sizes = new ArrayList<>();
-        possible_sizes.add(Static_application_properties.get_font_size(logger));
+        possible_sizes.add(Non_booleans.get_font_size(logger));
         for (double candidateSize : candidate_sizes) {
             if (possible_sizes.contains(candidateSize)) continue;
             possible_sizes.add(candidateSize);
@@ -1213,8 +1233,8 @@ public class Browser_menus
     {
         String text = My_I18n.get_I18n_string("Import",logger);
         Menu menu = new Menu(text);
-        menu.getItems().add(make_menu_item("Import_Apple_Photos",event -> browser.import_apple_Photos()));
         menu.getItems().add(make_menu_item("Estimate_Size_Of_Import_Apple_Photos",event -> browser.estimate_size_of_importing_apple_Photos()));
+        menu.getItems().add(make_menu_item("Import_Apple_Photos",event -> browser.import_apple_Photos()));
         return menu;
     }
     //**********************************************************
@@ -1264,12 +1284,8 @@ public class Browser_menus
     }
 
 
-
-
-
-
-
-
-
-
+    public MenuItem get_advanced_preferences()
+    {
+        return make_menu_item("Advanced_And_Experimental_Features",event -> Preferences_stage.show_Preferences_stage("Preferences",logger));
+    }
 }

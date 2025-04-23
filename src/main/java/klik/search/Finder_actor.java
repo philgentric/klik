@@ -373,10 +373,10 @@ public class Finder_actor implements Actor
     {
 
         List<String> returned = new ArrayList<>();
-        int max = Static_application_properties.get_excluded_keyword_list_max_size(logger);
+        int max = Non_booleans.get_excluded_keyword_list_max_size(logger);
         for (int i = 0; i < max; i++) {
-            String key = Static_application_properties.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Static_application_properties.get_properties_manager(logger).get(key);
+            String key = Non_booleans.EXCLUDED_KEYWORD_PREFIX + i;
+            String kw = Non_booleans.get_properties_manager(logger).get(key);
             if (kw != null) {
                 String lower = kw.toLowerCase();
                 returned.add(lower);

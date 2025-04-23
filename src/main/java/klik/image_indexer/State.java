@@ -1,10 +1,10 @@
 package klik.image_indexer;
 
+import klik.properties.Booleans;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.properties.Static_application_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.performance_monitor.Performance_monitor;
+import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -50,7 +50,7 @@ class State
         long start = System.currentTimeMillis();
         //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
 
-        boolean consider_also_hidden_files =  Static_application_properties.get_show_hidden_files(logger);
+        boolean consider_also_hidden_files =  Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger);
 
         List<Path> path_list = new ArrayList<>();
         if (dbg) logger.log(("image file source scan for:"+target));

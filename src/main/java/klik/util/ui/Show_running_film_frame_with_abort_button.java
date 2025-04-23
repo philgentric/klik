@@ -96,10 +96,12 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
 		{
 			in_flight_label = new Label();
 			vbox.getChildren().add(in_flight_label);
+			Look_and_feel_manager.set_label_look(in_flight_label);
 		}
 		{
 			ETA_label = new Label();
 			vbox.getChildren().add(ETA_label);
+			Look_and_feel_manager.set_label_look(ETA_label);
 		}
 		{
 			Button abort = new Button("Abort");
