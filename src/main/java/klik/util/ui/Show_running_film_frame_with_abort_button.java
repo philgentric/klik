@@ -34,35 +34,35 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
 
 
 	//**********************************************************
-	public static Show_running_film_frame_with_abort_button show_running_film(String wait_message, int timeout_s, Logger logger)
+	public static Show_running_film_frame_with_abort_button show_running_film(String wait_message, int timeout_s, double x, double y, Logger logger)
 	//**********************************************************
 	{
 		Show_running_film_frame_with_abort_button local = new Show_running_film_frame_with_abort_button(timeout_s, logger);
-		launch(local, wait_message,logger);
+		launch(local, wait_message,x,y,logger);
 		return local;
 	}
 
 	//**********************************************************
-	public static Show_running_film_frame_with_abort_button show_running_film(AtomicInteger in_flight, String wait_message, int timeout_s, Logger logger)
+	public static Show_running_film_frame_with_abort_button show_running_film(AtomicInteger in_flight, String wait_message, int timeout_s, double x, double y, Logger logger)
 	//**********************************************************
 	{
 		Show_running_film_frame_with_abort_button local = new Show_running_film_frame_with_abort_button(timeout_s, logger);
-		launch(local, wait_message,logger);
+		launch(local, wait_message,x,y,logger);
 		local.report_progress_and_close_when_finished(in_flight);
 		return local;
 	}
 
 	//**********************************************************
-	private static Hourglass launch(Show_running_film_frame_with_abort_button local, String wait_message, Logger logger)
+	private static Hourglass launch(Show_running_film_frame_with_abort_button local, String wait_message, double x, double y, Logger logger)
 	//**********************************************************
 	{
 		if ( Platform.isFxApplicationThread())
 		{
-			local.define_fx(wait_message);
+			local.define_fx(wait_message,x,y);
 		}
 		else
 		{
-			Jfx_batch_injector.inject(()->local.define_fx(wait_message),logger);
+			Jfx_batch_injector.inject(()->local.define_fx(wait_message,x,y),logger);
 		}
 		return local;
 	}
@@ -77,7 +77,7 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
 	}
 
 	//**********************************************************
-	private void define_fx(String wait_message)
+	private void define_fx(String wait_message, double x, double y)
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
@@ -90,6 +90,8 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
 		iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
 		iv.setFitHeight(100);
 		stage.setMinWidth(300);
+		stage.setX(x);
+		stage.setY(y);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
 
@@ -131,10 +133,8 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
                 int count = 0;
                 for(;;)
 				{
-					//String x = in.poll(1, TimeUnit.SECONDS);
-					boolean x = latch.await(1, TimeUnit.SECONDS);
-					//if (x == null)
-					if (!x)
+					boolean b = latch.await(1, TimeUnit.SECONDS);
+					if (!b)
 					{
 						// timeout
                         if (aborter.should_abort())

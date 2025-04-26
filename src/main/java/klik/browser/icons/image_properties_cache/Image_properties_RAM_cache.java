@@ -203,11 +203,10 @@ public class Image_properties_RAM_cache
             pm.remove(key);
         }
         if ( !cleanup.isEmpty()) pm.store_properties();
-        //if (dbg)
-            logger.log(cache_name+": "+already_in_RAM+" already in RAM, "+reloaded+" items reloaded from file");
 
         if ( dbg)
         {
+            logger.log(cache_name+": "+already_in_RAM+" already in RAM, "+reloaded+" items reloaded from file");
             logger.log("\n\n\n********************* "+cache_name+ " CACHE************************");
             for (String s  : cache.keySet())
             {

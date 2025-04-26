@@ -222,7 +222,9 @@ public class Deduplication_engine implements Againor, Abortable
             if (erased % 10 == 0) console_window.set_status_text("Erased files =" + erased);
 
         }
-        Moving_files.safe_delete_files(browser.my_Stage.the_Stage, ll, private_aborter,logger);
+        double x = browser.my_Stage.the_Stage.getX()+100;
+        double y = browser.my_Stage.the_Stage.getY()+100;
+        Moving_files.safe_delete_files(browser.my_Stage.the_Stage, x,y,ll, private_aborter,logger);
 
         //Popups.popup_warning("End of automatic de-duplication for :" + target_dir.getAbsolutePath(), erased + " pairs de-duplicated", false, logger);
 

@@ -26,6 +26,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -68,14 +69,14 @@ public class Face_recognition_service
     Training_stats training_stats;
     long last_report;
     private static final int MAX_THREADS = 50;
-
+    private Window owner;
 
     //**********************************************************
-    private Face_recognition_service(String name_, Logger logger)
+    private Face_recognition_service(String name_, Window owner, Logger logger)
     //**********************************************************
     {
         face_recognizer_name = name_;
-        //this.browser = browser;
+        this.owner = owner;
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
@@ -89,22 +90,22 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    public static Face_recognition_service get_instance(Logger logger)
+    public static Face_recognition_service get_instance(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) start_new(logger);
+        if ( instance == null) start_new(owner, logger);
         return instance;
     }
 
     //**********************************************************
-    public static void start_new(Logger logger)
+    public static void start_new(Window owner, Logger logger)
     //**********************************************************
     {
         Optional<String> localo = get_face_recognition_model_name(logger);
 
         if ( localo.isEmpty()) return;
 
-        instance = new Face_recognition_service(localo.get(), logger);
+        instance = new Face_recognition_service(localo.get(), owner, logger);
         instance.load_internal();
     }
 
@@ -116,11 +117,11 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void load(Logger logger)
+    public static void load(Window owner,Logger logger)
     //**********************************************************
     {
         if ( instance != null) instance.load_internal();
-        else start_new(logger);
+        else start_new(owner, logger);
     }
 
 
@@ -156,19 +157,19 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void auto(Path displayed_folder_path, Logger logger)
+    public static void auto(Path displayed_folder_path, Window owner, Logger logger)
     //**********************************************************
     {
-        Face_recognition_service fr = Face_recognition_service.get_instance(logger);
+        Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
         Actor_engine.execute(() -> fr.auto_internal(displayed_folder_path, logger), fr.logger);
     }
 
 
     //**********************************************************
-    public static void self(Logger logger)
+    public static void self(Window owner, Logger logger)
     //**********************************************************
     {
-        Face_recognition_service fr = Face_recognition_service.get_instance(logger);
+        Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
         Actor_engine.execute(fr::self_internal, logger);
     }
 
@@ -177,7 +178,9 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
-        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for auto train to complete",20*3600,logger);
+        double x = owner.getX()+100;
+        double y = owner.getY()+100;
+        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for auto train to complete",20*3600,x,y,logger);
         Aborter aborter_for_auto_train = running_film.aborter;
 
         Face_recognition_actor face_recognition_actor = new Face_recognition_actor(this);
@@ -468,7 +471,7 @@ public class Face_recognition_service
                 ComboBox<String> comboBox = new ComboBox<>();
                 if (eval_result != null) comboBox.setDisable(!eval_result.enable_adding());
 
-                comboBox.getItems().addAll(Face_recognition_service.get_instance(logger).get_prototype_labels());
+                comboBox.getItems().addAll(Face_recognition_service.get_instance(owner,logger).get_prototype_labels());
                 if (eval_result != null) {
                     if (eval_result.label() != null) {
                         comboBox.setValue(eval_result.label());
@@ -597,7 +600,9 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_film_frame_with_abort_button x = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Loading face recognition prototypes", 20_100, logger);
+        double x = owner.getX()+100;
+        double y = owner.getY()+100;
+        Show_running_film_frame_with_abort_button show_running_film_frame_with_abort_button = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Loading face recognition prototypes", 20_100, x,y,logger);
         Load_one_prototype_actor actor = new Load_one_prototype_actor();
         Runnable r = () -> {
             Path p = Path.of(face_recognizer_path.toAbsolutePath().toString());
@@ -609,7 +614,7 @@ public class Face_recognition_service
                 Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
 
                 Actor_engine.run(actor,
-                        new Load_one_prototype_message(f,this,x.aborter),
+                        new Load_one_prototype_message(f,this,show_running_film_frame_with_abort_button.aborter),
                         tr,
                         logger);
             }
@@ -808,7 +813,9 @@ public class Face_recognition_service
     //**********************************************************
     {
         AtomicInteger files_in_flight = new AtomicInteger(0);
-        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for SELF face recognition to complete",20*60,logger);
+        double x = owner.getX()+100;
+        double y = owner.getY()+100;
+        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for SELF face recognition to complete",20*60,x,y,logger);
         Aborter aborter_for_self = running_film.aborter;
 
         last_report = System.currentTimeMillis();

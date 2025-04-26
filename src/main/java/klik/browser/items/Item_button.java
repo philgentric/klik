@@ -257,7 +257,7 @@ public class Item_button extends Item implements Icon_destination
             }
 
             Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
-                    browser.my_Stage.the_Stage,
+                    browser,
                     local_path,
                     images_in_folder,
                     image_properties_RAM_cache,

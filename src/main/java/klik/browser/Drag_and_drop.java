@@ -12,6 +12,7 @@ import klik.browser.items.Item;
 import klik.util.files_and_paths.Moving_files;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -42,7 +43,7 @@ public class Drag_and_drop
         Object source = drag_event.getGestureSource();
         if (source == null)
         {
-            logger.log("source is null for: " + drag_event.getSource());
+            logger.log(("WARNING: accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: " + drag_event.getSource()));
         }
         else
         {
@@ -126,7 +127,9 @@ public class Drag_and_drop
         //boolean destination_is_trash = Non_booleans.is_this_trash(destination_dir,logger);
         if (drag_and_drop_dbg) logger.log("\n\naccept_drag_dropped_as_a_move_in " + origin+" destination= "+destination_dir+" is_trash="+ destination_is_trash);
 
-        Moving_files.safe_move_files_or_dirs(owner,
+        double x = drag_event.getX();
+        double y = drag_event.getY();
+        Moving_files.safe_move_files_or_dirs(owner,x,y,
                 destination_dir,
                 destination_is_trash,
                 list,

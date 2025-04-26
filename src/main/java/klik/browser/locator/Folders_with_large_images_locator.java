@@ -71,7 +71,9 @@ public class Folders_with_large_images_locator
             public void run() {
                 explore(top.toFile());
 
-                Hourglass show_running_film = Show_running_film_frame.show_running_film("Looking for folders with large images", 10 * 60, private_aborter, logger);
+                double x = browser.my_Stage.the_Stage.getX()+100;
+                double y = browser.my_Stage.the_Stage.getY()+100;
+                Hourglass show_running_film = Show_running_film_frame.show_running_film(browser.my_Stage.the_Stage,x,y,"Looking for folders with large images", 10 * 60, private_aborter, logger);
                 // wait for exploration to end
                 long start = System.currentTimeMillis();
                 for(;;)
@@ -116,9 +118,9 @@ public class Folders_with_large_images_locator
                 if ( dbg) print_all_contaminated();
 
                 {
-                    String x = "exploration ended, going to analyze " + contanimated_directories.size() + " folders";
-                    if ( monitor!=null) monitor.show(x);
-                    logger.log(x);
+                    String s = "exploration ended, going to analyze " + contanimated_directories.size() + " folders";
+                    if ( monitor!=null) monitor.show(s);
+                    logger.log(s);
                 }
                 bottom_to_top();
                 if ( dbg) print_all_contaminated();

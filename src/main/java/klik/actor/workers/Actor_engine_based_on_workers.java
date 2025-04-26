@@ -17,7 +17,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     this actor engine has  N workers, each with its own thread
     each pumping jobs out of a single queue
     and executing the job on its own thread
-    (so in case we have N actors that sleep we deadlock!)
+    (so in case we have N actors that sleep/wait on another, we deadlock!)
      */
 
     private static final boolean dbg = false;

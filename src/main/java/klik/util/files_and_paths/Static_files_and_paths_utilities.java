@@ -105,10 +105,11 @@ public class Static_files_and_paths_utilities
         }
         catch (IOException e)
         {
-            logger.log("cannot move "+old_path+" => "+ new_path);
+            logger.log(Stack_trace_getter.get_stack_trace("IOException Files.move() cannot move "+old_path+" => "+ new_path));
             try
             {
                 Files.copy(old_path,new_path);
+                logger.log("file/folder was copied instead "+old_path+" => "+ new_path);
             }
             catch (IOException ee)
             {
@@ -197,7 +198,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static void move_to_trash(Stage owner, List<Path> paths, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash(Stage owner, double x, double y, List<Path> paths, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),logger);
@@ -212,12 +213,12 @@ public class Static_files_and_paths_utilities
             oanf2.run_after = after_the_move;
             l2.add(oanf2);
         }
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2, true, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner, x,y,l2, true, aborter, logger);
 
     }
 
     //**********************************************************
-    public static void move_to_trash(Stage owner, Path path, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash(Stage owner, double x, double y, Path path, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path trash_dir = Non_booleans.get_trash_dir(path,logger);
@@ -230,7 +231,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2, true, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner, x,y,l2, true, aborter, logger);
 
     }
 

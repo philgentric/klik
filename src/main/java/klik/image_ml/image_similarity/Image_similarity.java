@@ -46,12 +46,13 @@ public class Image_similarity implements Clearable_RAM_cache
     public Image_similarity(
             Path displayed_folder_path,
             Browser browser,
+            double x, double y,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.browser = browser;
         this.logger = logger;
-        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(displayed_folder_path,aborter,logger);
+        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(displayed_folder_path,x,y,aborter,logger);
     }
 
     //**********************************************************
@@ -64,11 +65,12 @@ public class Image_similarity implements Clearable_RAM_cache
             double threshold,
             Image_properties_RAM_cache image_properties_cache,
             boolean use_mask,
+            double x, double y,
             AtomicLong count_pairs_examined)
     //**********************************************************
     {
-        Hourglass x = null;
-        if ( and_show) x = Show_running_film_frame_with_abort_button.show_running_film("wait",20000, logger);
+        Hourglass hourglass = null;
+        if ( and_show) hourglass = Show_running_film_frame_with_abort_button.show_running_film("wait",20000, x,y, logger);
 
         if (images_and_feature_vectors == null)
         {
@@ -110,7 +112,7 @@ public class Image_similarity implements Clearable_RAM_cache
             }
         };
         Jfx_batch_injector.inject(rr, logger);
-        x.close();
+        hourglass.close();
         return most_similars;
     }
 

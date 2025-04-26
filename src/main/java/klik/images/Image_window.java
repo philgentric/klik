@@ -138,7 +138,8 @@ public class Image_window
         if ( browser == null)
         {
             // this is going to take possibly a long time !!!
-            local_comp = File_sort_by.get_true_comparator(first_image_path.getParent(),image_properties_cache, aborter,logger);
+
+            local_comp = File_sort_by.get_true_comparator(first_image_path.getParent(),image_properties_cache,null, x+100,y+100,aborter,logger);
         }
         else
         {
@@ -509,7 +510,7 @@ public class Image_window
     public void my_close()
     //**********************************************************
     {
-        logger.log("Image_window is closing");
+        //logger.log("Image_window is closing");
         aborter.abort("Image_window is closing");
         Browser.show_running_film = true;
         Change_gang.deregister(image_display_handler, aborter);
@@ -613,7 +614,10 @@ public class Image_window
             Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             oandn.run_after = () -> Jfx_batch_injector.inject(() -> set_stage_title(local_new_image_context),logger);
             l.add(oandn);
-            Moving_files.perform_safe_moves_in_a_thread(the_Stage,l, true, aborter,logger);
+
+            double x = the_Stage.getX()+100;
+            double y = the_Stage.getY()+100;
+            Moving_files.perform_safe_moves_in_a_thread(the_Stage,x,y,l, true, aborter,logger);
         }
         return Optional.of(local_new_image_context);
     }

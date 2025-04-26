@@ -370,7 +370,8 @@ public class Browser_menus
         String text = "Add all images to face recognition training set";
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            Face_recognition_service i = Face_recognition_service.get_instance(logger);
+
+            Face_recognition_service i = Face_recognition_service.get_instance(browser.my_Stage.the_Stage,logger);
             logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+browser.displayed_folder_path);
 
         });
@@ -393,7 +394,7 @@ public class Browser_menus
     {
         String text = "Load face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.load(logger));
+        item.setOnAction(event -> Face_recognition_service.load(browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -404,7 +405,7 @@ public class Browser_menus
     {
         String text = "Reset/init face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.start_new(logger));
+        item.setOnAction(event -> Face_recognition_service.start_new(browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -415,7 +416,7 @@ public class Browser_menus
     {
         String text = "Auto face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.auto(browser.displayed_folder_path,logger));
+        item.setOnAction(event -> Face_recognition_service.auto(browser.displayed_folder_path,browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -425,7 +426,7 @@ public class Browser_menus
     {
         String text = "SELF face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.self(logger));
+        item.setOnAction(event -> Face_recognition_service.self(browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -693,9 +694,12 @@ public class Browser_menus
     public void create_undos_menu(Browser browser, Menu undos_menu, Logger logger)
     //**********************************************************
     {
+        double x = browser.my_Stage.the_Stage.getX()+100;
+        double y = browser.my_Stage.the_Stage.getY()+100;
+
         undos_menu.getItems().add(make_menu_item(
                 "Undo_LAST_move_or_delete",
-                event -> Undo_engine.perform_last_undo_fx(browser.my_Stage.the_Stage,browser.aborter, logger)));
+                event -> Undo_engine.perform_last_undo_fx(browser.my_Stage.the_Stage,x,y,browser.aborter, logger)));
         undos_menu.getItems().add(make_menu_item(
                 "Show_Undos",
                 event -> pop_up_whole_undo_history(browser.aborter)));
@@ -738,7 +742,10 @@ public class Browser_menus
                 return;
             }
             logger.log("\n\n\n undo_item="+item.to_string());
-            Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,aborter, logger);
+            double x = browser.my_Stage.the_Stage.getX()+100;
+            double y = browser.my_Stage.the_Stage.getY()+100;
+
+            Undo_engine.perform_undo(item,browser.my_Stage.the_Stage,x,y,aborter, logger);
         };
         String title = My_I18n.get_I18n_string("Whole_Undo_History",logger);
         Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_engine.get_instance(aborter, logger), action, logger));
@@ -1175,7 +1182,10 @@ public class Browser_menus
             Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             l.add(oandn);
         }
-        Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, true, browser.aborter,logger);
+        double x = browser.my_Stage.the_Stage.getX()+100;
+        double y = browser.my_Stage.the_Stage.getY()+100;
+
+        Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,x,y,l, true, browser.aborter,logger);
 
     }
 
@@ -1207,7 +1217,10 @@ public class Browser_menus
             if( !e.is_image_damaged()) continue;
             to_be_deleted.add(f.toPath());
         }
-        Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,to_be_deleted, null, browser.aborter, logger);
+        double x = browser.my_Stage.the_Stage.getX()+100;
+        double y = browser.my_Stage.the_Stage.getY()+100;
+
+        Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,x,y,to_be_deleted, null, browser.aborter, logger);
 
     }
 

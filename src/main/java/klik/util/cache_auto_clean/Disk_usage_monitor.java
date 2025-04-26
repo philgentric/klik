@@ -43,7 +43,7 @@ public class Disk_usage_monitor
 
         for (Cache_folders cache_folder : Cache_folders.values())
         {
-            System.out.println("Disk_usage_monitor ");
+            logger.log("starting Disk_usage_monitor for :" + cache_folder);
             Path ff = Static_files_and_paths_utilities.get_cache_folder(cache_folder, logger);
             Monitored_folder tt = new Monitored_folder(cache_folder.name(), ff, true);
             monitored_folders.add(tt);

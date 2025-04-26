@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.RejectedExecutionException;
+import org.apache.commons.io.FileUtils;
 
 //**********************************************************
 public class Moving_files
@@ -33,7 +34,7 @@ public class Moving_files
     private static final boolean moving_files_dbg = false;
 
     //**********************************************************
-    public static void safe_move_files_or_dirs(Window owner,
+    public static void safe_move_files_or_dirs(Window owner, double x, double y,
                                                Path destination_dir,
                                                boolean destination_is_trash,
                                                List<File> the_files_being_moved,
@@ -61,11 +62,11 @@ public class Moving_files
         if (popup) {
             Popups.popup_warning(owner, "Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, logger);
         }
-        perform_safe_moves_in_a_thread(owner, oan_list,  true, aborter,logger);
+        perform_safe_moves_in_a_thread(owner, x,y,oan_list,  true, aborter,logger);
     }
 
     //**********************************************************
-    public static void safe_move_a_file_or_dir_in_a_thread(Window owner, Path destination_dir, File the_file_being_moved, Aborter aborter, Logger logger)
+    public static void safe_move_a_file_or_dir_in_a_thread(Window owner, double x, double y, Path destination_dir, File the_file_being_moved, Aborter aborter, Logger logger)
     //**********************************************************
     {
         List<Old_and_new_Path> oanl = new ArrayList<>();
@@ -74,11 +75,11 @@ public class Moving_files
         Command_old_and_new_Path cmd_ = Command_old_and_new_Path.command_move;
         Old_and_new_Path oan = new Old_and_new_Path(old_Path_, new_Path_, cmd_, Status_old_and_new_Path.move_done,false);
         oanl.add(oan);
-        perform_safe_moves_in_a_thread(owner, oanl,  true, aborter,logger);
+        perform_safe_moves_in_a_thread(owner,x,y, oanl,  true, aborter,logger);
     }
 
     //**********************************************************
-    public static void safe_move_a_file_or_dir_NOT_in_a_thread(Window owner, Path new_Path_, File the_file_being_moved, Aborter aborter, Logger logger)
+    public static void safe_move_a_file_or_dir_NOT_in_a_thread(Window owner, double x, double y, Path new_Path_, File the_file_being_moved, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path old_Path_ = the_file_being_moved.toPath();
@@ -87,13 +88,13 @@ public class Moving_files
 
         List<Old_and_new_Path> oanl = new ArrayList<>();
         oanl.add(oan);
-        actual_safe_moves(owner, oanl, true,aborter,logger);
+        actual_safe_moves(owner, x,y,oanl, true,aborter,logger);
     }
 
 
 
     //**********************************************************
-    public static void perform_safe_moves_in_a_thread(Window owner, List<Old_and_new_Path> the_list,  boolean and_list_for_undo, Aborter aborter, Logger logger)
+    public static void perform_safe_moves_in_a_thread(Window owner, double x, double y, List<Old_and_new_Path> the_list,  boolean and_list_for_undo, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (the_list == null) {
@@ -107,7 +108,7 @@ public class Moving_files
 
         }
         if (moving_files_dbg) logger.log("perform_safe_moves_in_a_thread()");
-        Runnable r = () -> actual_safe_moves(owner, the_list, and_list_for_undo, aborter, logger);
+        Runnable r = () -> actual_safe_moves(owner, x, y, the_list, and_list_for_undo, aborter, logger);
         try {
             Actor_engine.execute(r, logger);
             if (moving_files_dbg) logger.log("perform_safe_moves_in_a_thread LAUNCHED, thread COUNT=" + Thread.activeCount());
@@ -120,7 +121,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    public static void safe_delete_files(Window owner, List<Old_and_new_Path> l, Aborter aborter, Logger logger)
+    public static void safe_delete_files(Window owner, double x, double y, List<Old_and_new_Path> l, Aborter aborter, Logger logger)
     //**********************************************************
     {
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -133,18 +134,16 @@ public class Moving_files
 
         logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
 
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2,  true,aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner,x,y,  l2,  true,aborter, logger);
 
     }
 
     //**********************************************************
-    public static List<Old_and_new_Path> actual_safe_moves(Window owner, List<Old_and_new_Path> the_list,
+    public static List<Old_and_new_Path> actual_safe_moves(Window owner, double x, double y, List<Old_and_new_Path> the_list,
                                           boolean and_list_for_undo, Aborter aborter , Logger logger)
     //**********************************************************
     {
-        Hourglass x = null;
-
-        x = check_show_running_film(the_list, aborter, logger);
+        Hourglass hourglass = check_show_running_film(owner, x, y, the_list, aborter, logger);
 
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
@@ -224,14 +223,14 @@ public class Moving_files
             logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
         }
 
-        if ( x != null) x.close();
+        if ( hourglass != null) hourglass.close();
 
 
         return done;
     }
 
     //**********************************************************
-    private static Hourglass check_show_running_film(List<Old_and_new_Path> the_list, Aborter aborter, Logger logger)
+    private static Hourglass check_show_running_film(Window owner, double x, double y, List<Old_and_new_Path> the_list, Aborter aborter, Logger logger)
     //**********************************************************
     {
         boolean show_running_film = false;
@@ -252,7 +251,7 @@ public class Moving_files
         }
         if ( show_running_film)
         {
-            return Show_running_film_frame.show_running_film("File(s) are being moved", 20000, aborter, logger);
+            return Show_running_film_frame.show_running_film(owner,x,y, "File(s) are being moved", 20000, aborter, logger);
         }
         return null;
     }
@@ -434,14 +433,13 @@ public class Moving_files
                 if (oandn.get_old_Path().toFile().isFile())
                 {
                     // preserves attributes by default:
-                    //FileUtils.moveFile(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
-                    Static_files_and_paths_utilities.move_file(oandn.get_old_Path(),oandn.get_new_Path(),logger);
+                    FileUtils.moveFile(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
                 else
                 {
-                    Static_files_and_paths_utilities.move_file(oandn.get_old_Path(),oandn.get_new_Path(),logger);
+                    //Static_files_and_paths_utilities.move_file(oandn.get_old_Path(),oandn.get_new_Path(),logger);
 
-                    //FileUtils.moveDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
+                    FileUtils.moveDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
 
                 if ( System.currentTimeMillis()-start > 5_000)
@@ -532,8 +530,8 @@ public class Moving_files
                     Files.copy(oandn.get_old_Path(), oandn.get_new_Path());
 
                 } else {
-                    Static_files_and_paths_utilities.copy_dir(oandn.get_old_Path(), oandn.get_new_Path(),logger);
-                    //FileUtils.copyDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
+                    //Static_files_and_paths_utilities.copy_dir(oandn.get_old_Path(), oandn.get_new_Path(),logger);
+                    FileUtils.copyDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
 
 

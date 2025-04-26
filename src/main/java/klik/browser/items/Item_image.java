@@ -205,6 +205,8 @@ public class Item_image extends Item
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu);
 
+        double x = browser.my_Stage.the_Stage.getX()+100;
+        double y = browser.my_Stage.the_Stage.getY()+100;
         {
             MenuItem menu_item = create_open_exif_frame_menu_item(path,logger);
             context_menu.getItems().add(menu_item);
@@ -216,6 +218,7 @@ public class Item_image extends Item
         
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
+            menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Item_image: Renaming "+path);
 
@@ -225,7 +228,7 @@ public class Item_image extends Item
                 List<Old_and_new_Path> l = new ArrayList<>();
                 Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
                 l.add(oandn);
-                Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,l, true, browser_aborter, logger);
+                Moving_files.perform_safe_moves_in_a_thread(browser.my_Stage.the_Stage,x,y,l, true, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -233,7 +236,7 @@ public class Item_image extends Item
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
-                Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter, logger);
+                Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,x,y,path, null, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -296,8 +299,10 @@ public class Item_image extends Item
             if (dbg) logger.log("show similar");
             Runnable r = () ->
             {
-                image_similarity = new Image_similarity(image_path.getParent(),browser, aborter,logger);
-                image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE,image_properties_cache, false,null);
+                double x = browser.my_Stage.the_Stage.getX()+100;
+                double y = browser.my_Stage.the_Stage.getY()+100;
+                image_similarity = new Image_similarity(image_path.getParent(),browser, x,y,aborter,logger);
+                image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE,image_properties_cache, false,x,y,null);
             };
             Actor_engine.execute(r,logger);
         });
@@ -315,8 +320,10 @@ public class Item_image extends Item
             if (dbg) logger.log("show similar");
             Runnable r = () ->
             {
-                image_similarity = new Image_similarity(browser.displayed_folder_path,browser, browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, browser.virtual_landscape.image_properties_RAM_cache, true,null);
+                double x = browser.my_Stage.the_Stage.getX()+100;
+                double y = browser.my_Stage.the_Stage.getY()+100;
+                image_similarity = new Image_similarity(browser.displayed_folder_path,browser, x,y,browser.aborter,logger);
+                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, browser.virtual_landscape.image_properties_RAM_cache, true,x,y,null);
             };
             Actor_engine.execute(r,logger);
         });

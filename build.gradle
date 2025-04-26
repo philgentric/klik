@@ -59,8 +59,10 @@ dependencies {
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
       // Cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.0'
-    // files etc
-    //implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
+
+    // moving folders across different drives
+    implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
+
     // for face recognition: gson is used to serialise the feature vectors between the python server and this app
     implementation 'com.google.code.gson:gson:2.11.0'
 

@@ -232,7 +232,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         logger = logger_;
         displayed_folder_path = context.folder_path;
-        logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
+        if ( dbg) logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
 
         aborter = new Aborter("Browser for: " + displayed_folder_path.toAbsolutePath().toString(), logger);
 
@@ -309,7 +309,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         set_title();
         the_Pane = new Pane();
 
-        logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
+        if ( dbg) logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
         virtual_landscape = new Virtual_landscape(this,aborter, logger);
         selection_handler = new Selection_handler(the_Pane, virtual_landscape, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
@@ -991,9 +991,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void redraw_fx(String from)
     //**********************************************************
     {
-        //if (dbg)
-        logger.log("Browser redraw from:" + from );
-        try {
+        if (dbg) logger.log("Browser redraw from:" + from );
+
+        try
+        {
             virtual_landscape.request_queue.put(Boolean.TRUE);
         } catch (InterruptedException e) {
             logger.log(""+e);
@@ -1072,7 +1073,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             moves.add(oanp);
 
         }
-        Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage, moves, true, aborter, logger);
+
+        double x = this.my_Stage.the_Stage.getX()+100;
+        double y = this.my_Stage.the_Stage.getY()+100;
+        Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage, x,y, moves, true, aborter, logger);
 
     }
 
@@ -1087,7 +1091,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public void create_PDF_contact_sheet_in_a_thread()
     //**********************************************************
     {
-        Hourglass x = Show_running_film_frame.show_running_film("Making PDF contact sheet",
+        double x = this.my_Stage.the_Stage.getX()+100;
+        double y = this.my_Stage.the_Stage.getY()+100;
+
+        Hourglass hourglass = Show_running_film_frame.show_running_film(my_Stage.the_Stage,x,y,"Making PDF contact sheet",
         20_000,new Aborter("contact sheet",logger),logger);
         List<String> graphicsMagick_command_line = new ArrayList<>();
 
@@ -1135,7 +1142,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         {
             logger.log("contact sheet generated "+ sb);
         }
-        x.close();
+        hourglass.close();
     }
 
 
@@ -1283,8 +1290,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         Path scroll_to = scroll_position_cache.get(displayed_folder_path);
         if (scroll_to == null) {
-            //if (dbg)
-            logger.log((" scroll_to == null "));
+            if (dbg) logger.log((" scroll_to == null "));
         }
         return scroll_to;
     }

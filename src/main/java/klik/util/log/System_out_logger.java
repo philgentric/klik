@@ -22,7 +22,14 @@ public class System_out_logger implements Logger
 	public void log(boolean show_date_tag, boolean also_System_out_println, String s)
 	//*******************************************************
 	{
-		System.out.println(tag+s);
+		if ( show_date_tag)
+		{
+			System.out.println(tag+s);
+		}
+		else
+		{
+			System.out.println(s);
+		}
 	}
 	//*******************************************************
 	@Override

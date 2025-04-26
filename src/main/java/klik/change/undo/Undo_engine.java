@@ -42,10 +42,10 @@ public class Undo_engine implements Datetime_to_signature_source
     }
 
     //**********************************************************
-    public static void perform_undo(Undo_item item, Stage owner, Aborter aborter, Logger logger)
+    public static void perform_undo(Undo_item item, Stage owner, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        get_instance(aborter, logger).undo(item,owner);
+        get_instance(aborter, logger).undo(item,owner,x,y);
     }
 
     //**********************************************************
@@ -61,10 +61,10 @@ public class Undo_engine implements Datetime_to_signature_source
         return get_instance(aborter, logger_).add_internal(l);
     }
     //**********************************************************
-    public static boolean perform_last_undo_fx(Stage owner, Aborter aborter, Logger logger)
+    public static boolean perform_last_undo_fx(Stage owner, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return get_instance(aborter, logger).undo_last_move(owner);
+        return get_instance(aborter, logger).undo_last_move(owner,x,y);
 
     }
     //**********************************************************
@@ -215,7 +215,7 @@ public class Undo_engine implements Datetime_to_signature_source
 
 
     //**********************************************************
-    private boolean undo_last_move(Stage owner)
+    private boolean undo_last_move(Stage owner, double x, double y)
     //**********************************************************
     {
         Undo_item most_recent_undo_item = store.get_most_recent();
@@ -224,11 +224,11 @@ public class Undo_engine implements Datetime_to_signature_source
             Popups.popup_warning(owner, "Nothing to undo", "The undo list is empty!", true, logger);
             return false;
         }
-        return undo(most_recent_undo_item, owner);
+        return undo(most_recent_undo_item, owner, x, y);
     }
 
     //**********************************************************
-    private boolean undo(Undo_item undo_item, Stage owner)
+    private boolean undo(Undo_item undo_item, Stage owner, double x, double y)
     //**********************************************************
     {
         if (Undo_storage_to_disk.dbg) logger.log("Undo_engine performing: UNDO of "+undo_item.to_string());
@@ -247,7 +247,7 @@ public class Undo_engine implements Datetime_to_signature_source
             }
         }
 
-        Moving_files.perform_safe_moves_in_a_thread(owner,reverse_last_move,  false, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(owner,x,y,reverse_last_move,  false, aborter, logger);
 
         store.remove_undo_item(undo_item);
         refresh_UI();

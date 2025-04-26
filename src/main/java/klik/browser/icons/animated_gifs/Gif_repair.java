@@ -51,7 +51,7 @@ public class Gif_repair
 
         // move with a unique name into the trash folder
         Path new_path = Path.of(tmp_dir.toAbsolutePath().toString(),uuid+"_"+target.getFileName().toString());
-        Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, new_path, target.toFile(), aborter, logger);
+        Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner,0,0, new_path, target.toFile(), aborter, logger);
 
 
         List<String> graphicsMagick_command_line = new ArrayList<>();
@@ -72,7 +72,7 @@ public class Gif_repair
 
             Popups.popup_warning(owner, "Repair part1 command failed:", warning_GraphicsMagick,false,logger);
             // and restore the file
-            Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, old_path_for_restore,new_path.toFile(), aborter, logger);
+            Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, 0,0,old_path_for_restore,new_path.toFile(), aborter, logger);
             return null;
         }
         if ( dbg) logger.log(sb.toString());

@@ -201,7 +201,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             logger.log("browsed_landscape_height_has_changed = "+new_landscape_height);
         double pixel_height = get_pixel_height(new_landscape_height);
         double slider = pixels_to_slider(current_vertical_offset,pixel_height);
-        logger.log("browsed_landscape_height_has_changed(), new slider value = "+slider);
+        if ( Virtual_landscape.scroll_dbg) logger.log("browsed_landscape_height_has_changed(), new slider value = "+slider);
         //the_Slider.adjustValue(slider);
     }
 
@@ -212,7 +212,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     public void adapt_slider_to_scene(Stage stage)
     //**********************************************************
     {
-        logger.log("adapt_slider_to_scene stage.getWidth() "+stage.getWidth()+" h = "+stage.getHeight());
+        if ( dbg) logger.log("adapt_slider_to_scene stage.getWidth()="+stage.getWidth()+" h = "+stage.getHeight());
         the_Slider.setTranslateX(stage.getWidth() - half_slider_width);//vertical.getWidth());
         the_Slider.setTranslateY(half_slider_width);//vertical.getWidth());
         double height = stage.getHeight() - 100;

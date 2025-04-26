@@ -202,7 +202,9 @@ public class ML_servers_util
     }
 
 
+    //**********************************************************
     static String[] image_similarity_lines =
+    //**********************************************************
     {
         "For image similarity to work",
         "Feature vector servers must first be installed (once) see manual",
@@ -211,17 +213,21 @@ public class ML_servers_util
 
     };
 
+    //**********************************************************
     static String[] face_recognition_lines =
-            {
-                    "",
-                    "For face recognition to work",
-                    "Face detection and specific feature vector servers must be first installed (once) see manual",
-                    "Then to start the face recognition servers copy paste this line in a terminal:",
-                    "",
+    //**********************************************************
+    {
+            "",
+            "For face recognition to work",
+            "Face detection and specific feature vector servers must be first installed (once) see manual",
+            "Then to start the face recognition servers copy paste this line in a terminal:",
+            "",
 
-            };
+    };
 
+    //**********************************************************
     public static void show_face_recognition_manual()
+    //**********************************************************
     {
         Stage stage = new Stage();
         VBox vb = new VBox();
@@ -234,6 +240,37 @@ public class ML_servers_util
         }
 
         Path p = Paths.get("");
+        {
+            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_servers ";
+            TextField tf = new TextField(cmd);
+            Look_and_feel_manager.set_region_look(tf);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+
+        Scene scene = new Scene(vb);
+        stage.setScene(scene);
+        stage.setWidth(1000);
+        stage.setHeight(1000);
+        stage.show();
+    }
+
+    //**********************************************************
+    public static void show_image_similarity_manual()
+    //**********************************************************
+    {
+        Stage stage = new Stage();
+        VBox vb = new VBox();
+
+        for ( String l : image_similarity_lines)
+        {
+            TextField tf = new TextField(l);
+            Look_and_feel_manager.set_region_look(tf);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+        Path p = Paths.get("");
+
         {
             String list_of_ports = "";
             for ( int port : Feature_vector_source_for_image_similarity.ports)
@@ -248,34 +285,6 @@ public class ML_servers_util
         }
 
 
-
-        Scene scene = new Scene(vb);
-        stage.setScene(scene);
-        stage.setWidth(1000);
-        stage.setHeight(1000);
-        stage.show();
-    }
-
-    public static void show_image_similarity_manual()
-    {
-        Stage stage = new Stage();
-        VBox vb = new VBox();
-
-        for ( String l : image_similarity_lines)
-        {
-            TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf);
-            tf.setEditable(false);
-            vb.getChildren().add(tf);
-        }
-        Path p = Paths.get("");
-        {
-            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_servers ";
-            TextField tf = new TextField(cmd);
-            Look_and_feel_manager.set_region_look(tf);
-            tf.setEditable(false);
-            vb.getChildren().add(tf);
-        }
 
 
         Scene scene = new Scene(vb);

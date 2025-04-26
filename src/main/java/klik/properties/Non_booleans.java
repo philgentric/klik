@@ -468,7 +468,7 @@ public class Non_booleans
         List<Path> trashes = new ArrayList<>();
         for ( File f : File.listRoots())
         {
-            logger.log("root ->"+f+"<-");
+            //logger.log("root ->"+f+"<-");
             if ( f.toString().equals("/"))
             {
                 Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);

@@ -76,7 +76,7 @@ identify the wrong images and fix them (edit them or remove them!)
 
 The idea is to create a feature vector for each image (e.g. in a folder).
 This (large!) vector can then be used to compute a distance between 2 images
-(the metric used is cosine similarity, which is a good metric for high-dimensional vectors)
+(the metric used is cosine similarity)
 
 ### Image similarity ### 
 

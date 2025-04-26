@@ -145,14 +145,16 @@ public class Virtual_landscape
 
         long start = System.currentTimeMillis();
 
+        double x = the_browser.my_Stage.the_Stage.getX()+100;
+        double y = the_browser.my_Stage.the_Stage.getY()+100;
 
         Hourglass running_film = null;
         if (Browser.show_running_film)
         {
-            running_film = Show_running_film_frame.show_running_film("Scanning folder", 20*60,  aborter, logger);
+            running_film = Show_running_film_frame.show_running_film(the_browser.my_Stage.the_Stage,x,y,"Scanning folder", 20*60,  aborter, logger);
         }
 
-        set_comparators();
+        set_comparators(the_browser,x+100,y+200);
 
         the_browser.max_dir_text_length = 0;
         all_items_map.clear();
@@ -254,12 +256,7 @@ public class Virtual_landscape
     //**********************************************************
     {
         //logger.log("Image_propertiew_cache::all_image_properties_acquired() ");
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                image_properties_RAM_cache.save_whole_cache_to_disk();
-            }
-        };
+        Runnable r = () -> image_properties_RAM_cache.save_whole_cache_to_disk();
         Actor_engine.execute(r,logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
@@ -296,11 +293,12 @@ public class Virtual_landscape
     {
         Path scroll_to = the_browser.get_scroll_to();
 
-        logger.log("refresh_UI_on_fx_thread from: " + from);
+        if ( dbg) logger.log("refresh_UI_on_fx_thread from: " + from);
 
         compute_geometry(the_browser.mandatory_in_pane, "scene_geometry_changed from: " + from, scroll_to, running_film);
 
         if (dbg) logger.log("adapt_slider_to_scene");
+
         {
             the_browser.vertical_slider.adapt_slider_to_scene(the_browser.my_Stage.the_Stage);
         }
@@ -335,7 +333,7 @@ public class Virtual_landscape
     //**********************************************************
     {
 
-        logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
+        if ( dbg) logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
         boolean single_column = Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger);
         if (scroll_dbg) logger.log(("geometry_changed single_column="+single_column));
 
@@ -498,12 +496,12 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void set_comparators()
+    private void set_comparators(Browser browser, double x, double y)
     //**********************************************************
     {
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
 
-        other_file_comparator = File_sort_by.get_preliminary_comparator(the_browser.displayed_folder_path, image_properties_RAM_cache,aborter,logger);
+        other_file_comparator = File_sort_by.get_preliminary_comparator(the_browser.displayed_folder_path, image_properties_RAM_cache,browser,x,y,aborter,logger);
 
         image_file_comparator = other_file_comparator;
 
@@ -544,7 +542,7 @@ public class Virtual_landscape
             }
         }
         if ( local_file_comparator == null) {
-            local_file_comparator = create_new_file_comparator();
+            local_file_comparator = create_actual_file_comparator();
         }
         if (local_file_comparator != null)
         {
@@ -555,9 +553,10 @@ public class Virtual_landscape
     }
 
     //**********************************************************
-    private Comparator<Path> create_new_file_comparator()
+    private Comparator<Path> create_actual_file_comparator()
     //**********************************************************
     {
+
         Comparator<Path> local_file_comparator = null;
         switch (File_sort_by.get_sort_files_by(logger))
         {
@@ -1092,7 +1091,9 @@ public class Virtual_landscape
         folder_file_count_cache = new HashMap<>();
 
         AtomicInteger count = new AtomicInteger(0);
-        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, logger);
+        double x = the_browser.my_Stage.the_Stage.getX()+100;
+        double y = the_browser.my_Stage.the_Stage.getY()+100;
+        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, x,y,logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button ini)
@@ -1135,7 +1136,9 @@ public class Virtual_landscape
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Virtual_landscape: show_total_size_deep_in_each_folder");
         AtomicInteger count = new AtomicInteger(0);
-        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, logger);
+        double x = the_browser.my_Stage.the_Stage.getX()+100;
+        double y = the_browser.my_Stage.the_Stage.getY()+100;
+        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, x,y,logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_button item_button)

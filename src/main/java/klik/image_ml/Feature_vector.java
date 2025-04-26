@@ -76,7 +76,7 @@ public class Feature_vector
 
 
     //**********************************************************
-    public double cosine_similarity(Feature_vector feature_vector)
+    public double cosine_similarity(Feature_vector other_feature_vector)
     //**********************************************************
     {
         int n = features.length;
@@ -85,9 +85,9 @@ public class Feature_vector
         double magnitudeVec2 = 0.0;
 
         for (int i = 0; i < n; i++) {
-            dotProduct += features[i] * feature_vector.features[i];
+            dotProduct += features[i] * other_feature_vector.features[i];
             magnitudeVec1 += features[i] * features[i];
-            magnitudeVec2 += feature_vector.features[i] * feature_vector.features[i];
+            magnitudeVec2 += other_feature_vector.features[i] * other_feature_vector.features[i];
         }
         if (magnitudeVec1 == 0.0 || magnitudeVec2 == 0.0) {
             return 0.0; // avoid NaN

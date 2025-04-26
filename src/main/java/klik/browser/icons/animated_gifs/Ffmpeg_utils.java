@@ -74,7 +74,9 @@ public class Ffmpeg_utils
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
         AtomicInteger in_flight = new AtomicInteger(0);
-        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait for animated gifs to be generated",20*60,logger);
+        double x = owner.getX()+100;
+        double y = owner.getY()+100;
+        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait for animated gifs to be generated",20*60,x,y,logger);
         aborter = running_film.aborter;
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
@@ -516,7 +518,7 @@ public class Ffmpeg_utils
         Old_and_new_Path oandnp = new Old_and_new_Path(temporary_gif_full_path, new_path, Command_old_and_new_Path.command_move, Status_old_and_new_Path.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oandnp);
-        Moving_files.perform_safe_moves_in_a_thread(the_stage, ll,false, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(the_stage,100,100, ll,false, aborter, logger);
     }
 
     private static void change_start_time(double new_val)

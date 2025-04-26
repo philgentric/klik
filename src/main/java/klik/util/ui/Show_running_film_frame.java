@@ -7,6 +7,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
@@ -28,27 +29,27 @@ public class Show_running_film_frame implements Hourglass
 	private final CountDownLatch latch = new CountDownLatch(1);
 
 	//**********************************************************
-	public static Hourglass show_running_film(String wait_message, int timeout_s, Aborter aborter, Logger logger)
+	public static Hourglass show_running_film(Window owner, double x, double y, String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
 		Show_running_film_frame local = new Show_running_film_frame(aborter, timeout_s,logger);
-		launch(local, wait_message, logger);
+		launch(local, wait_message, owner, x, y);
 		return local;
 	}
 
 
 	//**********************************************************
-	private static Hourglass launch(Show_running_film_frame local, String wait_message, Logger logger)
+	private static Hourglass launch(Show_running_film_frame local, String wait_message, Window owner, double x, double y)
 	//**********************************************************
 	{
 		//logger.log("Show_running_film_frame: wait_message= "+wait_message);
 		if ( Platform.isFxApplicationThread())
 		{
-			local.define_fx(wait_message);
+			local.define_fx(wait_message, owner,x,y);
 		}
 		else
 		{
-			Jfx_batch_injector.now(()->local.define_fx(wait_message));
+			Jfx_batch_injector.now(()->local.define_fx(wait_message, owner, x,y));
 		}
 		return local;
 	}
@@ -63,7 +64,7 @@ public class Show_running_film_frame implements Hourglass
 	}
 
 	//**********************************************************
-	private void define_fx(String wait_message)
+	private void define_fx(String wait_message, Window owner, double x, double y)
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
@@ -84,8 +85,9 @@ public class Show_running_film_frame implements Hourglass
 
 		stage.setTitle(wait_message);//My_I18n.get_I18n_string("Wait", logger));
 		stage.setScene(scene);
-//		stage.setX(Finder_frame.MIN_WIDTH);
-//		stage.setY(0);
+		stage.initOwner(owner);
+		stage.setX(x);
+		stage.setY(y);
 		stage.show();
 
 		stage.addEventHandler(KeyEvent.KEY_PRESSED,
@@ -101,10 +103,8 @@ public class Show_running_film_frame implements Hourglass
                 int count = 0;
                 for(;;)
 				{
-					//String x = in.poll(1, TimeUnit.SECONDS);
-					boolean x = latch.await(1, TimeUnit.SECONDS);
-					//if (x == null)
-					if (!x)
+					boolean b = latch.await(1, TimeUnit.SECONDS);
+					if (!b)
 					{
 						// timeout
                         if (aborter.should_abort())

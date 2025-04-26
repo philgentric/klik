@@ -228,14 +228,14 @@ public class Image_feature_vector_cache
     }
 
     //**********************************************************
-    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path folder_path, Aborter aborter, Logger logger)
+    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path folder_path, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Images_and_feature_vectors images_and_feature_vectors = images_and_feature_vectors_cache.get(folder_path);
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( images_and_feature_vectors == null)
         {
-            Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, acquiring feature vectors",20000, logger);
+            Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, acquiring feature vectors",20000, x,y,logger);
             images_and_feature_vectors = read_from_disk_and_update(folder_path,in_flight, aborter,logger);
             images_and_feature_vectors_cache.put(folder_path,images_and_feature_vectors);
             return images_and_feature_vectors;

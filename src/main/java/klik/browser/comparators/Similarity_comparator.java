@@ -24,12 +24,12 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     protected List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Path folder, Aborter aborter, Logger logger_)
+    public Similarity_comparator(Path folder, double x, double y, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
 
-        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(folder, aborter, logger);
+        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(folder, x,y,aborter, logger);
         if (result == null) {
             return;
         }
@@ -66,7 +66,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
         if ( dummy_name1 == null)
         {
-            logger.log("WTF dummy_name1 == null for "+p1);
+            //logger.log("WTF dummy_name1 == null for "+p1);
             dummy_name1 = 8888888;//p1.getFileName().toString();
             dummy_names.put(p1,dummy_name1);
         }

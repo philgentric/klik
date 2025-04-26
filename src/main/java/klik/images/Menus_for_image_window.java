@@ -62,7 +62,9 @@ public class Menus_for_image_window
         MenuItem undo_move = new MenuItem(My_I18n.get_I18n_string("Undo_LAST_move_or_delete", image_window.logger));
         undo_move.setOnAction(e -> {
             image_window.logger.log("undoing last move");
-            Undo_engine.perform_last_undo_fx(image_window.the_Stage, image_window.aborter,image_window.logger);
+            double x = image_window.the_Stage.getX()+100;
+            double y = image_window.the_Stage.getY()+100;
+            Undo_engine.perform_last_undo_fx(image_window.the_Stage, x,y,image_window.aborter,image_window.logger);
         });
         return undo_move;
     }
@@ -264,7 +266,7 @@ public class Menus_for_image_window
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.logger);
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.logger);
             if ( recognition_services == null) return;
 
             AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -286,7 +288,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.logger);
+        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage,image_window.logger);
         if (recognition_services == null) return;
 
         Face_recognition_actor actor = new Face_recognition_actor(recognition_services);

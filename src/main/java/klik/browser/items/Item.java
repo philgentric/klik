@@ -174,8 +174,7 @@ public abstract class Item implements Icon_destination
     public void request_icon_to_factory(int target_icon_size)
     //**********************************************************
     {
-        //if ( dbg)
-            logger.log(("request_icon_to_factory for:"+path));
+        if ( dbg) logger.log(("request_icon_to_factory for:"+path));
         Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,
                 new Aborter("Icon creation for "+path,logger));
 
@@ -301,7 +300,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("info");
-            Audio_info_frame.show(path,logger);
+            Audio_info_frame.show(path,browser.my_Stage.the_Stage,logger);
         });
 
         return menu_item;
@@ -375,7 +374,9 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Deleting!");
-            Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,path, null, browser_aborter,logger);
+            double x = browser.my_Stage.the_Stage.getX()+100;
+            double y = browser.my_Stage.the_Stage.getY()+100;
+            Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,x,y,path, null, browser_aborter,logger);
         });
         return menu_item;
     }

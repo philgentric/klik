@@ -277,7 +277,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(browser.my_Stage.the_Stage,path,  images_in_folder,  image_properties_RAM_cache, logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(browser,path,  images_in_folder,  image_properties_RAM_cache, logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");

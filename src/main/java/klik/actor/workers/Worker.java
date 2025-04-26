@@ -69,7 +69,9 @@ public class Worker
         Threads.execute(r,logger);
     }
 
+    //**********************************************************
     public void stop()
+    //**********************************************************
     {
         aborter.abort("Worker "+name+" stop");
         logger.log("Worker "+name+" aborted");

@@ -187,7 +187,9 @@ public class Importer
 
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
 
-        Hourglass hourglass = Show_running_film_frame.show_running_film("wait, counting Apple Photo images",20*3600,aborter, logger);
+        double x = local_stage.getX()+100;
+        double y = local_stage.getY()+100;
+        Hourglass hourglass = Show_running_film_frame.show_running_film(local_stage,x,y,"wait, counting Apple Photo images",20*3600,aborter, logger);
 
         Runnable r = new Runnable() {
             @Override

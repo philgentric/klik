@@ -2,18 +2,15 @@
 
 package klik.browser.icons.animated_gifs;
 
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.browser.Browser;
 import klik.browser.comparators.Aspect_ratio_comparator;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.Icon_write_message;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
-import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -27,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /*
 animated-GIF making utility:
@@ -49,7 +44,9 @@ public class Animated_gif_from_folder
 
 
     //**********************************************************
-    public static Path make_animated_gif_from_images_in_folder(Stage owner, Path target_folder, List<File> images_in_folder, Image_properties_RAM_cache image_properties_RAM_cache, Logger logger)
+    public static Path make_animated_gif_from_images_in_folder(
+            Browser browser,
+            Path target_folder, List<File> images_in_folder, Image_properties_RAM_cache image_properties_RAM_cache, Logger logger)
     //**********************************************************
     {
         //System.out.println(Stack_trace_getter.get_stack_trace("make_animated_gif_from_images_in_folder "+target_folder));
@@ -80,11 +77,13 @@ public class Animated_gif_from_folder
         graphicsMagick_command_line.add(frames);
         graphicsMagick_command_line.add(output_animated_gif.getFileName().toString());
 
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger);
+        Path icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(browser.my_Stage.the_Stage, logger);
         List<Path> to_be_cleaned_up = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
         for (File f : images_in_folder) paths.add(f.toPath());
-        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(target_folder,image_properties_RAM_cache, new Aborter("dummy",logger),logger);
+        double x = browser.my_Stage.the_Stage.getX()+100;
+        double y = browser.my_Stage.the_Stage.getY()+100;
+        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(target_folder,image_properties_RAM_cache, browser, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( local_comp instanceof Aspect_ratio_comparator)
         {
@@ -107,7 +106,7 @@ public class Animated_gif_from_folder
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
             if (!Execute_command.execute_command_list(graphicsMagick_command_line, folder_icon_cache_dir.toFile(), 2000, sb, logger))
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Booleans.manage_show_GraphicsMagick_install_warning(browser.my_Stage.the_Stage,logger);
                 logger.log(warning_GraphicsMagick);
                 logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;
