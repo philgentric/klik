@@ -71,16 +71,14 @@ public class Audio_player_application extends Application
         Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
 
         File f = null;
-        if ( list.size() == 0)
+        if ( list != null)
         {
-            //FileChooser fileChooser = new FileChooser();
-            //fileChooser.setTitle("Open Audio File");
-            //f = fileChooser.showOpenDialog(stage);
-        }
-        else
-        {
-            f = new File (list.get(0));
-            logger.log("Audio_player_application, opening audio file: "+f.getAbsolutePath());
+            if ( list.size() > 0)
+            {
+                logger.log("Audio_player_application, list.get(0) "+list.get(0));
+                f = new File (list.get(0));
+                logger.log("Audio_player_application, opening audio file: "+f.getAbsolutePath());
+            }
         }
 
         Audio_player.play_song(f, logger);

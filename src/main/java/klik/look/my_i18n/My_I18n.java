@@ -110,7 +110,7 @@ public class My_I18n
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<- not found"));
             return key;
         }
-        logger.log("OK My_I18n ->"+key+"<- was found for "+Language_manager.get_current_language(logger).locale+" : ->"+returned+"<-");
+        if ( dbg) logger.log("OK My_I18n ->"+key+"<- was found for "+Language_manager.get_current_language(logger).locale+" : ->"+returned+"<-");
         return returned;
     }
 

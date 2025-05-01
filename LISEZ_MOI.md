@@ -20,6 +20,7 @@ Klik est 100% gratuit.
 
 - Dans Klik, toutes les actions peuvent être défaites (menu : Marque page & Historique / Défaire). La liste des choses à défaire est sauvée sur le disque, de sorte que vous pouvez revenir en arriere même après un crash inopiné.    
 - Les fichiers éffacés sont en fait seulement deplacés dans la corbeille de Klik (qui est indépendante de celle de la plateforme)
+- Quand on déplace un fichier, si un fichier du même nom existe dans le dossier de destination, Klik le renomme en ajoutant un suffixe numérique ... à moins que le fichier ne soit exactement identique.
 - Le code source de klik est en open-source sur github, une garantie que des experts peuvent relire le code afin de vérifier qu'il ne contient aucune partie malicieuse.
 
 # 2 types de fenêtre #

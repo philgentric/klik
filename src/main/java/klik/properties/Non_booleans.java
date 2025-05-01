@@ -50,6 +50,7 @@ public class Non_booleans
     public static final String PROPERTIES_FILENAME = "klik_properties.txt";
     public static final String TRASH_DIR = "klik_trash";
     public static final String FACE_RECO_DIR = "face_reco";
+    private static final String AUDIO_PLAYER_CURRENT_SONG = "AUDIO_PLAYER_CURRENT_SONG";
 
 
     // cached values
@@ -512,6 +513,23 @@ public class Non_booleans
     //**********************************************************
     {
         return Non_booleans.get_main_properties_manager(logger).get_values_for_base("CLEANUP_TOKEN_");
+    }
+
+    //**********************************************************
+    public static void save_current_song(File f, Logger logger)
+    //**********************************************************
+    {
+        Properties_manager pm = get_main_properties_manager(logger);
+        pm.add_and_save(AUDIO_PLAYER_CURRENT_SONG, f.getAbsolutePath());
+
+    }
+
+    //**********************************************************
+    public static String get_current_song( Logger logger)
+    //**********************************************************
+    {
+        Properties_manager pm = get_main_properties_manager(logger);
+        return pm.get(AUDIO_PLAYER_CURRENT_SONG);
     }
 
 }

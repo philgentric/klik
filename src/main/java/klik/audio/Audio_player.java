@@ -14,16 +14,24 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
+import klik.browser.Browser;
+import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.image_ml.face_recognition.Face_detection_type;
+import klik.images.*;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Booleans;
 import klik.properties.Non_booleans;
+import klik.unstable.metadata.Tag_stage;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -34,6 +42,8 @@ import klik.util.log.Stack_trace_getter;
 
 import javax.swing.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -85,11 +95,13 @@ public class Audio_player
     //Browser browser = null;
 
     String pause_string;
+    static final boolean keyword_dbg = true;
 
     //**********************************************************
     private Audio_player(Logger logger_)
     //**********************************************************
     {
+
         logger = logger_;
         stage = new Stage();
         Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER,logger);
@@ -127,8 +139,14 @@ public class Audio_player
             instance = null;
         });
 
+
+
+
+
+
         Scene scene = new Scene(the_big_vbox);
         stage.setScene(scene);
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> handle_keyboard( keyEvent, logger));
         stage.show();
 
     }
@@ -355,7 +373,7 @@ public class Audio_player
 
         next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",logger));
         Look_and_feel_manager.set_button_look(next, true);
-        next.setOnAction(actionEvent -> jump_to_next(the_song_file));
+        next.setOnAction(actionEvent -> jump_to_next());
         returned.getChildren().add(next);
 
         return returned;
@@ -373,16 +391,17 @@ public class Audio_player
         Look_and_feel_manager.set_region_look(scroll_pane);
         scroll_pane.addEventFilter(KeyEvent.KEY_PRESSED, key_event -> {
             logger.log("trapping event "+key_event);
-            key_event.consume(); // prevent default key handling
             switch (key_event.getCode())
             {
             case UP:
                 logger.log("handle event: UP");
                 jump_to_previous(the_song_file);
+                key_event.consume(); // prevent default key handling
                 break;
             case DOWN:
                 logger.log("handle event: DOWN");
-                jump_to_next(the_song_file);
+                jump_to_next();
+                key_event.consume(); // prevent default key handling
                 break;
             }
         });
@@ -489,10 +508,7 @@ public class Audio_player
         Button rewind = new Button(My_I18n.get_I18n_string("Rewind",logger));
         Look_and_feel_manager.set_button_look(rewind, true);
         rewind.setOnAction(_ -> {
-            if (the_media_player_option.isEmpty()) return;
-            the_media_player_option.get().stop();
-            the_media_player_option.get().play();
-            set_is_playing();
+            rewind();
         });
         hbox.getChildren().add(rewind);
 
@@ -508,9 +524,7 @@ public class Audio_player
         is_playing = false;
         Look_and_feel_manager.set_button_look(play_pause, true);
         play_pause.setOnAction(_ -> {
-            if (the_media_player_option.isEmpty()) return;
-            if ( is_playing) set_is_paused();
-            else set_is_playing();
+            toggle_play_stop();
         });
         hbox.getChildren().add(play_pause);
 
@@ -635,13 +649,23 @@ public class Audio_player
     {
         if ( the_song_file_ == null)
         {
-            the_song_file_ = observable_playlist.get(0);
+            String path = Non_booleans.get_current_song(logger);
+            if ( path == null)
+            {
+                the_song_file_ = observable_playlist.get(0);
+            }
+            else
+            {
+                the_song_file_ = new File(path);
+            }
             if ( the_song_file_ == null) {
 
                 logger.log("FATAL: the_song_file_ is null");
                 return;
             }
         }
+        Non_booleans.save_current_song(the_song_file_,logger);
+
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,the_song_file_.toPath(),logger);
         logger.log("bitrate= "+bitrate);
         clean_up();
@@ -812,7 +836,7 @@ public class Audio_player
 
         define_equalizer();
 
-        the_media_player_option.get().setOnEndOfMedia(() -> jump_to_next(the_song_file));
+        the_media_player_option.get().setOnEndOfMedia(() -> jump_to_next());
 
         // the player pilots how the slider moves during playback
         the_media_player_option.get().currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
@@ -940,7 +964,7 @@ public class Audio_player
         observable_playlist.remove(the_song_file);
         Button b = file_to_button.get(the_song_file);
         ((VBox)(scroll_pane.getContent())).getChildren().remove(b);
-        jump_to_next(the_song_file);
+        jump_to_next();
         save();
     }
 
@@ -976,7 +1000,7 @@ public class Audio_player
     }
 
     //**********************************************************
-    private  void jump_to_next(File f)
+    private  void jump_to_next()
     //**********************************************************
     {
         if ( observable_playlist.isEmpty()) return;
@@ -984,7 +1008,7 @@ public class Audio_player
         for (int i = 0; i < observable_playlist.size(); i++)
         {
             File file = observable_playlist.get(i);
-            if ( file.getAbsolutePath().equals(f.getAbsolutePath()))
+            if ( file.getAbsolutePath().equals(the_song_file.getAbsolutePath()))
             {
                 int k = i+1;
                 if (k >= observable_playlist.size()) k = 0;
@@ -1220,5 +1244,87 @@ public class Audio_player
     {
         Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
     }
+
+    //**********************************************************
+    void handle_keyboard(final KeyEvent key_event, Logger logger)
+    //**********************************************************
+    {
+
+        if ( keyword_dbg) logger.log("Image_stage KeyEvent="+key_event);
+
+        logger.log("Image_stage KeyEvent.code"+key_event.getCode());
+        switch (key_event.getCode())
+        {
+            case F7:
+                if ( keyword_dbg) logger.log("F7");
+                rewind();
+                break;
+            case F8:
+                if ( keyword_dbg) logger.log("F8");
+                toggle_play_stop();
+                break;
+            case F9:
+                if ( keyword_dbg) logger.log("F9");
+                jump_to_next();
+                break;
+
+            case UP:
+                if ( keyword_dbg) logger.log("UP");
+                break;
+
+            case DOWN:
+                if ( keyword_dbg) logger.log("zoom down/out:");
+                break;
+
+            case LEFT:
+                if ( keyword_dbg) logger.log("left");
+                break;
+
+            case SPACE:
+                if ( keyword_dbg) logger.log("space");
+            case RIGHT:
+                if ( keyword_dbg) logger.log("right");
+                break;
+
+            default:
+                if ( keyword_dbg) logger.log("default");
+                break;
+
+        }
+
+        if (key_event.getCode() == KeyCode.ESCAPE)
+        {
+            key_event.consume();
+            return;
+        }
+
+
+        switch (key_event.getText())
+        {
+            case"=" -> {
+                if (keyword_dbg) logger.log("=");
+                return;
+            }
+        }
+
+        key_event.consume();
+
+    }
+
+    private void toggle_play_stop()
+    {
+        if (the_media_player_option.isEmpty()) return;
+        if ( is_playing) set_is_paused();
+        else set_is_playing();
+    }
+
+
+    private void rewind() {
+        if (the_media_player_option.isEmpty()) return;
+        the_media_player_option.get().stop();
+        the_media_player_option.get().play();
+        set_is_playing();
+    }
+
 
 }
