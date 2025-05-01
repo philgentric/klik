@@ -2,7 +2,7 @@
 
 **NOTE SUR LA SECURITE** 
 
-1. Les commandes proposées dans cette recette sont des outils "standards" utilisés par des centaines de milliers de developpeurs dans le monde entier, le risque est très faible.
+1. Les commandes proposées dans cette recette d'installation sont des outils "standards" utilisés par des centaines de milliers de developpeurs dans le monde entier, le risque est très faible.
 2. Klik est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec klik on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klik a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
 3. Le fait que 100% du code source de klik soit visible est une garantie: un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
 
@@ -34,13 +34,13 @@ https://sdkman.io/install/)
 
 (gradle est un outil de compilation)
 
-**sdk install gradle 8.13**
+**sdk install gradle 8.14**
 
-Etape 3: installez java 23 (JDK avec javaFX) 
+Etape 3: installez java 24 (JDK avec javaFX) 
 
 (le Java Development Kit (JDK) est l'outil qui permet de compiler et d'exécuter le code source java ; attention les versions antérieures à 23 de Java ne sont pas supportées par klik)
 
-**sdk install java 23.0.2.fx-zulu**
+**sdk install java 24.fx-zulu**
 
 ### Etape 4: installez git
 
@@ -85,7 +85,7 @@ Tentez:
 
 **gradle clean run**
 
-Ou alors, si klik ne se lance plus, c'est peut-être que vous avez laissé un enfant (ou un chat) jouer avec votre ordi, et qu'il a mis le souk dans le code source de klik ?
+Ou alors, si klik ne se lance plus, c'est peut-être que vous avez laissé un enfant (ou un chat ?) jouer avec votre ordi, et qu'il a mis le souk dans le code source de klik ?
 
 Au lieu de tout effacer et tout recommencer, faites :
 
@@ -101,7 +101,7 @@ R: Vérifiez que vous êtes dans le dossier 'klik' du code source de klik. (le m
 
 Q: Je n'ai plus de place sur mon disque.
 
-R: Allez dans le menu Préférences et effacez les caches. Visitez la poubelle pour vérifier que ce qu'elle contient peut partir au paradis des bits et faites "vider la poubelle".
+R: Allez dans le menu Préférences et effacez les caches. Visitez la poubelle pour vérifier que ce qu'elle contient peut partir au paradis des bits avant de faire "vider la poubelle".
 
 Q: Quand klik tourne, les autres applications manquent de RAM.
 

@@ -15,11 +15,11 @@ or follow instructions at:
 
 Step 2: install gradle
 
-**sdk install gradle 8.13**
+**sdk install gradle 8.14**
 
 Step 3: install java (with fx)
 
-**sdk install java 23.0.2.fx-zulu**
+**sdk install java 24.fx-zulu**
 
 Step 4: install git
 

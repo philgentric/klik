@@ -37,26 +37,27 @@ Vous pouvez choisir :
 - La taille des polices
 - La taille des icônes
 - La taille des colones
-- Afficher les ressources consommées en temps réel (fils d'exécution et consommation mémoire vive)
 - Afficher pour les dossiers le nombre total de fichiers, y compris dans les sous-dossiers 
 - Afficher pour les dossiers la taille sur le disque
 - Si les fichiers/dossiers invisibles sont visibles ou non
 - Si les boutons qui représentent les dossiers ont une icône animée qui échantillonne les images dans le dossier
-- L'ordre des items de la barre dans la fenêtre de navigation, qui est aussi l'ordre des items dans la fenêtre de visualisation (nom des fichiers, date de création, taille sur le disque, largeur des images, hauteur des images, rapport hauteur/largeur des images, et, par IA : similarité des images ! voir plus bas)
+- L'ordre des items dans la fenêtre de navigation, qui est aussi l'ordre des items dans la fenêtre de visualisation (choix : nom des fichiers, date de création, taille sur le disque, largeur des images, hauteur des images, rapport hauteur/largeur des images, et, par IA : similarité des images ! voir plus bas)
+- Afficher les ressources consommées en temps réel (fils d'exécution et consommation mémoire vive)
 
 # Les bonnes surprises  #
 
+- Klik a une application pour jouer vos fichiers de musique (mp3 etc) avec des listes de lectures (si vous en avez marre de vous faire harceler/racketter par qui vous savez)
 - Les fenêtres de visualisation ont un mode diapositive, un mode plein écran, un mode (1 pixel = 1 pixel) et un mode zoom
-- Les fenêtres de navigation ont un mode diapostive
-- Mettez des gommettes de couleur pour les dossiers
+- Il y a de nombreux accélérateurs clavier (mais c'est pas super bien documenté)
+- Les fenêtres de navigation ont un mode diapositive
+- Mettez des gommettes de couleur pour les dossiers !
 - Klik possède un service ultra-rapide de recherche par mot clés dans les noms des fichiers (tapez "k")
-- Klik propose une application pour jouer vos fichiers de musique (mp3 etc) avec des listes de lectures (si vous en avez marre de vous faire harceler/racketter par qui vous savez)
 - Klik sait générer une planche-contact PDF des images dans un dossier
 - Klik peut importer (retrouver et faire une copie) les photos que ApplePhoto planque sur votre disque dur :-)
 - Klik peut ranger vos photos dans des dossiers annuels (1 année = 1 dossier)
 - Klik peut vous aider à identifier les fichiers en doubles (fichiers identiques)
 - Klik peut vous aider à identifier les images similaires (fichiers non identiques) par ML
-
+- Klik peut visualiser les dossiers cachés, et vous indique les liens symboliques
 
 # Services IA #
 
@@ -82,7 +83,6 @@ Pour la vitesse du ML, vous avez besoin d'une machine avec une carte graphique q
 
 ATTENTION : l'installation de tensorflow peut être très fastidieuse... (google sera votre ami)
 
-
 Dans le dossier "python_for_image_ML" se trouve une recette qui exploite l'accélération matérielle (metal) pour les Macs ARM64 qui fonctionne sur mon MacBookPro M3 64GB.
 
 2. Lancer les serveurs (après chaque redémarrage de votre machine)
@@ -102,8 +102,6 @@ Si vous avez des problèmes, des bogues, des suggestions, des idées de nouveaux
 
 ### Recommendations pour signaler des bogues ###
 
-Quelque soit le soin qu'on met à faire du code, quand il est aussi complexe et en évolution continue, il reste toujours des bogues. 
-En particulier, Klik contient une foule d'astuces sophistiquées pour garder l'interface aussi fluide que possible. La technique sous-jacente consiste à lancer des fils d'exécution en arrière plan. Cette technique de codage ouvre la porte à un type particulièrement sournois de bogues: les "conditions de concurrence". Elles se manifestent souvent de façon capricieuse : le bogue peut se produire ou pas, rarement ou pas, et jamais exactement avec les mêmes symptômes... Pour cette raison, voici quelques conseils:
 
 - Faites un copie des logs que Klik écrit dans le terminal (en particulier si le texte contient les mots "panic" et "exception")
 - Essayez de reproduire le bogue, surtout si ce n'est pas facile de le reproduire !
