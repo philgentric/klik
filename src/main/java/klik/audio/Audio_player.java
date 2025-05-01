@@ -647,15 +647,18 @@ public class Audio_player
     private void play_song(File the_song_file_)
     //**********************************************************
     {
+        Integer current_time_s;
         if ( the_song_file_ == null)
         {
             String path = Non_booleans.get_current_song(logger);
             if ( path == null)
             {
+                current_time_s = null;
                 the_song_file_ = observable_playlist.get(0);
             }
             else
             {
+                current_time_s = Non_booleans.get_current_time_in_song(logger);
                 the_song_file_ = new File(path);
             }
             if ( the_song_file_ == null) {
@@ -663,6 +666,8 @@ public class Audio_player
                 logger.log("FATAL: the_song_file_ is null");
                 return;
             }
+        } else {
+            current_time_s = 0;
         }
         Non_booleans.save_current_song(the_song_file_,logger);
 
@@ -690,9 +695,20 @@ public class Audio_player
         {
             Media sound = new Media(encoded);
             MediaPlayer tmp_media_player = new MediaPlayer(sound);
+
+
+
             tmp_media_player.setCycleCount(1);
             tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
             tmp_media_player.setOnReady(() -> on_player_ready(tmp_media_player));
+            tmp_media_player.setOnPlaying(() -> {
+                if ( current_time_s != null)
+                {
+                    logger.log("yop OnPlaying, jumping: "+ current_time_s);
+                    Duration target = Duration.seconds(current_time_s);
+                        the_media_player_option.get().seek(target);
+                }});
+
             is_playing = true;
             play_pause.setText(pause_string);
 
@@ -844,6 +860,7 @@ public class Audio_player
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value.setText((int)seconds+" seconds");
+            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds,logger);
         });
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());

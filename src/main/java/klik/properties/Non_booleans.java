@@ -51,6 +51,7 @@ public class Non_booleans
     public static final String TRASH_DIR = "klik_trash";
     public static final String FACE_RECO_DIR = "face_reco";
     private static final String AUDIO_PLAYER_CURRENT_SONG = "AUDIO_PLAYER_CURRENT_SONG";
+    private static final String AUDIO_PLAYER_CURRENT_TIME = "AUDIO_PLAYER_CURRENT_TIME";
 
 
     // cached values
@@ -532,4 +533,30 @@ public class Non_booleans
         return pm.get(AUDIO_PLAYER_CURRENT_SONG);
     }
 
+    static int previous = -1;
+    //**********************************************************
+    public static void save_curent_time_in_song(int time, Logger logger)
+    //**********************************************************
+    {
+        if ( previous > 0)
+        {
+            if ( previous/10 == time/10) return;
+        }
+        previous = time;
+        logger.log("save_curent_time_in_song "+time);
+        Properties_manager pm = get_main_properties_manager(logger);
+        pm.add_and_save(AUDIO_PLAYER_CURRENT_TIME, ""+time);
+
+    }
+
+
+    //**********************************************************
+    public static Integer get_current_time_in_song ( Logger logger)
+    //**********************************************************
+    {
+        Properties_manager pm = get_main_properties_manager(logger);
+        String s =  pm.get(AUDIO_PLAYER_CURRENT_TIME);
+        if ( s == null) return 0;
+        return Integer.parseInt(s);
+    }
 }
