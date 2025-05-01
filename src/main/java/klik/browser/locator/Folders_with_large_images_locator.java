@@ -377,7 +377,7 @@ public class Folders_with_large_images_locator
             if ( count < MAX_WINDOWS)
             {
                 String final_S = s;
-                Jfx_batch_injector.inject(()->Browser_creation_context.additional_no_past(key_to_path(final_S), logger),logger);
+                Jfx_batch_injector.inject(()->Browser_creation_context.additional_no_past(browser.primary_stage,key_to_path(final_S), logger),logger);
                 count++;
             }
             else {

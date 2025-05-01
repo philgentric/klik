@@ -30,13 +30,15 @@ public class Language_manager
     private static Language instance = null;
     public static Map<String, Language> registered_languages = new HashMap<>();
     private static final Language[] languages = {
+            new German(),
+            new Breton(),
             new Chinese(),
             new English(),
             new French(),
-            new German(),
             new Italian(),
             new Japanese(),
             new Korean(),
+            new Portuguese(),
             new Spanish()
     };
 

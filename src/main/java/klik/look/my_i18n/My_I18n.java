@@ -105,7 +105,12 @@ public class My_I18n
             return key;
         }
         String returned = cache.get_I18n_string_internal(key,logger);
-        if ( returned == null) return key;
+        if ( returned == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<- not found"));
+            return key;
+        }
+        logger.log("OK My_I18n ->"+key+"<- was found for "+Language_manager.get_current_language(logger).locale+" : ->"+returned+"<-");
         return returned;
     }
 

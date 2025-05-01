@@ -318,7 +318,7 @@ public abstract class Item implements Icon_destination
             Browser.scroll_position_cache.put(path,browser.get_top_left());
 
             Rectangle2D rec = browser.get_rectangle();
-            Browser_creation_context.additional_different_folder(path,rec, logger);
+            Browser_creation_context.additional_different_folder(browser.primary_stage,path,rec, logger);
         });
         return browse;
     }

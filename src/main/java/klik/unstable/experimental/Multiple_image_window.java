@@ -6,7 +6,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -126,8 +125,9 @@ public class Multiple_image_window
         logger.log("Multiple_image_stage !!!");
         the_stage = new Stage();
         {
-            Image image = Look_and_feel_manager.get_default_icon(300);
-            if (image != null) the_stage.getIcons().add(image);
+            //Image image = Look_and_feel_manager.get_default_icon(300);
+            //if (image != null) the_stage.getIcons().add(image);
+            Look_and_feel_manager.set_icon_for_main_window(the_stage,"multi", Look_and_feel_manager.Icon_type.KLIK);
         }
         the_stage.setWidth(w);
         the_stage.setHeight(h);

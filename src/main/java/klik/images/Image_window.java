@@ -112,6 +112,11 @@ public class Image_window
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane);
 
+        /*
+        Image image = Look_and_feel_manager.get_default_icon(300);
+        if (image != null) the_Stage.getIcons().add(image);
+        */
+
         image_properties_cache = Image_properties_RAM_cache.get(first_image_path.getParent(),aborter,logger);
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);

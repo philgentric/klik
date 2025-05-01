@@ -30,6 +30,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
+import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.image_ml.Feature_vector;
@@ -58,7 +59,7 @@ public class Face_recognition_service
     public final static String EXTENSION_FOR_EP = "prototype";
     private static Face_recognition_service instance = null;
     final Logger logger;
-    //private final Browser browser;
+    final Browser browser;
     ConcurrentLinkedQueue<Embeddings_prototype> embeddings_prototypes = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<String> labels = new ConcurrentLinkedQueue<>();
     Map<String,Embeddings_prototype> tag_to_prototype = new ConcurrentHashMap<>();
@@ -72,15 +73,16 @@ public class Face_recognition_service
     private Window owner;
 
     //**********************************************************
-    private Face_recognition_service(String name_, Window owner, Logger logger)
+    private Face_recognition_service(String name_,  Browser browser, Window owner,Logger logger)
     //**********************************************************
     {
+        this.browser = browser;
         face_recognizer_name = name_;
         this.owner = owner;
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
-        Browser_creation_context.additional_no_past(face_recognizer_path,logger);
+        Browser_creation_context.additional_no_past(browser.primary_stage,face_recognizer_path,logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -90,22 +92,22 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    public static Face_recognition_service get_instance(Window owner, Logger logger)
+    public static Face_recognition_service get_instance(Browser browser, Window owner,Logger logger)
     //**********************************************************
     {
-        if ( instance == null) start_new(owner, logger);
+        if ( instance == null) start_new(browser, owner,logger);
         return instance;
     }
 
     //**********************************************************
-    public static void start_new(Window owner, Logger logger)
+    public static void start_new(Browser browser, Window owner, Logger logger)
     //**********************************************************
     {
         Optional<String> localo = get_face_recognition_model_name(logger);
 
         if ( localo.isEmpty()) return;
 
-        instance = new Face_recognition_service(localo.get(), owner, logger);
+        instance = new Face_recognition_service(localo.get(), browser, owner,logger);
         instance.load_internal();
     }
 
@@ -117,11 +119,11 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void load(Window owner,Logger logger)
+    public static void load(Browser browser, Window owner, Logger logger)
     //**********************************************************
     {
         if ( instance != null) instance.load_internal();
-        else start_new(owner, logger);
+        else start_new(browser, owner,logger);
     }
 
 
@@ -157,19 +159,19 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void auto(Path displayed_folder_path, Window owner, Logger logger)
+    public static void auto(Path displayed_folder_path, Browser browser, Window owner,Logger logger)
     //**********************************************************
     {
-        Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
+        Face_recognition_service fr = Face_recognition_service.get_instance(browser,owner,logger);
         Actor_engine.execute(() -> fr.auto_internal(displayed_folder_path, logger), fr.logger);
     }
 
 
     //**********************************************************
-    public static void self(Window owner, Logger logger)
+    public static void self(Browser browser, Window owner, Logger logger)
     //**********************************************************
     {
-        Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
+        Face_recognition_service fr = Face_recognition_service.get_instance(browser, owner,logger);
         Actor_engine.execute(fr::self_internal, logger);
     }
 
@@ -353,15 +355,16 @@ public class Face_recognition_service
         if ( size > 200) size = 200;
         if (Platform.isFxApplicationThread())
         {
-            show_face_recognition_window_internal(size,face,eval_result);
+            show_face_recognition_window_internal(browser,size,face,eval_result);
         }
         else {
             int size2 = size;
-            Jfx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result),logger);
+            Jfx_batch_injector.inject(()->show_face_recognition_window_internal(browser,size2,face,eval_result),logger);
         }
     }
     //**********************************************************
     public void show_face_recognition_window_internal(
+            Browser browser,
             int size,
             Image face_image,
             Face_recognition_actor.Eval_results eval_result)
@@ -471,7 +474,7 @@ public class Face_recognition_service
                 ComboBox<String> comboBox = new ComboBox<>();
                 if (eval_result != null) comboBox.setDisable(!eval_result.enable_adding());
 
-                comboBox.getItems().addAll(Face_recognition_service.get_instance(owner,logger).get_prototype_labels());
+                comboBox.getItems().addAll(Face_recognition_service.get_instance(browser,stage,logger).get_prototype_labels());
                 if (eval_result != null) {
                     if (eval_result.label() != null) {
                         comboBox.setValue(eval_result.label());

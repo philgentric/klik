@@ -27,7 +27,7 @@ public class Image_scaler extends Application {
 
     @Override public void init() {
         //image = new Image(IMAGE_LOC);
-        File f =  new File("/Users/philippegentric/test_images/0020.jpg");
+        File f =  new File("0020.jpg");
         try (FileInputStream input_stream = new FileInputStream(f)) {
              image = new Image(input_stream);
         } catch (FileNotFoundException e) {

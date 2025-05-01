@@ -1,10 +1,12 @@
 package klik.audio;
 
 import javafx.application.Application;
-import javafx.stage.FileChooser;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.look.Look_and_feel_manager;
+import klik.look.my_i18n.Language_manager;
+import klik.look.my_i18n.My_I18n;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_out_logger;
@@ -17,7 +19,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
 
 //**********************************************************
@@ -36,6 +37,18 @@ public class Audio_player_application extends Application
     {
         Logger logger =  new System_out_logger("Audio_player");
 
+        if (    !start_server(logger))
+        {
+            logger.log("failed to start server: this is normal if another instance exists already");
+            stage.close();
+            Platform.exit();
+            System.exit(0);
+            return;
+        }
+
+
+
+
         logger.log("Audio_player_application start");
 
         Parameters params = getParameters();
@@ -51,6 +64,12 @@ public class Audio_player_application extends Application
         }
 
         Look_and_feel_manager.init_Look_and_feel(logger);
+        Language_manager.init_registered_languages(logger);
+
+        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC,logger);
+
+        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
+
         File f = null;
         if ( list.size() == 0)
         {
@@ -66,6 +85,14 @@ public class Audio_player_application extends Application
 
         Audio_player.play_song(f, logger);
 
+
+    }
+
+    private static boolean start_server(Logger logger) {
+        // start the server to receive subsequent play requests
+        // this is to avoid the audio mess when several players
+        // are automatically "mixed" by the OS
+
         Session_factory session_factory = () -> new Session() {
             @Override
             public void on_client_connection(DataInputStream dis, DataOutputStream dos)
@@ -76,7 +103,7 @@ public class Audio_player_application extends Application
                     dis.read(buffer);
                     String file_path = new String(buffer, StandardCharsets.UTF_8);
                     File f1 = new File(file_path);
-                    Audio_player.play_song(f1,logger);
+                    Audio_player.play_song(f1, logger);
                     String reply = Audio_player.PLAY_REQUEST_ACCEPTED;
                     buffer = reply.getBytes(StandardCharsets.UTF_8);
                     dos.writeInt(buffer.length);
@@ -95,8 +122,7 @@ public class Audio_player_application extends Application
                 return "";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("audio",logger),logger);
-        tcp_server.start(Audio_player.AUDIO_PLAYER_PORT);
-
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("audio", logger), logger);
+        return tcp_server.start(Audio_player.AUDIO_PLAYER_PORT,false);
     }
 }

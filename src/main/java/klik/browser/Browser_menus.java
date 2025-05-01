@@ -371,7 +371,7 @@ public class Browser_menus
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
 
-            Face_recognition_service i = Face_recognition_service.get_instance(browser.my_Stage.the_Stage,logger);
+            Face_recognition_service i = Face_recognition_service.get_instance(browser,browser.my_Stage.the_Stage,logger);
             logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+browser.displayed_folder_path);
 
         });
@@ -394,7 +394,7 @@ public class Browser_menus
     {
         String text = "Load face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.load(browser.my_Stage.the_Stage,logger));
+        item.setOnAction(event -> Face_recognition_service.load(browser,browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -405,7 +405,7 @@ public class Browser_menus
     {
         String text = "Reset/init face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.start_new(browser.my_Stage.the_Stage,logger));
+        item.setOnAction(event -> Face_recognition_service.start_new(browser,browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -416,7 +416,7 @@ public class Browser_menus
     {
         String text = "Auto face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.auto(browser.displayed_folder_path,browser.my_Stage.the_Stage,logger));
+        item.setOnAction(event -> Face_recognition_service.auto(browser.displayed_folder_path,browser,browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -426,7 +426,7 @@ public class Browser_menus
     {
         String text = "SELF face recognition";
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> Face_recognition_service.self(browser.my_Stage.the_Stage,logger));
+        item.setOnAction(event -> Face_recognition_service.self(browser,browser.my_Stage.the_Stage,logger));
         return item;
     }
 
@@ -812,7 +812,6 @@ public class Browser_menus
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
             Booleans.set_boolean(Booleans.ESCAPE_FAST_EXIT,value,logger);
-            browser.set_escape_preference(value);
         });
         return item;
     }

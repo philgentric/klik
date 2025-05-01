@@ -137,8 +137,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             image_cache = new Image_cache_dummy(logger);
         }
 
-        Image image = Look_and_feel_manager.get_default_icon(300);
-        if (image != null) image_window.the_Stage.getIcons().add(image);
 
     }
 

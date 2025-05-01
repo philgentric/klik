@@ -45,6 +45,7 @@
 
 package klik.browser;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -53,7 +54,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -76,14 +76,13 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.execute.Execute_command;
+import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.unstable.backup.Backup_singleton;
 import klik.unstable.fusk.Fusk_bytes;
 import klik.unstable.fusk.Fusk_singleton;
 import klik.unstable.fusk.Static_fusk_paths;
 import klik.look.Font_size;
-import klik.look.Jar_utils;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -92,13 +91,10 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
@@ -108,7 +104,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.awt.Taskbar.Feature.ICON_IMAGE;
 import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 
@@ -116,14 +111,16 @@ import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_
 public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter
 //**********************************************************
 {
+    public static final AtomicInteger browsers_created = new AtomicInteger(0);
+
     public static final boolean dbg = false;
     public static final boolean keyboard_dbg = false;
 
 
     public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
+    public static final String CONTACT_SHEET_FILE_NAME = "contact_sheet.pdf";
     public static Aborter monitoring_aborter;
     public static boolean show_running_film = true;
-    static AtomicInteger windows_count = new AtomicInteger(0);
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
 
@@ -134,6 +131,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     Filesystem_item_modification_watcher filesystem_item_modification_watcher;
     public final My_Stage my_Stage;
+    public final Stage primary_stage;
     public Scene the_Scene;
     public final Pane the_Pane;
     public final Virtual_landscape virtual_landscape;
@@ -147,12 +145,12 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     public Vertical_slider vertical_slider;
     public double slider_width = 40;
 
-    boolean exit_on_escape_preference;
+    //boolean exit_on_escape_preference;
     boolean ignore_escape_as_the_stage_is_full_screen = false;
 
     final Browser_menus browser_menus;
     public final Browser_UI browser_ui;
-    static Path home = Paths.get(System.getProperty(Non_booleans.USER_HOME));
+    //static Path home = Paths.get(System.getProperty(Non_booleans.USER_HOME));
 
     // make sure we go again at the same scroll point when we enter a given folder
     public static Map<Path, Path> scroll_position_cache = new HashMap<>();
@@ -224,23 +222,37 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             Logger logger_)
     //**********************************************************
     {
+        logger = logger_;
 
-        if (context.old_browser != null)
+        primary_stage = context.primary_stage;
+        if ( primary_stage  == null)
         {
-            context.old_browser.cleanup();
+            logger.log("FATAL ERROR: primary_stage is null");
+            System.exit(-1);
         }
 
-        logger = logger_;
+        int count = browsers_created.incrementAndGet();
+        logger.log("Browser constructor browsers_created(1)="+count);
+        if (context.browser_to_be_closed != null)
+        {
+            logger.log("closing previous browser");
+            context.browser_to_be_closed.close_window();
+        }
+
         displayed_folder_path = context.folder_path;
         if ( dbg) logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
 
         aborter = new Aborter("Browser for: " + displayed_folder_path.toAbsolutePath().toString(), logger);
 
         ID = ID_generator.getAndIncrement();
-        my_Stage = new My_Stage(new Stage(), logger);// context.stage;//new My_Stage(context.stage,logger);
+        my_Stage = new My_Stage(new Stage(),logger);// context.stage;//new My_Stage(context.stage,logger);
+
+        my_Stage.the_Stage.setOnCloseRequest(event -> {
+            System.out.println("Klik browser window exit");
+            System.exit(0);
+        });
 
         if (context.additional_window) {
-            windows_count.incrementAndGet();
             //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after create: " +context.folder_path +"\n"+ signature()));
         } else {
             //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after dir change: " +context.folder_path +"\n"+ signature()));
@@ -253,7 +265,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         double width = 2400 / 2.0;
         double height = 1080 - y;
 
-        if (windows_count.get() == 1)
+
+        if (count == 1)
         {
             Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, logger);
             width = r.getWidth();
@@ -279,6 +292,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         }
         if (dbg) logger.log("NEW browser");
+        /*
         {
             double font_size = Non_booleans.get_font_size(logger);
             double icon_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
@@ -293,14 +307,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             } else {
                 my_Stage.the_Stage.getIcons().add(icon);
             }
-        }
+        }*/
         my_Stage.the_Stage.setX(x);
         my_Stage.the_Stage.setY(y);
         my_Stage.the_Stage.setWidth(width);
         my_Stage.the_Stage.setHeight(height);
         my_Stage.the_Stage.show();
 
-        set_icon();
+        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, "Klik", Look_and_feel_manager.Icon_type.KLIK);
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         History_engine.get_instance(logger).add(displayed_folder_path);
 
@@ -313,7 +327,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         virtual_landscape = new Virtual_landscape(this,aborter, logger);
         selection_handler = new Selection_handler(the_Pane, virtual_landscape, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
-        exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
+        //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
         {
             browser_ui = new Browser_UI(this);
             browser_ui.define_UI();
@@ -339,7 +353,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     private void record_stage_bounds()
     //**********************************************************
     {
-        if (windows_count.get() != 1) {
+        if (browsers_created.get() != 1) {
             // ignore: we store the position of a "unique or last" window
             return;
         }
@@ -347,56 +361,46 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
     }
 
-    //**********************************************************
-    private void set_icon()
-    //**********************************************************
-    {
-        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
-        if (look_and_feel == null) {
-            logger.log("BAD WARNING: cannot get look and feel instance");
-            return;
-        }
-
-        String klik_image_path = look_and_feel.get_klik_icon_path();
-        my_Stage.the_Stage.getIcons().clear();
-        Image taskbar_icon = null;
-        int[] icon_sizes = {16, 32, 64, 128};
-        for (int s : icon_sizes)
-        {
-            Image icon = Jar_utils.load_jfx_image_from_jar(klik_image_path, s, logger);
-            if (icon != null) {
-                my_Stage.the_Stage.getIcons().add(icon);
-                taskbar_icon = icon;
-            }
-        }
-        if (taskbar_icon != null) {
-            if (Taskbar.isTaskbarSupported()) {
-                Taskbar task_bar = Taskbar.getTaskbar();
-                if (task_bar.isSupported(ICON_IMAGE)) {
-                    BufferedImage bim = JavaFX_to_Swing.fromFXImage(taskbar_icon, null, logger);
-                    task_bar.setIconImage(bim);
-                }
-                if (task_bar.isSupported(Taskbar.Feature.ICON_BADGE_TEXT)) {
-                    task_bar.setIconBadge("Klik");
-                }
-            }
-        }
-    }
 
 
     //**********************************************************
     String signature()
     //**********************************************************
     {
-        return "Stage:" + my_Stage.the_Stage + "  Browser ID= " + ID + " total window count: " + windows_count.get() + " esc=" + my_Stage.escape;
+        return "Stage:" + my_Stage.the_Stage + "  Browser ID= " + ID + " total window count: " + browsers_created.get() + " esc=" + my_Stage.escape;
     }
 
     //**********************************************************
-    void cleanup()
+    void close_window()
     //**********************************************************
     {
         aborter.abort("Browser is closing for "+displayed_folder_path);
-        if (dbg) logger.log("Browser cleanup " + signature());
+        //if (dbg)
+            logger.log("Browser close_window " + signature());
+
+        int count = browsers_created.decrementAndGet();
+        logger.log("close_window: browsers_created(2) ="+count);
+        if (count ==0)
+        {
+            if ( primary_stage != null)
+            {
+                logger.log("primary_stage closing = primary_stage.close()");
+                primary_stage.close();
+            }
+            else
+            {
+                logger.log("primary_stage is null");
+
+            }
+            logger.log("primary_stage closing = Platform.exit()");
+            Platform.exit();
+            logger.log("primary_stage closing = System.exit()");
+            System.exit(0);
+        }
+        else {
+            logger.log("browsers_created > 0");
+        }
+
         // when we change dir, we need to de-register the old browser
         // otherwise the list in the change_gang keeps growing
         // plus memory leak! ==> the RAM footprint keeps growing
@@ -405,18 +409,9 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         stop_scan();
         the_Pane.getChildren().clear();
         //if (icon_manager != null) icon_manager.cancel_all();
-    }
-
-    //**********************************************************
-    void close_window()
-    //**********************************************************
-    {
-        cleanup();
-
         //logger.log("close_window BEFORE close" + signature());
         my_Stage.close();
-        windows_count.decrementAndGet();
-        //logger.log("close_window AFTER close" + signature());
+
     }
 
 
@@ -446,6 +441,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger.log("Status = " + s);
     }
 
+    /*
     //**********************************************************
     public void set_escape_preference(boolean value)
     //**********************************************************
@@ -459,7 +455,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         return exit_on_escape_preference;
     }
-
+*/
     //**********************************************************
     public void show_how_many_files_deep_in_each_folder()
     //**********************************************************
@@ -1125,7 +1121,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             graphicsMagick_command_line.add("-geometry");
             graphicsMagick_command_line.add("300x200+2+2");
             graphicsMagick_command_line.add("*.jpg");
-            graphicsMagick_command_line.add("contact_sheet.pdf");
+            graphicsMagick_command_line.add(CONTACT_SHEET_FILE_NAME);
         }
 
 
@@ -1140,7 +1136,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
         else
         {
-            logger.log("contact sheet generated "+ sb);
+            if ( dbg) logger.log("contact sheet generated "+ sb);
+            else
+            {
+                logger.log("contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
+                System_open_actor.open_with_system(my_Stage.the_Stage,Path.of(displayed_folder_path.toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),aborter,logger);
+
+                Platform.runLater(() ->set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
+            }
         }
         hourglass.close();
     }

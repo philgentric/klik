@@ -21,6 +21,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
+import klik.look.my_i18n.Language_manager;
+import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -82,6 +84,8 @@ public class Audio_player
     Label play_list_name;
     //Browser browser = null;
 
+    String pause_string;
+
     //**********************************************************
     private Audio_player(Logger logger_)
     //**********************************************************
@@ -112,7 +116,7 @@ public class Audio_player
         the_big_vbox.getChildren().add(define_playlist_hbox());
         define_scrollpane_with_songs(the_big_vbox);
 
-
+        pause_string = My_I18n.get_I18n_string(PAUSE,logger);
 
 
         // called only on EXTERNAL close requests i.e. hitting the cross in the title
@@ -155,7 +159,7 @@ public class Audio_player
 
         {
 
-            Button remove_from_playlist = new Button("Remove active song from playlist ");
+            Button remove_from_playlist = new Button(My_I18n.get_I18n_string("Remove_playing_song_from_playlist",logger));
             Look_and_feel_manager.set_button_look(remove_from_playlist, true);
             remove_from_playlist.setOnAction(actionEvent -> remove_from_playlist());
             returned.getChildren().add(remove_from_playlist);
@@ -169,14 +173,21 @@ public class Audio_player
         playlist_file = get_playlist_file(logger);
         //logger.log("playlist_file="+playlist_file.getAbsolutePath());
         String play_list_name_s = extract_playlist_name();
-        //logger.log("playlist_name="+play_list_name_s);
+        logger.log("playlist_name="+play_list_name_s);
 
-        play_list_name = new Label(play_list_name_s);
+        play_list_name = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+play_list_name_s);
         play_list_name.setMinWidth(200);
         Look_and_feel_manager.set_region_look(play_list_name);
         returned.getChildren().add(play_list_name);
 
-        save_as_new_playlist = new Button("Save as new playlist");
+        {
+            Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            returned.getChildren().add(spacer);
+        }
+
+        save_as_new_playlist = new Button(My_I18n.get_I18n_string("Save_As_New_Playlist",logger));
         {
             save_as_new_playlist.setOnAction(actionEvent -> save_new_playlist());
         }
@@ -184,22 +195,6 @@ public class Audio_player
         returned.getChildren().add(save_as_new_playlist);
 
         return returned;
-    }
-
-    //**********************************************************
-    private void line_with_stop_and_close(VBox vbox)
-    //**********************************************************
-    {
-        Button cancel = new Button("Stop & close");
-        Look_and_feel_manager.set_button_look(cancel,true);
-        {
-            cancel.setOnAction(actionEvent -> {
-                clean_up();
-                stage.close();
-                instance = null;
-            });
-        }
-        vbox.getChildren().add(cancel);
     }
 
 
@@ -279,7 +274,7 @@ public class Audio_player
     private Button define_reset_balance_button()
     //**********************************************************
     {
-        Button reset_balance = new Button("Reset balance");
+        Button reset_balance = new Button(My_I18n.get_I18n_string("Reset_Balance",logger));
         Look_and_feel_manager.set_button_look(reset_balance,true);
         reset_balance.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -299,7 +294,7 @@ public class Audio_player
         HBox hbox = define_volume_hbox();
         returned.getChildren().add(hbox);
 
-        Button mute = new Button("Mute");
+        Button mute = new Button(My_I18n.get_I18n_string("Mute",logger));
         Look_and_feel_manager.set_button_look(mute,true);
         mute.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -313,7 +308,7 @@ public class Audio_player
                 else
                 {
                     mp.setMute(true);
-                    mute.setText("Unmute");
+                    mute.setText(My_I18n.get_I18n_string("Unmute",logger)); //"Unmute");
                 }
             }
         });
@@ -352,13 +347,13 @@ public class Audio_player
         VBox returned = new VBox();
         Look_and_feel_manager.set_region_look(returned);
 
-        previous = new Button("Jump to previous");
+        previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song",logger));
         Look_and_feel_manager.set_button_look(previous, true);
         previous.setOnAction(actionEvent -> jump_to_previous(the_song_file));
         returned.getChildren().add(previous);
 
 
-        next = new Button("Jump to next ");
+        next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",logger));
         Look_and_feel_manager.set_button_look(next, true);
         next.setOnAction(actionEvent -> jump_to_next(the_song_file));
         returned.getChildren().add(next);
@@ -415,6 +410,7 @@ public class Audio_player
                     {
                         Button b = new Button(f.getName());
                         b.setMnemonicParsing(false);
+                        Look_and_feel_manager.set_button_look(b,false);
                         {
                             ContextMenu the_context_menu = new ContextMenu();
                             Look_and_feel_manager.set_context_menu_look(the_context_menu);
@@ -422,18 +418,6 @@ public class Audio_player
                             the_menu_item.setOnAction(event -> {
                                 Path parent = f.toPath().getParent();
                                 start_new_process_to_browse(parent,logger);
-                                /*
-                                if ( browser != null)
-                                {
-                                    logger.log("additional_different_folder");
-                                    Browser_creation_context.additional_different_folder(parent,browser,logger);
-                                }
-                                else
-                                {
-                                    logger.log("additional_no_past");
-                                    browser = Browser_creation_context.additional_no_past(parent, logger);
-                                }*/
-
                             });
                             the_context_menu.getItems().add(the_menu_item);
                             b.setOnContextMenuRequested((ContextMenuEvent event) -> {
@@ -488,7 +472,7 @@ public class Audio_player
     {
         HBox hbox = new HBox();
         Look_and_feel_manager.set_region_look(hbox);
-        Label duration_text = new Label("Duration: ");
+        Label duration_text = new Label(My_I18n.get_I18n_string("Duration",logger)+" : ");
         Look_and_feel_manager.set_region_look(duration_text);
         hbox.getChildren().add(duration_text);
         duration_value = new Label("0.0s");
@@ -502,7 +486,7 @@ public class Audio_player
             hbox.getChildren().add(spacer);
         }
 
-        Button rewind = new Button("Rewind");
+        Button rewind = new Button(My_I18n.get_I18n_string("Rewind",logger));
         Look_and_feel_manager.set_button_look(rewind, true);
         rewind.setOnAction(_ -> {
             if (the_media_player_option.isEmpty()) return;
@@ -520,7 +504,7 @@ public class Audio_player
             hbox.getChildren().add(spacer);
         }
 
-        play_pause = new Button(PAUSE);
+        play_pause = new Button(pause_string);
         is_playing = false;
         Look_and_feel_manager.set_button_look(play_pause, true);
         play_pause.setOnAction(_ -> {
@@ -537,7 +521,7 @@ public class Audio_player
             hbox.getChildren().add(spacer);
         }
 
-        Label now_text = new Label("Now: ");
+        Label now_text = new Label(My_I18n.get_I18n_string("Now",logger)+" : ");
         Look_and_feel_manager.set_region_look(now_text);
         hbox.getChildren().add(now_text);
         now_value = new Label("0.0s");
@@ -602,7 +586,6 @@ public class Audio_player
         List<String> cmds = new ArrayList<>();
         logger.log("start_new_process_to_play_song()");
         cmds.add("gradle");
-        cmds.add("clean");
         cmds.add("audio_player");
         String path =  "--args=\""+the_song_file.getAbsolutePath()+"\"";
         cmds.add(path);
@@ -620,8 +603,7 @@ public class Audio_player
         List<String> cmds = new ArrayList<>();
         logger.log("start_new_process_to_browse()");
         cmds.add("gradle");
-        cmds.add("clean");
-        cmds.add("run");
+        cmds.add("klik");
         String path =  "--args=\""+folder.toAbsolutePath()+"\"";
         cmds.add(path);
 
@@ -688,7 +670,7 @@ public class Audio_player
             tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
             tmp_media_player.setOnReady(() -> on_player_ready(tmp_media_player));
             is_playing = true;
-            play_pause.setText(PAUSE);
+            play_pause.setText(pause_string);
 
         }
         catch (MediaException me)
@@ -711,7 +693,7 @@ public class Audio_player
     {
         is_playing = true;
         the_media_player_option.get().play();
-        play_pause.setText(PAUSE);
+        play_pause.setText(pause_string);
 
     }
 
@@ -748,20 +730,70 @@ public class Audio_player
     {
 
         logger.log("set_selected "+f);
-        Button b = file_to_button.get(f);
-        if ( selected == b) return;
-        if ( b!=null) b.setStyle("-fx-background-color: #90D5FF");
+        Button future = file_to_button.get(f);
+        if ( selected == future)
+        {
+            // already selected
+            return;
+        }
+        if ( future!=null)
+        {
+            String s = future.getStyle();
+            logger.log("style before = "+s);
+            s = change_background_color(s,"#90D5FF");
+            logger.log("style after = "+s);
+            future.setStyle(s);
+            //b.setStyle("-fx-background-color: #90D5FF");
+        }
         else logger.log("wtf1");
         if ( selected != null)
         {
             logger.log("resetting background for previously selected");
-            selected.setStyle("-fx-background-color: #ffffff");
+            //selected.setStyle("-fx-background-color: #ffffff");
+            String s = selected.getStyle();
+            logger.log("style before = "+s);
+            s = change_background_color(s,"#ffffff");
+            logger.log("style after = "+s);
+            selected.setStyle(s);
+
             //selected.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         }
-        selected = b;
+        selected = future;
 
         //b.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
+    }
+
+    //**********************************************************
+    private String change_background_color(String style, String new_color)
+    //**********************************************************
+    {
+        // assume style is a string with ';' separated items
+        // like this: "-fx-background-color: <<<<some color value>>>>>>>"
+        // parse the string to replace the current value of -fx-background-color
+        // with the new one
+        String returned = "";
+        String[] items = style.split(";");
+        boolean found = false;
+        for ( String item : items)
+        {
+            String[] parts = item.split(":");
+            if ( parts[0].trim().equals("-fx-background-color"))
+            {
+                found = true;
+                returned += parts[0]+":"+new_color+";";
+            }
+            else{
+                returned += item+";";
+            }
+        }
+        if ( found == false)
+        {
+            returned += "-fx-background-color:"+new_color+";";
+
+        }
+        //if ( returned.endsWith(";")) returned = returned.substring(0,returned.length()-1);
+        return returned;
     }
 
     //**********************************************************
@@ -885,7 +917,7 @@ public class Audio_player
     private Button make_reset_equalizer_button()
     //**********************************************************
     {
-        Button reset_button = new Button("Reset equalizer");
+        Button reset_button = new Button(My_I18n.get_I18n_string("Reset_Equalizer",logger));
         Look_and_feel_manager.set_button_look(reset_button,true);
         reset_button.setOnAction(new EventHandler<ActionEvent>() {
             @Override

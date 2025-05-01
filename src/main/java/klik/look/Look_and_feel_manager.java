@@ -5,20 +5,30 @@ package klik.look;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import klik.browser.Drag_and_drop;
+import klik.browser.icons.JavaFX_to_Swing;
 import klik.look.styles.Look_and_feel_dark;
 import klik.look.styles.Look_and_feel_light;
 import klik.look.styles.Look_and_feel_wood;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.awt.Taskbar.Feature.ICON_IMAGE;
 
 //**********************************************************
 public class Look_and_feel_manager
@@ -26,6 +36,8 @@ public class Look_and_feel_manager
 {
     // https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
 
+    public static final String MUSIC = "Music";
+    public static final String LAUNCHER = "Launcher";
 
     public static final boolean icon_load_dbg = true;
     public static final boolean look_dbg = false;
@@ -34,6 +46,7 @@ public class Look_and_feel_manager
     private static Look_and_feel instance = null;
     public static List<Look_and_feel> registered = new ArrayList<>();
     private static Image default_icon = null;
+    private static Image music_icon = null;
     public static Image denied_icon = null;
     public static Image folder_icon = null;
     public static Image trash_icon = null;
@@ -102,6 +115,7 @@ public class Look_and_feel_manager
     //**********************************************************
     {
         default_icon = null;
+        music_icon = null;
         Jar_utils.broken_icon = null;
         denied_icon = null;
         trash_icon = null;
@@ -255,6 +269,31 @@ public class Look_and_feel_manager
         }
         default_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
         return default_icon;
+    }
+
+
+    //**********************************************************
+    public static Image get_music_icon(double icon_size)
+    //**********************************************************
+    {
+        if (music_icon != null)
+        {
+            if ( music_icon.getHeight() == icon_size) return music_icon;
+        }
+        Look_and_feel local_instance = get_instance();
+        if (local_instance == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
+            return null;
+        }
+        String path = local_instance.get_music_icon_path();
+        if (path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get music icon path"));
+            return null;
+        }
+        music_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, logger);
+        return music_icon;
     }
 
 
@@ -972,4 +1011,61 @@ public class Look_and_feel_manager
         }
         return Jar_utils.load_jfx_image_from_jar(path, 600, logger);
     }
+
+    public enum Icon_type {KLIK, MUSIC, IMAGE,LAUNCHER};
+
+    //**********************************************************
+    public static String get_main_window_icon_path(Look_and_feel look_and_feel,Icon_type icon_type)
+    //**********************************************************
+    {
+        switch (icon_type)
+        {
+            case KLIK:
+                return look_and_feel.get_klik_icon_path();
+            case MUSIC:
+                return look_and_feel.get_music_icon_path();
+            case LAUNCHER:
+                return look_and_feel.get_slingshot_icon_path();
+            case IMAGE:
+                return look_and_feel.get_default_icon_path();
+
+        }
+        return null;
+    }
+     //**********************************************************
+    public static void set_icon_for_main_window(Stage stage, String badge_text, Icon_type icon_type)
+    //**********************************************************
+    {
+        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
+        if (look_and_feel == null) {
+            logger.log("BAD WARNING: cannot get look and feel instance");
+        }
+
+        stage.getIcons().clear();
+        Image taskbar_icon = null;
+        int[] icon_sizes = {16, 32, 64, 128};
+        String icon_path = get_main_window_icon_path(look_and_feel, icon_type);
+        for (int s : icon_sizes)
+        {
+            Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, s, logger);
+            if (icon != null) {
+                stage.getIcons().add(icon);
+                taskbar_icon = icon;
+                stage.getIcons().add(icon);
+            }
+        }
+        if (taskbar_icon != null) {
+            if (Taskbar.isTaskbarSupported()) {
+                Taskbar task_bar = Taskbar.getTaskbar();
+                if (task_bar.isSupported(ICON_IMAGE)) {
+                    BufferedImage bim = JavaFX_to_Swing.fromFXImage(taskbar_icon, null, logger);
+                    task_bar.setIconImage(bim);
+                }
+                if (task_bar.isSupported(Taskbar.Feature.ICON_BADGE_TEXT)) {
+                    task_bar.setIconBadge(badge_text);
+                }
+            }
+        }
+    }
+
 }

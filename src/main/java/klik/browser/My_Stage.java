@@ -2,6 +2,7 @@
 
 package klik.browser;
 
+import javafx.application.Platform;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import klik.util.log.Logger;
@@ -17,15 +18,15 @@ public class My_Stage
 {
     public final Logger logger;
     public final Stage the_Stage;
-    public int usage_count = 0;
+    private int usage_count = 0;
     public int escape = 0;
 
     //**********************************************************
-    public My_Stage(Stage theStage, Logger logger)
+    public My_Stage(Stage the_Stage, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
-        the_Stage = theStage;
+        this.the_Stage = the_Stage;
     }
 
     //**********************************************************
@@ -33,8 +34,9 @@ public class My_Stage
     //**********************************************************
     {
         the_Stage.close();
-        if (Browser.dbg) logger.log("My_Stage closing");
-        //usage_count--;
+
+        logger.log("the_Stage closing");
+
     }
 
     //**********************************************************

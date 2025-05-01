@@ -45,7 +45,7 @@ public class Guess_file_type
     //
     // .color is klik specific: when present, it is the color tag for a folder
     private static final String[] invisible_if_starts_with = {".","._",".DS_Store",".color"};
-    private static final String[] invisible_if_ends_with = {".properties",".prototypes"};
+    private static final String[] invisible_if_ends_with = {".properties",".prototype"};
 
     static String[] supported_non_gif_non_png_image_formats = null;
 

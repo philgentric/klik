@@ -12,6 +12,7 @@ import klik.util.log.System_out_logger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -40,7 +41,7 @@ public class TCP_server
     }
 
     //**********************************************************
-    public boolean start(int port_number_)
+    public boolean start(int port_number_, boolean stack_trace_bind_exception)
     //**********************************************************
     {
         AtomicBoolean is_started_ok = new AtomicBoolean(false);
@@ -60,10 +61,17 @@ public class TCP_server
                     }
                 }
             }
+            catch (BindException e)
+            {
+                if ( stack_trace_bind_exception)logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+                cdl.countDown();
+                is_started_ok.set(false);
+            }
             catch (IOException e)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
                 cdl.countDown();
+                is_started_ok.set(false);
             }
         };
         Actor_engine.execute(r,logger);
@@ -83,7 +91,7 @@ public class TCP_server
         }
         else
         {
-            logger.log(Stack_trace_getter.get_stack_trace("server error "));
+            if ( stack_trace_bind_exception) logger.log(Stack_trace_getter.get_stack_trace("server error "));
         }
         return is_started_ok.get();
     }
@@ -171,7 +179,7 @@ public class TCP_server
 
         TCP_server tcp_server = new TCP_server(the_session_factory,new Aborter("test",logger),logger);
 
-        tcp_server.start(TEST_PORT);
+        tcp_server.start(TEST_PORT, true);
 
         try {
             cdl.await();

@@ -118,12 +118,12 @@ import klik.util.log.System_out_logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Klik_application extends Application
 //**********************************************************
 {
-
     //**********************************************************
     public static void main(String[] args)
     {
@@ -136,6 +136,10 @@ public class Klik_application extends Application
     public void start(Stage primary_stage) throws Exception
     //**********************************************************
     {
+        primary_stage.setOnCloseRequest(event -> {
+            System.out.println("Klik_application primary_stage setOnCloseRequest exit");
+            System.exit(0);
+        });
 
         Print_system_info.print();
 
@@ -163,7 +167,7 @@ public class Klik_application extends Application
             path = Path.of(list.get(0));
         }
 
-        Browser_creation_context.first(new My_Stage(primary_stage,logger),path,logger);
+        Browser_creation_context.first(primary_stage,path,logger);
     }
 
 

@@ -23,6 +23,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
 import klik.browser.items.Item_image;
 import klik.look.my_i18n.My_I18n;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Text_frame;
 import klik.util.execute.System_open_actor;
@@ -125,7 +126,7 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				Browser_creation_context.additional_different_folder(path, rectangle,logger);
+				Browser_creation_context.additional_different_folder(browser.primary_stage,path, rectangle,logger);
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
@@ -133,7 +134,7 @@ public class Results_frame
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
-				Audio_player.play_song(path.toFile(), logger);
+				Audio_player.play_song_in_separate_process(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
 				Text_frame.show(path, logger);
@@ -152,19 +153,34 @@ public class Results_frame
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			Browser_creation_context.additional_different_folder(local,rectangle,logger);
+			Browser_creation_context.additional_different_folder(browser.primary_stage,local,rectangle,logger);
 		});
 		context_menu.getItems().add(browse);
 
 		if (! path.toFile().isDirectory())
 		{
-			String text = My_I18n.get_I18n_string("Open_With_Registered_Application",logger);
-			MenuItem open_special = new MenuItem(text);
-			open_special.setOnAction(_ -> {
-				logger.log("Open_With_Registered_Application");
-				System_open_actor.open_special(window,path,aborter,logger);
-			});
-			context_menu.getItems().add(open_special);
+			{
+				String text = My_I18n.get_I18n_string("Open_With_Registered_Application",logger);
+				MenuItem open_special = new MenuItem(text);
+				open_special.setOnAction(_ -> {
+					logger.log("Open_With_Registered_Application");
+					System_open_actor.open_special(window,path,aborter,logger);
+				});
+				context_menu.getItems().add(open_special);
+			}
+			{
+				String text = My_I18n.get_I18n_string("Delete",logger);
+				MenuItem delete = new MenuItem(text);
+				delete.setOnAction(_ -> {
+					logger.log("Delete");
+					double x = browser.my_Stage.the_Stage.getX()+100;
+					double y = browser.my_Stage.the_Stage.getY()+100;
+					Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,x,y,path, null, browser.aborter, logger);
+
+
+				});
+				context_menu.getItems().add(delete);
+			}
 
 		}
 

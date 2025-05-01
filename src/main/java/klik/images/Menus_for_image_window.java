@@ -235,7 +235,7 @@ public class Menus_for_image_window
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             Browser_creation_context.additional_no_past(image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.logger);
+             Browser_creation_context.additional_no_past(image_window.browser.primary_stage,image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.logger);
         });
         return browse;
     }
@@ -266,7 +266,7 @@ public class Menus_for_image_window
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.logger);
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.browser,image_window.the_Stage, image_window.logger);
             if ( recognition_services == null) return;
 
             AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -288,7 +288,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage,image_window.logger);
+        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.browser,image_window.the_Stage,image_window.logger);
         if (recognition_services == null) return;
 
         Face_recognition_actor actor = new Face_recognition_actor(recognition_services);

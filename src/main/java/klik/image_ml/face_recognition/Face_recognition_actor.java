@@ -10,6 +10,7 @@ package klik.image_ml.face_recognition;
 
 import javafx.scene.image.Image;
 import klik.actor.*;
+import klik.browser.Browser;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -287,164 +288,6 @@ public class Face_recognition_actor implements Actor
     static double feature_vector_total_ns = 0;
     static double total_ns = 0;
 
-    /*
-    //**********************************************************
-    private static Eval_results eval_a_face3(Path face, Face_recognition_service service)
-    //**********************************************************
-    {
-        start = System.nanoTime();
-        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition(aborter);
-
-        Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
-        if ( the_feature_vector_to_be_identified == null)
-        {
-            service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed "));
-            return new Eval_results("error",null,Eval_situation.nothing_found,false,"error",new ArrayList<>());
-        }
-        long fv_time = System.nanoTime()-start;
-        feature_vector_total_ns += fv_time;
-
-        Embeddings_prototype winner = null;
-        ConcurrentLinkedQueue<Eval_result_for_one_prototype> out_queue = new ConcurrentLinkedQueue<>();
-        CountDownLatch cdl = new CountDownLatch(service.embeddings_prototypes.size());
-        for (Embeddings_prototype embeddings_prototype : service.embeddings_prototypes)
-        {
-            Runnable r = () -> {
-                double distance = the_feature_vector_to_be_identified.cosine_similarity(embeddings_prototype.feature_vector());
-                //nearests.put(distance,embeddings_prototype);
-                out_queue.add(new Eval_result_for_one_prototype(distance,embeddings_prototype));
-                if ( verbose) service.logger.log("   at distance ="+String.format("%.4f",distance)+"  =>   "+embeddings_prototype.label());
-                cdl.countDown();
-            };
-            Actor_engine.execute(r,service.logger);
-        }
-        List<Eval_result_for_one_prototype> results = new ArrayList<>();
-        for(;;)
-        {
-            Eval_result_for_one_prototype r = out_queue.poll();
-            if ( r != null) results.add(r);
-            else
-            {
-                if ( cdl.getCount() == 0 ) break;
-            }
-        }
-        try {
-            cdl.await(10, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            service.logger.log("EVAL TIMEOUT "+e);
-        }
-        if (results.isEmpty())
-        {
-            service.logger.log("no results at all (happens when there are no prototypes in the set)");
-            return new Eval_results(null, the_feature_vector_to_be_identified,Eval_situation.nothing_found, false,"empty",new ArrayList<>());
-        }
-
-        Collections.sort(results,comp);
-
-
-        double min_distance = results.get(0).distance();
-        winner = results.get(0).embeddings_prototype();
-        if ( min_distance < 0.001)
-        {
-            service.logger.log("EXACT MATCH DETECTED 1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
-            List<Eval_result_for_one_prototype> l = new ArrayList<>();
-            l.add(new Eval_result_for_one_prototype(min_distance,winner));
-
-            report_time(service, fv_time);
-
-            return new Eval_results(winner.label(), winner.feature_vector(), Eval_situation.exact_match, false,winner.tag(),l);
-        }
-
-        double average_distance = 0;
-        Map<String,Integer> votes = new HashMap<>();
-        List<Eval_result_for_one_prototype> list_of_Eval_result_for_one_prototype = new ArrayList<>();
-        int max = K_of_KNN;
-        if (results.size() < max) max = results.size();
-        for ( int i = 0 ; i < max; i++)
-        {
-            Eval_result_for_one_prototype res = results.get(i);
-            service.logger.log("     d="+String.format("%.3f",res.distance())+ " "+ res.embeddings_prototype().tag());
-            average_distance += res.distance();
-            Embeddings_prototype ep = res.embeddings_prototype();
-            list_of_Eval_result_for_one_prototype.add(res);
-            String label2 = ep.label();
-            Integer vote = votes.get(label2);
-            if ( vote == null)
-            {
-                votes.put(label2, Integer.valueOf(1));
-            }
-            else
-            {
-                votes.put(label2, Integer.valueOf(vote+1));
-            }
-        }
-        average_distance /= (double) K_of_KNN;
-
-        int max_vote = 0;
-        String label5 = null;
-
-        for (Map.Entry<String,Integer> e : votes.entrySet())
-        {
-            String lab = e.getKey();
-            Integer vote = e.getValue();
-            if ( vote > max_vote)
-            {
-                max_vote = vote;
-                label5 = lab;
-            }
-        }
-
-        // if max_vote is ex aequo, the distance decides
-        int ex_aequo = 0;
-        List<String> ex_aequo_labels = new ArrayList<>();
-        for (Map.Entry<String,Integer> e : votes.entrySet())
-        {
-            String lab = e.getKey();
-            Integer vote = e.getValue();
-
-            if ( vote == max_vote)
-            {
-                ex_aequo++;
-                ex_aequo_labels.add(lab);
-            }
-        }
-        if ( ex_aequo > 1)
-        {
-            // use distance to break the tie
-            double min = Double.MAX_VALUE;
-            Eval_result_for_one_prototype win =null;
-            for ( String lab : ex_aequo_labels)
-            {
-                for (Eval_result_for_one_prototype r : results)
-                {
-                    if (r.embeddings_prototype().label().equals(lab))
-                    {
-                        if (r.distance() < min )
-                        {
-                            min = r.distance();
-                            win = r;
-                        }
-                    }
-                }
-            }
-
-            report_time(service, fv_time);
-            //list_of_Eval_result_for_one_prototype.clear();
-            //list_of_Eval_result_for_one_prototype.add(win);
-            return new Eval_results(win.embeddings_prototype().label(), the_feature_vector_to_be_identified, Eval_situation.ex_aequo,true,win.embeddings_prototype().tag(),list_of_Eval_result_for_one_prototype);
-        }
-
-
-        if ( winner != null) service.logger.log("1 nearest "+winner.label()+ " at "+String.format("%.2f",min_distance));
-        service.logger.log(K_of_KNN+" nearest "+label5+ " average distance = "+String.format("%.2f",average_distance));
-
-
-        report_time(service, fv_time);
-
-        return new Eval_results(label5, the_feature_vector_to_be_identified,Eval_situation.normal,true,null,list_of_Eval_result_for_one_prototype);
-    }
-*/
-
     //**********************************************************
     private static Eval_results eval_a_face(Path face, Face_recognition_service service, Aborter aborter)
     //**********************************************************
@@ -692,7 +535,6 @@ public class Face_recognition_actor implements Actor
 
         if (display_face_reco_window)
         {
-
             service.show_face_recognition_window(face,eval_result, aborter);
         }
 

@@ -84,6 +84,19 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
+    public String get_music_icon_path()
+    {
+        return "music.png";
+    }
+
+
+    @Override
+    public String get_slingshot_icon_path()
+    {
+        return "slingshot.png";
+    }
+
+    @Override
     public String get_folder_icon_path()
     {
         return "light/folder.png";

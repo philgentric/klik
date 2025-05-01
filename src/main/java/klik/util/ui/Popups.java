@@ -90,6 +90,7 @@ public class Popups
     public static void simple_alert(String s)
     //**********************************************************
     {
+        // this is a BLOCKING window
         Alert a = new Alert(Alert.AlertType.INFORMATION,s, ButtonType.CLOSE);
         a.show();
     }

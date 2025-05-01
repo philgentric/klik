@@ -25,7 +25,7 @@ ext {
 */
 
 group = 'klik'
-version = '1.0'
+version = '0.9'
 
 
 // this is REQUIRED with a JDK that does not bundle javaFX
@@ -81,6 +81,18 @@ runtime {
 tasks.register('klik', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.Klik_application'
+
+    // Java VM RAM size options:
+
+    // if you have only 2GB or not much more:
+    //applicationDefaultJvmArgs = ["-Xms1G"]
+
+    // if you have a lot of RAM say 64GB or more
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
+
+
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
 }
@@ -113,20 +125,10 @@ tasks.register('TCP_client', JavaExec) {
 
 
 
-def main_class_name = 'klik.Klik_application'
+def main_class_name = 'klik.Launcher'
 application {
     //mainModule = 'klikmodule'
     mainClass = main_class_name
-
-    // Java VM RAM size options:
-
-    // if you have only 2GB or not much more:
-    //applicationDefaultJvmArgs = ["-Xms1G"]
-
-    // if you have a lot of RAM say 64GB or more
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
 
 }
 

@@ -101,6 +101,7 @@ public class Keyboard_handling_for_Image_window
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
                 Browser_creation_context.additional_no_past(
+                        browser.primary_stage,
                         image_window.image_display_handler.get_image_context().get().path.getParent(),
                         logger);
                 key_event.consume();
