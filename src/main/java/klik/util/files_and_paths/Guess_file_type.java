@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.audio.Audio_player.PLAYLIST_EXTENSION;
+import static klik.audio.Audio_player_frame.PLAYLIST_EXTENSION;
 
 /*
 static utilities to guess the file type from its extension

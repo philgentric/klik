@@ -1,4 +1,4 @@
-//SOURCES ../audio/Audio_player.java
+//SOURCES ../audio/Audio_player_frame.java
 package klik.properties;
 
 import javafx.stage.Stage;

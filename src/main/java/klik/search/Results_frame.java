@@ -18,6 +18,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.audio.Audio_player;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
@@ -28,7 +29,6 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Text_frame;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.audio.Audio_player;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 

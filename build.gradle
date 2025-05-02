@@ -104,7 +104,7 @@ tasks.register('image_viewer', JavaExec) {
 }
 tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.audio.Audio_player_application'
+    mainClass = 'klik.audio.Audio_player'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
 }
