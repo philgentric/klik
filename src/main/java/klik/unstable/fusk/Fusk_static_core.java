@@ -4,7 +4,7 @@ import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.actor.Aborter;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -166,7 +166,7 @@ public class Fusk_static_core
     public static void main(String[] args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger("fusk test");
+        Logger logger = System_logger.get_system_logger("fusk test");
         Aborter aborter = new Aborter("fusk core test",logger);
         Fusk_bytes.initialize(aborter, logger);
         {

@@ -70,6 +70,7 @@ public class Preferences_stage
         Map<String, Boolean> properties = Booleans.get_all_booleans(logger);
 
 
+        add(Booleans.USE_FILE_LOGGING, properties);
         vbox.getChildren().add(new Separator());
         {
             Label lab = new Label("Advanced features");
@@ -110,7 +111,7 @@ public class Preferences_stage
 
         cb.setOnAction(_ ->
         {
-            //logger.log("Preference changing for: "+ name);
+            logger.log("Preference changing for: "+ name);
             Boolean value = cb.isSelected();
             properties.put(name,value);
             Booleans.set_boolean(name,value,logger);

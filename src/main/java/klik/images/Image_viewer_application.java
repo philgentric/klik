@@ -9,7 +9,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -25,7 +25,7 @@ public class Image_viewer_application extends Application
     public void start(Stage stage) throws Exception
     //**********************************************************
     {
-        Logger logger = new System_out_logger("Image_viewer");
+        Logger logger = System_logger.get_system_logger("Image_viewer");
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 
         Look_and_feel_manager.init_Look_and_feel(logger);

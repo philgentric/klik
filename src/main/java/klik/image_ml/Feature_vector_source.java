@@ -8,7 +8,7 @@ import klik.actor.Actor_engine;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
 
@@ -41,7 +41,7 @@ public abstract class Feature_vector_source
     static long tx_count = 0;
     static long SUM_dur = 0;
     static{
-        Logger l = new System_out_logger("embeddings");
+        Logger l = System_logger.get_system_logger("embeddings");
         Runnable r = () ->
         {
             for(;;)

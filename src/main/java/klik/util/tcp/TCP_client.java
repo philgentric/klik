@@ -4,7 +4,7 @@ package klik.util.tcp;
 
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -71,7 +71,7 @@ public class TCP_client
     public static void main( String []args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger("TCP client test");
+        Logger logger = System_logger.get_system_logger("TCP client test");
         TCP_client_out tco = TCP_client.request("localhost",TCP_server.TEST_PORT, "hello", logger);
 
         logger.log("status: "+tco.status());

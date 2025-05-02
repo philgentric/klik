@@ -194,13 +194,16 @@ Q: When I type "git clone...", it says: **git** not found?
 A: You need to install git, it is a safe open source code management tool used by all developers on earth.
 
 Q: It says **java** not found?  
-A: klik requires java, you need to install it, version 23
+A: klik requires java, you need to install it, look for the minimum version in the installation instructions: Klik requires a super recent version at least 23
 
 Q: It says **gradle** not found?  
-A: klik requires gradle,  **./gradlew** may work your you, YMMV
+A: klik requires gradle
+
+Q: Why don't you use gradlew ?
+A: Failures have been reported
 
 Q: Where am I?  
-A: klik navigates your storage following the **directory structure**. The top left button makes you go up the tree (yes, computers are crazy, they have upside-down trees).
+A: klik navigates your storage following the **directory structure**. The top left button makes you go up the tree (yes, computer guys are crazy, they have upside-down trees).
 
 Q: Ok, but where am I?  
 A: klik starts in your home folder. On mac it is /Users/yourname. Often people drop things on the desktop, it is located there: /Users/yourname/Desktop

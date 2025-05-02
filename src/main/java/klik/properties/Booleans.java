@@ -17,6 +17,7 @@ import java.util.Map;
 public class Booleans
 //**********************************************************
 {
+    public static final String USE_FILE_LOGGING = "use_file_logging";
     private static final boolean dbg = false;
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";

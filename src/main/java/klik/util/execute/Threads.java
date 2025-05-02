@@ -2,7 +2,7 @@
 package klik.util.execute;
 
 import klik.util.log.Logger;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,7 +97,7 @@ public class Threads
 
     public static void main(String args[])
     {
-        Logger logger = new System_out_logger("Threads test");
+        Logger logger = System_logger.get_system_logger("Threads test");
 
         class My_result
         {

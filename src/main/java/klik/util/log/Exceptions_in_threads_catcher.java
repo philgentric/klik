@@ -45,7 +45,7 @@ public class Exceptions_in_threads_catcher
 	public static void main(String[] args)
 	//**********************************************************
 	{
-		Logger l = new System_out_logger("Exceptions_in_threads_catcher test");
+		Logger l = System_logger.get_system_logger("Exceptions_in_threads_catcher test");
 		set_exceptions_in_threads_catcher(l);
 		
 		try {

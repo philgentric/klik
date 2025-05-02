@@ -10,7 +10,7 @@ import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class Change_gang
     //**********************************************************
     {
         //dedicated_logger = new Disruptor_logger("Change_gang.txt");
-        dedicated_logger = new System_out_logger("change gang");
+        dedicated_logger = System_logger.get_system_logger("change gang");
         change_gang_receivers = new ConcurrentLinkedQueue<>();
         house_keeping_actor = new House_keeping_actor(change_gang_receivers);
     }

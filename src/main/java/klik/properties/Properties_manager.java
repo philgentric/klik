@@ -4,7 +4,7 @@ import javafx.util.Pair;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -397,7 +397,7 @@ public class Properties_manager
     {
         String TOTO = "toto";
         File f_ = new File("debil.txt");
-        Logger logger = new System_out_logger("Properties test");
+        Logger logger = System_logger.get_system_logger("Properties test");
         Properties_manager pm = new Properties_manager(f_.toPath(), logger);
 
         for (int i = 0; i < 15; i++)

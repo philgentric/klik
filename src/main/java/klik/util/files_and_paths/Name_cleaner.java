@@ -2,7 +2,7 @@ package klik.util.files_and_paths;
 
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.util.List;
 import java.util.UUID;
@@ -161,7 +161,7 @@ public class Name_cleaner
     public static void main(String[] args)
     //**********************************************************
     {
-        Logger logger = new System_out_logger("name cleaner test");
+        Logger logger = System_logger.get_system_logger("name cleaner test");
         {
             String test =" $fsd,de  :dfd- _hd<gd. ___---84565FTaMere dwedsds .jpg";
             logger.log(test+" => "+clean(test,true,logger));

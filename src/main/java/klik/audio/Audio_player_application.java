@@ -9,7 +9,7 @@ import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 import klik.util.tcp.Session;
 import klik.util.tcp.Session_factory;
 import klik.util.tcp.TCP_server;
@@ -35,7 +35,7 @@ public class Audio_player_application extends Application
     public void start(Stage stage) throws Exception
     //**********************************************************
     {
-        Logger logger =  new System_out_logger("Audio_player");
+        Logger logger =  System_logger.get_system_logger("Audio_player");
 
         if (    !start_server(logger))
         {
@@ -81,7 +81,7 @@ public class Audio_player_application extends Application
             }
         }
 
-        Audio_player.play_song(f, logger);
+        Audio_player.change_song(f, logger);
 
 
     }
@@ -101,7 +101,7 @@ public class Audio_player_application extends Application
                     dis.read(buffer);
                     String file_path = new String(buffer, StandardCharsets.UTF_8);
                     File f1 = new File(file_path);
-                    Audio_player.play_song(f1, logger);
+                    Audio_player.change_song(f1, logger);
                     String reply = Audio_player.PLAY_REQUEST_ACCEPTED;
                     buffer = reply.getBytes(StandardCharsets.UTF_8);
                     dos.writeInt(buffer.length);

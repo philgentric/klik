@@ -69,7 +69,7 @@
 //SOURCES properties/Non_booleans.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
-//SOURCES util/log/System_out_logger.java
+//SOURCES util/log/System_logger.java
 //SOURCES util/log/Logger.java
 //SOURCES util/info_stage/*.java
 //SOURCES util/performance_monitor/Performance_monitor.java
@@ -106,19 +106,19 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
-import klik.browser.My_Stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
+import klik.properties.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.cache_auto_clean.Monitor;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Klik_application extends Application
@@ -145,8 +145,7 @@ public class Klik_application extends Application
 
         //setUserAgentStylesheet(STYLESHEET_MODENA);
 
-        Logger logger = new System_out_logger("Klik");
-
+        Logger logger = System_logger.get_system_logger("Klik_application");
         Language_manager.init_registered_languages(logger);
 
         Browser.monitoring_aborter = new Aborter("Monitoring", logger);

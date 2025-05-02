@@ -104,8 +104,11 @@ Si vous avez des problèmes, des bogues, des suggestions, des idées de nouveaux
 
 
 - Faites un copie des logs que Klik écrit dans le terminal (en particulier si le texte contient les mots "panic" et "exception")
+- ou alors : dans le menu des préférences avancées : (a) activez  "use_file_logging" (b) redémarez tout (c) les fichiers de long sont des .txt dans la poubelle de Klik (appuyez sur la poubelle en haut à droite pour la visiter et trouver où elle est sur votre disque)
 - Essayez de reproduire le bogue, surtout si ce n'est pas facile de le reproduire !
 - Décrivez ce que vous étiez en train de faire
-- Si le bogue est visuel, faites des copies d'écran
+- Si le bogue est visuel, faites des copies d'écran 
+  - sur mac : command/pomme + majuscule + 4, récupérez l'image dans le fond d'écran = "Desktop"
+  - sur pc : touche "imp écr"  (en haut à droite)
 
 Merci par avance.

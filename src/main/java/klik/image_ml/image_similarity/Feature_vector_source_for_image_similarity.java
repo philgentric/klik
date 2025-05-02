@@ -1,14 +1,8 @@
 package klik.image_ml.image_similarity;
 
 import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
-import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_out_logger;
 
-import java.nio.file.Path;
 import java.util.Random;
 
 //**********************************************************

@@ -195,10 +195,10 @@ public class Search_session implements Callback_for_file_found_publish
 		}
 	}
 
-	private void ready()
+	/*private void ready()
 	{
 		status = Search_status.ready;
-	}
+	}*/
 
 
 	public HashMap<String, List<Path>> get_search_results() {

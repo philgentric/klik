@@ -20,7 +20,7 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.util.log.System_out_logger;
+import klik.util.log.System_logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class Launcher extends Application
     //**********************************************************
     {
 
-        Logger logger = new System_out_logger("Launcher");
+        Logger logger = System_logger.get_system_logger("Launcher");
         Look_and_feel_manager.init_Look_and_feel(logger);
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
