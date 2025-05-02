@@ -748,7 +748,7 @@ public class Audio_player
     //**********************************************************
     {
 
-        logger.log("set_selected "+f);
+        if ( dbg) logger.log("set_selected "+f);
         Button future = file_to_button.get(f);
         if ( selected == future)
         {
@@ -759,19 +759,19 @@ public class Audio_player
         if ( future!=null)
         {
             String s = future.getStyle();
-            logger.log("style before = "+s);
+            if ( dbg) logger.log("style before = "+s);
             s = change_background_color(s,"#90D5FF");
-            logger.log("style after = "+s);
+            if ( dbg) logger.log("style after = "+s);
             future.setStyle(s);
         }
         else logger.log(Stack_trace_getter.get_stack_trace("should not happen"));
         if ( selected != null)
         {
-            logger.log("resetting background for previously selected");
+            if ( dbg) logger.log("resetting background for previously selected");
             String s = selected.getStyle();
-            logger.log("style before = "+s);
+            if ( dbg) logger.log("style before = "+s);
             s = change_background_color(s,"#ffffff");
-            logger.log("style after = "+s);
+            if ( dbg) logger.log("style after = "+s);
             selected.setStyle(s);
 
             //selected.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));

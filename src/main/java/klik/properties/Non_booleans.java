@@ -543,7 +543,7 @@ public class Non_booleans
             if ( previous/10 == time/10) return;
         }
         previous = time;
-        logger.log("save_curent_time_in_song "+time);
+        //logger.log("save_curent_time_in_song "+time);
         Properties_manager pm = get_main_properties_manager(logger);
         pm.add_and_save(AUDIO_PLAYER_CURRENT_TIME, ""+time);
 
