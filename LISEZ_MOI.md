@@ -1,6 +1,5 @@
-[
 
-# Klik: un explorateur de système de fichers avec une forte orientation 'image' #
+# Klik: un explorateur de système de fichers avec une forte orientation image #
 
 Trier vos fichiers, documents et images de manière intuitive et rapide. 
 Ils sont représentés par des icônes que vous pouvez glisser-déposer d'une fenêtre vers une autre, chaque fenêtre correspondant à un dossier.  
@@ -8,9 +7,9 @@ Ils sont représentés par des icônes que vous pouvez glisser-déposer d'une fe
 Klik est 100% gratuit.
 
 
-[Installation pour MacOS](file:MacOS_fr.md)
+[Installation pour MacOS](MacOS_fr.md)
 
-[Installation pour Windows](file:Windows_fr.md)
+[Installation pour Windows](Windows_fr.md)
 
 # Fonctionnement intuitif #
 

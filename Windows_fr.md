@@ -1,4 +1,4 @@
-# Installation de klik sur Windows
+# Installation de klik pour Windows
 
 **NOTE SUR LA SECURITE** 
 
