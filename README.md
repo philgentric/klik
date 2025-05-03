@@ -2,6 +2,7 @@
 # Klik: a file system explorer/manager with a strong focus on images
 
 [En Français](LISEZ_MOI.md)
+(klik is available in French, English, Chinese, Spanish, German, Breton, Italian, Japanese, Korean, Portuguese)
 
 ![Alt text](klik.png?raw=true "Klik screen shot")
 

@@ -41,6 +41,17 @@ Step 6: start klik!
 
 **gradle clean run**
 
+(this starts the launcher)
+
+to start klik directly:
+
+**gradle klik**
+
+to start the music player directly:
+
+**gradle audio_player**
+
+(note well: normally you can run only one player at a time)
 
 Note: as an alternative to gradle, you can use jbang:
 
