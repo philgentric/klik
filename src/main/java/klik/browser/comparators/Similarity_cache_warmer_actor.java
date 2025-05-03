@@ -44,8 +44,8 @@ public class Similarity_cache_warmer_actor implements Actor
             emb1 = cache.get_from_cache(dnm.p1,null,true);
             if ( emb1 == null)
             {
-                logger.log("WTF emb1 == null for "+dnm.p1);
-                return "WTF";
+                logger.log(" emb1 == null for "+dnm.p1);
+                return "ERROR";
             }
         }
 
@@ -70,7 +70,7 @@ public class Similarity_cache_warmer_actor implements Actor
             if (emb2 == null) {
                 emb2 = cache.get_from_cache(p2, null, true);
                 if (emb2 == null) {
-                    logger.log("WTF emb2 == null for " + p2);
+                    logger.log(" emb2 == null for " + p2);
                     continue;
                 }
             }

@@ -599,7 +599,7 @@ public class Ffmpeg_utils
 
         Image image = From_disk.load_icon_from_disk_cache(video_path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, From_disk.dbg, logger);
 
-        if ( image == null) logger.log("shit image==null");
+        if ( image == null) logger.log("image==null");
         else the_imageview.setImage(image);
     }
 }

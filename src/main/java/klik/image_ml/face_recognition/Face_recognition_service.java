@@ -956,7 +956,7 @@ public class Face_recognition_service
         }
         else
         {
-            logger.log(Stack_trace_getter.get_stack_trace("WTF?"));
+            logger.log(Stack_trace_getter.get_stack_trace("Bad"));
         }
     }
 
