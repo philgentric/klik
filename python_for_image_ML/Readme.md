@@ -1,9 +1,10 @@
 # ML services #
 
-Klik has 3 different image ML services
+Klik has 4 different image ML services
 - face recognition
 - image similarity on demand: for one picture in a folder get the 5 closest pictures in the same folder
 - image similarity for the whole folder: sort the folder by image similarity
+- image de-duplication by similarity (in a folder): find quasi-duplicated images
 
 All use python open-source code and models (it is based on tensorflow/keras and opencv) 
 
@@ -14,7 +15,8 @@ For ML speed, you need a machine with a graphic card that can access enough RAM.
 (unified memory machines like an ARM-based MacBook work fine). Furtheremore, these ML services use a lot of caches both in RAM and on disk (otherwise they would be horribly slow), so you need a machine with enough of both. In other words, if you use klik on a small/old machine without a keras-supported GPU and/or without enough RAM (say less than 16GB) and disk space (many GBs), simply do not use these features as they will be slow and/or may crash the app (or even the machine in extreme cases!).
 
 # Installation #
-1.ONCE: install tensorflow+keras enchilada
+
+ONCE: install tensorflow+keras enchilada
 
 WARNING: tensorflow installation can be super tedious... YMMV 
 
@@ -41,24 +43,31 @@ cd ./python_for_face_reco
 
 pip install -r requirements.txt
 
-2.AFTER a reboot: activate the virtual environment
+# Usage
+
+You need to go to the advanced preference menu of klik to enable the capabilities
+
+method1: ask klik to provide the command line (preferences menu, enabled in the advanced preferences)
+
+method2: "manually" start the python servers like this:
+
+AFTER a reboot: activate the virtual environment
 source ~/venv-metal/bin/activate
 
-3.Image embeddings python service.
-to start the embeddings servers, use the launch command:
+Image embeddings python service : to start the embeddings servers, use the launch command:
 
 ./launch_MobileNet_servers
 
-to kill the embeddings servers:
-./kill_embeddings_servers
+(to kill the embeddings servers:
+./kill_embeddings_servers)
 
-4. face recognition servers
-to start the face detection and face embeddings servers:
+Face recognition servers : to start the face detection and face embeddings servers:
 open a shell/terminal, cd to this folder, type:
+
 source ~/venv-metal/bin/activate
 ./launch_face_servers
 
-this will start several servers for respectively face detection (multiple flavors) based on Haars-Cascade and face embeddings (InceptionResNetV1 vggface2)
+this will start several servers for respectively face detection (multiple flavors) and face embeddings 
 
 to kill the face recognition servers:
 ./kill_face_servers
@@ -68,9 +77,9 @@ to kill the face recognition servers:
 The python image reader is not tolerant to truncated images 
 (unlike a lot of jpeg decoders including ImageIO used by klik) which means that feature vector extraction will fail on such images.
 
-When using the "sort by image similarity" folder preferences, a few bad images in a folder can cause the whole scheme to hiccup seriously because the feature vector extraction will fail and everything is based on comparing images by their feature vectors. The good thing is: you will get error messages on the console:
+When using the "sort by image similarity" folder preferences, a few bad images in a folder can cause the whole scheme to hiccup seriously because the feature vector extraction will fail and everything is based on comparing images by their feature vectors. The good thing is: you will get error messages in the console:
 
-identify the wrong images and fix them (edit them or remove them!)
+identify the wrong files and fix them (edit them or remove them!)
 
 ## How it works ##
 
@@ -92,7 +101,7 @@ Since on a per folder base, we need to compute:
 - the 'sort order' for each image
 ...
 
-The first time is quite slow for large folders (e.g. more 1000 images) but thanks to a multiple cache mechanism the process is much faster for subsequent runs. Caveat: caching has a cost in RAM and DISK space (caches may grow as large as they can, and they are saved to disk)... This is why in the 'Preferences' menu you have cache clearing options.
+The first time is quite slow for large folders but thanks to a cache the process is much faster for subsequent runs. Caveat: caching has a cost in RAM and DISK space (caches may grow as large as they can, and they are saved to disk)... This is why in the 'Preferences' menu you have cache clearing options.
 
 ### Face recognition ###
 

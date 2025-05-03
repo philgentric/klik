@@ -15,49 +15,33 @@ Sur MacOS c'est une Application... qui s'appelle "Terminal" !!!-)
 Dans le terminal, copier-coller les commandes en gras données dans les étapes suivantes:
 
 
-Sur MacOS, il est recommandé d'installer homebrew:
+### installez homebrew
 
 **/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
 
-ensuite:
-
-### Etape 1: installez sdkman
-
-(sdkman est un outil de gestion de version des outils de base, il donne accès à la commande "sdk", qui est super pratique : plus de casse-tête à chercher sur internet où est telle ou telle version du JDK java ou de gradle, sdkman s'occupe de tout!)
+### installez sdkman
 
 **brew install sdkman**
 
-(si vous n'avez pas installé homebrew, suivez les instructions suivantes:
-https://sdkman.io/install/)
-
-### Etape 2: installez gradle
-
-(gradle est un outil de compilation)
+### installez gradle
 
 **sdk install gradle 8.14**
 
-Etape 3: installez java 24 (JDK avec javaFX) 
-
-(le Java Development Kit (JDK) est l'outil qui permet de compiler et d'exécuter le code source java ; attention les versions antérieures à 23 de Java ne sont pas supportées par klik)
+### installez java 24 (avec javaFX) 
 
 **sdk install java 24.fx-zulu**
 
-### Etape 4: installez git
-
-(git est un outil de gestion de version du code source)
+### installez git
 
 **brew install git**
 
-(si vous n'avez pas installé homebrew, suivez les instructions suivantes:
-https://git-scm.com/downloads)
-
-Etape 5: obtenez le code source
+### obtenez le code source (128MB)
 
 **git clone https://github.com/philgentric/klik.git**
 
 cette opération va créer un dossier 'klik' avec tout le code source. 
 
-Etape 6: Démarrez klik!
+### Démarrez klik!
 
 **cd klik**
 
@@ -70,7 +54,7 @@ Note: en alternative à utiliser gradle, vous pouvez utiliser jbang:
 
 **jbang src/main/java/klik/Klik_application.java**
 
-Etape 7: Recevez les dernières mises à jour
+### Plus tard ... Recevez les dernières mises à jour
 
 dans le dossier 'klik', tapez:
 
@@ -105,8 +89,8 @@ R: Allez dans le menu Préférences et effacez les caches. Visitez la poubelle p
 
 Q: Quand klik tourne, les autres applications manquent de RAM.
 
-R: Allez dans le menu Préférences et effacez les caches. Pour les experts: Editez build.gradle pour réduire la taille mémoire max de la JVM. 
+R: (Vraiment?) Allez dans le menu Préférences et effacez les caches. Pour les experts: Editez build.gradle pour réduire la taille mémoire max de la JVM. 
 
-Q: Je veux desinstaller klik.
+Q: Je veux désinstaller klik.
 
-R: (1) Effacez le dossier du code source (2) Effacez le dossier '.klik' à la racine de votre espace disque utilisateur, il contient des caches et la poubelle, presque toujours cela donne beaucoup plus de place que le code.
+R: (1) Effacez le dossier du code source (2) Effacez le dossier '.klik' à la racine de votre espace disque utilisateur, il contient des caches et la poubelle, en général, cela donne beaucoup plus de place que le code.

@@ -40,7 +40,7 @@ public class Face_detector
     static int[] port_MTCNN = {8040, 8041, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049};
 
     // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
-    static int[] port_haars_high_precision = {8080, 8081};//, 8082, 8083, 8084};//, 8085, 8086, 8087, 8088, 8089};
+    static int[] port_haars_high_precision = {8080, 8081};
 
     // haarcascade_frontalface_default.xml has higher recall,  more false positives
     static int[] port_haars_false_positives = {8090, 8091};

@@ -1,33 +1,32 @@
 
-
-Step 1: install sdkman
+### install sdkman
 
 **https://sdkman.io/install/**
 
-Step 2: install gradle
+###  install gradle
 
 **sdk install gradle 8.14**
 
-Step 3: install java (with fx)
+###  install java (with fx)
 
 **sdk install java 24.fx-zulu**
 
-Step 4: install git
+###  install git
 
 **https://git-scm.com/book/en/v2/Getting-Started-Installing-Git**
 
 
-Step 5: get the source code
+### get the source code
 
 **git clone https://github.com/philgentric/klik.git**
 
 this will create a folder "klik"
 
-Step 6: start klik!
+###  start klik!
 
 **cd klik**
 
-**gradle clean run**
+**gradle run**
 
 (this starts the launcher)
 

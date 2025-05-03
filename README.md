@@ -292,12 +292,12 @@ Then if you create an empty file named ".folder_name_is_recognition_label" in th
 
 - Then you can search for faces in any image. But if an image contains multiple faces, only the first "found" will be recognized, and you have no control over which one will get out "first" out of HC.
 
-a) Haars Cascades is used to detect faces in images.
+a) MTCNN (Multi-Task Cascaded Convolutional Networks) or 4 variants of Haars Cascades can be used to detect faces in images.
 
 b) then classification uses KNN with cosine similarity on feature vectors extracted using VGG19 image embeddings. 
 
 
-Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by Haars-Cascade false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
+Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by face detection false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
 
 
 
