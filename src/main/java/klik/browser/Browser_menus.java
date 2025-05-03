@@ -4,7 +4,11 @@
 //SOURCES ../image_ml/ML_servers_util.java
 //SOURCES ../image_ml/image_similarity/Image_feature_vector_cache.java
 //SOURCES ../util/files_and_paths/Name_cleaner.java
-//SOURCES ../level3/experimental/RAM_disk.java
+//SOURCES ../unstable/experimental/RAM_disk.java
+//SOURCES ../unstable/metadata/Tag_items_management_stage.java
+//SOURCES ../properties/Preferences_stage.java
+
+
 package klik.browser;
 
 import javafx.event.EventHandler;

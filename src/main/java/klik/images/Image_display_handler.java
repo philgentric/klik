@@ -1,7 +1,7 @@
 //SOURCES ./caching/Cache_interface.java
 //SOURCES ./caching/Image_cache_cafeine.java
 //SOURCES ./caching/Image_cache_dummy.java
-//SOURCES ../level3/experimental/Static_image_utilities.java
+//SOURCES ../unstable/experimental/Static_image_utilities.java
 
 package klik.images;
 

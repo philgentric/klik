@@ -1,5 +1,10 @@
-//SOURCES ../level2/deduplicate/Deduplication_engine.java
+//SOURCES ../unstable/deduplicate/Deduplication_engine.java
+//SOURCES ../unstable/metadata/Tag_items_management_stage.java
 //SOURCES ../image_ml/image_similarity/Deduplication_by_similarity_engine.java
+//SOURCES ./ram_and_threads_meter/RAM_and_threads_meters_stage.java
+//SOURCES ../properties/Advanced_features.java
+//SOURCES ../properties/Experimental_features.java
+
 package klik.browser;
 
 import javafx.event.ActionEvent;

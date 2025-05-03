@@ -1,6 +1,6 @@
-//SOURCES ../../level2/deduplicate/manual/Stage_with_2_images.java
-//SOURCES ../../level2/deduplicate/console/Deduplication_console_window.java
-//SOURCES ../../level2/deduplicate/manual/Againor.java
+//SOURCES ../../unstable/deduplicate/manual/Stage_with_2_images.java
+//SOURCES ../../unstable/deduplicate/console/Deduplication_console_window.java
+//SOURCES ../../unstable/deduplicate/manual/Againor.java
 //SOURCES ./Runnable_for_finding_duplicate_file_pairs_similarity.java
 //SOURCES ./Similarity_file_pair.java
 

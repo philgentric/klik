@@ -1,5 +1,5 @@
 //SOURCES ../../images/decoding/Fast_rotation_from_exif_metadata_extractor.java
-//SOURCES ../../level3/experimental/Multiple_image_window.java
+//SOURCES ../../unstable/experimental/Multiple_image_window.java
 //SOURCES ../../image_ml/image_similarity/Image_similarity.java
 
 package klik.browser.items;

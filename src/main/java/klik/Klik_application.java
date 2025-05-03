@@ -69,13 +69,13 @@
 //SOURCES properties/Non_booleans.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
+//SOURCES util/log/File_logger.java
 //SOURCES util/log/System_logger.java
 //SOURCES util/log/Logger.java
 //SOURCES util/info_stage/*.java
-//SOURCES util/performance_monitor/Performance_monitor.java
 //SOURCES util/tcp/TCP_client.java
 //SOURCES util/tcp/TCP_client_out.java
-
+//SOURCES properties/Booleans.java
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/icons/Virtual_landscape.java
@@ -85,7 +85,6 @@
 //SOURCES browser/Vertical_slider.java
 //SOURCES browser/Browser_menus.java
 //SOURCES browser/items/Item_button.java
-//SOURCES browser/meter/RAM_and_threads_meters_stage.java
 //SOURCES change/active_list_stage/Active_list_stage.java
 //SOURCES change/active_list_stage/Active_list_stage_action.java
 //SOURCES change/active_list_stage/Datetime_to_signature_source.java
@@ -95,7 +94,6 @@
 //SOURCES image_ml/face_recognition/Face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java
-//SOURCES level3/metadata/Tag_items_management_stage.java
 //SOURCES properties/Bookmarks.java
 //SOURCES actor/Message.java
 //SOURCES actor/Job.java

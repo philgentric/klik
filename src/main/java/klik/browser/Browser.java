@@ -10,10 +10,10 @@
 //SOURCES ../change/Change_gang.java
 //SOURCES ../change/Change_receiver.java
 //SOURCES ../change/history/History_engine.java
-//SOURCES ../level2/backup/Backup_singleton.java
-//SOURCES ../level3/fusk/Fusk_bytes.java
-//SOURCES ../level3/fusk/Fusk_singleton.java
-//SOURCES ../level3/fusk/Static_fusk_paths.java
+//SOURCES ../unstable/backup/Backup_singleton.java
+//SOURCES ../unstable/fusk/Fusk_bytes.java
+//SOURCES ../unstable/fusk/Fusk_singleton.java
+//SOURCES ../unstable/fusk/Static_fusk_paths.java
 //SOURCES ../look/Look_and_feel_manager.java
 //SOURCES ../look/my_i18n/My_I18n.java
 //SOURCES ../look/Font_size.java

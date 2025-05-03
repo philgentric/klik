@@ -4,6 +4,7 @@
 //SOURCES ../../look/Look_and_feel.java
 //SOURCES ../items/Item_folder_with_icon.java
 //SOURCES ../items/My_colors.java
+//SOURCES ../../unstable/experimental/performance_monitoring/Performance_monitor.java
 package klik.browser.icons;
 
 import javafx.application.Platform;

@@ -81,7 +81,7 @@ public class Keyboard_handling_for_Image_window
                 image_window.image_display_handler.change_image_relative(1, image_window.ultim_mode);
             }
             else {
-                Popups.popup_warning(window,"Ahah!","Using Shift-D for sure-deleting a file requires to be on level2", false,logger);
+                Popups.popup_warning(window,"Ahah!","Using Shift-D for sure-deleting a file requires to be enable it in the advanced preferences", false,logger);
             }
             return;
         }
