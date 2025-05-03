@@ -529,7 +529,7 @@ public class Image_window
 
         if ( local_image_context == null)
         {
-            logger.log_stack_trace("WTF Image_context is null, should not happen");
+            logger.log_stack_trace(" Image_context is null, should not happen");
             return;
         }
         // if pix-for-pix was used on a very large image, the window size is very large too..

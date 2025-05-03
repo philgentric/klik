@@ -74,7 +74,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         Integer dummy_name2 = dummy_names.get(p2);
         if ( dummy_name2 == null)
         {
-            logger.log("WTF dummy_name2 == null for "+p2);
+            logger.log(" dummy_name2 == null for "+p2);
             dummy_name2 = 9999999;//p2.getFileName().toString();
             dummy_names.put(p2,dummy_name2);
         }
@@ -89,62 +89,5 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         Collections.shuffle(images);
     }
 
-    /*
-
-    //**********************************************************
-    private Closest_neighbor find_closest_of(Path p1, List<Path> images)
-    //**********************************************************
-    {
-        double min = Double.MAX_VALUE;
-        Path closest = null;
-        for ( Path p2 : images)
-        {
-            if ( p1.equals(p2)) continue;
-            Double d = similarity_cache.get(Path_pair.get(p1,p2));
-            if ( d == null)
-            {
-                // typically means the similarity is above the THRESHOLD
-                //logger.log("WTF no similarity for "+p1+" and "+p2);
-                continue;
-            }
-            if (  d < min)
-            {
-                min = d;
-                closest = p2;
-            }
-        }
-        if ( closest == null) return null;
-        Closest_neighbor cn = new Closest_neighbor(p1, closest,min);
-        return cn;
-    }
-
-    record Closest_neighbor(Path p1, Path closest, double dist){} // P1 has P2 as its closest neighbor (but maybe P2 has P3 as its closest neighbor)
-
-
-    //**********************************************************
-    private void secouer(List<Closest_neighbor> candidates, List<Closest_neighbor> done, Map<Path, Closest_neighbor> map)
-    //**********************************************************
-    {
-        Iterator<Closest_neighbor> it = candidates.iterator();
-        while (it.hasNext())
-        {
-            Closest_neighbor cn = it.next();
-            // we know that cn.p2() IS the closest image to cn.p1()
-            // but is it symetric?
-            Closest_neighbor cn2 = map.get(cn.closest());
-
-            if ( cn2.closest().equals(cn.p1()))
-            {
-                logger.log("symetric "+cn.p1()+" "+cn.closest()+" "+cn.dist());
-                if ( !done.contains(cn)) done.add(cn);
-            }
-            else
-            {
-                it.remove();
-            }
-        }
-    }
-
-*/
 
 }

@@ -477,7 +477,7 @@ public class Item_image extends Item
                 }
                 else
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace("WTF"));
+                    logger.log(Stack_trace_getter.get_stack_trace("Bad"));
                     you_are_invisible();
                     return;
                 }

@@ -49,7 +49,6 @@ public class Fast_width_from_exif_metadata_extractor
             if (sb != null)
             {
                 sb.add("\nstart loop on EXIF directories");
-                //logger.log(Stack_trace_getter.get_stack_trace("WTF"));
             }
             for (Directory directory : metadata.getDirectories())
             {
