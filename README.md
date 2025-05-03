@@ -16,9 +16,9 @@ To get klik running on your system, **you need to know how to open a terminal on
 
 (the recipe looks complicated, but it is reliable and fast)
 
-[Installation for MacOS](MACOS_en.md)
+[Installation for MacOS](MacOS_en.md)
 
-[Installation for Windows](WINDOWS_en.md)
+[Installation for Windows](Windows_en.md)
 
 
 ### Get klik updates
