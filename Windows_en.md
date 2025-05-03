@@ -58,17 +58,17 @@ Instead of erasing everything and restarting everything, do:
 
 Q: I do "gradle run", but klik doesn't start ?
 
-R: Check that you are in the 'klik' folder of the code source of klik. (the error message is : Directory 'xxxxx' does not contain a Gradle build.)
+A: Check that you are in the 'klik' folder of the code source of klik. (the error message is : Directory 'xxxxx' does not contain a Gradle build.)
 
 Q: I have no more space on my disk.
 
-R: Go to the Preferences menu and erase the caches. Visit the trash to check that what it contains can go to heaven before doing "empty the trash".
+A: Go to the Preferences menu and erase the caches. Visit the trash to check that what it contains can go to heaven before doing "empty the trash".
 
 Q: When klik runs, other applications are missing RAM.
 
-R: Go to the Preferences menu and erase the caches. For experts: Edit build.gradle to reduce the maximum memory size of the JVM. 
+A: Go to the Preferences menu and erase the caches. For experts: Edit build.gradle to reduce the maximum memory size of the JVM. 
 
 Q: I want to uninstall klik.
 
-R: (1) Delete the code source folder (2) Delete the '.klik' folder at the root of your user disk space, it contains caches and the trash, almost always this gives you more space than the code.
+A: (1) Delete the code source folder (2) Delete the '.klik' folder at the root of your user disk space, it contains caches and the trash, almost always this gives you more space than the code.
 

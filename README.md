@@ -1,12 +1,11 @@
 
-
+# Klik: a file system explorer/manager with a strong focus on images
 
 [En Français](LISEZ_MOI.md)
 
 ![Alt text](klik.png?raw=true "Klik screen shot")
 
 
-# Klik: a file system explorer/manager with a strong focus on images
 
 Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything.
 
@@ -100,7 +99,7 @@ Preferences menu for preferences
 
 Trash button: when you click on it, it will display the content of the (klik specific) trash folder. If you drag a file over it, the file is moved to the trash.
 
-### mutiple browsers
+### Open multiple browsers
 
 Opening multiple Browser-windows is very handy to sort images from one folder to multiple destination folders: just open one browser-window per folder, then move images or files using drag-and-drop.
 
