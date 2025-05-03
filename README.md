@@ -1,7 +1,7 @@
 
 
 
-[En Français](file:LISEZ_MOI.md)
+[En Français](LISEZ_MOI.md)
 
 # Klik: a file system explorer/manager with a strong focus on images
 
@@ -13,9 +13,9 @@ To get klik running on your system, **you need to know how to open a terminal on
 
 (the recipe looks complicated, but it is reliable and fast)
 
-[Installation pour MacOS](file:MACOS_en.md)
+[Installation pour MacOS](MACOS_en.md)
 
-[Installation pour Windows](file:WINDOWS_en.md)
+[Installation pour Windows](WINDOWS_en.md)
 
 
 ### Get klik updates

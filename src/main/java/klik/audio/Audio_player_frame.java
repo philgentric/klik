@@ -356,14 +356,21 @@ public class Audio_player_frame
 
         previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song",logger));
         Look_and_feel_manager.set_button_look(previous, true);
-        previous.setOnAction(actionEvent -> jump_to_previous());
+        previous.setOnAction(_ -> jump_to_previous());
         returned.getChildren().add(previous);
 
 
         next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",logger));
         Look_and_feel_manager.set_button_look(next, true);
-        next.setOnAction(actionEvent -> jump_to_next());
+        next.setOnAction(_ -> jump_to_next());
         returned.getChildren().add(next);
+
+
+        Button shuffle = new Button(My_I18n.get_I18n_string("Shuffle",logger));
+        Look_and_feel_manager.set_button_look(shuffle, true);
+        shuffle.setOnAction(_->FXCollections.shuffle(observable_playlist));
+        returned.getChildren().add(shuffle);
+
 
         return returned;
     }
