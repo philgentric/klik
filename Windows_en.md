@@ -40,7 +40,7 @@ Install WSL2:
 
 
 **IMPORTANT:**
-If after upgrading the source code you have a an error when starting, comme read this doc again as sometimes upgrading the source code also requires the upgrade of the compilation tools 'gradle' and 'java', this doc will also be updated and you will be told the new command lines.
+If after upgrading the source code you have a an error when starting, come read this doc again as sometimes upgrading the source code also requires the upgrade of the compilation tools 'gradle' and 'java', this doc will also be updated and you will be told the new command lines.
 
 Try:
 
@@ -57,14 +57,18 @@ Instead of erasing everything and restarting everything, do:
 # Frequently Asked Questions
 
 Q: I do "gradle run", but klik doesn't start ?
+
 R: Check that you are in the 'klik' folder of the code source of klik. (the error message is : Directory 'xxxxx' does not contain a Gradle build.)
 
 Q: I have no more space on my disk.
+
 R: Go to the Preferences menu and erase the caches. Visit the trash to check that what it contains can go to heaven before doing "empty the trash".
 
 Q: When klik runs, other applications are missing RAM.
+
 R: Go to the Preferences menu and erase the caches. For experts: Edit build.gradle to reduce the maximum memory size of the JVM. 
 
 Q: I want to uninstall klik.
+
 R: (1) Delete the code source folder (2) Delete the '.klik' folder at the root of your user disk space, it contains caches and the trash, almost always this gives you more space than the code.
 
