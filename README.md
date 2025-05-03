@@ -3,6 +3,9 @@
 
 [En Français](LISEZ_MOI.md)
 
+![Alt text](klik.png?raw=true "Klik screen shot")
+
+
 # Klik: a file system explorer/manager with a strong focus on images
 
 Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything.
