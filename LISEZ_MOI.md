@@ -11,6 +11,9 @@ Klik est 100% gratuit.
 
 [Installation pour Windows](Windows_fr.md)
 
+[Installation pour Linux](Linux.md)
+
+
 # Fonctionnement intuitif #
 
 - Les images et les PDFs sont représentées avec des icônes, les films avec des icônes animées.

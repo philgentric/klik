@@ -12,14 +12,14 @@ Sort files by displaying pictures and documents as icons, into folders, intuitiv
 
 # Try klik now!
 
-To get klik running on your system, **you need to know how to open a terminal on your system**.
-
+To get klik running, **you need to know how to open a terminal on your system**.
 (the recipe looks complicated, but it is reliable and fast)
 
 [Installation for MacOS](MacOS_en.md)
 
 [Installation for Windows](Windows_en.md)
 
+[Installation for Linux](Linux.md)
 
 ### Get klik updates
 

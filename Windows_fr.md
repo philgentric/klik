@@ -24,6 +24,7 @@ Avec une version plus ancienne: powershell clicker à droite, choisissez "exécu
 
 **dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart**
 
+(si votre version de windows est plus ancienne que windows 10 2004 ... désolé, ... google sera votre ami)
 
 ensuite:
 
@@ -40,7 +41,7 @@ ensuite:
 
 **sdk install gradle 8.14**
 
-Etape 3: installez java 24 (JDK avec javaFX) 
+Etape 3: installez java 24 (avec javaFX) 
 
 (le Java Development Kit (JDK) est l'outil qui permet de compiler et d'exécuter le code source java ; attention les versions antérieures à 23 de Java ne sont pas supportées par klik)
 
