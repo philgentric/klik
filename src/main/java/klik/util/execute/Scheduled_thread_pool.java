@@ -24,7 +24,7 @@ public class Scheduled_thread_pool
     private static void create_executor()
     //**********************************************************
     {
-        executor = Executors.newScheduledThreadPool(4);
+        executor = Executors.newScheduledThreadPool(40);
     }
 
 }

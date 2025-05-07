@@ -49,19 +49,20 @@ public class Filesystem_item_modification_watcher
                     logger.log("Filesystem_item_modification_watcher for "+path+" aborted");
                     return;
                 }
-                Filesystem_item_signature possibly_new_signature = new Filesystem_item_signature(logger);
-                if ( !possibly_new_signature.init(path) )
+                Filesystem_item_signature local = new Filesystem_item_signature(logger);
+                if ( !local.init(path) )
                 {
                     t.cancel(true);
                     return;
                 }
-                if (!possibly_new_signature.is_same(signature[0]))
+                //logger.log("Filesystem_item_modification_watcher for "+path+" init done "+local.file_signature_array.length);
+                if (!local.is_same(signature[0]))
                 {
                     if ( dbg) logger.log("Filesystem_item_modification_watcher, change detected for: "+path.toAbsolutePath());
                     // yes it's new ! the file has changed (or the folder content has changed)
                     reporter.report_modified();
                     if ( abort_on_change) t.cancel(true); // abort watch if changed
-                    signature[0] = possibly_new_signature; // update the signature to avoid false positives !
+                    signature[0] = local; // update the signature to avoid multiple false positives !
                 }
         };
         // check every 1 second
@@ -70,7 +71,7 @@ public class Filesystem_item_modification_watcher
         // use another task to monitor the timeout
         Runnable r2 = () -> t.cancel(true);
         Scheduled_thread_pool.execute(r2,timeout_in_minutes,TimeUnit.MINUTES);
-        if (dbg) logger.log("Filesystem_item_modification_watcher init done for:"+path);
+        //if (dbg) logger.log("Filesystem_item_modification_watcher init done for:"+path);
         return true;
     }
 

@@ -985,7 +985,6 @@ public class Virtual_landscape
         if ( !items_are_ready.get())
         {
             logger.log("check_visibility: items are not ready yet ! "+from);
-            //has_to_call_check_visibility_latter.set(true);
             return;
         }
         //logger.log("check_visibility: "+ all_items_map.values().size()+" items are ready "+from);
@@ -1133,6 +1132,12 @@ public class Virtual_landscape
     public void show_total_size_deep_in_each_folder(List<Node> mandatory)
     //**********************************************************
     {
+        if(( File_sort_by.get_sort_files_by(logger)==File_sort_by.SIMILARITY_BY_PAIRS)
+                ||
+                (File_sort_by.get_sort_files_by(logger)==File_sort_by.SIMILARITY_BY_PURSUIT))
+        {
+            File_sort_by.set_sort_files_by(File_sort_by.NAME,logger);
+        }
         show_how_many_files_deep_in_each_folder_done = false;
         folder_total_sizes_cache = new HashMap<>();
         logger.log("Virtual_landscape: show_total_size_deep_in_each_folder");

@@ -70,7 +70,7 @@ public class Preferences_stage
         Map<String, Boolean> properties = Booleans.get_all_booleans(logger);
 
 
-        add(Booleans.USE_FILE_LOGGING, properties);
+        add_one_line(Booleans.USE_FILE_LOGGING, properties);
         vbox.getChildren().add(new Separator());
         {
             Label lab = new Label("Advanced features");
@@ -79,7 +79,7 @@ public class Preferences_stage
         }
         for(Advanced_features f : Advanced_features.values())
         {
-            add(f.name(), properties);
+            add_one_line(f.name(), properties);
         }
         vbox.getChildren().add(new Separator());
         {
@@ -89,12 +89,12 @@ public class Preferences_stage
         }
         for(Experimental_features f : Experimental_features.values())
         {
-            add(f.name(), properties);
+            add_one_line(f.name(), properties);
         }
     }
 
     //**********************************************************
-    private void add(String name, Map<String, Boolean> properties)
+    private void add_one_line(String name, Map<String, Boolean> properties)
     //**********************************************************
     {
         CheckBox cb = new CheckBox(name);

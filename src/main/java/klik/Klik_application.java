@@ -106,17 +106,10 @@ import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
-import klik.properties.Booleans;
-import klik.properties.Non_booleans;
 import klik.util.cache_auto_clean.Monitor;
-import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.System_logger;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
 
 //**********************************************************
 public class Klik_application extends Application
@@ -134,14 +127,14 @@ public class Klik_application extends Application
     public void start(Stage primary_stage) throws Exception
     //**********************************************************
     {
+        Start_context context = Start_context.get_context(this);
+
         primary_stage.setOnCloseRequest(event -> {
             System.out.println("Klik_application primary_stage setOnCloseRequest exit");
             System.exit(0);
         });
 
         Print_system_info.print();
-
-        //setUserAgentStylesheet(STYLESHEET_MODENA);
 
         Logger logger = System_logger.get_system_logger("Klik_application");
         Language_manager.init_registered_languages(logger);
@@ -152,21 +145,10 @@ public class Klik_application extends Application
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
 
-        Parameters params = getParameters();
-        List<String> list = params.getRaw();
-        Path path;
-        if ( list.isEmpty())
-        {
-            path = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
-        }
-        else
-        {
-            path = Path.of(list.get(0));
-        }
+        Browser_creation_context.first(primary_stage,context.path(),logger);
 
-        Browser_creation_context.first(primary_stage,path,logger);
+        Start_context.send_started(context,logger);
     }
-
 
 
 

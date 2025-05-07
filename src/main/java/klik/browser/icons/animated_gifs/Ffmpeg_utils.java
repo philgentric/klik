@@ -165,8 +165,7 @@ public class Ffmpeg_utils
             {
 
                 bitrate = Double.parseDouble(l.trim());
-                //if (dbg)
-                logger.log("FOUND bitrate: " + bitrate + "kb/s");
+                if (dbg) logger.log("FOUND bitrate: " + bitrate + "kb/s");
                 break;
             }
             if (l.equals("bitrate:"))

@@ -27,7 +27,7 @@ public class Properties_manager
     public static final int max = 30;
 
     private final Properties the_Properties;
-    private final Path f;
+    private final Path the_properties_path;
     Logger logger;
 
     //**********************************************************
@@ -35,9 +35,11 @@ public class Properties_manager
     //**********************************************************
     {
         logger = logger_;
-        f = f_;
+        the_properties_path = f_;
         the_Properties = new Properties();
         load_properties();
+
+        for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
 
     //**********************************************************
@@ -53,10 +55,10 @@ public class Properties_manager
     {
         if (dbg) logger.log("store_properties()");
 
-        if (!Files.exists(f))
+        if (!Files.exists(the_properties_path))
         {
             try {
-                Files.createFile(f);
+                Files.createFile(the_properties_path);
             }
             catch (FileAlreadyExistsException e)
             {
@@ -66,35 +68,35 @@ public class Properties_manager
                 logger.log("FATAL: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
                 return;
             }
-            if (dbg) logger.log("created file:"+f);
+            if (dbg) logger.log("created file:"+ the_properties_path);
         }
         else
         {
-            if (dbg) logger.log(" file exists:"+f);
+            if (dbg) logger.log(" file exists:"+ the_properties_path);
         }
 
-        if (!Files.isWritable(f))
+        if (!Files.isWritable(the_properties_path))
         {
-            Popups.popup_Exception(new AccessDeniedException(f.toAbsolutePath().toString()), 200, "Cannot store properties ", logger);
-            logger.log("ALERT: cannot write properties in:" + f.toAbsolutePath());
+            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", logger);
+            logger.log("ALERT: cannot write properties in:" + the_properties_path.toAbsolutePath());
             return;
         }
         else
         {
-            if (dbg) logger.log(" file is writable:"+f);
+            if (dbg) logger.log(" file is writable:"+ the_properties_path);
         }
 
         try
         {
-            FileOutputStream fos = new FileOutputStream(f.toFile());
+            FileOutputStream fos = new FileOutputStream(the_properties_path.toFile());
             the_Properties.store(fos, "no comment");
             fos.close();
-            if (dbg) logger.log(("ALL properties stored in:" + f.toAbsolutePath()));
+            if (dbg) logger.log(("ALL properties stored in:" + the_properties_path.toAbsolutePath()));
         }
         catch (Exception e)
         {
             //logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
-            Popups.popup_Exception(new AccessDeniedException(f.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, logger);
+            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, logger);
 
         }
     }
@@ -108,16 +110,16 @@ public class Properties_manager
         try
         {
 
-            if (Files.exists(f))
+            if (Files.exists(the_properties_path))
             {
-                if (!Files.isReadable(f))
+                if (!Files.isReadable(the_properties_path))
                 {
-                    logger.log("cannot read properties from:" + f.toAbsolutePath());
+                    logger.log("cannot read properties from:" + the_properties_path.toAbsolutePath());
                     return;
                 }
-                fis = new FileInputStream(f.toFile());
+                fis = new FileInputStream(the_properties_path.toFile());
                 the_Properties.load(fis);
-                if (dbg) logger.log("properties loaded from:" + f.toAbsolutePath());
+                if (dbg) logger.log("properties loaded from:" + the_properties_path.toAbsolutePath());
                 fis.close();
             }
 

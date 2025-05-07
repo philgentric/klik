@@ -3,6 +3,7 @@ package klik.audio;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import klik.Start_context;
 import klik.actor.Aborter;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
@@ -41,32 +42,20 @@ public class Audio_player extends Application
     //**********************************************************
     {
         Logger logger =  System_logger.get_system_logger("Audio_player_frame");
+        Start_context context = Start_context.get_context(this);
 
-        if (    !start_server(logger))
+        if (  !start_server(logger))
         {
             logger.log("failed to start server: this is normal if another instance exists already");
+            Start_context.send_started_raw(context,logger);
             stage.close();
             Platform.exit();
             System.exit(0);
             return;
         }
 
-
-
-
         logger.log("Audio_player start");
 
-        Parameters params = getParameters();
-        List<String> list = params.getRaw();
-
-        if ( dbg)
-        {
-            logger.log("parameters:"+list.size());
-            for(String each : list){
-                logger.log(each);
-            }
-
-        }
 
         Look_and_feel_manager.init_Look_and_feel(logger);
         Language_manager.init_registered_languages(logger);
@@ -76,21 +65,18 @@ public class Audio_player extends Application
         Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
 
         File f = null;
-        if ( list != null)
+        if ( context.path() != null)
         {
-            if ( list.size() > 0)
-            {
-                logger.log("Audio_player, list.get(0) "+list.get(0));
-                f = new File (list.get(0));
-                logger.log("Audio_player, opening audio file: "+f.getAbsolutePath());
-            }
+             logger.log("Audio_player, context.path()) "+context.path().toAbsolutePath());
+             f = context.path().toFile();
+             logger.log("Audio_player, opening audio file: "+f.getAbsolutePath());
         }
-
+        Start_context.send_started(context,logger);
         play_this_song(f,logger);
-
     }
-
+    //**********************************************************
     private static boolean start_server(Logger logger)
+    //**********************************************************
     {
         // start the server to receive subsequent play requests
         // this is to avoid the audio mess when several players

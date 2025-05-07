@@ -14,7 +14,7 @@ Sur Window c'est une Application... qui s'appelle "Power shell"
 
 Dans le terminal, copier-coller les commandes en gras données dans les étapes suivantes:
 
-Sur Windows, il est recommandé d'installer WSL2:
+### installez WSL2
 
 Avec windows 10 2004 ou plus:
 
@@ -28,38 +28,38 @@ Avec une version plus ancienne: powershell clicker à droite, choisissez "exécu
 
 ensuite:
 
-### Etape 1: installez sdkman
+### installez sdkman
 
 (sdkman est un outil de gestion de version des outils de base, il donne accès à la commande "sdk", qui est super pratique : plus de casse-tête à chercher sur internet où est telle ou telle version du JDK java ou de gradle, sdkman s'occupe de tout!)
 
 **https://sdkman.io/install/#windows-installation**
 
 
-### Etape 2: installez gradle
+### installez gradle
 
 (gradle est un outil de compilation)
 
 **sdk install gradle 8.14**
 
-Etape 3: installez java 24 (avec javaFX) 
+### installez java 24 (avec javaFX) 
 
 (le Java Development Kit (JDK) est l'outil qui permet de compiler et d'exécuter le code source java ; attention les versions antérieures à 23 de Java ne sont pas supportées par klik)
 
 **sdk install java 24.fx-zulu**
 
-### Etape 4: installez git
+###  installez git
 
 (git est un outil de gestion de version du code source)
 
 **https://git-scm.com/downloads/win**
 
-Etape 5: obtenez le code source
+### clonez le code source
 
 **git clone https://github.com/philgentric/klik.git**
 
 cette opération va créer un dossier 'klik' avec tout le code source. 
 
-Etape 6: Démarrez klik!
+### Démarrez klik!
 
 **cd klik**
 
@@ -72,7 +72,7 @@ Note: en alternative à utiliser gradle, vous pouvez utiliser jbang:
 
 **jbang src/main/java/klik/Klik_application.java**
 
-Etape 7: Recevez les dernières mises à jour
+### plus tard ... Recevez les dernières mises à jour
 
 dans le dossier 'klik', tapez:
 

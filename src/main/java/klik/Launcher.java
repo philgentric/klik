@@ -11,6 +11,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -20,11 +22,22 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_logger;
+import klik.util.tcp.Session;
+import klik.util.tcp.Session_factory;
+import klik.util.tcp.TCP_server;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Show_running_film_frame;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
@@ -34,6 +47,7 @@ public class Launcher extends Application
 
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
+    public static final String STARTED = "STARTED";
     public static double estimated_text_label_height;
     //**********************************************************
     @Override
@@ -58,41 +72,24 @@ public class Launcher extends Application
         Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
 
 
-
+        AtomicInteger klik_port = new AtomicInteger(12345);
+        AtomicInteger audio_player_port = new AtomicInteger(23456);
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application",logger));
 
             set_look(b, vbox,look_and_feel,Icon_type.IMAGE,logger);
 
             b.setOnAction(event -> {
-
-                List<String> cmds = new ArrayList<>();
-                cmds.add("gradle");
-                cmds.add("klik");
-
-                StringBuilder sb = new StringBuilder();
-                Execute_command.execute_command_list_no_wait(cmds, new File("."), 20 * 1000, sb, logger);
-                logger.log(sb.toString());
-
+                start_app_and_listen("klik", klik_port.getAndIncrement(),stage, logger);
             });
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player",logger));
             set_look(b, vbox,look_and_feel,Icon_type.MUSIC,logger);
             b.setOnAction(event -> {
-
-                List<String> cmds = new ArrayList<>();
-                cmds.add("gradle");
-                cmds.add("audio_player");
-
-                StringBuilder sb = new StringBuilder();
-                Execute_command.execute_command_list_no_wait(cmds, new File("."), 20 * 1000, sb, logger);
-                logger.log(sb.toString());
-
+                start_app_and_listen("audio_player", audio_player_port.getAndIncrement(),stage,logger);
             });
         }
-
-
 
         Scene scene = new Scene(vbox);
         stage.setTitle("Klik "+launcher);
@@ -100,7 +97,75 @@ public class Launcher extends Application
         stage.show();
     }
 
-    private static void set_look(Button b, VBox vbox, Look_and_feel look_and_feel, Icon_type icon_type, Logger logger) {
+    //**********************************************************
+    private static void start_app_and_listen(String tag, int port, Stage stage, Logger logger)
+    //**********************************************************
+    {
+        Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
+
+        List<String> cmds = new ArrayList<>();
+        cmds.add("gradle");
+        cmds.add(tag);
+        String arg =  "--args=\""+port+"\"";
+        cmds.add(arg);
+
+        Runnable r = () -> {
+            StringBuilder sb = new StringBuilder();
+            Execute_command.execute_command_list_no_wait(cmds, new File("."), 20 * 1000, sb, logger);
+            logger.log(sb.toString());
+        };
+        Actor_engine.execute(r, logger);
+        start_server_and_wait_for_reply(tag,port,hourglass, logger);
+    }
+
+    //**********************************************************
+    private static boolean start_server_and_wait_for_reply(String tag, int port, Hourglass hourglass, Logger logger)
+    //**********************************************************
+    {
+        // start the server to receive the "started" message and stop the hourglass
+        // note the audio player, if already started, will send the "started" message
+        // this is because in the launcher, after a audio_player
+        // was started, it might have been killed ...
+
+        Session_factory session_factory = () -> new Session() {
+            @Override
+            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            {
+                try {
+                    int size = dis.readInt();
+                    byte buffer[] = new byte[size];
+                    dis.read(buffer);
+                    String msg = new String(buffer, StandardCharsets.UTF_8);
+                   if ( msg.equals(STARTED))
+                    {
+                        logger.log("STARTED RECEIVED for: "+tag);
+                        if ( hourglass != null) hourglass.close();
+                    }
+
+                }
+                catch (IOException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                }
+
+            }
+
+            @Override
+            public String name() {
+                return "launcher for app: "+tag;
+            }
+        };
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter(tag, logger), logger);
+        Runnable r = () -> tcp_server.start(port,false);
+        Actor_engine.execute(r, logger);
+
+        return true;
+    }
+
+    //**********************************************************
+    private static void set_look(Button b, VBox vbox, Look_and_feel look_and_feel, Icon_type icon_type, Logger logger)
+    //**********************************************************
+    {
         Look_and_feel_manager.set_button_look(b, true);
         b.setPrefWidth(WIDTH);
         b.setAlignment(Pos.CENTER);

@@ -584,7 +584,8 @@ public class Audio_player_frame
         Non_booleans.save_current_song(new_song,logger);
 
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,new_song.toPath(),logger);
-        logger.log("bitrate= "+bitrate);
+        //logger.log("bitrate= "+bitrate);
+        logger.log(new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
         clean_up();
         the_song_file = new_song;
         add_and_save_if_needed();
@@ -668,7 +669,7 @@ public class Audio_player_frame
         if ( selected == future)
         {
             // already selected
-            logger.log("already selected "+f);
+            if ( dbg) logger.log("already selected "+f);
             return;
         }
         if ( future!=null)
@@ -741,7 +742,7 @@ public class Audio_player_frame
         the_media_player_option = Optional.of(local_);
         the_equalizer_option = Optional.of(local_.getAudioEqualizer());
         equalizer_bands = the_equalizer_option.get().getBands();
-        logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());
+        //logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());
 
         define_equalizer();
 

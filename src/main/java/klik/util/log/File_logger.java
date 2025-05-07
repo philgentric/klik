@@ -17,7 +17,6 @@ public class File_logger implements Logger
 {
 
 	private final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
-	private final FileWriter fw;
 	//*******************************************************
 	public File_logger(String tag_)
 	//*******************************************************
@@ -27,18 +26,18 @@ public class File_logger implements Logger
 		String tag = tag_+"_"+now.format(dtf);
 		Path folder = Non_booleans.get_trash_dir(Path.of("."), new Simple_logger());
 		Path file = folder.resolve(tag+".txt");
-        try {
-            fw = new FileWriter(file.toFile());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
 
 		Runnable r = () -> {
 			for(;;)
 			{
 				try {
 					String s = queue.take();
+					//System.out.println("File_logger: "+tag+" => "+s);
+					FileWriter fw = new FileWriter(file.toFile(), true);
 					fw.write(s+"\n");
+					//if (queue.peek() == null)
+						fw.flush();
 				}
 				catch (InterruptedException e) {
 					System.out.println("File_logger: ERROR writing to file: "+e);

@@ -95,6 +95,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
@@ -239,7 +240,14 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
             context.browser_to_be_closed.close_window();
         }
 
-        displayed_folder_path = context.folder_path;
+        if ( context.folder_path == null)
+        {
+            displayed_folder_path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
+        }
+        else
+        {
+            displayed_folder_path = context.folder_path;
+        }
         if ( dbg) logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
 
         aborter = new Aborter("Browser for: " + displayed_folder_path.toAbsolutePath().toString(), logger);
@@ -292,22 +300,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         }
         if (dbg) logger.log("NEW browser");
-        /*
-        {
-            double font_size = Non_booleans.get_font_size(logger);
-            double icon_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
-            //String icon_path = Look_and_feel_manager.get_instance().get_folder_icon_path();
-            //if (icon_path == null) logger.log("WARNING: could not load folder icon");
-
-            Image icon = Look_and_feel_manager.get_folder_icon(icon_height);//  load_icon_fx_from_jar(icon_path, icon_height);
-
-            if (icon == null) {
-                logger.log("WARNING: cannot get default icon for directory");
-            } else {
-                my_Stage.the_Stage.getIcons().add(icon);
-            }
-        }*/
         my_Stage.the_Stage.setX(x);
         my_Stage.the_Stage.setY(y);
         my_Stage.the_Stage.setWidth(width);

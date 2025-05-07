@@ -152,7 +152,3 @@ tasks.register('klik_the_jar', Jar) {
     archiveVersion.set('1.0')
     destinationDirectory.set(layout.buildDirectory.dir("libs"))
 }
-
-tasks.named('build'){
-    dependsOn tasks.named('klik_the_jar')
-}

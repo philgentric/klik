@@ -45,6 +45,7 @@ public class TCP_server
     //**********************************************************
     {
         AtomicBoolean is_started_ok = new AtomicBoolean(false);
+        // wait until server is started
         CountDownLatch cdl = new CountDownLatch(1);
         port_number = port_number_;
         Runnable r = () ->

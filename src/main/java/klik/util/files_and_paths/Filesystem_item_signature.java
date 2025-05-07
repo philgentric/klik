@@ -79,7 +79,7 @@ public class Filesystem_item_signature
             }
             fis.close();
             hash = sha.digest();
-            //System.out.println("the MD5 hash of " + srcfile + " is " + new String(hash) + " " + sha.getDigestLength());
+            //logger.log("\n the MD5 hash of " + path.toAbsolutePath() + " is " + new String(hash) + " " + sha.getDigestLength());
 
         } catch (FileNotFoundException e) {
             logger.log("Filesystem_item_signature get_file_hash() fails because of: " + e);
