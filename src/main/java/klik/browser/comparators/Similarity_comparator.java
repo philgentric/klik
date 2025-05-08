@@ -4,6 +4,7 @@ package klik.browser.comparators;
 
 import klik.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
+import klik.browser.Path_list_provider;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.log.Logger;
 
@@ -24,19 +25,19 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     protected List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Path folder, double x, double y, Aborter aborter, Logger logger_)
+    public Similarity_comparator(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
 
-        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(folder, x,y,aborter, logger);
+        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x,y,aborter, logger);
         if (result == null) {
             return;
         }
         fv_cache = result.image_feature_vector_ram_cache();
         images = new ArrayList<>(result.images());
 
-        similarity_cache = new Similarity_cache(folder, images, fv_cache, aborter, logger);
+        similarity_cache = new Similarity_cache(path_list_provider, images, fv_cache, aborter, logger);
         shuffle();
     }
 

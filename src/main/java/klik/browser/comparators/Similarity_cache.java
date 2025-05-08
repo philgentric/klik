@@ -3,8 +3,9 @@ package klik.browser.comparators;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
+import klik.browser.Path_list_provider;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.properties.Cache_folders;
+import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -21,23 +22,23 @@ import java.util.concurrent.CountDownLatch;
 public class Similarity_cache
 //**********************************************************
 {
-    private final Path folder;
+    private final Path_list_provider path_list_provider;
     private final Aborter aborter;
     private final Path similarity_cache_file_path;
     private final Logger logger;
     private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
 
     //**********************************************************
-    public Similarity_cache(Path folder, List<Path> images, Image_feature_vector_cache fv_cache, Aborter aborter, Logger logger)
+    public Similarity_cache(Path_list_provider path_list_provider, List<Path> images, Image_feature_vector_cache fv_cache, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.aborter = aborter;
-        this.folder = folder;
+        this.path_list_provider = path_list_provider;
         this.logger = logger;
         String cache_name = "similarity";
-        String local = cache_name + folder.toAbsolutePath();
+        String local = cache_name + path_list_provider.get_name();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folders.klik_image_similarity_cache.name(), false, logger);
+        Path dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());
@@ -92,8 +93,8 @@ public class Similarity_cache
                 String path1_string = dis.readUTF();
                 String path2_string = dis.readUTF();
                 double val = dis.readDouble();
-                Path p1 = folder.resolve(path1_string);
-                Path p2 = folder.resolve(path2_string);
+                Path p1 = path_list_provider.resolve(path1_string);
+                Path p2 = path_list_provider.resolve(path2_string);
                 Path_pair p = Path_pair.get(p1,p2);
                 similarities.put(p,val);
                 if ( k%10000 == 0) logger.log(k +" similarities loaded from disk ");

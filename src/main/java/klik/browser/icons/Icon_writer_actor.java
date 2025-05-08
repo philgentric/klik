@@ -50,56 +50,56 @@ public class Icon_writer_actor implements Actor
 			BufferedImage bim = JavaFX_to_Swing.fromFXImage(iwm.image, null, logger);
 			if ( bim == null)
 			{
-				logger.log("write_icon_to_cache_on_disk JavaFX_to_Swing.fromFXImage failed for "+iwm.original_path);
+				logger.log("write_icon_to_cache_on_disk JavaFX_to_Swing.fromFXImage failed for "+iwm.tag);
 				return;
 			}
 			if (iwm.get_aborter().should_abort()) return;
 			boolean status = ImageIO.write(bim, "png", new File(
 					cache_dir.toFile(),
-					make_cache_name(iwm.original_path,String.valueOf(iwm.icon_size), iwm.extension))
+					make_cache_name(iwm.tag,String.valueOf(iwm.icon_size), iwm.extension))
 			);
 
 			if ( !status )
 			{
-				logger.log("Icon_writer: ImageIO.write returns false for: "+iwm.original_path);
+				logger.log("Icon_writer: ImageIO.write returns false for: "+iwm.tag);
 			}
 		}
 		catch(Exception e)
 		{
-			logger.log("Icon_writer exception (1) ="+e+" path="+iwm.original_path);
+			logger.log("Icon_writer exception (1) ="+e+" path="+iwm.tag);
 		}
 		//logger.log("Icon_writer OK for path="+iwm.original_path+" png done");
 	}
 
 
 	//**********************************************************
-	public static String make_cache_name(Path path, String tag, String extension)
+	public static String make_cache_name(String tag, String icon_size_tag, String extension)
 	//**********************************************************
 	{
-		if ( path == null) return null;
+		if ( tag == null) return null;
 		StringBuilder sb = new StringBuilder();
-		sb.append(make_cache_name_raw(path));
+		sb.append(make_cache_name_raw(tag));
 		sb.append("_");
-		sb.append(tag);
+		sb.append(icon_size_tag);
 		sb.append(".");
 		sb.append(extension);
 		return sb.toString();
 //		return clean_name(full_name) + "_"+tag + "."+extension;
 	}
 	//**********************************************************
-	public static String make_cache_name_raw(Path path)
+	public static String make_cache_name_raw(String tag)
 	//**********************************************************
 	{
-		if ( path == null) return null;
-		String full_name = path.toAbsolutePath().toString();
+		if ( tag == null) return null;
+
 		StringBuilder sb = new StringBuilder();
 		if ( dbg_names)
 		{
-			sb.append(clean_name(full_name));
+			sb.append(clean_name(tag));
 		}
 		else
 		{
-			sb.append(UUID.nameUUIDFromBytes(full_name.getBytes())); // the name is always the same length and is obfuscated
+			sb.append(UUID.nameUUIDFromBytes(tag.getBytes())); // the name is always the same length and is obfuscated
 		}
 		return sb.toString();
 //		return clean_name(full_name) + "_"+tag + "."+extension;

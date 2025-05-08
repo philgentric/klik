@@ -4,11 +4,13 @@ package klik.browser.icons.animated_gifs;
 
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.browser.Path_list_provider;
 import klik.browser.comparators.Aspect_ratio_comparator;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.Booleans;
+import klik.properties.Cache_folder;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -45,27 +47,26 @@ public class Animated_gif_from_folder
 
     //**********************************************************
     public static Path make_animated_gif_from_images_in_folder(
-            Browser browser,
-            Path target_folder, List<File> images_in_folder, Image_properties_RAM_cache image_properties_RAM_cache, Logger logger)
+            Browser browser, Path_list_provider path_list_provider, List<File> images_in_folder, Image_properties_RAM_cache image_properties_RAM_cache, Logger logger)
     //**********************************************************
     {
         //System.out.println(Stack_trace_getter.get_stack_trace("make_animated_gif_from_images_in_folder "+target_folder));
-        if (!Files.isDirectory(target_folder)) {
-            if (dbg) logger.log("FATAL not a folder " + target_folder);
-            return null;
-        }
+        //if (!Files.isDirectory(target_folder)) {
+        //    if (dbg) logger.log("FATAL not a folder " + target_folder);
+        //    return null;
+        //}
 
         int icon_size = Non_booleans.get_icon_size(logger);
 
-        String output_animated_gif_name = Icon_writer_actor.make_cache_name(target_folder, "ANIMATED_FOLDER_" + icon_size, "gif");
-        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_folders_icons_cache_dir(logger);
+        String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
+        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(browser.my_Stage.the_Stage,Cache_folder.klik_folder_icon_cache,logger);
         Path output_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(output_animated_gif)) {
             //if (dbg)
                 logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
             return output_animated_gif;
         }
-        if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = " + target_folder + " target out = " + output_animated_gif);
+        if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = " + path_list_provider.get_name() + " target out = " + output_animated_gif);
 
         List<String> graphicsMagick_command_line = new ArrayList<>();
         // call GraphicsMagick
@@ -73,17 +74,17 @@ public class Animated_gif_from_folder
         graphicsMagick_command_line.add("convert");
         graphicsMagick_command_line.add("-delay");
         graphicsMagick_command_line.add("30"); // in centiseconds
-        String frames = Icon_writer_actor.make_cache_name_raw(target_folder.toAbsolutePath()) + FRAME2 + "*" + PNG;
+        String frames = Icon_writer_actor.make_cache_name_raw(path_list_provider.get_name()) + FRAME2 + "*" + PNG;
         graphicsMagick_command_line.add(frames);
         graphicsMagick_command_line.add(output_animated_gif.getFileName().toString());
 
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(browser.my_Stage.the_Stage, logger);
+        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(browser.my_Stage.the_Stage, Cache_folder.klik_icon_cache,logger);
         List<Path> to_be_cleaned_up = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = browser.my_Stage.the_Stage.getX()+100;
         double y = browser.my_Stage.the_Stage.getY()+100;
-        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(target_folder,image_properties_RAM_cache, browser, x,y,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(path_list_provider,image_properties_RAM_cache, browser, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( local_comp instanceof Aspect_ratio_comparator)
         {
@@ -93,7 +94,7 @@ public class Animated_gif_from_folder
         for (int i = 0; i < Math.min(10,paths.size()); i++)
         {
             Path p = paths.get(i);
-            String local = Icon_writer_actor.make_cache_name(target_folder, FRAME1 + i, Icon_factory_actor.png_extension);
+            String local = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), FRAME1 + i, Icon_factory_actor.png_extension);
             Path destination = Path.of(icon_cache_dir.toAbsolutePath().toString(),local);
             generate_padded_icon(p,icon_size,destination,logger);
             to_be_cleaned_up.add(destination);

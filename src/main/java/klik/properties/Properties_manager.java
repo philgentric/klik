@@ -39,7 +39,7 @@ public class Properties_manager
         the_Properties = new Properties();
         load_properties();
 
-        for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
+        //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
 
     //**********************************************************

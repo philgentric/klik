@@ -81,7 +81,7 @@
 //SOURCES browser/icons/Virtual_landscape.java
 //SOURCES properties/File_sort_by.java
 //SOURCES properties/Properties_manager.java
-//SOURCES properties/Cache_folders.java
+//SOURCES properties/Cache_folder.java
 //SOURCES browser/Vertical_slider.java
 //SOURCES browser/Browser_menus.java
 //SOURCES browser/items/Item_button.java

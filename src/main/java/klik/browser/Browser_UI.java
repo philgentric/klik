@@ -19,14 +19,11 @@ import klik.browser.icons.Virtual_landscape;
 import klik.browser.ram_and_threads_meter.RAM_and_threads_meters_stage;
 import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
 import klik.images.Image_context;
-import klik.properties.Advanced_features;
-import klik.properties.Booleans;
-import klik.properties.Experimental_features;
+import klik.properties.*;
 import klik.unstable.deduplicate.Deduplication_engine;
 import klik.unstable.metadata.Tag_items_management_stage;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.unstable.experimental.performance_monitoring.Performance_monitor;
@@ -545,17 +542,20 @@ public class Browser_UI
                             event -> Static_files_and_paths_utilities.clear_all_DISK_caches(browser.my_Stage.the_Stage,browser.aborter,logger)));
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_Icon_Cache_On_Disk",
-                            event -> Static_files_and_paths_utilities.clear_icon_DISK_cache(true,browser.my_Stage.the_Stage,browser.aborter,logger)));
+                            event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_icon_cache,true,browser.my_Stage.the_Stage,browser.aborter,logger)));
 
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_Folders_Icon_Cache_Folder",
-                            event -> Static_files_and_paths_utilities.clear_folder_icon_DISK_cache(false,browser.my_Stage.the_Stage, browser.aborter, logger)));
+                            event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_folder_icon_cache,false,browser.my_Stage.the_Stage, browser.aborter, logger)));
                     disk.getItems().add(browser_menus.make_menu_item(
                             "Clear_Image_Properties_DISK_Cache",
-                            event -> Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,browser.my_Stage.the_Stage,browser.aborter, logger)));
+                            event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_properties_cache,false,browser.my_Stage.the_Stage,browser.aborter, logger)));
 
                     disk.getItems().add(browser_menus.make_menu_item("Clear_Image_Feature_Vector_DISK_Cache",
-                            event -> Static_files_and_paths_utilities.clear_image_feature_vectors_DISK_cache(true,browser.my_Stage.the_Stage, browser.aborter, logger)));
+                            event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_feature_vectors_cache,true,browser.my_Stage.the_Stage, browser.aborter, logger)));
+
+                    disk.getItems().add(browser_menus.make_menu_item("Clear_Image_Similarity_DISK_Cache",
+                            event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_similarity_cache,true,browser.my_Stage.the_Stage, browser.aborter, logger)));
 
                 }
 

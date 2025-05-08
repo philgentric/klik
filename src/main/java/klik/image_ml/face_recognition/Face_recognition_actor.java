@@ -13,6 +13,7 @@ import klik.actor.*;
 import klik.browser.Browser;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
+import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Stack_trace_getter;
 
@@ -489,7 +490,7 @@ public class Face_recognition_actor implements Actor
 
         // write the image to disk, the tmp path will be passed to the embedding server
         String tag = "tmp_unknown_face"+ "_"+ UUID.randomUUID();
-        Path tmp_image_reco = Static_files_and_paths_utilities.get_icons_cache_dir(null,service.logger);
+        Path tmp_image_reco = Static_files_and_paths_utilities.get_cache_dir(null, Cache_folder.klik_icon_cache,service.logger);
         Path tmp_path_to_face = Face_recognition_service.write_tmp_image(image_face, tmp_image_reco,tag,service.logger);
 
         Eval_results eval_result = eval_a_face(tmp_path_to_face,service, aborter);

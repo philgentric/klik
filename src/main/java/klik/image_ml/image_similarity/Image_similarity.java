@@ -6,6 +6,7 @@ package klik.image_ml.image_similarity;
 import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Clearable_RAM_cache;
+import klik.browser.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
@@ -44,7 +45,7 @@ public class Image_similarity implements Clearable_RAM_cache
     public final Logger logger;
     //**********************************************************
     public Image_similarity(
-            Path displayed_folder_path,
+            Path_list_provider path_list_provider,
             Browser browser,
             double x, double y,
             Aborter aborter, Logger logger)
@@ -52,7 +53,7 @@ public class Image_similarity implements Clearable_RAM_cache
     {
         this.browser = browser;
         this.logger = logger;
-        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(displayed_folder_path,x,y,aborter,logger);
+        this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,x,y,aborter,logger);
     }
 
     //**********************************************************

@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Browser;
+import klik.browser.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
@@ -144,7 +145,7 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
 
-            local_comp = File_sort_by.get_true_comparator(first_image_path.getParent(),image_properties_cache,null, x+100,y+100,aborter,logger);
+            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()),image_properties_cache,null, x+100,y+100,aborter,logger);
         }
         else
         {

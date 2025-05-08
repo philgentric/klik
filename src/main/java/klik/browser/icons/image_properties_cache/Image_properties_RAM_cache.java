@@ -8,7 +8,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.properties.Booleans;
-import klik.properties.Cache_folders;
+import klik.properties.Cache_folder;
 import klik.unstable.experimental.RAM_disk;
 import klik.properties.Properties_manager;
 import klik.properties.Non_booleans;
@@ -66,7 +66,7 @@ public class Image_properties_RAM_cache
     {
         if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger))
         {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folders.klik_image_properties_cache.name(), owner, logger);
+            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folder.klik_image_properties_cache.name(), owner, logger);
             //if (dbg)
             if (tmp_dir != null) {
                 logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
@@ -74,7 +74,7 @@ public class Image_properties_RAM_cache
             return tmp_dir;
         }
 
-        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folders.klik_image_properties_cache.name(), false,logger);
+        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
         }

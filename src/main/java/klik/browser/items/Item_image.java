@@ -18,6 +18,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
+import klik.browser.Folder_path_list_provider;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -301,7 +302,7 @@ public class Item_image extends Item
             {
                 double x = browser.my_Stage.the_Stage.getX()+100;
                 double y = browser.my_Stage.the_Stage.getY()+100;
-                image_similarity = new Image_similarity(image_path.getParent(),browser, x,y,aborter,logger);
+                image_similarity = new Image_similarity(new Folder_path_list_provider(image_path.getParent()),browser, x,y,aborter,logger);
                 image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE,image_properties_cache, false,x,y,null);
             };
             Actor_engine.execute(r,logger);
@@ -310,6 +311,7 @@ public class Item_image extends Item
         return menu_item;
     }
 
+    /*
     //**********************************************************
     public static MenuItem create_show_similar_menu_item2(Path image_path, Browser browser, Logger logger)
     //**********************************************************
@@ -330,6 +332,8 @@ public class Item_image extends Item
 
         return menu_item;
     }
+
+     */
     //**********************************************************
     public static void make_menu_items_for_videos(Path path, Browser browser, ContextMenu context_menu, boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************

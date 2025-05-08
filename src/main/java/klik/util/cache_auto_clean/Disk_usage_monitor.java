@@ -4,7 +4,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
-import klik.properties.Cache_folders;
+import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -41,7 +41,7 @@ public class Disk_usage_monitor
         logger = logger_;
         this.owner = owner;
 
-        for (Cache_folders cache_folder : Cache_folders.values())
+        for (Cache_folder cache_folder : Cache_folder.values())
         {
             logger.log("starting Disk_usage_monitor for :" + cache_folder);
             Path ff = Static_files_and_paths_utilities.get_cache_folder(cache_folder, logger);
@@ -92,22 +92,19 @@ public class Disk_usage_monitor
                             false,logger);
                     continue;
                 }
-                if( monitored_folder.name.equals(ICON_CACHE_FOLDER))
+                boolean cleared = false;
+                if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger))
                 {
-                    if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger))
+                    for (Cache_folder cache_folder : Cache_folder.values())
                     {
-                        Static_files_and_paths_utilities.clear_icon_DISK_cache(false,owner,aborter,logger);
-                        continue;
+                        if (monitored_folder.name.equals(cache_folder.name()))
+                        {
+                            Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false, owner, aborter, logger);
+                            cleared = true;
+                        }
                     }
                 }
-                if( monitored_folder.name.equals(IMAGE_PROPERTIES_CACHE_FOLDER))
-                {
-                    if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger))
-                    {
-                        Static_files_and_paths_utilities.clear_image_properties_DISK_cache(false,owner,aborter,logger);
-                        continue;
-                    }
-                }
+                if ( cleared) continue;
                 if ( !warning_issued)
                 {
                     Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",

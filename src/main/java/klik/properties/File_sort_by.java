@@ -1,6 +1,7 @@
 package klik.properties;
 
 import klik.browser.Browser;
+import klik.browser.Path_list_provider;
 import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.log.Logger;
@@ -27,15 +28,15 @@ public enum File_sort_by {
 
 
   //**********************************************************
-  public static Comparator<Path> get_preliminary_comparator(Path displayed_folder_path, Image_properties_RAM_cache image_properties_cache, Browser browser, double x, double y, Aborter aborter, Logger logger)
+  public static Comparator<Path> get_preliminary_comparator(Path_list_provider path_list_provider, Image_properties_RAM_cache image_properties_cache, Browser browser, double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
     switch(File_sort_by.get_sort_files_by(logger))
     {
       case SIMILARITY_BY_PURSUIT:
-        return new Similarity_comparator_by_pursuit(displayed_folder_path, image_properties_cache, browser, x,y,aborter, logger);
+        return new Similarity_comparator_by_pursuit(path_list_provider, image_properties_cache, browser, x,y,aborter, logger);
       case SIMILARITY_BY_PAIRS:
-        return new Similarity_comparator_pairs_of_closests(displayed_folder_path, x,y,aborter, logger);
+        return new Similarity_comparator_pairs_of_closests(path_list_provider, x,y,aborter, logger);
       case NAME, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT, IMAGE_WIDTH:
         return new Alphabetical_file_name_comparator();
       case RANDOM:
@@ -52,15 +53,15 @@ public enum File_sort_by {
 
 
   //**********************************************************
-  public static Comparator<Path> get_true_comparator(Path displayed_folder_path, Image_properties_RAM_cache image_properties_cache, Browser browser, double x, double y, Aborter aborter, Logger logger)
+  public static Comparator<Path> get_true_comparator(Path_list_provider path_list_provider, Image_properties_RAM_cache image_properties_cache, Browser browser, double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
     switch(File_sort_by.get_sort_files_by(logger))
     {
       case SIMILARITY_BY_PURSUIT:
-        return new Similarity_comparator_by_pursuit(displayed_folder_path, image_properties_cache, browser, x,y,aborter, logger);
+        return new Similarity_comparator_by_pursuit(path_list_provider, image_properties_cache, browser, x,y,aborter, logger);
       case SIMILARITY_BY_PAIRS:
-        return new Similarity_comparator_pairs_of_closests(displayed_folder_path, x,y, aborter, logger);
+        return new Similarity_comparator_pairs_of_closests(path_list_provider, x,y, aborter, logger);
       case NAME:
         return new Alphabetical_file_name_comparator();
       case ASPECT_RATIO:

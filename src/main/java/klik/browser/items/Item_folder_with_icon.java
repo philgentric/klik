@@ -14,10 +14,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
-import klik.browser.Drag_and_drop;
-import klik.browser.Image_and_properties;
+import klik.browser.*;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
@@ -277,7 +274,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(browser,path,  images_in_folder,  image_properties_RAM_cache, logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(browser,new Folder_path_list_provider(path),  images_in_folder,  image_properties_RAM_cache, logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");

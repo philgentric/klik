@@ -1,6 +1,7 @@
 package klik.image_ml.image_similarity;
 
 import klik.actor.Aborter;
+import klik.browser.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.files_and_paths.File_pair;
 import klik.util.files_and_paths.File_with_a_few_bytes;
@@ -48,7 +49,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		double x = deduplication_by_similarity_engine.browser.my_Stage.the_Stage.getX()+100;
 		double y = deduplication_by_similarity_engine.browser.my_Stage.the_Stage.getY()+100;
 		image_similarity = new Image_similarity(
-				deduplication_by_similarity_engine.browser.displayed_folder_path,
+				new Folder_path_list_provider(deduplication_by_similarity_engine.browser.displayed_folder_path),
 				deduplication_by_similarity_engine.browser,
 				x,y,
 				deduplication_by_similarity_engine.browser.aborter,logger);

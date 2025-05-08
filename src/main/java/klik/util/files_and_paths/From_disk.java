@@ -281,7 +281,7 @@ public class From_disk
     //**********************************************************
     {
         if ( original_image_file == null) return null;
-        return new File(cache_dir.toFile(), Icon_writer_actor.make_cache_name(original_image_file, tag, extension));
+        return new File(cache_dir.toFile(), Icon_writer_actor.make_cache_name(original_image_file.toAbsolutePath().toString(), tag, extension));
     }
 
     //**********************************************************

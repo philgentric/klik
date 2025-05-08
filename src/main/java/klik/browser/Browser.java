@@ -317,7 +317,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         the_Pane = new Pane();
 
         if ( dbg) logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
-        virtual_landscape = new Virtual_landscape(this,aborter, logger);
+        Path_list_provider path_list_provider = new Folder_path_list_provider(displayed_folder_path);
+        virtual_landscape = new Virtual_landscape(path_list_provider,this,aborter, logger);
         selection_handler = new Selection_handler(the_Pane, virtual_landscape, this, logger);
         browser_menus = new Browser_menus(this, selection_handler, logger_);
         //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);

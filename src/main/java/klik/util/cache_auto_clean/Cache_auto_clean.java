@@ -3,6 +3,7 @@ package klik.util.cache_auto_clean;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -38,9 +39,10 @@ public class Cache_auto_clean
         aborter= aborter_;
         logger = logger_;
 
-        monitored_folders.add(new Monitored_folder("Icon cache folder", Static_files_and_paths_utilities.get_icons_cache_dir(owner,logger)));
-        monitored_folders.add(new Monitored_folder("Folder's icon cache folder", Static_files_and_paths_utilities.get_folders_icons_cache_dir(logger)));
-        monitored_folders.add(new Monitored_folder("Image properties cache folder", Image_properties_RAM_cache.get_image_properties_cache_dir(owner,logger)));
+        for(Cache_folder cache_folder : Cache_folder.values())
+        {
+            monitored_folders.add(new Monitored_folder(cache_folder.name(), Static_files_and_paths_utilities.get_cache_folder(cache_folder,logger)));
+        }
     }
 
     //**********************************************************

@@ -11,19 +11,22 @@ public class Icon_write_message implements Message
 //**********************************************************
 {
 	public final Image image;
-	public final Path original_path;
+	//public final Path original_path;
+	public final String tag;
     public final int icon_size;
     public final String extension;
 	public final Aborter aborter;
 
 
 	//**********************************************************
-    public Icon_write_message(Image smaller, int icon_size_, String extension_, Path p_, Aborter aborter)
+    public Icon_write_message(Image smaller, int icon_size_, String extension_,
+							  String tag_,
+							  Aborter aborter)
 	//**********************************************************
 	{
 		image = smaller;
 		icon_size = icon_size_;
-		original_path = p_;
+		tag = tag_;
 		extension = extension_;
 		this.aborter = aborter;
 	}
@@ -33,7 +36,7 @@ public class Icon_write_message implements Message
     public String to_string()
 	//**********************************************************
 	{
-        return "Icon_write_message for"+original_path;
+        return "Icon_write_message for"+tag;
     }
 
 	@Override

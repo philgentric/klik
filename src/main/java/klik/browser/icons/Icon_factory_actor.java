@@ -17,6 +17,7 @@ import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
 import klik.properties.Booleans;
+import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -77,7 +78,7 @@ public class Icon_factory_actor implements Actor
         owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
-        icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(owner, logger);
+        icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
         writer = new Icon_writer_actor(icon_cache_dir, logger);
     }
 
@@ -283,7 +284,7 @@ public class Icon_factory_actor implements Actor
                 if (dbg)
                         logger.log("Icon_factory thread: sending icon write to file in cache dir for " + path.getFileName());
 
-                Icon_write_message iwm = new Icon_write_message(image_from_disk, icon_factory_request.icon_size, png_extension, path,aborter);
+                Icon_write_message iwm = new Icon_write_message(image_from_disk, icon_factory_request.icon_size, png_extension, path.toAbsolutePath().toString(),aborter);
                 writer.push(iwm);
                 break;
         }

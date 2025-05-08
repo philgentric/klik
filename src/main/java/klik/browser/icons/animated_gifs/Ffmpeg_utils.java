@@ -23,6 +23,7 @@ import klik.actor.Job_termination_reporter;
 import klik.change.Change_gang;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Booleans;
+import klik.properties.Cache_folder;
 import klik.util.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
 import klik.util.ui.Jfx_batch_injector;
@@ -343,7 +344,7 @@ public class Ffmpeg_utils
 
         Platform.runLater(() -> {
             the_stage = new Stage();
-            icon_cache_dir = Static_files_and_paths_utilities.get_icons_cache_dir(the_stage,logger);
+            icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(the_stage, Cache_folder.klik_icon_cache,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);

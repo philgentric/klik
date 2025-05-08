@@ -21,6 +21,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.browser.Landscape_height_listener;
+import klik.browser.Path_list_provider;
 import klik.browser.Scroll_to_listener;
 import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties;
@@ -93,15 +94,17 @@ public class Virtual_landscape
     private final Browser the_browser;
     public Error_type error_type = Error_type.OK;
 
+    private final Path_list_provider path_list_provider;
 
     Map<Path,Long> folder_total_sizes_cache;
     Map<Path,Long> folder_file_count_cache;
 
     private final List<Item> future_pane_content = new ArrayList<>();
     //**********************************************************
-    public Virtual_landscape(Browser the_browser_, Aborter aborter, Logger logger_)
+    public Virtual_landscape(Path_list_provider path_list_provider,Browser the_browser_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.path_list_provider = path_list_provider;
         error_type = Error_type.OK;
         this.the_browser = the_browser_;
         this.aborter = aborter;
@@ -165,7 +168,7 @@ public class Virtual_landscape
         iconized_sorted_queue.clear();
 
         image_properties_RAM_cache.reload_cache_from_disk();
-        scan_dir();
+        scan_list();
 
         all_image_properties_acquired_4(start, running_film);
 
@@ -173,7 +176,7 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void scan_dir()
+    private void scan_list()
     //**********************************************************
     {
         boolean show_icons_instead_of_text = Booleans.get_boolean(Booleans.SHOW_ICONS,logger);
@@ -184,8 +187,10 @@ public class Virtual_landscape
 
         try
         {
-            File files[] = the_browser.displayed_folder_path.toFile().listFiles();
-            for ( File f : files)
+            //File files[] = the_browser.displayed_folder_path.toFile().listFiles();
+
+            //for ( File f : files)
+            for ( Path path : path_list_provider.get_paths())
             {
                 if ( aborter.should_abort())
                 {
@@ -194,8 +199,8 @@ public class Virtual_landscape
                     return;
                 }
 
-                Path path  = f.toPath();
-                if ( f.isDirectory())
+                //Path path  = f.toPath();
+                if ( path.toFile().isDirectory())
                 {
                     if (show_hidden_directories)
                     {
@@ -366,7 +371,7 @@ public class Virtual_landscape
             show_error_icon(the_browser, iv_denied,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
-            logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
+            logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
         }
         if (error_type == Error_type.NOT_FOUND) {
@@ -374,7 +379,7 @@ public class Virtual_landscape
             show_error_icon(the_browser, not_found,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
-            logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
+            logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
         }
         if (error_type == Error_type.ERROR) {
@@ -382,7 +387,7 @@ public class Virtual_landscape
             show_error_icon(the_browser, unknown_error,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
-            logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+the_browser.displayed_folder_path);
+            logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
         }
 
@@ -453,13 +458,13 @@ public class Virtual_landscape
                         break;
                     case DENIED:
                         logger.log("\n\naccess denied\n\n");
-                        the_browser.set_status("Access denied for:" + the_browser.displayed_folder_path);
+                        the_browser.set_status("Access denied for:" + path_list_provider.get_name());
                         compute_geometry( the_browser.mandatory_in_pane, "access denied", null, null);
                         break;
                     case NOT_FOUND:
                     case ERROR:
                         logger.log("\n\ndirectory gone\n\n");
-                        the_browser.set_status("Folder is gone:" + the_browser.displayed_folder_path);
+                        the_browser.set_status("Gone:" + path_list_provider.get_name());
                         compute_geometry(the_browser.mandatory_in_pane, "gone",  null, null);
                         break;
                 }
@@ -502,7 +507,7 @@ public class Virtual_landscape
     {
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
 
-        other_file_comparator = File_sort_by.get_preliminary_comparator(the_browser.displayed_folder_path, image_properties_RAM_cache,browser,x,y,aborter,logger);
+        other_file_comparator = File_sort_by.get_preliminary_comparator(path_list_provider, image_properties_RAM_cache,browser,x,y,aborter,logger);
 
         image_file_comparator = other_file_comparator;
 

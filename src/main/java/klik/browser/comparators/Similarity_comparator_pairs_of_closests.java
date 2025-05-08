@@ -3,6 +3,7 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
+import klik.browser.Path_list_provider;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -15,10 +16,10 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
 {
 
     //**********************************************************
-    public Similarity_comparator_pairs_of_closests(Path folder, double x, double y, Aborter aborter, Logger logger_)
+    public Similarity_comparator_pairs_of_closests(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        super(folder, x,y, aborter, logger_);
+        super(path_list_provider, x,y, aborter, logger_);
 
         //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
         if ( aborter.should_abort()) return;
