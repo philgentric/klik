@@ -199,12 +199,12 @@ public class History_engine
 
 
     //**********************************************************
-    public void add(Path p)
+    public void add(String tag)
     //**********************************************************
     {
-        remove_if_present(p);
-        History_item new_item = new History_item(p.toAbsolutePath().toString(), LocalDateTime.now());
-        properties_manager.raw_put(make_key(new_item.uuid), p.toAbsolutePath().toString());
+        remove_if_present(tag);
+        History_item new_item = new History_item(tag, LocalDateTime.now());
+        properties_manager.raw_put(make_key(new_item.uuid), tag);
         properties_manager.raw_put(make_key_for_age(new_item.uuid), new_item.time_stamp.toString());
 
         List<History_item> all_history_items = get_all_history_items();
@@ -234,16 +234,16 @@ public class History_engine
     }
 
     //**********************************************************
-    private void remove_if_present(Path p)
+    private void remove_if_present(String tag)
     //**********************************************************
     {
         for (String k : properties_manager.get_all_keys())
         {
             if (k.endsWith(AGE)) continue;
             String path = properties_manager.get(k);
-            if (Path.of(path).equals(p) )
+            if (path.equals(tag) )
             {
-                if (dbg) logger.log("History engine: "+p+" already present in history, removed");
+                if (dbg) logger.log("History engine: "+tag+" already present in history, removed");
                 properties_manager.remove(k);
                 UUID uuid = extract_uuid_from_key(k);
                 if (uuid != null) {

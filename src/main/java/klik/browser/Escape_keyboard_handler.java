@@ -8,9 +8,9 @@ import klik.properties.Booleans;
 public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEvent>
 //**********************************************************
 {
-    private final Browser browser;
+    private final Abstract_browser browser;
     //**********************************************************
-    public Escape_keyboard_handler(Browser browser)
+    public Escape_keyboard_handler(Abstract_browser browser)
     //**********************************************************
     {
         //browser.logger.log("creating External_close_event_handler for: "+browser.signature());

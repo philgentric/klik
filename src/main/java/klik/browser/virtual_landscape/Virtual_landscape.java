@@ -2278,6 +2278,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             String create_string = My_I18n.get_I18n_string("Create",logger);
             Menu create = new Menu(create_string);
             create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
+            create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> create_new_image_playlist()));
             create.getItems().add(browser_menus.make_menu_item("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet()));
             create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> sort_by_year()));
             create.getItems().add(browser_menus.make_import_menu());
@@ -2528,6 +2529,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     }
 
 
+    //**********************************************************
+    public void create_new_image_playlist()
+    //**********************************************************
+    {
+
+    }
     //**********************************************************
     public void create_new_directory()
     //**********************************************************

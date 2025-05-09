@@ -40,7 +40,7 @@ public class My_Stage
     }
 
     //**********************************************************
-    public void set_escape_event_handler(Browser b)
+    public void set_escape_event_handler(Abstract_browser b)
     //**********************************************************
     {
         if ( usage_count == 0) {

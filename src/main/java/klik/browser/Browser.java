@@ -46,24 +46,17 @@
 package klik.browser;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
-import javafx.stage.Stage;
 import klik.Klik_application;
-import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.*;
 import klik.change.Change_gang;
-import klik.change.Change_receiver;
-import klik.change.history.History_engine;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
-import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -72,49 +65,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
-public class Browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler
+public class Browser extends Abstract_browser
 //**********************************************************
 {
-    public static final AtomicInteger browsers_created = new AtomicInteger(0);
-
-    public static final boolean dbg = false;
-    public static final boolean keyboard_dbg = false;
-
-
-    public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
-    public static Aborter monitoring_aborter;
-    private static AtomicInteger ID_generator = new AtomicInteger(1000);
-    private final int ID;
-
-    private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
-
-
-    Filesystem_item_modification_watcher filesystem_item_modification_watcher;
-    public final My_Stage my_Stage;
-
-    public final Virtual_landscape virtual_landscape;
-    public final Logger logger;
     public final Path displayed_folder_path;
-    public final Aborter aborter;
-
-    boolean ignore_escape_as_the_stage_is_full_screen = false;
 
     //**********************************************************
-    public Browser(
-            Browser_creation_context context,
-            Logger logger_)
+    public Browser(Browser_creation_context context, Logger logger_)
     //**********************************************************
     {
-        logger = logger_;
-
-        int count = browsers_created.incrementAndGet();
-        logger.log("Browser constructor browsers_created(1)="+count);
-        if (context.shutdown_target != null)
-        {
-            logger.log("closing previous browser");
-            context.shutdown_target.shutdown();
-        }
-
+        super(context,logger_);
         if ( context.folder_path == null)
         {
             displayed_folder_path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
@@ -123,102 +83,41 @@ public class Browser implements Change_receiver, Shutdown_target, Title_target, 
         {
             displayed_folder_path = Path.of(context.folder_path);
         }
-        if ( dbg) logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
+        init();
 
-        aborter = new Aborter("Browser for: " + displayed_folder_path.toAbsolutePath().toString(), logger);
+        //if ( dbg)
+            logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
 
-        ID = ID_generator.getAndIncrement();
-        my_Stage = new My_Stage(new Stage(),logger);// context.stage;//new My_Stage(context.stage,logger);
-
-        my_Stage.the_Stage.setOnCloseRequest(event -> {
-            System.out.println("Klik browser window exit");
-            System.exit(0);
-        });
-
-        if (context.additional_window) {
-            //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after create: " +context.folder_path +"\n"+ signature()));
-        } else {
-            //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after dir change: " +context.folder_path +"\n"+ signature()));
-        }
-        //logger.log("top_left_in_parent="+top_left_in_parent);
-
-        double x = 0;
-        double y = 0;
-
-        double width = 2400 / 2.0;
-        double height = 1080 - y;
-
-
-        if (count == 1)
-        {
-            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, logger);
-            width = r.getWidth();
-            height = r.getHeight();
-            x = r.getMinX();
-            y = r.getMinY();
-        }
-        else
-        {
-            if (context.rectangle != null)
-            {
-                width = context.rectangle.getWidth();//old_browser.the_Stage.getWidth();
-                height = context.rectangle.getHeight();//old_browser.the_Stage.getHeight();
-                x = context.rectangle.getMinX();//old_browser.the_Stage.getX();
-                y = context.rectangle.getMinY();//old_browser.the_Stage.getY();
-
-            }
-            if (context.move_a_bit)
-            {
-                x += 100;
-                y += 100;
-            }
-
-        }
-        if (dbg) logger.log("NEW browser");
-
-        my_Stage.the_Stage.setX(x);
-        my_Stage.the_Stage.setY(y);
-        my_Stage.the_Stage.setWidth(width);
-        my_Stage.the_Stage.setHeight(height);
-        my_Stage.the_Stage.show();
-
-        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, "Klik", Look_and_feel_manager.Icon_type.KLIK);
-        // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
-        History_engine.get_instance(logger).add(displayed_folder_path);
-
-
-        Change_gang.register(this, aborter, logger);
-        set_title();
-
-        Path_list_provider path_list_provider = new Folder_path_list_provider(displayed_folder_path);
-        virtual_landscape = new Virtual_landscape(path_list_provider,my_Stage.the_Stage,this,this,this,this,aborter, logger);
-
-
-        ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-           record_stage_bounds();
-        };
-        my_Stage.the_Stage.xProperty().addListener(change_listener);
-        my_Stage.the_Stage.yProperty().addListener(change_listener);
+    }
+    //**********************************************************
+    @Override // Abstract_browser
+    void monitor()
+    //**********************************************************
+    {
         monitor_folder();
+    }
 
-        my_Stage.set_escape_event_handler(this);
+    //**********************************************************
+    @Override
+    public Path_list_provider get_Path_list_provider()
+    //**********************************************************
+    {
+        return new Folder_path_list_provider(displayed_folder_path);
+    }
 
-        my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            if (dbg) logger.log("new browser width =" + newValue.doubleValue());
-            record_stage_bounds();
-            virtual_landscape.redraw_fx("width changed by user");
-        });
-        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            record_stage_bounds();
-            virtual_landscape.redraw_fx("height changed by user");
-        });
-
-
-        virtual_landscape.redraw_fx("Browser constructor");
+    //**********************************************************
+    @Override // Abstract_browser
+    public String get_name()
+    //**********************************************************
+    {
+        if ( displayed_folder_path == null) return "what the fuck";
+        return displayed_folder_path.toAbsolutePath().toString();
     }
 
 
+    //**********************************************************
     void monitor_folder()
+    //**********************************************************
     {
         boolean monitor_this_folder = false;
 
@@ -242,22 +141,11 @@ public class Browser implements Change_receiver, Shutdown_target, Title_target, 
         }
     }
 
-    //**********************************************************
-    private void record_stage_bounds()
-    //**********************************************************
-    {
-        if (browsers_created.get() != 1) {
-            // ignore: we store the position of a "unique or last" window
-            return;
-        }
-        if (dbg) logger.log("ChangeListener: image window position and/or size changed");
-        Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
-    }
-
 
 
     //**********************************************************
-    String signature()
+    @Override // Abstract_browser
+    public String signature()
     //**********************************************************
     {
         return "  Browser ID= " + ID + " total window count: " + browsers_created.get() + " esc=" + my_Stage.escape;
@@ -377,7 +265,6 @@ public class Browser implements Change_receiver, Shutdown_target, Title_target, 
     }
 
 
-
     //**********************************************************
     @Override // Change_receiver
     public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger)
@@ -432,22 +319,5 @@ public class Browser implements Change_receiver, Shutdown_target, Title_target, 
     {
         return "Browser:" + displayed_folder_path.toAbsolutePath() + " " + ID;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
