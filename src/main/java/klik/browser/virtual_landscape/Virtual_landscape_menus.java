@@ -1057,15 +1057,18 @@ public class Virtual_landscape_menus
         item.setSelected(actual == sort_by);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
-            if (local.isSelected()) {
+            if (local.isSelected())
+            {
                 for ( CheckMenuItem cmi : all_check_menu_items)
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                File_sort_by.set_sort_files_by(sort_by,logger);
-                logger.log("new sorting order= "+sort_by);
-                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,logger);
-                //browser.scene_geometry_changed("file sorting method changed",true,false);
+                if ( actual != sort_by)
+                {
+                    File_sort_by.set_sort_files_by(sort_by,logger);
+                    logger.log("new file/image sorting order= "+sort_by);
+                    Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,logger);
+                }
             }
         });
         menu.getItems().add(item);

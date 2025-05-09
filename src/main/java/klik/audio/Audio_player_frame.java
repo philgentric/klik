@@ -1104,8 +1104,10 @@ public class Audio_player_frame
     public void play_playlist_internal(File playlist_file_)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_.getAbsolutePath());
-
+        if ( Non_booleans.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME) == null)
+        {
+            Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME, playlist_file_.getAbsolutePath());
+        }
         //logger.log("Going to play list: "+playlist_file.getAbsolutePath());
         load_playlist(playlist_file_);
         if ( observable_playlist.isEmpty())

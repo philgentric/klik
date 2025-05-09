@@ -102,7 +102,7 @@ public class Booleans
             {
                 boolean_properties_cache.put(k, false);
                 pm.add_and_save(k, String.valueOf(false));
-                if ( dbg) logger.log("boolean value for " + k + " = " + v+" (false)");
+                logger.log("SAVING MISSING boolean value for " + k + " = " + v+" (false)");
                 continue;
             }
             Boolean b = Boolean.parseBoolean(v);

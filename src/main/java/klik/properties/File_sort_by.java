@@ -97,7 +97,8 @@ public enum File_sort_by {
   //**********************************************************
   {
     String s = Non_booleans.get_main_properties_manager(logger).get(SORT_FILES_BY);
-    if (s == null) {
+    if (s == null)
+    {
       Non_booleans.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, File_sort_by.NAME.name());
       return File_sort_by.NAME;
     }

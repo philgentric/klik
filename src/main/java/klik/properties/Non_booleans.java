@@ -56,7 +56,7 @@ public class Non_booleans
 
     // cached values
 
-    public static Properties_manager the_properties_manager;
+    private static Properties_manager the_properties_manager;
     private static int icon_size = -1;
     private static int folder_icon_size = -1;
     private static int video_length = -1;
@@ -308,8 +308,8 @@ public class Non_booleans
         String s = get_main_properties_manager(logger).get(LANGUAGE_KEY);
         if (s == null) {
             s = "English";
+            get_main_properties_manager(logger).add_and_save(LANGUAGE_KEY, s);
         }
-        get_main_properties_manager(logger).add_and_save(LANGUAGE_KEY, s);
         return s;
     }
 
