@@ -166,7 +166,7 @@ public class Menus_for_image_window
         search_k.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(null);
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name();
         });
         return search_k;
     }
@@ -179,7 +179,7 @@ public class Menus_for_image_window
         copy.setOnAction(event -> {
 
             Runnable r = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
-            image_window.image_display_handler.get_image_context().get().copy(image_window.browser, r);
+            image_window.image_display_handler.get_image_context().get().copy( r);
         });
         return copy;
     }
@@ -227,6 +227,22 @@ public class Menus_for_image_window
         return rename;
     }
 
+
+
+
+    //**********************************************************
+    private static MenuItem get_delete_menu_item(Image_window image_window)
+    //**********************************************************
+    {
+        MenuItem rename = new MenuItem(My_I18n.get_I18n_string("Delete_with_shortcut", image_window.logger));
+        rename.setOnAction(event -> {
+            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
+        });
+        return rename;
+    }
+
+
     //**********************************************************
     private static MenuItem get_browse_menu_item(Image_window image_window)
     //**********************************************************
@@ -235,7 +251,7 @@ public class Menus_for_image_window
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             Browser_creation_context.additional_no_past(image_window.browser.primary_stage,image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.logger);
+             Browser_creation_context.additional_no_past(image_window.image_display_handler.get_image_context().get().path.getParent().toString(), image_window.logger);
         });
         return browse;
     }
@@ -266,7 +282,7 @@ public class Menus_for_image_window
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.browser,image_window.the_Stage, image_window.logger);
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.logger);
             if ( recognition_services == null) return;
 
             AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -288,7 +304,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.browser,image_window.the_Stage,image_window.logger);
+        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage,image_window.logger);
         if (recognition_services == null) return;
 
         Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
@@ -489,7 +505,7 @@ public class Menus_for_image_window
             context_menu.getItems().add(Item_image.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
                     image_properties_cache,
-                    image_window.browser,
+                    image_window.the_Stage,
                     image_window.aborter,
                     image_window.logger));
         }
@@ -521,6 +537,7 @@ public class Menus_for_image_window
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));
         context_menu.getItems().add(get_rename_menu_item(image_window));
+        context_menu.getItems().add(get_delete_menu_item(image_window));
         context_menu.getItems().add(get_copy_menu_item(image_window));
         context_menu.getItems().add(get_print_menu_item(image_window));
         context_menu.getItems().add(get_search_by_autoextracted_keyword_menu_item(image_window));

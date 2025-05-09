@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.items.Item;
+import klik.browser.virtual_landscape.Selection_handler;
 import klik.util.files_and_paths.Moving_files;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /*
 static utilities for drag-and-drop
@@ -26,7 +28,7 @@ static utilities for drag-and-drop
 public class Drag_and_drop
 //**********************************************************
 {
-    public static boolean drag_and_drop_dbg = false;
+    public static boolean drag_and_drop_dbg = true;
 
     //**********************************************************
     public static int accept_drag_dropped_as_a_move_in(
@@ -144,7 +146,9 @@ public class Drag_and_drop
     }
 
 
-    public static void init_drag_and_drop_receiver_side(Node node, Browser browser, Path path, boolean is_trash, Logger logger)
+    public static void init_drag_and_drop_receiver_side(Node node, 
+                                                        Window owner, 
+                                                        Path path, boolean is_trash, Logger logger)
     {
         node.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
@@ -165,7 +169,7 @@ public class Drag_and_drop
         node.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
             Drag_and_drop.accept_drag_dropped_as_a_move_in(
-                    browser.my_Stage.the_Stage,
+                    owner,
                     drag_event,
                     path,
                     node,
@@ -179,7 +183,7 @@ public class Drag_and_drop
 
     public static void init_drag_and_drop_sender_side(
             Node node,
-            Browser browser,
+            Optional<Selection_handler> selection_handler,
             Path path,
             Logger logger)
     {
@@ -207,7 +211,11 @@ public class Drag_and_drop
                 browser.selection_handler.add_into_selected_files(tmp);
             }
 */
-            List<File> ll = browser.selection_handler.get_selected_files();
+            List<File> ll = new ArrayList<>();
+            if(selection_handler.isPresent())
+            {
+                ll.addAll(selection_handler.get().get_selected_files());
+            }
             // if we are here it is because the user is dragging an item
             if (!ll.contains(path.toFile())) {
                 ll.add(path.toFile());
@@ -237,9 +245,13 @@ public class Drag_and_drop
                 l.add(oan);
                 Change_gang.report_event(l);*/
 
-                browser.set_status(browser.selection_handler.get_selected_files_count()+ " files have been dragged out");
-                browser.selection_handler.reset_selection();
-                browser.selection_handler.nothing_selected();
+                if( selection_handler.isPresent())
+                {
+
+                    //browser.get().set_status(selection_handler.get().get_selected_files_count()+ " files have been dragged out");
+                    selection_handler.get().reset_selection();
+                    selection_handler.get().nothing_selected();
+                }
             }
             drag_event.consume();
         });

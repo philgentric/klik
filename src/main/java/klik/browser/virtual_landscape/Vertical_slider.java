@@ -1,10 +1,9 @@
-package klik.browser;
+package klik.browser.virtual_landscape;
 
 import javafx.geometry.Orientation;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-import klik.browser.icons.Virtual_landscape;
+import javafx.stage.Window;
 import klik.properties.Booleans;
 import klik.util.log.Logger;
 
@@ -19,7 +18,9 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     Pane pane;
 
     //**********************************************************
-    public Vertical_slider(Stage stage, Pane pane_, Virtual_landscape virtual_landscape, Logger logger_)
+    public Vertical_slider(
+            Window stage,
+            Pane pane_, Virtual_landscape virtual_landscape, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -209,7 +210,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
 
 
     //**********************************************************
-    public void adapt_slider_to_scene(Stage stage)
+    public void adapt_slider_to_scene(Window stage)
     //**********************************************************
     {
         if ( dbg) logger.log("adapt_slider_to_scene stage.getWidth()="+stage.getWidth()+" h = "+stage.getHeight());

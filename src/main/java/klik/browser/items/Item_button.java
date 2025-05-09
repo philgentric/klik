@@ -2,6 +2,7 @@
 package klik.browser.items;
 
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Control;
@@ -11,12 +12,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Virtual_landscape;
+import klik.browser.icons.Icon_factory_actor;
+import klik.browser.virtual_landscape.Scroll_position_recorder;
+import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Shutdown_target;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.Booleans;
@@ -50,7 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Item_button extends Item implements Icon_destination
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public Button button;
     public Label label;
     public final boolean is_dir;
@@ -61,22 +67,31 @@ public class Item_button extends Item implements Icon_destination
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final Shutdown_target shutdown_target;
 
     //**********************************************************
     public Item_button(
-            Browser browser,
-            Path path_,
+            Window owner,
+            Scene scene,
+            Selection_handler selection_handler,
+            Path path,
+            Icon_factory_actor icon_factory_actor,
             Color color,
+            Aborter aborter,
             String text_,
             double height,
             boolean is_trash_,
             boolean is_parent_,
             Image_properties_RAM_cache image_properties_RAM_cache,
+            Scroll_position_recorder scroll_position_recorder,
+            Shutdown_target shutdown_target,
             Logger logger)
     //**********************************************************
     {
-        super(browser, path_, color, logger);
+
+        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder, aborter, logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.shutdown_target = shutdown_target;
         text = text_;
         is_trash = is_trash_;
         is_parent = is_parent_;
@@ -109,7 +124,7 @@ public class Item_button extends Item implements Icon_destination
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
         Tooltip.install(button,new Tooltip(path.toString()));
 
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),Optional.of(selection_handler),path,logger);
 
     }
 
@@ -254,7 +269,7 @@ public class Item_button extends Item implements Icon_destination
             }
 
             Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
-                    browser,
+                    owner,
                     new Folder_path_list_provider(local_path),
                     images_in_folder,
                     image_properties_RAM_cache,
@@ -300,7 +315,6 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
 
-
         if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger))
         {
             /*double space_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(" ");// text.length();
@@ -345,6 +359,9 @@ public class Item_button extends Item implements Icon_destination
         button.setTextAlignment(TextAlignment.RIGHT);
 
         button.setOnAction(event -> {
+
+            logger.log("ON ACTION " + path.toAbsolutePath());
+
             if ( Guess_file_type.is_this_path_a_text(path))
             {
                 logger.log("opening text: " + path.toAbsolutePath());
@@ -359,7 +376,7 @@ public class Item_button extends Item implements Icon_destination
             }
             if ( Guess_file_type.is_this_path_a_music(path))
             {
-                if ( !Guess_file_type.is_this_a_video_or_audio_file(browser.my_Stage.the_Stage,path,logger))
+                if ( !Guess_file_type.is_this_a_video_or_audio_file(owner,path,logger))
                 {
                     logger.log("Item_button, opening audio file: " + path.toAbsolutePath());
                     Audio_player.play_song_in_separate_process(path.toFile(),logger);
@@ -367,7 +384,7 @@ public class Item_button extends Item implements Icon_destination
                 }
             }
             logger.log("asking the system to open: " + path.toAbsolutePath());
-            System_open_actor.open_with_system(browser.my_Stage.the_Stage,path,browser.aborter,logger);
+            System_open_actor.open_with_system(owner,path,browser_aborter,logger);
         });
 
         give_a_menu_to_the_button(button,label);
@@ -400,13 +417,14 @@ public class Item_button extends Item implements Icon_destination
 
             if ( text.equals("Trash")) {
                 button.setOnAction(event -> {
-                    Popups.popup_warning(browser.my_Stage.the_Stage,"WARNING","NO trash on this media: probably it is read only",true,logger);
+                    Popups.popup_warning(owner,"WARNING","NO trash on this media: probably it is read only",true,logger);
                 });
             }
             return;
         }
 
         button.setOnAction(event -> {
+            logger.log("BUTTON PRESSED for folder:"+text);
 
             if (path == null)
             {
@@ -420,11 +438,14 @@ public class Item_button extends Item implements Icon_destination
             // = we create a NEW browser, as a replacement
 
             if( dbg) logger.log("Item_button button setOnAction calling replace_different_folder");
-            Browser_creation_context.replace_different_folder(path,browser,logger);
+
+            //Virtual_landscape.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
+
+            Browser_creation_context.replace_different_folder(shutdown_target,path.toAbsolutePath().toString(),owner,logger);
 
         });
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),browser,path,is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),owner,path,is_trash(),logger);
 
         give_a_menu_to_the_button(button,label);
 

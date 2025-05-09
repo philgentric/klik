@@ -3,7 +3,7 @@ package klik.properties;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
-import klik.browser.icons.Virtual_landscape;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;

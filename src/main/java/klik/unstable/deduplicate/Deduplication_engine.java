@@ -7,6 +7,7 @@
 
 package klik.unstable.deduplicate;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.properties.Booleans;
@@ -37,7 +38,7 @@ public class Deduplication_engine implements Againor, Abortable
 //**********************************************************
 {
 
-    private final Browser browser;
+    private final Window owner;
     Logger logger;
     BlockingQueue<File_pair_deduplication> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
     //int n_threads;
@@ -50,10 +51,12 @@ public class Deduplication_engine implements Againor, Abortable
     Stage_with_2_images stage_with_2_images;
 
     //**********************************************************
-    public Deduplication_engine(Browser browser, File target_dir_, Logger logger_)
+    public Deduplication_engine(
+            Window owner,
+            File target_dir_, Logger logger_)
     //*************************************w********************
     {
-        this.browser = browser;
+        this.owner = owner;
         target_dir = target_dir_;
         logger = logger_;
     }
@@ -67,7 +70,7 @@ public class Deduplication_engine implements Againor, Abortable
         Deduplication_engine local_engine = this;
 
 
-        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, browser.my_Stage.the_Stage, private_aborter, logger);
+        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, false, owner, private_aborter, logger);
 
         Runnable r = () -> runnable_deduplication(local_engine, auto);
         Actor_engine.execute(r,logger);
@@ -222,9 +225,9 @@ public class Deduplication_engine implements Againor, Abortable
             if (erased % 10 == 0) console_window.set_status_text("Erased files =" + erased);
 
         }
-        double x = browser.my_Stage.the_Stage.getX()+100;
-        double y = browser.my_Stage.the_Stage.getY()+100;
-        Moving_files.safe_delete_files(browser.my_Stage.the_Stage, x,y,ll, private_aborter,logger);
+        double x = owner.getX()+100;
+        double y = owner.getY()+100;
+        Moving_files.safe_delete_files(owner, x,y,ll, private_aborter,logger);
 
         //Popups.popup_warning("End of automatic de-duplication for :" + target_dir.getAbsolutePath(), erased + " pairs de-duplicated", false, logger);
 
@@ -323,7 +326,7 @@ public class Deduplication_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             File_pair local = new File_pair(file_pair.f1.my_file.file, file_pair.f2.my_file.file);
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, browser, local, local_againor, console_window.count_deleted,private_aborter, logger);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, owner, local, local_againor, console_window.count_deleted,private_aborter, logger);
             else stage_with_2_images.set_pair(title,local);
         },logger);
     }
@@ -380,7 +383,7 @@ public class Deduplication_engine implements Againor, Abortable
                     if (!end_reported)
                     {
 
-                        Popups.popup_warning(browser.my_Stage.the_Stage, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
+                        Popups.popup_warning(owner, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
                         end_reported = true;
                         return;
                     }
@@ -399,7 +402,7 @@ public class Deduplication_engine implements Againor, Abortable
     //**********************************************************
     {
         logger.log("Deduplication::count()");
-        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, true, browser.my_Stage.the_Stage, private_aborter, logger);
+        console_window = new Deduplication_console_window(this,"Looking for duplicated files in:" + target_dir.getAbsolutePath(),  800, 800, true, owner, private_aborter, logger);
 
         Runnable r = () -> just_count();
         Actor_engine.execute(r,logger);

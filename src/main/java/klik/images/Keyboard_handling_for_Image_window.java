@@ -24,7 +24,7 @@ public class Keyboard_handling_for_Image_window
     private static final boolean keyword_dbg = false;
     //**********************************************************
     static void handle_keyboard(
-            Browser browser,
+            //Browser browser,
             Image_window image_window,
             boolean exit_on_escape_preference,
             final KeyEvent key_event,
@@ -32,7 +32,7 @@ public class Keyboard_handling_for_Image_window
     //**********************************************************
     {
 
-        Window window = browser.my_Stage.the_Stage;
+        Window window = image_window.the_Stage;
         if ( keyword_dbg) logger.log("Image_stage KeyEvent="+key_event);
         if (key_event.getCode() == KeyCode.ESCAPE)
         {
@@ -101,8 +101,7 @@ public class Keyboard_handling_for_Image_window
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
                 Browser_creation_context.additional_no_past(
-                        browser.primary_stage,
-                        image_window.image_display_handler.get_image_context().get().path.getParent(),
+                        image_window.image_display_handler.get_image_context().get().path.getParent().toString(),
                         logger);
                 key_event.consume();
                 return;
@@ -112,7 +111,9 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 Runnable after = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
-                image_window.image_display_handler.get_image_context().get().copy(browser, after);
+                image_window.image_display_handler.get_image_context().get().copy(
+                        //browser,
+                        after);
                 key_event.consume();
                 return;
             }
@@ -154,7 +155,7 @@ public class Keyboard_handling_for_Image_window
                 if (keyword_dbg) logger.log("k like search_using_keywords_from_the_name");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(browser);
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name();
                 key_event.consume();
                 return;
             }

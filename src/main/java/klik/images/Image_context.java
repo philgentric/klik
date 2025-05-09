@@ -9,6 +9,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
@@ -329,7 +330,9 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(Browser browser)
+    void search_using_keywords_from_the_name(
+            //Browser browser
+    )
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -355,27 +358,29 @@ public class Image_context
         }
         logger.log("--------------------------------");
 
-        Finder.find(path,browser,keywords,true,logger);
+        Finder.find(path,
+                //browser,
+                keywords,true,logger);
     }
 
 
 
     List<String> given_keywords = new ArrayList<>();
     //**********************************************************
-    void search_using_keywords_given_by_the_user(Browser browser, boolean search_only_for_images)
+    void search_using_keywords_given_by_the_user(Window owner, boolean search_only_for_images)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find(browser, path, given_keywords, search_only_for_images,logger);
+        ask_user_and_find(path, given_keywords, search_only_for_images,owner,logger);
     }
 
 
     //**********************************************************
     public static void ask_user_and_find(
-            Browser browser,
             Path target,
             List<String> keywords,
             boolean search_only_for_images,
+            Window owner,
             Logger logger
     )
     //**********************************************************
@@ -387,7 +392,7 @@ public class Image_context
             for (String ss : keywords) ttt.append(ss).append(" ");
             TextInputDialog dialog = new TextInputDialog(ttt.toString());
             Look_and_feel_manager.set_dialog_look(dialog);
-            dialog.initOwner(browser.my_Stage.the_Stage);
+            dialog.initOwner(owner);
             dialog.setTitle("Keywords");
             dialog.setHeaderText("Enter your keywords, separated by space");
             dialog.setContentText("Keywords:");
@@ -407,7 +412,9 @@ public class Image_context
                         keywords.add(s);
                     }
 
-                    Finder.find(target,browser, keywords,search_only_for_images,logger);
+                    Finder.find(target,
+                            //browser,
+                            keywords,search_only_for_images,logger);
                 }
             }
 
@@ -440,7 +447,7 @@ public class Image_context
 
     //**********************************************************
     boolean copy(
-            Browser browser,
+            //Browser browser,
             Runnable after)
     //**********************************************************
     {
@@ -503,7 +510,9 @@ public class Image_context
                 Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l);
 
-        Item_image.open_an_image(true,browser,new_path,logger);
+        Item_image.open_an_image(true,
+                //browser,
+                new_path,logger);
         //Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;
     }

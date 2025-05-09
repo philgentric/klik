@@ -2,12 +2,13 @@
 //SOURCES ../comparators/Alphabetical_file_name_comparator_gif_first.java
 //SOURCES ../comparators/
 
-package klik.browser.icons;
+package klik.browser.virtual_landscape;
 
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.Browser;
+import klik.browser.icons.Icon_factory_actor;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -38,15 +39,22 @@ public class Paths_manager
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
     public final Aborter aborter;
-    public final Path folder_path;
+    //public final Path folder_path;
+    //Path_list_provider path_list_provider;
     private final Icon_factory_actor icon_factory_actor;
+    private final Image_properties_RAM_cache image_properties_RAM_cache;
 
     //**********************************************************
-    public Paths_manager(Icon_factory_actor icon_factory_actor, Path displayed_folder_path,
+    public Paths_manager(Icon_factory_actor icon_factory_actor,
+                         Image_properties_RAM_cache image_properties_RAM_cache,
+                         //Path displayed_folder_path,
+                        // Path_list_provider path_list_provider,
                          Aborter aborter_, Logger logger_)
     //**********************************************************
     {
-        folder_path = displayed_folder_path;
+        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        //folder_path = displayed_folder_path;
+        //this.path_list_provider = path_list_provider;
         logger = logger_;
         ID = ig_gen.getAndIncrement();
         aborter = aborter_;
@@ -57,7 +65,9 @@ public class Paths_manager
     //long scan_dir_elapsed = 0;
 
     //**********************************************************
-    void do_file(Browser the_browser, Path path, boolean show_icons_instead_of_text, Stage stage)
+    void do_file(
+            //Browser the_browser,
+            Path path, boolean show_icons_instead_of_text, Window stage)
     //**********************************************************
     {
 
@@ -128,7 +138,8 @@ public class Paths_manager
             if (show_icons_instead_of_text)
             {
                 // calling this will pre-populate the cache
-                the_browser.virtual_landscape.image_properties_RAM_cache.prefill_cache(path);
+                //the_browser.virtual_landscape.image_properties_RAM_cache.prefill_cache(path);
+                image_properties_RAM_cache.prefill_cache(path);
                 iconized_paths.add(path);
                 if (dbg) logger.log("calling image properties cache from path manager do_file()");
                 return;
@@ -139,13 +150,15 @@ public class Paths_manager
     }
 
     //**********************************************************
-    void do_folder(Browser the_browser, Path path)
+    void do_folder(
+            //Browser the_browser,
+            Path path)
     //**********************************************************
     {
         folders.put(path,true);
         Text t = new Text(path.getFileName().toString());
-        double l = t.getLayoutBounds().getWidth();
-        if (l > the_browser.max_dir_text_length) the_browser.max_dir_text_length = l;
+        //double l = t.getLayoutBounds().getWidth();
+        //if (l > the_browser.max_dir_text_length) the_browser.max_dir_text_length = l;
     }
 
 

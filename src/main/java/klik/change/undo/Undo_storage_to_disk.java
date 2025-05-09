@@ -1,6 +1,7 @@
 package klik.change.undo;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Command_old_and_new_Path;
@@ -95,7 +96,7 @@ public class Undo_storage_to_disk
     }
 
     //**********************************************************
-    public void remove_all_undo_items_from_property_file(Stage owner)
+    public void remove_all_undo_items_from_property_file(Window owner)
     //**********************************************************
     {
 

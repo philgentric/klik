@@ -1,6 +1,7 @@
 package klik.unstable.backup;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -34,7 +35,7 @@ public class Backup_singleton
         b.destination = destination_;
     }
     //**********************************************************
-    public static boolean start_the_backup(Stage owner)
+    public static boolean start_the_backup(Window owner)
     //**********************************************************
     {
         if ( instance == null) return false;
@@ -43,7 +44,7 @@ public class Backup_singleton
     }
 
     //**********************************************************
-    private void start(Stage owner)
+    private void start(Window owner)
     //**********************************************************
     {
         Iterator<Backup_engine> it = engines.iterator();

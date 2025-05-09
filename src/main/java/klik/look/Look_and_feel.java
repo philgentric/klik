@@ -241,7 +241,7 @@ public abstract class Look_and_feel
 
     /*
     public void set_dragged_over_directory_style(Button button) {
-        button.setStyle(Browser_UI.LOOK_AND_FEEL_MENU_BUTTONS_DRAG_OVER);
+        button.setStyle(Virtual_landscape_UI.LOOK_AND_FEEL_MENU_BUTTONS_DRAG_OVER);
     }
    */
 

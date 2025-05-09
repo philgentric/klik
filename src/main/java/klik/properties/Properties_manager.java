@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 public class Properties_manager
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final String AGE = "_age";
     public static final int max = 30;
 
@@ -164,7 +164,7 @@ public class Properties_manager
     public void add(String key, String value, boolean and_save)
     //**********************************************************
     {
-        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
+        if (dbg) logger.log(Stack_trace_getter.get_stack_trace("Non_booleans: imperative_store " + key + "=" + value));
         the_Properties.put(key, value);
         if (and_save) store_properties();
     }

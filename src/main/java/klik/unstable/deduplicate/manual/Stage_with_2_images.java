@@ -15,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.audio.Audio_player;
 import klik.browser.Browser;
@@ -44,7 +45,7 @@ public class Stage_with_2_images
 	public double W = 1400;
 	Logger logger;
 
-	public final Browser browser;
+	public final Window owner;
 	public final Aborter aborter;
 	VBox the_big_vbox;
 	Againor againor;
@@ -53,7 +54,7 @@ public class Stage_with_2_images
 	//**********************************************************
 	public Stage_with_2_images(
 			String title,
-			Browser browser,
+			Window owner,
 			File_pair pair,
 			Againor againor_,
 			AtomicInteger count_deleted_,
@@ -62,7 +63,7 @@ public class Stage_with_2_images
 			)
 	//**********************************************************
 	{
-		this.browser = browser;
+		this.owner = owner;
 		logger = logger_;
 		count_deleted = count_deleted_;
 		aborter = private_aborter_;
@@ -86,7 +87,7 @@ public class Stage_with_2_images
 				stage.setScene(scene);//, W, H));
 				stage.setOnCloseRequest((e) -> aborter.abort("Stage_with_2_images closing"));
 
-				if (!set_images_by_files(title,pair,browser,aborter))
+				if (!set_images_by_files(title,pair,aborter))
 				{
 					stage.hide();
 					againor.again();
@@ -102,7 +103,9 @@ public class Stage_with_2_images
 	static Comparator<? super File> comp_by_path_length = Comparator.comparingInt((File o) -> o.getAbsolutePath().length());
 
 	//**********************************************************
-	protected boolean set_images_by_files(String title, File_pair the_pair, Browser browser, Aborter aborter)
+	protected boolean set_images_by_files(String title, File_pair the_pair,
+										  //Browser browser,
+										  Aborter aborter)
 	//**********************************************************
 	{
 		the_big_vbox.getChildren().clear();
@@ -125,7 +128,7 @@ public class Stage_with_2_images
 		Display_data dd = new Display_data(title, 0, 0);
 		for ( int i = 0 ; i < the_image_files.length ; i++)
 		{
-			dd = display_one_picture_with_buttons(the_pair, browser, aborter,dd, hbox, the_image_files[i]);
+			dd = display_one_picture_with_buttons(the_pair, aborter,dd, hbox, the_image_files[i]);
 			if (dd == null) return false;
 
 			if ( i == 0) {
@@ -145,7 +148,7 @@ public class Stage_with_2_images
 	//**********************************************************
 	private Display_data display_one_picture_with_buttons(
 			File_pair the_pair,
-			Browser browser,
+			//Browser browser,
 			Aborter aborter,
 			Display_data previous, HBox hbox, File file)
 	//**********************************************************
@@ -173,7 +176,7 @@ public class Stage_with_2_images
 			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
             if (is_image)
 			{
-				Item_image.open_an_image(true,browser,file.toPath(),logger);
+				Item_image.open_an_image(true,file.toPath(),logger);
                 //Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
             }
 			else
@@ -184,7 +187,7 @@ public class Stage_with_2_images
 				}
 				else
 				{
-					System_open_actor.open_with_system(browser.my_Stage.the_Stage, file.toPath(), aborter, logger);
+					System_open_actor.open_with_system(owner, file.toPath(), aborter, logger);
 				}
             }
         });
@@ -303,7 +306,7 @@ public class Stage_with_2_images
 	public void set_pair(String title,File_pair pair)
 	{
 		if ( !pair.both_file_exist()) return;
-		set_images_by_files(title,pair,browser, aborter);
+		set_images_by_files(title,pair, aborter);
 		stage.show();
 	}
 

@@ -2,6 +2,7 @@
 package klik.properties;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
@@ -168,7 +169,7 @@ public class Booleans
 
     static boolean ffmpeg_popup_done = false;
     //**********************************************************
-    public static void manage_show_ffmpeg_install_warning(Stage owner, Logger logger)
+    public static void manage_show_ffmpeg_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_show_ffmpeg_install_warning(logger))
@@ -188,7 +189,7 @@ public class Booleans
     }
     static boolean GraphicsMagick_popup_done = false;
     //**********************************************************
-    public static void manage_show_GraphicsMagick_install_warning(Stage owner, Logger logger)
+    public static void manage_show_GraphicsMagick_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_show_GraphicsMagick_install_warning(logger))

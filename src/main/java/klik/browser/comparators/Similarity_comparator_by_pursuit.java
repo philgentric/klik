@@ -3,8 +3,7 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
-import klik.browser.Browser;
-import klik.browser.Path_list_provider;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.image_similarity.Image_similarity;
@@ -21,7 +20,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
     public static final double SIMILARITY_THRESHOLD = 0.14;
 
     //**********************************************************
-    public Similarity_comparator_by_pursuit(Path_list_provider path_list_provider, Image_properties_RAM_cache image_properties_cache, Browser browser, double x, double y, Aborter aborter, Logger logger_)
+    public Similarity_comparator_by_pursuit(Path_list_provider path_list_provider, Image_properties_RAM_cache image_properties_cache,
+                                            double x, double y, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         super(path_list_provider, x,y, aborter, logger_);
@@ -83,7 +83,9 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         }
 
         // we "extend" each pair by looking for the closest neighbors of each pair member
-        Image_similarity similarity = new Image_similarity(path_list_provider,browser, x,y,aborter, logger);
+        Image_similarity similarity = new Image_similarity(path_list_provider,
+                //browser,
+                x,y,aborter, logger);
 
         dummy_names.clear();
         int max_friend = 2;
@@ -117,6 +119,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
                 i++;
             }
         }
+
+        add_non_images(path_list_provider, i);
 
     }
 

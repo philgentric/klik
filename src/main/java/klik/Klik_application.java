@@ -83,7 +83,7 @@
 //SOURCES properties/Properties_manager.java
 //SOURCES properties/Cache_folder.java
 //SOURCES browser/Vertical_slider.java
-//SOURCES browser/Browser_menus.java
+//SOURCES browser/Virtual_landscape_menus.java
 //SOURCES browser/items/Item_button.java
 //SOURCES change/active_list_stage/Active_list_stage.java
 //SOURCES change/active_list_stage/Active_list_stage_action.java
@@ -115,6 +115,7 @@ import klik.util.log.System_logger;
 public class Klik_application extends Application
 //**********************************************************
 {
+    public static Stage primary_stage;
     //**********************************************************
     public static void main(String[] args)
     {
@@ -124,9 +125,10 @@ public class Klik_application extends Application
 
     //**********************************************************
     @Override
-    public void start(Stage primary_stage) throws Exception
+    public void start(Stage primary_stage_) throws Exception
     //**********************************************************
     {
+        primary_stage = primary_stage_;
         Start_context context = Start_context.get_context(this);
 
         primary_stage.setOnCloseRequest(event -> {
@@ -145,7 +147,15 @@ public class Klik_application extends Application
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
 
-        Browser_creation_context.first(primary_stage,context.path(),logger);
+        String string_path = null;
+        if ( context.path() != null)
+        {
+            string_path = context.path().toAbsolutePath().toString();
+        }
+
+
+
+        Browser_creation_context.first(string_path,logger);
 
         Start_context.send_started(context,logger);
     }

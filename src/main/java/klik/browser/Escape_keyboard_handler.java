@@ -43,7 +43,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
                 else
                 {
                     if ( browser.keyboard_dbg) browser.logger.log("\n\nESCAPE is enabled by user preference, so ESCAPE => close "+browser.signature());
-                    browser.close_window();
+                    browser.shutdown();
                     /*
                     if a launcher has been used, we do not need this
                     if (browser.windows_count.get() ==0)

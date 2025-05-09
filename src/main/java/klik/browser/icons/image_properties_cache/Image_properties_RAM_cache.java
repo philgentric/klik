@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.properties.Cache_folder;
 import klik.unstable.experimental.RAM_disk;
@@ -36,21 +37,23 @@ public class Image_properties_RAM_cache
 
 
     //**********************************************************
-    public static Image_properties_RAM_cache get(Path displayed_folder_path,Aborter aborter, Logger logger)
+    public static Image_properties_RAM_cache get(Path_list_provider path_list_provider,Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return new Image_properties_RAM_cache(displayed_folder_path,"Image properties cache", aborter, logger);
+        return new Image_properties_RAM_cache(path_list_provider,"Image properties cache", aborter, logger);
     }
 
     //**********************************************************
-    public Image_properties_RAM_cache(Path path, String cache_name_, Aborter aborter_, Logger logger_)
+    public Image_properties_RAM_cache(
+            Path_list_provider path_list_provider,
+            String cache_name_, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         instance_number = instance_number_generator++;
         logger = logger_;
         aborter = aborter_;
         cache_name = cache_name_;
-        String local = cache_name+ path.toAbsolutePath();
+        String local = cache_name+ path_list_provider.get_name();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
         Path dir = get_image_properties_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);

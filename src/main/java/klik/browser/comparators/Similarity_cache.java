@@ -3,7 +3,7 @@ package klik.browser.comparators;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.Path_list_provider;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;

@@ -1,6 +1,7 @@
 package klik.util.files_and_paths;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Booleans;
@@ -154,7 +155,7 @@ public class Guess_file_type
 
     //**********************************************************
     public static boolean is_this_a_video_or_audio_file(
-            Stage owner,
+            Window owner,
             Path path,
             Logger logger)
     //**********************************************************

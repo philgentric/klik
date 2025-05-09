@@ -46,13 +46,12 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		private_aborter = private_aborter_;
 		output_queue_of_same_in_pairs = output_queue;
 		deduplication_by_similarity_engine = deduplication_by_similarity_engine_;
-		double x = deduplication_by_similarity_engine.browser.my_Stage.the_Stage.getX()+100;
-		double y = deduplication_by_similarity_engine.browser.my_Stage.the_Stage.getY()+100;
+		double x = deduplication_by_similarity_engine.owner.getX()+100;
+		double y = deduplication_by_similarity_engine.owner.getY()+100;
 		image_similarity = new Image_similarity(
-				new Folder_path_list_provider(deduplication_by_similarity_engine.browser.displayed_folder_path),
-				deduplication_by_similarity_engine.browser,
+				new Folder_path_list_provider(deduplication_by_similarity_engine.target_dir.toPath()),
 				x,y,
-				deduplication_by_similarity_engine.browser.aborter,logger);
+				deduplication_by_similarity_engine.private_aborter,logger);
 
 	}
 
@@ -70,8 +69,8 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		{
 			if ( private_aborter.should_abort()) return;
 			if (!Guess_file_type.is_file_an_image(f.file)) continue;
-			double x = deduplication_by_similarity_engine.browser.my_Stage.the_Stage.getX()+100;
-			double y = deduplication_by_similarity_engine.browser.my_Stage.the_Stage.getY()+100;
+			double x = deduplication_by_similarity_engine.owner.getX()+100;
+			double y = deduplication_by_similarity_engine.owner.getY()+100;
 			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), already_done,1, false, SPECIAL_SIMILARITY_THRESHOLD, image_properties_cache, false,x,y,deduplication_by_similarity_engine.console_window.count_pairs_examined);
 			already_done.add(f.file.toPath());
 			if ( similars.isEmpty()) continue;

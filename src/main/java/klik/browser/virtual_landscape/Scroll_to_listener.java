@@ -1,6 +1,4 @@
-package klik.browser;
-
-import klik.browser.icons.Virtual_landscape;
+package klik.browser.virtual_landscape;
 
 public interface Scroll_to_listener
 {

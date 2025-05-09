@@ -27,12 +27,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Scroll_position_recorder;
+import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Experimental_features;
 import klik.properties.Booleans;
@@ -73,7 +78,9 @@ public abstract class Item implements Icon_destination
 
     protected Color color;
     protected Path path;
-    protected final Browser browser;
+    protected final Window owner;
+    //protected final Browser browser;
+    protected final Scene scene;
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
     public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
@@ -88,16 +95,28 @@ public abstract class Item implements Icon_destination
     // that contains all icons
     private double virtual_landscape_x = 0;
     private double virtual_landscape_y = 0;
-
+    protected final Icon_factory_actor icon_factory_actor;
+    protected final Selection_handler selection_handler;
+    protected final Scroll_position_recorder scroll_position_recorder;
     //**********************************************************
-    public Item(Browser browser,
-                Path path,
-                Color color,
-                Logger logger)
+    public Item(
+            Window owner,
+            Scene scene,
+            Selection_handler selection_handler,
+            Path path,
+            Icon_factory_actor icon_factory_actor,
+            Color color,
+            Scroll_position_recorder scroll_position_recorder,
+            Aborter aborter,
+            Logger logger)
     //**********************************************************
     {
-        this.browser_aborter = browser.aborter;
-        this.browser = browser;
+        this.scroll_position_recorder = scroll_position_recorder;
+        this.browser_aborter = aborter;
+        this.owner = owner;
+        this.scene = scene;
+        this.icon_factory_actor = icon_factory_actor;
+        this.selection_handler = selection_handler;
         this.path = path;
         this.logger = logger;
         this.color = color;
@@ -107,7 +126,7 @@ public abstract class Item implements Icon_destination
 
     public final Scene getScene()
     {
-        return browser.the_Scene;
+        return scene;
     }
 
     protected final Logger get_logger()
@@ -193,7 +212,7 @@ public abstract class Item implements Icon_destination
         }
         icon_factory_request.destination.set_icon_fabrication_requested(true);
 
-        icon_job = Actor_engine.run(browser.virtual_landscape.icon_factory_actor, icon_factory_request, null,logger);
+        icon_job = Actor_engine.run(icon_factory_actor, icon_factory_request, null,logger);
 
 
     }
@@ -252,7 +271,7 @@ public abstract class Item implements Icon_destination
             }
             if ( this.item_type == Iconifiable_item_type.video)
             {
-                Item_image.make_menu_items_for_videos(path,browser,context_menu,dbg, browser_aborter,logger);
+                Item_image.make_menu_items_for_videos(path,owner,context_menu,dbg, browser_aborter,logger);
             }
 
             // is a "plain" file
@@ -262,7 +281,7 @@ public abstract class Item implements Icon_destination
             context_menu.getItems().add(create_copy_menu_item());
             context_menu.getItems().add(create_delete_menu_item());
 
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(browser, path, dbg,logger));
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(path, dbg,logger));
             if ( Booleans.get_boolean(Experimental_features.enable_tags.name(), logger))
             {
                 context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
@@ -300,7 +319,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("info");
-            Audio_info_frame.show(path,browser.my_Stage.the_Stage,logger);
+            Audio_info_frame.show(path,owner,logger);
         });
 
         return menu_item;
@@ -315,10 +334,10 @@ public abstract class Item implements Icon_destination
         MenuItem browse = new MenuItem("Browse in new window");
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
-            Browser.scroll_position_cache.put(path,browser.get_top_left());
 
-            Rectangle2D rec = browser.get_rectangle();
-            Browser_creation_context.additional_different_folder(browser.primary_stage,path,rec, logger);
+            scroll_position_recorder.record_scroll_position(path);
+
+            Browser_creation_context.additional_different_folder(path.getParent().toAbsolutePath().toString(),owner, logger);
         });
         return browse;
     }
@@ -328,7 +347,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem size = new MenuItem(My_I18n.get_I18n_string("Get_folder_size",logger));
-        size.setOnAction(event -> Folder_size.get_folder_size(path,browser, logger));
+        size.setOnAction(event -> Folder_size.get_folder_size(path,owner, logger));
         return size;
     }
 
@@ -340,7 +359,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Clear_Trash_Folder",logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("clearing trash!");
-            Static_files_and_paths_utilities.clear_trash(true,browser.my_Stage.the_Stage, browser_aborter,logger);
+            Static_files_and_paths_utilities.clear_trash(true,owner, browser_aborter,logger);
         });
         return menu_item;
     }
@@ -355,7 +374,7 @@ public abstract class Item implements Icon_destination
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("copying!");
 
-            Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(browser.my_Stage.the_Stage,path,logger);
+            Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
             try
             {
                 Files.copy(path, new_path);
@@ -374,9 +393,9 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Deleting!");
-            double x = browser.my_Stage.the_Stage.getX()+100;
-            double y = browser.my_Stage.the_Stage.getY()+100;
-            Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,x,y,path, null, browser_aborter,logger);
+            double x = owner.getX()+100;
+            double y = owner.getY()+100;
+            Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
         });
         return menu_item;
     }
@@ -461,13 +480,13 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Copy", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Copying the directory");
-            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(browser.my_Stage.the_Stage,path,logger);
+            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,path,logger);
             if ( new_path == null)
             {
-                Popups.popup_warning(browser.my_Stage.the_Stage,"copy of dir failed","names are same ?", false,logger);
+                Popups.popup_warning(owner,"copy of dir failed","names are same ?", false,logger);
                 return;
             }
-            Static_files_and_paths_utilities.copy_dir_in_a_thread(browser.my_Stage.the_Stage, path, new_path, browser_aborter, logger);
+            Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, path, new_path, browser_aborter, logger);
         });
         return menu_item;
     }
@@ -489,7 +508,7 @@ public abstract class Item implements Icon_destination
     public void set_is_selected()
     //**********************************************************
     {
-        if (browser.selection_handler.add_to_selected_files(path)) {
+        if (selection_handler.add_to_selected_files(path)) {
             set_is_selected_internal();
             logger.log("item selected:" + path);
         }
@@ -500,7 +519,9 @@ public abstract class Item implements Icon_destination
     static double xxx = 200;
     static double yyy = 200;
     //**********************************************************
-    public static MenuItem create_show_file_size_menu_item(Browser b_, Path path, boolean dbg, Logger logger)
+    public static MenuItem create_show_file_size_menu_item(
+            //Browser b_,
+            Path path, boolean dbg, Logger logger)
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Show_file_size", logger));
@@ -530,7 +551,7 @@ public abstract class Item implements Icon_destination
             local_stage.show();
 
             logger.log("size_in_bytes->"+size_in_bytes+"<-");
-            b_.set_status(size_in_bytes);
+            //b_.set_status(size_in_bytes);
         });
         return menu_item;
     }
@@ -624,7 +645,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: System Open");
-            System_open_actor.open_with_system(browser.my_Stage.the_Stage,path,browser_aborter,logger);
+            System_open_actor.open_with_system(owner,path,browser_aborter,logger);
         });
 
         return menu_item;
@@ -641,7 +662,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: Open_With_Registered_Application");
-            System_open_actor.open_special(browser.my_Stage.the_Stage,path,browser_aborter,logger);
+            System_open_actor.open_special(owner,path,browser_aborter,logger);
         });
 
         return menu_item;

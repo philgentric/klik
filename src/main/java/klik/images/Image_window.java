@@ -17,6 +17,7 @@ import klik.actor.Aborter;
 import klik.browser.Browser;
 import klik.browser.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
@@ -49,7 +50,7 @@ public class Image_window
     public final Scene the_Scene;
     public final Stage the_Stage;
     public final Pane the_image_Pane;
-    public final Browser browser;
+    //public final Browser browser;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
@@ -64,19 +65,23 @@ public class Image_window
 
     //**********************************************************
     public static Image_window get_Image_window(
-            Browser browser,
+            //Browser browser,
             Path path,
             Logger logger_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
-        Image_window returned = on_same_screen(browser, path, logger_);
+        Image_window returned = on_same_screen(
+                //browser,
+                path, logger_);
         Performance_monitor.register_new_record("get_Image_window", path.toString(), System.currentTimeMillis() - start, logger_);
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Browser browser, Path path, Logger logger_)
+    private static Image_window on_same_screen(
+            //Browser browser,
+            Path path, Logger logger_)
     //**********************************************************
     {
 
@@ -86,7 +91,10 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(browser,path, x, y,w, h, null, true,logger_);
+        Image_window returned = new Image_window(
+                Optional.empty(),
+                //browser,
+                path, x, y,w, h, null, true,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -95,7 +103,8 @@ public class Image_window
 
     //**********************************************************
     public Image_window(
-            Browser browser,
+            Optional<Comparator<? super Path>> image_comparator,
+            //Browser browser,
             Path first_image_path,
             double x, double y,
             double w, double h,
@@ -104,7 +113,7 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
-        this.browser = browser;
+        //this.browser = browser;
         this.title_optional_addendum = title_optional_addendum;
         logger = logger_;
         dir = first_image_path.getParent();
@@ -118,7 +127,7 @@ public class Image_window
         if (image != null) the_Stage.getIcons().add(image);
         */
 
-        image_properties_cache = Image_properties_RAM_cache.get(first_image_path.getParent(),aborter,logger);
+        image_properties_cache = Image_properties_RAM_cache.get(new Folder_path_list_provider(first_image_path.getParent()),aborter,logger);
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
         the_Scene = new Scene(the_image_Pane);
@@ -134,25 +143,24 @@ public class Image_window
             Image_window local = this;
             boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(browser,local, exit_on_escape_preference, keyEvent, logger));
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(
+                            //browser,
+                            local, exit_on_escape_preference, keyEvent, logger));
         }
 
         boolean high_quality = false;
 
 
         Comparator<? super Path> local_comp;
-        if ( browser == null)
-        {
-            // this is going to take possibly a long time !!!
-
-            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()),image_properties_cache,null, x+100,y+100,aborter,logger);
-        }
-        else
-        {
+        if ( image_comparator.isPresent()) {
             // fastest way to get a fully initialized comparator
             // e.g. the ones that are really expensive to create
             // are the image similarity ones
-            local_comp = browser.virtual_landscape.image_file_comparator;
+            local_comp = image_comparator.get();
+        }
+        else {
+            // this is going to take possibly a long time !!!
+            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()),image_properties_cache, x+100,y+100,aborter,logger);
         }
 
 
@@ -228,7 +236,7 @@ public class Image_window
 
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
-        Browser.show_running_film = false;
+        Virtual_landscape.show_running_film = false;
 
     }
 
@@ -252,7 +260,7 @@ public class Image_window
         if ( slide_show == null)
         {
             start_slide_show();
-            Browser.show_running_film = false;
+            Virtual_landscape.show_running_film = false;
             return true;
         }
         else
@@ -518,7 +526,7 @@ public class Image_window
     {
         //logger.log("Image_window is closing");
         aborter.abort("Image_window is closing");
-        Browser.show_running_film = true;
+        Virtual_landscape.show_running_film = true;
         Change_gang.deregister(image_display_handler, aborter);
     }
 

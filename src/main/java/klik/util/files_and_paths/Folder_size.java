@@ -9,6 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -34,12 +35,14 @@ public class Folder_size {
 
 
     //**********************************************************
-    public static void get_folder_size(Path path, Browser browser, Logger logger)
+    public static void get_folder_size(Path path,
+                                       Window owner,
+                                       Logger logger)
     //**********************************************************
     {
         // open a window to display what is going on and the final result
         Stage local_stage = new Stage();
-        local_stage.initOwner(browser.my_Stage.the_Stage);
+        local_stage.initOwner(owner);
         local_stage.setX(stage_x);
         local_stage.setY(stage_y);
         stage_y += size_stage_height;

@@ -32,7 +32,7 @@
 //SOURCES ./icons/Paths_manager.java
 //SOURCES ./locator/Folders_with_large_images_locator.java
 //SOURCES ../images/decoding/Fast_date_from_OS.java
-//SOURCES ./Browser_UI.java
+//SOURCES ./Virtual_landscape_UI.java
 //SOURCES ./Scan_show.java
 //SOURCES ./External_close_event_handler.java
 //SOURCES ./Static_backup_paths.java
@@ -47,69 +47,32 @@ package klik.browser;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.*;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import klik.Klik_application;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.icons.*;
-import klik.browser.items.Item;
-import klik.browser.locator.Folders_with_large_images_locator;
+import klik.browser.virtual_landscape.*;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
-import klik.util.execute.Execute_command;
-import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
-import klik.unstable.backup.Backup_singleton;
-import klik.unstable.fusk.Fusk_bytes;
-import klik.unstable.fusk.Fusk_singleton;
-import klik.unstable.fusk.Static_fusk_paths;
-import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Popups;
-import klik.util.ui.Show_running_film_frame;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
-
 
 //**********************************************************
-public class Browser implements Change_receiver, Scan_show_slave, Selection_reporter
+public class Browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler
 //**********************************************************
 {
     public static final AtomicInteger browsers_created = new AtomicInteger(0);
@@ -119,103 +82,22 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
     public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
-    public static final String CONTACT_SHEET_FILE_NAME = "contact_sheet.pdf";
     public static Aborter monitoring_aborter;
-    public static boolean show_running_film = true;
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
     private final int ID;
 
     private static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
 
-    public List<Node> mandatory_in_pane = new ArrayList<>();
-    List<Node> always_on_front_nodes = new ArrayList<>();
 
     Filesystem_item_modification_watcher filesystem_item_modification_watcher;
     public final My_Stage my_Stage;
-    public final Stage primary_stage;
-    public Scene the_Scene;
-    public final Pane the_Pane;
+
     public final Virtual_landscape virtual_landscape;
     public final Logger logger;
     public final Path displayed_folder_path;
-    public final Selection_handler selection_handler;
     public final Aborter aborter;
 
-
-    TextField status;
-    public Vertical_slider vertical_slider;
-    public double slider_width = 40;
-
-    //boolean exit_on_escape_preference;
     boolean ignore_escape_as_the_stage_is_full_screen = false;
-
-    final Browser_menus browser_menus;
-    public final Browser_UI browser_ui;
-    //static Path home = Paths.get(System.getProperty(Non_booleans.USER_HOME));
-
-    // make sure we go again at the same scroll point when we enter a given folder
-    public static Map<Path, Path> scroll_position_cache = new HashMap<>();
-    public double max_dir_text_length;
-
-
-
-    //**********************************************************
-    public void import_apple_Photos()
-    //**********************************************************
-    {
-        if (!Popups.popup_ask_for_confirmation(my_Stage.the_Stage, "Importing photos will create COPIES", "Please select a destination drive with enough space", logger))
-            return;
-
-        Importer.perform_import(my_Stage.the_Stage, aborter, logger);
-    }
-
-    //**********************************************************
-    public void estimate_size_of_importing_apple_Photos()
-    //**********************************************************
-    {
-        Importer.estimate_size(my_Stage.the_Stage, aborter, logger);
-    }
-
-    //**********************************************************
-    public void show_where_are_images()
-    //**********************************************************
-    {
-        Folders_with_large_images_locator.locate(displayed_folder_path, 10, 200_000, this, logger);
-    }
-
-
-
-    //**********************************************************
-    public void clear_all_RAM_caches()
-    //**********************************************************
-    {
-        virtual_landscape.clear_image_properties_RAM_cache_fx();
-        logger.log("Image properties cache cleared");
-        Browser.scroll_position_cache.clear();
-        logger.log("Return-to scroll positions cache cleared");
-        clear_image_comparators_caches();
-        logger.log("Image comparators caches cleared");
-        clear_image_similarity_RAM_cache();
-    }
-
-
-
-    //**********************************************************
-    public void clear_image_comparators_caches()
-    //**********************************************************
-    {
-        ((Clearable_RAM_cache) (virtual_landscape.image_file_comparator)).clear_RAM_cache();
-        ((Clearable_RAM_cache) (virtual_landscape.other_file_comparator)).clear_RAM_cache();
-    }
-
-    //**********************************************************
-    public void clear_image_similarity_RAM_cache()
-    //**********************************************************
-    {
-        Image_feature_vector_cache.images_and_feature_vectors_cache.clear();
-    }
-
-
 
     //**********************************************************
     public Browser(
@@ -225,19 +107,12 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     {
         logger = logger_;
 
-        primary_stage = context.primary_stage;
-        if ( primary_stage  == null)
-        {
-            logger.log("FATAL ERROR: primary_stage is null");
-            System.exit(-1);
-        }
-
         int count = browsers_created.incrementAndGet();
         logger.log("Browser constructor browsers_created(1)="+count);
-        if (context.browser_to_be_closed != null)
+        if (context.shutdown_target != null)
         {
             logger.log("closing previous browser");
-            context.browser_to_be_closed.close_window();
+            context.shutdown_target.shutdown();
         }
 
         if ( context.folder_path == null)
@@ -246,7 +121,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         }
         else
         {
-            displayed_folder_path = context.folder_path;
+            displayed_folder_path = Path.of(context.folder_path);
         }
         if ( dbg) logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
 
@@ -314,33 +189,57 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
         Change_gang.register(this, aborter, logger);
         set_title();
-        the_Pane = new Pane();
 
-        if ( dbg) logger.log("BROWSER creating Image_properties_RAM_cache with aborter: "+aborter.name);
         Path_list_provider path_list_provider = new Folder_path_list_provider(displayed_folder_path);
-        virtual_landscape = new Virtual_landscape(path_list_provider,this,aborter, logger);
-        selection_handler = new Selection_handler(the_Pane, virtual_landscape, this, logger);
-        browser_menus = new Browser_menus(this, selection_handler, logger_);
-        //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
-        {
-            browser_ui = new Browser_UI(this);
-            browser_ui.define_UI();
-        }
-        virtual_landscape.set_Landscape_height_listener(vertical_slider);
-        virtual_landscape.set_scroll_to_listener(vertical_slider);
+        virtual_landscape = new Virtual_landscape(path_list_provider,my_Stage.the_Stage,this,this,this,this,aborter, logger);
 
-        set_all_event_handlers(the_Pane);
-
-        my_Stage.the_Stage.setScene(the_Scene);
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
            record_stage_bounds();
         };
         my_Stage.the_Stage.xProperty().addListener(change_listener);
         my_Stage.the_Stage.yProperty().addListener(change_listener);
+        monitor_folder();
+
+        my_Stage.set_escape_event_handler(this);
+
+        my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (dbg) logger.log("new browser width =" + newValue.doubleValue());
+            record_stage_bounds();
+            virtual_landscape.redraw_fx("width changed by user");
+        });
+        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            record_stage_bounds();
+            virtual_landscape.redraw_fx("height changed by user");
+        });
 
 
-        redraw_fx("Browser constructor");
+        virtual_landscape.redraw_fx("Browser constructor");
+    }
+
+
+    void monitor_folder()
+    {
+        boolean monitor_this_folder = false;
+
+        // ALWAYS monitor external drives
+        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(displayed_folder_path, logger);
+
+        if (!monitor_this_folder) {
+            if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger)) {
+                monitor_this_folder = true;
+            }
+        }
+
+        if (monitor_this_folder) {
+            Runnable r = () -> {
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, monitoring_aborter, logger);
+                if (filesystem_item_modification_watcher == null) {
+                    logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
+                }
+            };
+            Actor_engine.execute(r, logger);
+        }
     }
 
     //**********************************************************
@@ -361,11 +260,12 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     String signature()
     //**********************************************************
     {
-        return "Stage:" + my_Stage.the_Stage + "  Browser ID= " + ID + " total window count: " + browsers_created.get() + " esc=" + my_Stage.escape;
+        return "  Browser ID= " + ID + " total window count: " + browsers_created.get() + " esc=" + my_Stage.escape;
     }
 
     //**********************************************************
-    void close_window()
+    @Override // Shutdown_target
+    public void shutdown()
     //**********************************************************
     {
         aborter.abort("Browser is closing for "+displayed_folder_path);
@@ -376,10 +276,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         logger.log("close_window: browsers_created(2) ="+count);
         if (count ==0)
         {
-            if ( primary_stage != null)
+            if (Klik_application.primary_stage != null)
             {
                 logger.log("primary_stage closing = primary_stage.close()");
-                primary_stage.close();
+                Klik_application.primary_stage.close();
             }
             else
             {
@@ -400,8 +300,8 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         // plus memory leak! ==> the RAM footprint keeps growing
         Change_gang.deregister(this, aborter);
         if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
-        stop_scan();
-        the_Pane.getChildren().clear();
+        virtual_landscape.stop_scan();
+        //the_Pane.getChildren().clear();
         //if (icon_manager != null) icon_manager.cancel_all();
         //logger.log("close_window BEFORE close" + signature());
         my_Stage.close();
@@ -410,6 +310,7 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
     //**********************************************************
+    @Override // Full_screen_handler
     public void go_full_screen()
     //**********************************************************
     {
@@ -418,52 +319,13 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
     //**********************************************************
-    //@Override // Browser_interface
+    //@Override // Full_screen_handler
     public void stop_full_screen()
     //**********************************************************
     {
         // this is the menu action, on_fullscreen_end() will be called
         my_Stage.the_Stage.setFullScreen(false);
     }
-
-
-    //**********************************************************
-    public void set_status(String s)
-    //**********************************************************
-    {
-        status.setText(s);
-        logger.log("Status = " + s);
-    }
-
-    /*
-    //**********************************************************
-    public void set_escape_preference(boolean value)
-    //**********************************************************
-    {
-        exit_on_escape_preference = value;
-    }
-
-    //**********************************************************
-    public boolean get_escape_preference()
-    //**********************************************************
-    {
-        return exit_on_escape_preference;
-    }
-*/
-    //**********************************************************
-    public void show_how_many_files_deep_in_each_folder()
-    //**********************************************************
-    {
-        virtual_landscape.show_how_many_files_deep_in_each_folder(mandatory_in_pane);
-    }
-
-    //**********************************************************
-    public void show_total_size_deep_in_each_folder()
-    //**********************************************************
-    {
-        virtual_landscape.show_total_size_deep_in_each_folder(mandatory_in_pane);
-    }
-
 
     //**********************************************************
     public Path get_top_left()
@@ -479,235 +341,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
         return new Rectangle2D(my_Stage.the_Stage.getX(), my_Stage.the_Stage.getY(), my_Stage.the_Stage.getWidth(), my_Stage.the_Stage.getHeight());
     }
 
-    //**********************************************************
-    private void set_all_event_handlers(Pane pane)
-    //**********************************************************
-    {
-        boolean monitor_this_folder = false;
-
-        // ALWAYS monitor external drives
-        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(displayed_folder_path, logger);
-
-        if (!monitor_this_folder) {
-            if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger)) {
-                monitor_this_folder = true;
-            }
-        }
-
-        if (monitor_this_folder) {
-            Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, Browser.monitoring_aborter, logger);
-                if (filesystem_item_modification_watcher == null) {
-                    logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
-                }
-            };
-            Actor_engine.execute(r, logger);
-        }
-        my_Stage.the_Stage.fullScreenProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (dbg) logger.log("fullScreenProperty changed ! new value = " + newValue.booleanValue());
-                    if (!newValue.booleanValue()) {
-                        browser_ui.on_fullscreen_end();
-                    } else {
-                        browser_ui.on_fullscreen_start();
-                    }
-                }
-        );
-
-
-        Browser this_browser = this;
-        {
-            pane.addEventHandler(MouseEvent.MOUSE_PRESSED, selection_handler::handle_mouse_pressed);
-            pane.addEventHandler(MouseEvent.MOUSE_DRAGGED, selection_handler::handle_mouse_dragged);
-            pane.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEvent -> selection_handler.handle_mouse_released(mouseEvent, this_browser));
-        }
-
-        EventHandler<WindowEvent> on_close_event_handler = new External_close_event_handler(this);
-        my_Stage.the_Stage.setOnCloseRequest(on_close_event_handler);
-        my_Stage.set_escape_event_handler(this);
-
-
-        Browser local = this;
-        the_Scene.setOnKeyTyped(keyEvent -> {
-
-            if (keyboard_dbg) {
-                logger.log(keyEvent + "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
-                if (keyEvent.isShiftDown()) logger.log("isShiftDown: true");
-                if (keyEvent.isAltDown()) logger.log("isAltDown: true");
-                if (keyEvent.isMetaDown()) logger.log("isMetaDown: true");
-            }
-
-            if (keyEvent.getCharacter().equals("k")) {
-                if (keyboard_dbg) logger.log("character is k = keyword search");
-                browser_ui.search_files_by_keyworks_fx();
-            }
-            if (keyEvent.getCharacter().equals("s")) {
-                if (keyboard_dbg) logger.log("character is s = start/stop scan");
-                handle_scan_switch();
-            }
-            if (keyEvent.getCharacter().equals("w")) {
-                if (keyboard_dbg) logger.log("character is w = slow down scan");
-                slow_down_scan();
-            }
-            if (keyEvent.getCharacter().equals("x")) {
-                if (keyboard_dbg) logger.log("character is x = speed up scan");
-                speed_up_scan();
-            }
-
-            if (keyEvent.isMetaDown()) {
-                if (keyEvent.getCharacter().equals("a")) {
-                    if (keyboard_dbg) logger.log("character is a + meta = select all");
-                    selection_handler.select_all_files_in_folder(local);
-                }
-
-                if (keyEvent.getCharacter().equals("+")) {
-                    if (keyboard_dbg) logger.log("character is +meta = zoom +");
-                    increase_icon_size();
-                }
-                if (keyEvent.getCharacter().equals("=")) {
-                    if (keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
-                    increase_icon_size();
-                }
-                if (keyEvent.getCharacter().equals("-")) {
-                    if (keyboard_dbg) logger.log("character is -meta = zoom -");
-                    reduce_icon_size();
-                }
-            }
-            if (keyEvent.getCharacter().equals("n")) {
-                if (keyboard_dbg) logger.log("character is n = new broser (clone)");
-                Browser_creation_context.additional_same_folder(local, logger);
-            }
-        });
-
-        the_Scene.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragOver handler called");
-            selection_handler.on_drag_over();
-            Object source = drag_event.getGestureSource();
-            if (source == null) {
-                //logger.log("source class is null " + event.toString());
-            } else {
-                if (!(source instanceof Item)) {
-                    if (dbg)
-                        logger.log("drag reception for scene: source is not an item but a: " + source.getClass().getName());
-                    drag_event.consume();
-                    return;
-                }
-                //logger.log("source class is:" + source.getClass().getName());
-                try {
-                    Item item = (Item) source;
-                    Scene scene_of_source = item.getScene();
-
-                    // data is dragged over the target
-                    // accept it only if it is not dragged from the same node
-                    if (scene_of_source == the_Scene) {
-                        if (dbg) logger.log("drag reception for scene: same scene, giving up<<");
-                        drag_event.consume();
-                        return;
-                    }
-                } catch (ClassCastException e) {
-                    logger.log(Stack_trace_getter.get_stack_trace("ERROR: " + e));
-                    drag_event.consume();
-                    return;
-                }
-            }
-            if (dbg) logger.log("Ready to accept MOVE!");
-            drag_event.acceptTransferModes(TransferMode.MOVE);
-            drag_event.consume();
-        });
-
-        the_Scene.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
-            if (dbg) logger.log("Something has been dropped in browser for dir :" + displayed_folder_path);
-            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(my_Stage.the_Stage, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
-            set_status(n + " files have been dropped in");
-            selection_handler.on_drop();
-            drag_event.setDropCompleted(true);
-            drag_event.consume();
-        });
-
-        the_Scene.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragExited handler called");
-            if (dbg) logger.log("OnDragExited in browser for dir :" + displayed_folder_path);
-            //set_status(" drag done");
-            browser_menus.reset_all_files_and_folders();
-            selection_handler.on_drag_exited();
-            drag_event.consume();
-        });
-        the_Scene.setOnDragDone(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: setOnDragDone handler called");
-            selection_handler.on_drag_done();
-            drag_event.consume();
-        });
-
-        //the_stage.setMinWidth(860);
-        my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            if (dbg) logger.log("new browser width =" + newValue.doubleValue());
-            record_stage_bounds();
-            redraw_fx("width changed by user");
-        });
-        my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            record_stage_bounds();
-            redraw_fx("height changed by user");
-        });
-
-        the_Scene.setOnScroll(event -> {
-            double dy = event.getDeltaY();
-            //logger.log("\n\n setOnScroll event: "+dy);
-            scroll_a_bit(dy);
-            /*long now = System.currentTimeMillis();
-            if ( last_scroll_event < 0)
-            {
-                logger.log("start "+dy);
-                scroll_a_bit(dy);
-                last_scroll_event = now;
-                return;
-            }
-            long delta_t = now-last_scroll_event;
-            last_scroll_event = now;
-            last_dy = dy;
-            if (( delta_t > 200) ||(delta_t <=0))
-            {
-                logger.log("slow or too fast delta_t="+delta_t+" dy="+dy);
-                scroll_a_bit(dy);
-                return;
-            }
-            {
-                double scroll_speed = Math.abs(50.0*(dy)/(double)(delta_t));
-                int id = threadid_gen.incrementAndGet();
-                life.clear();
-                life.add(id);
-                double[] dyy = {dy * scroll_speed};
-                logger.log(id+" ##### dy="+dy+" #  scroll_speed: "+String.format("%.2f",scroll_speed));
-                Runnable r = () -> {
-                    for ( int ii = 0; ii < 100; ii++)
-                    {
-                        if( aborter.should_abort()) return;
-                        if ( !life.contains(id))
-                        {
-                            logger.log(id+ " BREAK ");
-                            return;
-                        }
-                        logger.log(id+" "+ii+" dyy[0]: "+String.format("%.3f",dyy[0]));
-                        Jfx_batch_injector.now(()->scroll_a_bit(dyy[0]));
-                        try
-                        {
-                            Thread.sleep(30);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            throw new RuntimeException(e);
-                        }
-                        dyy[0] = dyy[0]/3.0;
-                        if ( Math.abs(dyy[0]) < 1) return;
-                    }
-                };
-                Actor_engine.execute(r,logger);
-                last_scroll_speed = scroll_speed;
-
-            }
-*/
-        });
-    }
 
     ConcurrentLinkedQueue<Integer> life = new ConcurrentLinkedQueue<>();
     double last_dy;
@@ -716,218 +349,12 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     static AtomicInteger threadid_gen = new AtomicInteger(0);
 
-    //**********************************************************
-    @Override
-    public boolean scroll_a_bit(double dy)
-    //**********************************************************
-    {
-        record_scroll_to();
-        return vertical_slider.request_scroll_relative(dy);
-    }
+
 
 
 
     //**********************************************************
-    enum Scan_state
-    //**********************************************************
-    {
-        off,
-        down,
-        up
-    }
-
-    private Scan_state scan_state = Scan_state.off;
-    //**********************************************************
-    void handle_scan_switch()
-    //**********************************************************
-    {
-        switch (scan_state) {
-            case off -> {
-                scan_state = Scan_state.down;
-                start_scan();
-            }
-            case down -> {
-                scan_state = Scan_state.up;
-                invert_scan();
-            }
-            case up -> {
-                scan_state = Scan_state.off;
-                stop_scan();
-            }
-        }
-    }
-
-
-    //**********************************************************
-    @Override // Scan_show_slave
-    public int how_many_rows()
-    //**********************************************************
-    {
-        return virtual_landscape.how_many_rows();
-    }
-
-    //**********************************************************
-    public void abort_backup()
-    //**********************************************************
-    {
-        logger.log("abort backup");
-        Backup_singleton.abort();
-    }
-
-    //**********************************************************
-    public void start_backup()
-    //**********************************************************
-    {
-        logger.log("start backup");
-        Path backup_source = Static_backup_paths.get_backup_source();
-        if (backup_source == null) {
-            logger.log("FATAL, no backup_source");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot backup!", "Reason: no backup ORIGIN", false, logger);
-            return;
-        }
-        Path backup_destination = Static_backup_paths.get_backup_destination();
-        if (backup_destination == null) {
-            logger.log("FATAL, no backup destination");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot backup!", "Reason: no backup DESTINATION", false, logger);
-
-            return;
-        }
-        Backup_singleton.set_source(backup_source, logger);
-        Backup_singleton.set_destination(backup_destination, logger);
-        Backup_singleton.start_the_backup(my_Stage.the_Stage);
-
-    }
-
-    //**********************************************************
-    public void abort_fusk()
-    //**********************************************************
-    {
-        logger.log("abort fusk");
-        Fusk_singleton.abort();
-    }
-
-    //**********************************************************
-    public void start_fusk()
-    //**********************************************************
-    {
-        logger.log("start fusk");
-        Path fusk_source = Static_fusk_paths.get_fusk_source();
-        if (fusk_source == null) {
-            logger.log("FATAL, no fusk_source");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot fusk!", "Reason: no fusk ORIGIN", false, logger);
-            return;
-        }
-        Path fusk_destination = Static_fusk_paths.get_fusk_destination();
-        if (fusk_destination == null) {
-            logger.log("FATAL, no fusk destination");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot fusk!", "Reason: no fusk DESTINATION", false, logger);
-
-            return;
-        }
-        Fusk_singleton.set_source(fusk_source, aborter, logger);
-        Fusk_singleton.set_destination(fusk_destination, aborter, logger);
-        Fusk_singleton.start_fusk(my_Stage.the_Stage);
-
-    }
-
-    //**********************************************************
-    public void start_defusk()
-    //**********************************************************
-    {
-        logger.log("start defusk");
-        Path defusk_source = Static_fusk_paths.get_fusk_source();
-        if (defusk_source == null) {
-            logger.log("FATAL, no defusk source");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk SOURCE", false, logger);
-            return;
-        }
-        Path defusk_destination = Static_fusk_paths.get_fusk_destination();
-        if (defusk_destination == null) {
-            logger.log("FATAL, no defusk destination");
-            Popups.popup_warning(my_Stage.the_Stage, "Cannot defusk!", "Reason: no defusk DESTINATION", false, logger);
-
-            return;
-        }
-        Fusk_singleton.set_source(defusk_source, aborter, logger);
-        Fusk_singleton.set_destination(defusk_destination, aborter, logger);
-        Fusk_singleton.start_defusk(my_Stage.the_Stage);
-
-    }
-
-
-    //**********************************************************
-    public void you_are_backup_destination()
-    //**********************************************************
-    {
-        Static_backup_paths.set_backup_destination(displayed_folder_path);
-        logger.log("backup destination = " + displayed_folder_path.toAbsolutePath());
-
-        set_text_background("BACKUP\nDESTINATION");
-
-    }
-
-    //**********************************************************
-    public void you_are_backup_source()
-    //**********************************************************
-    {
-        Static_backup_paths.set_backup_source(displayed_folder_path);
-        logger.log("backup source = " + displayed_folder_path.toAbsolutePath());
-
-        set_text_background("BACKUP\nSOURCE");
-
-    }
-
-    //**********************************************************
-    public void you_are_fusk_destination()
-    //**********************************************************
-    {
-        Static_fusk_paths.set_fusk_destination(displayed_folder_path);
-        logger.log("fusk destination = " + displayed_folder_path.toAbsolutePath());
-
-        set_text_background("FUSK\nDESTINATION");
-
-    }
-
-    //**********************************************************
-    public void you_are_fusk_source()
-    //**********************************************************
-    {
-        Static_fusk_paths.set_fusk_source(displayed_folder_path);
-        logger.log("fusk source = " + displayed_folder_path.toAbsolutePath());
-
-        set_text_background("FUSK\nSOURCE");
-
-    }
-
-
-    //**********************************************************
-    public void enter_fusk_pin_code()
-    //**********************************************************
-    {
-        //Pin_code_getter_stage pin_code_getter_stage = Pin_code_getter_stage.ask_pin_code_in_a_thread(logger);
-
-        if (Fusk_bytes.is_initialized()) {
-            Fusk_bytes.reset(logger);
-        }
-        Fusk_bytes.initialize(aborter, logger);
-    }
-
-
-    //**********************************************************
-    private void set_text_background(String text)
-    //**********************************************************
-    {
-        // writes in the browser background a HUGE (70!) text
-        Text t = new Text(text);
-        t.setStyle("-fx-font: 70 arial;");
-        Scene scene = new Scene(new VBox(t));
-        WritableImage wi = scene.snapshot(null);
-        Paint ppp = new ImagePattern(wi);
-        the_Pane.setBackground(new Background(new BackgroundFill(ppp, CornerRadii.EMPTY, Insets.EMPTY)));
-    }
-
-
-    //**********************************************************
+    @Override // Title_target
     public void set_title()
     //**********************************************************
     {
@@ -949,235 +376,10 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
     }
 
-    //**********************************************************
-    public void increase_icon_size()
-    //**********************************************************
-    {
-        change_icon_size(1.1);
-    }
-
-    //**********************************************************
-    public void reduce_icon_size()
-    //**********************************************************
-    {
-        change_icon_size(0.9);
-    }
-
-    //**********************************************************
-    private void change_icon_size(double fac)
-    //**********************************************************
-    {
-        int new_icon_size = (int) (Non_booleans.get_icon_size(logger) * fac);
-        if (new_icon_size < 20) new_icon_size = 20;
-        if ( keyboard_dbg) logger.log("new icon size = "+new_icon_size);
-        Non_booleans.set_icon_size(new_icon_size, logger);
-        //icon_manager.modify_button_fonts(fac);
-        redraw_fx("new icon size "+new_icon_size);
-    }
-
 
 
     //**********************************************************
-    public void redraw_fx(String from)
-    //**********************************************************
-    {
-        if (dbg) logger.log("Browser redraw from:" + from );
-
-        try
-        {
-            virtual_landscape.request_queue.put(Boolean.TRUE);
-        } catch (InterruptedException e) {
-            logger.log(""+e);
-        }
-    }
-
-
-
-    //**********************************************************
-    public void apply_font()
-    //**********************************************************
-    {
-        if (dbg) logger.log("applying font size " + Non_booleans.get_font_size(logger));
-        for (Node x : always_on_front_nodes) {
-            Font_size.apply_font_size(x, logger);
-        }
-        for (Node x : browser_ui.top_buttons) {
-            Font_size.apply_font_size(x, logger);
-        }
-    }
-
-
-    //**********************************************************
-    public void sort_by_year()
-    //**********************************************************
-    {
-        Runnable r = () -> sort_by_year_internal();
-        Actor_engine.execute(r, logger);
-    }
-
-    //**********************************************************
-    public void sort_by_year_internal()
-    //**********************************************************
-    {
-        File[] files = displayed_folder_path.toFile().listFiles();
-        if (files == null) {
-            logger.log("ERROR: cannot list files in " + displayed_folder_path);
-        }
-        if (files.length == 0) {
-            logger.log("WARNING: no file in " + displayed_folder_path);
-        }
-        Map<Integer, Path> folders = new HashMap<>();
-        List<Old_and_new_Path> moves = new ArrayList<>();
-        for (File f : files) {
-            BasicFileAttributes x = null;
-            try {
-                x = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
-            } catch (IOException e) {
-                logger.log("" + e);
-                continue;
-            }
-
-            FileTime ft = x.creationTime();
-            LocalDateTime ldt = ft.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            int year = ldt.getYear();
-            Path folder = folders.get(year);
-            if (folder == null) {
-                folder = Path.of(displayed_folder_path.toAbsolutePath().toString(), String.valueOf(year));
-                try {
-                    Files.createDirectory(folder);
-                } catch (IOException e) {
-                    logger.log("" + e);
-                    continue;
-                }
-            }
-            folders.put(year, folder);
-            List<Old_and_new_Path> l = new ArrayList<>();
-            l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done, false));
-            Change_gang.report_changes(l);
-
-            Old_and_new_Path oanp = new Old_and_new_Path(
-                    f.toPath(),
-                    Path.of(folder.toAbsolutePath().toString(), f.getName()),
-                    Command_old_and_new_Path.command_move,
-                    Status_old_and_new_Path.before_command, false);
-            moves.add(oanp);
-
-        }
-
-        double x = this.my_Stage.the_Stage.getX()+100;
-        double y = this.my_Stage.the_Stage.getY()+100;
-        Moving_files.perform_safe_moves_in_a_thread(this.my_Stage.the_Stage, x,y, moves, true, aborter, logger);
-
-    }
-
-    //**********************************************************
-    public void create_PDF_contact_sheet()
-    //**********************************************************
-    {
-        Runnable r = this::create_PDF_contact_sheet_in_a_thread;
-        Actor_engine.execute(r,logger);
-    }
-    //**********************************************************
-    public void create_PDF_contact_sheet_in_a_thread()
-    //**********************************************************
-    {
-        double x = this.my_Stage.the_Stage.getX()+100;
-        double y = this.my_Stage.the_Stage.getY()+100;
-
-        Hourglass hourglass = Show_running_film_frame.show_running_film(my_Stage.the_Stage,x,y,"Making PDF contact sheet",
-        20_000,new Aborter("contact sheet",logger),logger);
-        List<String> graphicsMagick_command_line = new ArrayList<>();
-
-        boolean formula1 = false;
-        if ( formula1)
-        {
-            graphicsMagick_command_line.add("gm");
-            graphicsMagick_command_line.add("convert");
-            graphicsMagick_command_line.add("vid:*.jpg");
-            graphicsMagick_command_line.add("contact_sheet.pdf");
-
-        }
-        else {
-            graphicsMagick_command_line.add("gm");
-            graphicsMagick_command_line.add("montage");
-            graphicsMagick_command_line.add("-label");
-            graphicsMagick_command_line.add("'%f'");
-            graphicsMagick_command_line.add("-font");
-            graphicsMagick_command_line.add("Helvetica");
-            graphicsMagick_command_line.add("-pointsize");
-            graphicsMagick_command_line.add("10");
-            graphicsMagick_command_line.add("-background");
-            graphicsMagick_command_line.add("#000000");
-            graphicsMagick_command_line.add("-fill");
-            graphicsMagick_command_line.add("#ffffff");
-            graphicsMagick_command_line.add("-define");
-            graphicsMagick_command_line.add("jpeg:size=300x200");
-            graphicsMagick_command_line.add("-geometry");
-            graphicsMagick_command_line.add("300x200+2+2");
-            graphicsMagick_command_line.add("*.jpg");
-            graphicsMagick_command_line.add(CONTACT_SHEET_FILE_NAME);
-        }
-
-
-        StringBuilder sb = null;
-        if ( dbg) sb = new StringBuilder();
-        if ( !Execute_command.execute_command_list(graphicsMagick_command_line, displayed_folder_path.toFile(), 2000, sb, logger))
-        {
-
-            Booleans.manage_show_GraphicsMagick_install_warning(my_Stage.the_Stage,logger);
-
-            Popups.popup_warning(my_Stage.the_Stage, "Contact sheet generation command failed:", warning_GraphicsMagick,false,logger);
-        }
-        else
-        {
-            if ( dbg) logger.log("contact sheet generated "+ sb);
-            else
-            {
-                logger.log("contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
-                System_open_actor.open_with_system(my_Stage.the_Stage,Path.of(displayed_folder_path.toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),aborter,logger);
-
-                Platform.runLater(() ->set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
-            }
-        }
-        hourglass.close();
-    }
-
-
-    //**********************************************************
-    public void create_new_directory()
-    //**********************************************************
-    {
-        TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", logger));
-        Look_and_feel_manager.set_dialog_look(dialog);
-        dialog.initOwner(my_Stage.the_Stage);
-        dialog.setWidth(my_Stage.the_Stage.getWidth());
-        dialog.setTitle(My_I18n.get_I18n_string("New_directory", logger));
-        dialog.setHeaderText(My_I18n.get_I18n_string("Enter_name_of_new_directory", logger));
-        dialog.setContentText(My_I18n.get_I18n_string("New_directory_name", logger));
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            String new_name = result.get();
-
-            for (int i = 0; i < 10; i++) {
-                try {
-                    Path new_dir = displayed_folder_path.resolve(new_name);
-                    Files.createDirectory(new_dir);
-                    scroll_position_cache.put(displayed_folder_path, new_dir);
-                    redraw_fx("created new empty dir");
-                    break;
-                } catch (IOException e) {
-                    logger.log("new directory creation FAILED: " + e);
-                    new_name += "_";
-                }
-            }
-
-        }
-    }
-
-
-    //**********************************************************
-    @Override
+    @Override // Change_receiver
     public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger)
     //**********************************************************
     {
@@ -1203,18 +405,18 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
                     // recording its new path would be a bad bug
                     if ( oan.new_Path != null) {
                         if (oan.new_Path.startsWith(displayed_folder_path)) {
-                            scroll_position_cache.put(displayed_folder_path, oan.new_Path);
+                            Virtual_landscape.scroll_position_cache.put(displayed_folder_path.toAbsolutePath().toString(), oan.new_Path);
                         }
                     }
                 }
-                redraw_fx("change gang for dir: " + displayed_folder_path);
+                virtual_landscape.redraw_fx("change gang for dir: " + displayed_folder_path);
             }
             ;
             break;
             case one_new_file, one_file_gone: {
                 //if (dbg)
                     logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-                redraw_fx("change gang for dir: " + displayed_folder_path);
+                virtual_landscape.redraw_fx("change gang for dir: " + displayed_folder_path);
             }
             break;
             default:
@@ -1232,28 +434,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
     }
 
 
-    //**********************************************************
-    public List<File> get_file_list()
-    //**********************************************************
-    {
-        return virtual_landscape.get_file_list();
-    }
-
-    //**********************************************************
-    public List<File> get_folder_list()
-    //**********************************************************
-    {
-        return virtual_landscape.get_folder_list();
-    }
-
-
-    //**********************************************************
-    @Override // Selection reporter
-    public void report(String s)
-    //**********************************************************
-    {
-        set_status(s);
-    }
 
 
 
@@ -1268,95 +448,6 @@ public class Browser implements Change_receiver, Scan_show_slave, Selection_repo
 
 
 
-
-
-
-
-    //**********************************************************
-    private void record_scroll_to()
-    //**********************************************************
-    {
-        Path tl = get_top_left();
-        //logger.log("record_scroll_to " + displayed_folder_path + " => " + tl);
-        scroll_position_cache.put(displayed_folder_path, tl);
-    }
-
-    //**********************************************************
-    public Path get_scroll_to()
-    //**********************************************************
-    {
-        Path scroll_to = scroll_position_cache.get(displayed_folder_path);
-        if (scroll_to == null) {
-            if (dbg) logger.log((" scroll_to == null "));
-        }
-        return scroll_to;
-    }
-
-
-
-
-    /*
-    Scan show
-     */
-
-
-
-    Scan_show the_scan_show;
-
-    private static final String msg = "(press \"s\" to start/stop/change direction, \"x\"=faster, \"w\"=slower) speed = ";
-
-    //**********************************************************
-    private void start_scan()
-    //**********************************************************
-    {
-        the_scan_show = new Scan_show(this, vertical_slider, aborter, logger);
-        set_status("Scan show starting ! " + msg + the_scan_show.get_speed());
-    }
-
-    //**********************************************************
-    public void stop_scan()
-    //**********************************************************
-    {
-        if (the_scan_show == null) return;
-        the_scan_show.stop_the_show();
-        the_scan_show = null;
-        set_status("Scan show stopped " + msg);
-
-    }
-
-    //**********************************************************
-    public void invert_scan()
-    //**********************************************************
-    {
-        if (the_scan_show == null) start_scan();
-        else the_scan_show.invert_scan_direction();
-    }
-
-    //**********************************************************
-    public void slow_down_scan()
-    //**********************************************************
-    {
-        if (the_scan_show == null) {
-            start_scan();
-            return;
-        }
-        the_scan_show.slow_down();
-        set_status("Scan show running " + msg + the_scan_show.get_speed());
-
-    }
-
-    //**********************************************************
-    public void speed_up_scan()
-    //**********************************************************
-    {
-        if (the_scan_show == null) {
-            start_scan();
-            return;
-        }
-        the_scan_show.hurry_up();
-        set_status("Scan show running " + msg + the_scan_show.get_speed());
-
-    }
 
 
 }

@@ -1,4 +1,4 @@
-package klik.browser;
+package klik.browser.virtual_landscape;
 
 public interface Landscape_height_listener
 {

@@ -34,10 +34,7 @@ import klik.util.log.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 //**********************************************************
 public class Results_frame
@@ -48,19 +45,19 @@ public class Results_frame
 	HashMap<String, List<Path>> search_results;
 	Stage stage = new Stage();
 	ImageView iv;
-	final Browser browser;
+	//final Browser browser;
 	final Aborter aborter;
 
 	//**********************************************************
 	public Results_frame(
-			Browser browser,
+			//Browser browser,
 			//HashMap<String, List<Path>> search_results,
 			//Search_session session,
 			Aborter aborter,
 			Logger logger)
 	//**********************************************************
 	{
-		this.browser = browser;
+		//this.browser = browser;
 		this.aborter = aborter;
 		this.logger = logger;
 
@@ -126,11 +123,13 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				Browser_creation_context.additional_different_folder(browser.primary_stage,path, rectangle,logger);
+				Browser_creation_context.additional_different_folder(path.toAbsolutePath().toString(), window,logger);
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
-				Item_image.open_an_image(true,browser,path,logger);
+				Item_image.open_an_image(true,
+						//browser,
+						path,logger);
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
@@ -153,7 +152,7 @@ public class Results_frame
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			Browser_creation_context.additional_different_folder(browser.primary_stage,local,rectangle,logger);
+			Browser_creation_context.additional_different_folder(local.toAbsolutePath().toString(),window,logger);
 		});
 		context_menu.getItems().add(browse);
 
@@ -173,13 +172,18 @@ public class Results_frame
 				MenuItem delete = new MenuItem(text);
 				delete.setOnAction(_ -> {
 					logger.log("Delete");
-					double x = browser.my_Stage.the_Stage.getX()+100;
-					double y = browser.my_Stage.the_Stage.getY()+100;
-					Static_files_and_paths_utilities.move_to_trash(browser.my_Stage.the_Stage,x,y,path, null, browser.aborter, logger);
-
+					double x = stage.getX()+100;
+					double y = stage.getY()+100;
+					Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
 
 				});
 				context_menu.getItems().add(delete);
+			}
+			{
+				double x = stage.getX()+100;
+				double y = stage.getY()+100;
+				MenuItem rename = Item_image.get_rename_MenuItem(path,stage,x, y, aborter,logger);
+				context_menu.getItems().add(rename);
 			}
 
 		}
@@ -190,7 +194,7 @@ public class Results_frame
 		});
 
 
-		Drag_and_drop.init_drag_and_drop_sender_side(b,browser,path,logger);
+		Drag_and_drop.init_drag_and_drop_sender_side(b, Optional.empty(),path,logger);
 
 
 	}

@@ -105,14 +105,14 @@ public class Filesystem_item_modification_watcher
     }
 
     //**********************************************************
-    public static boolean is_this_folder_showing_external_drives(Path displayed_folder_path, Logger logger)
+    public static boolean is_this_folder_showing_external_drives(Path path, Logger logger)
     //**********************************************************
     {
         String OS_name = System.getProperty("os.name");
 
         if ( OS_name.contains("Mac OS"))
         {
-            if (displayed_folder_path.toAbsolutePath().toString().equals("/Volumes"))
+            if (path.toAbsolutePath().toString().equals("/Volumes"))
             {
                 return true;
             }
@@ -120,7 +120,7 @@ public class Filesystem_item_modification_watcher
         }
         if ( OS_name.contains("Linux"))
         {
-            if (displayed_folder_path.toAbsolutePath().toString().equals("/dev"))
+            if (path.toAbsolutePath().toString().equals("/dev"))
             {
                 return true;
             }

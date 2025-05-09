@@ -3,6 +3,7 @@
 package klik.unstable.fusk;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.util.log.Logger;
 
@@ -66,7 +67,7 @@ public class Fusk_singleton
     }
 
     //**********************************************************
-    public static boolean start_fusk(Stage the_stage)
+    public static boolean start_fusk()
     //**********************************************************
     {
         if ( instance == null) return false;
@@ -76,7 +77,7 @@ public class Fusk_singleton
     }
 
     //**********************************************************
-    public static boolean start_defusk(Stage the_stage)
+    public static boolean start_defusk()
     //**********************************************************
     {
         if ( instance == null) return false;

@@ -2,6 +2,7 @@
 package klik.change.undo;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Datetime_to_signature_source;
@@ -42,7 +43,7 @@ public class Undo_engine implements Datetime_to_signature_source
     }
 
     //**********************************************************
-    public static void perform_undo(Undo_item item, Stage owner, double x, double y, Aborter aborter, Logger logger)
+    public static void perform_undo(Undo_item item, Window owner, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
         get_instance(aborter, logger).undo(item,owner,x,y);
@@ -61,21 +62,21 @@ public class Undo_engine implements Datetime_to_signature_source
         return get_instance(aborter, logger_).add_internal(l);
     }
     //**********************************************************
-    public static boolean perform_last_undo_fx(Stage owner, double x, double y, Aborter aborter, Logger logger)
+    public static boolean perform_last_undo_fx(Window owner, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
         return get_instance(aborter, logger).undo_last_move(owner,x,y);
 
     }
     //**********************************************************
-    public static void remove_all_undo_items(Stage owner, Aborter aborter, Logger logger)
+    public static void remove_all_undo_items(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         get_instance(aborter, logger).remove_all_undo_items_internal(owner);
     }
 
     //**********************************************************
-    public static boolean check_validity(Undo_item undo_item, Stage owner, Aborter aborter, Logger logger)
+    public static boolean check_validity(Undo_item undo_item, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         return get_instance(aborter, logger).check_validity_internal(undo_item, owner);
@@ -132,7 +133,7 @@ public class Undo_engine implements Datetime_to_signature_source
 
 
     //**********************************************************
-    private boolean check_validity_internal(Undo_item undo_item, Stage owner)
+    private boolean check_validity_internal(Undo_item undo_item, Window owner)
     //**********************************************************
     {
         int valid = 0;
@@ -215,7 +216,7 @@ public class Undo_engine implements Datetime_to_signature_source
 
 
     //**********************************************************
-    private boolean undo_last_move(Stage owner, double x, double y)
+    private boolean undo_last_move(Window owner, double x, double y)
     //**********************************************************
     {
         Undo_item most_recent_undo_item = store.get_most_recent();
@@ -228,7 +229,7 @@ public class Undo_engine implements Datetime_to_signature_source
     }
 
     //**********************************************************
-    private boolean undo(Undo_item undo_item, Stage owner, double x, double y)
+    private boolean undo(Undo_item undo_item, Window owner, double x, double y)
     //**********************************************************
     {
         if (Undo_storage_to_disk.dbg) logger.log("Undo_engine performing: UNDO of "+undo_item.to_string());
@@ -257,7 +258,7 @@ public class Undo_engine implements Datetime_to_signature_source
 
 
     //**********************************************************
-    private void remove_all_undo_items_internal(Stage owner)
+    private void remove_all_undo_items_internal(Window owner)
     //**********************************************************
     {
         store.remove_all_undo_items_from_property_file(owner);

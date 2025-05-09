@@ -7,6 +7,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.my_i18n.My_I18n;
@@ -41,7 +42,7 @@ public class Importer
 {
 
     //**********************************************************
-    public static void perform_import(Stage owner, Aborter aborter, Logger logger)
+    public static void perform_import(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
@@ -139,7 +140,7 @@ public class Importer
     }
 
     //**********************************************************
-    public static void estimate_size(Stage owner, Aborter aborter, Logger logger)
+    public static void estimate_size(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();

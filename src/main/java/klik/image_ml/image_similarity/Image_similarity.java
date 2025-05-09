@@ -4,9 +4,8 @@ package klik.image_ml.image_similarity;
 //SOURCES ./Vector_window.java
 
 import klik.actor.Aborter;
-import klik.browser.Browser;
 import klik.browser.Clearable_RAM_cache;
-import klik.browser.Path_list_provider;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
@@ -41,17 +40,17 @@ public class Image_similarity implements Clearable_RAM_cache
     Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors;
 
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
-    public final Browser browser;
+    //public final Browser browser;
     public final Logger logger;
     //**********************************************************
     public Image_similarity(
             Path_list_provider path_list_provider,
-            Browser browser,
+            //Browser browser,
             double x, double y,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
-        this.browser = browser;
+        //this.browser = browser;
         this.logger = logger;
         this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,x,y,aborter,logger);
     }
@@ -123,7 +122,7 @@ public class Image_similarity implements Clearable_RAM_cache
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
-        Image_window returned = new Image_window(browser, ms.path(), x, y, W, H, s, false,logger);
+        Image_window returned = new Image_window(Optional.empty(), ms.path(), x, y, W, H, s, false,logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         logger.log("x="+returned.the_Stage.getX());

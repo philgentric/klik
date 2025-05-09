@@ -1,5 +1,5 @@
 //SOURCES ./Selection_state.java
-package klik.browser;
+package klik.browser.virtual_landscape;
 
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
@@ -7,7 +7,9 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import klik.browser.icons.Virtual_landscape;
+import klik.browser.Browser;
+import klik.browser.Drag_and_drop;
+import klik.browser.Selection_state;
 import klik.browser.items.Item;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -223,7 +225,7 @@ public class Selection_handler
     }
 
     //**********************************************************
-    void handle_mouse_released(final MouseEvent mouse_event, Browser browser)
+    void handle_mouse_released(final MouseEvent mouse_event)
     //**********************************************************
     {
         if (!enable_multiple_selections) return;
@@ -346,11 +348,11 @@ public class Selection_handler
     }
 
     //**********************************************************
-    public void select_all_files_in_folder(Browser browser)
+    public void select_all_files_in_folder(Path_list_provider path_list_provider)
     //**********************************************************
     {
         reset_selection();
-        add_into_selected_files(browser.get_file_list());
+        add_into_selected_files(path_list_provider.get_file_list());
         set_select_all_files_colors(true);
     }
 }

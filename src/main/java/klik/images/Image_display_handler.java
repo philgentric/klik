@@ -14,6 +14,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.Browser;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -287,7 +288,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         double x = image_window.the_Stage.getX()+100;
         double y = image_window.the_Stage.getY()+100;
 
-        Static_files_and_paths_utilities.move_to_trash(image_window.the_Stage,x,y,to_be_deleted, r, aborter,logger);
+        Static_files_and_paths_utilities.move_to_trash(to_be_deleted,image_window.the_Stage,x,y, r, aborter,logger);
     }
 
 
@@ -305,7 +306,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return;
         }
         block.set(true);
-        Browser.show_running_film = false;
+        Virtual_landscape.show_running_film = false;
         if ( image_context.isEmpty())
         {
             Path p = image_indexer.get().path_from_index(0);

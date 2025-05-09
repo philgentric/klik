@@ -49,7 +49,6 @@ public class Finder_frame implements Search_receiver
 	Search_session session;
 	Path target_path;
 
-	final Browser browser;
 	long start_time;
 	TextField extension_tf;
 	VBox top_keyword_vbox;
@@ -59,11 +58,9 @@ public class Finder_frame implements Search_receiver
 
 	//**********************************************************
 	public Finder_frame(Path target_path_, List<String> input_keywords, boolean look_only_for_images_,
-						Browser browser,
 						Logger logger_)
 	//**********************************************************
 	{
-		this.browser = browser;
 		this.target_path = target_path_;
 		if ( !target_path.toFile().isDirectory()) target_path = target_path.getParent();
 		look_only_for_images = look_only_for_images_;
@@ -460,7 +457,9 @@ public class Finder_frame implements Search_receiver
 			}
 		}
 		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
-		session = new Search_session(search_config,browser,this,logger);
+		session = new Search_session(search_config,
+				//browser,
+				this,stage,logger);
 		session.start_search();
 		stop.setDisable(false);
 		start.setDisable(true);

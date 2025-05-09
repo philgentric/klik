@@ -82,6 +82,7 @@ public class Audio_player_frame
 
     //main STATE:
     File the_song_file;
+    Label status_label;
 
     //**********************************************************
     Audio_player_frame(Logger logger_)
@@ -168,7 +169,7 @@ public class Audio_player_frame
 
             Button remove_from_playlist = new Button(My_I18n.get_I18n_string("Remove_playing_song_from_playlist",logger));
             Look_and_feel_manager.set_button_look(remove_from_playlist, true);
-            remove_from_playlist.setOnAction(actionEvent -> remove_from_playlist());
+            remove_from_playlist.setOnAction(actionEvent -> remove_from_playlist_and_jump_to_next());
             returned.getChildren().add(remove_from_playlist);
         }
         {
@@ -371,6 +372,11 @@ public class Audio_player_frame
         shuffle.setOnAction(_->FXCollections.shuffle(observable_playlist));
         returned.getChildren().add(shuffle);
 
+        status_label = new Label("Status: OK");
+        status_label.prefWidth(1000);
+        status_label.setWrapText(true);
+        Look_and_feel_manager.set_region_look(status_label);
+        returned.getChildren().add(status_label);
 
         return returned;
     }
@@ -567,10 +573,12 @@ public class Audio_player_frame
                 return;
             }
         } else {
-            if (new_song.exists() == false) {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL: " + new_song.getAbsolutePath() + " does not exist"));
+            if (new_song.exists() == false)
+            {
+                logger.log(("FATAL: " + new_song.getAbsolutePath() + " does not exist"));
+                status_label.setText("File not found: "+new_song.getAbsolutePath());
+                remove_from_playlist_thats_all(new_song);
                 return;
-
             }
             current_time_s = 0;
         }
@@ -586,6 +594,8 @@ public class Audio_player_frame
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,new_song.toPath(),logger);
         //logger.log("bitrate= "+bitrate);
         logger.log(new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
+        status_label.setText("Status: OK for:"+new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
+
         clean_up();
         the_song_file = new_song;
         add_and_save_if_needed();
@@ -629,12 +639,12 @@ public class Audio_player_frame
         {
             logger.log(Stack_trace_getter.get_stack_trace(me.toString()));
             //logger.log((me.toString()));
-            remove_from_playlist();
+            remove_from_playlist_thats_all(new_song);
         }
         catch (IllegalArgumentException e)
         {
             Popups.popup_Exception(e,256,"Fatal",logger);
-            remove_from_playlist();
+            remove_from_playlist_thats_all(new_song);
         }
         stage.show();
     }
@@ -869,11 +879,20 @@ public class Audio_player_frame
     }
 
     //**********************************************************
-    private void remove_from_playlist()
+    private void remove_from_playlist_and_jump_to_next()
     //**********************************************************
     {
         File to_be_removed = the_song_file;
         jump_to_next();
+        logger.log("removing from playlist: "+to_be_removed);
+        observable_playlist.remove(to_be_removed); // will also update file_to_button in the event handler
+    }
+
+    //**********************************************************
+    private void remove_from_playlist_thats_all(File to_be_removed)
+    //**********************************************************
+    {
+        logger.log("removing from playlist: "+to_be_removed);
         observable_playlist.remove(to_be_removed); // will also update file_to_button in the event handler
     }
 
@@ -940,7 +959,7 @@ public class Audio_player_frame
 
     }
     //**********************************************************
-    private  void jump_to_previous()
+    private void jump_to_previous()
     //**********************************************************
     {
         if ( observable_playlist.isEmpty()) return;

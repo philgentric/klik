@@ -13,7 +13,7 @@ public class Finder
 {
     //**********************************************************
     public static void find(Path path,
-                            Browser browser,
+                            //Browser browser,
                             List<String> keywords, boolean search_only_images, Logger logger)
     //**********************************************************
     {
@@ -21,7 +21,7 @@ public class Finder
                     path,
                     keywords,
                     search_only_images,
-                    browser,
+                    //browser,
                     logger);
             popup.start_search();
     }

@@ -3,6 +3,7 @@ package klik.browser.items;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 
@@ -12,11 +13,16 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
-import klik.browser.icons.Virtual_landscape;
+import klik.browser.icons.Icon_factory_actor;
+import klik.browser.virtual_landscape.Scroll_position_recorder;
+import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Shutdown_target;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
@@ -59,16 +65,22 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
     //**********************************************************
     public Item_folder_with_icon(
-            Browser browser,
-            Path path_,
+            Window owner,
+            Scene scene,
+            Selection_handler selection_handler,
+            Path path,
+            Icon_factory_actor icon_factory_actor,
             Color color,
+            Aborter aborter,
             String text_,
             int column_width_,
             Image_properties_RAM_cache image_properties_RAM_cache,
+            Scroll_position_recorder scroll_position_recorder,
+            Shutdown_target shutdown_target,
             Logger logger)
     //**********************************************************
     {
-        super(browser, path_, color, logger);
+        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder,aborter, logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         folder_icon_size = Non_booleans.get_folder_icon_size(logger);
@@ -90,13 +102,13 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         the_button.setContentDisplay(ContentDisplay.BOTTOM);
 
         Look_and_feel_manager.set_button_look(the_button,true);
-        the_button.setOnAction(actionEvent -> Browser_creation_context.replace_different_folder(path,browser, logger));
+        the_button.setOnAction(actionEvent -> Browser_creation_context.replace_different_folder(shutdown_target, path.toAbsolutePath().toString(),owner, logger));
         Tooltip.install(the_button,new Tooltip(path.getFileName().toString()));
 
         resize_the_box(the_button);
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),browser,path,is_trash(),logger);
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),browser,path,logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),owner,path,is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),Optional.of(selection_handler),path,logger);
         give_a_menu_to_the_button(the_button,null);
 
     }
@@ -136,8 +148,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     {
         if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger))
         {
-            button.setPrefWidth(browser.my_Stage.the_Stage.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
-            button.setMinWidth(browser.my_Stage.the_Stage.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
         }
         else
         {
@@ -274,7 +286,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(browser,new Folder_path_list_provider(path),  images_in_folder,  image_properties_RAM_cache, logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(owner,new Folder_path_list_provider(path),  images_in_folder,  image_properties_RAM_cache, logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");

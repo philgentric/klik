@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -50,7 +51,7 @@ public class Ffmpeg_utils
     private static final Locale us_locale = new Locale("en");
 
     //**********************************************************
-    public static void generate_many_gifs(Stage owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
+    public static void generate_many_gifs(Window owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
     //**********************************************************
     {
         double duration_in_seconds = get_video_duration(owner, video_path, logger);
@@ -103,7 +104,7 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static double get_video_duration(
-            Stage owner,
+            Window owner,
             Path video_path,
             Logger logger)
     //**********************************************************
@@ -179,7 +180,7 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static void video_to_mp4_in_a_thread(
-            Stage owner,
+            Window owner,
             Path video_path,
             Aborter aborter,
             AtomicBoolean aborted_reported,
@@ -192,7 +193,7 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static void video_to_mp4(
-            Stage owner,
+            Window owner,
             Path video_path,
             Aborter aborter,
             AtomicBoolean aborted_reported,
@@ -232,7 +233,7 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static boolean video_to_gif(
-            Stage owner,
+            Window owner,
             Path video_path,
             Path destination_gif_full_path,
             double clip_duration_in_seconds,

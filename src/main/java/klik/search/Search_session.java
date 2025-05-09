@@ -30,7 +30,7 @@ public class Search_session implements Callback_for_file_found_publish
 	public final Search_config search_config;
 	private final Aborter local_aborter;
 	private final Search_receiver search_receiver;
-	private final Browser browser;
+	//private final Browser browser;
 	private final Window window;
 	final Results_frame find_result_frame;
 
@@ -38,19 +38,19 @@ public class Search_session implements Callback_for_file_found_publish
 
 	//**********************************************************
 	public Search_session(Search_config search_config,
-						  Browser browser ,
-						  Search_receiver search_receiver, Logger logger)
+						  Search_receiver search_receiver, Window window,Logger logger)
 	//**********************************************************
 	{
-		this.browser = browser;
-		this.window = browser.my_Stage.the_Stage;
+		this.window = window;
 		this.logger = logger;
 		local_aborter = new Aborter("Search_session",logger);
 		status = Search_status.ready;
 		this.search_config = search_config;
 		this.search_receiver = search_receiver;
 		//this.the_browser = browser;
-		this.find_result_frame = new Results_frame(browser, local_aborter, logger);
+		this.find_result_frame = new Results_frame(
+				//browser,
+				local_aborter, logger);
 	}
 
 	//**********************************************************

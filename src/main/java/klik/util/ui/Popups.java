@@ -63,7 +63,7 @@ public class Popups
     }
 
     //**********************************************************
-    public static boolean popup_ask_for_confirmation(Stage owner, String header, String content, Logger logger)
+    public static boolean popup_ask_for_confirmation(Window owner, String header, String content, Logger logger)
     //**********************************************************
     {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

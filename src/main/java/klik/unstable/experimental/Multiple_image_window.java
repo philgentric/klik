@@ -15,6 +15,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.comparators.Alphabetical_file_name_comparator;
 import klik.image_indexer.Image_indexer;
@@ -50,7 +51,7 @@ public class Multiple_image_window
     //**********************************************************
     public static Optional<Multiple_image_window> get_Multiple_image_window(
             String title,
-            Stage from_stage, // for on same screen
+            Window from_stage, // for on same screen
             Path path,
             boolean smaller,
             Logger logger_)

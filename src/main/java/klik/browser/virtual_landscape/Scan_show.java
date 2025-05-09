@@ -1,4 +1,4 @@
-package klik.browser;
+package klik.browser.virtual_landscape;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

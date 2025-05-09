@@ -198,7 +198,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static void move_to_trash(Stage owner, double x, double y, List<Path> paths, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash_multiple(List<Path> paths, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),logger);
@@ -218,7 +218,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static void move_to_trash(Stage owner, double x, double y, Path path, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path trash_dir = Non_booleans.get_trash_dir(path,logger);
@@ -370,14 +370,14 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static double clear_DISK_cache(Cache_folder cache_folder, boolean show_popup, Stage owner, Aborter aborter, Logger logger)
+    public static double clear_DISK_cache(Cache_folder cache_folder, boolean show_popup, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icons = get_cache_dir(owner, cache_folder,logger);
         return clear_folder(icons, cache_folder.name()+" cache on disk", show_popup, owner, aborter, logger);
     }
     //**********************************************************
-    public static void clear_all_DISK_caches(Stage owner, Aborter aborter, Logger logger)
+    public static void clear_all_DISK_caches(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         double size = 0.0;
@@ -390,7 +390,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static double clear_folder(Path folder, String tag, boolean show_popup,Stage owner, Aborter aborter, Logger logger)
+    public static double clear_folder(Path folder, String tag, boolean show_popup,Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         double size = get_size_on_disk(folder, aborter, logger);
@@ -405,7 +405,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static boolean user_cancel(String tag, double size, Stage owner, Logger logger)
+    public static boolean user_cancel(String tag, double size, Window owner, Logger logger)
     //**********************************************************
     {
         String s1 = "Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
@@ -458,7 +458,7 @@ public class Static_files_and_paths_utilities
 */
 
     //**********************************************************
-    public static void clear_trash(boolean show_popup, Stage owner, Aborter aborter, Logger logger)
+    public static void clear_trash(boolean show_popup,Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -1001,7 +1001,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path ask_user_for_new_file_name(Stage owner, Path path, Logger logger)
+    public static Path ask_user_for_new_file_name(Window owner, Path path, Logger logger)
     //**********************************************************
     {
         String old_name = path.getFileName().toString();
@@ -1064,7 +1064,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static Path ask_user_for_new_dir_name(Stage owner, Path path, Logger logger)
+    public static Path ask_user_for_new_dir_name(Window owner, Path path, Logger logger)
     //**********************************************************
     {
         String old_name = path.getFileName().toString();
@@ -1146,7 +1146,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static void copy_dir_in_a_thread(Stage owner, Path path, Path new_path, Aborter aborter, Logger logger)
+    public static void copy_dir_in_a_thread(Window owner, Path path, Path new_path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( dbg) logger.log("copy_dir_in_a_thread start");

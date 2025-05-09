@@ -3,9 +3,10 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
-import klik.browser.Path_list_provider;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.log.Logger;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
 //**********************************************************
 {
 
+    // the distances are computed in the constructor
     //**********************************************************
     public Similarity_comparator_pairs_of_closests(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger_)
     //**********************************************************
@@ -88,6 +90,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
                 i++;
             }
         }
+        add_non_images(path_list_provider, i);
     }
 
 

@@ -10,6 +10,7 @@ package klik.browser.icons;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
@@ -48,7 +49,7 @@ public class Icon_factory_actor implements Actor
     private static final boolean aborting_dbg = false;
 
     Logger logger;
-    private final Stage owner;
+    private final Window owner;
     Icon_writer_actor writer;
     public Path icon_cache_dir;
     public static final String gif_extension = "gif";
@@ -70,7 +71,9 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    public Icon_factory_actor(Image_properties_RAM_cache image_properties_RAM_cache, Stage owner_, Aborter aborter, Logger logger_)
+    public Icon_factory_actor(Image_properties_RAM_cache image_properties_RAM_cache,
+                              Window owner_,
+                              Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.image_properties_RAM_cache = image_properties_RAM_cache;

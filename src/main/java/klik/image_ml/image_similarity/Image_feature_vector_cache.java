@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
-import klik.browser.Path_list_provider;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.Feature_vector;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
