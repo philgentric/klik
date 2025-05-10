@@ -2222,9 +2222,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         Look_and_feel_manager.set_context_menu_look(view_menu);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> Browser_creation_context.additional_same_folder(rectangle,path_list_provider.get_name(),get_top_left(),logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> Browser_creation_context.additional_same_folder_twin(path_list_provider.get_name(),owner,logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> Browser_creation_context.additional_same_folder_fat_tall(path_list_provider.get_name(),owner,logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> Browser_creation_context.additional_same_folder(path_list_provider.get_name(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> Browser_creation_context.additional_same_folder_twin(path_list_provider.get_name(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> Browser_creation_context.additional_same_folder_fat_tall(path_list_provider.get_name(),owner,get_top_left(),logger)));
 
 
         {

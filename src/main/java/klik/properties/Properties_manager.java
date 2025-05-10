@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 public class Properties_manager
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final String AGE = "_age";
     public static final int max = 30;
 

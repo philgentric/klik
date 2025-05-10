@@ -148,7 +148,7 @@ public class Browser extends Abstract_browser
     public String signature()
     //**********************************************************
     {
-        return "  Browser ID= " + ID + " total window count: " + browsers_created.get() + " esc=" + my_Stage.escape;
+        return "  Browser ID= " + ID + " total window count: " + number_of_windows.get() + " esc=" + my_Stage.escape;
     }
 
     //**********************************************************
@@ -160,7 +160,7 @@ public class Browser extends Abstract_browser
         //if (dbg)
             logger.log("Browser close_window " + signature());
 
-        int count = browsers_created.decrementAndGet();
+        int count = number_of_windows.decrementAndGet();
         logger.log("close_window: browsers_created(2) ="+count);
         if (count ==0)
         {
@@ -292,6 +292,7 @@ public class Browser extends Abstract_browser
                     // recording its new path would be a bad bug
                     if ( oan.new_Path != null) {
                         if (oan.new_Path.startsWith(displayed_folder_path)) {
+                            // make sure the window will scroll to the landing point of the displaced file
                             Virtual_landscape.scroll_position_cache.put(displayed_folder_path.toAbsolutePath().toString(), oan.new_Path);
                         }
                     }

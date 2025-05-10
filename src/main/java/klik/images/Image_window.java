@@ -64,24 +64,17 @@ public class Image_window
     private final Image_properties_RAM_cache image_properties_cache;
 
     //**********************************************************
-    public static Image_window get_Image_window(
-            //Browser browser,
-            Path path,
-            Logger logger_)
+    public static Image_window get_Image_window(Path path, Logger logger_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
-        Image_window returned = on_same_screen(
-                //browser,
-                path, logger_);
+        Image_window returned = on_same_screen(path, logger_);
         Performance_monitor.register_new_record("get_Image_window", path.toString(), System.currentTimeMillis() - start, logger_);
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(
-            //Browser browser,
-            Path path, Logger logger_)
+    private static Image_window on_same_screen(Path path, Logger logger_)
     //**********************************************************
     {
 
@@ -91,10 +84,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(
-                Optional.empty(),
-                //browser,
-                path, x, y,w, h, null, true,logger_);
+        Image_window returned = new Image_window(Optional.empty(), path, x, y,w, h, null, true,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -104,7 +94,6 @@ public class Image_window
     //**********************************************************
     public Image_window(
             Optional<Comparator<? super Path>> image_comparator,
-            //Browser browser,
             Path first_image_path,
             double x, double y,
             double w, double h,
@@ -113,7 +102,6 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
-        //this.browser = browser;
         this.title_optional_addendum = title_optional_addendum;
         logger = logger_;
         dir = first_image_path.getParent();

@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler
 {
 
-    public static final AtomicInteger browsers_created = new AtomicInteger(0);
+    public static final AtomicInteger number_of_windows = new AtomicInteger(0);
 
     public static final boolean dbg = false;
     public static final boolean keyboard_dbg = false;
@@ -45,6 +45,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     abstract protected String get_name();
     public abstract Path_list_provider get_Path_list_provider();
     public abstract String signature();
+    abstract void monitor();
 
     //**********************************************************
     public Abstract_browser(Browser_creation_context context, Logger logger_)
@@ -52,7 +53,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     {
         logger = logger_;
 
-        int count = browsers_created.incrementAndGet();
+        int count = number_of_windows.incrementAndGet();
         logger.log("Browser constructor browsers_created(1)=" + count);
         if (context.shutdown_target != null) {
             logger.log("closing previous browser");
@@ -70,41 +71,31 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             System.exit(0);
         });
 
-        if (context.additional_window) {
-            //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after create: " +context.folder_path +"\n"+ signature()));
-        } else {
-            //logger.log(Stack_trace_getter.get_stack_trace("\n\n\nBrowser after dir change: " +context.folder_path +"\n"+ signature()));
-        }
-        //logger.log("top_left_in_parent="+top_left_in_parent);
 
         double x = 0;
         double y = 0;
-
         double width = 2400 / 2.0;
         double height = 1080 - y;
 
-
-        if (count == 1) {
+        if (count == 1)
+        {
             Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, logger);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
             y = r.getMinY();
-        } else {
-            if (context.rectangle != null) {
-                width = context.rectangle.getWidth();//old_browser.the_Stage.getWidth();
-                height = context.rectangle.getHeight();//old_browser.the_Stage.getHeight();
-                x = context.rectangle.getMinX();//old_browser.the_Stage.getX();
-                y = context.rectangle.getMinY();//old_browser.the_Stage.getY();
-
-            }
-            if (context.move_a_bit) {
-                x += 100;
-                y += 100;
-            }
-
         }
-        if (dbg) logger.log("NEW browser");
+        else
+        {
+            if (context.rectangle != null)
+            {
+                x = context.rectangle.getMinX();
+                y = context.rectangle.getMinY();
+                width = context.rectangle.getWidth();
+                height = context.rectangle.getHeight();
+            }
+        }
+        if (dbg) logger.log("NEW browser "+x+","+y);
 
         my_Stage.the_Stage.setX(x);
         my_Stage.the_Stage.setY(y);
@@ -153,15 +144,11 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
     }
 
-    abstract void monitor();
-
-
-
     //**********************************************************
     private void record_stage_bounds()
     //**********************************************************
     {
-        if (browsers_created.get() != 1) {
+        if (number_of_windows.get() != 1) {
             // ignore: we store the position of a "unique or last" window
             return;
         }

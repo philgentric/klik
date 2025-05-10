@@ -3,6 +3,7 @@ package klik.images;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -251,7 +252,7 @@ public class Menus_for_image_window
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             Browser_creation_context.additional_no_past(image_window.image_display_handler.get_image_context().get().path.getParent().toString(), image_window.logger);
+             Browser_creation_context.additional_same_folder(image_window.image_display_handler.get_image_context().get().path.getParent().toString(), image_window.the_Stage,image_window.image_display_handler.get_image_context().get().path,image_window.logger);
         });
         return browse;
     }
@@ -380,7 +381,7 @@ public class Menus_for_image_window
         if ( image_window.image_display_handler.get_image_context().isEmpty()) new MenuItem(txt+" bug?");
 
         MenuItem info = new MenuItem(txt
-                + image_window.image_display_handler.get_image_context().get().path.toAbsolutePath() + My_I18n.get_I18n_string("Info_about_file_shortcut", image_window.logger));
+                + image_window.image_display_handler.get_image_context().get().path.getFileName() + My_I18n.get_I18n_string("Info_about_file_shortcut", image_window.logger));
         info.setOnAction(event ->
                 {
 

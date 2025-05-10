@@ -587,9 +587,7 @@ public class Virtual_landscape_menus
 
 
     //**********************************************************
-    public void create_history_menu(
-            //Browser browser,
-            Menu history_menu, Logger logger)
+    public void create_history_menu(Menu history_menu, Logger logger)
     //**********************************************************
     {
         {
@@ -598,7 +596,7 @@ public class Virtual_landscape_menus
             item.setOnAction(event -> {
                 logger.log("clearing history");
                 History_engine.clear(logger);
-                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(), owner,logger);
+                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(), owner,virtual_landscape.get_top_left(),logger);
 
             });
             history_menu.getItems().add(item);
@@ -801,7 +799,7 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Look_and_feel_manager.set_look_and_feel(style);
-                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,logger);
+                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,virtual_landscape.get_top_left(),logger);
             }
         });
         menu.getItems().add(check_menu_item);
@@ -866,7 +864,7 @@ public class Virtual_landscape_menus
                 }
                 Language_manager.set_current_language_key(language_key);
                 My_I18n.reset();
-                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,logger);
+                Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,virtual_landscape.get_top_left(),logger);
             }
         });
         menu.getItems().add(item);
@@ -1067,7 +1065,7 @@ public class Virtual_landscape_menus
                 {
                     File_sort_by.set_sort_files_by(sort_by,logger);
                     logger.log("new file/image sorting order= "+sort_by);
-                    Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,logger);
+                    Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,virtual_landscape.get_top_left(),logger);
                 }
             }
         });
