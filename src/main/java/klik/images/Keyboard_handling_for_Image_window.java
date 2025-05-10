@@ -5,6 +5,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.unstable.metadata.Tag_stage;
 import klik.properties.Booleans;
@@ -24,7 +25,6 @@ public class Keyboard_handling_for_Image_window
     private static final boolean keyword_dbg = false;
     //**********************************************************
     static void handle_keyboard(
-            //Browser browser,
             Image_window image_window,
             boolean exit_on_escape_preference,
             final KeyEvent key_event,
@@ -112,7 +112,7 @@ public class Keyboard_handling_for_Image_window
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 Runnable after = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
                 image_window.image_display_handler.get_image_context().get().copy(
-                        //browser,
+                        image_window.path_list_provider,
                         after);
                 key_event.consume();
                 return;
@@ -155,7 +155,7 @@ public class Keyboard_handling_for_Image_window
                 if (keyword_dbg) logger.log("k like search_using_keywords_from_the_name");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name();
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider);
                 key_event.consume();
                 return;
             }

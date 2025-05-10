@@ -11,7 +11,6 @@
 
 package klik.browser.items;
 
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,13 +30,11 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Scroll_position_recorder;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Experimental_features;
 import klik.properties.Booleans;
@@ -79,7 +76,6 @@ public abstract class Item implements Icon_destination
     protected Color color;
     protected Path path;
     protected final Window owner;
-    //protected final Browser browser;
     protected final Scene scene;
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
@@ -98,6 +94,7 @@ public abstract class Item implements Icon_destination
     protected final Icon_factory_actor icon_factory_actor;
     protected final Selection_handler selection_handler;
     protected final Scroll_position_recorder scroll_position_recorder;
+    protected final Path_list_provider path_list_provider;
     //**********************************************************
     public Item(
             Window owner,
@@ -107,10 +104,12 @@ public abstract class Item implements Icon_destination
             Icon_factory_actor icon_factory_actor,
             Color color,
             Scroll_position_recorder scroll_position_recorder,
+            Path_list_provider path_list_provider,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
+        this.path_list_provider = path_list_provider;
         this.scroll_position_recorder = scroll_position_recorder;
         this.browser_aborter = aborter;
         this.owner = owner;
@@ -395,7 +394,8 @@ public abstract class Item implements Icon_destination
             if (dbg) logger.log("Deleting!");
             double x = owner.getX()+100;
             double y = owner.getY()+100;
-            Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
+            path_list_provider.delete(path, owner, x, y, browser_aborter, logger);
+            //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
         });
         return menu_item;
     }

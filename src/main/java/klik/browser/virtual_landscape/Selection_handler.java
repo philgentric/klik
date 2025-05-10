@@ -7,9 +7,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
-import klik.browser.Selection_state;
 import klik.browser.items.Item;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -57,7 +55,7 @@ public class Selection_handler
     public void on_drag_over()
     //**********************************************************
     {
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("on_drag_over()");
+        if (Drag_and_drop.drag_and_drop_ultra_dbg) logger.log("on_drag_over()");
         selection_state = Selection_state.selection_started;
     }
 
@@ -126,7 +124,7 @@ public class Selection_handler
     }
 
     //**********************************************************
-    public void set_select_all_files_colors( boolean b)
+    public void set_select_all_files(boolean b)
     //**********************************************************
     {
         Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
@@ -212,7 +210,7 @@ public class Selection_handler
             mouse_event.consume();
             return;
         }
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_drag_selection()");
+        if (Drag_and_drop.drag_and_drop_ultra_dbg) logger.log("handle_drag_selection()");
 
         final Point2D in_parent = the_pane.sceneToLocal(mouse_event.getSceneX(), mouse_event.getSceneY());
         x1 = in_parent.getX();
@@ -235,7 +233,7 @@ public class Selection_handler
             mouse_event.consume();
             return;
         }
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("*()handle_release_selection()");
+        if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_released: selection is defined");
         selection_state = Selection_state.selection_defined;
 
         final Point2D in_parent = the_pane.sceneToLocal(mouse_event.getSceneX(), mouse_event.getSceneY());
@@ -274,31 +272,9 @@ public class Selection_handler
     public void nothing_selected()
     //**********************************************************
     {
-        set_select_all_files_colors(false);
+        set_select_all_files(false);
         set_select_all_folders(false);
     }
-/*
-
-    //**********************************************************
-    private boolean open_item_at(double x, double y, Browser browser)
-    //**********************************************************
-    {
-        Item item = icon_manager.get_item_under(the_pane, x, y);
-        if (item == null) return false;
-       // logger.log("open_item_at for" + item.get_item_path());
-
-        switch (item.item_type) {
-            case image_gif, image_png ,image_not_gif_not_png -> ((Item_image) item).open_an_image(logger);
-            case symbolic_link_on_folder ,folder -> {
-                logger.log("Selection_handler calling replace_different_folder");
-                Browser_creation_context.replace_different_folder(item.get_item_path(), browser, null, logger);
-            }
-            default ->  System_open_actor.open_with_system(browser,item.get_item_path(),logger);
-        }
-        return true;
-    }
-
- */
 
     //**********************************************************
     private void extract_selected_files(double x, double y, double w, double h)
@@ -353,6 +329,6 @@ public class Selection_handler
     {
         reset_selection();
         add_into_selected_files(path_list_provider.get_file_list());
-        set_select_all_files_colors(true);
+        set_select_all_files(true);
     }
 }

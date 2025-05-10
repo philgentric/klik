@@ -6,6 +6,7 @@ import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.log.Logger;
 import klik.actor.Aborter;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -106,7 +107,7 @@ public enum File_sort_by {
     {
       try {
         File_sort_by returned = File_sort_by.valueOf(s);
-        logger.log("sort files by: "+returned);
+        //logger.log(Stack_trace_getter.get_stack_trace("sort files by: "+returned));
         return returned;
       }
       catch ( IllegalArgumentException e)

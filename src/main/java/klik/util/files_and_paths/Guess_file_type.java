@@ -1,8 +1,8 @@
 package klik.util.files_and_paths;
 
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.browser.Playlist_path_list_provider;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Booleans;
 import klik.util.execute.Execute_command;
@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.audio.Audio_player_frame.PLAYLIST_EXTENSION;
+import static klik.audio.Audio_player_frame.KLIK_AUDIO_PLAYLIST_EXTENSION;
 
 /*
 static utilities to guess the file type from its extension
@@ -120,12 +120,20 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    public static boolean is_this_path_a_playlist(Path path)
+    public static boolean is_this_path_an_audio_playlist(Path path)
     //**********************************************************
     {
         if (path.getFileName().toString().startsWith("._")) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
-        return is_this_extension_a_playlist(extension);
+        return is_this_extension_an_audio_playlist(extension);
+    }
+    //**********************************************************
+    public static boolean is_this_path_an_image_playlist(Path path)
+    //**********************************************************
+    {
+        if (path.getFileName().toString().startsWith("._")) return false;
+        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        return is_this_extension_an_image_playlist(extension);
     }
     //**********************************************************
     public static boolean is_this_path_a_pdf(Path path)
@@ -278,12 +286,22 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    public static boolean is_this_extension_a_playlist(String extension)
+    public static boolean is_this_extension_an_audio_playlist(String extension)
     //**********************************************************
     {
-        if (extension.equals(PLAYLIST_EXTENSION))  return true;
+        if (extension.equals(KLIK_AUDIO_PLAYLIST_EXTENSION))  return true;
         return false;
     }
+
+
+    //**********************************************************
+    public static boolean is_this_extension_an_image_playlist(String extension)
+    //**********************************************************
+    {
+        if (extension.equals(Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION))  return true;
+        return false;
+    }
+
 
     //**********************************************************
     public static boolean is_this_extension_a_pdf(String extension)

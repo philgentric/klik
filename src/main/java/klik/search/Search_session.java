@@ -10,6 +10,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -37,8 +38,8 @@ public class Search_session implements Callback_for_file_found_publish
 
 
 	//**********************************************************
-	public Search_session(Search_config search_config,
-						  Search_receiver search_receiver, Window window,Logger logger)
+	public Search_session(Path_list_provider path_list_provider, Search_config search_config,
+						  Search_receiver search_receiver, Window window, Logger logger)
 	//**********************************************************
 	{
 		this.window = window;
@@ -49,7 +50,7 @@ public class Search_session implements Callback_for_file_found_publish
 		this.search_receiver = search_receiver;
 		//this.the_browser = browser;
 		this.find_result_frame = new Results_frame(
-				//browser,
+				path_list_provider,
 				local_aborter, logger);
 	}
 

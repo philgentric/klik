@@ -14,9 +14,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.Browser;
 import klik.browser.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
@@ -62,19 +62,20 @@ public class Image_window
     boolean is_full_screen = false;
     Path dir;
     private final Image_properties_RAM_cache image_properties_cache;
+    Path_list_provider path_list_provider;
 
     //**********************************************************
-    public static Image_window get_Image_window(Path path, Logger logger_)
+    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Logger logger_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
-        Image_window returned = on_same_screen(path, logger_);
+        Image_window returned = on_same_screen(path, path_list_provider,logger_);
         Performance_monitor.register_new_record("get_Image_window", path.toString(), System.currentTimeMillis() - start, logger_);
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Path path, Logger logger_)
+    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Logger logger_)
     //**********************************************************
     {
 
@@ -84,7 +85,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(Optional.empty(), path, x, y,w, h, null, true,logger_);
+        Image_window returned = new Image_window(Optional.empty(), path, x, y,w, h, null, true,path_list_provider,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -99,9 +100,11 @@ public class Image_window
             double w, double h,
             String title_optional_addendum, // this is used to display image similarity
             boolean save_window_bounds,
+            Path_list_provider path_list_provider,
             Logger logger_)
     //**********************************************************
     {
+        this. path_list_provider = path_list_provider;
         this.title_optional_addendum = title_optional_addendum;
         logger = logger_;
         dir = first_image_path.getParent();
@@ -110,10 +113,6 @@ public class Image_window
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane);
 
-        /*
-        Image image = Look_and_feel_manager.get_default_icon(300);
-        if (image != null) the_Stage.getIcons().add(image);
-        */
 
         image_properties_cache = Image_properties_RAM_cache.get(new Folder_path_list_provider(first_image_path.getParent()),aborter,logger);
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
@@ -138,7 +137,6 @@ public class Image_window
 
         boolean high_quality = false;
 
-
         Comparator<? super Path> local_comp;
         if ( image_comparator.isPresent()) {
             // fastest way to get a fully initialized comparator
@@ -151,8 +149,7 @@ public class Image_window
             local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()),image_properties_cache, x+100,y+100,aborter,logger);
         }
 
-
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(high_quality, first_image_path, this, local_comp, aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -167,8 +164,7 @@ public class Image_window
 
         image_display_handler.change_image_relative(0,false);
 
-
-            //set_image(image_context_owner.get_image_context(), white_background);
+        //set_image(image_context_owner.get_image_context(), white_background);
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());

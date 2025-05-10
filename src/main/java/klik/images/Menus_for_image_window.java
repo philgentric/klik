@@ -15,6 +15,7 @@ import klik.browser.Browser_creation_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_image;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.undo.Undo_engine;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
@@ -145,7 +146,6 @@ public class Menus_for_image_window
 
     //**********************************************************
     private static MenuItem get_search_by_user_given_keywords_menu_item(
-            //Browser the_browser,
             Image_window image_window)
     //**********************************************************
     {
@@ -154,7 +154,7 @@ public class Menus_for_image_window
         search_y.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(null,false);
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(null,image_window.path_list_provider,false);
         });
         return search_y;
     }
@@ -167,7 +167,7 @@ public class Menus_for_image_window
         search_k.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name();
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider);
         });
         return search_k;
     }
@@ -180,7 +180,7 @@ public class Menus_for_image_window
         copy.setOnAction(event -> {
 
             Runnable r = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
-            image_window.image_display_handler.get_image_context().get().copy( r);
+            image_window.image_display_handler.get_image_context().get().copy(image_window.path_list_provider, r);
         });
         return copy;
     }

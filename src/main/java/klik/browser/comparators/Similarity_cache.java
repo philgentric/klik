@@ -38,7 +38,7 @@ public class Similarity_cache
         String cache_name = "similarity";
         String local = cache_name + path_list_provider.get_name();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, logger);
+        Path dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());

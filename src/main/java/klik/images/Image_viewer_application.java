@@ -3,8 +3,7 @@ package klik.images;
 import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
+import klik.browser.Folder_path_list_provider;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.util.log.Exceptions_in_threads_catcher;
@@ -48,7 +47,7 @@ public class Image_viewer_application extends Application
 
         //Browser browser = Browser_creation_context.first(path.getParent().toString(),logger);
         //browser.my_Stage.the_Stage.hide();
-        Image_window image_stage = Image_window.get_Image_window(path, logger);
+        Image_window image_stage = Image_window.get_Image_window(path, new Folder_path_list_provider(path.getParent()), logger);
     }
 }
 

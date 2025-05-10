@@ -1,5 +1,6 @@
 package klik.image_indexer;
 
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -22,16 +23,17 @@ class State
     private final Map<Path, Integer> path_to_index;
     private final Map<Integer,Path> index_to_path;
     Logger logger;
-    private final Path current_dir;
+    //private final Path current_dir;
+    private final Path_list_provider path_list_provider;
     static final String target = "*.{"+Guess_file_type.get_supported_image_formats_as_a_comma_separated_string()+"}";
     private final Comparator<? super Path> file_comparator;
 
     //**********************************************************
-    public State(Path current_dir, Comparator<? super Path> fileComparator, Logger logger_)
+    public State(Path_list_provider path_list_provider, Comparator<? super Path> fileComparator, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
-        this.current_dir = current_dir;
+        this.path_list_provider = path_list_provider;
         file_comparator = fileComparator;
         path_to_index = new HashMap<>();
         index_to_path = new HashMap<>();
@@ -52,8 +54,9 @@ class State
 
         boolean consider_also_hidden_files =  Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger);
 
-        List<Path> path_list = new ArrayList<>();
+        List<Path> path_list = path_list_provider.get_paths();//new ArrayList<>();
         if (dbg) logger.log(("image file source scan for:"+target));
+        /*
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, target))
         //try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
         {
@@ -72,7 +75,7 @@ class State
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
             return;
-        }
+        }*/
 
         try{
             path_list.sort(file_comparator);
@@ -90,7 +93,7 @@ class State
             path_to_index.put(p,index);
             index++;
         }
-        Performance_monitor.register_new_record("image file source rescan", current_dir.toString(), System.currentTimeMillis() - start, logger);
+        Performance_monitor.register_new_record("image file source rescan", path_list_provider.get_name(), System.currentTimeMillis() - start, logger);
     }
 
     public Integer index_from_path(Path path) {

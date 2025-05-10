@@ -40,17 +40,16 @@ public class Image_similarity implements Clearable_RAM_cache
     Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors;
 
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
-    //public final Browser browser;
+    public final Path_list_provider path_list_provider;
     public final Logger logger;
     //**********************************************************
     public Image_similarity(
             Path_list_provider path_list_provider,
-            //Browser browser,
             double x, double y,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
-        //this.browser = browser;
+        this.path_list_provider = path_list_provider;
         this.logger = logger;
         this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,x,y,aborter,logger);
     }
@@ -122,7 +121,7 @@ public class Image_similarity implements Clearable_RAM_cache
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
-        Image_window returned = new Image_window(Optional.empty(), ms.path(), x, y, W, H, s, false,logger);
+        Image_window returned = new Image_window(Optional.empty(), ms.path(), x, y, W, H, s, false,path_list_provider,logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         logger.log("x="+returned.the_Stage.getX());

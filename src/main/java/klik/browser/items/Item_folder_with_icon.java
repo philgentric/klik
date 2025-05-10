@@ -19,10 +19,7 @@ import klik.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.virtual_landscape.Scroll_position_recorder;
-import klik.browser.virtual_landscape.Selection_handler;
-import klik.browser.virtual_landscape.Shutdown_target;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.*;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
@@ -77,10 +74,11 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             Image_properties_RAM_cache image_properties_RAM_cache,
             Scroll_position_recorder scroll_position_recorder,
             Shutdown_target shutdown_target,
+            Path_list_provider path_list_provider,
             Logger logger)
     //**********************************************************
     {
-        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder,aborter, logger);
+        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder, path_list_provider, aborter, logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         folder_icon_size = Non_booleans.get_folder_icon_size(logger);
@@ -107,8 +105,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
         resize_the_box(the_button);
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),owner,path,is_trash(),logger);
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),Optional.of(selection_handler),path,logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,path,is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
         give_a_menu_to_the_button(the_button,null);
 
     }

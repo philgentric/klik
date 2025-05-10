@@ -23,6 +23,7 @@ import klik.browser.Browser;
 import klik.browser.Browser_creation_context;
 import klik.browser.Drag_and_drop;
 import klik.browser.items.Item_image;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Jfx_batch_injector;
@@ -47,17 +48,16 @@ public class Results_frame
 	ImageView iv;
 	//final Browser browser;
 	final Aborter aborter;
+	private final Path_list_provider path_list_provider;
 
 	//**********************************************************
 	public Results_frame(
-			//Browser browser,
-			//HashMap<String, List<Path>> search_results,
-			//Search_session session,
+			Path_list_provider path_list_provider,
 			Aborter aborter,
 			Logger logger)
 	//**********************************************************
 	{
-		//this.browser = browser;
+		this.path_list_provider = path_list_provider;
 		this.aborter = aborter;
 		this.logger = logger;
 
@@ -127,9 +127,11 @@ public class Results_frame
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
-				Item_image.open_an_image(true,
-						//browser,
-						path,logger);
+				Item_image.open_an_image(
+						true,
+						path_list_provider,
+						path,
+						logger);
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
@@ -194,7 +196,7 @@ public class Results_frame
 		});
 
 
-		Drag_and_drop.init_drag_and_drop_sender_side(b, Optional.empty(),path,logger);
+		Drag_and_drop.init_drag_and_drop_sender_side(b, null,path,logger);
 
 
 	}

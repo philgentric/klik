@@ -5,21 +5,17 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.*;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.items.Item;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.util.files_and_paths.Moving_files;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /*
 static utilities for drag-and-drop
@@ -29,9 +25,11 @@ public class Drag_and_drop
 //**********************************************************
 {
     public static boolean drag_and_drop_dbg = true;
+    public static boolean drag_and_drop_ultra_dbg = false;
 
     //**********************************************************
     public static int accept_drag_dropped_as_a_move_in(
+            Move_provider move_provider,
             Window owner,
             DragEvent drag_event,
             Path destination_dir,
@@ -56,7 +54,8 @@ public class Drag_and_drop
             }
             //logger.log(Stack_trace_getter.get_stack_trace("source class is:" + source.getClass().getName()));
             //logger.log("excluded class is:" + excluded.getClass().getName());
-            if (source instanceof Item item) {
+            if (source instanceof Item item)
+            {
                 Node node_of_source = item.get_Node();
                 logger.log("excluded:" + excluded);
                 // data is dragged over the target
@@ -71,20 +70,21 @@ public class Drag_and_drop
         }
 
         Dragboard dragboard = drag_event.getDragboard();
-        List<File> list = new ArrayList<>();
+        List<File> the_list = new ArrayList<>();
         String s = dragboard.getString();
         if (s == null) {
             logger.log( "dragboard.getString()== null");
         }
         else
         {
-            if ( drag_and_drop_dbg) logger.log(origin + " drag ACCEPTED for STRING: " + s);
-            for (String ss : s.split("\\r?\\n")) {
+            if ( drag_and_drop_dbg) logger.log(origin + " drag ACCEPTED for STRING:->" + s+ "<-");
+            for (String ss : s.split("\\r?\\n"))
+            {
                 if (ss.isBlank()) continue;
                 if ( drag_and_drop_dbg) logger.log(origin + " drag ACCEPTED for additional file: " + ss);
-                list.add(new File(ss));
+                the_list.add(new File(ss));
             }
-            if (list.isEmpty())
+            if (the_list.isEmpty())
             {
                 logger.log(origin + " drag list is empty ? " + s);
             }
@@ -94,15 +94,13 @@ public class Drag_and_drop
             for (File fff : l)
             {
                 if ( drag_and_drop_dbg) logger.log(origin + "... drag ACCEPTED for file= " + fff.getAbsolutePath());
-                if ( !list.contains(fff) )  list.add(fff);
-                // Tool_box.safe_move_a_file_or_dir(destination_dir, logger, fff);
-                // logger.log(origin + " 6 drag ACCEPTED for: " + fff.getAbsolutePath());
+                if ( !the_list.contains(fff) )  the_list.add(fff);
             }
         }
 
         // safety check
         int dir_count = 0;
-        for ( File f : list)
+        for ( File f : the_list)
         {
             if ( f.isDirectory()) dir_count++;
             if (drag_and_drop_dbg) logger.log("going to drag/move:"+f.getAbsolutePath());
@@ -131,24 +129,33 @@ public class Drag_and_drop
 
         double x = drag_event.getX();
         double y = drag_event.getY();
-        Moving_files.safe_move_files_or_dirs(owner,x,y,
+
+        move_provider.move(owner,x,y,
                 destination_dir,
                 destination_is_trash,
-                list,
+                the_list,
                 new Aborter("safe_move_files_or_dirs",logger),
                 logger);
+
+
         //Popups.popup_text("Drag and Drop", list.size() + " file(s) moved!", true);
 
         // tell the source
         drag_event.setDropCompleted(true);
         drag_event.consume();
-        return list.size();
+        return the_list.size();
     }
 
 
-    public static void init_drag_and_drop_receiver_side(Node node, 
-                                                        Window owner, 
-                                                        Path path, boolean is_trash, Logger logger)
+    //**********************************************************
+    public static void init_drag_and_drop_receiver_side(
+            Move_provider move_provider,
+            Node node,
+            Window owner,
+            Path path,
+            boolean is_trash,
+            Logger logger)
+    //**********************************************************
     {
         node.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
@@ -169,6 +176,7 @@ public class Drag_and_drop
         node.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
             Drag_and_drop.accept_drag_dropped_as_a_move_in(
+                    move_provider,
                     owner,
                     drag_event,
                     path,
@@ -181,44 +189,33 @@ public class Drag_and_drop
     }
 
 
+    // the reason to have the selection handler is that the user is dragging 1 items
+    // but if the selection handler has been activated we will also drag all the selected items
+    //**********************************************************
     public static void init_drag_and_drop_sender_side(
             Node node,
-            Optional<Selection_handler> selection_handler,
+            Selection_handler selection_handler,
             Path path,
             Logger logger)
+    //**********************************************************
     {
         node.setOnDragDetected(drag_event -> {
             if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
             Dragboard db = node.startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
-/*
-            if (browser.selection_handler.get_select_all_folders())
-            {
-                logger.log("Item.init_drag_and_drop() drag detected, adding ALL folders");
-                // the browser is in select all mode so this means we dont take just this 1 folder
-                List<File> tmp = browser.get_folder_list();
-                browser.selection_handler.set_select_all_folders(false);
-                browser.selection_handler.reset_selection();
-                browser.selection_handler.add_into_selected_files(tmp);
-            }
-            if (browser.selection_handler.get_select_all_files())
-            {
-                logger.log("Item.init_drag_and_drop() drag detected, adding ALL files");
-                // the browser is in select all mode so this means we dont take just this 1 file
-                List<File> tmp = browser.get_file_list();
-                browser.selection_handler.set_select_all_files(false);
-                browser.selection_handler.reset_selection();
-                browser.selection_handler.add_into_selected_files(tmp);
-            }
-*/
+
             List<File> ll = new ArrayList<>();
-            if(selection_handler.isPresent())
+            if(selection_handler != null)
             {
-                ll.addAll(selection_handler.get().get_selected_files());
+                logger.log("Item.init_drag_and_drop_SENDER_SIDE: selection_handler.isPresent()");
+                ll.addAll(selection_handler.get_selected_files());
             }
+            logger.log("Item.init_drag_and_drop_SENDER_SIDE: " + ll.size() + " files selected");
             // if we are here it is because the user is dragging an item
-            if (!ll.contains(path.toFile())) {
+            if (!ll.contains(path.toFile()))
+            {
                 ll.add(path.toFile());
+                logger.log("Item.init_drag_and_drop_SENDER_SIDE: added the ONE target file: " + path.toAbsolutePath() );
             }
             // this crashes the VM !!?? content.putFiles(ll);
             StringBuilder sb = new StringBuilder();
@@ -245,12 +242,11 @@ public class Drag_and_drop
                 l.add(oan);
                 Change_gang.report_event(l);*/
 
-                if( selection_handler.isPresent())
+                if( selection_handler!= null)
                 {
-
                     //browser.get().set_status(selection_handler.get().get_selected_files_count()+ " files have been dragged out");
-                    selection_handler.get().reset_selection();
-                    selection_handler.get().nothing_selected();
+                    selection_handler.reset_selection();
+                    selection_handler.nothing_selected();
                 }
             }
             drag_event.consume();

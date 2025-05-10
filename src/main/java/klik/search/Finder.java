@@ -2,6 +2,7 @@
 package klik.search;
 
 import klik.browser.Browser;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -12,16 +13,17 @@ public class Finder
 //**********************************************************
 {
     //**********************************************************
-    public static void find(Path path,
-                            //Browser browser,
-                            List<String> keywords, boolean search_only_images, Logger logger)
+    public static void find(
+            Path_list_provider path_list_provider,
+            List<String> keywords,
+            boolean search_only_images,
+            Logger logger)
     //**********************************************************
     {
         Finder_frame popup = new Finder_frame(
-                    path,
                     keywords,
                     search_only_images,
-                    //browser,
+                    path_list_provider,
                     logger);
             popup.start_search();
     }

@@ -27,6 +27,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Scroll_position_recorder;
 import klik.browser.virtual_landscape.Selection_handler;
 import klik.change.Change_gang;
@@ -62,7 +63,6 @@ public class Item_image extends Item
     public static Image default_icon;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
 
-    //public static List<Item_image> currently = new ArrayList<>();
     //**********************************************************
     public Item_image(
             Window owner,
@@ -75,11 +75,12 @@ public class Item_image extends Item
             Double aspect_ratio,
             Image_properties_RAM_cache image_properties_RAM_cache,
             Scroll_position_recorder scroll_position_recorder,
+            Path_list_provider path_list_provider,
             Logger logger)
 
     //**********************************************************
     {
-        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder,aborter, logger);
+        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder,path_list_provider, aborter, logger);
         this.aspect_ratio = aspect_ratio;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         double actual_icon_size = icon_size / 3.0;
@@ -99,7 +100,7 @@ public class Item_image extends Item
         image_view.setFitHeight(actual_icon_size);
         image_view.setCache(false);
         //image_view.setCacheHint(CacheHint.SPEED);
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),Optional.empty(),path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
 
 
         image_view.setOnMouseClicked(event ->
@@ -111,7 +112,7 @@ public class Item_image extends Item
                     return;
                 }
                 if (event.isMetaDown()) {
-                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",owner, path, false, logger);
+                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",owner, path, false, path_list_provider, logger);
                     if (option.isEmpty()) {
                         // let us a bit of checking about why this failed
                         Change_gang.report_anomaly(path);
@@ -137,7 +138,7 @@ public class Item_image extends Item
 
         if ( Guess_file_type.is_this_path_an_image(path))
         {
-            open_an_image(true,path,logger);
+            open_an_image(true,path_list_provider,path,logger);
         }
         else
         {
@@ -163,12 +164,13 @@ public class Item_image extends Item
 
     //**********************************************************
     public static void open_an_image(boolean same_process,
+                                     Path_list_provider path_list_provider,
                                      Path path, Logger logger)
     //**********************************************************
     {
         if ( same_process)
         {
-            Image_window.get_Image_window(path, logger);
+            Image_window.get_Image_window(path, path_list_provider,logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
         else
@@ -243,7 +245,9 @@ public class Item_image extends Item
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
-                Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter, logger);
+
+                path_list_provider.delete(path,owner,x,y, browser_aborter,logger);
+                //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -268,7 +272,7 @@ public class Item_image extends Item
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+path);
-                Item_image.open_an_image(false,path,logger);
+                Item_image.open_an_image(false,path_list_provider,path,logger);
             });
             context_menu.getItems().add(menu_item);
         }

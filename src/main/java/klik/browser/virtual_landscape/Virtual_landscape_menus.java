@@ -16,9 +16,7 @@ import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
-import klik.browser.Icon_size;
+import klik.browser.*;
 import klik.image_ml.ML_servers_util;
 import klik.browser.items.Item_button;
 import klik.change.Change_receiver;
@@ -212,6 +210,7 @@ public class Virtual_landscape_menus
                 virtual_landscape.image_properties_RAM_cache,
                 virtual_landscape,
                 virtual_landscape.shutdown_target,
+                virtual_landscape.path_list_provider,
                 logger);
         dummy.button_for_a_directory(text, min_width, height, null);
         return dummy.button;
@@ -530,7 +529,7 @@ public class Virtual_landscape_menus
             else
             {
                 virtual_landscape.selection_handler.reset_selection();
-                virtual_landscape.selection_handler.set_select_all_files_colors(false);
+                virtual_landscape.selection_handler.set_select_all_files(false);
             }
         });
         return select_all_files_menu_item;
@@ -623,6 +622,7 @@ public class Virtual_landscape_menus
                     displayed_string = displayed_string.substring(0,MAX_MENU_ITEM_STRING_LENGTH)+" ...";
                 }
                 MenuItem item = new MenuItem(displayed_string);
+                item.setMnemonicParsing(false);
                 if ( hi.path.equals(virtual_landscape.path_list_provider.get_name()))
                 {
                     // show the one we are in as inactive
@@ -632,7 +632,18 @@ public class Virtual_landscape_menus
                 {
                     item.setDisable(true);
                 }
-                item.setOnAction(event -> Browser_creation_context.replace_different_folder(virtual_landscape.shutdown_target,hi.path,owner,logger));
+                item.setOnAction(event ->
+                {
+                    Path path = Path.of(hi.path);
+                    if ( Guess_file_type.is_this_path_an_image_playlist(path))
+                    {
+                        Browser_creation_context.replace_image_playlist(virtual_landscape.shutdown_target, path, owner, logger);
+                    }
+                    else
+                    {
+                        Browser_creation_context.replace_different_folder(virtual_landscape.shutdown_target, hi.path, owner, logger);
+                    }
+                });
                 path_already_done.put(hi.path,hi);
                 history_menu.getItems().add(item);
                 on_screen++;
@@ -1065,7 +1076,14 @@ public class Virtual_landscape_menus
                 {
                     File_sort_by.set_sort_files_by(sort_by,logger);
                     logger.log("new file/image sorting order= "+sort_by);
-                    Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_name(),owner,virtual_landscape.get_top_left(),logger);
+                    if ( virtual_landscape.path_list_provider instanceof Folder_path_list_provider)
+                    {
+                        Browser_creation_context.replace_same_folder(virtual_landscape.shutdown_target, virtual_landscape.path_list_provider.get_name(), owner, virtual_landscape.get_top_left(), logger);
+                    }
+                    if ( virtual_landscape.path_list_provider instanceof Playlist_path_list_provider)
+                    {
+                        Browser_creation_context.replace_image_playlist(virtual_landscape.shutdown_target, Path.of(virtual_landscape.path_list_provider.get_name()), owner, logger);
+                    }
                 }
             }
         });
@@ -1239,7 +1257,8 @@ public class Virtual_landscape_menus
         double x = owner.getX()+100;
         double y = owner.getY()+100;
 
-        Static_files_and_paths_utilities.move_to_trash_multiple(to_be_deleted,owner,x,y, null, aborter, logger);
+        virtual_landscape.path_list_provider.delete_multiple(to_be_deleted,owner,x,y,aborter,logger);
+        //Static_files_and_paths_utilities.move_to_trash_multiple(to_be_deleted,owner,x,y, null, aborter, logger);
 
     }
 

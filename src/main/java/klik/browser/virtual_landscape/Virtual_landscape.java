@@ -365,7 +365,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         });
 
         the_Scene.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragOver handler called");
+            if (Drag_and_drop.drag_and_drop_ultra_dbg) logger.log("Browser: OnDragOver handler called");
             selection_handler.on_drag_over();
             Object source = drag_event.getGestureSource();
             if (source == null) {
@@ -404,7 +404,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         the_Scene.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + path_list_provider.get_name());
-            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
+            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
             drag_event.setDropCompleted(true);
@@ -1166,6 +1166,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                             image_properties_RAM_cache,
                             this,
                             shutdown_target,
+                            path_list_provider,
                             logger);
                     //new Item_button(the_browser, path, null, path.getFileName().toString() + "(" + size + ")",
                             //icon_size / 2, false, false, image_properties_RAM_cache, logger);
@@ -1202,6 +1203,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                     cache_aspect_ratio, 
                     image_properties_RAM_cache,
                     this,
+                    path_list_provider,
                     logger);
             all_items_map.put(path,item);
             //logger.log("item created: "+path);
@@ -1267,6 +1269,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                         image_properties_RAM_cache,
                         this,
                         shutdown_target,
+                        path_list_provider,
                         logger);
                 all_items_map.put(path,item);
             }
@@ -1388,6 +1391,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                     image_properties_RAM_cache,
                     this,
                     shutdown_target,
+                    path_list_provider,
                     logger);
             all_items_map.put(folder_path, folder_item);
         }
@@ -1459,6 +1463,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                     image_properties_RAM_cache,
                     this,
                     shutdown_target,
+                    path_list_provider,
                     logger);
             //new Item_button(the_browser,folder_path, color, tmp, icon_height, false, false, image_properties_RAM_cache,logger);
             all_items_map.put(folder_path, folder_item);
@@ -2052,6 +2057,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         }
     }
 
+    String get_status()
+    {
+        File_sort_by file_sort_by = File_sort_by.get_sort_files_by(logger);
+        if (file_sort_by == null)
+            return "Status: OK";
+        else
+        return "Status: OK, files are sorted in this order : "+file_sort_by.name();
+
+    }
 
     //**********************************************************
     private BorderPane define_bottom_pane(Pane top_pane)
@@ -2061,7 +2075,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         returned.setTop(top_pane);
         returned.setCenter(the_Pane);
         VBox the_status_bar = new VBox();
-        status = new TextField("Status: OK");
+        status = new TextField(get_status());
         Look_and_feel_manager.set_region_look(status);
         the_status_bar.getChildren().add(status);
         returned.setBottom(the_status_bar);
@@ -2533,7 +2547,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void create_new_image_playlist()
     //**********************************************************
     {
-
+        Browser_creation_context.create_new_image_playlist(owner, logger);
     }
     //**********************************************************
     public void create_new_directory()
@@ -2550,7 +2564,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String new_name = result.get();
-
             for (int i = 0; i < 10; i++) {
                 try {
                     Path new_dir = path_list_provider.resolve(new_name);
@@ -2558,8 +2571,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                     scroll_position_cache.put(path_list_provider.get_name(), new_dir);
                     redraw_fx("created new empty dir");
                     break;
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     logger.log("new directory creation FAILED: " + e);
+                    // n case the issue is the name, we just addd "_" at the end and retry
                     new_name += "_";
                 }
             }
@@ -2574,7 +2590,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     {
         List<String> given = new ArrayList<>();
         Image_context.ask_user_and_find(
-                Path.of(path_list_provider.get_name()),
+                path_list_provider,
                 given,
                 false,
                 owner,
@@ -2709,7 +2725,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             //logger.log("Deduplicate auto");
 
             if ( !Popups.popup_ask_for_confirmation(owner, "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",logger)) return;
-            (new Deduplication_engine(owner, (Path.of(path_list_provider.get_name())).toFile(), logger)).do_your_job(true);
+            (new Deduplication_engine(owner, (Path.of(path_list_provider.get_name())).toFile(), path_list_provider,logger)).do_your_job(true);
         });
         return menu_item;
     }
@@ -2726,7 +2742,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(false,owner, Path.of(path_list_provider.get_name()).toFile(),image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(path_list_provider,false,owner, Path.of(path_list_provider.get_name()).toFile(),image_properties_RAM_cache, logger)).do_your_job();
         });
         return item0;
     }
@@ -2741,7 +2757,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(true,owner, Path.of(path_list_provider.get_name()).toFile(),image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(path_list_provider,true,owner, Path.of(path_list_provider.get_name()).toFile(),image_properties_RAM_cache, logger)).do_your_job();
         });
         return item0;
     }
@@ -2755,7 +2771,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_engine(owner, Path.of(path_list_provider.get_name()).toFile(), logger)).do_your_job(false);
+            (new Deduplication_engine(owner, Path.of(path_list_provider.get_name()).toFile(), path_list_provider,logger)).do_your_job(false);
         });
         return item0;
     }
@@ -2768,7 +2784,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("count duplicates!");
-            (new Deduplication_engine(owner, Path.of(path_list_provider.get_name()).toFile(), logger)).count(false);
+            (new Deduplication_engine(owner, Path.of(path_list_provider.get_name()).toFile(), path_list_provider,logger)).count(false);
         });
         return item0;
     }

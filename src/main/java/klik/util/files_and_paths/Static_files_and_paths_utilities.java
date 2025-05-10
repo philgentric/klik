@@ -14,9 +14,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
-import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.change.undo.Undo_engine;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
 import klik.properties.Cache_folder;
@@ -301,7 +299,7 @@ public class Static_files_and_paths_utilities
             return tmp_dir;
         }
 
-        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(cache_folder.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -416,46 +414,6 @@ public class Static_files_and_paths_utilities
         return !Popups.popup_ask_for_confirmation(owner, s1, s2, logger);
     }
 
-/*
-    //**********************************************************
-    public static double clear_image_properties_DISK_cache(boolean show_popup,Stage owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Path image_properties = Image_properties_RAM_cache.get_image_properties_cache_dir(owner, logger);
-        return clear_folder(image_properties, "Images' properties cache on disk", show_popup, owner, aborter, logger);
-    }
-
-    //**********************************************************
-    public static double clear_image_feature_vectors_DISK_cache(boolean show_popup,Stage owner, Aborter aborter,Logger logger)
-    //**********************************************************
-    {
-        Path image_feature_vectors_folder = Image_feature_vector_cache.get_image_feature_vector_cache_dir(owner,logger);
-        return clear_folder(image_feature_vectors_folder, "Images' feature vectors cache on disk", show_popup, owner, aborter, logger);
-    }
-
-
-    //**********************************************************
-    public static double clear_image_similarity_DISK_cache(boolean show_popup,Stage owner, Aborter aborter,Logger logger)
-    //**********************************************************
-    {
-        Path dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, logger);
-        if (dir != null)
-        {
-            logger.log("similarity cache folder=" + dir.toAbsolutePath());
-        }
-        logger.log("Images' similarity cache on disk cleared :"+dir.toAbsolutePath());
-        return clear_folder(dir, "Images' similarity cache on disk", show_popup, owner, aborter, logger);
-    }
-
-    //**********************************************************
-    public static double clear_folder_icon_DISK_cache(boolean show_popup,Stage owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Path icons = get_folders_icons_cache_dir(logger);
-        return clear_folder(icons, "Folder icons' cache on disk", show_popup, owner, aborter, logger);
-    }
-
-*/
 
     //**********************************************************
     public static void clear_trash(boolean show_popup,Window owner, Aborter aborter, Logger logger)
@@ -500,7 +458,6 @@ public class Static_files_and_paths_utilities
     public static long get_size_on_disk(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        //get_size_on_disk_with_streams(path,logger);
         // the concurrent version is at least 5 times faster!
         return get_size_on_disk_concurrent(path,aborter, logger);
     }
@@ -550,31 +507,7 @@ public class Static_files_and_paths_utilities
         // the concurrent version is at least 5 times faster!
         return get_sizes_on_disk_deep_concurrent(path,aborter, logger);
     }
-    /*
-    //**********************************************************
-    public static long get_size_on_disk_with_streams(Path path, Logger logger)
-    //**********************************************************
-    {
-        // the concurrent version is significantly faster
-        long start = System.currentTimeMillis();
-        try {
-            long res = Files.walk(path)
-                    .map(f -> f.toFile())
-                    .filter(f -> f.isFile())
-                    //.mapToDouble(f -> f.length()).sum();
-                    .mapToLong(f -> f.length()).sum();
 
-            long now = System.currentTimeMillis();
-
-            logger.log("get_size_on_disk_with_streams: " + (now-start)+" size = "+res);
-
-            return res;
-        } catch (Exception e) {
-            logger.log("get_size_on_disk failed: " + e);
-        }
-        return -1;
-    }
-*/
 
     //**********************************************************
     public static Sizes get_sizes_on_disk_deep_concurrent(Path path, Aborter aborter, Logger logger)
@@ -673,72 +606,6 @@ public class Static_files_and_paths_utilities
         Disk_scanner.process_folder(path, "get_how_many_files_deep_concurrent", fp,null, wp,aborter, logger);
         return files.get();
     }
-
-    /*
-
-    //**********************************************************
-    public static long get_how_many_folders(Path path, Logger logger)
-    //**********************************************************
-    {
-        try {
-            long res = Files.walk(path)
-                    .map(f -> f.toFile())
-                    .filter(f -> f.isDirectory())
-                    .count();
-            return res;
-        } catch (Exception e) {
-            logger.log("get_how_many_folders failed: " + e);
-        }
-        return -1;
-    }
-
-    //**********************************************************
-    public static long get_how_many_files_streams(Path path, Logger logger)
-    //**********************************************************
-    {
-        try {
-            long res = Files.walk(path)
-                    .map(f -> f.toFile())
-                    .filter(f -> f.isFile())
-                    .count();
-            return res;
-        } catch (Exception e) {
-            logger.log("get_how_many_files failed: " + e);
-        }
-        return -1;
-    }
-
-
-    //**********************************************************
-    public static long get_how_many_images(Path path, Logger logger)
-    //**********************************************************
-    {
-        try {
-            long res = Files.walk(path)
-                    .filter(f -> Guess_file_type.is_this_path_an_image(f))
-                    .count();
-            return res;
-        } catch (Exception e) {
-            logger.log("get_how_many_images failed: " + e);
-        }
-        return -1;
-    }
-
-
-    //**********************************************************
-    public static long get_size_on_disk_excluding_sub_folders(Path path, Logger logger)
-    //**********************************************************
-    {
-        if (!path.toFile().isDirectory()) return 0;
-        long returned = 0;
-        File files[] = path.toFile().listFiles();
-        for (File f : files) {
-            if (f.isDirectory()) continue;
-            returned += f.length();
-        }
-        return returned;
-    }
-     */
 
 
     //**********************************************************
@@ -1242,54 +1109,14 @@ public class Static_files_and_paths_utilities
 
     public static Path get_cache_folder(Cache_folder cache_folder, Logger logger)
     {
-        return Non_booleans.get_absolute_dir_on_user_home(cache_folder.name(), false, logger);
+        return Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
     }
 
     public static Path get_face_reco_folder(Logger logger)
     {
-        return Non_booleans.get_absolute_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, logger);
+        return Non_booleans.get_absolute_hidden_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, logger);
     }
 
 
-
-
-
-    /*
-    //**********************************************************
-    public static void unsafe_delete_files(Stage owner, List<Old_and_new_Path> l, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        logger.log("unsafe_delete_all: perform_safe_moves_in_a_thread");
-        Moving_files.perform_safe_moves_in_a_thread(owner, l,  false, aborter,logger);
-    }
-
-
-    //**********************************************************
-    public static void unsafe_delete_file(Stage owner, Old_and_new_Path oanp, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        logger.log("unsafe_delete_all: perform_safe_moves_in_a_thread");
-        Moving_files.perform_safe_moves_in_a_thread(owner, oanp, aborter, logger);
-
-    }
-*/
-
-    /*
-    //**********************************************************
-    public static void safe_delete_file(Stage owner, Old_and_new_Path oanf, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Path trash_dir = Non_booleans.get_trash_dir(logger);
-        List<Old_and_new_Path> l2 = new ArrayList<>();
-
-        Path new_Path = (Paths.get(trash_dir.toString(), oanf.get_old_Path().getFileName().toString()));
-        Old_and_new_Path oanf2 = new Old_and_new_Path(oanf.old_Path, new_Path, oanf.cmd, oanf.status);
-        l2.add(oanf2);
-
-        logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
-
-        Moving_files.perform_safe_moves_in_a_thread(owner, l2, aborter, true, logger);
-
-    }*/
 
 }

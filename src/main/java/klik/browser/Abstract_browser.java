@@ -1,8 +1,10 @@
 package klik.browser;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
+import klik.Klik_application;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Full_screen_handler;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -36,10 +38,10 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
 
     Filesystem_item_modification_watcher filesystem_item_modification_watcher;
-    public final My_Stage my_Stage;
+    public My_Stage my_Stage;
     public Virtual_landscape virtual_landscape;
     public final Logger logger;
-    public final Aborter aborter;
+    public Aborter aborter;
     boolean ignore_escape_as_the_stage_is_full_screen = false;
 
     abstract protected String get_name();
@@ -48,11 +50,19 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     abstract void monitor();
 
     //**********************************************************
-    public Abstract_browser(Browser_creation_context context, Logger logger_)
+    public Abstract_browser(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
+        ID = ID_generator.getAndIncrement();
 
+    }
+
+
+    //**********************************************************
+    public void init(Browser_creation_context context, String badge)
+    //**********************************************************
+    {
         int count = number_of_windows.incrementAndGet();
         logger.log("Browser constructor browsers_created(1)=" + count);
         if (context.shutdown_target != null) {
@@ -60,11 +70,8 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             context.shutdown_target.shutdown();
         }
 
-
         aborter = new Aborter("Browser for: " + get_name(), logger);
-
-        ID = ID_generator.getAndIncrement();
-        my_Stage = new My_Stage(new Stage(), logger);// context.stage;//new My_Stage(context.stage,logger);
+        my_Stage = new My_Stage(new Stage(), logger);
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
             System.out.println("Klik browser window exit");
@@ -95,7 +102,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
                 height = context.rectangle.getHeight();
             }
         }
-        if (dbg) logger.log("NEW browser "+x+","+y);
+        if (dbg) logger.log("NEW Abstract_browser "+x+","+y);
 
         my_Stage.the_Stage.setX(x);
         my_Stage.the_Stage.setY(y);
@@ -103,7 +110,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         my_Stage.the_Stage.setHeight(height);
         my_Stage.the_Stage.show();
 
-        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, "Klik", Look_and_feel_manager.Icon_type.KLIK);
+        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK);
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         History_engine.get_instance(logger).add(get_name());
 
@@ -119,13 +126,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         my_Stage.the_Stage.yProperty().addListener(change_listener);
 
         my_Stage.set_escape_event_handler(this);
-    }
 
-
-    //**********************************************************
-    public void init()
-    //**********************************************************
-    {
         logger.log("Browser init");
         monitor();
         virtual_landscape = new Virtual_landscape(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
@@ -155,5 +156,72 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         if (dbg) logger.log("ChangeListener: image window position and/or size changed");
         Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
     }
+
+
+    //**********************************************************
+    @Override // Shutdown_target
+    public void shutdown()
+    //**********************************************************
+    {
+        aborter.abort("Browser is closing for "+get_Path_list_provider().get_name());
+        //if (dbg)
+        logger.log("Browser close_window " + signature());
+
+        int count = number_of_windows.decrementAndGet();
+        logger.log("close_window: browsers_created(2) ="+count);
+        if (count ==0)
+        {
+            if (Klik_application.primary_stage != null)
+            {
+                logger.log("primary_stage closing = primary_stage.close()");
+                Klik_application.primary_stage.close();
+            }
+            else
+            {
+                logger.log("primary_stage is null");
+
+            }
+            logger.log("primary_stage closing = Platform.exit()");
+            Platform.exit();
+            logger.log("primary_stage closing = System.exit()");
+            System.exit(0);
+        }
+        else {
+            logger.log("browsers_created > 0");
+        }
+
+        // when we change dir, we need to de-register the old browser
+        // otherwise the list in the change_gang keeps growing
+        // plus memory leak! ==> the RAM footprint keeps growing
+        Change_gang.deregister(this, aborter);
+        if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
+        virtual_landscape.stop_scan();
+        //the_Pane.getChildren().clear();
+        //if (icon_manager != null) icon_manager.cancel_all();
+        //logger.log("close_window BEFORE close" + signature());
+        my_Stage.close();
+
+    }
+
+
+    //**********************************************************
+    @Override // Full_screen_handler
+    public void go_full_screen()
+    //**********************************************************
+    {
+        ignore_escape_as_the_stage_is_full_screen = true;
+        my_Stage.the_Stage.setFullScreen(true);
+    }
+
+    //**********************************************************
+    //@Override // Full_screen_handler
+    public void stop_full_screen()
+    //**********************************************************
+    {
+        // this is the menu action, on_fullscreen_end() will be called
+        my_Stage.the_Stage.setFullScreen(false);
+    }
+
+
 
 }

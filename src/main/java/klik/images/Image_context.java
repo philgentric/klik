@@ -12,8 +12,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser;
 import klik.browser.items.Item_image;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
@@ -330,9 +330,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(
-            //Browser browser
-    )
+    void search_using_keywords_from_the_name(Path_list_provider path_list_provider)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -358,8 +356,8 @@ public class Image_context
         }
         logger.log("--------------------------------");
 
-        Finder.find(path,
-                //browser,
+        Finder.find(
+                path_list_provider,
                 keywords,true,logger);
     }
 
@@ -367,17 +365,17 @@ public class Image_context
 
     List<String> given_keywords = new ArrayList<>();
     //**********************************************************
-    void search_using_keywords_given_by_the_user(Window owner, boolean search_only_for_images)
+    void search_using_keywords_given_by_the_user(Window owner, Path_list_provider path_list_provider, boolean search_only_for_images)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find(path, given_keywords, search_only_for_images,owner,logger);
+        ask_user_and_find( path_list_provider, given_keywords, search_only_for_images,owner,logger);
     }
 
 
     //**********************************************************
     public static void ask_user_and_find(
-            Path target,
+            Path_list_provider path_list_provider,
             List<String> keywords,
             boolean search_only_for_images,
             Window owner,
@@ -412,8 +410,8 @@ public class Image_context
                         keywords.add(s);
                     }
 
-                    Finder.find(target,
-                            //browser,
+                    Finder.find(
+                            path_list_provider,
                             keywords,search_only_for_images,logger);
                 }
             }
@@ -447,7 +445,7 @@ public class Image_context
 
     //**********************************************************
     boolean copy(
-            //Browser browser,
+            Path_list_provider path_list_provider,
             Runnable after)
     //**********************************************************
     {
@@ -511,7 +509,7 @@ public class Image_context
         Change_gang.report_changes(l);
 
         Item_image.open_an_image(true,
-                //browser,
+                path_list_provider,
                 new_path,logger);
         //Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;

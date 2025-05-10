@@ -43,7 +43,7 @@ public class Audio_player_frame
 {
     private static final boolean dbg =  false;
     private static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
-    public static final String PLAYLIST_EXTENSION = "klik_playlist";
+    public static final String KLIK_AUDIO_PLAYLIST_EXTENSION = "klik_audio_playlist";
     public static final int WIDTH = 500;
     public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
     private static final String PAUSE = "Pause";
@@ -1018,8 +1018,6 @@ public class Audio_player_frame
     private void choose_playlist_file_name()
     //**********************************************************
     {
-        //logger.log("save_playlist");
-
         JFileChooser chooser = new JFileChooser();
         chooser.setFileHidingEnabled(false); // reason to use SWING !!!
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -1066,7 +1064,7 @@ public class Audio_player_frame
         String playlist_name = result.get();
         play_list_name.setText(playlist_name);
 
-        if ( !playlist_name.endsWith(PLAYLIST_EXTENSION)) playlist_name += "."+PLAYLIST_EXTENSION;
+        if ( !playlist_name.endsWith(KLIK_AUDIO_PLAYLIST_EXTENSION)) playlist_name += "."+ KLIK_AUDIO_PLAYLIST_EXTENSION;
 
         playlist_file = new File(saving_dir,playlist_name);
         save_observable_playlist();
@@ -1167,7 +1165,7 @@ public class Audio_player_frame
         String playlist_file_name = Non_booleans.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME);
         if ( playlist_file_name == null)
         {
-            playlist_file_name = "playlist."+ Audio_player_frame.PLAYLIST_EXTENSION;
+            playlist_file_name = "playlist."+ Audio_player_frame.KLIK_AUDIO_PLAYLIST_EXTENSION;
             Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
         }
         else

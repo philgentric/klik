@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.comparators.Alphabetical_file_name_comparator;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_indexer.Image_indexer;
 import klik.images.Image_context;
 import klik.look.Look_and_feel_manager;
@@ -39,8 +40,6 @@ public class Multiple_image_window
     final Stage the_stage;
     final TilePane tile_pane;
 
-    private double old_mouse_x;
-    private double old_mouse_y;
     public double W = 1200;
     public double H = 800;
     Logger logger;
@@ -48,12 +47,14 @@ public class Multiple_image_window
     Image_indexer image_indexer = null;
     private Image_context ic;
     public final Aborter aborter;
+    private final Path_list_provider path_list_provider;
     //**********************************************************
     public static Optional<Multiple_image_window> get_Multiple_image_window(
             String title,
             Window from_stage, // for on same screen
             Path path,
             boolean smaller,
+            Path_list_provider path_list_provider,
             Logger logger_)
     //**********************************************************
     {
@@ -65,7 +66,7 @@ public class Multiple_image_window
         }
         logger_.log("Multiple_image_stage OK: image loaded" + path.toAbsolutePath());
         if (from_stage == null) {
-            return Optional.of(new Multiple_image_window(title,option.get(), smaller, 800, 600, aborter, logger_));
+            return Optional.of(new Multiple_image_window(title,option.get(), smaller, 800, 600, path_list_provider,aborter, logger_));
         }
         // make sure the image opens on the same window as the caller
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(from_stage.getX(), from_stage.getY(), from_stage.getWidth(), from_stage.getHeight());
@@ -101,7 +102,7 @@ public class Multiple_image_window
             y += 100;
 
         }
-        Multiple_image_window returned = new Multiple_image_window(title, option.get(), smaller, w, h, aborter, logger_);//, tpe_);
+        Multiple_image_window returned = new Multiple_image_window(title, option.get(), smaller, w, h, path_list_provider,aborter, logger_);//, tpe_);
 
         returned.the_stage.setX(x);
         returned.the_stage.setY(y);
@@ -114,9 +115,11 @@ public class Multiple_image_window
             Image_context local_ic,
             boolean smaller,
             double w, double h,
+            Path_list_provider path_list_provider,
             Aborter aborter_, Logger logger_)
     //**********************************************************
     {
+        this.path_list_provider = path_list_provider;
         aborter = aborter_;
         ic = local_ic;
         if (ic == null) {
@@ -220,7 +223,7 @@ public class Multiple_image_window
     {
         if (image_indexer == null)
         {
-            image_indexer = Image_indexer.get_Image_indexer(ic.path.getParent(),new Alphabetical_file_name_comparator(),logger);
+            image_indexer = Image_indexer.get_Image_indexer(path_list_provider, ic.path.getParent(),new Alphabetical_file_name_comparator(),logger);
         }
         return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, aborter, logger);
 

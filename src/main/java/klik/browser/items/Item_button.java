@@ -19,10 +19,7 @@ import klik.audio.Audio_player;
 import klik.browser.*;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.virtual_landscape.Scroll_position_recorder;
-import klik.browser.virtual_landscape.Selection_handler;
-import klik.browser.virtual_landscape.Shutdown_target;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.*;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.Booleans;
@@ -85,11 +82,12 @@ public class Item_button extends Item implements Icon_destination
             Image_properties_RAM_cache image_properties_RAM_cache,
             Scroll_position_recorder scroll_position_recorder,
             Shutdown_target shutdown_target,
+            Path_list_provider path_list_provider,
             Logger logger)
     //**********************************************************
     {
 
-        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder, aborter, logger);
+        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder, path_list_provider, aborter, logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         text = text_;
@@ -124,7 +122,7 @@ public class Item_button extends Item implements Icon_destination
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
         Tooltip.install(button,new Tooltip(path.toString()));
 
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),Optional.of(selection_handler),path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
 
     }
 
@@ -368,10 +366,16 @@ public class Item_button extends Item implements Icon_destination
                 Text_frame.show(path,logger);
                 return;
             }
-            if ( Guess_file_type.is_this_path_a_playlist(path))
+            if ( Guess_file_type.is_this_path_an_audio_playlist(path))
             {
                 logger.log("opening audio playlist: " + path.toAbsolutePath());
                 Audio_player.play_playlist(path.toFile(),logger);
+                return;
+            }
+            if ( Guess_file_type.is_this_path_an_image_playlist(path))
+            {
+                logger.log("opening image playlist: " + path.toAbsolutePath());
+                Browser_creation_context.open_new_image_playlist(path, owner,logger);
                 return;
             }
             if ( Guess_file_type.is_this_path_a_music(path))
@@ -445,7 +449,7 @@ public class Item_button extends Item implements Icon_destination
 
         });
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(get_Node(),owner,path,is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,path,is_trash(),logger);
 
         give_a_menu_to_the_button(button,label);
 

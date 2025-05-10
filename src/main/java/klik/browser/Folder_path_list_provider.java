@@ -1,6 +1,11 @@
 package klik.browser;
 
+import javafx.stage.Window;
+import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
+import klik.util.files_and_paths.Moving_files;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -67,4 +72,31 @@ public class Folder_path_list_provider implements Path_list_provider
         }
         return returned;
     }
+
+    //**********************************************************
+    @Override
+    public Move_provider get_move_provider()
+    //**********************************************************
+    {
+        return (owner, x, y, destination_dir, destination_is_trash, the_list, safeMoveFilesOrDirs, logger) -> Moving_files.safe_move_files_or_dirs(owner,x,y,
+                destination_dir,
+                destination_is_trash,
+                the_list,
+                new Aborter("safe_move_files_or_dirs",logger),
+                logger);
+    }
+
+    //**********************************************************
+    @Override
+    public void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, aborter, logger);
+    }
+
+    @Override
+    public void delete_multiple(List<Path> paths, Window owner, double x, double y, Aborter aborter, Logger logger) {
+        Static_files_and_paths_utilities.move_to_trash_multiple(paths,owner,x,y, null, aborter, logger);
+    }
+
 }

@@ -322,12 +322,36 @@ public class Non_booleans
     }
 
 
-
-
-    // returns a directory using that relative name, on the user home
-    // creates it if needed
     //**********************************************************
     public static Path get_absolute_dir_on_user_home(String relative_dir_name, boolean can_fail, Logger logger)
+    //**********************************************************
+    {
+        if (dbg) logger.log("dir_name=" + relative_dir_name);
+        String home = System.getProperty(USER_HOME);
+        if (dbg) logger.log("user home =" + home);
+        Path dir = Paths.get(home, relative_dir_name);
+        if ( !dir.toFile().exists())
+        {
+            try {
+                Files.createDirectory(dir);
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + dir.toAbsolutePath() + "<- failed "+e;
+                if ( can_fail)
+                {
+                    logger.log(err);
+                    return null;
+                }
+                Popups.popup_Exception(e,300,err,logger);
+                return null;
+            }
+        }
+        return dir;
+    }
+
+
+    // returns a directory using that relative name, on the user home, creates it if needed
+    //**********************************************************
+    public static Path get_absolute_hidden_dir_on_user_home(String relative_dir_name, boolean can_fail, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("dir_name=" + relative_dir_name);
@@ -359,9 +383,7 @@ public class Non_booleans
             }
         }
 
-        // do it deeper, this way icons don't show up in $home/.klik
-        // to avoid privacy violation
-        // when browsing $home
+        // do it deeper, this way icons don't show up in $home/.klik to avoid privacy violation when browsing $home
 
         Path conf_dir2 = Paths.get(conf_dir1.toString(),CONF_DIR+"_privacy_screen");
         if (!conf_dir2.toFile().exists())
@@ -418,7 +440,7 @@ public class Non_booleans
             return from_top_folder(volume.toString(),TRASH_DIR,true, logger);
         }
 
-        Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
+        Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR,false,logger);
         if ( trash_dir == null)
         {
             logger.log("PANIC: trash dir unknown");
@@ -473,7 +495,7 @@ public class Non_booleans
             //logger.log("root ->"+f+"<-");
             if ( f.toString().equals("/"))
             {
-                Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
+                Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR,false,logger);
                 trashes.add(trash_dir);
                 // unix system...
                 Path volumes = Path.of("/","Volumes");
@@ -492,7 +514,7 @@ public class Non_booleans
             else
             {
                 if ( f.getName().startsWith("C:")) {
-                    Path trash_dir = get_absolute_dir_on_user_home(TRASH_DIR,false,logger);
+                    Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR,false,logger);
                     trashes.add(trash_dir);
                 }
                 else {

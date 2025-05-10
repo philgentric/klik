@@ -30,6 +30,6 @@ public interface Change_receiver
 {
 	void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger2);
 
-	String get_string();
+	String get_Change_receiver_string();
 
 }

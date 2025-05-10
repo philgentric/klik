@@ -11,6 +11,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Browser;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.unstable.deduplicate.Abortable;
 import klik.unstable.deduplicate.console.Deduplication_console_window;
 import klik.unstable.deduplicate.manual.Againor;
@@ -45,11 +46,13 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     public final Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     boolean quasi_same;
+    private final Path_list_provider path_list_provider;
 
     //**********************************************************
-    public Deduplication_by_similarity_engine(boolean quasi_same, Window owner, File target_dir_, Image_properties_RAM_cache image_properties_RAM_cache,Logger logger_)
+    public Deduplication_by_similarity_engine(Path_list_provider path_list_provider, boolean quasi_same, Window owner, File target_dir_, Image_properties_RAM_cache image_properties_RAM_cache,Logger logger_)
     //**********************************************************
     {
+        this.path_list_provider = path_list_provider;
         this.quasi_same = quasi_same;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.owner = owner;
@@ -190,8 +193,8 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             String similarity = ""+sim_file_pair.similarity();
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,owner, sim_file_pair.file_pair(), local_againor, console_window.count_deleted, private_aborter, logger);
-            else stage_with_2_images.set_pair(similarity,sim_file_pair.file_pair());
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,owner, sim_file_pair.file_pair(), local_againor, console_window.count_deleted, path_list_provider, private_aborter, logger);
+            else stage_with_2_images.set_pair(similarity,sim_file_pair.file_pair(),path_list_provider, private_aborter);
         },logger);
     }
 

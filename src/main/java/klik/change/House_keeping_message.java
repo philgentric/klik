@@ -27,7 +27,7 @@ public class House_keeping_message implements Message
     public String to_string()
     //**********************************************************
     {
-        return "House_keeping_message "+originator.get_string();
+        return "House_keeping_message "+originator.get_Change_receiver_string();
     }
 
     @Override

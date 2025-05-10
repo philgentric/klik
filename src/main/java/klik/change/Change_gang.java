@@ -156,7 +156,7 @@ public class Change_gang
         if (dbg) dedicated_logger.log(Stack_trace_getter.get_stack_trace("Change_gang.event_internal()\n   old path ->" + l.get(0).get_old_Path().toAbsolutePath()+"<-\n   new path ->"+l.get(0).get_new_Path().toAbsolutePath()+"<-"));
         for (Change_receiver w : change_gang_receivers)
         {
-            if ( dbg) dedicated_logger.log("Change_gang.event_internal(), SENDING to gang member:" + w.get_string());
+            if ( dbg) dedicated_logger.log("Change_gang.event_internal(), SENDING to gang member:" + w.get_Change_receiver_string());
             w.you_receive_this_because_a_file_event_occurred_somewhere(l, dedicated_logger);
         }
     }
@@ -190,7 +190,7 @@ public class Change_gang
     {
         House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.register, aborter);
         Actor_engine.run(house_keeping_actor,dr,null, dedicated_logger);
-        if ( dbg) dedicated_logger.log("Change_gang: Register_internal " + change_receiver.get_string());
+        if ( dbg) dedicated_logger.log("Change_gang: Register_internal " + change_receiver.get_Change_receiver_string());
     }
 
     //**********************************************************
@@ -208,7 +208,7 @@ public class Change_gang
         House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.deregister, aborter);
         Actor_engine.run(house_keeping_actor,dr,null, dedicated_logger);
 
-        if ( dbg) dedicated_logger.log("Change_gang: De-register_internal " + change_receiver.get_string());
+        if ( dbg) dedicated_logger.log("Change_gang: De-register_internal " + change_receiver.get_Change_receiver_string());
     }
 
 

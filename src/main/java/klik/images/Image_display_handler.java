@@ -6,14 +6,13 @@
 package klik.images;
 
 import javafx.scene.control.ContextMenu;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.Browser;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
@@ -24,7 +23,6 @@ import klik.images.caching.Image_cache_dummy;
 import klik.unstable.experimental.Static_image_utilities;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
-import klik.look.Look_and_feel_manager;
 import klik.util.files_and_paths.From_disk;
 import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
@@ -58,7 +56,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
 
     //**********************************************************
-    public static Optional<Image_display_handler> get_Image_display_handler_instance(boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    public static Optional<Image_display_handler> get_Image_display_handler_instance(Path_list_provider path_list_provider, boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
@@ -69,8 +67,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return Optional.empty();
         }
 
-
-        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(image_context_.get(), v_, file_comparator, aborter, logger_));
+        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), v_, file_comparator, aborter, logger_));
         Performance_monitor.register_new_record("Image_display_handler.get_Image_display_handler_instance", path.toAbsolutePath().toString(),System.currentTimeMillis() - start,logger_);
         return returned;
     }
@@ -93,7 +90,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     }
 
     //**********************************************************
-    private Image_display_handler(Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    private Image_display_handler(Path_list_provider path_list_provider, Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.aborter = aborter;
@@ -105,7 +102,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                image_indexer = Optional.of(Image_indexer.get_Image_indexer(image_context_.path.toAbsolutePath().getParent(), file_comparator, logger));
+                image_indexer = Optional.of(Image_indexer.get_Image_indexer(path_list_provider,image_context_.path.toAbsolutePath().getParent(), file_comparator, logger));
 
             }
         };
@@ -177,7 +174,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
     //**********************************************************
     @Override //Change_receiver
-    public String get_string()
+    public String get_Change_receiver_string()
     //**********************************************************
     {
         if (image_context.isEmpty())

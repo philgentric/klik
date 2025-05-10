@@ -1,4 +1,4 @@
-package klik.browser;
+package klik.browser.virtual_landscape;
 
 public enum Selection_state {
     nothing_selected,

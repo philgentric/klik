@@ -17,10 +17,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import klik.browser.Browser;
+import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.util.files_and_paths.Ding;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 
@@ -47,7 +49,6 @@ public class Finder_frame implements Search_receiver
 	private boolean search_files_names = true;
 	private boolean check_case = false;
 	Search_session session;
-	Path target_path;
 
 	long start_time;
 	TextField extension_tf;
@@ -55,14 +56,22 @@ public class Finder_frame implements Search_receiver
 	VBox bottom_keyword_vbox;
 	private boolean extension_textfield_is_red = false;
 	private boolean new_keyword_textfield_is_red = false;
+	private final Path_list_provider path_list_provider;
 
 	//**********************************************************
-	public Finder_frame(Path target_path_, List<String> input_keywords, boolean look_only_for_images_,
-						Logger logger_)
+	public Finder_frame(
+			List<String> input_keywords,
+			boolean look_only_for_images_,
+			Path_list_provider path_list_provider,
+			Logger logger_)
 	//**********************************************************
 	{
-		this.target_path = target_path_;
-		if ( !target_path.toFile().isDirectory()) target_path = target_path.getParent();
+		this.path_list_provider = path_list_provider;
+		if ( !Path.of(path_list_provider.get_name()).toFile().isDirectory())
+		{
+			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
+			//target_path = target_path.getParent();
+		}
 		look_only_for_images = look_only_for_images_;
 		//this.browser = browser;
 		logger = logger_;
@@ -141,7 +150,8 @@ public class Finder_frame implements Search_receiver
 	{
 		VBox settings_vbox = new VBox();
 		{
-			Label target_folder_label = new Label(target_path.toAbsolutePath().toString());
+			final Path[] target_path = {Path.of(path_list_provider.get_name())};
+			Label target_folder_label = new Label(target_path[0].toAbsolutePath().toString());
 			settings_vbox.getChildren().add(target_folder_label);
 			Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", logger));
 			Look_and_feel_manager.set_button_look(up,true);
@@ -150,11 +160,11 @@ public class Finder_frame implements Search_receiver
 
 			up.setOnAction(_ -> {
                 session.stop_search();
-                Path parent = target_path.getParent();
+                Path parent = target_path[0].getParent();
                 if (parent != null)
                 {
-                    target_path = parent;
-                    target_folder_label.setText(target_path.toAbsolutePath().toString());
+                    target_path[0] = parent;
+                    target_folder_label.setText(target_path[0].toAbsolutePath().toString());
                     start_search();
                 }
             });
@@ -456,9 +466,11 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
+		Path target_path = Path.of(path_list_provider.get_name());
 		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
-		session = new Search_session(search_config,
-				//browser,
+		session = new Search_session(
+				path_list_provider,
+				search_config,
 				this,stage,logger);
 		session.start_search();
 		stop.setDisable(false);

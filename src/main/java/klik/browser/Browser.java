@@ -46,7 +46,6 @@
 package klik.browser;
 
 import javafx.application.Platform;
-import javafx.geometry.Rectangle2D;
 import klik.Klik_application;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.*;
@@ -60,8 +59,6 @@ import klik.util.ui.Jfx_batch_injector;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
@@ -74,16 +71,16 @@ public class Browser extends Abstract_browser
     public Browser(Browser_creation_context context, Logger logger_)
     //**********************************************************
     {
-        super(context,logger_);
-        if ( context.folder_path == null)
+        super(logger_);
+        if ( context.target == null)
         {
             displayed_folder_path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
         }
         else
         {
-            displayed_folder_path = Path.of(context.folder_path);
+            displayed_folder_path = Path.of(context.target);
         }
-        init();
+        init(context,"klik");
 
         //if ( dbg)
             logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
@@ -150,96 +147,6 @@ public class Browser extends Abstract_browser
     {
         return "  Browser ID= " + ID + " total window count: " + number_of_windows.get() + " esc=" + my_Stage.escape;
     }
-
-    //**********************************************************
-    @Override // Shutdown_target
-    public void shutdown()
-    //**********************************************************
-    {
-        aborter.abort("Browser is closing for "+displayed_folder_path);
-        //if (dbg)
-            logger.log("Browser close_window " + signature());
-
-        int count = number_of_windows.decrementAndGet();
-        logger.log("close_window: browsers_created(2) ="+count);
-        if (count ==0)
-        {
-            if (Klik_application.primary_stage != null)
-            {
-                logger.log("primary_stage closing = primary_stage.close()");
-                Klik_application.primary_stage.close();
-            }
-            else
-            {
-                logger.log("primary_stage is null");
-
-            }
-            logger.log("primary_stage closing = Platform.exit()");
-            Platform.exit();
-            logger.log("primary_stage closing = System.exit()");
-            System.exit(0);
-        }
-        else {
-            logger.log("browsers_created > 0");
-        }
-
-        // when we change dir, we need to de-register the old browser
-        // otherwise the list in the change_gang keeps growing
-        // plus memory leak! ==> the RAM footprint keeps growing
-        Change_gang.deregister(this, aborter);
-        if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
-        virtual_landscape.stop_scan();
-        //the_Pane.getChildren().clear();
-        //if (icon_manager != null) icon_manager.cancel_all();
-        //logger.log("close_window BEFORE close" + signature());
-        my_Stage.close();
-
-    }
-
-
-    //**********************************************************
-    @Override // Full_screen_handler
-    public void go_full_screen()
-    //**********************************************************
-    {
-        ignore_escape_as_the_stage_is_full_screen = true;
-        my_Stage.the_Stage.setFullScreen(true);
-    }
-
-    //**********************************************************
-    //@Override // Full_screen_handler
-    public void stop_full_screen()
-    //**********************************************************
-    {
-        // this is the menu action, on_fullscreen_end() will be called
-        my_Stage.the_Stage.setFullScreen(false);
-    }
-
-    //**********************************************************
-    public Path get_top_left()
-    //**********************************************************
-    {
-        return virtual_landscape.get_top_left();
-    }
-
-    //**********************************************************
-    public Rectangle2D get_rectangle()
-    //**********************************************************
-    {
-        return new Rectangle2D(my_Stage.the_Stage.getX(), my_Stage.the_Stage.getY(), my_Stage.the_Stage.getWidth(), my_Stage.the_Stage.getHeight());
-    }
-
-
-    ConcurrentLinkedQueue<Integer> life = new ConcurrentLinkedQueue<>();
-    double last_dy;
-    long last_scroll_event = -1;
-    double last_scroll_speed;
-
-    static AtomicInteger threadid_gen = new AtomicInteger(0);
-
-
-
-
 
     //**********************************************************
     @Override // Title_target
@@ -314,8 +221,8 @@ public class Browser extends Abstract_browser
 
 
     //**********************************************************
-    @Override
-    public String get_string()
+    @Override // Change_receiver
+    public String get_Change_receiver_string()
     //**********************************************************
     {
         return "Browser:" + displayed_folder_path.toAbsolutePath() + " " + ID;
