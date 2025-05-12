@@ -69,6 +69,11 @@
 }
 
 
+.look_and_feel_image_playlist {
+    -fx-background-color: pink;
+}
+
+
 my_dialog{
     -fx-background-color: #1a1f2c;
     -fx-text-fill:white;

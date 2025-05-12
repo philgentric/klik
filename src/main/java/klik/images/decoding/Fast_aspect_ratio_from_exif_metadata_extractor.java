@@ -32,7 +32,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         {
             sb.add(path.toString());
         }
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
         InputStream is = From_disk.get_image_InputStream(path, with_fusk, report_if_not_found, aborter, logger);
         if ( is == null)
         {

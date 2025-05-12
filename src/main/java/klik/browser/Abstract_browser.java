@@ -20,47 +20,49 @@ import klik.util.log.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+//**********************************************************
 public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler
+//**********************************************************
 {
 
-    public static final AtomicInteger number_of_windows = new AtomicInteger(0);
 
     public static final boolean dbg = false;
     public static final boolean keyboard_dbg = false;
 
+    public static final AtomicInteger number_of_windows = new AtomicInteger(0);
 
     public static final String BROWSER_WINDOW = "BROWSER_WINDOW";
     public static Aborter monitoring_aborter;
     private static AtomicInteger ID_generator = new AtomicInteger(1000);
-    protected final int ID;
+    protected final int abstract_browser_ID;
 
     protected static final int FOLDER_MONITORING_TIMEOUT_IN_MINUTES = 600;
 
 
-    Filesystem_item_modification_watcher filesystem_item_modification_watcher;
-    public My_Stage my_Stage;
-    public Virtual_landscape virtual_landscape;
-    public final Logger logger;
-    public Aborter aborter;
-    boolean ignore_escape_as_the_stage_is_full_screen = false;
+    protected Filesystem_item_modification_watcher filesystem_item_modification_watcher;
+    protected My_Stage my_Stage;
+    protected Virtual_landscape virtual_landscape;
+    protected final Logger logger;
+    protected Aborter aborter;
+    protected boolean ignore_escape_as_the_stage_is_full_screen = false;
 
-    abstract protected String get_name();
-    public abstract Path_list_provider get_Path_list_provider();
-    public abstract String signature();
-    abstract void monitor();
+    protected abstract String get_name();
+    protected abstract Path_list_provider get_Path_list_provider();
+    protected abstract String signature();
+    protected abstract void monitor();
 
     //**********************************************************
     public Abstract_browser(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
-        ID = ID_generator.getAndIncrement();
+        abstract_browser_ID = ID_generator.getAndIncrement();
 
     }
 
 
     //**********************************************************
-    public void init(Browser_creation_context context, String badge)
+    public void init(New_window_context context, Change_receiver change_receiver,String badge)
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();
@@ -71,6 +73,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         }
 
         aborter = new Aborter("Browser for: " + get_name(), logger);
+
         my_Stage = new My_Stage(new Stage(), logger);
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
@@ -86,7 +89,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         if (count == 1)
         {
-            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, logger);
+            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -112,10 +115,10 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK);
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
-        History_engine.get_instance(logger).add(get_name());
+        History_engine.get_instance(aborter,logger).add(get_name());
 
 
-        Change_gang.register(this, aborter, logger);
+        Change_gang.register(change_receiver, aborter, logger);
         set_title();
 
 
@@ -154,7 +157,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             return;
         }
         if (dbg) logger.log("ChangeListener: image window position and/or size changed");
-        Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW, logger);
+        Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW,logger);
     }
 
 
@@ -163,7 +166,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     public void shutdown()
     //**********************************************************
     {
-        aborter.abort("Browser is closing for "+get_Path_list_provider().get_name());
+        aborter.abort("Browser is closing for "+get_Path_list_provider().get_name2());
         //if (dbg)
         logger.log("Browser close_window " + signature());
 

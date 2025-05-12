@@ -19,9 +19,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser;
 import klik.browser.Drag_and_drop;
-import klik.browser.Folder_path_list_provider;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
@@ -39,7 +38,7 @@ import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
-import klik.unstable.experimental.Multiple_image_window;
+import klik.experimental.work_in_progress.Multiple_image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -142,7 +141,7 @@ public class Item_image extends Item
         }
         else
         {
-            System_open_actor.open_with_system(owner,path,browser_aborter,logger);
+            System_open_actor.open_with_system(owner,path, aborter,logger);
         }
     }
 
@@ -170,7 +169,7 @@ public class Item_image extends Item
     {
         if ( same_process)
         {
-            Image_window.get_Image_window(path, path_list_provider,logger);
+            Image_window.get_Image_window(path, path_list_provider,new Aborter("Image_viewer",logger),logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
         else
@@ -233,12 +232,12 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(path,image_properties_RAM_cache,owner,browser_aborter,logger);
+            MenuItem menu_item = create_show_similar_menu_item(path,image_properties_RAM_cache,owner, aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         
         {
-            MenuItem menu_item = get_rename_MenuItem(path,owner,x, y, browser_aborter,logger);
+            MenuItem menu_item = get_rename_MenuItem(path,owner,x, y, aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         {
@@ -246,7 +245,7 @@ public class Item_image extends Item
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+path);
 
-                path_list_provider.delete(path,owner,x,y, browser_aborter,logger);
+                path_list_provider.delete(path,owner,x,y, aborter,logger);
                 //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
@@ -255,7 +254,7 @@ public class Item_image extends Item
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Editing "+path);
-                System_open_actor.open_with_system(owner,path,browser_aborter,logger);
+                System_open_actor.open_with_system(owner,path, aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -263,7 +262,7 @@ public class Item_image extends Item
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening with registered app: "+path);
-                System_open_actor.open_special(owner,path,browser_aborter,logger);
+                System_open_actor.open_special(owner,path, aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -279,15 +278,15 @@ public class Item_image extends Item
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(path, dbg, logger));
-            if (Booleans.get_boolean(Experimental_features.enable_tags.name(),logger))
+            if (Booleans.get_boolean(Experimental_features.enable_tags.name()))
             {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, aborter,logger));
             }
         }
 
         if ( this.item_type == Iconifiable_item_type.video)
         {
-            make_menu_items_for_videos(path,owner,context_menu,dbg, browser_aborter,logger);
+            make_menu_items_for_videos(path,owner,context_menu,dbg, aborter,logger);
         }
         return context_menu;
 
@@ -339,29 +338,6 @@ public class Item_image extends Item
         return menu_item;
     }
 
-    /*
-    //**********************************************************
-    public static MenuItem create_show_similar_menu_item2(Path image_path, Browser browser, Logger logger)
-    //**********************************************************
-    {
-        String txt = "Show "+N+" similar images in this folder, with MASK";//My_I18n.get_I18n_string("Info_about", logger);
-        MenuItem menu_item = new MenuItem(txt);
-        menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("show similar");
-            Runnable r = () ->
-            {
-                double x = owner.getX()+100;
-                double y = owner.getY()+100;
-                image_similarity = new Image_similarity(browser.displayed_folder_path,browser, x,y,browser.aborter,logger);
-                image_similarity.find_similars(false, image_path,null,N,true, Double.MAX_VALUE, browser.virtual_landscape.image_properties_RAM_cache, true,x,y,null);
-            };
-            Actor_engine.execute(r,logger);
-        });
-
-        return menu_item;
-    }
-
-     */
     //**********************************************************
     public static void make_menu_items_for_videos(
             Path path, 
@@ -380,7 +356,7 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem("(experimental) generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
+            MenuItem menu_item = new MenuItem("Generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Ffmpeg_utils.generate_many_gifs(owner,path,5,5,aborter,logger);
@@ -388,10 +364,10 @@ public class Item_image extends Item
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem("(experimental) generate gif animations from a video, interactively");
+            MenuItem menu_item = new MenuItem("Generate gif animations from a video, interactively");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
-                Ffmpeg_utils.interactive(path,logger);
+                Ffmpeg_utils.interactive(path,aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -508,7 +484,7 @@ public class Item_image extends Item
                         if (dbg) logger.log("PDF or video => rot=0");
                         local_rot = 0;
                     } else {
-                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, browser_aborter, logger);
+                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
                     }
                 }
                 else

@@ -1,6 +1,9 @@
 package klik.properties;
 
+import javafx.stage.Window;
 import javafx.util.Pair;
+import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
@@ -17,6 +20,9 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 //**********************************************************
 public class Properties_manager
@@ -28,16 +34,19 @@ public class Properties_manager
 
     private final Properties the_Properties;
     private final Path the_properties_path;
-    Logger logger;
+    private final Logger logger;
+    private final Aborter aborter;
 
     //**********************************************************
-    public Properties_manager(Path f_, Logger logger_)
+    public Properties_manager(Path f_, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        logger = logger_;
+        this.aborter = aborter;
+        this.logger = logger;
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties();
+        start_store_engine( aborter,  logger);
 
         //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
@@ -53,7 +62,39 @@ public class Properties_manager
     public void store_properties()
     //**********************************************************
     {
-        if (dbg) logger.log("store_properties()");
+        request_queue.add(Boolean.TRUE);
+    }
+
+    public final BlockingQueue<Boolean> request_queue = new LinkedBlockingQueue<>();
+
+    //**********************************************************
+    private void start_store_engine(Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        Runnable r = () -> {
+            for(;;)
+            {
+                try {
+                    Boolean b = request_queue.poll(20, TimeUnit.SECONDS);
+                    if (b != null) store_properties_internal();
+                    if (aborter.should_abort()) return;
+
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        Actor_engine.execute(r, logger);
+    }
+
+
+
+    //**********************************************************
+    private void store_properties_internal()
+    //**********************************************************
+    {
+       //if (dbg)
+            logger.log("store_properties() "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
         {
@@ -102,7 +143,7 @@ public class Properties_manager
     }
 
     //**********************************************************
-    public void load_properties()
+    private void load_properties()
     //**********************************************************
     {
         if (dbg) logger.log("load_properties()");
@@ -400,7 +441,7 @@ public class Properties_manager
         String TOTO = "toto";
         File f_ = new File("debil.txt");
         Logger logger = System_logger.get_system_logger("Properties test");
-        Properties_manager pm = new Properties_manager(f_.toPath(), logger);
+        Properties_manager pm = new Properties_manager(f_.toPath(), new Aborter("dummy",logger),logger);
 
         for (int i = 0; i < 15; i++)
         {

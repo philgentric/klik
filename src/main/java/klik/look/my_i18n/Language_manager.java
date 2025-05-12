@@ -76,7 +76,7 @@ public class Language_manager
             //l.print_all();
             registered_languages.put(l.language_key(), l);
         }
-        String language_key = Non_booleans.get_language_key(logger_);
+        String language_key = Non_booleans.get_language_key();
         instance = registered_languages.get(language_key);
 
         if (instance == null) instance = registered_languages.get((new English()).language_key());
@@ -90,7 +90,7 @@ public class Language_manager
     {
         System.out.println("using language_key ->"+language_key+"<-");
         instance = registered_languages.get(language_key);
-        Non_booleans.set_language_key(language_key, logger);
+        Non_booleans.set_language_key(language_key);
         Locale.setDefault(instance.locale);
 
     }

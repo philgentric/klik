@@ -2,6 +2,7 @@ package klik.change.undo;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.actor.Aborter;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Command_old_and_new_Path;
@@ -35,13 +36,13 @@ public class Undo_storage_to_disk
     private final Properties_manager properties_manager;
 
     //**********************************************************
-    public Undo_storage_to_disk(Logger logger_)
+    public Undo_storage_to_disk(Aborter aborter, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, UNDO_FILENAME);
-        properties_manager = new Properties_manager(p, logger);
+        properties_manager = new Properties_manager(p, aborter,logger);
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded");
     }
@@ -156,10 +157,10 @@ public class Undo_storage_to_disk
     }
 
     //**********************************************************
-    public static void show_all_events(Logger logger)
+    public static void show_all_events(Aborter aborter,Logger logger)
     //**********************************************************
     {
-        Properties_manager local = Non_booleans.get_main_properties_manager(logger);
+        Properties_manager local = Non_booleans.get_main_properties_manager();
 
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Items that can be undone:"));

@@ -24,7 +24,6 @@ import klik.look.Look_and_feel_manager;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
 import klik.util.files_and_paths.From_disk;
-import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
@@ -62,7 +61,6 @@ public class Image_context
     public static Optional<Image_context> get_Image_context(Path path, Aborter aborter,Logger logger_)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
         if ( !Files.exists(path)) return Optional.empty();
         Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, aborter,logger_);
         if ( local_image == null)
@@ -75,7 +73,6 @@ public class Image_context
             return Optional.of(new Image_context(path,path,broken,logger_));
         }
         Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image, logger_));
-        Performance_monitor.register_new_record("get_Image_context", path.toString(), System.currentTimeMillis() - start, logger_);
         return returned;
     }
 
@@ -319,7 +316,7 @@ public class Image_context
         int max = Non_booleans.get_excluded_keyword_list_max_size(logger);
         for (int i = 0; i < max; i++) {
             String key = Non_booleans.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Non_booleans.get_main_properties_manager(logger).get(key);
+            String kw = Non_booleans.get_main_properties_manager().get(key);
             if (kw != null) {
                 String lower = kw.toLowerCase();
                 returned.add(lower);
@@ -330,7 +327,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(Path_list_provider path_list_provider)
+    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Aborter aborter)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -358,18 +355,22 @@ public class Image_context
 
         Finder.find(
                 path_list_provider,
-                keywords,true,logger);
+                keywords,true,aborter,logger);
     }
 
 
 
     List<String> given_keywords = new ArrayList<>();
     //**********************************************************
-    void search_using_keywords_given_by_the_user(Window owner, Path_list_provider path_list_provider, boolean search_only_for_images)
+    void search_using_keywords_given_by_the_user(
+            Window owner,
+            Path_list_provider path_list_provider,
+            boolean search_only_for_images,
+            Aborter aborter)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find( path_list_provider, given_keywords, search_only_for_images,owner,logger);
+        ask_user_and_find( path_list_provider, given_keywords, search_only_for_images,owner,aborter,logger);
     }
 
 
@@ -379,6 +380,7 @@ public class Image_context
             List<String> keywords,
             boolean search_only_for_images,
             Window owner,
+            Aborter aborter,
             Logger logger
     )
     //**********************************************************
@@ -412,7 +414,7 @@ public class Image_context
 
                     Finder.find(
                             path_list_provider,
-                            keywords,search_only_for_images,logger);
+                            keywords,search_only_for_images,aborter,logger);
                 }
             }
 

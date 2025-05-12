@@ -30,7 +30,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
             browser.my_Stage.escape++;
             key_event.consume();
 
-            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,browser.logger);
+            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT);
             if ( exit_on_escape_preference)
             {
                 if ( browser.keyboard_dbg) browser.logger.log(" Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
@@ -49,7 +49,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
                     if (browser.windows_count.get() ==0)
                     {
                         //browser.logger.log(browser.signature()+" opening a HOME Browser");
-                        Browser_creation_context.additional_no_past(browser.home,browser.logger);
+                        New_window_context.additional_no_past(browser.home,browser.logger);
                         //browser.logger.log(browser.signature()+" after opening a HOME Browser");
                     }
                     */

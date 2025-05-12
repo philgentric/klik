@@ -20,6 +20,7 @@ import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import klik.actor.Aborter;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
@@ -67,13 +68,14 @@ public class Audio_player_frame
     Button selected = null;
     ScrollPane scroll_pane;
     Logger logger;
+    Aborter aborter;
     private volatile Optional<MediaPlayer> the_media_player_option = Optional.empty();
     private volatile Optional<AudioEqualizer> the_equalizer_option = Optional.empty();
     private ObservableList<EqualizerBand> equalizer_bands;
 
     double volume = 0.5;
     double balance = 0.0;
-    Label play_list_name;
+    Label playlist_name;
     //Browser browser = null;
 
     String pause_string;
@@ -85,13 +87,13 @@ public class Audio_player_frame
     Label status_label;
 
     //**********************************************************
-    Audio_player_frame(Logger logger_)
+    Audio_player_frame(Aborter aborter, Logger logger)
     //**********************************************************
     {
-
-        logger = logger_;
+        this.aborter= aborter;
+        this.logger = logger;
         stage = new Stage();
-        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER,logger);
+        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
         stage.setWidth(r.getWidth());
@@ -135,7 +137,7 @@ public class Audio_player_frame
 
         if (playlist_file == null)
         {
-            playlist_file = get_playlist_file(logger);
+            playlist_file = get_playlist_file(aborter,logger);
         }
         load_playlist(playlist_file);
     }
@@ -178,15 +180,15 @@ public class Audio_player_frame
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
-        playlist_file = get_playlist_file(logger);
+        playlist_file = get_playlist_file(aborter,logger);
         //logger.log("playlist_file="+playlist_file.getAbsolutePath());
-        String play_list_name_s = extract_playlist_name();
-        logger.log("playlist_name="+play_list_name_s);
+        String playlist_name_s = extract_playlist_name();
+        logger.log("playlist_name="+playlist_name_s);
 
-        play_list_name = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+play_list_name_s);
-        play_list_name.setMinWidth(200);
-        Look_and_feel_manager.set_region_look(play_list_name);
-        returned.getChildren().add(play_list_name);
+        playlist_name = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+playlist_name_s);
+        playlist_name.setMinWidth(200);
+        Look_and_feel_manager.set_region_look(playlist_name);
+        returned.getChildren().add(playlist_name);
 
         {
             Region spacer = new Region();
@@ -557,7 +559,7 @@ public class Audio_player_frame
     {
         Integer current_time_s;
         if (new_song == null) {
-            String path = Non_booleans.get_current_song(logger);
+            String path = Non_booleans.get_current_song();
             if (path == null) {
                 current_time_s = null;
                 if ( observable_playlist == null) return;
@@ -565,7 +567,7 @@ public class Audio_player_frame
                 new_song = observable_playlist.get(0);
             } else {
                 new_song = new File(path);
-                current_time_s = Non_booleans.get_current_time_in_song(logger);
+                current_time_s = Non_booleans.get_current_time_in_song();
             }
             if (new_song == null) {
 
@@ -589,7 +591,7 @@ public class Audio_player_frame
     private void change_song_real(File new_song, Integer current_time_s)
     //**********************************************************
     {
-        Non_booleans.save_current_song(new_song,logger);
+        Non_booleans.save_current_song(new_song);
 
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,new_song.toPath(),logger);
         //logger.log("bitrate= "+bitrate);
@@ -764,7 +766,7 @@ public class Audio_player_frame
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value.setText((int)seconds+" seconds");
-            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds,logger);
+            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds);
         });
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
@@ -1062,7 +1064,7 @@ public class Audio_player_frame
         }
 
         String playlist_name = result.get();
-        play_list_name.setText(playlist_name);
+        this.playlist_name.setText(playlist_name);
 
         if ( !playlist_name.endsWith(KLIK_AUDIO_PLAYLIST_EXTENSION)) playlist_name += "."+ KLIK_AUDIO_PLAYLIST_EXTENSION;
 
@@ -1102,9 +1104,9 @@ public class Audio_player_frame
     public void play_playlist_internal(File playlist_file_)
     //**********************************************************
     {
-        if ( Non_booleans.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME) == null)
+        if ( Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME) == null)
         {
-            Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME, playlist_file_.getAbsolutePath());
+            Non_booleans.get_main_properties_manager().add_and_save(PLAYLIST_FILE_NAME, playlist_file_.getAbsolutePath());
         }
         //logger.log("Going to play list: "+playlist_file.getAbsolutePath());
         load_playlist(playlist_file_);
@@ -1147,7 +1149,7 @@ public class Audio_player_frame
             }
             if (playlist_file.canWrite())
             {
-                play_list_name.setText(extract_playlist_name());
+                playlist_name.setText(extract_playlist_name());
                 return;
             }
             playlist_file = null;
@@ -1159,14 +1161,14 @@ public class Audio_player_frame
     }
 
     //**********************************************************
-    public static File get_playlist_file(Logger logger)
+    public static File get_playlist_file(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        String playlist_file_name = Non_booleans.get_main_properties_manager(logger).get(PLAYLIST_FILE_NAME);
+        String playlist_file_name = Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME);
         if ( playlist_file_name == null)
         {
             playlist_file_name = "playlist."+ Audio_player_frame.KLIK_AUDIO_PLAYLIST_EXTENSION;
-            Non_booleans.get_main_properties_manager(logger).add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
+            Non_booleans.get_main_properties_manager().add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
         }
         else
         {

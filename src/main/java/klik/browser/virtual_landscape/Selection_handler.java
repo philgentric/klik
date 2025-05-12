@@ -328,7 +328,7 @@ public class Selection_handler
     //**********************************************************
     {
         reset_selection();
-        add_into_selected_files(path_list_provider.get_file_list());
+        add_into_selected_files(path_list_provider.only_files());
         set_select_all_files(true);
     }
 }

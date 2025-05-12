@@ -36,8 +36,8 @@ public class File_logger implements Logger
 					//System.out.println("File_logger: "+tag+" => "+s);
 					FileWriter fw = new FileWriter(file.toFile(), true);
 					fw.write(s+"\n");
-					//if (queue.peek() == null)
-						fw.flush();
+					fw.flush();
+					fw.close();
 				}
 				catch (InterruptedException e) {
 					System.out.println("File_logger: ERROR writing to file: "+e);

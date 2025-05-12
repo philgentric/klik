@@ -91,7 +91,7 @@ public class System_open_actor implements Actor
     {
         String extension = Static_files_and_paths_utilities.get_extension(som.path.toFile().getName());
 
-        String app = Registered_applications.get_registered_application(extension, som.window, som.logger);
+        String app = Registered_applications.get_registered_application(extension, som.window, som.aborter,som.logger);
 
         if ( app == null)
         {

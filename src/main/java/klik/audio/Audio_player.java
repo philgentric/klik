@@ -8,10 +8,10 @@ import klik.actor.Aborter;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
 import klik.util.tcp.*;
 
 import java.io.DataInputStream;
@@ -41,7 +41,11 @@ public class Audio_player extends Application
     public void start(Stage stage) throws Exception
     //**********************************************************
     {
-        Logger logger =  System_logger.get_system_logger("Audio_player_frame");
+
+        Sys_init sys_init = Sys_init.get("Audio_player");
+        Logger logger = sys_init.logger();
+        Aborter aborter = sys_init.aborter();
+
         Start_context context = Start_context.get_context(this);
 
         if (  !start_server(logger))
@@ -72,6 +76,8 @@ public class Audio_player extends Application
              logger.log("Audio_player, opening audio file: "+f.getAbsolutePath());
         }
         Start_context.send_started(context,logger);
+
+        Audio_player.init(aborter,logger);
         play_this_song(f,logger);
     }
     //**********************************************************
@@ -175,22 +181,26 @@ public class Audio_player extends Application
     }
 
 
-
+    //**********************************************************
+    public static void init(Aborter aborter,Logger logger)
+    //**********************************************************
+    {
+        instance = new Audio_player_frame(aborter, logger);
+    }
     //**********************************************************
     public static void play_playlist(File file, Logger logger)
     //**********************************************************
     {
         if ( instance == null)
         {
-            instance = new Audio_player_frame(logger);
+            logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player.init() before trying to play"));
         }
-
 
         instance.play_playlist_internal(file);
     }
 
     //**********************************************************
-    public static void play_this_song(File song, Logger logger)
+    public static void play_this_song(File song,Logger logger)
     //**********************************************************
     {
 
@@ -198,7 +208,7 @@ public class Audio_player extends Application
         {
             if (instance == null)
             {
-                instance = new Audio_player_frame(logger);
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player.init() before trying to play"));
             }
 
             instance.change_song(song);

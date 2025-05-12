@@ -83,7 +83,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
         d =  dummy_name1.compareTo(dummy_name2);
         distances_cache.put(pp, d);
-        logger.log("compare "+p1+" vs "+p2+" == "+d);
+        //logger.log("compare "+p1+" vs "+p2+" == "+d);
         return d;
     }
 
@@ -93,7 +93,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
     protected void add_non_images(Path_list_provider path_list_provider, int i) {
         // then we add the non-images
-        for ( File f : path_list_provider.get_file_list())
+        for ( File f : path_list_provider.only_files())
         {
             if ( images.contains(f.toPath())) continue;
             dummy_names.put(f.toPath(), i);

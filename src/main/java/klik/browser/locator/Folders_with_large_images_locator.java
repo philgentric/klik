@@ -4,8 +4,7 @@ package klik.browser.locator;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
+import klik.browser.New_window_context;
 import klik.util.files_and_paths.*;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
@@ -385,7 +384,7 @@ public class Folders_with_large_images_locator
             if ( count < MAX_WINDOWS)
             {
                 String final_S = s;
-                Jfx_batch_injector.inject(()->Browser_creation_context.additional_no_past(key_to_path(final_S).toAbsolutePath().toString(), logger),logger);
+                Jfx_batch_injector.inject(()-> New_window_context.additional_no_past(key_to_path(final_S), logger),logger);
                 count++;
             }
             else {

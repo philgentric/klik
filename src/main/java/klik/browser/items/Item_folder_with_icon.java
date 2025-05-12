@@ -17,6 +17,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.*;
@@ -81,7 +82,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder, path_list_provider, aborter, logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
-        folder_icon_size = Non_booleans.get_folder_icon_size(logger);
+        folder_icon_size = Non_booleans.get_folder_icon_size();
         // launch content icon fabrication:
         text = text_;
         double font_size = Non_booleans.get_font_size(logger);
@@ -100,7 +101,8 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         the_button.setContentDisplay(ContentDisplay.BOTTOM);
 
         Look_and_feel_manager.set_button_look(the_button,true);
-        the_button.setOnAction(actionEvent -> Browser_creation_context.replace_different_folder(shutdown_target, path.toAbsolutePath().toString(),owner, logger));
+        scroll_position_recorder.record_scroll_position(path);
+        the_button.setOnAction(actionEvent -> New_window_context.replace_different_folder(shutdown_target, path,owner, logger));
         Tooltip.install(the_button,new Tooltip(path.getFileName().toString()));
 
         resize_the_box(the_button);
@@ -144,7 +146,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     private void resize_the_box(Button button)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger))
+        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
         {
             button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
             button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
@@ -196,7 +198,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         {
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             Path local = get_path_for_display(false);
-            local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, browser_aborter, logger);
+            local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger);
             the_image_pane.setRotate(local_rot);
         }
         else
@@ -251,7 +253,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
             if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
             if (Guess_file_type.is_this_path_a_gif(f.toPath()))
             {
-                if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), browser_aborter, logger))
+                if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), aborter, logger))
                 {
                     return f.toPath();
                 }
@@ -270,7 +272,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
                         if (f2.isDirectory()) continue; // ignore folders
                         if (!Guess_file_type.is_file_an_image(f2)) continue; // ignore non images
                         if (Guess_file_type.is_this_path_a_gif(f2.toPath())) {
-                            if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), browser_aborter, logger)) {
+                            if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), aborter, logger)) {
                                 return f2.toPath();
                             }
                             continue; // ignore not animated gifs
@@ -280,11 +282,11 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
                 }
             }
             create_label_for_sizes("...computing sizes...");
-            launch_disk_foot_print_thread(this, path, browser_aborter, logger);
+            launch_disk_foot_print_thread(this, path, aborter, logger);
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(owner,new Folder_path_list_provider(path),  images_in_folder,  image_properties_RAM_cache, logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(owner,new Folder_path_list_provider(path),  images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");

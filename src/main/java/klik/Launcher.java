@@ -20,6 +20,7 @@ import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -55,7 +56,9 @@ public class Launcher extends Application
     //**********************************************************
     {
 
-        Logger logger = System_logger.get_system_logger("Launcher");
+        Sys_init sys_init = Sys_init.get("Launcher");
+        Logger logger = sys_init.logger();
+        Aborter aborter = sys_init.aborter();
         Look_and_feel_manager.init_Look_and_feel(logger);
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);

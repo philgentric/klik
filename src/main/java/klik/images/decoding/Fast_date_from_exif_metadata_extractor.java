@@ -31,7 +31,7 @@ public class Fast_date_from_exif_metadata_extractor
     //**********************************************************
     {
 
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
         InputStream is = From_disk.get_image_InputStream(path, with_fusk, true, aborter, logger);
         if ( is == null)
         {

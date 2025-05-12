@@ -14,7 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.Folder_path_list_provider;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
@@ -23,11 +23,10 @@ import klik.properties.Booleans;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
-import klik.unstable.fusk.Fusk_static_core;
-import klik.unstable.fusk.Fusk_strings;
+import klik.experimental.fusk.Fusk_static_core;
+import klik.experimental.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -65,27 +64,25 @@ public class Image_window
     Path_list_provider path_list_provider;
 
     //**********************************************************
-    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Logger logger_)
+    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
-        Image_window returned = on_same_screen(path, path_list_provider,logger_);
-        Performance_monitor.register_new_record("get_Image_window", path.toString(), System.currentTimeMillis() - start, logger_);
+        Image_window returned = on_same_screen(path, path_list_provider,aborter,logger_);
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Logger logger_)
+    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Aborter aborter, Logger logger_)
     //**********************************************************
     {
 
-        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW,logger_);
+        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(Optional.empty(), path, x, y,w, h, null, true,path_list_provider,logger_);
+        Image_window returned = new Image_window(Optional.empty(), path, x, y,w, h, null, true,path_list_provider,aborter,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -101,14 +98,15 @@ public class Image_window
             String title_optional_addendum, // this is used to display image similarity
             boolean save_window_bounds,
             Path_list_provider path_list_provider,
+            Aborter aborter,
             Logger logger_)
     //**********************************************************
     {
+        this.aborter = aborter;
         this. path_list_provider = path_list_provider;
         this.title_optional_addendum = title_optional_addendum;
         logger = logger_;
         dir = first_image_path.getParent();
-        aborter = new Aborter("Image_window",logger);
         the_Stage = new Stage();
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane);
@@ -128,7 +126,7 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
+            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT);
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
                     keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(
                             //browser,
@@ -166,6 +164,7 @@ public class Image_window
 
         //set_image(image_context_owner.get_image_context(), white_background);
 
+        Aborter finalAborter = aborter;
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
             if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
@@ -539,7 +538,7 @@ public class Image_window
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
 
-            boolean dont_zoom = Booleans.get_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES,logger);
+            boolean dont_zoom = Booleans.get_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES);
             boolean normal = true;
             if (dont_zoom)
             {

@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.browser.Drag_and_drop;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.look.styles.Look_and_feel_dark;
@@ -106,7 +107,7 @@ public class Look_and_feel_manager
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         logger.log(("setting style = " + instance_.name));
         instance = instance_;
-        Look_and_feel.set_style(instance_,logger);
+        Look_and_feel.set_style(instance_, logger);
         reset();
     }
 

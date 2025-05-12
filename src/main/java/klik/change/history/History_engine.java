@@ -1,8 +1,9 @@
 //SOURCES ../../unstable/backup/Backup_engine.java
 package klik.change.history;
 
+import klik.actor.Aborter;
 import klik.properties.Non_booleans;
-import klik.unstable.backup.Backup_engine;
+import klik.experimental.backup.Backup_engine;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -30,25 +31,25 @@ public class History_engine
 
 
     //**********************************************************
-    public static History_engine get_instance(Logger logger)
+    public static History_engine get_instance(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return new History_engine(logger);
+        return new History_engine(aborter, logger);
     }
 
 
     //**********************************************************
-    public static void clear(Logger logger)
+    public static void clear(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        get_instance(logger).clear_all_internal();
-        Backup_engine.remove_all_properties(logger);
+        get_instance(aborter,logger).clear_all_internal();
+        Backup_engine.remove_all_properties(aborter,logger);
     }
     //**********************************************************
-    public static void erase_if_too_old(int days, Logger logger)
+    public static void erase_if_too_old(int days, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        get_instance(logger).erase_if_too_old(days);
+        get_instance(aborter,logger).erase_if_too_old(days);
     }
 
     //**********************************************************
@@ -93,13 +94,13 @@ public class History_engine
 
 
     //**********************************************************
-    public History_engine(Logger logger)
+    public History_engine(Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, HISTORY_FILENAME);
-        properties_manager = new Properties_manager(p, logger);
+        properties_manager = new Properties_manager(p, aborter, logger);
     }
 
     //**********************************************************

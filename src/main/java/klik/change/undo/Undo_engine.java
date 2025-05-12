@@ -126,7 +126,7 @@ public class Undo_engine implements Datetime_to_signature_source
     {
         this.aborter = aborter;
         logger  = logger_;
-        store = new Undo_storage_to_disk(logger);
+        store = new Undo_storage_to_disk(aborter,logger);
 
 
     }

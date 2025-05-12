@@ -2,10 +2,6 @@ package klik.search;
 
 import klik.actor.Aborter;
 import klik.actor.Message;
-import klik.browser.Browser;
-
-import java.nio.file.Path;
-import java.util.List;
 
 //**********************************************************
 public class Finder_message implements Message

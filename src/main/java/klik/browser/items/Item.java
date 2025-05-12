@@ -30,7 +30,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
-import klik.browser.Browser_creation_context;
+import klik.browser.New_window_context;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Scroll_position_recorder;
@@ -48,7 +48,7 @@ import klik.util.execute.System_open_actor;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_request;
 import klik.util.files_and_paths.Folder_size;
-import klik.unstable.metadata.Tag_stage;
+import klik.experimental.metadata.Tag_stage;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -80,7 +80,7 @@ public abstract class Item implements Icon_destination
     protected final Logger logger;
     public final Iconifiable_item_type item_type;
     public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
-    public final Aborter browser_aborter;
+    public final Aborter aborter;
 
      // javafx_x and javafx_y are going to be used in Translate_X (resp. Y)
     // vertical scroll is managed by substracting the y_offset
@@ -111,7 +111,7 @@ public abstract class Item implements Icon_destination
     {
         this.path_list_provider = path_list_provider;
         this.scroll_position_recorder = scroll_position_recorder;
-        this.browser_aborter = aborter;
+        this.aborter = aborter;
         this.owner = owner;
         this.scene = scene;
         this.icon_factory_actor = icon_factory_actor;
@@ -120,7 +120,7 @@ public abstract class Item implements Icon_destination
         this.logger = logger;
         this.color = color;
         item_type = Iconifiable_item_type.from_extension(path);
-        icon_size = Non_booleans.get_icon_size(logger);
+        icon_size = Non_booleans.get_icon_size();
     }
 
     public final Scene getScene()
@@ -248,9 +248,9 @@ public abstract class Item implements Icon_destination
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(path));
-                if ( Booleans.get_boolean(Experimental_features.enable_tags.name(),logger))
+                if ( Booleans.get_boolean(Experimental_features.enable_tags.name()))
                 {
-                    context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, logger));
+                    context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, aborter,logger));
                 }
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
@@ -270,7 +270,7 @@ public abstract class Item implements Icon_destination
             }
             if ( this.item_type == Iconifiable_item_type.video)
             {
-                Item_image.make_menu_items_for_videos(path,owner,context_menu,dbg, browser_aborter,logger);
+                Item_image.make_menu_items_for_videos(path,owner,context_menu,dbg, aborter,logger);
             }
 
             // is a "plain" file
@@ -281,9 +281,9 @@ public abstract class Item implements Icon_destination
             context_menu.getItems().add(create_delete_menu_item());
 
             context_menu.getItems().add(Item.create_show_file_size_menu_item(path, dbg,logger));
-            if ( Booleans.get_boolean(Experimental_features.enable_tags.name(), logger))
+            if ( Booleans.get_boolean(Experimental_features.enable_tags.name()))
             {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg,logger));
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, aborter,logger));
             }
         }
 
@@ -303,8 +303,8 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("info");
-            Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, browser_aborter,logger);
-            Exif_stage.show_exif_stage(local_image, path, browser_aborter, logger);
+            Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, aborter,logger);
+            Exif_stage.show_exif_stage(local_image, path, aborter, logger);
         });
 
         return menu_item;
@@ -336,7 +336,7 @@ public abstract class Item implements Icon_destination
 
             scroll_position_recorder.record_scroll_position(path);
 
-            Browser_creation_context.additional_different_folder(path.getParent().toAbsolutePath().toString(),owner, logger);
+            New_window_context.additional_different_folder(path.getParent(),owner, logger);
         });
         return browse;
     }
@@ -358,7 +358,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Clear_Trash_Folder",logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("clearing trash!");
-            Static_files_and_paths_utilities.clear_trash(true,owner, browser_aborter,logger);
+            Static_files_and_paths_utilities.clear_trash(true,owner, aborter,logger);
         });
         return menu_item;
     }
@@ -394,7 +394,7 @@ public abstract class Item implements Icon_destination
             if (dbg) logger.log("Deleting!");
             double x = owner.getX()+100;
             double y = owner.getY()+100;
-            path_list_provider.delete(path, owner, x, y, browser_aborter, logger);
+            path_list_provider.delete(path, owner, x, y, aborter, logger);
             //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
         });
         return menu_item;
@@ -423,7 +423,7 @@ public abstract class Item implements Icon_destination
                 actionEvent.consume();
                 if ( path.toFile().isDirectory() )
                 {
-                    Path new_path = Static_files_and_paths_utilities.change_dir_name(path, new_dir_name, browser_aborter, logger);
+                    Path new_path = Static_files_and_paths_utilities.change_dir_name(path, new_dir_name, aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");
@@ -437,7 +437,9 @@ public abstract class Item implements Icon_destination
                 }
                 else
                 {
-                    Path new_path = Static_files_and_paths_utilities.change_file_name(path, new_dir_name, browser_aborter, logger);
+                    double x = owner.getX()+100;
+                    double y = owner.getY()+100;
+                    Path new_path = Static_files_and_paths_utilities.change_file_name(path, new_dir_name, owner,x,y,aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");
@@ -461,9 +463,10 @@ public abstract class Item implements Icon_destination
                         local_button.setText(size);
                         local_label.setText(new_dir_name);
                         //Font_size.set_preferred_font_size(label,logger);
-                        Font_size.apply_font_size(local_label, logger);
+                        Font_size.apply_font_size(local_label,logger);
                         local_button.setGraphic(local_label);
                     }
+                    path_list_provider.reload();
                 }
 
                 if (dbg) logger.log("rename done");
@@ -486,7 +489,7 @@ public abstract class Item implements Icon_destination
                 Popups.popup_warning(owner,"copy of dir failed","names are same ?", false,logger);
                 return;
             }
-            Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, path, new_path, browser_aborter, logger);
+            Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, path, new_path, aborter, logger);
         });
         return menu_item;
     }
@@ -557,13 +560,13 @@ public abstract class Item implements Icon_destination
     }
 
     //**********************************************************
-    public static MenuItem create_edit_tag_menu_item(Path path, boolean dbg, Logger logger)
+    public static MenuItem create_edit_tag_menu_item(Path path, boolean dbg, Aborter aborter,Logger logger)
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Show_tag", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("File tag");
-            Tag_stage.open_tag_stage(path,true,logger);
+            Tag_stage.open_tag_stage(path,true,aborter,logger);
         });
 
         return menu_item;
@@ -625,7 +628,7 @@ public abstract class Item implements Icon_destination
                 if ( this instanceof Item_button)
                 {
                     Item_button ib = (Item_button) this;
-                    double font_size = Non_booleans.get_font_size(logger);
+                    double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(ib.button, icon_height, color);
                 }
@@ -645,7 +648,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: System Open");
-            System_open_actor.open_with_system(owner,path,browser_aborter,logger);
+            System_open_actor.open_with_system(owner,path, aborter,logger);
         });
 
         return menu_item;
@@ -662,7 +665,7 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(text);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: Open_With_Registered_Application");
-            System_open_actor.open_special(owner,path,browser_aborter,logger);
+            System_open_actor.open_special(owner,path, aborter,logger);
         });
 
         return menu_item;

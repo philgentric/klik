@@ -1,7 +1,7 @@
 package klik.image_ml.image_similarity;
 
 import klik.actor.Aborter;
-import klik.browser.Folder_path_list_provider;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.files_and_paths.File_pair;
 import klik.util.files_and_paths.File_with_a_few_bytes;

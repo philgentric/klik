@@ -9,7 +9,6 @@
 package klik.browser.icons;
 
 import javafx.scene.image.Image;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.*;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
@@ -25,11 +24,6 @@ import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-/*import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.rendering.PDFRenderer;
-*/
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -360,7 +354,7 @@ public class Icon_factory_actor implements Actor
 
             if (dbg)
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            double length = Non_booleans.get_animated_gif_duration_for_a_video(logger);
+            double length = Non_booleans.get_animated_gif_duration_for_a_video();
 
             File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
@@ -372,7 +366,7 @@ public class Icon_factory_actor implements Actor
             Path destination_gif_full_path = Paths.get(icon_cache_dir.toAbsolutePath().toString(), gif_animated_icon_file.getName());
 
             double skip = 0;
-            double duration_in_seconds = Ffmpeg_utils.get_video_duration(owner, destination.get_item_path(), logger);
+            double duration_in_seconds = Ffmpeg_utils.get_video_duration(owner, destination.get_item_path(),logger);
             if (duration_in_seconds > 3 * 3600) {
                 logger.log("WARNING: ffprobe reports duration that looks wrong");
                 duration_in_seconds = 1800;

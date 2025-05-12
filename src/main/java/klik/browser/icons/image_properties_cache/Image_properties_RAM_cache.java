@@ -10,7 +10,7 @@ import klik.actor.Job_termination_reporter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.properties.Cache_folder;
-import klik.unstable.experimental.RAM_disk;
+import klik.experimental.work_in_progress.RAM_disk;
 import klik.properties.Properties_manager;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -53,13 +53,13 @@ public class Image_properties_RAM_cache
         logger = logger_;
         aborter = aborter_;
         cache_name = cache_name_;
-        String local = cache_name+ path_list_provider.get_name();
+        String local = cache_name+ path_list_provider.get_name2();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
         Path dir = get_image_properties_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 
-        pm = new Properties_manager(cache_file_path,logger);
+        pm = new Properties_manager(cache_file_path,aborter,logger);
         image_properties_actor = new Image_properties_actor();
     }
 
@@ -67,7 +67,7 @@ public class Image_properties_RAM_cache
     public static Path get_image_properties_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger))
+        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE))
         {
             Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folder.klik_image_properties_cache.name(), owner, logger);
             //if (dbg)
@@ -105,10 +105,11 @@ public class Image_properties_RAM_cache
         }
         if ( aborter.should_abort())
         {
-            logger.log((instance_number+" PANIC aborter "+aborter.name+" reason="+aborter.reason+ " target path="+p));
+            //logger.log(("yop! aboritng works on image properties cache instance#"+ instance_number+"  aborter "+aborter.name+" reason="+aborter.reason+ " target path="+p));
             return null;
         }
-        else {
+        else
+        {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);

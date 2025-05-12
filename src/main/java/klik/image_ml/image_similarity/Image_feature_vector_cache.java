@@ -13,7 +13,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.Feature_vector;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
-import klik.unstable.experimental.RAM_disk;
+import klik.experimental.work_in_progress.RAM_disk;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -59,7 +59,7 @@ public class Image_feature_vector_cache
         cache_type = cache_type_;
         String local = cache_type + tag;//path.toAbsolutePath();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".fv_cache";
-        Path dir = get_image_feature_vector_cache_dir(null,logger);
+        Path dir = get_image_feature_vector_cache_dir(null, aborter,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_type +" cache file ="+cache_file_path);
         image_feature_vector_actor = new Image_feature_vector_actor(aborter);
@@ -71,10 +71,10 @@ public class Image_feature_vector_cache
     }
 
     //**********************************************************
-    public static Path get_image_feature_vector_cache_dir(Stage owner, Logger logger)
+    public static Path get_image_feature_vector_cache_dir(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger))
+        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE))
         {
             Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folder.klik_image_properties_cache.name(), owner, logger);
             //if (dbg)
@@ -232,13 +232,13 @@ public class Image_feature_vector_cache
     public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Images_and_feature_vectors images_and_feature_vectors = images_and_feature_vectors_cache.get(path_list_provider.get_name());
+        Images_and_feature_vectors images_and_feature_vectors = images_and_feature_vectors_cache.get(path_list_provider.get_name2());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( images_and_feature_vectors == null)
         {
             Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, acquiring feature vectors",20000, x,y,logger);
             images_and_feature_vectors = read_from_disk_and_update(path_list_provider,in_flight, aborter,logger);
-            images_and_feature_vectors_cache.put(path_list_provider.get_name(),images_and_feature_vectors);
+            images_and_feature_vectors_cache.put(path_list_provider.get_name2(),images_and_feature_vectors);
             return images_and_feature_vectors;
         }
         images_and_feature_vectors.image_feature_vector_ram_cache.update(path_list_provider, in_flight, aborter,logger);
@@ -249,10 +249,10 @@ public class Image_feature_vector_cache
     private static Images_and_feature_vectors read_from_disk_and_update(Path_list_provider path_list_provider , AtomicInteger in_flight, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(path_list_provider.get_name(), "image_feature_vectors", aborter, logger);
+        Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(path_list_provider.get_name2(), "image_feature_vectors", aborter, logger);
         image_feature_vector_ram_cache.reload_cache_from_disk(in_flight,aborter);
 
-        logger.log("read_from_disk "+image_feature_vector_ram_cache.path_to_feature_vector_cache.size()+" fv from disk for:"+path_list_provider.get_name());
+        logger.log("read_from_disk "+image_feature_vector_ram_cache.path_to_feature_vector_cache.size()+" fv from disk for:"+path_list_provider.get_name2());
         return image_feature_vector_ram_cache.update( path_list_provider, in_flight,aborter, logger);
     }
 
@@ -262,7 +262,7 @@ public class Image_feature_vector_cache
     {
         List<Path> images = new ArrayList<>();
         List<Path> missing_images = new ArrayList<>();
-        for (Path p : path_list_provider.get_paths())
+        for (Path p : path_list_provider.get_path_list())
         {
             if ( p.toFile().isDirectory()) continue;
             if ( p.toFile().getName().startsWith("._")) continue;
@@ -288,7 +288,7 @@ public class Image_feature_vector_cache
         } catch (InterruptedException e) {
             logger.log("Images_and_feature_vectors from_disk interrupted:"+e);
         }
-        logger.log("update: "+missing_images.size()+" new images added for:"+path_list_provider.get_name());
+        logger.log("update: "+missing_images.size()+" new images added for:"+path_list_provider.get_name2());
 
         if (!missing_images.isEmpty()) save_whole_cache_to_disk();
         return new Images_and_feature_vectors(this, images);

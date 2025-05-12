@@ -48,13 +48,13 @@ public class Ffmpeg_utils
 {
     private static final boolean dbg = false;
     private static final int HUNDRED =100;
-    private static final Locale us_locale = new Locale("en");
+    private static final Locale us_locale = Locale.of("en","US");//new Locale("en");
 
     //**********************************************************
     public static void generate_many_gifs(Window owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        double duration_in_seconds = get_video_duration(owner, video_path, logger);
+        double duration_in_seconds = get_video_duration(owner, video_path,logger);
         if ( duration_in_seconds > 3*3600)
         {
             logger.log("WARNING: ffprobe reports duration that looks wrong?"+duration_in_seconds+" in hours="+duration_in_seconds/3600+ "... going to assume 30 minutes");
@@ -335,7 +335,7 @@ public class Ffmpeg_utils
     static Logger logger;
 
     //**********************************************************
-    public static void interactive(Path video_path_, Logger logger_)
+    public static void interactive(Path video_path_, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         video_path = video_path_;
@@ -352,7 +352,7 @@ public class Ffmpeg_utils
             the_imageview = new ImageView();
             the_imageview.setPreserveRatio(true);
             the_imageview.setFitHeight(512);
-            double full_clip_duration_in_seconds = get_video_duration(the_stage, video_path, logger);
+            double full_clip_duration_in_seconds = get_video_duration(the_stage, video_path,logger);
 
             make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
             Pane vb = new VBox();

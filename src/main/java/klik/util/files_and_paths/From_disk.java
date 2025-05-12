@@ -10,7 +10,7 @@ import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.images.decoding.Fast_width_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
-import klik.unstable.fusk.Fusk_static_core;
+import klik.experimental.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
 import klik.properties.Booleans;
@@ -85,7 +85,7 @@ public class From_disk
     //**********************************************************
     {
         if (dbg) logger.log("\n\nFrom_disk determine_width "+path);
-        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found,aborter, null, logger);
+        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found, null,aborter, logger);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())
@@ -150,7 +150,7 @@ public class From_disk
             logger.log("load_image_fx NOT DONE because running low on memory ! ");
             return null;
         }
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
         InputStream input_stream = get_image_InputStream(original_image_file, with_fusk, report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
         Image image = new Image(input_stream);
@@ -191,7 +191,7 @@ public class From_disk
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
         Image image = null;
         try(InputStream input_stream = get_image_InputStream(original_image_file, with_fusk, report_if_not_found, aborter,logger))
         {

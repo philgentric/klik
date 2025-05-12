@@ -4,6 +4,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
+import klik.actor.Aborter;
 import klik.properties.Booleans;
 import klik.util.log.Logger;
 
@@ -15,6 +16,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     public static final double half_slider_width = 20;
     final Slider the_Slider;
     Logger logger;
+    private final Aborter aborter;
     Pane pane;
 
     //**********************************************************
@@ -23,6 +25,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             Pane pane_, Virtual_landscape virtual_landscape, Logger logger_)
     //**********************************************************
     {
+        this.aborter = virtual_landscape.aborter;
         logger = logger_;
         pane = pane_;
 
@@ -96,7 +99,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         {
             fraction = slider_value / the_Slider.getMax(); // normalize (0,1)
         }
-        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger);
+        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED);
         if (inverted)
         {
             fraction = 1.0 - fraction;
@@ -121,7 +124,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             pixel_height = 42;
         }
         double tmp = pixels/pixel_height; // normalize (0,1)
-        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger);
+        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED);
         if (inverted)
         {
             tmp = 1.0 - tmp;
@@ -156,7 +159,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     public boolean request_scroll_relative(double dy)
     //**********************************************************
     {
-        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED,logger);
+        boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED);
         if (inverted)
         {
             if ( Virtual_landscape.scroll_dbg) logger.log("scroll is inverted="+dy+" ==> "+(-dy));

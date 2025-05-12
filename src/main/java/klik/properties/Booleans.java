@@ -3,6 +3,7 @@ package klik.properties;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.actor.Aborter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
@@ -18,7 +19,6 @@ import java.util.Map;
 public class Booleans
 //**********************************************************
 {
-    public static final String USE_FILE_LOGGING = "use_file_logging";
     private static final boolean dbg = false;
     public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
     public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
@@ -51,34 +51,34 @@ public class Booleans
     {
         if (boolean_properties_cache == null)
         {
-            get_all_booleans(logger);
+            get_all_booleans();
         }
         if (boolean_properties_cache == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("FATAL: boolean_properties_cache==null"));
         }
         boolean_properties_cache.put(s, b);
-        Properties_manager pm = Non_booleans.get_main_properties_manager(logger);
+        Properties_manager pm = Non_booleans.get_main_properties_manager();
         pm.add_and_save(s, String.valueOf(b));
 
     }
     //**********************************************************
-    public static boolean get_boolean(String s, Logger logger)
+    public static boolean get_boolean(String s)
     //**********************************************************
     {
         if (boolean_properties_cache == null)
         {
-            get_all_booleans(logger);
+            get_all_booleans();
         }
         if (boolean_properties_cache == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: boolean_properties_cache==null"));
+            System.out.println(Stack_trace_getter.get_stack_trace("FATAL: boolean_properties_cache==null"));
         }
         Boolean tmp = boolean_properties_cache.get(s);
         if (tmp == null)
         {
-            logger.log("WARNING: boolean_properties_cache.get("+s+") == null");
-            Properties_manager pm = Non_booleans.get_main_properties_manager(logger);
+            System.out.println("WARNING: boolean_properties_cache.get("+s+") == null");
+            Properties_manager pm = Non_booleans.get_main_properties_manager();
 
             pm.add_and_save(s, "false");
             boolean_properties_cache.put(s, false);
@@ -89,11 +89,11 @@ public class Booleans
 
 
     //**********************************************************
-    public static Map<String, Boolean> get_all_booleans(Logger logger)
+    public static Map<String, Boolean> get_all_booleans()
     //**********************************************************
     {
         boolean_properties_cache = new HashMap<>();
-        Properties_manager pm = Non_booleans.get_main_properties_manager(logger);
+        Properties_manager pm = Non_booleans.get_main_properties_manager();
 
         for ( String k : pm.get_all_keys())
         {
@@ -102,36 +102,36 @@ public class Booleans
             {
                 boolean_properties_cache.put(k, false);
                 pm.add_and_save(k, String.valueOf(false));
-                logger.log("SAVING MISSING boolean value for " + k + " = " + v+" (false)");
+                System.out.println("SAVING MISSING boolean value for " + k + " = " + v+" (false)");
                 continue;
             }
             Boolean b = Boolean.parseBoolean(v);
             if ( b)
             {
                 boolean_properties_cache.put(k, true);
-                if ( dbg) logger.log("boolean value for " + k + " = " + v+" (true)");
+                if ( dbg) System.out.println("boolean value for " + k + " = " + v+" (true)");
                 continue;
             }
             if ( v.trim().toLowerCase().equals("false"))
             {
                 boolean_properties_cache.put(k, false);
-                if ( dbg) logger.log("boolean value for " + k + " = " + v+" (false)");
+                if ( dbg) System.out.println("boolean value for " + k + " = " + v+" (false)");
             }
 
-            if ( dbg) logger.log(("ignoring as not a boolean " + k + " = " + v));
-            //logger.log(Stack_trace_getter.get_stack_trace("NOT A BOOLEAN value for " + k + " = " + v));
+            if ( dbg) System.out.println(("ignoring as not a boolean " + k + " = " + v));
+            //System.out.println(Stack_trace_getter.get_stack_trace("NOT A BOOLEAN value for " + k + " = " + v));
         }
         return boolean_properties_cache;
     }
 
 
     //**********************************************************
-    public static boolean get_show_ffmpeg_install_warning(Logger logger)
+    public static boolean get_show_ffmpeg_install_warning()
     //**********************************************************
     {
-        String s = Non_booleans.get_main_properties_manager(logger).get(SHOW_FFMPEG_INSTALL_WARNING);
+        String s = Non_booleans.get_main_properties_manager().get(SHOW_FFMPEG_INSTALL_WARNING);
         if (s == null) {
-            Non_booleans.get_main_properties_manager(logger).add_and_save(SHOW_FFMPEG_INSTALL_WARNING, "true");
+            Non_booleans.get_main_properties_manager().add_and_save(SHOW_FFMPEG_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -140,19 +140,19 @@ public class Booleans
         }
     }
     //**********************************************************
-    public static void set_show_ffmpeg_install_warning(boolean b, Logger logger)
+    public static void set_show_ffmpeg_install_warning(boolean b)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager(logger).add_and_save(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
+        Non_booleans.get_main_properties_manager().add_and_save(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
     }
 
     //**********************************************************
-    public static boolean get_show_GraphicsMagick_install_warning(Logger logger)
+    public static boolean get_show_GraphicsMagick_install_warning()
     //**********************************************************
     {
-        String s = Non_booleans.get_main_properties_manager(logger).get(SHOW_GraphicsMagick_INSTALL_WARNING);
+        String s = Non_booleans.get_main_properties_manager().get(SHOW_GraphicsMagick_INSTALL_WARNING);
         if (s == null) {
-            Non_booleans.get_main_properties_manager(logger).add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
+            Non_booleans.get_main_properties_manager().add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -161,10 +161,10 @@ public class Booleans
         }
     }
     //**********************************************************
-    public static void set_show_GraphicsMagick_install_warning(boolean b, Logger logger)
+    public static void set_show_GraphicsMagick_install_warning(boolean b)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager(logger).add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
+        Non_booleans.get_main_properties_manager().add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
     }
 
     static boolean ffmpeg_popup_done = false;
@@ -172,7 +172,7 @@ public class Booleans
     public static void manage_show_ffmpeg_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_show_ffmpeg_install_warning(logger))
+        if ( get_show_ffmpeg_install_warning())
         {
             if ( !ffmpeg_popup_done)
             {
@@ -181,7 +181,7 @@ public class Booleans
                 logger.log("WARNING: " + msg);
                 Jfx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing ffmepg again, click OK", logger)) {
-                        set_show_ffmpeg_install_warning(false,logger);
+                        set_show_ffmpeg_install_warning(false);
                     }
                 },logger);
             }
@@ -189,10 +189,10 @@ public class Booleans
     }
     static boolean GraphicsMagick_popup_done = false;
     //**********************************************************
-    public static void manage_show_GraphicsMagick_install_warning(Window owner, Logger logger)
+    public static void manage_show_GraphicsMagick_install_warning(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( get_show_GraphicsMagick_install_warning(logger))
+        if ( get_show_GraphicsMagick_install_warning())
         {
             if(!GraphicsMagick_popup_done)
             {
@@ -201,7 +201,7 @@ public class Booleans
                 logger.log("WARNING: " + msg);
                 Jfx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing GraphicsMagick again, click OK", logger)) {
-                        set_show_GraphicsMagick_install_warning(false,logger);
+                        set_show_GraphicsMagick_install_warning(false);
                     }
                 },logger);
             }

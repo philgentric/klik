@@ -1,6 +1,8 @@
 package klik.util.files_and_paths;
 
+import klik.actor.Aborter;
 import klik.properties.Non_booleans;
+import klik.util.Sys_init;
 import klik.util.log.Logger;
 import klik.util.log.System_logger;
 
@@ -14,7 +16,7 @@ public class Name_cleaner
     public static final String SP_EZ_IA_L = "_Copy_Made_By_Klik_";
     private static final boolean dbg = false;
     //**********************************************************
-    public static String clean(String in, boolean check_extension, Logger logger)
+    public static String clean(String in, boolean check_extension, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( in.endsWith(".JPG_original") )
@@ -38,7 +40,7 @@ public class Name_cleaner
         }
 
         String new_str = base_name.trim();
-        List<String> l = Non_booleans.get_cleanup_tokens(logger);
+        List<String> l = Non_booleans.get_cleanup_tokens();
         for (String s : l)
         {
             logger.log("cleanup token:"+s);
@@ -161,26 +163,29 @@ public class Name_cleaner
     public static void main(String[] args)
     //**********************************************************
     {
-        Logger logger = System_logger.get_system_logger("name cleaner test");
+        Sys_init sys_init = Sys_init.get("Name_cleaner test app");
+        Logger logger = sys_init.logger();
+        Aborter aborter = sys_init.aborter();
+
         {
             String test =" $fsd,de  :dfd- _hd<gd. ___---84565FTaMere dwedsds .jpg";
-            logger.log(test+" => "+clean(test,true,logger));
+            logger.log(test+" => "+clean(test,true,aborter,logger));
         }
         {
             String test =" adf>sfsd-r=GDF 9857- fggf..java";
-            logger.log(test+" => "+clean(test,true,logger));
+            logger.log(test+" => "+clean(test,true,aborter,logger));
         }
         {
             String test =" fd?fe- f;gr%tg d--.verylongextension";
-            logger.log(test+" => "+clean(test,true,logger));
+            logger.log(test+" => "+clean(test,true,aborter,logger));
         }
         {
             String test =" fg.b--.-dsed1|dndl .Gif";
-            logger.log(test+" => "+clean(test,true,logger));
+            logger.log(test+" => "+clean(test,true,aborter,logger));
         }
         {
             String test ="qsddsdffdfd.chic";
-            logger.log(test+" => "+clean(test,false,logger));
+            logger.log(test+" => "+clean(test,false,aborter,logger));
         }
 
         logger.log("\n\n\n\n\n");

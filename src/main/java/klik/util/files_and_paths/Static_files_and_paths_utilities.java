@@ -22,7 +22,7 @@ import klik.properties.Non_booleans;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
-import klik.unstable.experimental.RAM_disk;
+import klik.experimental.work_in_progress.RAM_disk;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
 import klik.util.ui.Jfx_batch_injector;
@@ -76,6 +76,7 @@ public class Static_files_and_paths_utilities
     }
 
 
+    // warning: this is a low level function, prefer Moving_files.actual_safe_moves
     //**********************************************************
     public static boolean move_file(Path old_path, Path new_path, Logger logger)
     //**********************************************************
@@ -100,6 +101,11 @@ public class Static_files_and_paths_utilities
         try
         {
             Files.move(old_path,new_path);
+        }
+        catch (FileAlreadyExistsException e)
+        {
+            logger.log("FileAlreadyExistsException Files.move() cannot move "+old_path+" => "+ new_path);
+            return false;
         }
         catch (IOException e)
         {
@@ -199,6 +205,11 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash_multiple(List<Path> paths, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if ( paths.size() == 0)
+        {
+            logger.log("nothing to delete");
+            return;
+        }
         Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
@@ -289,7 +300,7 @@ public class Static_files_and_paths_utilities
     public static Path get_cache_dir(Window owner, Cache_folder cache_folder, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger))
+        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE))
         {
             Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(cache_folder.name(), owner, logger);
             //if (dbg)
@@ -351,11 +362,11 @@ public class Static_files_and_paths_utilities
 */
 
     //**********************************************************
-    public static void clear_one_icon_from_cache_on_disk(Path path, Stage owner, Logger logger)
+    public static void clear_one_icon_from_cache_on_disk(Path path, Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path icon_cache_dir = get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
-        int icon_size = Non_booleans.get_icon_size(logger);
+        int icon_size = Non_booleans.get_icon_size();
         String name = Icon_writer_actor.make_cache_name(path.toAbsolutePath().toString(), String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
         try {
@@ -582,7 +593,7 @@ public class Static_files_and_paths_utilities
     private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        boolean count_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger);
+        boolean count_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
         if ( !path.toFile().isDirectory())
         {
             logger.log(Stack_trace_getter.get_stack_trace("Stupid4: not a folder: "+path));
@@ -823,22 +834,19 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path change_file_name(Path old_path, String new_name, Aborter aborter, Logger logger)
+    public static Path change_file_name(Path old_path, String new_name, Window owner, double x, double y,Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("change_file_name, new name: " + new_name);
        // logger.log("trying rename: " + old_path.getFileName() + " => " + new_name);
         Path new_path = Paths.get(old_path.getParent().toString(), new_name);
-        //Files.move(path, new_path);
-        if ( !move_file(old_path,new_path,logger))
-        {
-            return null;
-        }
-        logger.log("....done");
-        Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
+
+        Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
-        Undo_engine.add(l,aborter,logger);
+        List<Old_and_new_Path> done = Moving_files.actual_safe_moves(owner, x, y, l, true, aborter, logger);
+        if ( done.isEmpty()) return null;
+
         return new_path;
     }
 

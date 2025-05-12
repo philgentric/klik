@@ -4,7 +4,6 @@ import klik.actor.Actor;
 import klik.actor.Message;
 import klik.change.Change_gang;
 import klik.image_indexer.Image_indexer;
-import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 
 import java.nio.file.Path;
@@ -31,7 +30,6 @@ public class Change_image_actor implements Actor
     public String run(Message m)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
         Change_image_message change_image_message = (Change_image_message) m;
 
         if ( dbg) change_image_message.logger.log("delta=" + change_image_message.delta);
@@ -112,8 +110,6 @@ public class Change_image_actor implements Actor
 
         String returned =  display_target_path(target_path, change_image_message);
 
-        long end = System.currentTimeMillis();
-        Performance_monitor.register_new_record("Change image actor: image ready for display",target_path.toString(),end-start,change_image_message.logger);
         return returned;
     }
 

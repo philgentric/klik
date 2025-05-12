@@ -10,7 +10,6 @@ package klik.image_ml.face_recognition;
 
 import javafx.scene.image.Image;
 import klik.actor.*;
-import klik.browser.Browser;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_source;
 import klik.properties.Cache_folder;
@@ -21,9 +20,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 //**********************************************************
 public class Face_recognition_actor implements Actor

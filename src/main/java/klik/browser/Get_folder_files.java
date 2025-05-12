@@ -1,4 +1,6 @@
 package klik.browser;
+import klik.actor.Aborter;
+import klik.browser.classic.Browser;
 import klik.properties.Booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -23,7 +25,7 @@ public class Get_folder_files
         return new Folder_files(false,files);
     }
 
-    public static int how_many_files(Browser browser, Logger logger)
+    public static int how_many_files(Browser browser, Aborter aborter,Logger logger)
     {
         File[] files = browser.displayed_folder_path.toFile().listFiles();
         if ( files == null)
@@ -31,7 +33,7 @@ public class Get_folder_files
             return 0;
         }
         int how_many_files = files.length;
-        if (!Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES,logger))
+        if (!Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES))
         {
             for (File f : files) {
                 if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath())) {

@@ -23,14 +23,14 @@ public class Fast_width_from_exif_metadata_extractor
     public static final boolean dbg = false;
 
     //**********************************************************
-    public static double get_width(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Logger logger)
+    public static double get_width(Path path, boolean report_if_not_found, List<String> sb, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if( sb != null)
         {
             sb.add(path.toString());
         }
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE,logger);
+        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
         InputStream is = From_disk.get_image_InputStream(path, with_fusk, report_if_not_found, aborter, logger);
         if ( is == null)
         {

@@ -28,7 +28,7 @@ public class History_auto_clean
     //**********************************************************
     {
         Undo_engine.erase_if_too_old(1000,100,aborter, logger);
-        History_engine.erase_if_too_old(100,logger);
+        History_engine.erase_if_too_old(100,aborter,logger);
         return true;
     }
 

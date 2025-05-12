@@ -3,12 +3,11 @@ package klik.images;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.browser.New_window_context;
 import klik.image_ml.face_recognition.Face_detection_type;
-import klik.unstable.metadata.Tag_stage;
+import klik.experimental.metadata.Tag_stage;
 import klik.properties.Booleans;
+import klik.properties.Experimental_features;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -64,7 +63,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Booleans.get_boolean(Booleans.ENABLE_SHIFT_D_IS_SURE_DELETE,logger))
+            if (Booleans.get_boolean(Booleans.ENABLE_SHIFT_D_IS_SURE_DELETE))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -100,8 +99,8 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
-                Browser_creation_context.additional_no_past(
-                        image_window.image_display_handler.get_image_context().get().path.getParent().toString(),
+                New_window_context.additional_no_past(
+                        image_window.image_display_handler.get_image_context().get().path.getParent(),
                         logger);
                 key_event.consume();
                 return;
@@ -155,7 +154,7 @@ public class Keyboard_handling_for_Image_window
                 if (keyword_dbg) logger.log("k like search_using_keywords_from_the_name");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider);
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider,image_window.aborter);
                 key_event.consume();
                 return;
             }
@@ -190,8 +189,11 @@ public class Keyboard_handling_for_Image_window
             case "t" -> {
                 if (keyword_dbg) logger.log("t like tag");
 
-                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, logger);
+                if( Booleans.get_boolean(Experimental_features.enable_tags.name())) {
+
+                    if (image_window.image_display_handler.get_image_context().isEmpty()) return;
+                    Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, image_window.aborter,logger);
+                }
                 key_event.consume();
                 return;
             }

@@ -1,11 +1,10 @@
 //SOURCES ./Finder_frame.java
 package klik.search;
 
-import klik.browser.Browser;
+import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.log.Logger;
 
-import java.nio.file.Path;
 import java.util.List;
 
 //**********************************************************
@@ -17,6 +16,7 @@ public class Finder
             Path_list_provider path_list_provider,
             List<String> keywords,
             boolean search_only_images,
+            Aborter aborter,
             Logger logger)
     //**********************************************************
     {
@@ -24,6 +24,7 @@ public class Finder
                     keywords,
                     search_only_images,
                     path_list_provider,
+                    aborter,
                     logger);
             popup.start_search();
     }

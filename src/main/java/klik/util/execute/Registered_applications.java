@@ -1,6 +1,7 @@
 package klik.util.execute;
 
 import javafx.stage.Window;
+import klik.actor.Aborter;
 import klik.properties.Non_booleans;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
@@ -25,11 +26,11 @@ public class Registered_applications
     private static Properties_manager properties_manager;
 
     //**********************************************************
-    public static String get_registered_application(String extension, Window owner, Logger logger)
+    public static String get_registered_application(String extension, Window owner, Aborter aborter,Logger logger)
     //**********************************************************
     {
         extension = extension.toLowerCase();
-        load_map(logger);
+        load_map(aborter,logger);
 
         String returned =  map.get(extension);
         if ( returned != null)
@@ -87,14 +88,14 @@ public class Registered_applications
     }
 
     //**********************************************************
-    private static void load_map(Logger logger)
+    private static void load_map(Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( properties_manager == null)
         {
             String home = System.getProperty(Non_booleans.USER_HOME);
             Path p = Paths.get(home, Non_booleans.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
-            properties_manager = new Properties_manager(p,logger);
+            properties_manager = new Properties_manager(p,aborter,logger);
         }
         for (String key : properties_manager.get_all_keys())
         {

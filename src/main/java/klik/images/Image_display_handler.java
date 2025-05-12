@@ -20,11 +20,10 @@ import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
 import klik.images.caching.Image_cache_dummy;
-import klik.unstable.experimental.Static_image_utilities;
+import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
 import klik.util.files_and_paths.From_disk;
-import klik.unstable.experimental.performance_monitoring.Performance_monitor;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -59,7 +58,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public static Optional<Image_display_handler> get_Image_display_handler_instance(Path_list_provider path_list_provider, boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
         Optional<Image_context> image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
         if (image_context_.isEmpty())
         {
@@ -68,7 +66,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         }
 
         Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), v_, file_comparator, aborter, logger_));
-        Performance_monitor.register_new_record("Image_display_handler.get_Image_display_handler_instance", path.toAbsolutePath().toString(),System.currentTimeMillis() - start,logger_);
         return returned;
     }
 
@@ -102,7 +99,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                image_indexer = Optional.of(Image_indexer.get_Image_indexer(path_list_provider,image_context_.path.toAbsolutePath().getParent(), file_comparator, logger));
+                image_indexer = Optional.of(Image_indexer.get_Image_indexer(path_list_provider,image_context_.path.toAbsolutePath().getParent(), file_comparator, aborter,logger));
 
             }
         };
@@ -237,7 +234,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                     Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path);
-                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage, logger);
+                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage, aborter,logger);
                         // reload the image
                         Optional<Image_context> option = local_getImage_context(local.path,  aborter);
                         if ( option.isPresent())
@@ -296,7 +293,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public void change_image_relative(int delta, boolean ultimate)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
         if ( block.get())
         {
             if ( dbg) logger.log("change_image_relative BLOCKED");
@@ -351,7 +347,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         };
         Actor_engine.run(Change_image_actor.get_instance(), change_image_message, tr,logger);
 
-        Performance_monitor.register_new_record("change_image_relative",image_context.get().path.toString(),System.currentTimeMillis()-start,logger);
     }
 
     @Override // Slide_show_slave

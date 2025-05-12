@@ -10,7 +10,7 @@ import klik.change.undo.Undo_engine;
 import klik.images.Redo_same_move_engine;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
-import klik.unstable.metadata.Metadata_handler;
+import klik.experimental.metadata.Metadata_handler;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
 import klik.util.log.Logger;
@@ -163,7 +163,7 @@ public class Moving_files
                 // we rename the ICON to avoid remaking one
 
                 Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
-                int icon_size = Non_booleans.get_icon_size(logger);
+                int icon_size = Non_booleans.get_icon_size();
                 File current_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.old_Path,String.valueOf(icon_size), Icon_factory_actor.png_extension);
                 if (current_icon.exists()) {
                     File new_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.new_Path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
@@ -303,7 +303,7 @@ public class Moving_files
         if (oandn.get_new_Path() == null)
         {
             logger.log("oandn.get_new_Path() is null, this is a delete forever of:" + oandn.get_old_Path());
-            return do_the_move_or_delete(owner, oandn,logger);
+            return do_the_move_or_delete(owner, oandn,aborter,logger);
         }
 
         // this is a MOVE, and there is a risk that the destination FILE exists
@@ -329,7 +329,7 @@ public class Moving_files
                 else
                 {
                     if(moving_files_dbg) logger.log("DIRECTORY "+ proposed_new_name_string+", this name is OK, no file with that name in the folder: "+oandn.get_new_Path().getParent());
-                    return do_the_move_or_delete(owner, oandn, logger);
+                    return do_the_move_or_delete(owner, oandn, aborter,logger);
                 }
             }
             else
@@ -344,7 +344,7 @@ public class Moving_files
                 else
                 {
                     if(moving_files_dbg) logger.log("FILE " + proposed_new_name_string + " this name is OK, no file with that name");
-                    return do_the_move_or_delete(owner, oandn, logger);
+                    return do_the_move_or_delete(owner, oandn, aborter,logger);
                 }
             }
 
@@ -413,7 +413,7 @@ public class Moving_files
 
 
     //**********************************************************
-    private static Old_and_new_Path do_the_move_or_delete(Window owner, Old_and_new_Path oandn, Logger logger)
+    private static Old_and_new_Path do_the_move_or_delete(Window owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
     //**********************************************************
     {
         try {
@@ -446,7 +446,7 @@ public class Moving_files
 
                 if ( System.currentTimeMillis()-start > 5_000)
                 {
-                    if (Booleans.get_boolean(Booleans.DING_IS_ON,logger))
+                    if (Booleans.get_boolean(Booleans.DING_IS_ON))
                     {
                         Ding.play("file moving takes more than 5s", logger);
                     }
@@ -458,12 +458,12 @@ public class Moving_files
         catch (AccessDeniedException x)
         {
             logger.log("WARNING1: move failed " + oandn.get_old_Path() + " ACCESS DENIED exception ");
-            return move_failed(owner, oandn, x, logger);
+            return move_failed(owner, oandn, x, aborter,logger);
         }
 
         catch (FileNotFoundException x) {
             logger.log("WARNING3: move failed " + oandn.get_old_Path() + " file not found exception, the source does not exists?"+oandn.get_old_Path());
-            return move_failed(owner, oandn, x, logger);
+            return move_failed(owner, oandn, x, aborter,logger);
         }
         catch (DirectoryNotEmptyException x)
         {
@@ -476,12 +476,12 @@ public class Moving_files
                 //
                 logger.log("WARNING4: move failed " + oandn.get_old_Path() + " directory not empty exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
                 Popups.popup_warning(owner, "Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, logger);
-                return move_failed(owner, oandn, x, logger);
+                return move_failed(owner, oandn, x, aborter,logger);
             }
 
             logger.log(oandn.get_old_Path() + " directory not empty: it is not allowed!");
             Popups.popup_Exception(x, 200, "Directory is not empty", logger);
-            return move_failed(owner, oandn, x, logger);
+            return move_failed(owner, oandn, x, aborter,logger);
         } catch (IOException e) {
             logger.log("WARNING5 "+oandn.get_old_Path() + " " + e);
             if ( !oandn.get_old_Path().toFile().canWrite())
@@ -490,13 +490,13 @@ public class Moving_files
                 Popups.popup_warning(owner, "File is not writeable:"+oandn.get_old_Path(), "This file cannot be moved because its file-system properties do not allow it", false, logger);
 
             }
-            return move_failed(owner, oandn, e, logger);
+            return move_failed(owner, oandn, e, aborter,logger);
         }
     }
 
 
     //**********************************************************
-    private static Old_and_new_Path move_failed(Window owner, Old_and_new_Path oandn, IOException e0, Logger logger)
+    private static Old_and_new_Path move_failed(Window owner, Old_and_new_Path oandn, IOException e0, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("******* move failed for: *********\n" +
@@ -513,7 +513,7 @@ public class Moving_files
         {
             logger.log("FAILED to move file, target dir does not exists->" + oandn.get_new_Path().getParent() + "<-" + e0);
             Path path = oandn.get_new_Path().getParent();
-            if (Non_booleans.get_main_properties_manager(logger).remove_invalid_dir(path)) {
+            if (Non_booleans.get_main_properties_manager().remove_invalid_dir(path)) {
                 logger.log("move failed because dir does not exist, so it has been removed from properties : " + path);
             } else {
                 logger.log("WARNING: move failed because dir does not exist, but it could NOT be removed from properties : " + path);

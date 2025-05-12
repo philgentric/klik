@@ -1,6 +1,7 @@
 //SOURCES ./State.java
 package klik.image_indexer;
 
+import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -60,21 +61,21 @@ public class Image_indexer
     private final State state;
 
     //**********************************************************
-    public static Image_indexer get_Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> file_comparator, Logger logger_)
+    public static Image_indexer get_Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         Path d = Objects.requireNonNull(dir_);
-        return new Image_indexer(path_list_provider, d, file_comparator, logger_);
+        return new Image_indexer(path_list_provider, d, file_comparator, aborter, logger_);
     }
 
 
     //**********************************************************
-    private Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> fileComparator,Logger l)
+    private Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> fileComparator, Aborter aborter, Logger l)
     //**********************************************************
     {
         logger = l;
         //current_dir = dir_;
-        state = new State(path_list_provider,fileComparator, logger);
+        state = new State(path_list_provider,fileComparator, aborter,logger);
     }
 
 

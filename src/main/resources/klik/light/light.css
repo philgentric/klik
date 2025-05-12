@@ -117,6 +117,12 @@ https://www.hiclipart.com/free-transparent-background-png-clipart-qjpcc
     -fx-background-color: #aaffff; // light blue
 }
 
+
+.look_and_feel_image_playlist {
+    -fx-background-color: pink;
+}
+
+
 my_dialog{
     -fx-background-color: white;
 }

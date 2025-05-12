@@ -13,14 +13,23 @@ import java.util.List;
 public interface Path_list_provider
 //**********************************************************
 {
-    String get_name(); // absolute path if true folder
-    List<Path> get_paths();
+    String get_name2(); // absolute path if true folder
     Path resolve(String string);
 
-    List<File> get_file_list(); // only files, no folders
+    void reload();
+    List<Path> get_path_list(); // files and folder
+    List<File> only_files(); // only files, no folders
 
     Move_provider get_move_provider();
 
     void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger);
     void delete_multiple(List<Path> paths, Window owner, double x, double y, Aborter aborter, Logger logger);
+
+    Path get_path();
+
+    default boolean has_parent()
+    {
+        Path parent = get_path().getParent();
+        return parent != null;
+    }
 }

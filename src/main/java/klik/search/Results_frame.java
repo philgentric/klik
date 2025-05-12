@@ -19,8 +19,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.audio.Audio_player;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
+import klik.browser.New_window_context;
 import klik.browser.Drag_and_drop;
 import klik.browser.items.Item_image;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -123,7 +122,7 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				Browser_creation_context.additional_different_folder(path.toAbsolutePath().toString(), window,logger);
+				New_window_context.additional_different_folder(path, window,logger);
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
@@ -154,7 +153,7 @@ public class Results_frame
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			Browser_creation_context.additional_different_folder(local.toAbsolutePath().toString(),window,logger);
+			New_window_context.additional_different_folder(local,window,logger);
 		});
 		context_menu.getItems().add(browse);
 

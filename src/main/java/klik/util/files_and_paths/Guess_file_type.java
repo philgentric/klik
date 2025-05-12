@@ -2,12 +2,12 @@ package klik.util.files_and_paths;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.Playlist_path_list_provider;
+import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.unstable.fusk.Fusk_static_core;
+import klik.experimental.fusk.Fusk_static_core;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -202,7 +202,7 @@ public class Guess_file_type
         if (! Guess_file_type.is_this_path_a_gif(path)) return false;
 
         Exif_metadata_extractor e = new Exif_metadata_extractor(path,logger);
-        List<String> l = e.get_exif_metadata(42,true, aborter,false);
+        List<String> l = e.get_exif_metadata(42,true,aborter,false);
 
         if ( l == null) return false;
         if ( l.isEmpty()) return false;

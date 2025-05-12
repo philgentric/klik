@@ -16,7 +16,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import klik.browser.Browser;
+import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.util.files_and_paths.Ding;
@@ -40,6 +40,7 @@ public class Finder_frame implements Search_receiver
 	Label visited_folders;
 	Label visited_files;
 	Logger logger;
+	private final Aborter aborter;
 
 	final private Map<String, Keyword_slot> keyword_to_slot =  new HashMap<>(); // this is the textfield to report the number of matches
 	private final Stage stage;
@@ -63,13 +64,15 @@ public class Finder_frame implements Search_receiver
 			List<String> input_keywords,
 			boolean look_only_for_images_,
 			Path_list_provider path_list_provider,
+			Aborter aborter,
 			Logger logger_)
 	//**********************************************************
 	{
+		this.aborter = aborter;
 		this.path_list_provider = path_list_provider;
-		if ( !Path.of(path_list_provider.get_name()).toFile().isDirectory())
+		if ( !path_list_provider.get_path().toFile().isDirectory())
 		{
-			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
+			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name2()));
 			//target_path = target_path.getParent();
 		}
 		look_only_for_images = look_only_for_images_;
@@ -150,7 +153,7 @@ public class Finder_frame implements Search_receiver
 	{
 		VBox settings_vbox = new VBox();
 		{
-			final Path[] target_path = {Path.of(path_list_provider.get_name())};
+			final Path[] target_path = {path_list_provider.get_path()};
 			Label target_folder_label = new Label(target_path[0].toAbsolutePath().toString());
 			settings_vbox.getChildren().add(target_folder_label);
 			Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", logger));
@@ -422,7 +425,7 @@ public class Finder_frame implements Search_receiver
 		{
 			long now = System.currentTimeMillis();
 			if (now - start_time > 3000) {
-				if (Booleans.get_boolean(Booleans.DING_IS_ON,logger)) {
+				if (Booleans.get_boolean(Booleans.DING_IS_ON)) {
 					Ding.play("File finder took more than 3 seconds", logger);
 				}
 			}
@@ -466,7 +469,7 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		Path target_path = Path.of(path_list_provider.get_name());
+		Path target_path = path_list_provider.get_path();
 		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
 		session = new Search_session(
 				path_list_provider,

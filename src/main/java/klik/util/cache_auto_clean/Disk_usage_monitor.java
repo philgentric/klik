@@ -54,7 +54,7 @@ public class Disk_usage_monitor
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Non_booleans.get_folder_warning_size(logger);
+        warning_limit_bytes = Non_booleans.get_folder_warning_size();
 
 
     }
@@ -86,14 +86,14 @@ public class Disk_usage_monitor
             {
                 if ( !monitored_folder.auto_delete)
                 {
-                    Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
+                    Popups.popup_warning(owner,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...(using Files/Clean menu item)\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
-                            false,logger);
+                            true,logger);
                     continue;
                 }
                 boolean cleared = false;
-                if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger))
+                if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES))
                 {
                     for (Cache_folder cache_folder : Cache_folder.values())
                     {
@@ -107,10 +107,10 @@ public class Disk_usage_monitor
                 if ( cleared) continue;
                 if ( !warning_issued)
                 {
-                    Popups.popup_warning(null,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
+                    Popups.popup_warning(owner,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...(using Files/Clean menu item)\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
-                            false,logger);
+                            true,logger);
                     warning_issued = true;
                 }
             }

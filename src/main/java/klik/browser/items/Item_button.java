@@ -17,12 +17,14 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
 import klik.browser.*;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.*;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.Booleans;
+import klik.properties.Experimental_features;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
@@ -103,7 +105,7 @@ public class Item_button extends Item implements Icon_destination
             return;
         }
 
-        double button_width = Non_booleans.get_column_width(logger);
+        double button_width = Non_booleans.get_column_width();
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         if (Files.isDirectory(path))
@@ -271,7 +273,7 @@ public class Item_button extends Item implements Icon_destination
                     new Folder_path_list_provider(local_path),
                     images_in_folder,
                     image_properties_RAM_cache,
-                    logger);
+                    aborter, logger);
             if ( returned == null)
             {
                 logger.log("make_animated_gif_from_all_images_in_folder fails");
@@ -313,7 +315,7 @@ public class Item_button extends Item implements Icon_destination
     //**********************************************************
     {
 
-        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN,logger))
+        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
         {
             /*double space_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(" ");// text.length();
             double text_lenght_d = Look_and_feel_manager.get_look_and_feel_instance(logger).estimate_text_width(text);// text.length();
@@ -372,11 +374,14 @@ public class Item_button extends Item implements Icon_destination
                 Audio_player.play_playlist(path.toFile(),logger);
                 return;
             }
-            if ( Guess_file_type.is_this_path_an_image_playlist(path))
+            if (Booleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
             {
-                logger.log("opening image playlist: " + path.toAbsolutePath());
-                Browser_creation_context.open_new_image_playlist(path, owner,logger);
-                return;
+                if (Guess_file_type.is_this_path_an_image_playlist(path)) {
+                    logger.log("opening image playlist: " + path.toAbsolutePath());
+                    scroll_position_recorder.record_scroll_position(path);
+                    New_window_context.open_new_image_playlist(path, owner, logger);
+                    return;
+                }
             }
             if ( Guess_file_type.is_this_path_a_music(path))
             {
@@ -388,7 +393,7 @@ public class Item_button extends Item implements Icon_destination
                 }
             }
             logger.log("asking the system to open: " + path.toAbsolutePath());
-            System_open_actor.open_with_system(owner,path,browser_aborter,logger);
+            System_open_actor.open_with_system(owner,path, aborter,logger);
         });
 
         give_a_menu_to_the_button(button,label);
@@ -443,9 +448,8 @@ public class Item_button extends Item implements Icon_destination
 
             if( dbg) logger.log("Item_button button setOnAction calling replace_different_folder");
 
-            //Virtual_landscape.scroll_position_cache.put(parent.displayed_folder_path,parent.get_top_left());
-
-            Browser_creation_context.replace_different_folder(shutdown_target,path.toAbsolutePath().toString(),owner,logger);
+            scroll_position_recorder.record_scroll_position(path);
+            New_window_context.replace_different_folder(shutdown_target,path,owner,logger);
 
         });
 

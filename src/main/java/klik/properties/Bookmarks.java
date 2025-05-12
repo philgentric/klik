@@ -1,5 +1,6 @@
 package klik.properties;
 
+import klik.actor.Aborter;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -18,20 +19,20 @@ public class Bookmarks
     private final Properties_manager pm;
 
     //**********************************************************
-    public Bookmarks(String key_base_, Logger logger)
+    public Bookmarks(String key_base_, Aborter aborter, Logger logger)
     //**********************************************************
     {
         key_base = key_base_;
-        pm = Non_booleans.get_main_properties_manager(logger);
+        pm = Non_booleans.get_main_properties_manager();
         cache = get_bookmarks_of(pm, key_base);
     }
 
 
     //**********************************************************
-    public static Bookmarks get_bookmarks(Logger logger)
+    public static Bookmarks get_bookmarks(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return new Bookmarks(BOOK_MARKS, logger);
+        return new Bookmarks(BOOK_MARKS, aborter,logger);
     }
 
 

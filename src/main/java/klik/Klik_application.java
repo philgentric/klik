@@ -61,7 +61,7 @@
 //SOURCES ./Print_system_info.java
 //SOURCES actor/Aborter.java
 //SOURCES browser/Browser.java
-//SOURCES browser/Browser_creation_context.java
+//SOURCES browser/New_window_context.java
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
@@ -102,14 +102,17 @@ package klik;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.Browser;
-import klik.browser.Browser_creation_context;
+import klik.browser.classic.Browser;
+import klik.browser.New_window_context;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
+import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.System_logger;
+
+import java.nio.file.Path;
 
 //**********************************************************
 public class Klik_application extends Application
@@ -128,6 +131,10 @@ public class Klik_application extends Application
     public void start(Stage primary_stage_) throws Exception
     //**********************************************************
     {
+        Sys_init sys_init = Sys_init.get("Klik_application");
+        Logger logger = sys_init.logger();
+        Aborter aborter = sys_init.aborter();
+
         primary_stage = primary_stage_;
         Start_context context = Start_context.get_context(this);
 
@@ -138,7 +145,6 @@ public class Klik_application extends Application
 
         Print_system_info.print();
 
-        Logger logger = System_logger.get_system_logger("Klik_application");
         Language_manager.init_registered_languages(logger);
 
         Browser.monitoring_aborter = new Aborter("Monitoring", logger);
@@ -147,15 +153,12 @@ public class Klik_application extends Application
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
 
-        String string_path = null;
+        Path path = null;
         if ( context.path() != null)
         {
-            string_path = context.path().toAbsolutePath().toString();
+            path = context.path();
         }
-
-
-
-        Browser_creation_context.first(string_path,logger);
+        New_window_context.first(path,aborter,logger);
 
         Start_context.send_started(context,logger);
     }

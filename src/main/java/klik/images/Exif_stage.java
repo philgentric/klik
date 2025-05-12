@@ -13,8 +13,8 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.decoding.Exif_metadata_extractor;
-import klik.unstable.fusk.Fusk_static_core;
-import klik.unstable.fusk.Fusk_strings;
+import klik.experimental.fusk.Fusk_static_core;
+import klik.experimental.fusk.Fusk_strings;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -54,6 +54,11 @@ public class Exif_stage
     private static void show_exif_stage_(Image image, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if ( image == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("FATL: image is null"));
+            return;
+        }
         TextFlow textFlow = new TextFlow();
         textFlow.setLayoutX(40);
         textFlow.setLayoutY(40);
@@ -106,7 +111,7 @@ public class Exif_stage
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
-            if (Fusk_static_core.is_fusk(path,aborter, logger))
+            if (Fusk_static_core.is_fusk(path, logger))
             {
                 String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
                 local_stage.setTitle(Fusk_strings.defusk_string(base, logger));
@@ -152,7 +157,7 @@ public class Exif_stage
         {
             Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,logger);
             double how_many_pixels = image.getWidth()*image.getHeight();
-            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,true, aborter,true);
+            exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,true,aborter,true);
             rotation = extractor.get_rotation(true,aborter);
             if ( exif_dbg) logger.log(path+" rotation="+rotation);
             image_is_damaged = extractor.is_image_damaged();

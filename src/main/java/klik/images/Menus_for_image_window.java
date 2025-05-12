@@ -3,7 +3,6 @@ package klik.images;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -11,11 +10,10 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser_creation_context;
+import klik.browser.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_image;
-import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.undo.Undo_engine;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
@@ -117,7 +115,9 @@ public class Menus_for_image_window
         //Path final_dest = Path.of(p.getParent().toAbsolutePath().toString(),"mod_"+p.getFileName().toString());
         Path final_dest = p;
 
-        Path local_path = Gif_repair.reassemble_all_frames(new_delay, image_window.the_Stage, image_display_handler.get_image_context().get(), tmp_dir, final_dest, uuid, image_window.logger);
+        Path local_path = Gif_repair.reassemble_all_frames(
+                new_delay,
+                image_window.the_Stage, image_display_handler.get_image_context().get(), tmp_dir, final_dest, uuid,  image_window.logger);
         if (local_path == null) {
             image_display_handler.logger.log("GIF repair2 failed!");
             return;
@@ -154,7 +154,7 @@ public class Menus_for_image_window
         search_y.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(null,image_window.path_list_provider,false);
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(null,image_window.path_list_provider,false,image_window.aborter);
         });
         return search_y;
     }
@@ -167,7 +167,7 @@ public class Menus_for_image_window
         search_k.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider);
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider,image_window.aborter);
         });
         return search_k;
     }
@@ -252,7 +252,7 @@ public class Menus_for_image_window
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             Browser_creation_context.additional_same_folder(image_window.image_display_handler.get_image_context().get().path.getParent().toString(), image_window.the_Stage,image_window.image_display_handler.get_image_context().get().path,image_window.logger);
+             New_window_context.additional_same_folder(image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.the_Stage,image_window.image_display_handler.get_image_context().get().path,image_window.logger);
         });
         return browse;
     }
@@ -496,12 +496,12 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Booleans.get_boolean(Experimental_features.enable_different_image_quality.name(), logger))
+        if (Booleans.get_boolean(Experimental_features.enable_different_image_quality.name()))
         {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 
-        if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name(), logger))
+        if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
         {
             context_menu.getItems().add(Item_image.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -511,7 +511,7 @@ public class Menus_for_image_window
                     image_window.logger));
         }
 
-        if ( Booleans.get_boolean(Advanced_features.enable_face_recognition.name(), logger))
+        if ( Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
         {
             String s = My_I18n.get_I18n_string("Face_recognition", logger);
             Menu fr_context_menu = new Menu(s);

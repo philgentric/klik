@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import klik.actor.Aborter;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 
@@ -23,7 +24,7 @@ public class Preferences_stage
     public static Preferences_stage show_Preferences_stage(String title,Logger logger_)
     //**********************************************************
     {
-        Preferences_stage returned = new Preferences_stage(title,logger_);
+        Preferences_stage returned = new Preferences_stage(title, logger_);
         return returned;
     }
 
@@ -40,7 +41,7 @@ public class Preferences_stage
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         Stage local_stage = new Stage();
-        local_stage.setHeight(600);
+        local_stage.setHeight(1000);
         local_stage.setWidth(1000);
 
         Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
@@ -67,10 +68,17 @@ public class Preferences_stage
     {
         //logger.log(Stack_trace_getter.get_stack_trace("define!!!"));
         vbox.getChildren().clear();
-        Map<String, Boolean> properties = Booleans.get_all_booleans(logger);
+        Map<String, Boolean> properties = Booleans.get_all_booleans();
 
-
-        add_one_line(Booleans.USE_FILE_LOGGING, properties);
+        {
+            Label lab = new Label("Debug");
+            Look_and_feel_manager.set_region_look(lab);
+            vbox.getChildren().add(lab);
+        }
+        for(Debugging_features f : Debugging_features.values())
+        {
+            add_one_line(f.name(), properties);
+        }
         vbox.getChildren().add(new Separator());
         {
             Label lab = new Label("Advanced features");

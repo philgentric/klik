@@ -9,5 +9,5 @@ public enum Experimental_features
     enable_remove_corrupted_images,
     enable_tags,
     enable_ram_disk,
-    enable_perf_monitoring,
+    enable_image_playlists
 }

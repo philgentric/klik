@@ -9,7 +9,6 @@ package klik.search;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Browser;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.log.Logger;
 

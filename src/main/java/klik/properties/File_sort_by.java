@@ -1,15 +1,15 @@
 package klik.properties;
 
-import klik.browser.Browser;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.log.Logger;
 import klik.actor.Aborter;
-import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 // warning: these names are used as-is in the resource bundles !!!
 public enum File_sort_by {
@@ -29,12 +29,14 @@ public enum File_sort_by {
 
 
   //**********************************************************
-  public static Comparator<Path> get_preliminary_comparator(Path_list_provider path_list_provider, Image_properties_RAM_cache image_properties_cache,
-                                                            //Browser browser,
-                                                            double x, double y, Aborter aborter, Logger logger)
+  public static Comparator<Path> get_preliminary_comparator(
+          Path_list_provider path_list_provider,
+          Image_properties_RAM_cache image_properties_cache,
+          double x, double y,
+          Aborter aborter, Logger logger)
   //**********************************************************
   {
-    switch(File_sort_by.get_sort_files_by(logger))
+    switch(File_sort_by.get_sort_files_by(path_list_provider.get_path()))
     {
       case SIMILARITY_BY_PURSUIT:
         return new Similarity_comparator_by_pursuit(path_list_provider, image_properties_cache,
@@ -64,7 +66,7 @@ public enum File_sort_by {
           double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
-    switch(File_sort_by.get_sort_files_by(logger))
+    switch(File_sort_by.get_sort_files_by(path_list_provider.get_path()))
     {
       case SIMILARITY_BY_PURSUIT:
         return new Similarity_comparator_by_pursuit(path_list_provider, image_properties_cache,
@@ -93,14 +95,20 @@ public enum File_sort_by {
     }
     return null;
   }
+
+  private static Map<Path,File_sort_by> cached = new HashMap<>();
   //**********************************************************
-  public static File_sort_by get_sort_files_by(Logger logger)
+  public static File_sort_by get_sort_files_by(Path folder_path)
   //**********************************************************
   {
-    String s = Non_booleans.get_main_properties_manager(logger).get(SORT_FILES_BY);
+    File_sort_by from_cache = cached.get(folder_path);
+    if ( from_cache != null) return from_cache;
+
+    String s = Non_booleans.get_main_properties_manager().get(SORT_FILES_BY);
     if (s == null)
     {
-      Non_booleans.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, File_sort_by.NAME.name());
+      Non_booleans.get_main_properties_manager().add_and_save(SORT_FILES_BY, File_sort_by.NAME.name());
+      cached.put(folder_path, File_sort_by.NAME);
       return File_sort_by.NAME;
     }
     else
@@ -108,6 +116,7 @@ public enum File_sort_by {
       try {
         File_sort_by returned = File_sort_by.valueOf(s);
         //logger.log(Stack_trace_getter.get_stack_trace("sort files by: "+returned));
+        cached.put(folder_path, returned);
         return returned;
       }
       catch ( IllegalArgumentException e)
@@ -118,10 +127,22 @@ public enum File_sort_by {
   }
 
   //**********************************************************
-  public static void set_sort_files_by(File_sort_by b, Logger logger)
+  public static void set_sort_files_by(Path folder_path, File_sort_by b, Logger logger)
   //**********************************************************
   {
-    Non_booleans.get_main_properties_manager(logger).add_and_save(SORT_FILES_BY, b.name());
+    cached.put(folder_path, b);
+
+    if ( b == File_sort_by.SIMILARITY_BY_PAIRS)
+    {
+        logger.log("warning: SIMILARITY_BY_PAIRS not saved to properties");
+        return;
+    }
+    if ( b == File_sort_by.SIMILARITY_BY_PURSUIT)
+    {
+      logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
+      return;
+    }
+    Non_booleans.get_main_properties_manager().add_and_save(SORT_FILES_BY, b.name());
   }
 
 }
