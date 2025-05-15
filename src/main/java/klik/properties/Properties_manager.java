@@ -77,7 +77,11 @@ public class Properties_manager
                 try {
                     Boolean b = request_queue.poll(20, TimeUnit.SECONDS);
                     if (b != null) store_properties_internal();
-                    if (aborter.should_abort()) return;
+                    if (aborter.should_abort())
+                    {
+                        logger.log("aborting Properties store engine");
+                        return;
+                    }
 
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -179,7 +183,7 @@ public class Properties_manager
     public String get(String key)
     //**********************************************************
     {
-        return (String) the_Properties.get(key);
+        return the_Properties.getProperty(key);
     }
 
     //**********************************************************
@@ -205,8 +209,9 @@ public class Properties_manager
     public void add(String key, String value, boolean and_save)
     //**********************************************************
     {
+        if ( key.endsWith("TOP_LEFT_X")) logger.log("TOP_LEFT_X=" + value);
         if (dbg) logger.log(("Non_booleans: imperative_store " + key + "=" + value));
-        the_Properties.put(key, value);
+        the_Properties.setProperty(key, value);
         if (and_save) store_properties();
     }
     //**********************************************************
@@ -215,9 +220,9 @@ public class Properties_manager
     {
         if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
 
-        the_Properties.put(key, value);
+        the_Properties.setProperty(key, value);
         LocalDateTime now = LocalDateTime.now();
-        if (with_age) the_Properties.put(key + AGE, now.toString());
+        if (with_age) the_Properties.setProperty(key + AGE, now.toString());
 
         if (and_save) store_properties();
     }
@@ -226,8 +231,10 @@ public class Properties_manager
     public void raw_put(String k, String v)
     //**********************************************************
     {
+        if ( k.endsWith("TOP_LEFT_X")) logger.log("raw_put TOP_LEFT_X=" + v);
+
         if ( dbg) logger.log("raw_put " + k + " " + v);
-        the_Properties.put(k, v);
+        the_Properties.setProperty(k, v);
     }
 
     //**********************************************************

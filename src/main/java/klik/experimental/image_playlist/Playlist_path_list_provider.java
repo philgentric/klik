@@ -6,6 +6,7 @@ import klik.browser.Move_provider;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.util.log.Logger;
@@ -43,22 +44,24 @@ public class Playlist_path_list_provider implements Path_list_provider
 
     //**********************************************************
     @Override
-    public Path get_path()
+    public Path get_folder_path()
     //**********************************************************
     {
         return the_playlist_file_path;
     }
+
+
     //**********************************************************
     @Override
-    public String get_name2()
+    public String get_name()
     //**********************************************************
     {
         return the_playlist_file_path.toAbsolutePath().toString();
     }
-
+/*
     //**********************************************************
     @Override
-    public List<Path> get_path_list()
+    public List<Path> get_all()
     //**********************************************************
     {
         List<Path> returned = new ArrayList<>();
@@ -68,7 +71,105 @@ public class Playlist_path_list_provider implements Path_list_provider
         }
         return returned;
     }
+*/
+    //**********************************************************
+    @Override
+    public List<File> only_files(boolean consider_also_hidden_files)
+    //**********************************************************
+    {
+        List<File> returned = new ArrayList<>();
+        for ( String s : paths)
+        {
+            if ( (new File(s)).isDirectory()) continue;
+            if (! consider_also_hidden_files)
+            {
+                if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+            }
+            returned.add(new File(s));
+        }
+        return returned;
+    }
+    @Override
+    public int how_many_files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders)
+    {
+        int returned = 0;
+        for ( String s : paths)
+        {
+            if ( (new File(s)).isDirectory())
+            {
+                if (! consider_also_hidden_folders)
+                {
+                    if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+                    returned++;
+                    continue;
+                }
+            }
+            if (! consider_also_hidden_files)
+            {
+                if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+            }
+            returned++;
+        }
+        return returned;
 
+    }
+
+
+    //**********************************************************
+    @Override
+    public List<Path> only_file_paths(boolean consider_also_hidden_files)
+    //**********************************************************
+    {
+        List<Path> returned = new ArrayList<>();
+        for ( String s : paths)
+        {
+            if ( (new File(s)).isDirectory()) continue;
+            if (! consider_also_hidden_files)
+            {
+                if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+            }
+            returned.add(Path.of(s));
+        }
+        return returned;
+    }
+
+
+
+    //**********************************************************
+    @Override
+    public List<File> only_folders(boolean consider_also_hidden_folders)
+    //**********************************************************
+    {
+        List<File> returned = new ArrayList<>();
+        for ( String s : paths)
+        {
+            if (! (new File(s)).isDirectory()) continue;
+            if (! consider_also_hidden_folders)
+            {
+                if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+            }
+            returned.add(new File(s));
+        }
+        return returned;
+    }
+
+    //**********************************************************
+    @Override
+    public List<Path> only_folder_paths(boolean consider_also_hidden_folders)
+    //**********************************************************
+    {
+        List<Path> returned = new ArrayList<>();
+        for ( String s : paths)
+        {
+            if ( ! (new File(s)).isDirectory()) continue;
+            if (! consider_also_hidden_folders)
+            {
+                if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+            }
+            returned.add(Path.of(s));
+        }
+        return returned;
+    }
     //**********************************************************
     @Override
     public Path resolve(String string)
@@ -77,19 +178,6 @@ public class Playlist_path_list_provider implements Path_list_provider
         return null;
     }
 
-    //**********************************************************
-    @Override
-    public List<File> only_files()
-    //**********************************************************
-    {
-        List<File> returned = new ArrayList<>();
-        for ( String s : paths)
-        {
-            if ( (new File(s)).isDirectory()) continue;
-            returned.add(new File(s));
-        }
-        return returned;
-    }
 
     //**********************************************************
     private void save()

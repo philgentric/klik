@@ -47,7 +47,6 @@ package klik.browser.classic;
 
 import klik.actor.Actor_engine;
 import klik.browser.Abstract_browser;
-import klik.browser.Get_folder_files;
 import klik.browser.New_window_context;
 import klik.browser.virtual_landscape.*;
 import klik.change.Change_gang;
@@ -66,25 +65,26 @@ import java.util.List;
 public class Browser extends Abstract_browser
 //**********************************************************
 {
-    public final Path displayed_folder_path;
-
+    public final Path_list_provider path_list_provider;
     //**********************************************************
     public Browser(New_window_context context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
+        Path path;
         if ( context.target_path == null)
         {
-            displayed_folder_path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
+            path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
         }
         else
         {
-            displayed_folder_path = context.target_path;
+            path = context.target_path;
         }
+        path_list_provider = new Folder_path_list_provider(path);
         init(context,this,"klik");
 
         //if ( dbg)
-            logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+displayed_folder_path);
+            logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
 
     }
     //**********************************************************
@@ -100,7 +100,7 @@ public class Browser extends Abstract_browser
     public Path_list_provider get_Path_list_provider()
     //**********************************************************
     {
-        return new Folder_path_list_provider(displayed_folder_path);
+        return path_list_provider;
     }
 
     //**********************************************************
@@ -108,8 +108,8 @@ public class Browser extends Abstract_browser
     public String get_name()
     //**********************************************************
     {
-        if ( displayed_folder_path == null) return "what the fuck";
-        return displayed_folder_path.toAbsolutePath().toString();
+        if ( path_list_provider == null) return "what the fuck";
+        return path_list_provider.get_name();
     }
 
 
@@ -120,7 +120,7 @@ public class Browser extends Abstract_browser
         boolean monitor_this_folder = false;
 
         // ALWAYS monitor external drives
-        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(displayed_folder_path, logger);
+        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(path_list_provider.get_folder_path(), logger);
 
         if (!monitor_this_folder) {
             if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS)) {
@@ -130,9 +130,9 @@ public class Browser extends Abstract_browser
 
         if (monitor_this_folder) {
             Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(displayed_folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, monitoring_aborter, logger);
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, monitoring_aborter, logger);
                 if (filesystem_item_modification_watcher == null) {
-                    logger.log("WARNING: cannot monitor folder " + displayed_folder_path);
+                    logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
                 }
             };
             Actor_engine.execute(r, logger);
@@ -154,18 +154,16 @@ public class Browser extends Abstract_browser
     public void set_title()
     //**********************************************************
     {
-        if (displayed_folder_path == null) return;
-        my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath().toString());// fast temporary
-        Browser browser = this;
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                //listFiles can be super slow on network drives or slow drives
-                // (e.g. USB)  ==> run in a thread
-                int how_many_files = Get_folder_files.how_many_files(browser,aborter,logger);
-                Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(displayed_folder_path.toAbsolutePath() + " :     " + (long) how_many_files + " files & folders"), logger);
+        if (path_list_provider == null) return;
+        String name = path_list_provider.get_folder_path().toAbsolutePath().toString();
+        my_Stage.the_Stage.setTitle(name);// fast temporary
+        Runnable r = () -> {
+            // can be super slow on network drives or slow drives
+            // (e.g. USB)  ==> run in a thread
+            int how_many_files = path_list_provider.how_many_files_and_folders(Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES), Booleans.get_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES));
 
-            }
+            Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(name + " :     " + (long) how_many_files + " files & folders"), logger);
+
         };
         Actor_engine.execute(r, logger);
 
@@ -184,13 +182,13 @@ public class Browser extends Abstract_browser
             return;
         }
 
-        logger.log("Browser for: "+displayed_folder_path+ ", CHANGE GANG CALL received");
+        logger.log("Browser for: "+path_list_provider.get_folder_path()+ ", CHANGE GANG CALL received");
 
-        switch (Change_gang.is_my_directory_impacted(displayed_folder_path, l, logger))
+        switch (Change_gang.is_my_directory_impacted(path_list_provider.get_folder_path(), l, logger))
         {
             case more_changes: {
                 //if (dbg)
-                    logger.log("1 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
+                    logger.log("1 Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
 
                 for ( Old_and_new_Path oan : l)
                 {
@@ -199,20 +197,20 @@ public class Browser extends Abstract_browser
                     // if a file was moved away or deleted
                     // recording its new path would be a bad bug
                     if ( oan.new_Path != null) {
-                        if (oan.new_Path.startsWith(displayed_folder_path)) {
+                        if (oan.new_Path.startsWith(path_list_provider.get_folder_path())) {
                             // make sure the window will scroll to the landing point of the displaced file
-                            Virtual_landscape.scroll_position_cache.put(displayed_folder_path.toAbsolutePath().toString(), oan.new_Path);
+                            Virtual_landscape.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), oan.new_Path);
                         }
                     }
                 }
-                virtual_landscape.redraw_fx("change gang for dir: " + displayed_folder_path);
+                virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
             }
             ;
             break;
             case one_new_file, one_file_gone: {
                 //if (dbg)
-                    logger.log("2 Browser of: " + displayed_folder_path + " RECOGNIZED change gang notification: " + l);
-                virtual_landscape.redraw_fx("change gang for dir: " + displayed_folder_path);
+                    logger.log("2 Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
+                virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
             }
             break;
             default:
@@ -226,7 +224,7 @@ public class Browser extends Abstract_browser
     public String get_Change_receiver_string()
     //**********************************************************
     {
-        return "Browser:" + displayed_folder_path.toAbsolutePath() + " " + abstract_browser_ID;
+        return "Browser:" + path_list_provider.get_folder_path().toAbsolutePath() + " " + abstract_browser_ID;
     }
 
 }

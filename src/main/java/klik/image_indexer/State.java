@@ -51,7 +51,7 @@ class State
 
         boolean consider_also_hidden_files =  Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
 
-        List<Path> path_list = path_list_provider.get_path_list();//new ArrayList<>();
+        List<Path> path_list = path_list_provider.only_file_paths(consider_also_hidden_files);//new ArrayList<>();
         if (dbg) logger.log(("image file source scan for:"+target));
         /*
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, target))

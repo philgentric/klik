@@ -53,7 +53,7 @@ public class Image_properties_RAM_cache
         logger = logger_;
         aborter = aborter_;
         cache_name = cache_name_;
-        String local = cache_name+ path_list_provider.get_name2();
+        String local = cache_name+ path_list_provider.get_name();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
         Path dir = get_image_properties_cache_dir(null,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);

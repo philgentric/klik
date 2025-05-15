@@ -36,7 +36,7 @@ public enum File_sort_by {
           Aborter aborter, Logger logger)
   //**********************************************************
   {
-    switch(File_sort_by.get_sort_files_by(path_list_provider.get_path()))
+    switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()))
     {
       case SIMILARITY_BY_PURSUIT:
         return new Similarity_comparator_by_pursuit(path_list_provider, image_properties_cache,
@@ -66,7 +66,7 @@ public enum File_sort_by {
           double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
-    switch(File_sort_by.get_sort_files_by(path_list_provider.get_path()))
+    switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()))
     {
       case SIMILARITY_BY_PURSUIT:
         return new Similarity_comparator_by_pursuit(path_list_provider, image_properties_cache,

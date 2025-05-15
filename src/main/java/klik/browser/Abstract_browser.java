@@ -166,7 +166,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     public void shutdown()
     //**********************************************************
     {
-        aborter.abort("Browser is closing for "+get_Path_list_provider().get_name2());
+        aborter.abort("Browser is closing for "+get_Path_list_provider().get_name());
         //if (dbg)
         logger.log("Browser close_window " + signature());
 

@@ -70,9 +70,9 @@ public class Stage_with_2_images
 		aborter = private_aborter_;
 
 		// there was an obscure bug with random order?
-		if ( File_sort_by.get_sort_files_by(path_list_provider.get_path()) == File_sort_by.RANDOM_ASPECT_RATIO)
+		if ( File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()) == File_sort_by.RANDOM_ASPECT_RATIO)
 		{
-			File_sort_by.set_sort_files_by(path_list_provider.get_path(),File_sort_by.NAME,logger);
+			File_sort_by.set_sort_files_by(path_list_provider.get_folder_path(),File_sort_by.NAME,logger);
 		}
 
 		logger.log("Stage_with_2_images !");

@@ -387,10 +387,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             drag_event.consume();
         });
 
-        Path displayed_folder_path = path_list_provider.get_path();
+        Path displayed_folder_path = path_list_provider.get_folder_path();
         the_Scene.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
-            if (dbg) logger.log("Something has been dropped in browser for dir :" + path_list_provider.get_name2());
+            if (dbg) logger.log("Something has been dropped in browser for dir :" + path_list_provider.get_name());
             int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
@@ -528,14 +528,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     {
         Path tl = get_top_left();
         //logger.log("record_scroll_to " + displayed_folder_path + " => " + tl);
-        scroll_position_cache.put(path_list_provider.get_name2(), tl);
+        scroll_position_cache.put(path_list_provider.get_name(), tl);
     }
 
     //**********************************************************
     public Path get_scroll_to()
     //**********************************************************
     {
-        Path scroll_to = scroll_position_cache.get(path_list_provider.get_name2());
+        Path scroll_to = scroll_position_cache.get(path_list_provider.get_name());
         if (scroll_to == null) {
             if (dbg) logger.log((" scroll_to == null "));
         }
@@ -557,13 +557,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                         break;
                     case DENIED:
                         logger.log("\n\naccess denied\n\n");
-                        set_status("Access denied for:" + path_list_provider.get_name2());
+                        set_status("Access denied for:" + path_list_provider.get_name());
                         compute_geometry( mandatory_in_pane, "access denied", null, null);
                         break;
                     case NOT_FOUND:
                     case ERROR:
                         logger.log("\n\ndirectory gone\n\n");
-                        set_status("Gone:" + path_list_provider.get_name2());
+                        set_status("Gone:" + path_list_provider.get_name());
                         compute_geometry(mandatory_in_pane, "gone",  null, null);
                         break;
                 }
@@ -1253,11 +1253,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void show_total_size_deep_in_each_folder(List<Node> mandatory)
     //**********************************************************
     {
-        if(( File_sort_by.get_sort_files_by(path_list_provider.get_path())==File_sort_by.SIMILARITY_BY_PAIRS)
+        if(( File_sort_by.get_sort_files_by(path_list_provider.get_folder_path())==File_sort_by.SIMILARITY_BY_PAIRS)
                 ||
-                (File_sort_by.get_sort_files_by(path_list_provider.get_path())==File_sort_by.SIMILARITY_BY_PURSUIT))
+                (File_sort_by.get_sort_files_by(path_list_provider.get_folder_path())==File_sort_by.SIMILARITY_BY_PURSUIT))
         {
-            File_sort_by.set_sort_files_by(path_list_provider.get_path(),File_sort_by.NAME,logger);
+            File_sort_by.set_sort_files_by(path_list_provider.get_folder_path(),File_sort_by.NAME,logger);
         }
         show_how_many_files_deep_in_each_folder_done = false;
         folder_total_sizes_cache = new HashMap<>();
@@ -1591,7 +1591,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                 go_up_text = My_I18n.get_I18n_string("Parent_Folder", logger);// to: " + parent.toAbsolutePath().toString();
             }
             up_button = browser_menus.make_button_that_behaves_like_a_folder(
-                    path_list_provider.get_path().getParent(),
+                    path_list_provider.get_folder_path().getParent(),
                     go_up_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -1613,7 +1613,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         {
             String trash_text = My_I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
-                    Non_booleans.get_trash_dir(path_list_provider.get_path(),logger),
+                    Non_booleans.get_trash_dir(path_list_provider.get_folder_path(),logger),
                     trash_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -1660,7 +1660,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
 
     String get_status()
     {
-        File_sort_by file_sort_by = File_sort_by.get_sort_files_by(path_list_provider.get_path());
+        File_sort_by file_sort_by = File_sort_by.get_sort_files_by(path_list_provider.get_folder_path());
         if (file_sort_by == null)
             return "Status: OK";
         else
@@ -1837,9 +1837,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         Look_and_feel_manager.set_context_menu_look(view_menu);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_path(),owner,get_top_left(),logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_path(),owner,get_top_left(),logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_path(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
 
 
         {
@@ -1997,7 +1997,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void show_where_are_images()
     //**********************************************************
     {
-        Path top = path_list_provider.get_path();
+        Path top = path_list_provider.get_folder_path();
         Folders_with_large_images_locator.locate(top, 10, 200_000, owner,aborter, logger);
     }
 
@@ -2014,12 +2014,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void sort_by_year_internal()
     //**********************************************************
     {
-        File[] files = path_list_provider.only_files().toArray(new File[0]);
+        List<File> files = path_list_provider.only_files(Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES));
         if (files == null) {
-            logger.log("ERROR: cannot list files in " + path_list_provider.get_name2());
+            logger.log("ERROR: cannot list files in " + path_list_provider.get_name());
         }
-        if (files.length == 0) {
-            logger.log("WARNING: no file in " + path_list_provider.get_name2());
+        if (files.size() == 0) {
+            logger.log("WARNING: no file in " + path_list_provider.get_name());
         }
         Map<Integer, Path> folders = new HashMap<>();
         List<Old_and_new_Path> moves = new ArrayList<>();
@@ -2048,7 +2048,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             }
             folders.put(year, folder);
             List<Old_and_new_Path> l = new ArrayList<>();
-            Path displayed_folder_path = path_list_provider.get_path();
+            Path displayed_folder_path = path_list_provider.get_folder_path();
             l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done, false));
             Change_gang.report_changes(l);
 
@@ -2121,7 +2121,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
 
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
-        File wd = (path_list_provider.get_path()).toFile();
+        File wd = (path_list_provider.get_folder_path()).toFile();
         if ( !Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger))
         {
 
@@ -2135,7 +2135,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             else
             {
                 logger.log("contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
-                System_open_actor.open_with_system(owner,Path.of(path_list_provider.get_path().toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),aborter,logger);
+                System_open_actor.open_with_system(owner,Path.of(path_list_provider.get_folder_path().toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),aborter,logger);
 
                 Platform.runLater(() ->set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
             }
@@ -2163,7 +2163,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
                 try {
                     Path new_dir = path_list_provider.resolve(new_name);
                     Files.createDirectory(new_dir);
-                    scroll_position_cache.put(path_list_provider.get_path().toAbsolutePath().toString(), new_dir);
+                    scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), new_dir);
                     redraw_fx("created new empty dir");
                     break;
                 }
@@ -2321,7 +2321,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             //logger.log("Deduplicate auto");
 
             if ( !Popups.popup_ask_for_confirmation(owner, "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",logger)) return;
-            (new Deduplication_engine(owner, (path_list_provider.get_path()).toFile(), path_list_provider,logger)).do_your_job(true);
+            (new Deduplication_engine(owner, (path_list_provider.get_folder_path()).toFile(), path_list_provider,logger)).do_your_job(true);
         });
         return menu_item;
     }
@@ -2338,7 +2338,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(path_list_provider,false,owner, path_list_provider.get_path().toFile(),image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(path_list_provider,false,owner, path_list_provider.get_folder_path().toFile(),image_properties_RAM_cache, logger)).do_your_job();
         });
         return item0;
     }
@@ -2353,7 +2353,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(path_list_provider,true,owner, path_list_provider.get_path().toFile(),image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(path_list_provider,true,owner, path_list_provider.get_folder_path().toFile(),image_properties_RAM_cache, logger)).do_your_job();
         });
         return item0;
     }
@@ -2367,7 +2367,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_engine(owner, path_list_provider.get_path().toFile(), path_list_provider,logger)).do_your_job(false);
+            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,logger)).do_your_job(false);
         });
         return item0;
     }
@@ -2380,7 +2380,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("count duplicates!");
-            (new Deduplication_engine(owner, path_list_provider.get_path().toFile(), path_list_provider,logger)).count(false);
+            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,logger)).count(false);
         });
         return item0;
     }
@@ -2394,7 +2394,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         MenuItem itemhelp = new MenuItem(text);
         itemhelp.setOnAction(event -> Popups.popup_warning(owner,
                 "Help on deduplication",
-                "The deduplication tool will look recursively down the path starting at:" + path_list_provider.get_name2() +
+                "The deduplication tool will look recursively down the path starting at:" + path_list_provider.get_name() +
                         "\nLooking for identical files in terms of file content i.e. names/path are different but it IS the same file" +
                         " Then you will be able to either:" +
                         "\n  1. Review each pair of duplicate files one by one" +
@@ -2602,8 +2602,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void you_are_backup_destination()
     //**********************************************************
     {
-        Static_backup_paths.set_backup_destination(path_list_provider.get_path());
-        logger.log("backup destination = " + path_list_provider.get_name2());
+        Static_backup_paths.set_backup_destination(path_list_provider.get_folder_path());
+        logger.log("backup destination = " + path_list_provider.get_name());
 
         set_text_background("BACKUP\nDESTINATION");
 
@@ -2613,8 +2613,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void you_are_backup_source()
     //**********************************************************
     {
-        Static_backup_paths.set_backup_source(path_list_provider.get_path());
-        logger.log("backup source = " + path_list_provider.get_name2());
+        Static_backup_paths.set_backup_source(path_list_provider.get_folder_path());
+        logger.log("backup source = " + path_list_provider.get_name());
 
         set_text_background("BACKUP\nSOURCE");
 
@@ -2624,8 +2624,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void you_are_fusk_destination()
     //**********************************************************
     {
-        Static_fusk_paths.set_fusk_destination(path_list_provider.get_path());
-        logger.log("fusk destination = " + path_list_provider.get_name2());
+        Static_fusk_paths.set_fusk_destination(path_list_provider.get_folder_path());
+        logger.log("fusk destination = " + path_list_provider.get_name());
 
         set_text_background("FUSK\nDESTINATION");
 
@@ -2635,8 +2635,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     public void you_are_fusk_source()
     //**********************************************************
     {
-        Static_fusk_paths.set_fusk_source(path_list_provider.get_path());
-        logger.log("fusk source = " + path_list_provider.get_name2());
+        Static_fusk_paths.set_fusk_source(path_list_provider.get_folder_path());
+        logger.log("fusk source = " + path_list_provider.get_name());
 
         set_text_background("FUSK\nSOURCE");
 
@@ -2776,55 +2776,28 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
 
             //for ( File f : files)
 
-            for ( Path path : path_list_provider.get_path_list())
-            {
-                if( dbg) logger.log("Virtual_landscape: looking at path " + path.toAbsolutePath());
+            for ( Path path : path_list_provider.only_folder_paths(show_hidden_directories)) {
+                if (dbg) logger.log("Virtual_landscape: looking at path " + path.toAbsolutePath());
 
-                if ( aborter.should_abort())
-                {
+                if (aborter.should_abort()) {
                     logger.log("path manager aborting1");
                     aborter.on_abort();
                     return;
                 }
 
-                //Path path  = f.toPath();
-                if ( path.toFile().isDirectory())
-                {
-                    if (show_hidden_directories)
-                    {
-                        paths_manager.do_folder(path);
-                    }
-                    else
-                    {
-                        if (Guess_file_type.is_this_path_invisible_when_browsing(path))
-                        {
-                            continue; // invisible
-                        }
-                        else
-                        {
-                            paths_manager.do_folder(path);
-                        }
-                    }
+                paths_manager.do_folder(path);
+            }
+            for ( Path path : path_list_provider.only_file_paths(show_hidden_files))
+            {
+                if (dbg) logger.log("Virtual_landscape: looking at path " + path.toAbsolutePath());
+
+                if (aborter.should_abort()) {
+                    logger.log("path manager aborting1");
+                    aborter.on_abort();
+                    return;
                 }
-                else
-                {
-                    if (show_hidden_files)
-                    {
-                        paths_manager.do_file( path, show_icons_instead_of_text, owner);
-                    }
-                    else
-                    {
-                        if (Guess_file_type.is_this_path_invisible_when_browsing(path))
-                        {
-                            continue;// invisible
-                        }
-                        else
-                        {
-                            paths_manager.do_file(path, show_icons_instead_of_text, owner);
-                        }
-                    }
-                    // this will start one virtual thread per image to prefill the image property cache
-                }
+                paths_manager.do_file( path, show_icons_instead_of_text, owner);
+                // this will start one virtual thread per image to prefill the image property cache
             }
         }
         catch (InvalidPathException e)
@@ -2954,7 +2927,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             show_error_icon(iv_denied,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
-            logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name2());
+            logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
         }
         if (error_type == Error_type.NOT_FOUND) {
@@ -2962,7 +2935,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             show_error_icon(not_found,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
-            logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name2());
+            logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
         }
         if (error_type == Error_type.ERROR) {
@@ -2970,7 +2943,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
             show_error_icon(unknown_error,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
-            logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+path_list_provider.get_name2());
+            logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
         }
 
@@ -3002,7 +2975,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         items_are_ready.set(true);
         the_guard.set(false);
 
-        if ( dbg) logger.log("END, the_guard => "+the_guard.get()+" for "+path_list_provider.get_name2());
+        if ( dbg) logger.log("END, the_guard => "+the_guard.get()+" for "+path_list_provider.get_name());
 
         Jfx_batch_injector.inject(()->
         {
@@ -3039,7 +3012,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         Comparator<Path> local_file_comparator = null;
         if ( file_comp_cache != null)
         {
-            if ( file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(path_list_provider.get_path()))
+            if ( file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()))
             {
                 if ( dbg) logger.log("getting file comparator from cache="+file_comp_cache);
                 local_file_comparator = file_comp_cache.comparator();
@@ -3051,7 +3024,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
         if (local_file_comparator != null)
         {
             //logger.log("setting file_comp_cache ="+file_comp_cache);
-            file_comp_cache =  new File_comp_cache(File_sort_by.get_sort_files_by(path_list_provider.get_path()),local_file_comparator);
+            file_comp_cache =  new File_comp_cache(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()),local_file_comparator);
             set_new_iconized_items_comparator(local_file_comparator);
         }
     }
@@ -3062,7 +3035,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, S
     {
 
         Comparator<Path> local_file_comparator = null;
-        switch (File_sort_by.get_sort_files_by(path_list_provider.get_path()))
+        switch (File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()))
         {
             case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(image_properties_RAM_cache);
             case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(image_properties_RAM_cache);

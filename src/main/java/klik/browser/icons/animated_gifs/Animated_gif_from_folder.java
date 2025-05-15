@@ -59,7 +59,7 @@ public class Animated_gif_from_folder
 
         int icon_size = Non_booleans.get_icon_size();
 
-        String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name2(), "ANIMATED_FOLDER_" + icon_size, "gif");
+        String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
         Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner,Cache_folder.klik_folder_icon_cache,logger);
         Path output_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(output_animated_gif)) {
@@ -67,7 +67,7 @@ public class Animated_gif_from_folder
                 logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
             return output_animated_gif;
         }
-        if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = " + path_list_provider.get_name2() + " target out = " + output_animated_gif);
+        if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = " + path_list_provider.get_name() + " target out = " + output_animated_gif);
 
         List<String> graphicsMagick_command_line = new ArrayList<>();
         // call GraphicsMagick
@@ -75,7 +75,7 @@ public class Animated_gif_from_folder
         graphicsMagick_command_line.add("convert");
         graphicsMagick_command_line.add("-delay");
         graphicsMagick_command_line.add("30"); // in centiseconds
-        String frames = Icon_writer_actor.make_cache_name_raw(path_list_provider.get_name2()) + FRAME2 + "*" + PNG;
+        String frames = Icon_writer_actor.make_cache_name_raw(path_list_provider.get_name()) + FRAME2 + "*" + PNG;
         graphicsMagick_command_line.add(frames);
         graphicsMagick_command_line.add(output_animated_gif.getFileName().toString());
 
@@ -95,7 +95,7 @@ public class Animated_gif_from_folder
         for (int i = 0; i < Math.min(10,paths.size()); i++)
         {
             Path p = paths.get(i);
-            String local = Icon_writer_actor.make_cache_name(path_list_provider.get_name2(), FRAME1 + i, Icon_factory_actor.png_extension);
+            String local = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), FRAME1 + i, Icon_factory_actor.png_extension);
             Path destination = Path.of(icon_cache_dir.toAbsolutePath().toString(),local);
             generate_padded_icon(p,icon_size,destination,logger);
             to_be_cleaned_up.add(destination);

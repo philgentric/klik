@@ -30,7 +30,7 @@ public class Image_playlist extends Abstract_browser
         init(context,this,"playlist");
         set_pink_background(logger);
 
-        logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW IMAGE PLAY LIST "+path_list_provider.get_name2());
+        logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW IMAGE PLAY LIST "+path_list_provider.get_name());
 
     }
 
@@ -47,7 +47,7 @@ public class Image_playlist extends Abstract_browser
     protected String get_name()
     //**********************************************************
     {
-        return path_list_provider.get_name2();
+        return path_list_provider.get_name();
     }
 
     //**********************************************************
@@ -63,7 +63,7 @@ public class Image_playlist extends Abstract_browser
     public String signature()
     //**********************************************************
     {
-        return path_list_provider.get_name2();
+        return path_list_provider.get_name();
     }
 
     //**********************************************************
@@ -79,7 +79,7 @@ public class Image_playlist extends Abstract_browser
     public void set_title()
     //**********************************************************
     {
-        my_Stage.the_Stage.setTitle("Image PLAY LIST (Not a folder): "+ path_list_provider.get_name2());
+        my_Stage.the_Stage.setTitle("Image PLAY LIST (Not a folder): "+ path_list_provider.get_name());
     }
 
     //**********************************************************

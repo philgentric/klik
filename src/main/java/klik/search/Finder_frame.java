@@ -70,9 +70,9 @@ public class Finder_frame implements Search_receiver
 	{
 		this.aborter = aborter;
 		this.path_list_provider = path_list_provider;
-		if ( !path_list_provider.get_path().toFile().isDirectory())
+		if ( !path_list_provider.get_folder_path().toFile().isDirectory())
 		{
-			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name2()));
+			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
 			//target_path = target_path.getParent();
 		}
 		look_only_for_images = look_only_for_images_;
@@ -153,7 +153,7 @@ public class Finder_frame implements Search_receiver
 	{
 		VBox settings_vbox = new VBox();
 		{
-			final Path[] target_path = {path_list_provider.get_path()};
+			final Path[] target_path = {path_list_provider.get_folder_path()};
 			Label target_folder_label = new Label(target_path[0].toAbsolutePath().toString());
 			settings_vbox.getChildren().add(target_folder_label);
 			Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", logger));
@@ -469,7 +469,7 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		Path target_path = path_list_provider.get_path();
+		Path target_path = path_list_provider.get_folder_path();
 		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
 		session = new Search_session(
 				path_list_provider,
