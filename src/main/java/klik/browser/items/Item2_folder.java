@@ -109,7 +109,7 @@ public class Item2_folder extends Item2 implements Icon_destination
         }*/
 
         double button_width = Non_booleans.get_column_width();
-        if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
+        if ( button_width < Virtual_landscape2.MIN_COLUMN_WIDTH) button_width = Virtual_landscape2.MIN_COLUMN_WIDTH;
 
         Path local = get_item_path();
         if ( local == null)
@@ -457,19 +457,32 @@ public class Item2_folder extends Item2 implements Icon_destination
                 return;
             }
 
-            // if the button represents a folder, clicking on it "opens" that folder
+            // as the button represents a folder, clicking on it "opens" that folder
             // = we create a NEW browser, as a replacement
 
             if( dbg) logger.log("Item2_folder button setOnAction calling replace_different_folder");
 
-            Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
-            if ( is_parent()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
+            logger.log("\n\nget_item_path "+get_item_path()+"\npath_list_provider.get_folder_path()="+path_list_provider.get_folder_path());
+            Path old_folder_path;
+            Path top_left;
+            if ( is_parent())
+            {
+                top_left = top_left_provider.get_top_left().getParent();
+                old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
+                logger.log("\n\nreplace_different_folder IS PARENT old_folder_path "+old_folder_path+" \ntop_left_provider.get_top_left() "+top_left_provider.get_top_left());
+            }
+            else
+            {
+                top_left = top_left_provider.get_top_left();
+                old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
+                logger.log("\n\nreplace_different_folder old_folder_path "+old_folder_path+" \ntop_left_provider.get_top_left() "+top_left_provider.get_top_left());
+            }
             New_window_context2.replace_different_folder(
                     shutdown_target,
                     get_item_path(),
                     owner,
                     old_folder_path,
-                    top_left_provider.get_top_left(),
+                    top_left,
                     logger);
 
         });

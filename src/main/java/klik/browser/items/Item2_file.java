@@ -35,9 +35,7 @@ public abstract class Item2_file extends Item2
     //**********************************************************
     {
         super(owner, scene, selection_handler, icon_factory_actor, color, path_list_provider, aborter, logger);
-
         this.path = path_;
-        logger.log("Item2_file constructor: "+path);
         item_type = Iconifiable_item_type.from_extension(get_item_path());
         icon_size = Non_booleans.get_icon_size();
     }

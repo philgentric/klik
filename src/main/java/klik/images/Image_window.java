@@ -17,7 +17,7 @@ import klik.actor.Aborter;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.Virtual_landscape2;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
@@ -219,7 +219,7 @@ public class Image_window
 
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
-        Virtual_landscape.show_running_film = false;
+        Virtual_landscape2.show_running_film = false;
 
     }
 
@@ -243,7 +243,7 @@ public class Image_window
         if ( slide_show == null)
         {
             start_slide_show();
-            Virtual_landscape.show_running_film = false;
+            Virtual_landscape2.show_running_film = false;
             return true;
         }
         else
@@ -509,7 +509,7 @@ public class Image_window
     {
         //logger.log("Image_window is closing");
         aborter.abort("Image_window is closing");
-        Virtual_landscape.show_running_film = true;
+        Virtual_landscape2.show_running_film = true;
         Change_gang.deregister(image_display_handler, aborter);
     }
 

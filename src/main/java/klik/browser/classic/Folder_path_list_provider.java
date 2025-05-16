@@ -18,20 +18,13 @@ import java.util.List;
 public class Folder_path_list_provider implements Path_list_provider
 //**********************************************************
 {
-    //private final static boolean cached = false;// broken
-    //private List<Path> cache;
     private final Path folder_path;
 
     //**********************************************************
     public Folder_path_list_provider(Path folder_path)
     //**********************************************************
     {
-        System.out.println("Folder_path_list_provider -> "+folder_path+"<-");
         this.folder_path = folder_path;
-       /* if ( cached)
-        {
-            cache = reload_internal(true,true,true);
-        }*/
     }
 
     //**********************************************************
@@ -149,56 +142,8 @@ public class Folder_path_list_provider implements Path_list_provider
     public void reload()
     //**********************************************************
     {
-        /*
-        if ( cached)
-        {
-            cache = reload_internal(true,true,true);
-        }
-        else
-        {
-            //nothing to do since we re-read the folder content everytime
-        }*/
-    }
-
-    /*
-    //**********************************************************
-    @Override
-    public List<Path> get_all()
-    //**********************************************************
-    {
-        if ( cached)
-        {
-            return cache;
-        }
-        else
-        {
-            return reload_internal(true,true,true);
-        }
-    }
-
-    //**********************************************************
-    private List<Path> reload_internal(boolean also_folders, boolean consider_also_hidden_folders, boolean consider_also_hidden_files)
-    //**********************************************************
-    {
-        File dir = folder_path.toFile();
-        File[] files = dir.listFiles();
-        if ( files == null) return new ArrayList<>();
-        List<Path> returned = new ArrayList<>();
-        for (File file : files)
-        {
-            if ( !also_folders && file.isDirectory() ) continue;
-            if( also_folders) if ( consider_also_hidden_folders) if ( Guess_file_type.should_ignore(file.toPath())) continue;
-            if (! consider_also_hidden_files)
-            {
-                if ( Guess_file_type.should_ignore(file.toPath())) continue;
-            }
-            returned.add(file.toPath());
-        }
-        return returned;
 
     }
-
-     */
 
     //**********************************************************
     @Override

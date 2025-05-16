@@ -1030,7 +1030,7 @@ public class Virtual_landscape_menus2
         String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
+        int[] possible_lengths ={Virtual_landscape2.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
         for ( int l : possible_lengths)
         {
             create_menu_item_for_one_column_width(menu, l, all_check_menu_items);

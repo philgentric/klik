@@ -48,7 +48,7 @@ package klik.browser.classic;
 import klik.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.Virtual_landscape2;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
@@ -200,7 +200,7 @@ public class Browser2 extends Abstract_browser2
                     if ( oan.new_Path != null) {
                         if (oan.new_Path.startsWith(path_list_provider.get_folder_path())) {
                             // make sure the window will scroll to the landing point of the displaced file
-                            Virtual_landscape.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), oan.new_Path);
+                            Virtual_landscape2.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), oan.new_Path);
                         }
                     }
                 }

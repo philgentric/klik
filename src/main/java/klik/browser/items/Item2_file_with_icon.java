@@ -19,7 +19,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Drag_and_drop;
 import klik.browser.Drag_and_drop2;
 import klik.browser.Image_and_properties;
 import klik.browser.classic.Folder_path_list_provider;
@@ -28,7 +27,6 @@ import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Selection_handler;
 import klik.browser.virtual_landscape.Selection_handler2;
 import klik.change.Change_gang;
 import klik.experimental.work_in_progress.Multiple_image_window;
@@ -91,7 +89,6 @@ public class Item2_file_with_icon extends Item2_file
                 path_list_provider,
                 aborter,
                 logger);
-        System.out.println("Item2_file_with_icon, constructor: "+path);
         this.aspect_ratio = aspect_ratio;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         double actual_icon_size = icon_size / 3.0;
@@ -294,10 +291,10 @@ public class Item2_file_with_icon extends Item2_file
         }
         
         {
-            context_menu.getItems().add(Item1.create_show_file_size_menu_item(get_item_path(), dbg, logger));
+            context_menu.getItems().add(Item2.create_show_file_size_menu_item(get_item_path(), dbg, logger));
             if (Booleans.get_boolean(Experimental_features.enable_tags.name()))
             {
-                context_menu.getItems().add(Item1.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
+                context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
         }
 

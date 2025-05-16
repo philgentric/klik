@@ -54,7 +54,6 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     ImageView the_image_view;
     FlowPane the_image_pane;
     Label label_for_sizes;
-    Button the_button;
     private final int folder_icon_size;
     private final int column_width; // as set by the icon manager
     private  final Image_properties_RAM_cache image_properties_RAM_cache;
@@ -103,36 +102,40 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
         double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
-        the_button = new Button(text);
-        the_button.setMnemonicParsing(false);
-        the_button.setTextOverrun(OverrunStyle.ELLIPSIS);
-        the_image_pane = new FlowPane();//)StackPane();
+        button = new Button(text);
+        button.setMnemonicParsing(false);
+        button.setTextOverrun(OverrunStyle.ELLIPSIS);
+        the_image_pane = new FlowPane();
         the_image_pane.setAlignment(Pos.BOTTOM_LEFT);
         the_image_pane.setMinWidth(folder_icon_size);
         the_image_pane.setMaxWidth(folder_icon_size);
         the_image_pane.setMinHeight(folder_icon_size);
         the_image_pane.setMaxHeight(folder_icon_size);
-        the_button.setGraphic(the_image_pane);
-        the_button.setContentDisplay(ContentDisplay.BOTTOM);
+        button.setGraphic(the_image_pane);
+        button.setContentDisplay(ContentDisplay.BOTTOM);
 
-        Look_and_feel_manager.set_button_look(the_button,true);
-        the_button.setOnAction(actionEvent ->
+        Look_and_feel_manager.set_button_look(button,true);
+        button.setOnAction(actionEvent ->
                 {
                     Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
                     if ( is_parent()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up-button, the old path is the current path
                     New_window_context2.replace_different_folder(shutdown_target, get_item_path(),owner, old_folder_path,top_left_provider.get_top_left(),logger);
                 });
-        Tooltip.install(the_button,new Tooltip(get_item_path().getFileName().toString()));
+        Tooltip.install(button,new Tooltip(get_item_path().getFileName().toString()));
 
-        resize_the_box(the_button);
+        resize_the_box(button);
 
         Drag_and_drop2.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,get_item_path(),is_trash(),logger);
         Drag_and_drop2.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
-        give_a_menu_to_the_button(the_button,null);
+        give_a_menu_to_the_button(button,null);
 
     }
 
 
+    @Override
+    public Iconifiable_item_type get_item_type() {
+        return Iconifiable_item_type.folder;
+    }
     //**********************************************************
     @Override
     void set_new_path(Path newPath)
@@ -183,8 +186,8 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     {
         if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
         {
-            button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
-            button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setPrefWidth(owner.getWidth()- Virtual_landscape2.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setMinWidth(owner.getWidth()- Virtual_landscape2.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
         }
         else
         {
@@ -240,7 +243,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
         {
             the_image_pane.setRotate(Rotation.to_angle(rotation));
         }
-        resize_the_box(the_button);
+        resize_the_box(button);
     }
 
     //**********************************************************
@@ -257,7 +260,6 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
-
         if ( !try_deep)
         {
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
@@ -355,7 +357,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     @Override // Item2
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(the_button);
+        Look_and_feel_manager.give_button_a_file_style(button);
     }
 
     //**********************************************************
@@ -363,14 +365,14 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(the_button);
+        Look_and_feel_manager.give_button_a_selected_file_style(button);
     }
 
 
 
     @Override
     public Node get_Node() {
-        return the_button;
+        return button;
     }
 
     //**********************************************************

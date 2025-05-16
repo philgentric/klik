@@ -2,7 +2,6 @@
 package klik.change.history;
 
 import klik.actor.Aborter;
-import klik.browser.Abstract_browser;
 import klik.browser.Shared_services;
 import klik.properties.Non_booleans;
 import klik.experimental.backup.Backup_engine;

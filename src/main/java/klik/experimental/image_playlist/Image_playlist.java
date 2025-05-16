@@ -1,8 +1,8 @@
 package klik.experimental.image_playlist;
 
 import javafx.scene.layout.Background;
-import klik.browser.Abstract_browser;
-import klik.browser.New_window_context;
+import klik.browser.Abstract_browser2;
+import klik.browser.New_window_context2;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Image_playlist extends Abstract_browser
+public class Image_playlist extends Abstract_browser2
 //**********************************************************
 {
     private static AtomicInteger id_generator   = new AtomicInteger(0);
@@ -21,7 +21,7 @@ public class Image_playlist extends Abstract_browser
     public final Playlist_path_list_provider path_list_provider;
 
     //**********************************************************
-    public Image_playlist(New_window_context context, Logger logger)
+    public Image_playlist(New_window_context2 context, Logger logger)
     //**********************************************************
     {
         super(logger);

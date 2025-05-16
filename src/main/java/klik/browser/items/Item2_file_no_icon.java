@@ -104,7 +104,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
         }
 
         double button_width = Non_booleans.get_column_width();
-        if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
+        if ( button_width < Virtual_landscape2.MIN_COLUMN_WIDTH) button_width = Virtual_landscape2.MIN_COLUMN_WIDTH;
 
         if (Files.isDirectory(path))
         {

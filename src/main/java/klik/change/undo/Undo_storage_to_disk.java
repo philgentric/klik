@@ -1,9 +1,7 @@
 package klik.change.undo;
 
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.Abstract_browser;
 import klik.browser.Shared_services;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;

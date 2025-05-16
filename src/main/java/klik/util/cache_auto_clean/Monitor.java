@@ -3,9 +3,7 @@
 package klik.util.cache_auto_clean;
 
 import klik.Window_provider;
-import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Abstract_browser;
 import klik.browser.Shared_services;
 import klik.change.history.History_auto_clean;
 import klik.util.log.Logger;

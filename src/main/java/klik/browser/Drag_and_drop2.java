@@ -7,8 +7,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.input.*;
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.items.Item1;
-import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.items.Item2;
 import klik.browser.virtual_landscape.Selection_handler2;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -55,7 +54,7 @@ public class Drag_and_drop2
             }
             //logger.log(Stack_trace_getter.get_stack_trace("source class is:" + source.getClass().getName()));
             //logger.log("excluded class is:" + excluded.getClass().getName());
-            if (source instanceof Item1 item)
+            if (source instanceof Item2 item)
             {
                 Node node_of_source = item.get_Node();
                 logger.log("excluded:" + excluded);

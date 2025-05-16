@@ -4,7 +4,7 @@ package klik.properties;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.Virtual_landscape2;
 import klik.util.log.Logger;
 import klik.util.log.Simple_logger;
 import klik.util.ui.Popups;
@@ -167,7 +167,7 @@ public class Non_booleans
         // first time, we look it up on disk
         String column_width_s = get_main_properties_manager().get(COLUMN_WIDTH);
         if (column_width_s == null) {
-            column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
+            column_width = Virtual_landscape2.MIN_COLUMN_WIDTH;
         } else {
             double local = Double.parseDouble(column_width_s);
             column_width = (int) local;

@@ -4,7 +4,6 @@ package klik.browser.locator;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.New_window_context;
 import klik.browser.New_window_context2;
 import klik.util.files_and_paths.*;
 import klik.util.ui.Hourglass;

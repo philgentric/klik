@@ -25,14 +25,12 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.audio.Audio_info_frame;
-import klik.browser.New_window_context;
 import klik.browser.New_window_context2;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Selection_handler;
 import klik.browser.virtual_landscape.Selection_handler2;
 import klik.experimental.metadata.Tag_stage;
 import klik.images.Exif_stage;
@@ -107,8 +105,7 @@ public abstract class Item2 implements Icon_destination
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
-        if ( path_list_provider == null) logger.log("OHOWARNING2: path_list_provider is null");
-         this.aborter = aborter;
+        this.aborter = aborter;
         this.owner = owner;
         this.scene = scene;
         this.icon_factory_actor = icon_factory_actor;
@@ -121,12 +118,7 @@ public abstract class Item2 implements Icon_destination
     abstract void set_new_path(Path newPath);
 
     abstract public Path get_item_path();
-    /*{
-        if ( path != null ) return path;
-        if ( path_list_provider != null ) return path_list_provider.get_folder_path();
-        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN path and path_list_provider are both null !!!"));
-        return null;
-    }*/
+
     
     public final Scene getScene()
     {

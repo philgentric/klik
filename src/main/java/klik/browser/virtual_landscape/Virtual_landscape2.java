@@ -28,7 +28,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.*;
-import klik.browser.classic.Browser;
+import klik.browser.classic.Browser2;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.comparators.*;
 import klik.browser.icons.Error_type;
@@ -202,7 +202,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             vertical_slider = new Vertical_slider2(owner, the_Pane, this, logger);
             mandatory_in_pane.add(vertical_slider.the_Slider);
             always_on_front_nodes.add(vertical_slider.the_Slider);
-            slider_width = 2 * Vertical_slider.half_slider_width;
+            slider_width = 2 * Vertical_slider2.half_slider_width;
         }
 
         set_Landscape_height_listener(vertical_slider);
@@ -305,7 +305,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         //Browser local = this;
         the_Scene.setOnKeyTyped(keyEvent -> {
 
-            if (Browser.keyboard_dbg) {
+            if (Browser2.keyboard_dbg) {
                 logger.log(keyEvent + "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
                 if (keyEvent.isShiftDown()) logger.log("isShiftDown: true");
                 if (keyEvent.isAltDown()) logger.log("isAltDown: true");
@@ -313,49 +313,49 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             }
 
             if (keyEvent.getCharacter().equals("k")) {
-                if (Browser.keyboard_dbg) logger.log("character is k = keyword search");
+                if (Browser2.keyboard_dbg) logger.log("character is k = keyword search");
                 search_files_by_keyworks_fx();
             }
             if (keyEvent.getCharacter().equals("s")) {
-                if (Browser.keyboard_dbg) logger.log("character is s = start/stop scan");
+                if (Browser2.keyboard_dbg) logger.log("character is s = start/stop scan");
                 handle_scan_switch();
             }
             if (keyEvent.getCharacter().equals("w")) {
-                if (Browser.keyboard_dbg) logger.log("character is w = slow down scan");
+                if (Browser2.keyboard_dbg) logger.log("character is w = slow down scan");
                 slow_down_scan();
             }
             if (keyEvent.getCharacter().equals("x")) {
-                if (Browser.keyboard_dbg) logger.log("character is x = speed up scan");
+                if (Browser2.keyboard_dbg) logger.log("character is x = speed up scan");
                 speed_up_scan();
             }
 
             if (keyEvent.isMetaDown()) {
                 if (keyEvent.getCharacter().equals("a")) {
-                    if (Browser.keyboard_dbg) logger.log("character is a + meta = select all");
+                    if (Browser2.keyboard_dbg) logger.log("character is a + meta = select all");
                     selection_handler.select_all_files_in_folder(path_list_provider);
                 }
 
                 if (keyEvent.getCharacter().equals("+")) {
-                    if (Browser.keyboard_dbg) logger.log("character is +meta = zoom +");
+                    if (Browser2.keyboard_dbg) logger.log("character is +meta = zoom +");
                     increase_icon_size();
                 }
                 if (keyEvent.getCharacter().equals("=")) {
-                    if (Browser.keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
+                    if (Browser2.keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
                     increase_icon_size();
                 }
                 if (keyEvent.getCharacter().equals("-")) {
-                    if (Browser.keyboard_dbg) logger.log("character is -meta = zoom -");
+                    if (Browser2.keyboard_dbg) logger.log("character is -meta = zoom -");
                     reduce_icon_size();
                 }
             }
             if (keyEvent.getCharacter().equals("n")) {
-                if (Browser.keyboard_dbg) logger.log("character is n = new browser (clone)");
+                if (Browser2.keyboard_dbg) logger.log("character is n = new browser (clone)");
                 //New_window_context.additional_same_folder(local, logger);
             }
         });
 
         the_Scene.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_ultra_dbg) logger.log("Browser: OnDragOver handler called");
+            if (Drag_and_drop2.drag_and_drop_ultra_dbg) logger.log("Browser: OnDragOver handler called");
             selection_handler.on_drag_over();
             Object source = drag_event.getGestureSource();
             if (source == null) {
@@ -392,9 +392,9 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
         Path displayed_folder_path = path_list_provider.get_folder_path();
         the_Scene.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + path_list_provider.get_name());
-            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
+            int n = Drag_and_drop2.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
             drag_event.setDropCompleted(true);
@@ -402,7 +402,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         });
 
         the_Scene.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragExited handler called");
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Browser: OnDragExited handler called");
             if (dbg) logger.log("OnDragExited in browser for dir :" + displayed_folder_path);
             //set_status(" drag done");
             browser_menus.reset_all_files_and_folders();
@@ -410,7 +410,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             drag_event.consume();
         });
         the_Scene.setOnDragDone(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: setOnDragDone handler called");
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Browser: setOnDragDone handler called");
             selection_handler.on_drag_done();
             drag_event.consume();
         });
@@ -497,7 +497,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     {
         int new_icon_size = (int) (Non_booleans.get_icon_size() * fac);
         if (new_icon_size < 20) new_icon_size = 20;
-        if ( Browser.keyboard_dbg) logger.log("new icon size = "+new_icon_size);
+        if ( Browser2.keyboard_dbg) logger.log("new icon size = "+new_icon_size);
         Non_booleans.set_icon_size(new_icon_size);
         //icon_manager.modify_button_fonts(fac);
         redraw_fx("new icon size "+new_icon_size);
@@ -530,10 +530,8 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     //**********************************************************
     {
         Path scroll_to = scroll_position_cache.get(path_list_provider.get_name());
-        if (scroll_to == null) {
-            if (dbg) logger.log((" scroll_to == null "));
-        }
-        logger.log("yop getting scroll to"+scroll_to);
+
+        logger.log("yop getting scroll to ->"+scroll_to+"<- for: "+path_list_provider.get_name());
         return scroll_to;
     }
 
@@ -781,7 +779,6 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                 continue;
             }
             Double cache_aspect_ratio = ip.get_aspect_ratio();
-            logger.log("Item2_file_with_icon (2) path="+path);
             Item2 item = new Item2_file_with_icon(
                     owner,
                     the_Scene,
@@ -1054,7 +1051,6 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                     tmp += Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,logger);
                 }
             }
-            logger.log("Item2_folder NO path");
 
             folder_item = new Item2_folder(
                     owner,

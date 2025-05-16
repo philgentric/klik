@@ -1,10 +1,7 @@
 //SOURCES ./Undo_storage_to_disk.java
 package klik.change.undo;
 
-import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.browser.Abstract_browser;
 import klik.browser.Shared_services;
 import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Datetime_to_signature_source;

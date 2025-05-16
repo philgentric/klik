@@ -3,7 +3,6 @@ package klik.images;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import klik.browser.New_window_context;
 import klik.browser.New_window_context2;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.experimental.metadata.Tag_stage;

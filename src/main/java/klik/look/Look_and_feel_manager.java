@@ -15,8 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
-import klik.browser.Drag_and_drop;
+import klik.browser.Drag_and_drop2;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.look.styles.Look_and_feel_dark;
 import klik.look.styles.Look_and_feel_light;
@@ -883,7 +882,7 @@ public class Look_and_feel_manager
     //**********************************************************
     {
         BackgroundFill background_fill = Look_and_feel_manager.get_drag_fill();
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item1_folder_with_icon OnDragOver color = "+background_fill);
+        if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Item1_folder_with_icon OnDragOver color = "+background_fill);
         Look_and_feel_manager.set_background(node, background_fill);
     }
 
@@ -900,7 +899,7 @@ public class Look_and_feel_manager
     {
         Look_and_feel i = Look_and_feel_manager.get_instance();
         BackgroundFill color = i.get_background_fill();
-        if (Drag_and_drop.drag_and_drop_dbg) logger.log("Item1_folder_with_icon setOnDragExited color = "+color);
+        if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Item1_folder_with_icon setOnDragExited color = "+color);
         Look_and_feel_manager.set_background(node, color);
 
     }

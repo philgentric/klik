@@ -19,10 +19,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.audio.Audio_player;
-import klik.browser.New_window_context;
-import klik.browser.Drag_and_drop;
+import klik.browser.Drag_and_drop2;
 import klik.browser.New_window_context2;
-import klik.browser.items.Item1_image;
+import klik.browser.items.Item2_file_with_icon;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -127,7 +126,7 @@ public class Results_frame
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
-				Item1_image.open_an_image(
+				Item2_file_with_icon.open_an_image(
 						true,
 						path_list_provider,
 						path,
@@ -184,7 +183,7 @@ public class Results_frame
 			{
 				double x = stage.getX()+100;
 				double y = stage.getY()+100;
-				MenuItem rename = Item1_image.get_rename_MenuItem(path,stage,x, y, aborter,logger);
+				MenuItem rename = Item2_file_with_icon.get_rename_MenuItem(path,stage,x, y, aborter,logger);
 				context_menu.getItems().add(rename);
 			}
 
@@ -196,7 +195,7 @@ public class Results_frame
 		});
 
 
-		Drag_and_drop.init_drag_and_drop_sender_side(b, null,path,logger);
+		Drag_and_drop2.init_drag_and_drop_sender_side(b, null,path,logger);
 
 
 	}

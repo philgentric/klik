@@ -36,7 +36,7 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
         double min = 0;
         double max = 100;
         double val = 0;
-        the_Slider = new Slider(min,max,val);//virtual_landscape.landscape_height);
+        the_Slider = new Slider(min,max,val);//Virtual_landscape2.landscape_height);
 
         pane.getChildren().add(the_Slider);
 
@@ -48,7 +48,7 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
 
         the_Slider.valueProperty().addListener((ov, old_val_, new_val_) -> {
             double slider = new_val_.doubleValue();
-            if ( Virtual_landscape.scroll_dbg) logger.log("LISTENER: slider property changed: OLD= "+ old_val_.doubleValue()+" ==> NEW= "+ slider);
+            if ( Virtual_landscape2.scroll_dbg) logger.log("LISTENER: slider property changed: OLD= "+ old_val_.doubleValue()+" ==> NEW= "+ slider);
             slider_moved_by_user(slider, virtual_landscape);
         });
     }
@@ -61,7 +61,7 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
         double new_pixel = slider_to_pixels(slider, pixel_height);
 
         String reason = "";
-        if ( Virtual_landscape.scroll_dbg)
+        if ( Virtual_landscape2.scroll_dbg)
         {
             reason = "(normalized+inverted with pixel_height= "+pixel_height+") slider = "+ slider +"  ==> " +new_pixel;
             logger.log(reason);
@@ -110,7 +110,7 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
         if ( dbg) logger.log("slider_to_pixels tmp="+fraction);
         double new_pixel = pixel_height * fraction;
         if ( dbg) logger.log("new_pixel="+new_pixel);
-        if ( Virtual_landscape.scroll_dbg) logger.log("slider_to_pixels (with pixel_height="+pixel_height+") gives: "+slider_value+" ==> "+new_pixel);
+        if ( Virtual_landscape2.scroll_dbg) logger.log("slider_to_pixels (with pixel_height="+pixel_height+") gives: "+slider_value+" ==> "+new_pixel);
 
         return new_pixel;
     }
@@ -131,12 +131,12 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
         {
             tmp = 1.0 - tmp;
         }
-        if ( Virtual_landscape.scroll_dbg) logger.log("pixels_to_slider tmp="+tmp);
-        if ( Virtual_landscape.scroll_dbg) logger.log("Slider.getMax()="+the_Slider.getMax());
+        if ( Virtual_landscape2.scroll_dbg) logger.log("pixels_to_slider tmp="+tmp);
+        if ( Virtual_landscape2.scroll_dbg) logger.log("Slider.getMax()="+the_Slider.getMax());
 
         double new_slider= tmp * the_Slider.getMax();
-        if ( Virtual_landscape.scroll_dbg) logger.log("new_slider="+new_slider);
-        if ( Virtual_landscape.scroll_dbg) logger.log("pixels_to_slider (with pixel_height="+pixel_height+") gives: "+pixels+" ==> "+new_slider);
+        if ( Virtual_landscape2.scroll_dbg) logger.log("new_slider="+new_slider);
+        if ( Virtual_landscape2.scroll_dbg) logger.log("pixels_to_slider (with pixel_height="+pixel_height+") gives: "+pixels+" ==> "+new_slider);
         return new_slider;
     }
 
@@ -164,22 +164,22 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
         boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED);
         if (inverted)
         {
-            if ( Virtual_landscape.scroll_dbg) logger.log("scroll is inverted="+dy+" ==> "+(-dy));
+            if ( Virtual_landscape2.scroll_dbg) logger.log("scroll is inverted="+dy+" ==> "+(-dy));
             dy = -dy;
         }
         else
         {
-            if ( Virtual_landscape.scroll_dbg) logger.log("scroll is not inverted="+dy);
+            if ( Virtual_landscape2.scroll_dbg) logger.log("scroll is not inverted="+dy);
         }
         double old_val = the_Slider.getValue();
         if ( dbg) logger.log("scroll_relative old_val="+old_val);
         if ( dbg) logger.log("scroll_relative dy="+dy);
         double new_val = old_val - dy;
 
-        if (Virtual_landscape.scroll_dbg) logger.log("slider old val:"+old_val+" - scroll="+dy+" SETTING SLIDER VAL ="+new_val);
+        if (Virtual_landscape2.scroll_dbg) logger.log("slider old val:"+old_val+" - scroll="+dy+" SETTING SLIDER VAL ="+new_val);
 
 
-        if ( Virtual_landscape.scroll_dbg)
+        if ( Virtual_landscape2.scroll_dbg)
             logger.log("scroll_relative new slider value (user has scrolled) = "+new_val);
         the_Slider.adjustValue(new_val);
 
@@ -203,11 +203,11 @@ public class Vertical_slider2 implements Landscape_height_listener, Scroll_to_li
     public void browsed_landscape_height_has_changed(double new_landscape_height, double current_vertical_offset)
     //**********************************************************
     {
-        if ( Virtual_landscape.scroll_dbg)
+        if ( Virtual_landscape2.scroll_dbg)
             logger.log("browsed_landscape_height_has_changed = "+new_landscape_height);
         double pixel_height = get_pixel_height(new_landscape_height);
         double slider = pixels_to_slider(current_vertical_offset,pixel_height);
-        if ( Virtual_landscape.scroll_dbg) logger.log("browsed_landscape_height_has_changed(), new slider value = "+slider);
+        if ( Virtual_landscape2.scroll_dbg) logger.log("browsed_landscape_height_has_changed(), new slider value = "+slider);
         //the_Slider.adjustValue(slider);
     }
 
