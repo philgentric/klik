@@ -133,6 +133,23 @@ public class Playlist_path_list_provider implements Path_list_provider
         return returned;
     }
 
+    //**********************************************************
+    @Override
+    public List<Path> only_image_paths(boolean consider_also_hidden_files)
+    //**********************************************************
+    {
+        List<Path> returned = new ArrayList<>();
+        for ( String s : paths)
+        {
+            if ( (new File(s)).isDirectory()) continue;
+            if( !Guess_file_type.is_this_path_an_image(Path.of(s))) continue;
+            if (! consider_also_hidden_files)
+            {
+                if ( Guess_file_type.should_ignore(Path.of(s))) continue;
+            }
+            returned.add(Path.of(s));
+        }
+        return returned;    }
 
 
     //**********************************************************

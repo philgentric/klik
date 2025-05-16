@@ -204,7 +204,7 @@ public class Moving_files
             Change_gang.report_changes(done);
             if ( and_list_for_undo)
             {
-                Undo_engine.add(done, aborter, logger);
+                Undo_engine.add(done, logger);
             }
         }
 

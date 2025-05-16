@@ -79,8 +79,11 @@ public class Change_image_actor implements Actor
         // since when you press next, you are in the new name context...
 
         Path target_path;
-        if ( change_image_message.delta != 0) {
-            for (; ; ) {
+        if ( change_image_message.delta != 0)
+        {
+            // wait if needed for the image_indexer to be there
+            for (;;)
+            {
                 if (change_image_message.image_window.image_display_handler.image_indexer.isPresent()) break;
                 try {
                     Thread.sleep(50);

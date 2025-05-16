@@ -24,7 +24,6 @@ import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
 import klik.util.tcp.Session;
 import klik.util.tcp.Session_factory;
 import klik.util.tcp.TCP_server;
@@ -58,7 +57,7 @@ public class Launcher extends Application
 
         Sys_init sys_init = Sys_init.get("Launcher");
         Logger logger = sys_init.logger();
-        Aborter aborter = sys_init.aborter();
+        //Aborter aborter = sys_init.aborter();
         Look_and_feel_manager.init_Look_and_feel(logger);
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
@@ -83,7 +82,7 @@ public class Launcher extends Application
             set_look(b, vbox,look_and_feel,Icon_type.IMAGE,logger);
 
             b.setOnAction(event -> {
-                start_app_and_listen("klik", klik_port.getAndIncrement(),stage, logger);
+                start_app_and_listen("klik2", klik_port.getAndIncrement(),stage, logger);
             });
         }
         {

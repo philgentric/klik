@@ -46,14 +46,14 @@
 package klik.browser.classic;
 
 import klik.actor.Actor_engine;
-import klik.browser.Abstract_browser;
-import klik.browser.New_window_context;
-import klik.browser.Shared_services;
-import klik.browser.virtual_landscape.*;
+import klik.browser.*;
+import klik.browser.virtual_landscape.Path_list_provider;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
-import klik.util.files_and_paths.*;
+import klik.util.files_and_paths.Filesystem_item_modification_watcher;
+import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
 
@@ -63,12 +63,12 @@ import java.util.List;
 
 
 //**********************************************************
-public class Browser extends Abstract_browser
+public class Browser2 extends Abstract_browser2
 //**********************************************************
 {
     public final Path_list_provider path_list_provider;
     //**********************************************************
-    public Browser(New_window_context context, Logger logger_)
+    public Browser2(New_window_context2 context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
@@ -183,7 +183,7 @@ public class Browser extends Abstract_browser
             return;
         }
 
-        logger.log("Browser for: "+path_list_provider.get_folder_path()+ ", CHANGE GANG CALL received");
+        logger.log("Browser2 for: "+path_list_provider.get_folder_path()+ ", CHANGE GANG CALL received");
 
         switch (Change_gang.is_my_directory_impacted(path_list_provider.get_folder_path(), l, logger))
         {

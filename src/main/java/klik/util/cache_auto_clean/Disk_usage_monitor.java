@@ -1,7 +1,10 @@
 package klik.util.cache_auto_clean;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.browser.Abstract_browser;
+import klik.browser.Shared_services;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
 import klik.properties.Cache_folder;
@@ -19,12 +22,9 @@ public class Disk_usage_monitor
 //**********************************************************
 {
 
-    public static final String ICON_CACHE_FOLDER = "Icon cache folder";
-    public static final String IMAGE_PROPERTIES_CACHE_FOLDER = "Aspect ratio cache folder";
     public static final String TRASH_FOLDER = "Trash folder";
     public final Logger logger;
-    public final Aborter aborter;
-    public final Stage owner;
+    public final Window owner;
     private volatile boolean warning_issued = false;
 
     record Monitored_folder(String name, Path path, boolean auto_delete){}
@@ -34,10 +34,9 @@ public class Disk_usage_monitor
     public final int warning_limit_bytes;
 
     //**********************************************************
-    public Disk_usage_monitor(Stage owner, Aborter aborter_, Logger logger_)
+    public Disk_usage_monitor(Window owner, Logger logger_)
     //**********************************************************
     {
-        aborter = aborter_;
         logger = logger_;
         this.owner = owner;
 
@@ -71,9 +70,9 @@ public class Disk_usage_monitor
         //long total = 0;
         for( Monitored_folder monitored_folder : monitored_folders)
         {
-            long tmp = Static_files_and_paths_utilities.get_size_on_disk_concurrent(monitored_folder.path,aborter,logger);
+            long tmp = Static_files_and_paths_utilities.get_size_on_disk_concurrent(monitored_folder.path, Shared_services.shared_services_aborter,logger);
 
-            if ( aborter.should_abort())
+            if ( Shared_services.shared_services_aborter.should_abort())
             {
                 logger.log("Disk_usage_monitor aborted");
                 return false;
@@ -99,7 +98,7 @@ public class Disk_usage_monitor
                     {
                         if (monitored_folder.name.equals(cache_folder.name()))
                         {
-                            Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false, owner, aborter, logger);
+                            Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false, owner, Shared_services.shared_services_aborter, logger);
                             cleared = true;
                         }
                     }

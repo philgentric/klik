@@ -16,7 +16,7 @@ public class Name_cleaner
     public static final String SP_EZ_IA_L = "_Copy_Made_By_Klik_";
     private static final boolean dbg = false;
     //**********************************************************
-    public static String clean(String in, boolean check_extension, Aborter aborter, Logger logger)
+    public static String clean(String in, boolean check_extension, Logger logger)
     //**********************************************************
     {
         if ( in.endsWith(".JPG_original") )
@@ -169,23 +169,23 @@ public class Name_cleaner
 
         {
             String test =" $fsd,de  :dfd- _hd<gd. ___---84565FTaMere dwedsds .jpg";
-            logger.log(test+" => "+clean(test,true,aborter,logger));
+            logger.log(test+" => "+clean(test,true,logger));
         }
         {
             String test =" adf>sfsd-r=GDF 9857- fggf..java";
-            logger.log(test+" => "+clean(test,true,aborter,logger));
+            logger.log(test+" => "+clean(test,true,logger));
         }
         {
             String test =" fd?fe- f;gr%tg d--.verylongextension";
-            logger.log(test+" => "+clean(test,true,aborter,logger));
+            logger.log(test+" => "+clean(test,true,logger));
         }
         {
             String test =" fg.b--.-dsed1|dndl .Gif";
-            logger.log(test+" => "+clean(test,true,aborter,logger));
+            logger.log(test+" => "+clean(test,true,logger));
         }
         {
             String test ="qsddsdffdfd.chic";
-            logger.log(test+" => "+clean(test,false,aborter,logger));
+            logger.log(test+" => "+clean(test,false,logger));
         }
 
         logger.log("\n\n\n\n\n");

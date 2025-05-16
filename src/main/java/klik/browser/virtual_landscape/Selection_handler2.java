@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import klik.browser.Drag_and_drop;
 import klik.browser.items.Item1;
+import klik.browser.items.Item2;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Booleans;
@@ -22,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 //**********************************************************
-public class Selection_handler
+public class Selection_handler2
 //**********************************************************
 {
 
     private final Pane the_pane;
-    private final Virtual_landscape virtual_landscape;
+    private final Virtual_landscape2 virtual_landscape;
     private final Logger logger;
     private final Selection_reporter selection_reporter;
 
@@ -43,7 +44,7 @@ public class Selection_handler
     Selection_state selection_state = Selection_state.nothing_selected;
 
     //**********************************************************
-    public Selection_handler(Pane the_pane_, Virtual_landscape virtual_landscape, Selection_reporter selection_reporter_, Logger logger_)
+    public Selection_handler2(Pane the_pane_, Virtual_landscape2 virtual_landscape, Selection_reporter selection_reporter_, Logger logger_)
     //**********************************************************
     {
         the_pane = the_pane_;
@@ -283,9 +284,9 @@ public class Selection_handler
     {
         if ( Drag_and_drop.drag_and_drop_dbg) logger.log("selection area is: x=" + x + ", y=" + y + ", w= " + w + ", h= " + h);
 
-        List<Item1> items = virtual_landscape.get_items_in(the_pane, x, y, w, h);
+        List<Item2> items = virtual_landscape.get_items_in(the_pane, x, y, w, h);
         if (Drag_and_drop.drag_and_drop_dbg) logger.log("=============selection=============");
-        for (Item1 i : items)
+        for (Item2 i : items)
         {
             i.set_is_selected(); // show visible feedback to user AND add to list
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("extract_selected_files: "+i.get_item_path().toAbsolutePath());

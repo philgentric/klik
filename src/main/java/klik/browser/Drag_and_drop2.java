@@ -9,6 +9,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.items.Item1;
 import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Selection_handler2;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 
@@ -21,7 +22,7 @@ import java.util.List;
 static utilities for drag-and-drop
  */
 //**********************************************************
-public class Drag_and_drop
+public class Drag_and_drop2
 //**********************************************************
 {
     public static boolean drag_and_drop_dbg = true;
@@ -158,24 +159,24 @@ public class Drag_and_drop
     //**********************************************************
     {
         node.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
             Look_and_feel_manager.set_background_for_setOnDragEntered(node,logger);
             drag_event.consume();
         });
         node.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
             Look_and_feel_manager.set_background_for_setOnDragExited(node,logger);
             drag_event.consume();
         });
         node.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             Look_and_feel_manager.set_background_for_setOnDragOver(node,logger);
             drag_event.consume();
         });
         node.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
-            Drag_and_drop.accept_drag_dropped_as_a_move_in(
+            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
+            Drag_and_drop2.accept_drag_dropped_as_a_move_in(
                     move_provider,
                     owner,
                     drag_event,
@@ -194,7 +195,7 @@ public class Drag_and_drop
     //**********************************************************
     public static void init_drag_and_drop_sender_side(
             Node node,
-            Selection_handler selection_handler,
+            Selection_handler2 selection_handler,
             Path path,
             Logger logger)
     //**********************************************************
@@ -223,7 +224,7 @@ public class Drag_and_drop
             {
                 sb.append("\n").append(f.getAbsolutePath());
             }
-            if ( Drag_and_drop.drag_and_drop_dbg) logger.log(" selected files: " + sb);
+            if ( Drag_and_drop2.drag_and_drop_dbg) logger.log(" selected files: " + sb);
             content.put(DataFormat.PLAIN_TEXT, sb.toString());
             db.setContent(content);
             drag_event.consume();

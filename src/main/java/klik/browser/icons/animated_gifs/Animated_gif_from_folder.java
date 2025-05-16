@@ -77,7 +77,7 @@ public class Animated_gif_from_folder
         graphicsMagick_command_line.add("30"); // in centiseconds
         String frames = Icon_writer_actor.make_cache_name_raw(path_list_provider.get_name()) + FRAME2 + "*" + PNG;
         graphicsMagick_command_line.add(frames);
-        graphicsMagick_command_line.add(output_animated_gif.getFileName().toString());
+        graphicsMagick_command_line.add(output_animated_gif.toAbsolutePath().toString());
 
         Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
         List<Path> to_be_cleaned_up = new ArrayList<>();
@@ -106,7 +106,7 @@ public class Animated_gif_from_folder
         {
             StringBuilder sb = null;
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
-            if (!Execute_command.execute_command_list(graphicsMagick_command_line, folder_icon_cache_dir.toFile(), 2000, sb, logger))
+            if (!Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger))
             {
                 Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
                 logger.log(warning_GraphicsMagick);

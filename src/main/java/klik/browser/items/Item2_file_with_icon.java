@@ -20,40 +20,43 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Drag_and_drop;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.Drag_and_drop2;
 import klik.browser.Image_and_properties;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Scroll_position_recorder;
 import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Selection_handler2;
 import klik.change.Change_gang;
+import klik.experimental.work_in_progress.Multiple_image_window;
 import klik.image_ml.image_similarity.Image_similarity;
-import klik.look.my_i18n.My_I18n;
-import klik.properties.Experimental_features;
-import klik.properties.Booleans;
-import klik.util.execute.Execute_command;
-import klik.util.files_and_paths.*;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
-import klik.experimental.work_in_progress.Multiple_image_window;
 import klik.look.Look_and_feel_manager;
-import klik.util.ui.Jfx_batch_injector;
+import klik.look.my_i18n.My_I18n;
+import klik.properties.Booleans;
+import klik.properties.Experimental_features;
+import klik.util.execute.Execute_command;
+import klik.util.execute.System_open_actor;
+import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.execute.System_open_actor;
+import klik.util.ui.Jfx_batch_injector;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
 //**********************************************************
-public class Item_image extends Item
+public class Item2_file_with_icon extends Item2_file
 //**********************************************************
 {
     protected ImageView image_view;
@@ -63,28 +66,36 @@ public class Item_image extends Item
     private final Image_properties_RAM_cache image_properties_RAM_cache;
 
     //**********************************************************
-    public Item_image(
+    public Item2_file_with_icon(
             Window owner,
             Scene scene,
-            Selection_handler selection_handler,
-            Path path,
+            Selection_handler2 selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
-            Aborter aborter,
             Double aspect_ratio,
             Image_properties_RAM_cache image_properties_RAM_cache,
-            Scroll_position_recorder scroll_position_recorder,
+            Path path_,
             Path_list_provider path_list_provider,
+            Aborter aborter,
             Logger logger)
 
     //**********************************************************
     {
-        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder,path_list_provider, aborter, logger);
+        super(
+                owner,
+                scene,
+                selection_handler,
+                icon_factory_actor,
+                color,
+                path_,
+                path_list_provider,
+                aborter,
+                logger);
+        System.out.println("Item2_file_with_icon, constructor: "+path);
         this.aspect_ratio = aspect_ratio;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         double actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
-
 
         // first time
         image_view = new ImageView();
@@ -99,8 +110,7 @@ public class Item_image extends Item
         image_view.setFitHeight(actual_icon_size);
         image_view.setCache(false);
         //image_view.setCacheHint(CacheHint.SPEED);
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
-
+        Drag_and_drop2.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
 
         image_view.setOnMouseClicked(event ->
             {
@@ -119,14 +129,24 @@ public class Item_image extends Item
                     return;
                 }
                 if (event.isControlDown()) {
-                    if (dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
+                    if (dbg) logger.log("\n\nItem1_image event=" + event + " CTRL is down");
                     set_is_selected();
                 } else {
-                    if (dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
+                    if (dbg) logger.log("\n\nItem1_image OnMouseClicked " + path);
                     on_mouse_clicked(logger);
                 }
             });
+    }
 
+
+    @Override
+    void set_new_path(Path newPath) {
+        path = newPath;
+    }
+
+    @Override
+    public Path get_item_path() {
+        return path;
     }
 
     //**********************************************************
@@ -135,24 +155,24 @@ public class Item_image extends Item
     {
         selection_handler.reset_selection(); // will clear all selections
 
-        if ( Guess_file_type.is_this_path_an_image(path))
+        if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
-            open_an_image(true,path_list_provider,path,logger);
+            open_an_image(true,path_list_provider,get_item_path(),logger);
         }
         else
         {
-            System_open_actor.open_with_system(owner,path, aborter,logger);
+            System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
         }
     }
 
     //**********************************************************
-    @Override // Item
+    @Override // Item2
     public void set_is_unselected_internal()
     {
         if ( image_view != null) image_view.setViewport(null);
     }
     //**********************************************************
-    @Override // Item
+    @Override // Item2
     public void set_is_selected_internal()
     //**********************************************************
     {
@@ -189,15 +209,14 @@ public class Item_image extends Item
         }
     }
 
-
-    @Override // Item
+    @Override // Item2
     public Path get_path_for_display(boolean try_deep) {
-        return path;
+        return get_item_path();
     }
 
     @Override // Icon_destination
     public Path get_path_for_display_icon_destination() {
-        return path;
+        return get_item_path();
     }
 
     //**********************************************************
@@ -216,8 +235,6 @@ public class Item_image extends Item
         return false;
     }
 
-
-
     //**********************************************************
     public ContextMenu define_a_menu_to_the_imageview()
     //**********************************************************
@@ -228,24 +245,24 @@ public class Item_image extends Item
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         {
-            MenuItem menu_item = create_open_exif_frame_menu_item(path,logger);
+            MenuItem menu_item = create_open_exif_frame_menu_item(get_item_path(),logger);
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(path,image_properties_RAM_cache,owner, aborter,logger);
+            MenuItem menu_item = create_show_similar_menu_item(get_item_path(),image_properties_RAM_cache,owner, aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         
         {
-            MenuItem menu_item = get_rename_MenuItem(path,owner,x, y, aborter,logger);
+            MenuItem menu_item = get_rename_MenuItem(get_item_path(),owner,x, y, aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
             menu_item.setOnAction(event -> {
-                if (dbg) logger.log("Deleting "+path);
+                if (dbg) logger.log("Deleting "+get_item_path());
 
-                path_list_provider.delete(path,owner,x,y, aborter,logger);
+                path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
                 //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter, logger);
             });
             context_menu.getItems().add(menu_item);
@@ -253,16 +270,16 @@ public class Item_image extends Item
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", logger));
             menu_item.setOnAction(event -> {
-                if (dbg) logger.log("Editing "+path);
-                System_open_actor.open_with_system(owner,path, aborter,logger);
+                if (dbg) logger.log("Editing "+get_item_path());
+                System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", logger));
             menu_item.setOnAction(event -> {
-                if (dbg) logger.log("Opening with registered app: "+path);
-                System_open_actor.open_special(owner,path, aborter,logger);
+                if (dbg) logger.log("Opening with registered app: "+get_item_path());
+                System_open_actor.open_special(owner,get_item_path(), aborter,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -270,23 +287,23 @@ public class Item_image extends Item
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", logger));
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
-                if (dbg) logger.log("Opening as separate process: "+path);
-                Item_image.open_an_image(false,path_list_provider,path,logger);
+                if (dbg) logger.log("Opening as separate process: "+get_item_path());
+                Item2_file_with_icon.open_an_image(false,path_list_provider,get_item_path(),logger);
             });
             context_menu.getItems().add(menu_item);
         }
         
         {
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(path, dbg, logger));
+            context_menu.getItems().add(Item1.create_show_file_size_menu_item(get_item_path(), dbg, logger));
             if (Booleans.get_boolean(Experimental_features.enable_tags.name()))
             {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, aborter,logger));
+                context_menu.getItems().add(Item1.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
         }
 
         if ( this.item_type == Iconifiable_item_type.video)
         {
-            make_menu_items_for_videos(path,owner,context_menu,dbg, aborter,logger);
+            make_menu_items_for_videos(get_item_path(),owner,context_menu,dbg, aborter,logger);
         }
         return context_menu;
 
@@ -297,7 +314,7 @@ public class Item_image extends Item
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item_image: Renaming "+path);
+            if (dbg) logger.log("Item1_image: Renaming "+path);
 
             Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
             if ( new_path == null) return;
@@ -309,7 +326,6 @@ public class Item_image extends Item
         });
         return menu_item;
     }
-
 
     static final int N = 5;
     public static Image_similarity image_similarity;
@@ -373,14 +389,11 @@ public class Item_image extends Item
         }
     }
 
-
     @Override
     public double get_Width()
     {
         return icon_size;
     }
-
-
 
     //**********************************************************
     @Override
@@ -429,16 +442,12 @@ public class Item_image extends Item
 
         if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
-            logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+path.toAbsolutePath()));
+            logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+get_item_path().toAbsolutePath()));
             Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
-
-
         Jfx_batch_injector.inject(() -> receive_icon_in_fx_thread(image_and_rotation),logger);
-
     }
-
 
     //**********************************************************
     @Override
@@ -448,7 +457,6 @@ public class Item_image extends Item
         return true;
     }
 
-
     //**********************************************************
     public void receive_icon_in_fx_thread(Image_and_properties image_and_properties)
     //**********************************************************
@@ -457,7 +465,7 @@ public class Item_image extends Item
         {
             if ( image_and_properties.properties() ==null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+path));
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+get_item_path()));
                 return;
             }
             logger.log("receive_icon_in_fx_thread," +
@@ -467,7 +475,7 @@ public class Item_image extends Item
                     "\n   h image=         "+image_and_properties.properties().h()+
                     "\n   rot image=       "+image_and_properties.properties().rotation()+
                     "\n   aspect ratio=    "+image_and_properties.properties().get_aspect_ratio()+
-                    "\n   for:             "+path);
+                    "\n   for:             "+get_item_path());
 
         }
 
@@ -476,15 +484,15 @@ public class Item_image extends Item
             Rotation rotation = image_and_properties.properties().rotation();
             if (rotation == null)
             {
-                if (Files.exists(path))
+                if (Files.exists(get_item_path()))
                 {
                     if (
-                            (Guess_file_type.is_this_path_a_video(path)) || (Guess_file_type.is_this_path_a_pdf(path))
+                            (Guess_file_type.is_this_path_a_video(get_item_path())) || (Guess_file_type.is_this_path_a_pdf(get_item_path()))
                     ) {
                         if (dbg) logger.log("PDF or video => rot=0");
                         local_rot = 0;
                     } else {
-                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
+                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(get_item_path(), true, aborter, logger);
                     }
                 }
                 else
@@ -520,14 +528,14 @@ public class Item_image extends Item
         if (( image_and_properties.image().getHeight() >= icon_size) && (image_and_properties.image().getWidth() >= icon_size))
         {
             // this happens when the icon is PDF as we dont scale PDF icons
-            if (dbg) logger.log("icon larger than target HAPPENS1 for: "+path);
+            if (dbg) logger.log("icon larger than target HAPPENS1 for: "+get_item_path());
             image_view.setFitWidth(icon_size);
             image_view.setFitHeight(icon_size);
             if ((local_rot == 90) || (local_rot == 270))
             {
                 // this actually NEVER HAPPENS now since a PDF icon is never rotated
                 //if (dbg)
-                    logger.log("HAPPENS2 for: "+path);
+                    logger.log("HAPPENS2 for: "+get_item_path());
                 image_view.setFitWidth(image_and_properties.image().getHeight());
                 image_view.setFitHeight(image_and_properties.image().getWidth());
             }
@@ -540,7 +548,7 @@ public class Item_image extends Item
                 if ( image_and_properties.image().getHeight() < image_and_properties.image().getWidth())
                 {
                     if (dbg)
-                        logger.log("HAPPENS3A for: "+path);
+                        logger.log("HAPPENS3A for: "+get_item_path());
                     image_view.setFitWidth(icon_size);
                     image_view.setFitHeight(-1);
                 }
@@ -549,7 +557,7 @@ public class Item_image extends Item
                     // this happens rarely as it is an image that is rotated AND wider than high after rotation
                     //(most of the rotated images are portrait shot by turning the camera
                     if (dbg)
-                        logger.log("HAPPENS3B for: "+path);
+                        logger.log("HAPPENS3B for: "+get_item_path());
                     image_view.setFitWidth(-1);
                     image_view.setFitHeight(icon_size);
                 }
@@ -557,7 +565,7 @@ public class Item_image extends Item
             else
             {
                 if (dbg)
-                    logger.log("HAPPENS4 for: "+path);
+                    logger.log("HAPPENS4 for: "+get_item_path());
                 image_view.setFitWidth(image_and_properties.image().getWidth());
                 image_view.setFitHeight(image_and_properties.image().getHeight());
             }
@@ -572,7 +580,7 @@ public class Item_image extends Item
     }
 
     //**********************************************************
-    @Override // Item
+    @Override // Item2
     public int get_icon_size()
     //**********************************************************
     {
@@ -580,11 +588,11 @@ public class Item_image extends Item
     }
 
     //**********************************************************
-    @Override // Item
+    @Override // Item2
     public void you_are_visible_specific()
     //**********************************************************
     {
-        //logger.log("Item_image::you_are_visible_specific "+get_item_path());
+        //logger.log("Item1_image::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
             logger.log("BAD WARNING: item_image: default_icon == null");
@@ -595,20 +603,20 @@ public class Item_image extends Item
 
     }
     //**********************************************************
-    @Override // Item
+    @Override // Item2
     public void you_are_invisible_specific()
     //**********************************************************
     {
         image_view.setImage(null);
     }
 
-
     //**********************************************************
     private void log_visibility_state_number(int i)
     //**********************************************************
     {
-        get_logger().log(path+" visibility state #" + i);
+        get_logger().log(get_item_path()+" visibility state #" + i);
     }
+
 
     //**********************************************************
     @Override
@@ -623,9 +631,6 @@ public class Item_image extends Item
     public String get_string()
     //**********************************************************
     {
-        return "is Item_image for : " + path.toAbsolutePath();
+        return "is Item1_image for : " + get_item_path().toAbsolutePath();
     }
-
-
-
 }

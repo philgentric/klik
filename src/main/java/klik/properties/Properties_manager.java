@@ -79,7 +79,7 @@ public class Properties_manager
                     if (b != null) store_properties_internal();
                     if (aborter.should_abort())
                     {
-                        logger.log("aborting Properties store engine");
+                        logger.log("aborting Properties store engine : " + the_properties_path);
                         return;
                     }
 
@@ -97,7 +97,7 @@ public class Properties_manager
     private void store_properties_internal()
     //**********************************************************
     {
-       //if (dbg)
+       if (dbg)
             logger.log("store_properties() "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))

@@ -24,7 +24,6 @@ public class Cache_auto_clean
     private static final boolean dbg = false;
     private static final long AGE_LIMIT_IN_DAYS = 2;
     public final Logger logger;
-    public final Aborter aborter;
     private volatile boolean warning_issued = false;
 
     record Monitored_folder(String name, Path path){}
@@ -33,10 +32,9 @@ public class Cache_auto_clean
 
 
     //**********************************************************
-    public Cache_auto_clean(Stage owner, Aborter aborter_, Logger logger_)
+    public Cache_auto_clean( Logger logger_)
     //**********************************************************
     {
-        aborter= aborter_;
         logger = logger_;
 
         for(Cache_folder cache_folder : Cache_folder.values())

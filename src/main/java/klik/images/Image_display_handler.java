@@ -96,13 +96,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         image_window = v_;
         if ( dbg) logger.log("image_context.path.getParent()="+image_context_.path.toAbsolutePath().getParent());
         image_indexer = Optional.empty();
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                image_indexer = Optional.of(Image_indexer.get_Image_indexer(path_list_provider,image_context_.path.toAbsolutePath().getParent(), file_comparator, aborter,logger));
-
-            }
-        };
+        Runnable r = () -> image_indexer = Optional.of(Image_indexer.get_Image_indexer(path_list_provider,image_context_.path.toAbsolutePath().getParent(), file_comparator, aborter,logger));
         Actor_engine.execute(r,logger);
 
         Change_gang.register(this,aborter,logger); // image_context must be valid!
@@ -228,7 +222,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
                 // the case we care for HERE is when another type of event occurred
                 // for example the image was renamed
-                if (image_indexer.get().exists(oanf.new_Path))
+                if (image_indexer.get().is_known(oanf.new_Path))
                 {
                     if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.get_string());
                     Jfx_batch_injector.inject(() -> {

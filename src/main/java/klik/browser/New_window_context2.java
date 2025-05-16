@@ -7,10 +7,11 @@ import javafx.stage.Screen;
 import javafx.stage.Window;
 import klik.Window_provider;
 import klik.browser.classic.Browser;
-import klik.experimental.image_playlist.Image_playlist;
-import klik.experimental.image_playlist.Playlist_path_list_provider;
+import klik.browser.classic.Browser2;
 import klik.browser.virtual_landscape.Shutdown_target;
 import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.experimental.image_playlist.Image_playlist;
+import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
@@ -22,15 +23,15 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 //**********************************************************
-public class New_window_context
+public class New_window_context2
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public final Path target_path; // this can be an absolute folder path or a image play list FILE  path
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
     //**********************************************************
-    private New_window_context(
+    private New_window_context2(
             Path target,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target)
@@ -54,12 +55,12 @@ public class New_window_context
     public static Window_provider additional_no_past(Path new_path, Logger logger)
     //**********************************************************
     {
-        New_window_context context = new New_window_context(
+        New_window_context2 context = new New_window_context2(
                 new_path,
                 null,
                 null);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        return new Browser(context, logger);
+        return new Browser2(context, logger);
     }
 
     //**********************************************************
@@ -75,12 +76,12 @@ public class New_window_context
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
-        New_window_context context =  new New_window_context(
+        New_window_context2 context =  new New_window_context2(
                 new_and_old_path,
                 rectangle,
                 null);
         if ( dbg) logger.log(("\nadditional_same_folder\n"+ context.to_string() ));
-        Browser b = new Browser(context, logger);
+        new Browser2(context, logger);
     }
 
 
@@ -136,12 +137,12 @@ public class New_window_context
         double w2 = s.getBounds().getWidth() * ratio_tall;
         rectangle = new Rectangle2D(rectangle.getMinX()+w_fat, rectangle.getMinY(), w2, h);
 
-        New_window_context context = new New_window_context(
+        New_window_context2 context = new New_window_context2(
                 new_and_old_path,
                 rectangle,
                 null);
         if (dbg) logger.log(("\nadditional_same_folder\n" + context.to_string()));
-        new Browser(context, logger);
+        new Browser2(context, logger);
     }
 
 /*
@@ -180,12 +181,12 @@ public class New_window_context
         Virtual_landscape.scroll_position_cache.put(old_and_new_path.toAbsolutePath().toString(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
-        New_window_context context =  new New_window_context(
+        New_window_context2 context =  new New_window_context2(
                 old_and_new_path,
                 rectangle,
                 shutdown_target);
         if ( dbg) logger.log(("\nreplace_same_folder\n"+ context.to_string() ));
-        new Browser(context, logger);
+        new Browser2(context, logger);
     }
 
     //**********************************************************
@@ -198,6 +199,7 @@ public class New_window_context
             Logger logger)
     //**********************************************************
     {
+        logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
         if( top_left == null)
         {
             logger.log("SHOULD NOT HAPPEN  top left is null for old path: " + old_path.toAbsolutePath());
@@ -208,16 +210,16 @@ public class New_window_context
             logger.log("yop, recorded that " + old_path.toAbsolutePath() + " has top left =" + top_left.toString());
         }
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
-        New_window_context context =  new New_window_context(
+        New_window_context2 context =  new New_window_context2(
                 new_path,
                 rectangle,
                 shutdown_target);
         if ( dbg) logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
-        new Browser(context, logger);
+        new Browser2(context, logger);
 
     }
 
-
+/*
     // experimental: image playlists
 
     //**********************************************************
@@ -233,7 +235,7 @@ public class New_window_context
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
 
-        New_window_context context = new New_window_context(new_path, rectangle, null);
+        New_window_context2 context = new New_window_context2(new_path, rectangle, null);
         new Image_playlist(context, logger);
     }
 
@@ -247,7 +249,7 @@ public class New_window_context
     {
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
-        New_window_context context = new New_window_context(new_path, rectangle, shutdown_target);
+        New_window_context2 context = new New_window_context2(new_path, rectangle, shutdown_target);
         new Image_playlist(context, logger);
     }
 
@@ -258,7 +260,7 @@ public class New_window_context
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
         Path path = create_new_playlist_file(owner, logger);
-        New_window_context context = new New_window_context(path, rectangle, null);
+        New_window_context2 context = new New_window_context2(path, rectangle, null);
         new Image_playlist(context, logger);
     }
 
@@ -296,4 +298,6 @@ public class New_window_context
         }
         return null;
     }
+
+ */
 }

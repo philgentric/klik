@@ -101,21 +101,18 @@ package klik;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
-import klik.browser.Abstract_browser;
-import klik.browser.New_window_context;
-import klik.browser.Shared_services;
+import klik.browser.*;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
-import klik.util.log.Logger;
 import klik.util.log.Exceptions_in_threads_catcher;
+import klik.util.log.Logger;
 
 import java.nio.file.Path;
 
 //**********************************************************
-public class Klik_application extends Application
+public class Klik_application2 extends Application
 //**********************************************************
 {
     public static Stage primary_stage;
@@ -156,7 +153,7 @@ public class Klik_application extends Application
         {
             path = context.path();
         }
-        Window_provider window_provider = New_window_context.additional_no_past(path,logger);
+        Window_provider window_provider = New_window_context2.additional_no_past(path,logger);
         new Monitor(window_provider, logger).start();
 
         Start_context.send_started(context,logger);

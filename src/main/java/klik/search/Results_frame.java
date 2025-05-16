@@ -21,7 +21,8 @@ import klik.actor.Aborter;
 import klik.audio.Audio_player;
 import klik.browser.New_window_context;
 import klik.browser.Drag_and_drop;
-import klik.browser.items.Item_image;
+import klik.browser.New_window_context2;
+import klik.browser.items.Item1_image;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -122,11 +123,11 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				New_window_context.additional_different_folder(path, window,logger);
+				New_window_context2.additional_no_past(path,logger);
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
-				Item_image.open_an_image(
+				Item1_image.open_an_image(
 						true,
 						path_list_provider,
 						path,
@@ -153,7 +154,7 @@ public class Results_frame
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			New_window_context.additional_different_folder(local,window,logger);
+			New_window_context2.additional_no_past(local,logger);
 		});
 		context_menu.getItems().add(browse);
 
@@ -183,7 +184,7 @@ public class Results_frame
 			{
 				double x = stage.getX()+100;
 				double y = stage.getY()+100;
-				MenuItem rename = Item_image.get_rename_MenuItem(path,stage,x, y, aborter,logger);
+				MenuItem rename = Item1_image.get_rename_MenuItem(path,stage,x, y, aborter,logger);
 				context_menu.getItems().add(rename);
 			}
 

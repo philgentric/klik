@@ -31,9 +31,9 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.browser.New_window_context;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Scroll_position_recorder;
 import klik.browser.virtual_landscape.Selection_handler;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Experimental_features;
@@ -64,7 +64,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
-public abstract class Item implements Icon_destination
+public abstract class Item1 implements Icon_destination
 //**********************************************************
 {
     protected static final boolean dbg = false;
@@ -74,7 +74,6 @@ public abstract class Item implements Icon_destination
     Job icon_job; // this is needed to cancel the icon request when the item has become invisible
 
     protected Color color;
-    protected Path path;
     protected final Window owner;
     protected final Scene scene;
     protected final Logger logger;
@@ -93,57 +92,69 @@ public abstract class Item implements Icon_destination
     private double virtual_landscape_y = 0;
     protected final Icon_factory_actor icon_factory_actor;
     protected final Selection_handler selection_handler;
-    protected final Scroll_position_recorder scroll_position_recorder;
-    protected final Path_list_provider path_list_provider;
+    private Path path; // null for folders
+    protected Path_list_provider path_list_provider;
+    // never null as it describes the folder for folder
+    // and the containing folder for images or files used for going up???
+    // not final because renaming a folder requires to change the path_list_provider
+    // this is ok as long as there is no other browser open on that folder: the change_gang manages this
+
+
     //**********************************************************
-    public Item(
+    public Item1(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
-            Path path,
+            //Path path,
             Icon_factory_actor icon_factory_actor,
             Color color,
-            Scroll_position_recorder scroll_position_recorder,
             Path_list_provider path_list_provider,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
-        this.scroll_position_recorder = scroll_position_recorder;
+        if ( path_list_provider == null) logger.log("OHOWARNINGa: path_list_provider is null, path = "+path);
+        this.path = path;
+        if ( path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OHOWARNINGb: path is null, path_list_provider = "+path_list_provider.get_folder_path()));
+        }
         this.aborter = aborter;
         this.owner = owner;
         this.scene = scene;
         this.icon_factory_actor = icon_factory_actor;
         this.selection_handler = selection_handler;
-        this.path = path;
         this.logger = logger;
         this.color = color;
-        item_type = Iconifiable_item_type.from_extension(path);
+        item_type = Iconifiable_item_type.from_extension(get_item_path());
         icon_size = Non_booleans.get_icon_size();
     }
 
+
+    public Path get_item_path() {
+        if ( path != null ) return path;
+        if ( path_list_provider != null ) return path_list_provider.get_folder_path();
+        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN path and path_list_provider are both null !!!"));
+        return null;
+    }
+    
     public final Scene getScene()
     {
         return scene;
     }
-
     protected final Logger get_logger()
     {
         return logger;
     }
-
-
     public void set_translate_X(double dx)
     {
         if (get_Node() != null) get_Node().setTranslateX(dx);
     }
-
     public void set_translate_Y(double dy)
     {
         if (get_Node() != null) get_Node().setTranslateY(dy);
     }
-
     public void set_javafx_x(double x_) { javafx_x = x_; }
     public void set_javafx_y(double y_) {javafx_y = y_;}
     public double get_javafx_x() { return javafx_x; }
@@ -153,13 +164,11 @@ public abstract class Item implements Icon_destination
     }
 
     public void set_screen_x_of_image(double x_) { virtual_landscape_x = x_; }
-    public void set_screen_y_of_image(double y_) {
-        virtual_landscape_y = y_;}
+    public void set_screen_y_of_image(double y_) {virtual_landscape_y = y_;}
     public double get_screen_x_of_image() { return virtual_landscape_x; }
     public double get_screen_y_of_image() {return virtual_landscape_y;}
 
     public abstract Node get_Node();
-
     public abstract double get_Width();
     public abstract double get_Height();
     public abstract boolean is_trash();
@@ -192,9 +201,9 @@ public abstract class Item implements Icon_destination
     public void request_icon_to_factory(int target_icon_size)
     //**********************************************************
     {
-        if ( dbg) logger.log(("request_icon_to_factory for:"+path));
+        if ( dbg) logger.log(("request_icon_to_factory for:"+get_item_path()));
         Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,
-                new Aborter("Icon creation for "+path,logger));
+                new Aborter("Icon creation for "+get_item_path(),logger));
 
         if (dbg) logger.log("icon request : queued! ");
 
@@ -236,7 +245,8 @@ public abstract class Item implements Icon_destination
     {
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu);
-        if (Files.isDirectory(path))
+        Path local_path = get_item_path();
+        if (Files.isDirectory(local_path))
         {
             context_menu.getItems().add(create_get_folder_size_menu_item());
             if ( is_trash())
@@ -247,10 +257,10 @@ public abstract class Item implements Icon_destination
             if(!is_trash() && !is_parent())
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
-                context_menu.getItems().add(create_open_with_system_menu_item(path));
+                context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
                 if ( Booleans.get_boolean(Experimental_features.enable_tags.name()))
                 {
-                    context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, aborter,logger));
+                    context_menu.getItems().add(Item1.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
                 }
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
@@ -260,36 +270,36 @@ public abstract class Item implements Icon_destination
         }
         else
         {
-            if (Guess_file_type.is_this_path_an_image(path))
+            if (Guess_file_type.is_this_path_an_image(get_item_path()))
             {
-                context_menu.getItems().add(create_open_exif_frame_menu_item(path,logger));
+                context_menu.getItems().add(create_open_exif_frame_menu_item(get_item_path(),logger));
             }
-            if (Guess_file_type.is_this_path_a_music(path))
+            if (Guess_file_type.is_this_path_a_music(get_item_path()))
             {
-                context_menu.getItems().add(create_open_mediainfo_frame_menu_item(path,logger));
+                context_menu.getItems().add(create_open_mediainfo_frame_menu_item(get_item_path(),logger));
             }
             if ( this.item_type == Iconifiable_item_type.video)
             {
-                Item_image.make_menu_items_for_videos(path,owner,context_menu,dbg, aborter,logger);
+                Item1_image.make_menu_items_for_videos(get_item_path(),owner,context_menu,dbg, aborter,logger);
             }
 
             // is a "plain" file
-            context_menu.getItems().add(create_open_with_system_menu_item(path));
-            context_menu.getItems().add(create_open_with_special_app_item(path));
+            context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
+            context_menu.getItems().add(create_open_with_special_app_item(get_item_path()));
             context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
             context_menu.getItems().add(create_copy_menu_item());
             context_menu.getItems().add(create_delete_menu_item());
 
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(path, dbg,logger));
+            context_menu.getItems().add(Item1.create_show_file_size_menu_item(get_item_path(), dbg,logger));
             if ( Booleans.get_boolean(Experimental_features.enable_tags.name()))
             {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(path, dbg, aborter,logger));
+                context_menu.getItems().add(Item1.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
         }
 
 
         local_button.setOnContextMenuRequested((ContextMenuEvent event) -> {
-            if ( dbg) logger.log("show context menu of button:"+ path.toAbsolutePath());
+            if ( dbg) logger.log("show context menu of button:"+ get_item_path().toAbsolutePath());
             context_menu.show(local_button, event.getScreenX(), event.getScreenY());
         });
     }
@@ -334,9 +344,7 @@ public abstract class Item implements Icon_destination
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
 
-            scroll_position_recorder.record_scroll_position(path);
-
-            New_window_context.additional_different_folder(path.getParent(),owner, logger);
+            New_window_context.additional_no_past(get_item_path().getParent(),logger);
         });
         return browse;
     }
@@ -346,7 +354,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem size = new MenuItem(My_I18n.get_I18n_string("Get_folder_size",logger));
-        size.setOnAction(event -> Folder_size.get_folder_size(path,owner, logger));
+        size.setOnAction(event -> Folder_size.get_folder_size(get_item_path(),owner, logger));
         return size;
     }
 
@@ -373,13 +381,13 @@ public abstract class Item implements Icon_destination
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("copying!");
 
-            Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
+            Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,get_item_path(),logger);
             try
             {
-                Files.copy(path, new_path);
+                Files.copy(get_item_path(), new_path);
             } catch (IOException e)
             {
-                logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
+                logger.log("copy failed: could not create new file for: " + get_item_path().getFileName() + ", Exception:" + e);
             }
         });
         return menu_item;
@@ -394,7 +402,7 @@ public abstract class Item implements Icon_destination
             if (dbg) logger.log("Deleting!");
             double x = owner.getX()+100;
             double y = owner.getY()+100;
-            path_list_provider.delete(path, owner, x, y, aborter, logger);
+            path_list_provider.delete(get_item_path(), owner, x, y, aborter, logger);
             //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
         });
         return menu_item;
@@ -409,8 +417,8 @@ public abstract class Item implements Icon_destination
         final Label local_label = local_label_;
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger));
         menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item_button: Renaming");
-            String original_name = path.getFileName().toString();
+            if (dbg) logger.log("Item1_button: Renaming");
+            String original_name = get_item_path().getFileName().toString();
             TextField text_edit = new TextField(original_name);
             Node restored = local_button.getGraphic();
             local_button.setGraphic(text_edit);
@@ -421,9 +429,9 @@ public abstract class Item implements Icon_destination
             text_edit.setOnAction(actionEvent -> {
                 String new_dir_name = text_edit.getText();
                 actionEvent.consume();
-                if ( path.toFile().isDirectory() )
+                if ( get_item_path().toFile().isDirectory() )
                 {
-                    Path new_path = Static_files_and_paths_utilities.change_dir_name(path, new_dir_name, aborter, logger);
+                    Path new_path = Static_files_and_paths_utilities.change_dir_name(get_item_path(), new_dir_name, aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");
@@ -431,15 +439,15 @@ public abstract class Item implements Icon_destination
                         local_button.setGraphic(restored);
                         return;
                     }
-                    path = new_path;
                     local_button.setText(new_dir_name);
                     local_button.setGraphic(restored);
+                    path_list_provider = new Folder_path_list_provider(new_path);
                 }
                 else
                 {
                     double x = owner.getX()+100;
                     double y = owner.getY()+100;
-                    Path new_path = Static_files_and_paths_utilities.change_file_name(path, new_dir_name, owner,x,y,aborter, logger);
+                    Path new_path = Static_files_and_paths_utilities.change_file_name(get_item_path(), new_dir_name, owner,x,y,aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");
@@ -450,16 +458,16 @@ public abstract class Item implements Icon_destination
                     path = new_path;
                     if ( local_label == null)
                     {
-                        // the item is a Item_folder_with_icon
+                        // the item is a Item1_folder_with_icon
                         if (dbg) logger.log("rename done");
                         local_button.setText(new_dir_name);
                         local_button.setGraphic(restored);
                     }
                     else
                     {
-                        // the item is a Item_button
+                        // the item is a Item1_button
 
-                        String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(),logger);
+                        String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(get_item_path().toFile().length(),logger);
                         local_button.setText(size);
                         local_label.setText(new_dir_name);
                         //Font_size.set_preferred_font_size(label,logger);
@@ -483,13 +491,13 @@ public abstract class Item implements Icon_destination
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Copy", logger));
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Copying the directory");
-            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,path,logger);
+            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
             if ( new_path == null)
             {
                 Popups.popup_warning(owner,"copy of dir failed","names are same ?", false,logger);
                 return;
             }
-            Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, path, new_path, aborter, logger);
+            Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, get_item_path(), new_path, aborter, logger);
         });
         return menu_item;
     }
@@ -511,9 +519,9 @@ public abstract class Item implements Icon_destination
     public void set_is_selected()
     //**********************************************************
     {
-        if (selection_handler.add_to_selected_files(path)) {
+        if (selection_handler.add_to_selected_files(get_item_path())) {
             set_is_selected_internal();
-            logger.log("item selected:" + path);
+            logger.log("item selected:" + get_item_path());
         }
     }
 
@@ -624,10 +632,10 @@ public abstract class Item implements Icon_destination
                 My_color my_color = My_colors.my_color_from_localized_name(localized_name,logger);
                 //logger.log("is selected: ->"+localized_name+"<-");
                 color = my_color.color();
-                My_colors.save_color(path,my_color.java_name(),logger);
-                if ( this instanceof Item_button)
+                My_colors.save_color(get_item_path(),my_color.java_name(),logger);
+                if ( this instanceof Item1_button)
                 {
-                    Item_button ib = (Item_button) this;
+                    Item1_button ib = (Item1_button) this;
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(ib.button, icon_height, color);
@@ -672,12 +680,6 @@ public abstract class Item implements Icon_destination
     }
 
 
-
-
-
-    public Path get_item_path() {
-        return path;
-    }
 
     // path for display takes different form depending on the item type
     // it can be null, a PNG icon, or an animated gif

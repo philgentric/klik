@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.audio.Audio_player;
-import klik.browser.items.Item_image;
+import klik.browser.items.Item1_image;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Non_booleans;
 import klik.util.ui.Jfx_batch_injector;
@@ -177,7 +177,7 @@ public class Stage_with_2_images
 			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
             if (is_image)
 			{
-				Item_image.open_an_image(true,path_list_provider, file.toPath(),logger);
+				Item1_image.open_an_image(true,path_list_provider, file.toPath(),logger);
                 //Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
             }
 			else

@@ -11,9 +11,10 @@ import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.New_window_context;
+import klik.browser.New_window_context2;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.browser.items.Item_image;
+import klik.browser.items.Item1_image;
 import klik.change.undo.Undo_engine;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
@@ -64,7 +65,7 @@ public class Menus_for_image_window
             image_window.logger.log("undoing last move");
             double x = image_window.the_Stage.getX()+100;
             double y = image_window.the_Stage.getY()+100;
-            Undo_engine.perform_last_undo_fx(image_window.the_Stage, x,y,image_window.aborter,image_window.logger);
+            Undo_engine.perform_last_undo_fx(image_window.the_Stage, x,y,image_window.logger);
         });
         return undo_move;
     }
@@ -252,7 +253,9 @@ public class Menus_for_image_window
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             New_window_context.additional_same_folder(image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.the_Stage,image_window.image_display_handler.get_image_context().get().path,image_window.logger);
+             New_window_context2.additional_no_past(
+                     image_window.image_display_handler.get_image_context().get().path.getParent(),
+                     image_window.logger);
         });
         return browse;
     }
@@ -503,7 +506,7 @@ public class Menus_for_image_window
 
         if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
         {
-            context_menu.getItems().add(Item_image.create_show_similar_menu_item(
+            context_menu.getItems().add(Item1_image.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
                     image_properties_cache,
                     image_window.the_Stage,

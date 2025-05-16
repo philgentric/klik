@@ -4,6 +4,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import klik.browser.New_window_context;
+import klik.browser.New_window_context2;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.experimental.metadata.Tag_stage;
 import klik.properties.Booleans;
@@ -99,7 +100,7 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
-                New_window_context.additional_no_past(
+                New_window_context2.additional_no_past(
                         image_window.image_display_handler.get_image_context().get().path.getParent(),
                         logger);
                 key_event.consume();

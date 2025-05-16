@@ -40,23 +40,23 @@ import klik.browser.locator.Folders_with_large_images_locator;
 import klik.browser.ram_and_threads_meter.RAM_and_threads_meters_stage;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.images.Image_context;
-import klik.look.Font_size;
-import klik.look.my_i18n.My_I18n;
-import klik.properties.*;
 import klik.experimental.backup.Backup_singleton;
 import klik.experimental.deduplicate.Deduplication_engine;
 import klik.experimental.fusk.Fusk_bytes;
 import klik.experimental.fusk.Fusk_singleton;
 import klik.experimental.fusk.Static_fusk_paths;
 import klik.experimental.metadata.Tag_items_management_stage;
+import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.images.Image_context;
+import klik.look.Font_size;
+import klik.look.Look_and_feel;
+import klik.look.Look_and_feel_manager;
+import klik.look.my_i18n.My_I18n;
+import klik.properties.*;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
-import klik.look.Look_and_feel;
-import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.*;
@@ -79,7 +79,7 @@ import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_
 
 
 //**********************************************************
-public class Virtual_landscape implements Scan_show_slave, Selection_reporter, Top_left_provider
+public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, Top_left_provider
 //**********************************************************
 {
 
@@ -99,7 +99,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public final Aborter aborter;
     final Logger logger;
     private Landscape_height_listener landscape_height_listener;
-    private Scroll_to_listener scroll_to_listener;
+    private Scroll_to_listener2 scroll_to_listener;
     private final Paths_holder paths_manager;
     public Comparator<? super Path> image_file_comparator = null;
     public Comparator<? super Path> other_file_comparator;
@@ -109,7 +109,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     public ConcurrentLinkedQueue<List<Path>> iconized_sorted_queue = new ConcurrentLinkedQueue<>();
     public final BlockingQueue<Boolean> request_queue = new LinkedBlockingQueue<>();
-    private final ConcurrentHashMap<Path, Item1> all_items_map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Path, Item2> all_items_map = new ConcurrentHashMap<>();
     private final AtomicBoolean items_are_ready = new AtomicBoolean(false);
 
     private double virtual_landscape_height = -Double.MAX_VALUE;
@@ -136,15 +136,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public static Map<String, Path> scroll_position_cache = new HashMap<>();
 
 
-    private final List<Item1> future_pane_content = new ArrayList<>();
+    private final List<Item2> future_pane_content = new ArrayList<>();
 
 
-    public Vertical_slider vertical_slider;
+    public Vertical_slider2 vertical_slider;
     public double slider_width = 40;
     public final Scene the_Scene;
     public final Pane the_Pane;
-    public final Selection_handler selection_handler;
-    public final Virtual_landscape_menus browser_menus;
+    public final Selection_handler2 selection_handler;
+    public final Virtual_landscape_menus2 browser_menus;
     MenuItem stop_full_screen_menu_item;
     MenuItem start_full_screen_menu_item;
     public List<Button> top_buttons = new ArrayList<>();
@@ -159,14 +159,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public static boolean show_running_film = true;
 
     //**********************************************************
-    public Virtual_landscape(Path_list_provider path_list_provider,
-                             Window owner,
-                             Shutdown_target shutdown_target,
-                             Change_receiver change_receiver,
-                             Title_target title_target,
-                             Full_screen_handler full_screen_handler,
-                             Aborter aborter,
-                             Logger logger)
+    public Virtual_landscape2(Path_list_provider path_list_provider,
+                              Window owner,
+                              Shutdown_target shutdown_target,
+                              Change_receiver change_receiver,
+                              Title_target title_target,
+                              Full_screen_handler full_screen_handler,
+                              Aborter aborter,
+                              Logger logger)
     //**********************************************************
     {
         this.full_screen_handler = full_screen_handler;
@@ -184,9 +184,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         image_properties_RAM_cache = new Image_properties_RAM_cache(path_list_provider, "Image properties cache", aborter, logger);
         icon_factory_actor = new Icon_factory_actor(image_properties_RAM_cache, owner, aborter, logger);
         paths_manager = new Paths_holder(icon_factory_actor, image_properties_RAM_cache, aborter, logger);
-        selection_handler = new Selection_handler(the_Pane, this, this, logger);
+        selection_handler = new Selection_handler2(the_Pane, this, this, logger);
 
-        browser_menus = new Virtual_landscape_menus(this, change_receiver, owner);
+        browser_menus = new Virtual_landscape_menus2(this, change_receiver, owner);
         //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
         the_Scene = define_UI();
 
@@ -199,7 +199,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         {
             //logger.log("creating vertical slider");
-            vertical_slider = new Vertical_slider(owner, the_Pane, this, logger);
+            vertical_slider = new Vertical_slider2(owner, the_Pane, this, logger);
             mandatory_in_pane.add(vertical_slider.the_Slider);
             always_on_front_nodes.add(vertical_slider.the_Slider);
             slider_width = 2 * Vertical_slider.half_slider_width;
@@ -361,7 +361,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             if (source == null) {
                 //logger.log("source class is null " + event.toString());
             } else {
-                if (!(source instanceof Item1)) {
+                if (!(source instanceof Item2)) {
                     if (dbg)
                         logger.log("drag reception for scene: source is not an item but a: " + source.getClass().getName());
                     drag_event.consume();
@@ -369,7 +369,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
                 //logger.log("source class is:" + source.getClass().getName());
                 try {
-                    Item1 item = (Item1) source;
+                    Item2 item = (Item2) source;
                     Scene scene_of_source = item.getScene();
 
                     // data is dragged over the target
@@ -645,7 +645,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void clear_all_selected_images()
     //**********************************************************
     {
-        for (Item1 i : all_items_map.values())
+        for (Item2 i : all_items_map.values())
         {
             i.unset_image_is_selected();
         }
@@ -699,12 +699,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         boolean show_icons_instead_of_text = Booleans.get_boolean(Booleans.SHOW_ICONS);
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = 0;
-        List<Item1> current_row = new ArrayList<>();
+        List<Item2> current_row = new ArrayList<>();
 
         int image_properties_in_flight = 0;
         for (Path path : paths_manager.iconized_paths )
         {
-            Item1 item;
+            Item2 item;
             if (show_icons_instead_of_text)
             {
                 item = all_items_map.get(path);
@@ -722,7 +722,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         for (Path path : paths_manager.iconized_paths )
         {
             if (dbg) logger.log("Virtual_landscape process_iconified_items " + path);
-            Item1 item;
+            Item2 item;
             if (show_icons_instead_of_text)
             {
                 item = all_items_map.get(path);
@@ -736,28 +736,28 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             else
             {
                 // this is an item that could have an image but the user prefers
-                // to see it as a text: we use an Item1_button
                 String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(), logger);
                 item = all_items_map.get(path);
                 if (item == null) {
-                    item = new Item1_button(
+                    logger.log("Item2_file_no_icon (1) path="+path);
+                    item = new Item2_file_no_icon(
                             owner,
                             the_Scene,
                             selection_handler,
-                            path,
                             icon_factory_actor,
                             null,
-                            aborter,
                             path.getFileName().toString() + "(" + size + ")",
                             icon_size / 2,
                             false,
                             false,
                             image_properties_RAM_cache,
                             shutdown_target,
+                            path,
                             path_list_provider,
                             this,
+                            aborter,
                             logger);
-                    //new Item1_button(the_browser, path, null, path.getFileName().toString() + "(" + size + ")",
+                    //new Item2_button(the_browser, path, null, path.getFileName().toString() + "(" + size + ")",
                             //icon_size / 2, false, false, image_properties_RAM_cache, logger);
                     all_items_map.put(path, item);
                 }
@@ -781,17 +781,18 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 continue;
             }
             Double cache_aspect_ratio = ip.get_aspect_ratio();
-            Item1 item = new Item1_image(
+            logger.log("Item2_file_with_icon (2) path="+path);
+            Item2 item = new Item2_file_with_icon(
                     owner,
                     the_Scene,
                     selection_handler,
-                    path, 
                     icon_factory_actor,
                     null,
-                    aborter,
-                    cache_aspect_ratio, 
+                    cache_aspect_ratio,
                     image_properties_RAM_cache,
+                    path,
                     path_list_provider,
+                    aborter,
                     logger);
             all_items_map.put(path,item);
             //logger.log("item created: "+path);
@@ -803,13 +804,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         List<Path> ll = get_iconized_sorted("process_iconified_items");
         for (Path path : ll )
         {
-            Item1 item = all_items_map.get(path);
+            Item2 item = all_items_map.get(path);
             if ( item == null)
             {
                 logger.log(("should not happen: no item in map for: "+path+" map size="+all_items_map.size() ));
                 continue;
             }
-            if (dbg)  logger.log("Virtual_landscape process_iconified_items " + path+" ar:"+((Item1_image)item).aspect_ratio);
+            if (dbg)  logger.log("Virtual_landscape process_iconified_items " + path+" ar:"+((Item2_file_with_icon)item).aspect_ratio);
 
             if (show_icons_instead_of_text) {
                 //logger.log("recomputing position for "+item.get_item_path());
@@ -839,25 +840,27 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String text = path.getFileName().toString();
             long size = path.toFile().length() / 1000_000L;
             if (Guess_file_type.is_this_path_a_video(path)) text = size + "MB VIDEO: " + text;
-            Item1 item = all_items_map.get(path);
+            Item2 item = all_items_map.get(path);
             if ( item == null)
             {
-                item = new Item1_button(
+                logger.log("Item2_file_no_icon (3) path="+path);
+
+                item = new Item2_file_no_icon(
                         owner,
                         the_Scene,
                         selection_handler,
-                        path,
                         icon_factory_actor,
                         null, 
-                        aborter,
                         text,
                         icon_height, 
                         false, 
                         false, 
                         image_properties_RAM_cache,
                             shutdown_target,
+                        path,
                         path_list_provider,
                         this,
+                        aborter,
                         logger);
                 all_items_map.put(path,item);
             }
@@ -866,7 +869,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     column_increment,
                     row_increment_for_files, scene_width, single_column);
 
-            if (item instanceof Item1_button ini)
+            if (item instanceof Item2_file_no_icon ini)
+            {
+                ini.get_button().setPrefWidth(column_increment);
+                ini.get_button().setMinWidth(column_increment);
+            }
+            if (item instanceof Item2_folder ini)
+            {
+                ini.get_button().setPrefWidth(column_increment);
+                ini.get_button().setMinWidth(column_increment);
+            }
+            if (item instanceof Item2_folder_with_icon ini)
             {
                 ini.get_button().setPrefWidth(column_increment);
                 ini.get_button().setMinWidth(column_increment);
@@ -964,23 +977,27 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Color color)
     //**********************************************************
     {
-        Item1 folder_item = all_items_map.get(folder_path);
+        Item2 folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-            folder_item = new Item1_folder_with_icon(
+            logger.log("Item2_folder_with_icon NO path");
+
+            folder_item = new Item2_folder_with_icon(
                     owner, 
                     the_Scene, 
                     selection_handler,
-                    //null,
                     icon_factory_actor,
-                    color,  
-                    aborter,
+                    color,
                     folder_path.getFileName().toString(),
-                    (int)column_increment, 
+                    (int)column_increment,
+                    100,
+                    false,
+                    false,
                     image_properties_RAM_cache,
                     shutdown_target,
                     new Folder_path_list_provider(folder_path),
                     this,
+                    aborter,
                     logger);
             all_items_map.put(folder_path, folder_item);
         }
@@ -999,7 +1016,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                                        Path folder_path)
     //**********************************************************
     {
-        Item1 folder_item = all_items_map.get(folder_path);
+        Item2 folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
             Color color = My_colors.load_color_for_path(folder_path,logger);
@@ -1037,29 +1054,30 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     tmp += Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,logger);
                 }
             }
-            folder_item = new Item1_button(
+            logger.log("Item2_folder NO path");
+
+            folder_item = new Item2_folder(
                     owner,
                     the_Scene,
                     selection_handler,
-                    null,
                     icon_factory_actor,
                     color,
-                    aborter,
                     tmp,
                     icon_height,
                     false,
                     false,
                     image_properties_RAM_cache,
                     shutdown_target,
-                    path_list_provider,
+                    new Folder_path_list_provider(folder_path),
                     this,
+                    aborter,
                     logger);
-            //new Item1_button(the_browser,folder_path, color, tmp, icon_height, false, false, image_properties_RAM_cache,logger);
+            //new Item2_button(the_browser,folder_path, color, tmp, icon_height, false, false, image_properties_RAM_cache,logger);
             all_items_map.put(folder_path, folder_item);
         }
 
         p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
-        if (folder_item instanceof Item1_button ini)
+        if (folder_item instanceof Item2_folder ini)
         {
             ini.get_button().setPrefWidth(column_increment);
             ini.get_button().setMinWidth(column_increment);
@@ -1107,7 +1125,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double pane_height = the_Pane.getHeight();
         int icon_size = Non_booleans.get_icon_size();
         double min_y = Double.MAX_VALUE;
-        for (Item1 item : all_items_map.values())
+        for (Item2 item : all_items_map.values())
         {
             //if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
             //if (item.get_javafx_y() + item.get_Height() < current_vertical_offset -icon_size)
@@ -1117,7 +1135,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     logger.log(item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y() + " item height=" + item.get_Height());
                 item.process_is_invisible(current_vertical_offset);
                 the_Pane.getChildren().remove(item.get_Node());
-                //if ( item instanceof Item1_image ii) Item1_image.currently.remove(ii);
+                //if ( item instanceof Item2_image ii) Item2_image.currently.remove(ii);
                 continue;
             }
             if (item.get_javafx_y()  > pane_height+current_vertical_offset+icon_size)
@@ -1125,16 +1143,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 if (invisible_dbg) logger.log(item.get_item_path() + " invisible (too far down)");
                 item.process_is_invisible(current_vertical_offset);
                 the_Pane.getChildren().remove(item.get_Node());
-                //if ( item instanceof Item1_image ii) Item1_image.currently.remove(ii);
+                //if ( item instanceof Item2_image ii) Item2_image.currently.remove(ii);
                 continue;
             }
             if (visible_dbg)
-                logger.log(item.get_item_path() + " Item1 is visible at y=" + item.get_javafx_y() + " item height=" + item.get_Height());
+                logger.log(item.get_item_path() + " Item2 is visible at y=" + item.get_javafx_y() + " item height=" + item.get_Height());
             item.process_is_visible(current_vertical_offset);
             if ( !the_Pane.getChildren().contains(item.get_Node()))
             {
                 the_Pane.getChildren().add(item.get_Node());
-                //if ( item instanceof Item1_image ii) Item1_image.currently.add(ii);
+                //if ( item instanceof Item2_image ii) Item2_image.currently.add(ii);
             }
 
 
@@ -1149,7 +1167,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         //logger.log(top_left + " is now top left at y=" + min_y);
 
-        //logger.log("currently Item1_image (s): "+Item1_image.currently.size());
+        //logger.log("currently Item2_image (s): "+Item2_image.currently.size());
     }
 
 
@@ -1158,14 +1176,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private static final double margin = 20;
     private static final double dmargin = 2*margin;
     //**********************************************************
-    public List<Item1> get_items_in(Pane pane, double x, double y, double w, double h)
+    public List<Item2> get_items_in(Pane pane, double x, double y, double w, double h)
     //**********************************************************
     {
         Bounds selection_bounds = new BoundingBox(x, y, w, h);
         //logger.log("selection  X= " + bounds.getMinX() + " " + bounds.getMaxX() + " Y= " + bounds.getMinY() + " " + bounds.getMaxY());
-        List<Item1> returned = new ArrayList<>();
+        List<Item2> returned = new ArrayList<>();
 
-        for (Item1 item : all_items_map.values()) {
+        for (Item2 item : all_items_map.values()) {
             Node node = item.get_Node();
             if (!pane.getChildren().contains(node)) continue;
             Bounds b = node.getBoundsInParent();
@@ -1203,9 +1221,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, x,y,logger);
-        for ( Item1 i : all_items_map.values())
+        for ( Item2 i : all_items_map.values())
         {
-            if (i instanceof Item1_button ini)
+            if (i instanceof Item2_folder ini)
             {
                 if(Files.isDirectory(ini.get_true_path()))
                 {
@@ -1219,6 +1237,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                             logger);
                 }
             }
+
         }
         show_how_many_files_deep_in_each_folder_done = true;
 
@@ -1261,13 +1280,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, x,y,logger);
-        for ( Item1 i : all_items_map.values())
+        for ( Item2 i : all_items_map.values())
         {
-            if (i instanceof Item1_button item_button)
+            if (i instanceof Item2_folder item2_folder)
             {
-                if(Files.isDirectory(item_button.get_true_path()))
+                if(Files.isDirectory(item2_folder.get_true_path()))
                 {
-                    item_button.add_total_size_deep_folder(count, item_button.get_button(), item_button.text, item_button.get_true_path(),
+                    item2_folder.add_total_size_deep_folder(count, item2_folder.get_button(), item2_folder.text, item2_folder.get_true_path(),
                             folder_total_sizes_cache,
                             show_running_film_frame.aborter, logger);
                 }
@@ -1314,7 +1333,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         
         //logger.log("\n\nIcon_manager::get_y_offset_of "+target.toAbsolutePath()+" size="+all_items_map.values().size());
         String t2 = target.toAbsolutePath().toString();
-        for ( Item1 i : all_items_map.values())
+        for ( Item2 i : all_items_map.values())
         {
             //logger.log("\n\nIcon_manager::get_y_offset_of ... looking at "+i.get_item_path().toAbsolutePath());
             if ( i.get_item_path().toAbsolutePath().toString().equals(t2))
@@ -1323,7 +1342,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 return i.get_javafx_y();
             }
         }
-        logger.log("\n\nSHOULD NOT HAPPEN: Virtual_landscape::get_y_offset_of "+target+" NOT FOUND");
+        logger.log("\n\nnot found: Virtual_landscape::get_y_offset_of "+target+" (was typically deleted recently)");
 
         return 0;
     }
@@ -1332,13 +1351,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     //**********************************************************
     private Point2D compute_next_Point2D_for_icons(Point2D p,
-                                                   Item1 item,
+                                                   Item2 item,
                                                    double column_increment,
                                                    double row_increment,
                                                    double scene_width,
                                                    boolean single_column,
                                                    double[] max_screen_y_in_row,
-                                                   List<Item1> current_row)
+                                                   List<Item2> current_row)
     //**********************************************************
     {
         double width_of_this = column_increment;
@@ -1349,12 +1368,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         item.set_screen_x_of_image(current_screen_x);
         item.set_screen_y_of_image(current_screen_y);
 
-        if (((Item1_image)item).aspect_ratio < 1.0)
+        if (((Item2_file_with_icon)item).aspect_ratio < 1.0)
         {
             if (dbg) logger.log("item is portrait aspect ratio: "+item.get_item_path());
 
             // portrait image
-            width_of_this = column_increment * ((Item1_image)item).aspect_ratio;
+            width_of_this = column_increment * ((Item2_file_with_icon)item).aspect_ratio;
             double neg_x = 0;//(width_of_this-column_increment)/2.0;
             // shift left to compensate the portrait
             item.set_javafx_x(current_screen_x+neg_x);
@@ -1364,7 +1383,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             if( dbg) logger.log("item is landscape aspect ratio: "+item.get_item_path());
             item.set_javafx_x(current_screen_x);
-            height_of_this = row_increment/((Item1_image)item).aspect_ratio;
+            height_of_this = row_increment/((Item2_file_with_icon)item).aspect_ratio;
             double neg_y = (height_of_this-row_increment)/2.0;
             // shift up to compensate the landscape
             item.set_javafx_y(current_screen_y+neg_y);
@@ -1372,7 +1391,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         current_row.add(item);
         if ( max_screen_y_in_row[0] < item.get_screen_y_of_image()+height_of_this) max_screen_y_in_row[0] = item.get_screen_y_of_image()+height_of_this;
-        if ( Item1.layout_dbg) logger.log(item.get_item_path()+"\n" +
+        if ( Item2.layout_dbg) logger.log(item.get_item_path()+"\n" +
                 "width_of_this="+width_of_this+" current_x="+current_screen_x+"\n" +
                 "height_of_this="+height_of_this+" current_y="+current_screen_y+ " max_y = "+max_screen_y_in_row[0]);
 
@@ -1390,20 +1409,20 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
 
         double future_x = item.get_screen_x_of_image()+width_of_this;
-        if ( Item1.layout_dbg) logger.log("width_of_this="+width_of_this+" => future_x: "+future_x);
+        if ( Item2.layout_dbg) logger.log("width_of_this="+width_of_this+" => future_x: "+future_x);
         if (future_x + column_increment > scene_width)
         {
-            if ( Item1.layout_dbg) logger.log("NEW ROW, max_screen_y_in_row="+max_screen_y_in_row[0]);
+            if ( Item2.layout_dbg) logger.log("NEW ROW, max_screen_y_in_row="+max_screen_y_in_row[0]);
 
             // adapt the vertical shift up (neg_y)
             // e.g. when the row also contains portraits
             double min_y = Double.MAX_VALUE;
             double max_y = 0;
-            for(Item1 i : current_row)
+            for(Item2 i : current_row)
             {
                 if (i.get_screen_y_of_image() < min_y) min_y = i.get_screen_y_of_image();
                 double height = 0;
-                if (((Item1_image)i).aspect_ratio < 1.0)
+                if (((Item2_file_with_icon)i).aspect_ratio < 1.0)
                 {
                     // portrait image
                     height=row_increment;
@@ -1411,15 +1430,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 else
                 {
                     // landscape image
-                    height = row_increment/((Item1_image)i).aspect_ratio;
+                    height = row_increment/((Item2_file_with_icon)i).aspect_ratio;
                 }
                 if (i.get_screen_y_of_image()+height > max_y) max_y = i.get_screen_y_of_image()+height;
             }
             double row_height = (max_y-min_y);
-            for(Item1 i : current_row)
+            for(Item2 i : current_row)
             {
                 double height = 0;
-                if (((Item1_image)i).aspect_ratio < 1.0)
+                if (((Item2_file_with_icon)i).aspect_ratio < 1.0)
                 {
                     // portrait image
                     height=row_increment;
@@ -1427,7 +1446,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 else
                 {
                     // landscape image
-                    height = row_increment/((Item1_image)i).aspect_ratio;
+                    height = row_increment/((Item2_file_with_icon)i).aspect_ratio;
                 }
                 double diff = (row_height-height)/2.0;
                 i.set_javafx_y(i.get_javafx_y()+diff);
@@ -1447,7 +1466,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     //**********************************************************
     private Point2D new_Point_for_files_and_dirs(Point2D point,
-                                                 Item1 item,
+                                                 Item2 item,
                                                  double column_increment,
                                                  double row_increment,
                                                  double scene_width,
@@ -1497,7 +1516,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double x_max = -Double.MAX_VALUE;
         double y_min = Double.MAX_VALUE;
         virtual_landscape_height = -Double.MAX_VALUE;
-        for (Item1 item : all_items_map.values())
+        for (Item2 item : all_items_map.values())
         {
             if (item.get_javafx_x() < x_min) x_min = item.get_javafx_x();
             if (item.get_javafx_x() + item.get_Width() > x_max)
@@ -1530,7 +1549,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     //**********************************************************
-    public void set_scroll_to_listener(Scroll_to_listener vertical_slider)
+    public void set_scroll_to_listener(Scroll_to_listener2 vertical_slider)
     //**********************************************************
     {
         scroll_to_listener = vertical_slider;
@@ -1577,7 +1596,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
 
         double font_size = Non_booleans.get_font_size(logger);
-        double height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+        double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
         Button up_button;
         {
@@ -1833,9 +1852,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Look_and_feel_manager.set_context_menu_look(view_menu);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context2.additional_same_folder(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context2.additional_same_folder_twin(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context2.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
 
 
         {
@@ -1888,7 +1907,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
             if (Booleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
             {
-                create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
+                logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
+                //create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context2.create_new_image_playlist(owner, logger)));
             }
             create.getItems().add(browser_menus.make_menu_item("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet()));
             create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> sort_by_year()));
@@ -2412,7 +2432,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
 
-    Scan_show the_scan_show;
+    Scan_show2 the_scan_show;
 
     private static final String msg = "(press \"s\" to start/stop/change direction, \"x\"=faster, \"w\"=slower) speed = ";
 
@@ -2420,7 +2440,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void start_scan()
     //**********************************************************
     {
-        the_scan_show = new Scan_show(this, vertical_slider, aborter, logger);
+        the_scan_show = new Scan_show2(this, vertical_slider, aborter, logger);
         set_status("Scan show starting ! " + msg + the_scan_show.get_speed());
     }
 
@@ -2977,7 +2997,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             if ( running_film != null) running_film.close();
 
-            for (Item1 item : future_pane_content)
+            for (Item2 item : future_pane_content)
             {
                 if (item.visible_in_scene.get())
                 {

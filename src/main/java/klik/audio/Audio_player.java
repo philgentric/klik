@@ -171,7 +171,7 @@ public class Audio_player extends Application
         List<String> cmds = new ArrayList<>();
         logger.log("start_new_process_to_browse()");
         cmds.add("gradle");
-        cmds.add("klik");
+        cmds.add("klik2");
         String path =  "--args=\""+folder.toAbsolutePath()+"\"";
         cmds.add(path);
 

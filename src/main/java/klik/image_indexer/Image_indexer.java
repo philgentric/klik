@@ -54,8 +54,6 @@ public class Image_indexer
 //**********************************************************
 {
     public final static boolean dbg = false;
-    Path_list_provider path_list_provider;
-   // public final Path current_dir;
     private final Logger logger;
 
     private final State state;
@@ -68,7 +66,6 @@ public class Image_indexer
         return new Image_indexer(path_list_provider, d, file_comparator, aborter, logger_);
     }
 
-
     //**********************************************************
     private Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> fileComparator, Aborter aborter, Logger l)
     //**********************************************************
@@ -77,7 +74,6 @@ public class Image_indexer
         //current_dir = dir_;
         state = new State(path_list_provider,fileComparator, aborter,logger);
     }
-
 
     //**********************************************************
     public Path get_new_path_relative(Path path, int delta, boolean ultimate)
@@ -121,10 +117,8 @@ public class Image_indexer
          */
         for (int max = 0; max < 2*state.how_many_images();max++)
         {
-
             Path returned = state.path_from_index(target);
             if ( dbg) logger.log("index_to_path("+target+")="+returned);
-
             if (Files.exists(returned))
             {
                 if (ultimate)
@@ -227,7 +221,7 @@ public class Image_indexer
     }
 
     //**********************************************************
-    public boolean exists(Path path)
+    public boolean is_known(Path path)
     //**********************************************************
     {
         if ( state.index_from_path(path) == null) return false;

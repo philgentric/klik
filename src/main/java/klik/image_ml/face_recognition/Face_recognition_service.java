@@ -30,7 +30,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.New_window_context;
+import klik.browser.New_window_context2;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.image_ml.Feature_vector;
 import klik.util.files_and_paths.Guess_file_type;
@@ -58,7 +58,6 @@ public class Face_recognition_service
     public final static String EXTENSION_FOR_EP = "prototype";
     private static Face_recognition_service instance = null;
     final Logger logger;
-    //final Browser browser;
     ConcurrentLinkedQueue<Embeddings_prototype> embeddings_prototypes = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<String> labels = new ConcurrentLinkedQueue<>();
     Map<String,Embeddings_prototype> tag_to_prototype = new ConcurrentHashMap<>();
@@ -72,18 +71,15 @@ public class Face_recognition_service
     private Window owner;
 
     //**********************************************************
-    private Face_recognition_service(String name_,
-                                     //Browser browser,
-                                     Window owner,Logger logger)
+    private Face_recognition_service(String name, Window owner,Logger logger)
     //**********************************************************
     {
-        //this.browser = browser;
-        face_recognizer_name = name_;
+        face_recognizer_name = name;
         this.owner = owner;
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
-        New_window_context.additional_no_past(face_recognizer_path,logger);
+        New_window_context2.additional_no_past(face_recognizer_path,logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();

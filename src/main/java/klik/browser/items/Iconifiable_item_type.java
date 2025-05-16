@@ -2,6 +2,7 @@ package klik.browser.items;
 
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,11 +24,23 @@ public enum Iconifiable_item_type
     public static Iconifiable_item_type from_extension(Path path)
     //**********************************************************
     {
-        if ( path == null ) return no_path;
-        if ( path.getFileName() == null ) return no_path;
+        if ( path == null )
+        {
+            System.out.println(Stack_trace_getter.get_stack_trace("path is null"));
+            return no_path;
+        }
+        if ( path.getFileName() == null )
+        {
+            System.out.println(Stack_trace_getter.get_stack_trace("path.getFileName() is null"));
+            return no_path;
+        }
 
         // special macos
-        if (path.getFileName().toString().startsWith("._")) return no_path;
+        if (path.getFileName().toString().startsWith("._"))
+        {
+            System.out.println(Stack_trace_getter.get_stack_trace("path.getFileName() starts with ._"));
+            return no_path;
+        }
 
         if ( path.toFile().isDirectory())
         {
@@ -41,6 +54,8 @@ public enum Iconifiable_item_type
         if (Guess_file_type.is_this_extension_a_gif(extension)) return image_gif;
         if (Guess_file_type.is_this_extension_a_png(extension)) return image_png;
         if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return image_not_gif_not_png;
+
+        System.out.println(Stack_trace_getter.get_stack_trace("path.getFileName() DEFAULT null"));
 
         return no_path;
     }

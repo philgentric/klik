@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.items.Item_image;
+import klik.browser.items.Item1_image;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.properties.Non_booleans;
@@ -510,7 +510,7 @@ public class Image_context
                 Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l);
 
-        Item_image.open_an_image(true,
+        Item1_image.open_an_image(true,
                 path_list_provider,
                 new_path,logger);
         //Image_window orphan = Image_window.get_Image_window(b,new_path, logger);

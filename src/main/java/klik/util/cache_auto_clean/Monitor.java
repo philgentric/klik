@@ -2,8 +2,11 @@
 //SOURCES ./Cache_auto_clean.java
 package klik.util.cache_auto_clean;
 
+import klik.Window_provider;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.browser.Abstract_browser;
+import klik.browser.Shared_services;
 import klik.change.history.History_auto_clean;
 import klik.util.log.Logger;
 
@@ -11,22 +14,19 @@ import klik.util.log.Logger;
 public class Monitor
 //**********************************************************
 {
-
-    public final Aborter aborter;
     public final Logger logger;
     private final Disk_usage_monitor disk_usage_monitor;
     private final Cache_auto_clean cache_auto_clean;
     private final History_auto_clean history_auto_clean;
 
     //**********************************************************
-    public Monitor(Aborter aborter, Logger logger)
+    public Monitor(Window_provider window_provider, Logger logger)
     //**********************************************************
     {
-        this.aborter = aborter;
         this.logger = logger;
-        disk_usage_monitor = new Disk_usage_monitor(null, aborter, logger);
-        cache_auto_clean = new Cache_auto_clean(null, aborter, logger);
-        history_auto_clean = new History_auto_clean(aborter, logger);
+        disk_usage_monitor = new Disk_usage_monitor(window_provider.get_owner(), logger);
+        cache_auto_clean = new Cache_auto_clean( logger);
+        history_auto_clean = new History_auto_clean(logger);
     }
 
     //**********************************************************
@@ -36,7 +36,7 @@ public class Monitor
         Runnable r = () -> {
             for(;;)
             {
-                if ( aborter.should_abort())
+                if ( Shared_services.shared_services_aborter.should_abort())
                 {
                     logger.log("All 3 Monitors aborted");
                     return;

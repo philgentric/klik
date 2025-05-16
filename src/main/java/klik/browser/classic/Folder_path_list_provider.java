@@ -26,6 +26,7 @@ public class Folder_path_list_provider implements Path_list_provider
     public Folder_path_list_provider(Path folder_path)
     //**********************************************************
     {
+        System.out.println("Folder_path_list_provider -> "+folder_path+"<-");
         this.folder_path = folder_path;
        /* if ( cached)
         {
@@ -41,8 +42,10 @@ public class Folder_path_list_provider implements Path_list_provider
         return folder_path;
     }
 
+    //**********************************************************
     @Override
     public List<Path> only_file_paths(boolean consider_also_hidden_files)
+    //**********************************************************
     {
         File dir = folder_path.toFile();
         File[] files = dir.listFiles();
@@ -59,8 +62,33 @@ public class Folder_path_list_provider implements Path_list_provider
         }
         return returned;
     }
+
+    //**********************************************************
+    @Override
+    public List<Path> only_image_paths(boolean consider_also_hidden_files)
+    //**********************************************************
+    {
+        File dir = folder_path.toFile();
+        File[] files = dir.listFiles();
+        if ( files == null) return new ArrayList<>();
+        List<Path> returned = new ArrayList<>();
+        for (File file : files)
+        {
+            if ( file.isDirectory() ) continue;
+            if ( !Guess_file_type.is_this_path_an_image(file.toPath())) continue;
+            if (! consider_also_hidden_files)
+            {
+                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+            }
+            returned.add(file.toPath());
+        }
+        return returned;
+    }
+
+    //**********************************************************
     @Override
     public int how_many_files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders)
+    //**********************************************************
     {
         File dir = folder_path.toFile();
         File[] files = dir.listFiles();
@@ -85,8 +113,11 @@ public class Folder_path_list_provider implements Path_list_provider
         }
         return returned;
     }
+
+    //**********************************************************
     @Override
     public List<Path> only_folder_paths(boolean consider_also_hidden_folders)
+    //**********************************************************
     {
         File dir = folder_path.toFile();
         File[] files = dir.listFiles();

@@ -96,6 +96,28 @@ tasks.register('klik', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
 }
+
+tasks.register('klik2', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.Klik_application2'
+
+    // Java VM RAM size options:
+
+    // if you have only 2GB or not much more:
+    //applicationDefaultJvmArgs = ["-Xms1G"]
+
+    // if you have a lot of RAM say 64GB or more
+    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
+
+
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+}
+
+
+
 tasks.register('image_viewer', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.images.Image_viewer_application'
@@ -135,20 +157,4 @@ application {
 run{
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
-}
-
-
-tasks.register('klik_the_jar', Jar) {
-    manifest {
-        attributes('Main-Class': 'klik.Klik_application')
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-        sourceSets.main.output
-    }
-    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    archiveBaseName.set('Klik')
-    archiveVersion.set('1.0')
-    destinationDirectory.set(layout.buildDirectory.dir("libs"))
 }

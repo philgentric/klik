@@ -5,13 +5,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Klik_application;
+import klik.Klik_application2;
 import klik.Window_provider;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Full_screen_handler;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Shutdown_target;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.Virtual_landscape2;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
@@ -23,7 +23,7 @@ import klik.util.log.Logger;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider
+public abstract class Abstract_browser2 implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider
 //**********************************************************
 {
 
@@ -41,8 +41,8 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
 
     protected Filesystem_item_modification_watcher filesystem_item_modification_watcher;
-    protected My_Stage my_Stage;
-    protected Virtual_landscape virtual_landscape;
+    protected My_Stage2 my_Stage;
+    protected Virtual_landscape2 virtual_landscape;
     protected final Logger logger;
     protected Aborter aborter;
     protected boolean ignore_escape_as_the_stage_is_full_screen = false;
@@ -53,7 +53,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     protected abstract void monitor();
 
     //**********************************************************
-    public Abstract_browser(Logger logger_)
+    public Abstract_browser2(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -68,7 +68,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     }
 
     //**********************************************************
-    public void init(New_window_context context, Change_receiver change_receiver,String badge)
+    public void init(New_window_context2 context, Change_receiver change_receiver,String badge)
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();
@@ -78,9 +78,9 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             context.shutdown_target.shutdown();
         }
 
-        aborter = new Aborter("Browser for: " + get_name(), logger);
+        aborter = new Aborter("Abstract_browser2 for: " + get_name(), logger);
 
-        my_Stage = new My_Stage(new Stage(), logger);
+        my_Stage = new My_Stage2(new Stage(), logger);
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
             System.out.println("Klik browser window exit");
@@ -138,7 +138,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         logger.log("Browser init");
         monitor();
-        virtual_landscape = new Virtual_landscape(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
+        virtual_landscape = new Virtual_landscape2(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -180,15 +180,15 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         logger.log("close_window: browsers_created(2) ="+count);
         if (count ==0)
         {
-            if (Klik_application.primary_stage != null)
+            if (Klik_application2.primary_stage != null)
             {
                 logger.log("primary_stage closing = primary_stage.close()");
-                Klik_application.primary_stage.close();
+                Klik_application2.primary_stage.close();
                 Shared_services.shared_services_aborter.abort("primary_stage closing");
             }
             else
             {
-                logger.log("SHOULD NOT HAPPEN: primary_stage is null");
+                logger.log("SHOULD NOT HAPPEN Abstract_browser2: primary_stage is null");
 
             }
             logger.log("primary_stage closing = Platform.exit()");

@@ -184,7 +184,7 @@ public class Icon_factory_actor implements Actor
                 return process_image(icon_factory_request, destination);
             }
             case no_path -> {
-                logger.log("HAPPENS?????: no path for icon destination???"+icon_factory_request.destination);
+                logger.log(Stack_trace_getter.get_stack_trace("HAPPENS in Icon_factory_actor: no path for icon destination???"+icon_factory_request.destination));
                 return process_image(icon_factory_request, destination);
             }
 

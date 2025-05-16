@@ -111,10 +111,10 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath());
 
 		// first we check if the one of the file names has been cleaned
-		if(Name_cleaner.clean(all_files.get(i).file.getName(),true,private_aborter,logger).equals(all_files.get(j).file.getName()))
+		if(Name_cleaner.clean(all_files.get(i).file.getName(),true,logger).equals(all_files.get(j).file.getName()))
 		{
 			// i name is clean
-			if(! Name_cleaner.clean(all_files.get(j).file.getName(),true,private_aborter,logger).equals(all_files.get(i).file.getName()))
+			if(! Name_cleaner.clean(all_files.get(j).file.getName(),true,logger).equals(all_files.get(i).file.getName()))
 			{
 				// f1 name is clean, and f2 is not ..
 				return set_f2_to_be_deleted(i,j, is_image);
@@ -122,7 +122,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		}
 		else
 		{
-			if(Name_cleaner.clean(all_files.get(j).file.getName(),true,private_aborter,logger).equals(all_files.get(i).file.getName()))
+			if(Name_cleaner.clean(all_files.get(j).file.getName(),true,logger).equals(all_files.get(i).file.getName()))
 			{
 				// f2 name is clean, and f1 is not ..
 				return set_f1_to_be_deleted(i,j, is_image);

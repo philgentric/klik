@@ -42,7 +42,7 @@ import java.util.*;
 
 
 //**********************************************************
-public class Item_folder_with_icon extends Item implements Icon_destination, Disk_foot_print_receiver
+public class Item1_folder_with_icon extends Item1 implements Icon_destination, Disk_foot_print_receiver
 //**********************************************************
 {
     public static final boolean dbg = false;
@@ -62,24 +62,32 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     private  final Image_properties_RAM_cache image_properties_RAM_cache;
 
     //**********************************************************
-    public Item_folder_with_icon(
+    public Item1_folder_with_icon(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
-            Path path,
+            //Path path,
             Icon_factory_actor icon_factory_actor,
             Color color,
             Aborter aborter,
             String text_,
             int column_width_,
             Image_properties_RAM_cache image_properties_RAM_cache,
-            Scroll_position_recorder scroll_position_recorder,
             Shutdown_target shutdown_target,
             Path_list_provider path_list_provider,
+            Top_left_provider top_left_provider,
             Logger logger)
     //**********************************************************
     {
-        super(owner,scene,selection_handler,path,icon_factory_actor,color, scroll_position_recorder, path_list_provider, aborter, logger);
+        super(
+                owner,
+                scene,
+                selection_handler,
+                icon_factory_actor,
+                color,
+                path_list_provider,
+                aborter,
+                logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         folder_icon_size = Non_booleans.get_folder_icon_size();
@@ -101,19 +109,23 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         the_button.setContentDisplay(ContentDisplay.BOTTOM);
 
         Look_and_feel_manager.set_button_look(the_button,true);
-        scroll_position_recorder.record_scroll_position(path);
-        the_button.setOnAction(actionEvent -> New_window_context.replace_different_folder(shutdown_target, path,owner, logger));
-        Tooltip.install(the_button,new Tooltip(path.getFileName().toString()));
+        the_button.setOnAction(actionEvent ->
+                {
+                    Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
+                    if ( is_parent()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up-button, the old path is the current path
+                    New_window_context.replace_different_folder(shutdown_target, get_item_path(),owner, old_folder_path,top_left_provider.get_top_left(),logger);
+                });
+        Tooltip.install(the_button,new Tooltip(get_item_path().getFileName().toString()));
 
         resize_the_box(the_button);
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,path,is_trash(),logger);
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,get_item_path(),is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
         give_a_menu_to_the_button(the_button,null);
 
     }
     //**********************************************************
-    @Override // Item
+    @Override // Item1
     public int get_icon_size()
     //**********************************************************
     {
@@ -121,11 +133,10 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     }
 
     //**********************************************************
-    @Override // Item
+    @Override // Item1
     public void you_are_visible_specific()
     //**********************************************************
     {
-
     }
 
     //**********************************************************
@@ -178,7 +189,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         if ( image_and_properties.image() == null)
         {
             the_image_view = null;
-            logger.log(Stack_trace_getter.get_stack_trace("image==null for "+path));
+            logger.log(Stack_trace_getter.get_stack_trace("image==null for "+get_item_path()));
             return;
         }
         if ( the_image_view == null)
@@ -218,7 +229,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
 
     // this call is intended only from a working thread typically: in the icon factory 
     //**********************************************************
-    @Override // Item
+    @Override // Item1
     public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
@@ -230,17 +241,17 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
         }
 
         // try to find an icon for the folder
-        File dir = path.toFile();
+        File dir = get_item_path().toFile();
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) logger.log("WARNING: dir is access denied: "+path);
+            if ( dbg) logger.log("WARNING: dir is access denied: "+get_item_path());
             create_label_for_sizes("Access Denied?");
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) logger.log("dir is empty: "+path);
+            if ( dbg) logger.log("dir is empty: "+get_item_path());
             create_label_for_sizes("Empty folder");
             return null;
         }
@@ -282,11 +293,11 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
                 }
             }
             create_label_for_sizes("...computing sizes...");
-            launch_disk_foot_print_thread(this, path, aborter, logger);
+            launch_disk_foot_print_thread(this, get_item_path(), aborter, logger);
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(owner,new Folder_path_list_provider(path),  images_in_folder,  image_properties_RAM_cache, aborter,logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(owner,new Folder_path_list_provider(get_item_path()),  images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");
@@ -317,14 +328,14 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     }
 
     //**********************************************************
-    @Override // Item
+    @Override // Item1
     public void set_is_unselected_internal()
     {
         Look_and_feel_manager.give_button_a_file_style(the_button);
     }
 
     //**********************************************************
-    @Override // Item
+    @Override // Item1
     public void set_is_selected_internal()
     //**********************************************************
     {
@@ -379,7 +390,7 @@ public class Item_folder_with_icon extends Item implements Icon_destination, Dis
     //**********************************************************
     {
         // only used for debug logging
-        return "Item_folder_with_icon for: " + path.toAbsolutePath();
+        return "Item1_folder_with_icon for: " + get_item_path().toAbsolutePath();
     }
 
 

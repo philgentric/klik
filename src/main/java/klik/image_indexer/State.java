@@ -19,7 +19,6 @@ class State
     private final Map<Integer,Path> index_to_path;
     Logger logger;
     private final Aborter aborter;
-    //private final Path current_dir;
     private final Path_list_provider path_list_provider;
     static final String target = "*.{"+Guess_file_type.get_supported_image_formats_as_a_comma_separated_string()+"}";
     private final Comparator<? super Path> file_comparator;
@@ -51,7 +50,7 @@ class State
 
         boolean consider_also_hidden_files =  Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
 
-        List<Path> path_list = path_list_provider.only_file_paths(consider_also_hidden_files);//new ArrayList<>();
+        List<Path> path_list = path_list_provider.only_image_paths(consider_also_hidden_files);//new ArrayList<>();
         if (dbg) logger.log(("image file source scan for:"+target));
         /*
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, target))

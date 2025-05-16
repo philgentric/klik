@@ -869,7 +869,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
-        Undo_engine.add(l,aborter, logger);
+        Undo_engine.add(l, logger);
         return new_path;
         
     }
