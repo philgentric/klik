@@ -11,7 +11,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -20,13 +19,10 @@ import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.util.Duration;
 import klik.actor.Aborter;
 import klik.browser.Drag_and_drop;
-import klik.browser.Move_provider;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
-import klik.browser.items.Item2;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
@@ -41,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static klik.audio.Audio_player.sanitize_file_name;
 import static klik.properties.Non_booleans.USER_HOME;
 
 //**********************************************************
@@ -89,7 +86,7 @@ public class Audio_player_frame
 
     //main STATE:
     File the_song_file;
-    Label status_label;
+    Label the_status_label;
 
     //**********************************************************
     Audio_player_frame(Aborter aborter, Logger logger)
@@ -113,14 +110,17 @@ public class Audio_player_frame
         stage.widthProperty().addListener(change_listener);
         stage.heightProperty().addListener(change_listener);
         stage.setMinWidth(WIDTH);
-        VBox the_big_vbox = new VBox();
-        Look_and_feel_manager.set_region_look(the_big_vbox);
+        VBox the_top_vbox = new VBox();
+        Look_and_feel_manager.set_region_look(the_top_vbox);
 
         VBox duration_vbox = define_duration_vbox();
-        the_big_vbox.getChildren().add(duration_vbox);
-        volume_and_balance(the_big_vbox);
-        the_big_vbox.getChildren().add(define_playlist_hbox());
-        define_scrollpane_with_songs(the_big_vbox);
+        the_top_vbox.getChildren().add(duration_vbox);
+        volume_and_balance(the_top_vbox);
+
+        the_top_vbox.getChildren().add(define_playlist_hbox());
+
+
+        ScrollPane scroll_pane = define_scrollpane_with_songs();
 
         pause_string = My_I18n.get_I18n_string(PAUSE,logger);
         play_string = My_I18n.get_I18n_string(PLAY,logger);
@@ -134,8 +134,9 @@ public class Audio_player_frame
             Audio_player.instance = null;
         });
 
+        BorderPane bottom_border_pane = define_bottom_pane(the_top_vbox, scroll_pane);
 
-        Scene scene = new Scene(the_big_vbox);
+        Scene scene = new Scene(bottom_border_pane);
         stage.setScene(scene);
         scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> handle_keyboard( keyEvent, logger));
         stage.show();
@@ -147,6 +148,26 @@ public class Audio_player_frame
         load_playlist(playlist_file);
     }
 
+
+    //**********************************************************
+    private BorderPane define_bottom_pane(Pane top_pane, ScrollPane scroll_pane)
+    //**********************************************************
+    {
+        BorderPane returned = new BorderPane();
+        returned.setTop(top_pane);
+        returned.setCenter(scroll_pane);
+
+        VBox the_status_bar = new VBox();
+
+        the_status_label = new Label("Status: OK");
+        the_status_label.prefWidth(1000);
+        the_status_label.setWrapText(true);
+        Look_and_feel_manager.set_region_look(the_status_label);
+        the_status_bar.getChildren().add(the_status_label);
+        returned.setBottom(the_status_bar);
+        Look_and_feel_manager.set_region_look(returned);
+        return returned;
+    }
 
     //**********************************************************
     private VBox define_duration_vbox()
@@ -220,7 +241,7 @@ public class Audio_player_frame
     }
 
     //**********************************************************
-    private Button define_landing_zone()
+    private Button define_landing_zone_button()
     //**********************************************************
     {
         Button landing_zone = new Button(My_I18n.get_I18n_string("Drop new music files or folders here",logger));
@@ -299,7 +320,8 @@ public class Audio_player_frame
                 }
                 else
                 {
-                    observable_playlist.add(f);
+                    f = sanitize_file_name(f,aborter,logger);
+                    add_and_save_if_needed(f);
                 }
 
             }
@@ -317,11 +339,15 @@ public class Audio_player_frame
     //**********************************************************
     {
         File[] files = f.listFiles();
-        if ( files == null) return;
+        if ( files == null) return ;
         for (File ff : files)
         {
             if ( ff.isDirectory()) load_folder(ff);
-            else observable_playlist.add(ff);
+            else
+            {
+                ff = sanitize_file_name(ff,aborter,logger);
+                add_and_save_if_needed(ff);
+            }
         }
     }
 
@@ -343,7 +369,7 @@ public class Audio_player_frame
     //**********************************************************
     {
         VBox returned = new VBox();
-        Button landing_zone = define_landing_zone();
+        Button landing_zone = define_landing_zone_button();
         returned.getChildren().add(landing_zone);
         return returned;
     }
@@ -501,11 +527,6 @@ public class Audio_player_frame
         shuffle.setOnAction(_->FXCollections.shuffle(observable_playlist));
         returned.getChildren().add(shuffle);
 
-        status_label = new Label("Status: OK");
-        status_label.prefWidth(1000);
-        status_label.setWrapText(true);
-        Look_and_feel_manager.set_region_look(status_label);
-        returned.getChildren().add(status_label);
 
         return returned;
     }
@@ -514,7 +535,7 @@ public class Audio_player_frame
 
 
     //**********************************************************
-    private void define_scrollpane_with_songs(VBox the_big_vbox)
+    private ScrollPane define_scrollpane_with_songs()
     //**********************************************************
     {
         file_to_button = new HashMap<>();
@@ -537,14 +558,13 @@ public class Audio_player_frame
             }
         });
 
-        the_big_vbox.getChildren().add(scroll_pane);
         Look_and_feel_manager.set_region_look(scroll_pane);
         scroll_pane.setPrefSize(WIDTH, 600);
         VBox the_vertical_box = new VBox();
         scroll_pane.setContent(the_vertical_box);
 
         scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll_pane.setPrefHeight(3000);
         observable_playlist.addListener(new ListChangeListener<File>() {
             @Override
@@ -597,6 +617,7 @@ public class Audio_player_frame
                 }
             }
         });
+        return scroll_pane;
     }
 
     //**********************************************************
@@ -705,7 +726,7 @@ public class Audio_player_frame
             if (new_song.exists() == false)
             {
                 logger.log(("FATAL: " + new_song.getAbsolutePath() + " does not exist"));
-                status_label.setText("File not found: "+new_song.getAbsolutePath());
+                the_status_label.setText("File not found: "+new_song.getAbsolutePath());
                 remove_from_playlist_thats_all(new_song);
                 return;
             }
@@ -723,11 +744,11 @@ public class Audio_player_frame
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null,new_song.toPath(),logger);
         //logger.log("bitrate= "+bitrate);
         logger.log(new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
-        status_label.setText("Status: OK for:"+new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
+        the_status_label.setText("Status: OK for:"+new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
 
         clean_up();
         the_song_file = new_song;
-        add_and_save_if_needed();
+        add_and_save_if_needed(the_song_file);
 
         stage.setTitle(the_song_file.getName() +"       bitrate= "+bitrate+" kb/s");
 
@@ -780,20 +801,20 @@ public class Audio_player_frame
 
 
     //**********************************************************
-    private void add_and_save_if_needed()
+    private void add_and_save_if_needed(File added_song)
     //**********************************************************
     {
         for (File file : observable_playlist)
         {
-            if (file.getAbsolutePath().equals(the_song_file.getAbsolutePath()))
+            if (file.getAbsolutePath().equals(added_song.getAbsolutePath()))
             {
                 // that song is ALREADY in the list
-                set_selected(the_song_file);
+                set_selected(added_song);
                 return;
             }
         }
-        observable_playlist.add(the_song_file);
-        set_selected(the_song_file);
+        observable_playlist.add(added_song);
+        set_selected(added_song);
         scroll_pane.setVvalue(1.0);           //1.0 means 100% at the bottom
         save_observable_playlist();
     }
@@ -1263,9 +1284,11 @@ public class Audio_player_frame
             observable_playlist.clear();
             for(;;)
             {
-                String song = br.readLine();
-                if ( song == null ) break;
-                observable_playlist.add(new File(song));
+                String song_path = br.readLine();
+                if ( song_path == null ) break;
+                File song = new File(song_path);
+                song = sanitize_file_name(song, aborter, logger);
+                add_and_save_if_needed(song);
             }
             playlist_file = playlist_file_;
         } catch (FileNotFoundException e) {

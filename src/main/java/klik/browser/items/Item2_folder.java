@@ -472,9 +472,10 @@ public class Item2_folder extends Item2 implements Icon_destination
             Path top_left;
             if ( is_parent())
             {
-                top_left = top_left_provider.get_top_left().getParent();
+                top_left = top_left_provider.get_top_left();
+                if ( top_left != null) top_left = top_left.getParent();
                 old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
-                logger.log("\n\nreplace_different_folder IS PARENT old_folder_path "+old_folder_path+" \ntop_left_provider.get_top_left() "+top_left_provider.get_top_left());
+                logger.log("\n\nreplace_different_folder IS PARENT old_folder_path "+old_folder_path+" \ntop_left "+top_left);
             }
             else
             {

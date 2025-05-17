@@ -101,8 +101,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private Scroll_to_listener scroll_to_listener;
     private final Paths_holder paths_manager;
 
-    // relevant for footprint:
-    public Comparator<Path> all_file_comparator;
 
     // otherwise there are 2 sorted lists
     public Comparator<Path> image_file_comparator;
@@ -267,7 +265,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void clear_image_comparators_caches()
     //**********************************************************
     {
-        ((Clearable_RAM_cache) (all_file_comparator)).clear_RAM_cache();
         ((Clearable_RAM_cache) (image_file_comparator)).clear_RAM_cache();
         ((Clearable_RAM_cache) (other_file_comparator)).clear_RAM_cache();
     }
@@ -779,12 +776,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         for ( Path path : paths_manager.iconized_paths)
         {
+            Double cache_aspect_ratio = 1.0;
             Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
             if ( ip == null) {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
-                continue;
+                logger.log(Stack_trace_getter.get_stack_trace("warning: CACHE MISS !!"));
             }
-            Double cache_aspect_ratio = ip.get_aspect_ratio();
+            else
+            {
+                cache_aspect_ratio = ip.get_aspect_ratio();
+            }
             Item2 item = new Item2_file_with_icon(
                     owner,
                     the_Scene,
@@ -1659,7 +1659,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
+    //**********************************************************
     String get_status()
+    //**********************************************************
     {
         File_sort_by file_sort_by = File_sort_by.get_sort_files_by(path_list_provider.get_folder_path());
         if (file_sort_by == null)

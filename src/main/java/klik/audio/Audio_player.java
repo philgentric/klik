@@ -10,6 +10,10 @@ import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
+import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Moving_files;
+import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -203,7 +207,8 @@ public class Audio_player extends Application
     public static void play_this_song(File song,Logger logger)
     //**********************************************************
     {
-
+        if ( song != null) song = sanitize_file_name(song, instance.aborter, logger);
+        File finalSong = song;
         Runnable r = () ->
         {
             if (instance == null)
@@ -211,9 +216,32 @@ public class Audio_player extends Application
                 logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player.init() before trying to play"));
             }
 
-            instance.change_song(song);
+            instance.change_song(finalSong);
         };
         if (Platform.isFxApplicationThread()) r.run();
         else Platform.runLater(r);
+    }
+
+    //**********************************************************
+    static File sanitize_file_name(File song, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        String file_name = song.getName();
+        String parent = song.getParent();
+        String new_name = file_name.replaceAll(" ", "_");
+        new_name = new_name.replaceAll("\\[", "_");
+        new_name = new_name.replaceAll("]", "_");
+
+        if ( new_name.equals(file_name))
+        {
+            return song;
+        }
+        List<Old_and_new_Path> l = new ArrayList<>();
+        l.add(new Old_and_new_Path(song.toPath(),Path.of(parent,new_name), Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false));
+        Moving_files.actual_safe_moves(null, 100,100,l,true,aborter,logger);
+        File dest = new File(parent,new_name);
+        song.renameTo(dest);
+        logger.log("renamed "+song.getAbsolutePath()+" to "+dest.getAbsolutePath());
+        return dest;
     }
 }

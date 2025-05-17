@@ -44,9 +44,12 @@ public class History_engine
     //**********************************************************
     {
         this.logger = logger;
-        String home = System.getProperty(Non_booleans.USER_HOME);
-        Path p = Paths.get(home, Non_booleans.CONF_DIR, HISTORY_FILENAME);
-        global_history_properties_manager = new Properties_manager(p, "History DB", Shared_services.shared_services_aborter, logger);
+        if ( global_history_properties_manager == null)
+        {
+            String home = System.getProperty(Non_booleans.USER_HOME);
+            Path p = Paths.get(home, Non_booleans.CONF_DIR, HISTORY_FILENAME);
+            global_history_properties_manager = new Properties_manager(p, "History DB", Shared_services.shared_services_aborter, logger);
+        }
     }
 
     //**********************************************************

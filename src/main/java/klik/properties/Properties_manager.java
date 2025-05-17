@@ -40,8 +40,8 @@ public class Properties_manager
 
     // saving to file is done in a separate thread:
     public final BlockingQueue<Long> disk_store_request_queue = new LinkedBlockingQueue<>();
-    private Long last_save_timestemp = null;
-    AtomicBoolean disk_not_updated = new AtomicBoolean(false);
+    //private Long last_save_timestemp = null;
+    AtomicBoolean need_to_save_to_disk = new AtomicBoolean(false);
 
     //**********************************************************
     public Properties_manager(Path f_, String tag, Aborter aborter,Logger logger)
@@ -89,7 +89,7 @@ public class Properties_manager
                     {
                         // always save on clean exit
                         save_if_needed(now);
-                        logger.log("saving and aborting Properties store engine : " + tag + " " + the_properties_path);
+                        logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
                         return;
                     }
                     if ( b == null)
@@ -99,21 +99,24 @@ public class Properties_manager
                     }
                     else
                     {
-                        disk_not_updated.set(true);
+                        need_to_save_to_disk.set(true);
                         if ( disk_store_request_queue.peek() != null)
                         {
+                            logger.log("ignoring as there are more requests for saving Properties store engine : " + tag + " " + the_properties_path);
                             // another request is already in flight, ignore this one
                             continue;
                         }
+                        /*
                         if ( last_save_timestemp != null)
                         {
                             long delta = now - last_save_timestemp;
                             if (delta < 1000)
                             {
                                 // this request is too close to the last one
+                                logger.log("ignoring as is too soon for saving Properties store engine : " + tag + " " + the_properties_path);
                                 continue;
                             }
-                        }
+                        }*/
                         save_if_needed(now);
                     }
 
@@ -134,10 +137,11 @@ public class Properties_manager
     private void save_if_needed(long now)
     //**********************************************************
     {
-        if (!disk_not_updated.get()) return;
-        last_save_timestemp = now;
-        disk_not_updated.set(false);
-        store_properties_internal();
+        if (need_to_save_to_disk.get()) {
+            //last_save_timestemp = now;
+            store_properties_internal();
+            need_to_save_to_disk.set(false);
+        }
     }
 
 
@@ -145,8 +149,8 @@ public class Properties_manager
     private void store_properties_internal()
     //**********************************************************
     {
-       if (dbg)
-            logger.log("store_properties() "+the_properties_path.toAbsolutePath());
+       //if (dbg)
+            logger.log("store_properties_internal() "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
         {

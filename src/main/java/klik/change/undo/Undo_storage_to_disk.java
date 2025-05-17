@@ -33,7 +33,7 @@ public class Undo_storage_to_disk
     public static final String HOW_MANY = "_how_many";
     private final Logger logger;
     public static final String UNDO_FILENAME = "undo.properties";
-    private final Properties_manager properties_manager;
+    private static Properties_manager properties_manager;
 
     //**********************************************************
     public Undo_storage_to_disk(Logger logger_)
@@ -42,7 +42,7 @@ public class Undo_storage_to_disk
         logger = logger_;
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, UNDO_FILENAME);
-        properties_manager = new Properties_manager(p, "Undo DB",Shared_services.shared_services_aborter,logger);
+        if( properties_manager == null) properties_manager = new Properties_manager(p, "Undo DB",Shared_services.shared_services_aborter,logger);
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded");
     }
