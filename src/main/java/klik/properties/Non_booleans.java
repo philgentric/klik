@@ -4,7 +4,7 @@ package klik.properties;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Virtual_landscape2;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.Logger;
 import klik.util.log.Simple_logger;
 import klik.util.ui.Popups;
@@ -84,7 +84,7 @@ public class Non_booleans
         {
             String home = System.getProperty(USER_HOME);
             Path p = Paths.get(home, CONF_DIR, PROPERTIES_FILENAME);
-            the_properties_manager = new Properties_manager(p, returned,tmp_logger);
+            the_properties_manager = new Properties_manager(p, "Preferences DB",returned,tmp_logger);
         }
         return returned;
     }
@@ -116,10 +116,10 @@ public class Non_booleans
         Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
         if ( dbg) logger.log("saving bounds="+r);
         Properties_manager pm = get_main_properties_manager();
-        pm.add_and_save(key+ SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
-        pm.add_and_save(key+ SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
-        pm.add_and_save(key+ SCREEN_WIDTH, String.valueOf(r.getWidth()));
-        pm.add_and_save(key+ SCREEN_HEIGHT, String.valueOf(r.getHeight()));
+        pm.add(key+ SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
+        pm.add(key+ SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
+        pm.add(key+ SCREEN_WIDTH, String.valueOf(r.getWidth()));
+        pm.add(key+ SCREEN_HEIGHT, String.valueOf(r.getHeight()));
     }
 
 
@@ -144,7 +144,7 @@ public class Non_booleans
             double d_video_length = Double.parseDouble(video_length_s);
             video_length = (int) d_video_length;
         }
-        get_main_properties_manager().add_and_save(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
+        get_main_properties_manager().add(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return video_length;
     }
@@ -154,7 +154,7 @@ public class Non_booleans
     //**********************************************************
     {
         video_length = l;
-        get_main_properties_manager().add_and_save(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
+        get_main_properties_manager().add(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
     }
 
 
@@ -167,12 +167,12 @@ public class Non_booleans
         // first time, we look it up on disk
         String column_width_s = get_main_properties_manager().get(COLUMN_WIDTH);
         if (column_width_s == null) {
-            column_width = Virtual_landscape2.MIN_COLUMN_WIDTH;
+            column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
         } else {
             double local = Double.parseDouble(column_width_s);
             column_width = (int) local;
         }
-        get_main_properties_manager().add_and_save(COLUMN_WIDTH, String.valueOf(column_width));
+        get_main_properties_manager().add(COLUMN_WIDTH, String.valueOf(column_width));
         return column_width;
     }
 
@@ -181,7 +181,7 @@ public class Non_booleans
     //**********************************************************
     {
         column_width = l;
-        get_main_properties_manager().add_and_save(COLUMN_WIDTH, String.valueOf(column_width));
+        get_main_properties_manager().add(COLUMN_WIDTH, String.valueOf(column_width));
     }
 
 
@@ -200,7 +200,7 @@ public class Non_booleans
             double d_icon_size = Double.parseDouble(icon_size_s);
             icon_size = (int) d_icon_size;
         }
-        get_main_properties_manager().add_and_save(ICON_SIZE, String.valueOf(icon_size));
+        get_main_properties_manager().add(ICON_SIZE, String.valueOf(icon_size));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return icon_size;
     }
@@ -218,7 +218,7 @@ public class Non_booleans
             double d_icon_size = Double.parseDouble(folder_icon_size_s);
             folder_icon_size = (int) d_icon_size;
         }
-        get_main_properties_manager().add_and_save(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
+        get_main_properties_manager().add(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return folder_icon_size;
     }
@@ -229,7 +229,7 @@ public class Non_booleans
     public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes)
     //**********************************************************
     {
-        get_main_properties_manager().add_and_save(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
+        get_main_properties_manager().add(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
     }
 
     //**********************************************************
@@ -242,7 +242,7 @@ public class Non_booleans
         {
             warning_megabytes = (int)Double.parseDouble(warning_bytes_s);
         }
-        get_main_properties_manager().add_and_save(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
+        get_main_properties_manager().add(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
         return warning_megabytes;
     }
 
@@ -254,7 +254,7 @@ public class Non_booleans
     //**********************************************************
     {
         icon_size = target_size;
-        get_main_properties_manager().add_and_save(ICON_SIZE, String.valueOf(icon_size));
+        get_main_properties_manager().add(ICON_SIZE, String.valueOf(icon_size));
     }
 
 
@@ -264,7 +264,7 @@ public class Non_booleans
     //**********************************************************
     {
         folder_icon_size = target_size;
-        get_main_properties_manager().add_and_save(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
+        get_main_properties_manager().add(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
     }
 
 
@@ -286,7 +286,7 @@ public class Non_booleans
                 logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
             }
         }
-        get_main_properties_manager().add_and_save(FONT_SIZE, String.valueOf(font_size));
+        get_main_properties_manager().add(FONT_SIZE, String.valueOf(font_size));
         font_size_cache = font_size;
         return font_size;
     }
@@ -297,7 +297,7 @@ public class Non_booleans
     //**********************************************************
     {
         font_size_cache = target_size;
-        get_main_properties_manager().add_and_save(FONT_SIZE, String.valueOf(target_size));
+        get_main_properties_manager().add(FONT_SIZE, String.valueOf(target_size));
     }
 
 
@@ -322,7 +322,7 @@ public class Non_booleans
         String s = get_main_properties_manager().get(LANGUAGE_KEY);
         if (s == null) {
             s = "English";
-            get_main_properties_manager().add_and_save(LANGUAGE_KEY, s);
+            get_main_properties_manager().add(LANGUAGE_KEY, s);
         }
         return s;
     }
@@ -331,7 +331,7 @@ public class Non_booleans
     public static void set_language_key(String s)
     //**********************************************************
     {
-        get_main_properties_manager().add_and_save(LANGUAGE_KEY, s);
+        get_main_properties_manager().add(LANGUAGE_KEY, s);
 
     }
 
@@ -558,7 +558,7 @@ public class Non_booleans
     //**********************************************************
     {
         Properties_manager pm = get_main_properties_manager();
-        pm.add_and_save(AUDIO_PLAYER_CURRENT_SONG, f.getAbsolutePath());
+        pm.add(AUDIO_PLAYER_CURRENT_SONG, f.getAbsolutePath());
 
     }
 
@@ -582,7 +582,7 @@ public class Non_booleans
         previous = time;
         //logger.log("save_curent_time_in_song "+time);
         Properties_manager pm = get_main_properties_manager();
-        pm.add_and_save(AUDIO_PLAYER_CURRENT_TIME, ""+time);
+        pm.add(AUDIO_PLAYER_CURRENT_TIME, ""+time);
 
     }
 

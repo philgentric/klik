@@ -10,7 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import klik.browser.Drag_and_drop2;
+import klik.browser.Drag_and_drop;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -423,14 +423,14 @@ public class Mouse_handling_for_Image_window
         image_window.image_display_handler.get_image_context().get().the_image_view.setViewport(null);
 
         image_window.the_image_Pane.setOnDragDetected(event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
 
             Dragboard db = image_window.the_image_Pane.startDragAndDrop(TransferMode.MOVE);
 
             ClipboardContent content = new ClipboardContent();
             List<File> possibly_moved = new ArrayList<>();
 
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("going to drag and drop: "+ Objects.requireNonNull(image_window.image_display_handler.get_image_context().get().path).toFile().getAbsolutePath());
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("going to drag and drop: "+ Objects.requireNonNull(image_window.image_display_handler.get_image_context().get().path).toFile().getAbsolutePath());
             Path p = image_window.image_display_handler.get_image_context().get().path;
             if ( p !=null)
             {
@@ -444,7 +444,7 @@ public class Mouse_handling_for_Image_window
         image_window.the_image_Pane.setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
-                if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Image_stage: onDragDone");
+                if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDone");
                 //image is gone, replace it with the next one
 
                 image_window.image_display_handler.change_image_relative(1,false);
@@ -458,14 +458,14 @@ public class Mouse_handling_for_Image_window
     // and the side effect is that the current directory will change
 
         image_window.the_image_Pane.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
 
             Dragboard db = drag_event.getDragboard();
             List<File> l = db.getFiles();
             // take one
             for (File file : l)
             {
-                if (Drag_and_drop2.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
+                if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
 
                 image_window.show_wait_cursor();
                 Optional<Image_context> option = Image_context.get_Image_context(file.toPath(), image_window.aborter, logger);
@@ -488,18 +488,18 @@ public class Mouse_handling_for_Image_window
         });
 
         image_window.the_image_Pane.setOnDragOver(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             drag_event.consume();
             image_window.the_Stage.requestFocus();
         });
         image_window.the_image_Pane.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
             Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane);
             drag_event.consume();
         });
         image_window.the_image_Pane.setOnDragExited(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
             if (image_window.image_display_handler.get_image_context().isPresent())
             {
                 image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString());

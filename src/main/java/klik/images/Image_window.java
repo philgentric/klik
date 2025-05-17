@@ -16,8 +16,10 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Browsing_caches;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape2;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
@@ -62,17 +64,20 @@ public class Image_window
     Path dir;
     private final Image_properties_RAM_cache image_properties_cache;
     Path_list_provider path_list_provider;
+    public Path_comparator_source path_comparator_source;
+
 
     //**********************************************************
-    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Aborter aborter, Logger logger_)
+    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_window returned = on_same_screen(path, path_list_provider,aborter,logger_);
+        Image_window returned = on_same_screen(path, path_list_provider,image_comparator,aborter,logger_);
+
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Aborter aborter, Logger logger_)
+    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
     //**********************************************************
     {
 
@@ -82,7 +87,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(Optional.empty(), path, x, y,w, h, null, true,path_list_provider,aborter,logger_);
+        Image_window returned = new Image_window( path, x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -91,13 +96,13 @@ public class Image_window
 
     //**********************************************************
     public Image_window(
-            Optional<Comparator<? super Path>> image_comparator,
             Path first_image_path,
             double x, double y,
             double w, double h,
             String title_optional_addendum, // this is used to display image similarity
             boolean save_window_bounds,
             Path_list_provider path_list_provider,
+            Optional<Comparator<Path>> image_comparator,
             Aborter aborter,
             Logger logger_)
     //**********************************************************
@@ -105,6 +110,7 @@ public class Image_window
         this.aborter = aborter;
         this. path_list_provider = path_list_provider;
         this.title_optional_addendum = title_optional_addendum;
+        path_comparator_source = () -> image_comparator.orElse(null);
         logger = logger_;
         dir = first_image_path.getParent();
         the_Stage = new Stage();
@@ -112,7 +118,14 @@ public class Image_window
         Look_and_feel_manager.set_region_look(the_image_Pane);
 
 
-        image_properties_cache = Image_properties_RAM_cache.get(new Folder_path_list_provider(first_image_path.getParent()),aborter,logger);
+        Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        if ( tmp == null)
+        {
+            tmp =Image_properties_RAM_cache.get(new Folder_path_list_provider(first_image_path.getParent()),aborter,logger);
+            Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),tmp);
+        }
+        image_properties_cache = tmp;
+
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
         the_Scene = new Scene(the_image_Pane);
@@ -135,18 +148,20 @@ public class Image_window
 
         boolean high_quality = false;
 
-        Comparator<? super Path> local_comp;
-        if ( image_comparator.isPresent()) {
-            // fastest way to get a fully initialized comparator
-            // e.g. the ones that are really expensive to create
-            // are the image similarity ones
+
+        Comparator<Path> local_comp = null;
+        if ( image_comparator.isPresent())
+        {
             local_comp = image_comparator.get();
         }
-        else {
+        else
+        {
             // this is going to take possibly a long time !!!
-            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()),image_properties_cache, x+100,y+100,aborter,logger);
+            long start = System.currentTimeMillis();
+            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, aborter, logger);
+            long now = System.currentTimeMillis();
+            logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-
         Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, aborter, logger);
         if ( option.isEmpty())
         {
@@ -219,7 +234,7 @@ public class Image_window
 
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
-        Virtual_landscape2.show_running_film = false;
+        Virtual_landscape.show_running_film = false;
 
     }
 
@@ -243,7 +258,7 @@ public class Image_window
         if ( slide_show == null)
         {
             start_slide_show();
-            Virtual_landscape2.show_running_film = false;
+            Virtual_landscape.show_running_film = false;
             return true;
         }
         else
@@ -509,7 +524,7 @@ public class Image_window
     {
         //logger.log("Image_window is closing");
         aborter.abort("Image_window is closing");
-        Virtual_landscape2.show_running_film = true;
+        Virtual_landscape.show_running_film = true;
         Change_gang.deregister(image_display_handler, aborter);
     }
 

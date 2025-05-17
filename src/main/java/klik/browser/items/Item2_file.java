@@ -6,7 +6,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Selection_handler2;
+import klik.browser.virtual_landscape.Selection_handler;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 
@@ -25,7 +25,7 @@ public abstract class Item2_file extends Item2
     public Item2_file(
             Window owner,
             Scene scene,
-            Selection_handler2 selection_handler,
+            Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
             Path path_,

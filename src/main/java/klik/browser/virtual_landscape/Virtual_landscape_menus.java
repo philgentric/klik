@@ -52,11 +52,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 //**********************************************************
-public class Virtual_landscape_menus2
+public class Virtual_landscape_menus
 //**********************************************************
 {
     private static final int MAX_MENU_ITEM_STRING_LENGTH = 150;
-    public final Virtual_landscape2 virtual_landscape;
+    public final Virtual_landscape virtual_landscape;
     public final Change_receiver change_receiver;
     public final Window owner;
     CheckMenuItem select_all_files_menu_item;
@@ -64,7 +64,7 @@ public class Virtual_landscape_menus2
     Map<LocalDateTime,String> the_whole_history;
 
     //**********************************************************
-    Virtual_landscape_menus2(Virtual_landscape2 virtual_landscape, Change_receiver change_receiver, Window owner)
+    Virtual_landscape_menus(Virtual_landscape virtual_landscape, Change_receiver change_receiver, Window owner)
     //**********************************************************
     {
         this.virtual_landscape = virtual_landscape;
@@ -203,9 +203,10 @@ public class Virtual_landscape_menus2
                 height,
                 is_trash,
                 is_parent,
-                virtual_landscape.image_properties_RAM_cache,
+                virtual_landscape.browsing_caches.image_properties_RAM_cache,
                 virtual_landscape.shutdown_target,
                 new Folder_path_list_provider(path),
+                virtual_landscape,
                 virtual_landscape,
                 virtual_landscape.aborter,
                 logger);
@@ -694,17 +695,17 @@ public class Virtual_landscape_menus2
         {
             String text = My_I18n.get_I18n_string("Bookmark_this",virtual_landscape.logger);
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Bookmarks.get_bookmarks(virtual_landscape.aborter,virtual_landscape.logger).add(local));
+            item.setOnAction(event -> Bookmarks.get_bookmarks().add(local));
             bookmarks_menu.getItems().add(item);
         }
         {
             String text = My_I18n.get_I18n_string("Clear_Bookmarks",virtual_landscape.logger);
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Bookmarks.get_bookmarks(virtual_landscape.aborter,virtual_landscape.logger).clear());
+            item.setOnAction(event -> Bookmarks.get_bookmarks().clear());
             bookmarks_menu.getItems().add(item);
         }
 
-        for (String hi : Bookmarks.get_bookmarks(virtual_landscape.aborter,virtual_landscape.logger).get_list())
+        for (String hi : Bookmarks.get_bookmarks().get_list())
         {
             if ( hi.equals(local.toAbsolutePath().toString()))
             {
@@ -1030,7 +1031,7 @@ public class Virtual_landscape_menus2
         String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_lengths ={Virtual_landscape2.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
+        int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
         for ( int l : possible_lengths)
         {
             create_menu_item_for_one_column_width(menu, l, all_check_menu_items);

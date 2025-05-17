@@ -17,6 +17,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.util.files_and_paths.Ding;
@@ -58,18 +59,21 @@ public class Finder_frame implements Search_receiver
 	private boolean extension_textfield_is_red = false;
 	private boolean new_keyword_textfield_is_red = false;
 	private final Path_list_provider path_list_provider;
+	private final Path_comparator_source path_comparator_source;
 
 	//**********************************************************
 	public Finder_frame(
 			List<String> input_keywords,
 			boolean look_only_for_images_,
 			Path_list_provider path_list_provider,
+			Path_comparator_source path_comparator_source,
 			Aborter aborter,
 			Logger logger_)
 	//**********************************************************
 	{
 		this.aborter = aborter;
 		this.path_list_provider = path_list_provider;
+		this.path_comparator_source = path_comparator_source;
 		if ( !path_list_provider.get_folder_path().toFile().isDirectory())
 		{
 			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
@@ -473,6 +477,7 @@ public class Finder_frame implements Search_receiver
 		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
 		session = new Search_session(
 				path_list_provider,
+				path_comparator_source,
 				search_config,
 				this,stage,logger);
 		session.start_search();

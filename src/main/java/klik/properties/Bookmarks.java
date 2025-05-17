@@ -19,7 +19,7 @@ public class Bookmarks
     private final Properties_manager pm;
 
     //**********************************************************
-    public Bookmarks(String key_base_, Aborter aborter, Logger logger)
+    public Bookmarks(String key_base_)
     //**********************************************************
     {
         key_base = key_base_;
@@ -29,10 +29,10 @@ public class Bookmarks
 
 
     //**********************************************************
-    public static Bookmarks get_bookmarks(Aborter aborter, Logger logger)
+    public static Bookmarks get_bookmarks()
     //**********************************************************
     {
-        return new Bookmarks(BOOK_MARKS, aborter,logger);
+        return new Bookmarks(BOOK_MARKS);
     }
 
 

@@ -3,6 +3,7 @@ package klik.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
 import klik.actor.Aborter;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
@@ -20,11 +21,17 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
     public static final double SIMILARITY_THRESHOLD = 0.14;
 
     //**********************************************************
-    public Similarity_comparator_by_pursuit(Path_list_provider path_list_provider, Image_properties_RAM_cache image_properties_cache,
-                                            double x, double y, Aborter aborter, Logger logger_)
+    public Similarity_comparator_by_pursuit(
+            Similarity_cache similarity_cache,
+            Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
+            Image_properties_RAM_cache image_properties_cache,
+            double x, double y,
+            Aborter aborter,
+            Logger logger_)
     //**********************************************************
     {
-        super(path_list_provider, x,y, aborter, logger_);
+        super(similarity_cache, path_list_provider, logger_);
 
         //Collections.shuffle(images);
         //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
@@ -83,9 +90,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         }
 
         // we "extend" each pair by looking for the closest neighbors of each pair member
-        Image_similarity similarity = new Image_similarity(path_list_provider,
-                //browser,
-                x,y,aborter, logger);
+        Image_similarity similarity = new Image_similarity(path_list_provider, path_comparator_source, x,y,aborter, logger);
 
         dummy_names.clear();
         int max_friend = 2;

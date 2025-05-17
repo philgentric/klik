@@ -12,7 +12,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
-import klik.browser.Drag_and_drop2;
+import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.New_window_context2;
 import klik.browser.classic.Folder_path_list_provider;
@@ -65,12 +65,13 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
     private final Image_properties_RAM_cache image_properties_RAM_cache;
     private final Shutdown_target shutdown_target;
     private final Top_left_provider top_left_provider;
+    private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
     public Item2_file_no_icon(
             Window owner,
             Scene scene,
-            Selection_handler2 selection_handler,
+            Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
             String text_,
@@ -82,6 +83,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
             Path path,
             Path_list_provider path_list_provider,
             Top_left_provider top_left_provider,
+            Path_comparator_source path_comparator_source,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -90,6 +92,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
+        this.path_comparator_source = path_comparator_source;
         text = text_;
         is_trash = is_trash_;
         is_parent = is_parent_;
@@ -104,7 +107,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
         }
 
         double button_width = Non_booleans.get_column_width();
-        if ( button_width < Virtual_landscape2.MIN_COLUMN_WIDTH) button_width = Virtual_landscape2.MIN_COLUMN_WIDTH;
+        if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         if (Files.isDirectory(path))
         {
@@ -121,7 +124,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
         Tooltip.install(button,new Tooltip(path.toString()));
-        Drag_and_drop2.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
     }
 
     @Override
@@ -276,6 +279,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
             Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
                     owner,
                     new Folder_path_list_provider(local_path),
+                    path_comparator_source,
                     images_in_folder,
                     image_properties_RAM_cache,
                     aborter, logger);
@@ -455,7 +459,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
 
         });
 
-        Drag_and_drop2.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,get_item_path(),is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,get_item_path(),is_trash(),logger);
 
         give_a_menu_to_the_button(button,label);
 

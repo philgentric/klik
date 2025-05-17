@@ -16,6 +16,7 @@ import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.*;
@@ -62,7 +63,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     public Item2_folder_with_icon(
             Window owner,
             Scene scene,
-            Selection_handler2 selection_handler,
+            Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
             String text_,
@@ -73,6 +74,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
             Image_properties_RAM_cache image_properties_RAM_cache,
             Shutdown_target shutdown_target,
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
             Aborter aborter,
             Logger logger)
@@ -91,6 +93,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
                 image_properties_RAM_cache,
                 shutdown_target,
                 path_list_provider,
+                path_comparator_source,
                 top_left_provider,
                 aborter,
                 logger);
@@ -125,8 +128,8 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
 
         resize_the_box(button);
 
-        Drag_and_drop2.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,get_item_path(),is_trash(),logger);
-        Drag_and_drop2.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,get_item_path(),is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
         give_a_menu_to_the_button(button,null);
 
     }
@@ -186,8 +189,8 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     {
         if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
         {
-            button.setPrefWidth(owner.getWidth()- Virtual_landscape2.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
-            button.setMinWidth(owner.getWidth()- Virtual_landscape2.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
         }
         else
         {
@@ -231,17 +234,25 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
 
         // normally we already have the rotation
         double local_rot = 0;
-        Rotation rotation = image_and_properties.properties().rotation();
-        if (rotation == null)
+        Image_properties properties = image_and_properties.properties();
+        if (properties == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
-            Path local = get_path_for_display(false);
-            local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger);
-            the_image_pane.setRotate(local_rot);
         }
         else
         {
-            the_image_pane.setRotate(Rotation.to_angle(rotation));
+            Rotation rotation = properties.rotation();
+            if (rotation == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                Path local = get_path_for_display(false);
+                local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger);
+                the_image_pane.setRotate(local_rot);
+            }
+            else
+            {
+                the_image_pane.setRotate(Rotation.to_angle(rotation));
+            }
         }
         resize_the_box(button);
     }
@@ -323,7 +334,11 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(owner,new Folder_path_list_provider(get_item_path()),  images_in_folder,  image_properties_RAM_cache, aborter,logger);
+        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
+                owner,
+                new Folder_path_list_provider(get_item_path()),
+                path_comparator_source,
+                images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)
         {
             if (dbg) logger.log("animated gif made");

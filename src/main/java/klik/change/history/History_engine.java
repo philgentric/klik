@@ -46,7 +46,7 @@ public class History_engine
         this.logger = logger;
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, HISTORY_FILENAME);
-        global_history_properties_manager = new Properties_manager(p, Shared_services.shared_services_aborter, logger);
+        global_history_properties_manager = new Properties_manager(p, "History DB", Shared_services.shared_services_aborter, logger);
     }
 
     //**********************************************************
@@ -206,8 +206,8 @@ public class History_engine
     {
         remove_if_present(tag);
         History_item new_item = new History_item(tag, LocalDateTime.now());
-        global_history_properties_manager.raw_put(make_key(new_item.uuid), tag);
-        global_history_properties_manager.raw_put(make_key_for_age(new_item.uuid), new_item.time_stamp.toString());
+        global_history_properties_manager.add(make_key(new_item.uuid), tag);
+        global_history_properties_manager.add(make_key_for_age(new_item.uuid), new_item.time_stamp.toString());
 
         List<History_item> all_history_items = get_all_history_items();
         all_history_items.add(new_item);

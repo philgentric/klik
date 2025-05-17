@@ -42,7 +42,7 @@ public class Undo_storage_to_disk
         logger = logger_;
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, UNDO_FILENAME);
-        properties_manager = new Properties_manager(p, Shared_services.shared_services_aborter,logger);
+        properties_manager = new Properties_manager(p, "Undo DB",Shared_services.shared_services_aborter,logger);
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded");
     }
@@ -263,13 +263,13 @@ public class Undo_storage_to_disk
         {
             String k = generate_key_for_how_many_oans(undo_item.index);
             String v = String.valueOf(undo_item.oans.size());
-            properties_manager.raw_put(k, v);
+            properties_manager.add(k, v);
             if ( dbg) logger.log("       "+k+"="+v);
         }
         {
             String k = generate_key_for_datetime(undo_item.index);
             String v = undo_item.time_stamp.toString();
-            properties_manager.raw_put(k, v);
+            properties_manager.add(k, v);
             if ( dbg)  logger.log("       "+k+"="+v);
         }
         int j = 0;
@@ -278,14 +278,14 @@ public class Undo_storage_to_disk
             {
                 String key_for_old_path = generate_key_for_old_path(undo_item.index, j);
                 String string_for_old_path = oan.old_Path.toAbsolutePath().toString();
-                properties_manager.raw_put(key_for_old_path, string_for_old_path);
+                properties_manager.add(key_for_old_path, string_for_old_path);
                 if ( dbg) logger.log("       "+key_for_old_path+"="+string_for_old_path);
             }
             if ( oan.new_Path != null)
             {
                 String key_for_new_path = generate_key_for_new_path(undo_item.index, j);
                 String string_for_new_path = oan.new_Path.toAbsolutePath().toString();
-                properties_manager.raw_put(key_for_new_path, string_for_new_path);
+                properties_manager.add(key_for_new_path, string_for_new_path);
                 if ( dbg) logger.log("       "+key_for_new_path+"="+string_for_new_path);
             }
             j++;

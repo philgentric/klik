@@ -276,8 +276,11 @@ It requires to have multiple python3 stuff installed: See the dedicated README i
 
 The main hurdle is that you must "manually" start the python servers, for this, copy/paste the command given in the help menu.
 
-Image search by similarity: 
-Cosine similarity on VGG19 image embeddings. In a folder, you can sort images by similarity and you can klik on an image and ask for the 5 most similar images in the folder. Note that images are first down-sampled to the default vgg19 size of 224x224 pixels, so you can guess that "similarity" will not "work" on details!!! Also note that the first step consists in computing all the vgg19 feature vectors (4096 floats each) and store it in a cache, so if your folder contains many images it will take a while.
+Image search by similarity: Cosine similarity on MobileNetV3 image embeddings. The images are resized to 224x224 and passed through MobileNetV3 (28 layers Convolutional Neural Network) which produces a feature vector with 960 components. 
+
+In a folder, you can sort images by similarity and you can klik on an image and ask for the 5 most similar images in the folder. 
+
+Note that since images are first down-sampled to 224x224 pixels, "similarity" will not "work" on small details. Also note that the first step consists in computing all the feature vectors (960 floats each) and store it in a cache, so if your folder contains many images it will take a while.
 
 
 Face recognition:

@@ -1,9 +1,7 @@
 //SOURCES ../audio/Audio_player_frame.java
 package klik.properties;
 
-import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
@@ -59,7 +57,7 @@ public class Booleans
         }
         boolean_properties_cache.put(s, b);
         Properties_manager pm = Non_booleans.get_main_properties_manager();
-        pm.add_and_save(s, String.valueOf(b));
+        pm.add(s, String.valueOf(b));
 
     }
     //**********************************************************
@@ -80,7 +78,7 @@ public class Booleans
             System.out.println("WARNING: boolean_properties_cache.get("+s+") == null");
             Properties_manager pm = Non_booleans.get_main_properties_manager();
 
-            pm.add_and_save(s, "false");
+            pm.add(s, "false");
             boolean_properties_cache.put(s, false);
             return false;
         }
@@ -101,7 +99,7 @@ public class Booleans
             if (v == null)
             {
                 boolean_properties_cache.put(k, false);
-                pm.add_and_save(k, String.valueOf(false));
+                pm.add(k, String.valueOf(false));
                 System.out.println("SAVING MISSING boolean value for " + k + " = " + v+" (false)");
                 continue;
             }
@@ -131,7 +129,7 @@ public class Booleans
     {
         String s = Non_booleans.get_main_properties_manager().get(SHOW_FFMPEG_INSTALL_WARNING);
         if (s == null) {
-            Non_booleans.get_main_properties_manager().add_and_save(SHOW_FFMPEG_INSTALL_WARNING, "true");
+            Non_booleans.get_main_properties_manager().add(SHOW_FFMPEG_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -143,7 +141,7 @@ public class Booleans
     public static void set_show_ffmpeg_install_warning(boolean b)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager().add_and_save(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
+        Non_booleans.get_main_properties_manager().add(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
     }
 
     //**********************************************************
@@ -152,7 +150,7 @@ public class Booleans
     {
         String s = Non_booleans.get_main_properties_manager().get(SHOW_GraphicsMagick_INSTALL_WARNING);
         if (s == null) {
-            Non_booleans.get_main_properties_manager().add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
+            Non_booleans.get_main_properties_manager().add(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -164,7 +162,7 @@ public class Booleans
     public static void set_show_GraphicsMagick_install_warning(boolean b)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager().add_and_save(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
+        Non_booleans.get_main_properties_manager().add(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
     }
 
     static boolean ffmpeg_popup_done = false;

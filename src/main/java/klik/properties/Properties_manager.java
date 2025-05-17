@@ -1,6 +1,5 @@
 package klik.properties;
 
-import javafx.stage.Window;
 import javafx.util.Pair;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -23,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class Properties_manager
@@ -36,11 +36,18 @@ public class Properties_manager
     private final Path the_properties_path;
     private final Logger logger;
     private final Aborter aborter;
+    private final String tag;
+
+    // saving to file is done in a separate thread:
+    public final BlockingQueue<Long> disk_store_request_queue = new LinkedBlockingQueue<>();
+    private Long last_save_timestemp = null;
+    AtomicBoolean disk_not_updated = new AtomicBoolean(false);
 
     //**********************************************************
-    public Properties_manager(Path f_, Aborter aborter,Logger logger)
+    public Properties_manager(Path f_, String tag, Aborter aborter,Logger logger)
     //**********************************************************
     {
+        this.tag = tag;
         this.aborter = aborter;
         this.logger = logger;
         the_properties_path = f_;
@@ -62,11 +69,12 @@ public class Properties_manager
     public void store_properties()
     //**********************************************************
     {
-        request_queue.add(Boolean.TRUE);
+        disk_store_request_queue.add(System.currentTimeMillis());
     }
 
-    public final BlockingQueue<Boolean> request_queue = new LinkedBlockingQueue<>();
-
+    // trying to limit disk writes for source that can be super active
+    // like the image properties cache or image feature vectors etc
+    // but keep as safe as possible, especially always saved on clean exit (with aborter)
     //**********************************************************
     private void start_store_engine(Aborter aborter, Logger logger)
     //**********************************************************
@@ -75,22 +83,62 @@ public class Properties_manager
             for(;;)
             {
                 try {
-                    Boolean b = request_queue.poll(20, TimeUnit.SECONDS);
-                    if (b != null) store_properties_internal();
+                    Long b = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
+                    long now = System.currentTimeMillis();
                     if (aborter.should_abort())
                     {
-                        logger.log("aborting Properties store engine : " + the_properties_path);
+                        // always save on clean exit
+                        save_if_needed(now);
+                        logger.log("saving and aborting Properties store engine : " + tag + " " + the_properties_path);
                         return;
                     }
+                    if ( b == null)
+                    {
+                        // this is a time out (20 seconds)
+                        save_if_needed(now);
+                    }
+                    else
+                    {
+                        disk_not_updated.set(true);
+                        if ( disk_store_request_queue.peek() != null)
+                        {
+                            // another request is already in flight, ignore this one
+                            continue;
+                        }
+                        if ( last_save_timestemp != null)
+                        {
+                            long delta = now - last_save_timestemp;
+                            if (delta < 1000)
+                            {
+                                // this request is too close to the last one
+                                continue;
+                            }
+                        }
+                        save_if_needed(now);
+                    }
 
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
+                }
+                catch (InterruptedException e)
+                {
+                    save_if_needed(0L);
+                    logger.log("saving INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
+                    return;
                 }
             }
         };
         Actor_engine.execute(r, logger);
     }
 
+    //**********************************************************
+    private void save_if_needed(long now)
+    //**********************************************************
+    {
+        if (!disk_not_updated.get()) return;
+        last_save_timestemp = now;
+        disk_not_updated.set(false);
+        store_properties_internal();
+    }
 
 
     //**********************************************************
@@ -201,41 +249,17 @@ public class Properties_manager
         the_Properties.clear();
     }
 
-    /*
-     * imperative store: if a previous event with the same key had been saved,
-     * it will be erased
-     */
+
+
     //**********************************************************
-    public void add(String key, String value, boolean and_save)
+    public boolean add(String key, String value)
     //**********************************************************
     {
-        if ( key.endsWith("TOP_LEFT_X")) logger.log("TOP_LEFT_X=" + value);
-        if (dbg) logger.log(("Non_booleans: imperative_store " + key + "=" + value));
         the_Properties.setProperty(key, value);
-        if (and_save) store_properties();
-    }
-    //**********************************************************
-    public void add_with_age(String key, String value, boolean with_age, boolean and_save)
-    //**********************************************************
-    {
-        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
-
-        the_Properties.setProperty(key, value);
-        LocalDateTime now = LocalDateTime.now();
-        if (with_age) the_Properties.setProperty(key + AGE, now.toString());
-
-        if (and_save) store_properties();
+        disk_store_request_queue.add(System.currentTimeMillis());
+        return true;
     }
 
-    //**********************************************************
-    public void raw_put(String k, String v)
-    //**********************************************************
-    {
-        if ( k.endsWith("TOP_LEFT_X")) logger.log("raw_put TOP_LEFT_X=" + v);
-
-        if ( dbg) logger.log("raw_put " + k + " " + v);
-        the_Properties.setProperty(k, v);
-    }
 
     //**********************************************************
     public Object remove(String key)
@@ -271,8 +295,10 @@ public class Properties_manager
         store_properties();
     }
 
+
+
     /*
-     * SMART API: for a given keyword (base-key), can store up to "max" items
+     * "with base"" API: for a given keyword (base-key), can store up to "max" items
      * When max is reached, the oldest element is overwritten
      */
 
@@ -338,27 +364,27 @@ public class Properties_manager
         }
         String key = get_one_empty_key_for_base(key_base);
 
-        add_with_age(key, value, with_age, true);
+        add_with_age(key, value, with_age);
         return key;
     }
 
-    // saves a value for a base-key, handling oldest-replacement silently
-    // does NOT look for a free seat: the key is the full key
     //**********************************************************
-    public boolean save_unico2(String full_key, String value, boolean with_age)
+    public void add_with_age(String key, String value, boolean with_age)
     //**********************************************************
     {
-        add_with_age(full_key, value, with_age, true);
-        return true;
-    }
-    //**********************************************************
-    public boolean add_and_save(String full_key, String value)
-    //**********************************************************
-    {
-        add(full_key, value, true);
-        return true;
-    }
+        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
 
+        LocalDateTime now = LocalDateTime.now();
+        add(key + AGE, now.toString());
+        if (with_age)
+        {
+            the_Properties.setProperty(key + AGE, now.toString());
+        }
+        else
+        {
+            the_Properties.setProperty(key, value);
+        }
+    }
 
 
     // if there are no more available slots,
@@ -428,14 +454,6 @@ public class Properties_manager
         }
         return false;
     }
-    //**********************************************************
-    public void erase_all_and_save()
-    //**********************************************************
-    {
-        the_Properties.clear();
-        System.out.println("cleared");
-        store_properties();
-    }
 
     /*
      * unit test
@@ -448,13 +466,13 @@ public class Properties_manager
         String TOTO = "toto";
         File f_ = new File("debil.txt");
         Logger logger = System_logger.get_system_logger("Properties test");
-        Properties_manager pm = new Properties_manager(f_.toPath(), new Aborter("dummy",logger),logger);
+        Properties_manager pm = new Properties_manager(f_.toPath(), "unit test",new Aborter("dummy",logger),logger);
 
         for (int i = 0; i < 15; i++)
         {
             String s = pm.get_one_empty_key_for_base(TOTO);
             String value = "value for " + s;
-            pm.add(s, value, true);
+            pm.add(s, value);
         }
 
         for (String s : pm.get_values_for_base(TOTO))
@@ -469,7 +487,7 @@ public class Properties_manager
             return;
         }
         String value = "value for REPLACED " + s;
-        pm.add(s, value, true);
+        pm.add(s, value);
         logger.log(s + " is now key for: " + value);
     }
 

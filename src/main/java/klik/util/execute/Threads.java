@@ -43,13 +43,13 @@ public class Threads
     {
         if (use_virtual_threads)
         {
-            logger.log("using fibers aka virtual threads");
+            logger.log("Using virtual threads");
             executor = Executors.newVirtualThreadPerTaskExecutor();
         }
         else
         {
             int n_threads = 10 * Runtime.getRuntime().availableProcessors();
-            logger.log("using a pool of "+n_threads+" threads, with a max of "+pool_max);
+            logger.log("using a pool of "+n_threads+" 'classic' threads, with a max of "+pool_max);
             lbq = new LinkedBlockingQueue<>();
             executor = new ThreadPoolExecutor(n_threads, pool_max, 100, TimeUnit.SECONDS, lbq);
         }

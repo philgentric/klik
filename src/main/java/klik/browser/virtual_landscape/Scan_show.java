@@ -9,7 +9,7 @@ import klik.actor.Aborter;
 import klik.util.log.Logger;
 
 //**********************************************************
-public class Scan_show2
+public class Scan_show
 //**********************************************************
 {
     private static final boolean dbg = false;
@@ -24,7 +24,7 @@ public class Scan_show2
     private double dy;
 
     //**********************************************************
-    Scan_show2(Scan_show_slave scan_show_slave_, Vertical_slider2 slider, Aborter aborter, Logger logger_)
+    Scan_show(Scan_show_slave scan_show_slave_, Vertical_slider slider, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.aborter = aborter;

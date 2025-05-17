@@ -131,6 +131,7 @@ public class Klik_application2 extends Application
         Sys_init sys_init = Sys_init.get("Klik_application");
         Logger logger = sys_init.logger();
         Shared_services.shared_services_aborter = sys_init.aborter();
+        Shared_services.shared_services_logger = sys_init.logger();
 
         primary_stage = primary_stage_;
         Start_context context = Start_context.get_context(this);

@@ -59,7 +59,7 @@ public class Image_properties_RAM_cache
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 
-        pm = new Properties_manager(cache_file_path,aborter,logger);
+        pm = new Properties_manager(cache_file_path,"image properties cache for folder "+path_list_provider.get_name(),aborter,logger);
         image_properties_actor = new Image_properties_actor();
     }
 
@@ -153,11 +153,11 @@ public class Image_properties_RAM_cache
     }
 
     //**********************************************************
-    public void clear_image_properties_RAM_cache_fx()
+    public void clear_cache()
     //**********************************************************
     {
         cache.clear();
-        if (dbg) logger.log("aspect ratio cache file cleared");
+        if (dbg) logger.log("image properties RAM cache file cleared");
     }
     //**********************************************************
     public synchronized void reload_cache_from_disk()
@@ -229,7 +229,7 @@ public class Image_properties_RAM_cache
         for(Map.Entry<String, Image_properties> e : cache.entrySet())
         {
             saved++;
-            pm.add(e.getKey(), e.getValue().to_string(), false);
+            pm.add(e.getKey(), e.getValue().to_string());
         }
         pm.store_properties();
         if (dbg) logger.log(saved +" TRUE items of aspect ratio cache saved to file");
@@ -238,7 +238,7 @@ public class Image_properties_RAM_cache
     public void save_one_item_to_disk(Path path, Image_properties ip)
     //**********************************************************
     {
-        pm.add_and_save(key_from_path(path), ip.to_string());
+        pm.add(key_from_path(path), ip.to_string());
     }
 
 

@@ -165,8 +165,13 @@ public class Ffmpeg_utils
             //logger.log("FOUND ->" + l +"<-");
             if ( get_next)
             {
-
-                bitrate = Double.parseDouble(l.trim());
+                try {
+                    bitrate = Double.parseDouble(l.trim());
+                }
+                catch (NumberFormatException e)
+                {
+                    break;
+                }
                 if (dbg) logger.log("FOUND bitrate: " + bitrate + "kb/s");
                 break;
             }

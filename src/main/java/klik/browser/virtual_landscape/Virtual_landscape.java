@@ -28,13 +28,12 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.*;
-import klik.browser.classic.Browser2;
+import klik.browser.classic.Browser;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.comparators.*;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.image_properties_cache.Image_properties;
-import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.*;
 import klik.browser.locator.Folders_with_large_images_locator;
 import klik.browser.ram_and_threads_meter.RAM_and_threads_meters_stage;
@@ -79,7 +78,7 @@ import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_
 
 
 //**********************************************************
-public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, Top_left_provider
+public class Virtual_landscape implements Scan_show_slave, Selection_reporter, Top_left_provider, Path_comparator_source
 //**********************************************************
 {
 
@@ -99,12 +98,17 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     public final Aborter aborter;
     final Logger logger;
     private Landscape_height_listener landscape_height_listener;
-    private Scroll_to_listener2 scroll_to_listener;
+    private Scroll_to_listener scroll_to_listener;
     private final Paths_holder paths_manager;
-    public Comparator<? super Path> image_file_comparator = null;
-    public Comparator<? super Path> other_file_comparator;
+
+    // relevant for footprint:
+    public Comparator<Path> all_file_comparator;
+
+    // otherwise there are 2 sorted lists
+    public Comparator<Path> image_file_comparator;
+    public Comparator<Path> other_file_comparator;
+
     public Icon_factory_actor icon_factory_actor;
-    public final Image_properties_RAM_cache image_properties_RAM_cache;
 
 
     public ConcurrentLinkedQueue<List<Path>> iconized_sorted_queue = new ConcurrentLinkedQueue<>();
@@ -128,23 +132,18 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
     Map<Path,Long> folder_total_sizes_cache;
     Map<Path,Long> folder_file_count_cache;
-    //public double max_dir_text_length;
 
-    // make sure we go again at the same scroll point when we enter a given folder AGAIN
-    // the key is the visited folder, the value is the scroll position,
-    // that is : the path of the top-left item when leaving that folder
-    public static Map<String, Path> scroll_position_cache = new HashMap<>();
 
 
     private final List<Item2> future_pane_content = new ArrayList<>();
 
 
-    public Vertical_slider2 vertical_slider;
+    public Vertical_slider vertical_slider;
     public double slider_width = 40;
     public final Scene the_Scene;
     public final Pane the_Pane;
-    public final Selection_handler2 selection_handler;
-    public final Virtual_landscape_menus2 browser_menus;
+    public final Selection_handler selection_handler;
+    public final Virtual_landscape_menus browser_menus;
     MenuItem stop_full_screen_menu_item;
     MenuItem start_full_screen_menu_item;
     public List<Button> top_buttons = new ArrayList<>();
@@ -158,15 +157,17 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
     public static boolean show_running_film = true;
 
+    public final Browsing_caches browsing_caches;
+
     //**********************************************************
-    public Virtual_landscape2(Path_list_provider path_list_provider,
-                              Window owner,
-                              Shutdown_target shutdown_target,
-                              Change_receiver change_receiver,
-                              Title_target title_target,
-                              Full_screen_handler full_screen_handler,
-                              Aborter aborter,
-                              Logger logger)
+    public Virtual_landscape(Path_list_provider path_list_provider,
+                             Window owner,
+                             Shutdown_target shutdown_target,
+                             Change_receiver change_receiver,
+                             Title_target title_target,
+                             Full_screen_handler full_screen_handler,
+                             Aborter aborter,
+                             Logger logger)
     //**********************************************************
     {
         this.full_screen_handler = full_screen_handler;
@@ -181,12 +182,13 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
         the_Pane = new Pane();
 
-        image_properties_RAM_cache = new Image_properties_RAM_cache(path_list_provider, "Image properties cache", aborter, logger);
-        icon_factory_actor = new Icon_factory_actor(image_properties_RAM_cache, owner, aborter, logger);
-        paths_manager = new Paths_holder(icon_factory_actor, image_properties_RAM_cache, aborter, logger);
-        selection_handler = new Selection_handler2(the_Pane, this, this, logger);
 
-        browser_menus = new Virtual_landscape_menus2(this, change_receiver, owner);
+        browsing_caches = new Browsing_caches(path_list_provider,aborter,logger);
+        icon_factory_actor = new Icon_factory_actor(browsing_caches.image_properties_RAM_cache, owner, aborter, logger);
+        paths_manager = new Paths_holder(icon_factory_actor, browsing_caches.image_properties_RAM_cache, aborter, logger);
+        selection_handler = new Selection_handler(the_Pane, this, this, logger);
+
+        browser_menus = new Virtual_landscape_menus(this, change_receiver, owner);
         //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
         the_Scene = define_UI();
 
@@ -199,10 +201,10 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
         {
             //logger.log("creating vertical slider");
-            vertical_slider = new Vertical_slider2(owner, the_Pane, this, logger);
+            vertical_slider = new Vertical_slider(owner, the_Pane, this, logger);
             mandatory_in_pane.add(vertical_slider.the_Slider);
             always_on_front_nodes.add(vertical_slider.the_Slider);
-            slider_width = 2 * Vertical_slider2.half_slider_width;
+            slider_width = 2 * Vertical_slider.half_slider_width;
         }
 
         set_Landscape_height_listener(vertical_slider);
@@ -251,25 +253,27 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     public void clear_all_RAM_caches()
     //**********************************************************
     {
-        clear_image_properties_RAM_cache_fx();
+        clear_image_properties_RAM_cache();
         clear_scroll_position_cache();
         logger.log("Image properties cache cleared");
         logger.log("Return-to scroll positions cache cleared");
         clear_image_comparators_caches();
         logger.log("Image comparators caches cleared");
-        clear_image_similarity_RAM_cache();
+        clear_image_feature_vector_RAM_cache();
+
     }
 
     //**********************************************************
     public void clear_image_comparators_caches()
     //**********************************************************
     {
+        ((Clearable_RAM_cache) (all_file_comparator)).clear_RAM_cache();
         ((Clearable_RAM_cache) (image_file_comparator)).clear_RAM_cache();
         ((Clearable_RAM_cache) (other_file_comparator)).clear_RAM_cache();
     }
 
     //**********************************************************
-    public void clear_image_similarity_RAM_cache()
+    public void clear_image_feature_vector_RAM_cache()
     //**********************************************************
     {
         Image_feature_vector_cache.images_and_feature_vectors_cache.clear();
@@ -305,7 +309,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         //Browser local = this;
         the_Scene.setOnKeyTyped(keyEvent -> {
 
-            if (Browser2.keyboard_dbg) {
+            if (Browser.keyboard_dbg) {
                 logger.log(keyEvent + "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
                 if (keyEvent.isShiftDown()) logger.log("isShiftDown: true");
                 if (keyEvent.isAltDown()) logger.log("isAltDown: true");
@@ -313,49 +317,49 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             }
 
             if (keyEvent.getCharacter().equals("k")) {
-                if (Browser2.keyboard_dbg) logger.log("character is k = keyword search");
+                if (Browser.keyboard_dbg) logger.log("character is k = keyword search");
                 search_files_by_keyworks_fx();
             }
             if (keyEvent.getCharacter().equals("s")) {
-                if (Browser2.keyboard_dbg) logger.log("character is s = start/stop scan");
+                if (Browser.keyboard_dbg) logger.log("character is s = start/stop scan");
                 handle_scan_switch();
             }
             if (keyEvent.getCharacter().equals("w")) {
-                if (Browser2.keyboard_dbg) logger.log("character is w = slow down scan");
+                if (Browser.keyboard_dbg) logger.log("character is w = slow down scan");
                 slow_down_scan();
             }
             if (keyEvent.getCharacter().equals("x")) {
-                if (Browser2.keyboard_dbg) logger.log("character is x = speed up scan");
+                if (Browser.keyboard_dbg) logger.log("character is x = speed up scan");
                 speed_up_scan();
             }
 
             if (keyEvent.isMetaDown()) {
                 if (keyEvent.getCharacter().equals("a")) {
-                    if (Browser2.keyboard_dbg) logger.log("character is a + meta = select all");
+                    if (Browser.keyboard_dbg) logger.log("character is a + meta = select all");
                     selection_handler.select_all_files_in_folder(path_list_provider);
                 }
 
                 if (keyEvent.getCharacter().equals("+")) {
-                    if (Browser2.keyboard_dbg) logger.log("character is +meta = zoom +");
+                    if (Browser.keyboard_dbg) logger.log("character is +meta = zoom +");
                     increase_icon_size();
                 }
                 if (keyEvent.getCharacter().equals("=")) {
-                    if (Browser2.keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
+                    if (Browser.keyboard_dbg) logger.log("character is  (meta & equal) +meta = zoom +");
                     increase_icon_size();
                 }
                 if (keyEvent.getCharacter().equals("-")) {
-                    if (Browser2.keyboard_dbg) logger.log("character is -meta = zoom -");
+                    if (Browser.keyboard_dbg) logger.log("character is -meta = zoom -");
                     reduce_icon_size();
                 }
             }
             if (keyEvent.getCharacter().equals("n")) {
-                if (Browser2.keyboard_dbg) logger.log("character is n = new browser (clone)");
+                if (Browser.keyboard_dbg) logger.log("character is n = new browser (clone)");
                 //New_window_context.additional_same_folder(local, logger);
             }
         });
 
         the_Scene.setOnDragOver(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_ultra_dbg) logger.log("Browser: OnDragOver handler called");
+            if (Drag_and_drop.drag_and_drop_ultra_dbg) logger.log("Browser: OnDragOver handler called");
             selection_handler.on_drag_over();
             Object source = drag_event.getGestureSource();
             if (source == null) {
@@ -392,9 +396,9 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
         Path displayed_folder_path = path_list_provider.get_folder_path();
         the_Scene.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + path_list_provider.get_name());
-            int n = Drag_and_drop2.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
+            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
             drag_event.setDropCompleted(true);
@@ -402,7 +406,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         });
 
         the_Scene.setOnDragExited(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Browser: OnDragExited handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragExited handler called");
             if (dbg) logger.log("OnDragExited in browser for dir :" + displayed_folder_path);
             //set_status(" drag done");
             browser_menus.reset_all_files_and_folders();
@@ -410,7 +414,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             drag_event.consume();
         });
         the_Scene.setOnDragDone(drag_event -> {
-            if (Drag_and_drop2.drag_and_drop_dbg) logger.log("Browser: setOnDragDone handler called");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: setOnDragDone handler called");
             selection_handler.on_drag_done();
             drag_event.consume();
         });
@@ -497,7 +501,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     {
         int new_icon_size = (int) (Non_booleans.get_icon_size() * fac);
         if (new_icon_size < 20) new_icon_size = 20;
-        if ( Browser2.keyboard_dbg) logger.log("new icon size = "+new_icon_size);
+        if ( Browser.keyboard_dbg) logger.log("new icon size = "+new_icon_size);
         Non_booleans.set_icon_size(new_icon_size);
         //icon_manager.modify_button_fonts(fac);
         redraw_fx("new icon size "+new_icon_size);
@@ -521,7 +525,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     public boolean scroll_a_bit(double dy)
     //**********************************************************
     {
-        scroll_position_cache.put(path_list_provider.get_name(),get_top_left());
+        Browsing_caches.scroll_position_cache.put(path_list_provider.get_name(),get_top_left());
         return vertical_slider.request_scroll_relative(dy);
     }
 
@@ -529,7 +533,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     public Path get_scroll_to()
     //**********************************************************
     {
-        Path scroll_to = scroll_position_cache.get(path_list_provider.get_name());
+        Path scroll_to = Browsing_caches.scroll_position_cache.get(path_list_provider.get_name());
 
         logger.log("yop getting scroll to ->"+scroll_to+"<- for: "+path_list_provider.get_name());
         return scroll_to;
@@ -575,12 +579,13 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         {
             try
             {
+                logger.log("sort_iconized_items with "+image_file_comparator.getClass().getName());
                 local_iconized_sorted.sort(image_file_comparator);
                 break;
             }
             catch (IllegalArgumentException e)
             {
-                // let us retry!
+                // let us retry after a reshuffle
                 logger.log("image sorting failed, retrying: "+tentative);
                 if (image_file_comparator instanceof Similarity_comparator)
                 {
@@ -600,7 +605,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     }
 
     public void clear_scroll_position_cache() {
-        scroll_position_cache.clear();
+        Browsing_caches.scroll_position_cache.clear();
     }
 
     public void set_text_background(String text) {
@@ -728,7 +733,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                 {
                     wait_for_end.countDown();
                     // ask for image properties fetch in threads
-                    image_properties_RAM_cache.get_from_cache(path,tr);
+                    browsing_caches.image_properties_RAM_cache.get_from_cache(path,tr);
                 }
             }
             else
@@ -748,10 +753,11 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                             icon_size / 2,
                             false,
                             false,
-                            image_properties_RAM_cache,
+                            browsing_caches.image_properties_RAM_cache,
                             shutdown_target,
                             path,
                             path_list_provider,
+                            this,
                             this,
                             aborter,
                             logger);
@@ -773,7 +779,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         }
         for ( Path path : paths_manager.iconized_paths)
         {
-            Image_properties ip = image_properties_RAM_cache.get_from_cache(path,null);
+            Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
             if ( ip == null) {
                 logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
                 continue;
@@ -786,9 +792,10 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                     icon_factory_actor,
                     null,
                     cache_aspect_ratio,
-                    image_properties_RAM_cache,
+                    browsing_caches.image_properties_RAM_cache,
                     path,
                     path_list_provider,
+                    this,
                     aborter,
                     logger);
             all_items_map.put(path,item);
@@ -851,11 +858,12 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                         text,
                         icon_height, 
                         false, 
-                        false, 
-                        image_properties_RAM_cache,
-                            shutdown_target,
+                        false,
+                        browsing_caches.image_properties_RAM_cache,
+                        shutdown_target,
                         path,
                         path_list_provider,
+                        this,
                         this,
                         aborter,
                         logger);
@@ -921,29 +929,23 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             List<Path> paths = new ArrayList<>(paths_manager.folders.keySet());
             if ( show_total_size_deep_in_each_folder_done)
             {
-                Comparator<Path> comp = new Comparator<>() {
-                    @Override
-                    public int compare(Path p1, Path p2) {
-                        Long l1 = folder_total_sizes_cache.get(p1);
-                        if (l1==null) return 1;
-                        Long l2 = folder_total_sizes_cache.get(p2);
-                        if (l2==null) return 1;
-                        return l2.compareTo(l1);
-                    }
+                Comparator<Path> comp = (p1, p2) -> {
+                    Long l1 = folder_total_sizes_cache.get(p1);
+                    if (l1==null) return 1;
+                    Long l2 = folder_total_sizes_cache.get(p2);
+                    if (l2==null) return 1;
+                    return l2.compareTo(l1);
                 };
                 Collections.sort(paths,comp);
             }
             else if ( show_how_many_files_deep_in_each_folder_done)
             {
-                Comparator<Path> comp = new Comparator<>() {
-                    @Override
-                    public int compare(Path p1, Path p2) {
-                        Long l1 = folder_file_count_cache.get(p1);
-                        if (l1==null) return 1;
-                        Long l2 = folder_file_count_cache.get(p2);
-                        if (l2==null) return 1;
-                        return l2.compareTo(l1);
-                    }
+                Comparator<Path> comp = (p1, p2) -> {
+                    Long l1 = folder_file_count_cache.get(p1);
+                    if (l1==null) return 1;
+                    Long l2 = folder_file_count_cache.get(p2);
+                    if (l2==null) return 1;
+                    return l2.compareTo(l1);
                 };
                 Collections.sort(paths,comp);
             }
@@ -990,9 +992,10 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                     100,
                     false,
                     false,
-                    image_properties_RAM_cache,
+                    browsing_caches.image_properties_RAM_cache,
                     shutdown_target,
                     new Folder_path_list_provider(folder_path),
+                    this,
                     this,
                     aborter,
                     logger);
@@ -1062,9 +1065,10 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                     icon_height,
                     false,
                     false,
-                    image_properties_RAM_cache,
+                    browsing_caches.image_properties_RAM_cache,
                     shutdown_target,
                     new Folder_path_list_provider(folder_path),
+                    this,
                     this,
                     aborter,
                     logger);
@@ -1082,11 +1086,13 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     }
 
     //**********************************************************
-    public void clear_image_properties_RAM_cache_fx()
+    public void clear_image_properties_RAM_cache()
     //**********************************************************
     {
-        if ( image_properties_RAM_cache == null) return;
-        image_properties_RAM_cache.clear_image_properties_RAM_cache_fx();
+        if ( browsing_caches.image_properties_RAM_cache == null) return;
+        browsing_caches.image_properties_RAM_cache.clear_cache();
+
+        Browsing_caches.image_properties_RAM_cache_of_caches.clear();
     }
 
 
@@ -1545,29 +1551,13 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
 
     //**********************************************************
-    public void set_scroll_to_listener(Scroll_to_listener2 vertical_slider)
+    public void set_scroll_to_listener(Scroll_to_listener vertical_slider)
     //**********************************************************
     {
         scroll_to_listener = vertical_slider;
     }
 
 
-
-    //**********************************************************
-    public Comparator<? super Path> get_file_comparator()
-    //**********************************************************
-    {
-        if (paths_manager == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("PANIC browser getting the current file comparator paths_manager==null"));
-            return null;
-        }
-        if (image_file_comparator == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("PANIC browser getting the current file comparator paths_manager.image_file_comparator==null"));
-            return null;
-        }
-        //logger.log(Stack_trace_getter.get_stack_trace("browser getting the current file comparator"+paths_manager.image_file_comparator.toString()));
-        return image_file_comparator;
-    }
 
     //**********************************************************
     public List<File> get_file_list()
@@ -2175,7 +2165,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                 try {
                     Path new_dir = path_list_provider.resolve(new_name);
                     Files.createDirectory(new_dir);
-                    scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), new_dir);
+                    Browsing_caches.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), new_dir);
                     redraw_fx("created new empty dir");
                     break;
                 }
@@ -2198,6 +2188,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         List<String> given = new ArrayList<>();
         Image_context.ask_user_and_find(
                 path_list_provider,
+                this,
                 given,
                 false,
                 owner,
@@ -2281,11 +2272,11 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                     ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
                             event -> clear_all_RAM_caches()));
                     ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Properties_RAM_Cache",
-                            event -> clear_image_properties_RAM_cache_fx()));
+                            event -> clear_image_properties_RAM_cache()));
                     ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Comparators_Caches",
                             event -> clear_image_comparators_caches()));
                     ram.getItems().add(browser_menus.make_menu_item("Clear_Scroll_Position_Cache",
-                            event ->         scroll_position_cache.clear()));
+                            event ->         Browsing_caches.scroll_position_cache.clear()));
 
                 }
                 {
@@ -2333,7 +2324,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
             //logger.log("Deduplicate auto");
 
             if ( !Popups.popup_ask_for_confirmation(owner, "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",logger)) return;
-            (new Deduplication_engine(owner, (path_list_provider.get_folder_path()).toFile(), path_list_provider,logger)).do_your_job(true);
+            (new Deduplication_engine(owner, (path_list_provider.get_folder_path()).toFile(), path_list_provider,this,logger)).do_your_job(true);
         });
         return menu_item;
     }
@@ -2350,7 +2341,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(path_list_provider,false,owner, path_list_provider.get_folder_path().toFile(),image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(path_list_provider,this,false,owner, path_list_provider.get_folder_path().toFile(), browsing_caches.image_properties_RAM_cache, logger)).do_your_job();
         });
         return item0;
     }
@@ -2365,7 +2356,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(path_list_provider,true,owner, path_list_provider.get_folder_path().toFile(),image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(path_list_provider,this,true,owner, path_list_provider.get_folder_path().toFile(), browsing_caches.image_properties_RAM_cache, logger)).do_your_job();
         });
         return item0;
     }
@@ -2379,7 +2370,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,logger)).do_your_job(false);
+            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,this,logger)).do_your_job(false);
         });
         return item0;
     }
@@ -2392,7 +2383,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("count duplicates!");
-            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,logger)).count(false);
+            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,this,logger)).count(false);
         });
         return item0;
     }
@@ -2428,7 +2419,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
 
 
 
-    Scan_show2 the_scan_show;
+    Scan_show the_scan_show;
 
     private static final String msg = "(press \"s\" to start/stop/change direction, \"x\"=faster, \"w\"=slower) speed = ";
 
@@ -2436,7 +2427,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     private void start_scan()
     //**********************************************************
     {
-        the_scan_show = new Scan_show2(this, vertical_slider, aborter, logger);
+        the_scan_show = new Scan_show(this, vertical_slider, aborter, logger);
         set_status("Scan show starting ! " + msg + the_scan_show.get_speed());
     }
 
@@ -2744,7 +2735,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         paths_manager.folders.clear();
         iconized_sorted_queue.clear();
 
-        image_properties_RAM_cache.reload_cache_from_disk();
+        browsing_caches.image_properties_RAM_cache.reload_cache_from_disk();
         scan_list();
 
         all_image_properties_acquired_4(start, running_film);
@@ -2759,7 +2750,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
         logger.log("Virtual_landscape: set_comparators");
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
 
-        other_file_comparator = File_sort_by.get_preliminary_comparator(path_list_provider, image_properties_RAM_cache,
+        other_file_comparator = File_sort_by.get_preliminary_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
                 x,y,aborter,logger);
 
         image_file_comparator = other_file_comparator;
@@ -2792,7 +2783,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                 if (dbg) logger.log("Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                 if (aborter.should_abort()) {
-                    logger.log("path manager aborting1");
+                    logger.log("path manager aborting (1) scan_list "+ path_list_provider.get_folder_path().toAbsolutePath());
                     aborter.on_abort();
                     return;
                 }
@@ -2804,7 +2795,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                 if (dbg) logger.log("Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                 if (aborter.should_abort()) {
-                    logger.log("path manager aborting1");
+                    logger.log("path manager aborting (2) scan_list "+ path_list_provider.get_folder_path().toAbsolutePath());
                     aborter.on_abort();
                     return;
                 }
@@ -2835,7 +2826,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     //**********************************************************
     {
         logger.log("Virtual_landscale::all_image_properties_acquired() ");
-        Runnable r = () -> image_properties_RAM_cache.save_whole_cache_to_disk();
+        Runnable r = () -> browsing_caches.image_properties_RAM_cache.save_whole_cache_to_disk();
         Actor_engine.execute(r,logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
@@ -2843,7 +2834,7 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
                 Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }
-        determine_file_comparator();
+        get_path_comparator();
         logger.log("all_image_properties_acquired, going to refresh");
         refresh_UI("all_image_properties_acquired", running_film);
 
@@ -3018,41 +3009,54 @@ public class Virtual_landscape2 implements Scan_show_slave, Selection_reporter, 
     private File_comp_cache file_comp_cache;
 
     //**********************************************************
-    private void determine_file_comparator()
+    public Comparator<Path> get_path_comparator()
     //**********************************************************
     {
-        Comparator<Path> local_file_comparator = null;
-        if ( file_comp_cache != null)
-        {
-            if ( file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()))
-            {
-                if ( dbg) logger.log("getting file comparator from cache="+file_comp_cache);
-                local_file_comparator = file_comp_cache.comparator();
+        Comparator<Path> local_file_comparator = image_file_comparator;
+
+        if ( local_file_comparator == null) {
+            if (file_comp_cache != null) {
+                if (file_comp_cache.file_sort_by() == File_sort_by.get_sort_files_by(path_list_provider.get_folder_path())) {
+                    if (dbg) logger.log("getting file comparator from cache=" + file_comp_cache);
+                    local_file_comparator = file_comp_cache.comparator();
+                }
             }
         }
-        if ( local_file_comparator == null) {
-            local_file_comparator = create_actual_file_comparator();
+        if ( local_file_comparator == null)
+        {
+            local_file_comparator = create_fast_file_comparator();
         }
-        if (local_file_comparator != null)
+        if ( local_file_comparator == null)
+        {
+            logger.log("SHOOOOOOOOOOOOT local_file_comparator is null");
+        }
+        else
         {
             //logger.log("setting file_comp_cache ="+file_comp_cache);
             file_comp_cache =  new File_comp_cache(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()),local_file_comparator);
             set_new_iconized_items_comparator(local_file_comparator);
         }
+
+        return local_file_comparator;
     }
 
     //**********************************************************
-    private Comparator<Path> create_actual_file_comparator()
+    private Comparator<Path> create_fast_file_comparator()
     //**********************************************************
     {
 
         Comparator<Path> local_file_comparator = null;
         switch (File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()))
         {
-            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(image_properties_RAM_cache);
-            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(image_properties_RAM_cache);
-            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(image_properties_RAM_cache);
-            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(image_properties_RAM_cache,logger);
+            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(browsing_caches.image_properties_RAM_cache);
+            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(browsing_caches.image_properties_RAM_cache);
+            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(browsing_caches.image_properties_RAM_cache);
+            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(browsing_caches.image_properties_RAM_cache,logger);
+            case File_sort_by.RANDOM -> local_file_comparator = new Random_comparator();
+            case File_sort_by.DATE -> local_file_comparator = new Date_comparator(logger);
+            case File_sort_by.SIZE -> local_file_comparator = new Decreasing_disk_footprint_comparator();
+
+            default -> local_file_comparator = new Alphabetical_file_name_comparator();
         }
         return local_file_comparator;
     }

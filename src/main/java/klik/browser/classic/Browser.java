@@ -47,8 +47,8 @@ package klik.browser.classic;
 
 import klik.actor.Actor_engine;
 import klik.browser.*;
+import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape2;
 import klik.change.Change_gang;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
@@ -63,12 +63,12 @@ import java.util.List;
 
 
 //**********************************************************
-public class Browser2 extends Abstract_browser2
+public class Browser extends Abstract_browser
 //**********************************************************
 {
     public final Path_list_provider path_list_provider;
     //**********************************************************
-    public Browser2(New_window_context2 context, Logger logger_)
+    public Browser(New_window_context2 context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
@@ -183,7 +183,7 @@ public class Browser2 extends Abstract_browser2
             return;
         }
 
-        logger.log("Browser2 for: "+path_list_provider.get_folder_path()+ ", CHANGE GANG CALL received");
+        logger.log("Browser for: "+path_list_provider.get_folder_path()+ ", CHANGE GANG CALL received");
 
         switch (Change_gang.is_my_directory_impacted(path_list_provider.get_folder_path(), l, logger))
         {
@@ -200,7 +200,7 @@ public class Browser2 extends Abstract_browser2
                     if ( oan.new_Path != null) {
                         if (oan.new_Path.startsWith(path_list_provider.get_folder_path())) {
                             // make sure the window will scroll to the landing point of the displaced file
-                            Virtual_landscape2.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), oan.new_Path);
+                            Browsing_caches.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), oan.new_Path);
                         }
                     }
                 }

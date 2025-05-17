@@ -19,15 +19,17 @@ import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Drag_and_drop2;
+import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
+import klik.browser.virtual_landscape.Browsing_caches;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Selection_handler2;
+import klik.browser.virtual_landscape.Selection_handler;
 import klik.change.Change_gang;
 import klik.experimental.work_in_progress.Multiple_image_window;
 import klik.image_ml.image_similarity.Image_similarity;
@@ -48,6 +50,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,18 +65,20 @@ public class Item2_file_with_icon extends Item2_file
     public Double aspect_ratio;
     public static Image default_icon;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
     public Item2_file_with_icon(
             Window owner,
             Scene scene,
-            Selection_handler2 selection_handler,
+            Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
             Double aspect_ratio,
             Image_properties_RAM_cache image_properties_RAM_cache,
             Path path_,
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             Aborter aborter,
             Logger logger)
 
@@ -91,6 +96,7 @@ public class Item2_file_with_icon extends Item2_file
                 logger);
         this.aspect_ratio = aspect_ratio;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.path_comparator_source = path_comparator_source;
         double actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
 
@@ -107,7 +113,7 @@ public class Item2_file_with_icon extends Item2_file
         image_view.setFitHeight(actual_icon_size);
         image_view.setCache(false);
         //image_view.setCacheHint(CacheHint.SPEED);
-        Drag_and_drop2.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
 
         image_view.setOnMouseClicked(event ->
             {
@@ -154,7 +160,7 @@ public class Item2_file_with_icon extends Item2_file
 
         if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
-            open_an_image(true,path_list_provider,get_item_path(),logger);
+            open_an_image(true,path_list_provider,path_comparator_source,get_item_path(),logger);
         }
         else
         {
@@ -181,12 +187,20 @@ public class Item2_file_with_icon extends Item2_file
     //**********************************************************
     public static void open_an_image(boolean same_process,
                                      Path_list_provider path_list_provider,
+                                     Path_comparator_source path_comparator_source,
                                      Path path, Logger logger)
     //**********************************************************
     {
         if ( same_process)
         {
-            Image_window.get_Image_window(path, path_list_provider,new Aborter("Image_viewer",logger),logger);
+            Comparator<Path> x = path_comparator_source.get_path_comparator();
+            if ( x == null)
+            {
+                logger.log("Comparator is null, cannot open image in same process");
+                return;
+            }
+            Optional<Comparator<Path>> image_comparator = Optional.of(x);
+            Image_window.get_Image_window(path, path_list_provider,image_comparator, new Aborter("Image_viewer",logger),logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
         else
@@ -246,7 +260,7 @@ public class Item2_file_with_icon extends Item2_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(get_item_path(),image_properties_RAM_cache,owner, aborter,logger);
+            MenuItem menu_item = create_show_similar_menu_item(get_item_path(),image_properties_RAM_cache,owner, path_comparator_source,aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         
@@ -285,7 +299,7 @@ public class Item2_file_with_icon extends Item2_file
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+get_item_path());
-                Item2_file_with_icon.open_an_image(false,path_list_provider,get_item_path(),logger);
+                Item2_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -330,6 +344,7 @@ public class Item2_file_with_icon extends Item2_file
     public static MenuItem create_show_similar_menu_item(Path image_path,
                                                          Image_properties_RAM_cache image_properties_cache,
                                                          Window owner,
+                                                         Path_comparator_source path_comparator_source,
                                                          Aborter aborter,
                                                          Logger logger)
     //**********************************************************
@@ -342,7 +357,10 @@ public class Item2_file_with_icon extends Item2_file
             {
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                image_similarity = new Image_similarity(new Folder_path_list_provider(image_path.getParent()), x,y,aborter,logger);
+                image_similarity = new Image_similarity(
+                        new Folder_path_list_provider(image_path.getParent()),
+                        path_comparator_source,
+                        x,y,aborter,logger);
                 image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE,image_properties_cache, false,x,y,null);
             };
             Actor_engine.execute(r,logger);

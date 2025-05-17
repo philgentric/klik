@@ -10,6 +10,7 @@ package klik.experimental.deduplicate;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Booleans;
 import klik.util.files_and_paths.*;
@@ -50,15 +51,16 @@ public class Deduplication_engine implements Againor, Abortable
     private Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     Path_list_provider path_list_provider;
-
+    Path_comparator_source path_comparator_source;
     //**********************************************************
     public Deduplication_engine(
             Window owner,
-            File target_dir_, Path_list_provider path_list_provider, Logger logger_)
+            File target_dir_, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Logger logger_)
     //*************************************w********************
     {
         this.owner = owner;
         this.path_list_provider = path_list_provider;
+        this.path_comparator_source = path_comparator_source;
         target_dir = target_dir_;
         logger = logger_;
     }
@@ -315,7 +317,7 @@ public class Deduplication_engine implements Againor, Abortable
 
 
     //**********************************************************
-    private void ask_user_about_a_duplicate_pair(File_pair_deduplication file_pair, Path_list_provider path_list_provider)
+    private void ask_user_about_a_duplicate_pair(File_pair_deduplication file_pair, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source)
     //**********************************************************
     {
         //My_File_and_status files[] = new My_File_and_status[2];
@@ -328,8 +330,8 @@ public class Deduplication_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             File_pair local = new File_pair(file_pair.f1.my_file.file, file_pair.f2.my_file.file);
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, owner, local, local_againor, console_window.count_deleted,path_list_provider,private_aborter, logger);
-            else stage_with_2_images.set_pair(title,local,path_list_provider,private_aborter);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, owner, local, local_againor, console_window.count_deleted,path_list_provider,path_comparator_source,private_aborter, logger);
+            else stage_with_2_images.set_pair(title,local,path_list_provider,path_comparator_source,private_aborter);
         },logger);
     }
 
@@ -375,7 +377,7 @@ public class Deduplication_engine implements Againor, Abortable
                     }
 
                     logger.log("manual deduplicator: ask_user_about_a_duplicate_pair called !");
-                    ask_user_about_a_duplicate_pair(p, path_list_provider);
+                    ask_user_about_a_duplicate_pair(p, path_list_provider,path_comparator_source);
                     return;
                 }
                 // p == null means timeout

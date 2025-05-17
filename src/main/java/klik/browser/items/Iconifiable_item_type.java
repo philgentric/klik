@@ -18,7 +18,8 @@ public enum Iconifiable_item_type
     image_gif,
     video,
     pdf,
-    no_path;
+    no_path,
+    other;
 
     //**********************************************************
     public static Iconifiable_item_type from_extension(Path path)
@@ -55,8 +56,8 @@ public enum Iconifiable_item_type
         if (Guess_file_type.is_this_extension_a_png(extension)) return image_png;
         if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return image_not_gif_not_png;
 
-        System.out.println(Stack_trace_getter.get_stack_trace("path.getFileName() DEFAULT null"));
+        System.out.println(("WARNING: from_extension returns DEFAULT 'other'' for path: " + path));
 
-        return no_path;
+        return other;
     }
 }

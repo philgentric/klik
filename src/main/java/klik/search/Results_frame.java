@@ -19,9 +19,10 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.audio.Audio_player;
-import klik.browser.Drag_and_drop2;
+import klik.browser.Drag_and_drop;
 import klik.browser.New_window_context2;
 import klik.browser.items.Item2_file_with_icon;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -48,15 +49,18 @@ public class Results_frame
 	//final Browser browser;
 	final Aborter aborter;
 	private final Path_list_provider path_list_provider;
+	private final Path_comparator_source path_comparator_source;
 
 	//**********************************************************
 	public Results_frame(
 			Path_list_provider path_list_provider,
+			Path_comparator_source path_comparator_source,
 			Aborter aborter,
 			Logger logger)
 	//**********************************************************
 	{
 		this.path_list_provider = path_list_provider;
+		this.path_comparator_source = path_comparator_source;
 		this.aborter = aborter;
 		this.logger = logger;
 
@@ -129,6 +133,7 @@ public class Results_frame
 				Item2_file_with_icon.open_an_image(
 						true,
 						path_list_provider,
+						path_comparator_source,
 						path,
 						logger);
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
@@ -195,7 +200,7 @@ public class Results_frame
 		});
 
 
-		Drag_and_drop2.init_drag_and_drop_sender_side(b, null,path,logger);
+		Drag_and_drop.init_drag_and_drop_sender_side(b, null,path,logger);
 
 
 	}

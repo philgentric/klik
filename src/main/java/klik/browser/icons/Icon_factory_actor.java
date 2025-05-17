@@ -52,18 +52,6 @@ public class Icon_factory_actor implements Actor
     private final Image_properties_RAM_cache image_properties_RAM_cache;
 
 
-    //public List<Path> videos_for_which_giffing_failed = new ArrayList<>();
-
-    //private static AtomicInteger instance = new AtomicInteger(0);
-    /*
-    //**********************************************************
-    public  void reset_videos_for_which_giffing_failed()
-    //**********************************************************
-    {
-        videos_for_which_giffing_failed.clear();
-    }*/
-
-
     //**********************************************************
     public Icon_factory_actor(Image_properties_RAM_cache image_properties_RAM_cache,
                               Window owner_,
@@ -183,8 +171,8 @@ public class Icon_factory_actor implements Actor
             case image_gif ,image_png , image_not_gif_not_png -> {
                 return process_image(icon_factory_request, destination);
             }
-            case no_path -> {
-                logger.log(Stack_trace_getter.get_stack_trace("HAPPENS in Icon_factory_actor: no path for icon destination???"+icon_factory_request.destination));
+            case no_path, other -> {
+                logger.log(Stack_trace_getter.get_stack_trace("HAPPENS in Icon_factory_actor"+icon_factory_request.destination));
                 return process_image(icon_factory_request, destination);
             }
 
@@ -287,6 +275,11 @@ public class Icon_factory_actor implements Actor
         }
 
         Image_properties properties = image_properties_RAM_cache.get_from_cache(destination.get_path_for_display_icon_destination(),null);
+        if (properties == null)
+        {
+            properties = new Image_properties(image_from_disk.getWidth(), image_from_disk.getHeight(), Rotation.normal);
+            image_properties_RAM_cache.inject(destination.get_path_for_display_icon_destination(), properties,true);
+        }
         return new Image_and_properties(image_from_disk,properties);
     }
 

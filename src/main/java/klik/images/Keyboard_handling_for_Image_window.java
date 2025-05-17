@@ -112,6 +112,7 @@ public class Keyboard_handling_for_Image_window
                 Runnable after = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
                 image_window.image_display_handler.get_image_context().get().copy(
                         image_window.path_list_provider,
+                        image_window.path_comparator_source,
                         after);
                 key_event.consume();
                 return;
@@ -154,7 +155,10 @@ public class Keyboard_handling_for_Image_window
                 if (keyword_dbg) logger.log("k like search_using_keywords_from_the_name");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider,image_window.aborter);
+                image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
+                        image_window.path_list_provider,
+                        image_window.path_comparator_source,
+                        image_window.aborter);
                 key_event.consume();
                 return;
             }

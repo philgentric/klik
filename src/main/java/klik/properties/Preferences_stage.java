@@ -119,8 +119,8 @@ public class Preferences_stage
 
         cb.setOnAction(_ ->
         {
-            logger.log("Preference changing for: "+ name);
             Boolean value = cb.isSelected();
+            logger.log("Preference changing for: "+ name+ "new value:"+value);
             properties.put(name,value);
             Booleans.set_boolean(name,value,logger);
         });

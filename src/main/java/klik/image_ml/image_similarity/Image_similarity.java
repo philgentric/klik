@@ -5,6 +5,7 @@ package klik.image_ml.image_similarity;
 
 import klik.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -41,16 +42,19 @@ public class Image_similarity implements Clearable_RAM_cache
 
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
     public final Path_list_provider path_list_provider;
+    public final Path_comparator_source path_comparator_source;
     public final Logger logger;
     public final Aborter aborter;
     //**********************************************************
     public Image_similarity(
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             double x, double y,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
+        this.path_comparator_source = path_comparator_source;
         this.logger = logger;
         this.aborter = aborter;
         this.images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,x,y,aborter,logger);
@@ -103,11 +107,11 @@ public class Image_similarity implements Clearable_RAM_cache
             public void run() {
                 double x = 10;
                 double y = 10;
-                show_one_at(new Most_similar(image_path,fv0,fv0,0.0),false,x,y);
+                show_one_at(new Most_similar(image_path,fv0,fv0,0.0),x,y);
                 y += H;
                 for ( Most_similar ms : most_similars)
                 {
-                    show_one_at(ms,true,x,y);
+                    show_one_at(ms,x,y);
                     x += W;
                 }
             }
@@ -119,11 +123,14 @@ public class Image_similarity implements Clearable_RAM_cache
 
 
     //**********************************************************
-    private void show_one_at(Most_similar ms,boolean not_same,double x, double y)
+    private void show_one_at(Most_similar ms,double x, double y)
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
-        Image_window returned = new Image_window(Optional.empty(), ms.path(), x, y, W, H, s, false,path_list_provider,aborter,logger);
+        Image_window returned = new Image_window(
+                ms.path(), x, y, W, H, s, false,path_list_provider,
+                Optional.of(path_comparator_source.get_path_comparator()),
+                aborter,logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         logger.log("x="+returned.the_Stage.getX());

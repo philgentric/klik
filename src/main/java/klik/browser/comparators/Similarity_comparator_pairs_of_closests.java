@@ -18,10 +18,15 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
 
     // the distances are computed in the constructor
     //**********************************************************
-    public Similarity_comparator_pairs_of_closests(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger_)
+    public Similarity_comparator_pairs_of_closests(
+            Similarity_cache similarity_cache,
+            Path_list_provider path_list_provider,
+            double x, double y,
+            Aborter aborter,
+            Logger logger_)
     //**********************************************************
     {
-        super(path_list_provider, x,y, aborter, logger_);
+        super(similarity_cache, path_list_provider, logger_);
 
         //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
         if ( aborter.should_abort()) return;

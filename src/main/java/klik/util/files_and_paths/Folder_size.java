@@ -21,7 +21,10 @@ import klik.util.log.Logger;
 
 import java.nio.file.Path;
 
-public class Folder_size {
+//**********************************************************
+public class Folder_size
+//**********************************************************
+{
 
     private static final double icon_height = 100;
     private static final double stage_x_start = 10;

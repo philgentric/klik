@@ -154,7 +154,12 @@ public class Menus_for_image_window
         search_y.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(null,image_window.path_list_provider,false,image_window.aborter);
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(
+                    image_window.the_Stage,
+                    image_window.path_list_provider,
+                    image_window.path_comparator_source,
+                    false,
+                    image_window.aborter);
         });
         return search_y;
     }
@@ -165,9 +170,11 @@ public class Menus_for_image_window
     {
         MenuItem search_k = new MenuItem(My_I18n.get_I18n_string("Search_by_keywords_from_this_ones_name", image_window.logger));
         search_k.setOnAction(event -> {
-
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(image_window.path_list_provider,image_window.aborter);
+            image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
+                    image_window.path_list_provider,
+                    image_window.path_comparator_source,
+                    image_window.aborter);
         });
         return search_k;
     }
@@ -180,7 +187,7 @@ public class Menus_for_image_window
         copy.setOnAction(event -> {
 
             Runnable r = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
-            image_window.image_display_handler.get_image_context().get().copy(image_window.path_list_provider, r);
+            image_window.image_display_handler.get_image_context().get().copy(image_window.path_list_provider, image_window.path_comparator_source, r);
         });
         return copy;
     }
@@ -509,6 +516,7 @@ public class Menus_for_image_window
                     image_window.image_display_handler.get_image_context().get().path,
                     image_properties_cache,
                     image_window.the_Stage,
+                    image_window.path_comparator_source,
                     image_window.aborter,
                     image_window.logger));
         }

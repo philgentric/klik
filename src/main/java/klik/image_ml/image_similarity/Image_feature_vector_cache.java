@@ -236,7 +236,7 @@ public class Image_feature_vector_cache
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( images_and_feature_vectors == null)
         {
-            Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, acquiring feature vectors",20000, x,y,logger);
+            Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, calling ML servers to get feature vectors",20000, x,y,logger);
             images_and_feature_vectors = read_from_disk_and_update(path_list_provider,in_flight, aborter,logger);
             images_and_feature_vectors_cache.put(path_list_provider.get_name(),images_and_feature_vectors);
             return images_and_feature_vectors;

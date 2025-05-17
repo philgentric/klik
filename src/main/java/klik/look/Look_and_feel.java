@@ -11,7 +11,6 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import klik.actor.Aborter;
 import klik.look.styles.Look_and_feel_light;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -314,7 +313,7 @@ public abstract class Look_and_feel
         if (look_and_feel == null) {
             look_and_feel = new Look_and_feel_light(logger);
         }
-        Non_booleans.get_main_properties_manager().add_and_save(STYLE, look_and_feel.name);
+        Non_booleans.get_main_properties_manager().add(STYLE, look_and_feel.name);
         return look_and_feel;
     }
 
@@ -322,7 +321,7 @@ public abstract class Look_and_feel
     public static void set_style(Look_and_feel style,  Logger logger)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager().add_and_save(STYLE, style.name);
+        Non_booleans.get_main_properties_manager().add(STYLE, style.name);
     }
 
 }

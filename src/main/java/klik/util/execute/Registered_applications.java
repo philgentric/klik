@@ -82,7 +82,7 @@ public class Registered_applications
         for (String key : map.keySet())
         {
             String value = map.get(key);
-            properties_manager.add_and_save(key,value);
+            properties_manager.add(key,value);
             logger.log("Registered_applications.save_map: "+key+" "+value);
         }
     }
@@ -95,7 +95,7 @@ public class Registered_applications
         {
             String home = System.getProperty(Non_booleans.USER_HOME);
             Path p = Paths.get(home, Non_booleans.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
-            properties_manager = new Properties_manager(p,aborter,logger);
+            properties_manager = new Properties_manager(p,"Registered applications DB",aborter,logger);
         }
         for (String key : properties_manager.get_all_keys())
         {

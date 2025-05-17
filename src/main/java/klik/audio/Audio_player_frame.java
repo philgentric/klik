@@ -8,20 +8,25 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import klik.actor.Aborter;
+import klik.browser.Drag_and_drop;
+import klik.browser.Move_provider;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.browser.items.Item2;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
@@ -180,6 +185,13 @@ public class Audio_player_frame
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
+
+        {
+            Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            returned.getChildren().add(spacer);
+        }
         playlist_file = get_playlist_file(aborter,logger);
         //logger.log("playlist_file="+playlist_file.getAbsolutePath());
         String playlist_name_s = extract_playlist_name();
@@ -207,7 +219,111 @@ public class Audio_player_frame
         return returned;
     }
 
+    //**********************************************************
+    private Button define_landing_zone()
+    //**********************************************************
+    {
+        Button landing_zone = new Button(My_I18n.get_I18n_string("Drop new music files or folders here",logger));
+        Look_and_feel_manager.set_button_look(landing_zone, true);
+        landing_zone.setMinHeight(100);
+        BackgroundFill background_fill = new BackgroundFill(Color.LIGHTCORAL, CornerRadii.EMPTY, Insets.EMPTY);
+        landing_zone.setBackground(new Background(background_fill));
 
+        landing_zone.setOnDragEntered(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
+            Look_and_feel_manager.set_background_for_setOnDragEntered(landing_zone,logger);
+            drag_event.consume();
+        });
+        landing_zone.setOnDragExited(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
+            Look_and_feel_manager.set_background_for_setOnDragExited(landing_zone,logger);
+            drag_event.consume();
+        });
+        landing_zone.setOnDragOver(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
+            drag_event.acceptTransferModes(TransferMode.MOVE);
+            Look_and_feel_manager.set_background_for_setOnDragOver(landing_zone,logger);
+            drag_event.consume();
+        });
+        landing_zone.setOnDragDropped(drag_event -> {
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
+
+            Object source = drag_event.getGestureSource();
+            if (source == null)
+            {
+                logger.log(("WARNING: accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: " + drag_event.getSource()));
+            }
+            else
+            {
+                if (source == landing_zone) {
+                    logger.log("source is excluded: cannot drop onto itself");
+                    drag_event.consume();
+                    return;
+                }
+            }
+
+            Dragboard dragboard = drag_event.getDragboard();
+            List<File> the_list = new ArrayList<>();
+            String s = dragboard.getString();
+            if (s == null) {
+                logger.log( "dragboard.getString()== null");
+            }
+            else
+            {
+                logger.log(" drag ACCEPTED for STRING:->" + s+ "<-");
+                for (String ss : s.split("\\r?\\n"))
+                {
+                    if (ss.isBlank()) continue;
+                    logger.log(" drag ACCEPTED for additional file: " + ss);
+                    the_list.add(new File(ss));
+                }
+                if (the_list.isEmpty())
+                {
+                    logger.log(" drag list is empty ? " + s);
+                }
+            }
+            {
+                List<File> l = dragboard.getFiles();
+                for (File fff : l)
+                {
+                    logger.log("... drag ACCEPTED for file= " + fff.getAbsolutePath());
+                    if ( !the_list.contains(fff) )  the_list.add(fff);
+                }
+            }
+
+            for ( File f : the_list)
+            {
+                if ( f.isDirectory())
+                {
+                    load_folder(f);
+                }
+                else
+                {
+                    observable_playlist.add(f);
+                }
+
+            }
+            save_observable_playlist();
+
+            // tell the source
+            drag_event.setDropCompleted(true);
+            drag_event.consume();
+        });
+        return landing_zone;
+    }
+
+    //**********************************************************
+    private void load_folder(File f)
+    //**********************************************************
+    {
+        File[] files = f.listFiles();
+        if ( files == null) return;
+        for (File ff : files)
+        {
+            if ( ff.isDirectory()) load_folder(ff);
+            else observable_playlist.add(ff);
+        }
+    }
 
 
     //**********************************************************
@@ -217,8 +333,19 @@ public class Audio_player_frame
         the_sound_control_hbox.getChildren().add(define_volume_and_balance_vbox());
         the_sound_control_hbox.getChildren().add(the_equalizer_vbox);
         the_sound_control_hbox.getChildren().add(define_jump_vbox());
+        the_sound_control_hbox.getChildren().add(define_the_landing_zone_vbox());
         the_big_vbox.getChildren().add(the_sound_control_hbox);
 
+    }
+
+    //**********************************************************
+    private VBox define_the_landing_zone_vbox()
+    //**********************************************************
+    {
+        VBox returned = new VBox();
+        Button landing_zone = define_landing_zone();
+        returned.getChildren().add(landing_zone);
+        return returned;
     }
 
     //**********************************************************
@@ -1106,7 +1233,7 @@ public class Audio_player_frame
     {
         if ( Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME) == null)
         {
-            Non_booleans.get_main_properties_manager().add_and_save(PLAYLIST_FILE_NAME, playlist_file_.getAbsolutePath());
+            Non_booleans.get_main_properties_manager().add(PLAYLIST_FILE_NAME, playlist_file_.getAbsolutePath());
         }
         //logger.log("Going to play list: "+playlist_file.getAbsolutePath());
         load_playlist(playlist_file_);
@@ -1168,7 +1295,7 @@ public class Audio_player_frame
         if ( playlist_file_name == null)
         {
             playlist_file_name = "playlist."+ Audio_player_frame.KLIK_AUDIO_PLAYLIST_EXTENSION;
-            Non_booleans.get_main_properties_manager().add_and_save(PLAYLIST_FILE_NAME,playlist_file_name);
+            Non_booleans.get_main_properties_manager().add(PLAYLIST_FILE_NAME,playlist_file_name);
         }
         else
         {

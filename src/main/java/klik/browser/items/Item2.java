@@ -31,7 +31,7 @@ import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Selection_handler2;
+import klik.browser.virtual_landscape.Selection_handler;
 import klik.experimental.metadata.Tag_stage;
 import klik.images.Exif_stage;
 import klik.look.Font_size;
@@ -83,7 +83,7 @@ public abstract class Item2 implements Icon_destination
     private double virtual_landscape_x = 0;
     private double virtual_landscape_y = 0;
     protected final Icon_factory_actor icon_factory_actor;
-    protected final Selection_handler2 selection_handler;
+    protected final Selection_handler selection_handler;
     //private Path path; // null for folders
     protected Path_list_provider path_list_provider;
     // never null as it describes the folder for folder
@@ -96,7 +96,7 @@ public abstract class Item2 implements Icon_destination
     public Item2(
             Window owner,
             Scene scene,
-            Selection_handler2 selection_handler,
+            Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
             Path_list_provider path_list_provider,

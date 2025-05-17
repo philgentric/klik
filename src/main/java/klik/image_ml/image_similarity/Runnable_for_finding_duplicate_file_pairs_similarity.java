@@ -3,6 +3,7 @@ package klik.image_ml.image_similarity;
 import klik.actor.Aborter;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.util.files_and_paths.File_pair;
 import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Guess_file_type;
@@ -31,6 +32,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
 			Image_properties_RAM_cache image_properties_cache,
+			Path_comparator_source path_comparator_source,
 			boolean quasi_same,
 			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
 			List<File_with_a_few_bytes> all_files_,
@@ -50,6 +52,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		double y = deduplication_by_similarity_engine.owner.getY()+100;
 		image_similarity = new Image_similarity(
 				new Folder_path_list_provider(deduplication_by_similarity_engine.target_dir.toPath()),
+				path_comparator_source,
 				x,y,
 				deduplication_by_similarity_engine.private_aborter,logger);
 

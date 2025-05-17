@@ -2,6 +2,7 @@
 package klik.search;
 
 import klik.actor.Aborter;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.log.Logger;
 
@@ -14,6 +15,7 @@ public class Finder
     //**********************************************************
     public static void find(
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             List<String> keywords,
             boolean search_only_images,
             Aborter aborter,
@@ -24,6 +26,7 @@ public class Finder
                     keywords,
                     search_only_images,
                     path_list_provider,
+                    path_comparator_source,
                     aborter,
                     logger);
             popup.start_search();

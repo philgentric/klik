@@ -9,14 +9,18 @@ import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Similarity_cache
@@ -29,7 +33,7 @@ public class Similarity_cache
     private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
 
     //**********************************************************
-    public Similarity_cache(Path_list_provider path_list_provider, List<Path> images, Image_feature_vector_cache fv_cache, Aborter aborter, Logger logger)
+    public Similarity_cache(Path_list_provider path_list_provider,double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.aborter = aborter;
@@ -47,41 +51,63 @@ public class Similarity_cache
 
         if ( !reload_similarity_cache_from_disk())
         {
-            // no cache on disk, have to recalculate
-            Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities,logger);
-            CountDownLatch cdl = new CountDownLatch(images.size());
-            for (Path p1 : images)
-            {
-                if ( aborter.should_abort())
-                {
-                    logger.log("aborting Similarity_cache "+aborter.reason);
-                    break;
-                }
-                Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
-                Job_termination_reporter tr = (message, job) -> {
-                    cdl.countDown();
-                    if (cdl.getCount() % 100 == 0)
-                        logger.log(" Remaining to fill similarity cache: " + cdl.getCount());
-                };
-                Actor_engine.run(actor, m, tr, logger);
-            }
+            // no cache on disk, have to recalculate and save
+            // in a thread!
 
-            try {
-                cdl.await();
-            } catch (InterruptedException e) {
-                logger.log("similarity cache interrupted" + e);
+            Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, aborter, logger);
+            if (result == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("ERROR: cannot preload all feature vectors"));
+                return;
             }
-            save_similarity_cache_to_disk();
+            Image_feature_vector_cache fv_cache = result.image_feature_vector_ram_cache();
+            fill_cache_and_save_to_disk(result.images(),fv_cache, x,y,aborter, logger);
 
             //logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
         }
     }
 
     //**********************************************************
+    private void fill_cache_and_save_to_disk(List<Path> images, Image_feature_vector_cache fv_cache, double x, double y, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        AtomicInteger in_flight = new AtomicInteger(images.size());
+        Hourglass hourglass = Show_running_film_frame_with_abort_button.show_running_film(in_flight,
+                "Wait: computing image similarities",30*60,x,y,logger);
+        Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities, logger);
+        CountDownLatch cdl = new CountDownLatch(images.size());
+        for (Path p1 : images)
+        {
+            if ( aborter.should_abort())
+            {
+                logger.log("aborting Similarity_cache "+ aborter.reason);
+                break;
+            }
+            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
+            Job_termination_reporter tr = (message, job) -> {
+                cdl.countDown();
+                in_flight.decrementAndGet();
+                if (cdl.getCount() % 100 == 0)
+                    logger.log(" Remaining to fill similarity cache: " + cdl.getCount());
+            };
+            Actor_engine.run(actor, m, tr, logger);
+        }
+
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            hourglass.close();
+            logger.log("similarity cache interrupted" + e);
+        }
+        save_similarity_cache_to_disk();
+        hourglass.close();
+    }
+
+    //**********************************************************
     public boolean reload_similarity_cache_from_disk()
     //**********************************************************
     {
-        logger.log("reloading similarities from file");
+        logger.log("reloading similarities from disk");
 
         int reloaded = 0;
         try(DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(similarity_cache_file_path.toFile()))))
@@ -89,7 +115,11 @@ public class Similarity_cache
             int number_of_items = dis.readInt();
             for ( int k = 0; k < number_of_items; k++)
             {
-                if ( aborter.should_abort()) return false;
+                if ( aborter.should_abort())
+                {
+                    logger.log("aborting : Similarity_cache::reload_similarity_cache_from_disk "+aborter.reason);
+                    return false;
+                }
                 String path1_string = dis.readUTF();
                 String path2_string = dis.readUTF();
                 double val = dis.readDouble();
@@ -97,10 +127,10 @@ public class Similarity_cache
                 Path p2 = path_list_provider.resolve(path2_string);
                 Path_pair p = Path_pair.get(p1,p2);
                 similarities.put(p,val);
-                if ( k%10000 == 0) logger.log(k +" similarities loaded from disk ");
+                if ( k%10000 == 0) logger.log("wait: already "+k +" similarities loaded from disk ....");
                 reloaded++;
             }
-            logger.log(reloaded+" similarities reloaded from file");
+            logger.log("Done: "+reloaded+" similarities reloaded from disk");
             return true;
         }
         catch (FileNotFoundException e)

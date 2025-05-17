@@ -5,9 +5,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
 import klik.Window_provider;
-import klik.browser.classic.Browser2;
+import klik.browser.classic.Browser;
+import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Shutdown_target;
-import klik.browser.virtual_landscape.Virtual_landscape2;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -50,7 +50,7 @@ public class New_window_context2
                 null,
                 null);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        return new Browser2(context, logger);
+        return new Browser(context, logger);
     }
 
     //**********************************************************
@@ -62,7 +62,7 @@ public class New_window_context2
     //**********************************************************
     {
         // make sure the new window is scrolled at the same position
-        Virtual_landscape2.scroll_position_cache.put(new_and_old_path.toAbsolutePath().toString(),top_left);
+        Browsing_caches.scroll_position_cache.put(new_and_old_path.toAbsolutePath().toString(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
@@ -71,7 +71,7 @@ public class New_window_context2
                 rectangle,
                 null);
         if ( dbg) logger.log(("\nadditional_same_folder\n"+ context.to_string() ));
-        new Browser2(context, logger);
+        new Browser(context, logger);
     }
 
 
@@ -105,7 +105,7 @@ public class New_window_context2
             Logger logger)
     //**********************************************************
     {
-        Virtual_landscape2.scroll_position_cache.put(new_and_old_path.toAbsolutePath().toString(),top_left);
+        Browsing_caches.scroll_position_cache.put(new_and_old_path.toAbsolutePath().toString(),top_left);
 
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(parent_window.getX(), parent_window.getY(), parent_window.getWidth(), parent_window.getHeight());
 
@@ -132,7 +132,7 @@ public class New_window_context2
                 rectangle,
                 null);
         if (dbg) logger.log(("\nadditional_same_folder\n" + context.to_string()));
-        new Browser2(context, logger);
+        new Browser(context, logger);
     }
 
 /*
@@ -145,7 +145,7 @@ public class New_window_context2
             Logger logger)
     //**********************************************************
     {
-        Virtual_landscape2.scroll_position_cache.put(old_path.toAbsolutePath().toString(),top_left);
+        Virtual_landscape.scroll_position_cache.put(old_path.toAbsolutePath().toString(),top_left);
 
 
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX()+100,parent_window.getY()+100,parent_window.getWidth()-100,parent_window.getHeight()-100);
@@ -168,7 +168,7 @@ public class New_window_context2
             Logger logger)
     //**********************************************************
     {
-        Virtual_landscape2.scroll_position_cache.put(old_and_new_path.toAbsolutePath().toString(),top_left);
+        Browsing_caches.scroll_position_cache.put(old_and_new_path.toAbsolutePath().toString(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
         New_window_context2 context =  new New_window_context2(
@@ -176,7 +176,7 @@ public class New_window_context2
                 rectangle,
                 shutdown_target);
         if ( dbg) logger.log(("\nreplace_same_folder\n"+ context.to_string() ));
-        new Browser2(context, logger);
+        new Browser(context, logger);
     }
 
     //**********************************************************
@@ -196,7 +196,7 @@ public class New_window_context2
         }
         else
         {
-            Virtual_landscape2.scroll_position_cache.put(old_path.toAbsolutePath().toString(),top_left);
+            Browsing_caches.scroll_position_cache.put(old_path.toAbsolutePath().toString(),top_left);
             logger.log("yop, recorded that " + old_path.toAbsolutePath() + " has top left =" + top_left.toString());
         }
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
@@ -205,7 +205,7 @@ public class New_window_context2
                 rectangle,
                 shutdown_target);
         if ( dbg) logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
-        new Browser2(context, logger);
+        new Browser(context, logger);
 
     }
 
@@ -221,7 +221,7 @@ public class New_window_context2
             Logger logger)
     //**********************************************************
     {
-        Virtual_landscape2.scroll_position_cache.put(old_path.toAbsolutePath().toString(),topLeft);
+        Virtual_landscape.scroll_position_cache.put(old_path.toAbsolutePath().toString(),topLeft);
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
 
@@ -277,7 +277,7 @@ public class New_window_context2
                     String home = System.getProperty(Non_booleans.USER_HOME);
                     Path new_playlist_file = Path.of( home, local);
                     Files.createFile(new_playlist_file); //Files.createDirectory(new_dir);
-                    Virtual_landscape2.scroll_position_cache.put(Path.of( Non_booleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
+                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_booleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
                     return new_playlist_file;
                 } catch (IOException e) {
                     logger.log("new directory creation FAILED: " + e);

@@ -10,6 +10,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.experimental.deduplicate.Abortable;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
@@ -46,12 +47,14 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     Stage_with_2_images stage_with_2_images;
     boolean quasi_same;
     private final Path_list_provider path_list_provider;
+    private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
-    public Deduplication_by_similarity_engine(Path_list_provider path_list_provider, boolean quasi_same, Window owner, File target_dir_, Image_properties_RAM_cache image_properties_RAM_cache,Logger logger_)
+    public Deduplication_by_similarity_engine(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,boolean quasi_same, Window owner, File target_dir_, Image_properties_RAM_cache image_properties_RAM_cache,Logger logger_)
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
+        this.path_comparator_source = path_comparator_source;
         this.quasi_same = quasi_same;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.owner = owner;
@@ -123,7 +126,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         console_window.total_pairs_to_be_examined.addAndGet(pairs);
 
         // launch actor (feeder) in another tread
-        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(image_properties_RAM_cache, quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
+        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(image_properties_RAM_cache, path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
         Actor_engine.execute(duplicate_finder,logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");
@@ -192,8 +195,8 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             String similarity = ""+sim_file_pair.similarity();
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,owner, sim_file_pair.file_pair(), local_againor, console_window.count_deleted, path_list_provider, private_aborter, logger);
-            else stage_with_2_images.set_pair(similarity,sim_file_pair.file_pair(),path_list_provider, private_aborter);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,owner, sim_file_pair.file_pair(), local_againor, console_window.count_deleted, path_list_provider, path_comparator_source,private_aborter, logger);
+            else stage_with_2_images.set_pair(similarity,sim_file_pair.file_pair(),path_list_provider, path_comparator_source, private_aborter);
         },logger);
     }
 

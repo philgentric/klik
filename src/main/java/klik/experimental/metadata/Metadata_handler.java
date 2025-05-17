@@ -23,7 +23,7 @@ public class Metadata_handler
     {
         described_file = described_file_;
         Path p = make_metadata_path(described_file_);
-        properties_manager = new Properties_manager(p,aborter,logger);
+        properties_manager = new Properties_manager(p,"metadata for "+described_file,aborter,logger);
     }
 
     //**********************************************************
@@ -37,7 +37,7 @@ public class Metadata_handler
     public void add(String key, String value)
     //**********************************************************
     {
-        properties_manager.add_and_save(key,value);
+        properties_manager.add(key,value);
     }
 
     //**********************************************************

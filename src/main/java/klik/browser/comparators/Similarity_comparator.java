@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 
+// a per-folder cache of image distances
 //**********************************************************
 public abstract class Similarity_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
@@ -23,25 +24,19 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     private final Map<Path_pair, Integer> distances_cache = new HashMap<>();
     protected Image_feature_vector_cache fv_cache = null;
     Logger logger;
-    protected Similarity_cache similarity_cache;
-    protected List<Path> images;
+    protected final Similarity_cache similarity_cache;
+    protected final List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger_)
+    public Similarity_comparator(Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
     //**********************************************************
     {
-        logger = logger_;
-
-        Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x,y,aborter, logger);
-        if (result == null) {
-            return;
-        }
-        fv_cache = result.image_feature_vector_ram_cache();
-        images = new ArrayList<>(result.images());
-
-        similarity_cache = new Similarity_cache(path_list_provider, images, fv_cache, aborter, logger);
+        this.logger = logger;
+        this.similarity_cache = similarity_cache;
+        this.images = path_list_provider.only_image_paths(Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES));
         shuffle();
     }
+
 
     //**********************************************************
     @Override

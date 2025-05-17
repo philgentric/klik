@@ -4,6 +4,7 @@ package klik.browser.icons.animated_gifs;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.comparators.Aspect_ratio_comparator;
 import klik.browser.icons.Icon_factory_actor;
@@ -48,7 +49,9 @@ public class Animated_gif_from_folder
     //**********************************************************
     public static Path make_animated_gif_from_images_in_folder(
             Window owner,
-            Path_list_provider path_list_provider, List<File> images_in_folder, Image_properties_RAM_cache image_properties_RAM_cache, Aborter aborter,Logger logger)
+            Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
+            List<File> images_in_folder, Image_properties_RAM_cache image_properties_RAM_cache, Aborter aborter,Logger logger)
     //**********************************************************
     {
         //System.out.println(Stack_trace_getter.get_stack_trace("make_animated_gif_from_images_in_folder "+target_folder));
@@ -85,7 +88,7 @@ public class Animated_gif_from_folder
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(path_list_provider,image_properties_RAM_cache, x,y,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( local_comp instanceof Aspect_ratio_comparator)
         {

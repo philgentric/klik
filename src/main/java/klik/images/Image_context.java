@@ -13,6 +13,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.items.Item2_file_with_icon;
+import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.properties.Non_booleans;
@@ -327,7 +328,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Aborter aborter)
+    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Aborter aborter)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -355,6 +356,7 @@ public class Image_context
 
         Finder.find(
                 path_list_provider,
+                path_comparator_source,
                 keywords,true,aborter,logger);
     }
 
@@ -365,18 +367,20 @@ public class Image_context
     void search_using_keywords_given_by_the_user(
             Window owner,
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             boolean search_only_for_images,
             Aborter aborter)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find( path_list_provider, given_keywords, search_only_for_images,owner,aborter,logger);
+        ask_user_and_find( path_list_provider, path_comparator_source,given_keywords, search_only_for_images,owner,aborter,logger);
     }
 
 
     //**********************************************************
     public static void ask_user_and_find(
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             List<String> keywords,
             boolean search_only_for_images,
             Window owner,
@@ -414,6 +418,7 @@ public class Image_context
 
                     Finder.find(
                             path_list_provider,
+                            path_comparator_source,
                             keywords,search_only_for_images,aborter,logger);
                 }
             }
@@ -448,6 +453,7 @@ public class Image_context
     //**********************************************************
     boolean copy(
             Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
             Runnable after)
     //**********************************************************
     {
@@ -512,6 +518,7 @@ public class Image_context
 
         Item2_file_with_icon.open_an_image(true,
                 path_list_provider,
+                path_comparator_source,
                 new_path,logger);
         //Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;

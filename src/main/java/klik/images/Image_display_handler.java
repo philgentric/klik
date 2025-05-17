@@ -13,7 +13,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape2;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -293,7 +293,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return;
         }
         block.set(true);
-        Virtual_landscape2.show_running_film = false;
+        Virtual_landscape.show_running_film = false;
         if ( image_context.isEmpty())
         {
             Path p = image_indexer.get().path_from_index(0);

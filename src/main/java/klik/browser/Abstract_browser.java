@@ -11,7 +11,7 @@ import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Full_screen_handler;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Shutdown_target;
-import klik.browser.virtual_landscape.Virtual_landscape2;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
@@ -23,7 +23,7 @@ import klik.util.log.Logger;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public abstract class Abstract_browser2 implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider
+public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider
 //**********************************************************
 {
 
@@ -42,7 +42,7 @@ public abstract class Abstract_browser2 implements Change_receiver, Shutdown_tar
 
     protected Filesystem_item_modification_watcher filesystem_item_modification_watcher;
     protected My_Stage2 my_Stage;
-    protected Virtual_landscape2 virtual_landscape;
+    protected Virtual_landscape virtual_landscape;
     protected final Logger logger;
     protected Aborter aborter;
     protected boolean ignore_escape_as_the_stage_is_full_screen = false;
@@ -53,7 +53,7 @@ public abstract class Abstract_browser2 implements Change_receiver, Shutdown_tar
     protected abstract void monitor();
 
     //**********************************************************
-    public Abstract_browser2(Logger logger_)
+    public Abstract_browser(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -78,7 +78,7 @@ public abstract class Abstract_browser2 implements Change_receiver, Shutdown_tar
             context.shutdown_target.shutdown();
         }
 
-        aborter = new Aborter("Abstract_browser2 for: " + get_name(), logger);
+        aborter = new Aborter("Abstract_browser for: " + get_name(), logger);
 
         my_Stage = new My_Stage2(new Stage(), logger);
 
@@ -138,7 +138,7 @@ public abstract class Abstract_browser2 implements Change_receiver, Shutdown_tar
 
         logger.log("Browser init");
         monitor();
-        virtual_landscape = new Virtual_landscape2(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
+        virtual_landscape = new Virtual_landscape(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -188,7 +188,7 @@ public abstract class Abstract_browser2 implements Change_receiver, Shutdown_tar
             }
             else
             {
-                logger.log("SHOULD NOT HAPPEN Abstract_browser2: primary_stage is null");
+                logger.log("SHOULD NOT HAPPEN Abstract_browser: primary_stage is null");
 
             }
             logger.log("primary_stage closing = Platform.exit()");
