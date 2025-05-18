@@ -244,7 +244,8 @@ public class Audio_player_frame
     private Button define_landing_zone_button()
     //**********************************************************
     {
-        Button landing_zone = new Button(My_I18n.get_I18n_string("Drop new music files or folders here",logger));
+        //Button landing_zone = new Button(My_I18n.get_I18n_string("Drop new music files or folders here",logger));
+        Button landing_zone = new Button("Drop new music files or folders here");
         Look_and_feel_manager.set_button_look(landing_zone, true);
         landing_zone.setMinHeight(100);
         BackgroundFill background_fill = new BackgroundFill(Color.LIGHTCORAL, CornerRadii.EMPTY, Insets.EMPTY);
@@ -840,7 +841,11 @@ public class Audio_player_frame
             if ( dbg) logger.log("style after = "+s);
             future.setStyle(s);
         }
-        else logger.log(Stack_trace_getter.get_stack_trace("should not happen"));
+        else
+        {
+            logger.log("this file is gone: "+f.getAbsolutePath());
+            return;
+        }
         if ( selected != null)
         {
             if ( dbg) logger.log("resetting background for previously selected");

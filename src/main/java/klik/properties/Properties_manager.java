@@ -22,7 +22,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class Properties_manager
@@ -39,9 +38,7 @@ public class Properties_manager
     private final String tag;
 
     // saving to file is done in a separate thread:
-    public final BlockingQueue<Long> disk_store_request_queue = new LinkedBlockingQueue<>();
-    //private Long last_save_timestemp = null;
-    AtomicBoolean need_to_save_to_disk = new AtomicBoolean(false);
+    public final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
     public Properties_manager(Path f_, String tag, Aborter aborter,Logger logger)
@@ -69,7 +66,7 @@ public class Properties_manager
     public void store_properties()
     //**********************************************************
     {
-        disk_store_request_queue.add(System.currentTimeMillis());
+        disk_store_request_queue.add(true);
     }
 
     // trying to limit disk writes for source that can be super active
@@ -83,48 +80,33 @@ public class Properties_manager
             for(;;)
             {
                 try {
-                    Long b = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
-                    long now = System.currentTimeMillis();
+                    Boolean b = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
                     if (aborter.should_abort())
                     {
                         // always save on clean exit
-                        save_if_needed(now);
+                        save();
                         logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
                         return;
                     }
                     if ( b == null)
                     {
-                        // this is a time out (20 seconds)
-                        save_if_needed(now);
+                        // this is a time out (20 seconds),
+                        // the tile out is here to make sure we read the aborter
+                        // no need save
+                        continue;
                     }
-                    else
+                    if ( disk_store_request_queue.peek() != null)
                     {
-                        need_to_save_to_disk.set(true);
-                        if ( disk_store_request_queue.peek() != null)
-                        {
-                            logger.log("ignoring as there are more requests for saving Properties store engine : " + tag + " " + the_properties_path);
-                            // another request is already in flight, ignore this one
-                            continue;
-                        }
-                        /*
-                        if ( last_save_timestemp != null)
-                        {
-                            long delta = now - last_save_timestemp;
-                            if (delta < 1000)
-                            {
-                                // this request is too close to the last one
-                                logger.log("ignoring as is too soon for saving Properties store engine : " + tag + " " + the_properties_path);
-                                continue;
-                            }
-                        }*/
-                        save_if_needed(now);
+                        logger.log("ignoring as there are more requests for saving Properties store engine : " + tag + " " + the_properties_path);
+                        // if another request is already in flight, we will have an opportunity to save very soon
+                        continue;
                     }
 
-
+                    save();
                 }
                 catch (InterruptedException e)
                 {
-                    save_if_needed(0L);
+                    save();
                     logger.log("saving INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
                     return;
                 }
@@ -134,23 +116,11 @@ public class Properties_manager
     }
 
     //**********************************************************
-    private void save_if_needed(long now)
-    //**********************************************************
-    {
-        if (need_to_save_to_disk.get()) {
-            //last_save_timestemp = now;
-            store_properties_internal();
-            need_to_save_to_disk.set(false);
-        }
-    }
-
-
-    //**********************************************************
-    private void store_properties_internal()
+    private void save()
     //**********************************************************
     {
        //if (dbg)
-            logger.log("store_properties_internal() "+the_properties_path.toAbsolutePath());
+            logger.log("Properties: save "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
         {
@@ -260,7 +230,7 @@ public class Properties_manager
     //**********************************************************
     {
         the_Properties.setProperty(key, value);
-        disk_store_request_queue.add(System.currentTimeMillis());
+        disk_store_request_queue.add(true);
         return true;
     }
 
