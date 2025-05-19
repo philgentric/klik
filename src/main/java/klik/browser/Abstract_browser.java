@@ -5,7 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Klik_application2;
+import klik.Klik_application;
 import klik.Window_provider;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Full_screen_handler;
@@ -180,10 +180,10 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         logger.log("close_window: browsers_created(2) ="+count);
         if (count ==0)
         {
-            if (Klik_application2.primary_stage != null)
+            if (Klik_application.primary_stage != null)
             {
                 logger.log("primary_stage closing = primary_stage.close()");
-                Klik_application2.primary_stage.close();
+                Klik_application.primary_stage.close();
                 Shared_services.shared_services_aborter.abort("primary_stage closing");
             }
             else

@@ -132,10 +132,10 @@ public class Item2_file_with_icon extends Item2_file
                     return;
                 }
                 if (event.isControlDown()) {
-                    if (dbg) logger.log("\n\nItem1_image event=" + event + " CTRL is down");
+                    if (dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
                     set_is_selected();
                 } else {
-                    if (dbg) logger.log("\n\nItem1_image OnMouseClicked " + path);
+                    if (dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
                     on_mouse_clicked(logger);
                 }
             });
@@ -325,7 +325,7 @@ public class Item2_file_with_icon extends Item2_file
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item1_image: Renaming "+path);
+            if (dbg) logger.log("Item_image: Renaming "+path);
 
             Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
             if ( new_path == null) return;
@@ -607,7 +607,7 @@ public class Item2_file_with_icon extends Item2_file
     public void you_are_visible_specific()
     //**********************************************************
     {
-        //logger.log("Item1_image::you_are_visible_specific "+get_item_path());
+        //logger.log("Item_image::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
             logger.log("BAD WARNING: item_image: default_icon == null");
@@ -646,6 +646,6 @@ public class Item2_file_with_icon extends Item2_file
     public String get_string()
     //**********************************************************
     {
-        return "is Item1_image for : " + get_item_path().toAbsolutePath();
+        return "is Item_image for : " + get_item_path().toAbsolutePath();
     }
 }

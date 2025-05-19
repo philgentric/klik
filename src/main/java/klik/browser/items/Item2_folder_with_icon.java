@@ -432,7 +432,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     //**********************************************************
     {
         // only used for debug logging
-        return "Item1_folder_with_icon for: " + get_item_path().toAbsolutePath();
+        return "Item_folder_with_icon for: " + get_item_path().toAbsolutePath();
     }
 
 

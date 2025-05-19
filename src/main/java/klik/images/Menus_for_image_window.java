@@ -14,7 +14,7 @@ import klik.browser.New_window_context2;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item2_file_with_icon;
-import klik.change.undo.Undo_engine;
+import klik.change.undo.Undo_for_moves;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
 import klik.image_ml.face_recognition.Face_recognition_message;
@@ -64,7 +64,7 @@ public class Menus_for_image_window
             image_window.logger.log("undoing last move");
             double x = image_window.the_Stage.getX()+100;
             double y = image_window.the_Stage.getY()+100;
-            Undo_engine.perform_last_undo_fx(image_window.the_Stage, x,y,image_window.logger);
+            Undo_for_moves.perform_last_undo_fx(image_window.the_Stage, x, y, image_window.logger);
         });
         return undo_move;
     }

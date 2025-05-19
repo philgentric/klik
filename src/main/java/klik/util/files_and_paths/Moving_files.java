@@ -6,7 +6,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
-import klik.change.undo.Undo_engine;
+import klik.change.undo.Undo_for_moves;
 import klik.images.Redo_same_move_engine;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
@@ -204,7 +204,7 @@ public class Moving_files
             Change_gang.report_changes(done);
             if ( and_list_for_undo)
             {
-                Undo_engine.add(done, logger);
+                Undo_for_moves.add(done, logger);
             }
         }
 

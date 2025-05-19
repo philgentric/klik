@@ -1,17 +1,14 @@
 package klik.util;
 
-import klik.actor.Aborter;
+import klik.browser.Shared_services;
 import klik.properties.Non_booleans;
-import klik.util.log.Logger;
 import klik.util.log.System_logger;
 
-public record Sys_init(Logger logger, Aborter aborter) {
-
-    public static Sys_init get(String name)
+public class Sys_init
+{
+    public static void init(String name)
     {
-        Aborter shared_services_aborter = Non_booleans.init_main_properties_manager( name);
-        Logger logger = System_logger.get_system_logger(name);
-
-        return new Sys_init(logger,shared_services_aborter);
+        Shared_services.shared_services_aborter = Non_booleans.init_main_properties_manager(name);
+        Shared_services.shared_services_logger = System_logger.get_system_logger(name);
     }
 }

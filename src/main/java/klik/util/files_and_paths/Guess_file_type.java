@@ -2,20 +2,18 @@ package klik.util.files_and_paths;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.experimental.fusk.Fusk_static_core;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
-import static klik.audio.Audio_player_frame.KLIK_AUDIO_PLAYLIST_EXTENSION;
 
 /*
 static utilities to guess the file type from its extension
@@ -31,6 +29,7 @@ public class Guess_file_type
     private static final String[] supported_text_formats = {"TXT","NFO","RTF","MD","PY","C","C++","CPP","JAVA","JS","HTML"};
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"WAV","AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};
+    public static final String KLIK_AUDIO_PLAYLIST_EXTENSION = "klik_audio_playlist";
 
     // portability notes:
     // "._" when a Mac writes a file into an external drive (or NAS via AFP or SMB)

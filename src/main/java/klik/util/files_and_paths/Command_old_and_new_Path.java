@@ -11,5 +11,6 @@ public enum Command_old_and_new_Path
 	command_edit, // same name, different content
     command_copy,
 	command_restore,
-	command_unknown
+	command_unknown,
+	command_remove_for_playlist
 }

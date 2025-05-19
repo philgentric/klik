@@ -21,8 +21,8 @@
 //SOURCES ../look/my_i18n/My_I18n.java
 //SOURCES ../look/Jar_utils.java
 
-//SOURCES ./items/Item1_image.java
-//SOURCES ./items/Item1.java
+//SOURCES ./items/Item_image.java
+//SOURCES ./items/Item.java
 
 //SOURCES ../properties/Non_booleans.java
 //SOURCES ../properties/Non_booleans.java

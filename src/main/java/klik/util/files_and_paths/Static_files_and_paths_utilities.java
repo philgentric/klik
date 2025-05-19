@@ -14,7 +14,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
-import klik.change.undo.Undo_engine;
+import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Booleans;
 import klik.properties.Cache_folder;
@@ -869,7 +869,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
-        Undo_engine.add(l, logger);
+        Undo_for_moves.add(l, logger);
         return new_path;
         
     }

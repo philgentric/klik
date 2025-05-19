@@ -1,10 +1,9 @@
 package klik.util.files_and_paths;
 
-import klik.actor.Aborter;
+import klik.browser.Shared_services;
 import klik.properties.Non_booleans;
 import klik.util.Sys_init;
 import klik.util.log.Logger;
-import klik.util.log.System_logger;
 
 import java.util.List;
 import java.util.UUID;
@@ -163,9 +162,9 @@ public class Name_cleaner
     public static void main(String[] args)
     //**********************************************************
     {
-        Sys_init sys_init = Sys_init.get("Name_cleaner test app");
-        Logger logger = sys_init.logger();
-        Aborter aborter = sys_init.aborter();
+        Sys_init.init("Name_cleaner test app");
+        Logger logger = Shared_services.shared_services_logger;
+
 
         {
             String test =" $fsd,de  :dfd- _hd<gd. ___---84565FTaMere dwedsds .jpg";
