@@ -805,6 +805,7 @@ public class Audio_player_frame
     private void add_and_save_if_needed(File added_song)
     //**********************************************************
     {
+        if ( added_song == null) return;
         for (File file : observable_playlist)
         {
             if (file.getAbsolutePath().equals(added_song.getAbsolutePath()))

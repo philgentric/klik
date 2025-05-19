@@ -223,7 +223,10 @@ public class Audio_player extends Application
     static File sanitize_file_name(File song, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if ( song == null) return null;
         String parent = song.getParent();
+        if ( parent == null) return null;
+
         String file_name = song.getName();
         String new_name = Static_files_and_paths_utilities.get_base_name(file_name);
         new_name = new_name.replaceAll("\\[", "_");
@@ -242,7 +245,9 @@ public class Audio_player extends Application
         new_name = new_name.replaceAll(",", "_");
         new_name = new_name.replaceAll(" ", "_");
         new_name = new_name.replaceAll("_+", "_");
-        */new_name = new_name.toLowerCase();
+        */
+
+        new_name = new_name.toLowerCase();
         new_name = new_name+"."+Static_files_and_paths_utilities.get_extension(file_name);
 
 
