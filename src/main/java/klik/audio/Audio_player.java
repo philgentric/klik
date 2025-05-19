@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import klik.Start_context;
 import klik.actor.Aborter;
+import klik.browser.Shared_services;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
@@ -29,7 +30,7 @@ public class Audio_player extends Application
 //**********************************************************
 {
     private final static boolean dbg = true;
-    static Audio_player_frame instance = null;
+    static Audio_player_FX_UI instance = null;
     public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
 
@@ -43,9 +44,9 @@ public class Audio_player extends Application
     //**********************************************************
     {
 
-        Sys_init sys_init = Sys_init.get("Audio_player");
-        Logger logger = sys_init.logger();
-        Aborter aborter = sys_init.aborter();
+        Sys_init.init("Audio_player");
+        Logger logger = Shared_services.shared_services_logger;
+        Aborter aborter = Shared_services.shared_services_aborter;
 
         Start_context context = Start_context.get_context(this);
 
@@ -186,7 +187,7 @@ public class Audio_player extends Application
     public static void init(Aborter aborter,Logger logger)
     //**********************************************************
     {
-        instance = new Audio_player_frame(aborter, logger);
+        instance = new Audio_player_FX_UI(aborter, logger);
     }
     //**********************************************************
     public static void play_playlist(File file, Logger logger)

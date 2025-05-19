@@ -25,7 +25,6 @@ public class Audio_player_application extends Application
 //**********************************************************
 {
     private final static boolean dbg = true;
-    static Audio_player_FX_UI instance = null;
     public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
 

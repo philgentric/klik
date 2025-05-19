@@ -41,7 +41,7 @@ import static klik.audio.Audio_player.sanitize_file_name;
 import static klik.properties.Non_booleans.USER_HOME;
 
 //**********************************************************
-public class Audio_player_frame
+public class Audio_player_FX_UI
 //**********************************************************
 {
     private static final boolean dbg =  false;
@@ -89,7 +89,7 @@ public class Audio_player_frame
     Label the_status_label;
 
     //**********************************************************
-    Audio_player_frame(Aborter aborter, Logger logger)
+    Audio_player_FX_UI(Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.aborter= aborter;
@@ -1323,7 +1323,7 @@ public class Audio_player_frame
         String playlist_file_name = Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME);
         if ( playlist_file_name == null)
         {
-            playlist_file_name = "playlist."+ Audio_player_frame.KLIK_AUDIO_PLAYLIST_EXTENSION;
+            playlist_file_name = "playlist."+ Audio_player_FX_UI.KLIK_AUDIO_PLAYLIST_EXTENSION;
             Non_booleans.get_main_properties_manager().add(PLAYLIST_FILE_NAME,playlist_file_name);
         }
         else
