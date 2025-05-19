@@ -200,13 +200,14 @@ public class Audio_player_FX_UI
             remove_from_playlist.setOnAction(actionEvent -> remove_from_playlist_and_jump_to_next());
             returned.getChildren().add(remove_from_playlist);
         }
+        /*
         {
 
             Button undo_remove_button = new Button(My_I18n.get_I18n_string("Undo_Remove",logger));
             Look_and_feel_manager.set_button_look(undo_remove_button, true);
             undo_remove_button.setOnAction(actionEvent -> undo_remove());
             returned.getChildren().add(undo_remove_button);
-        }
+        }*/
         {
             Region spacer = new Region();
             Look_and_feel_manager.set_region_look(spacer);
