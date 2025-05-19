@@ -1,7 +1,6 @@
 package klik.change.history;
 
-import klik.actor.Aborter;
-import klik.change.undo.Undo_engine;
+import klik.change.undo.Undo_for_moves;
 import klik.util.log.Logger;
 
 //**********************************************************
@@ -23,7 +22,7 @@ public class History_auto_clean
     public boolean monitor()
     //**********************************************************
     {
-        Undo_engine.erase_if_too_old(1000,100, logger);
+        Undo_for_moves.erase_if_too_old(1000, 100, logger);
         History_engine.erase_if_too_old(100,logger);
         return true;
     }

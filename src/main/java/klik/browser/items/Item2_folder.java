@@ -212,7 +212,7 @@ public class Item2_folder extends Item2 implements Icon_destination
     @Override // Icon_destination
     public Path get_path_for_display_icon_destination()
     {
-        logger.log("Item1_button get_path_for_display_icon_destination DEEP !???");
+        logger.log("Item_button get_path_for_display_icon_destination DEEP !???");
         return get_path_for_display(true);
     }
 
@@ -408,7 +408,7 @@ public class Item2_folder extends Item2 implements Icon_destination
             {
                 if ( !Guess_file_type.is_this_a_video_or_audio_file(owner,get_item_path(),logger))
                 {
-                    logger.log("Item1_button, opening audio file: " + get_item_path().toAbsolutePath());
+                    logger.log("Item_button, opening audio file: " + get_item_path().toAbsolutePath());
                     Audio_player.play_song_in_separate_process(get_item_path().toFile(),logger);
                     return;
                 }

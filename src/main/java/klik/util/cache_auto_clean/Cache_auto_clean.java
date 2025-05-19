@@ -1,8 +1,5 @@
 package klik.util.cache_auto_clean;
 
-import javafx.stage.Stage;
-import klik.actor.Aborter;
-import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -50,6 +47,15 @@ public class Cache_auto_clean
         for( Monitored_folder monitored_folder : monitored_folders)
         {
             File[] files = monitored_folder.path.toFile().listFiles();
+            if ( files==null)
+            {
+                if ( !warning_issued)
+                {
+                    logger.log("WARNING: Cache_auto_clean not able to list files in "+monitored_folder.path);
+                    warning_issued = true;
+                }
+                continue;
+            }
             for ( File f : files)
             {
                 if ( f.isDirectory())

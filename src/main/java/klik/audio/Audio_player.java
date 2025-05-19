@@ -1,130 +1,26 @@
 package klik.audio;
 
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.stage.Stage;
-import klik.Start_context;
 import klik.actor.Aborter;
-import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.Language_manager;
-import klik.look.my_i18n.My_I18n;
-import klik.util.Sys_init;
+import klik.browser.Shared_services;
 import klik.util.execute.Execute_command;
-import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 //**********************************************************
-public class Audio_player extends Application
+public class Audio_player
 //**********************************************************
 {
-    private final static boolean dbg = true;
-    static Audio_player_frame instance = null;
+    static Audio_player_FX_UI instance = null;
     public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
 
-    //**********************************************************
-    public static void main(String[] args) {launch(args);}
-    //**********************************************************
-
-    //**********************************************************
-    @Override
-    public void start(Stage stage) throws Exception
-    //**********************************************************
-    {
-
-        Sys_init sys_init = Sys_init.get("Audio_player");
-        Logger logger = sys_init.logger();
-        Aborter aborter = sys_init.aborter();
-
-        Start_context context = Start_context.get_context(this);
-
-        if (  !start_server(logger))
-        {
-            logger.log("failed to start server: this is normal if another instance exists already");
-            Start_context.send_started_raw(context,logger);
-            stage.close();
-            Platform.exit();
-            System.exit(0);
-            return;
-        }
-
-        logger.log("Audio_player start");
-
-
-        Look_and_feel_manager.init_Look_and_feel(logger);
-        Language_manager.init_registered_languages(logger);
-
-        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC,logger);
-
-        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
-
-        File f = null;
-        if ( context.path() != null)
-        {
-             logger.log("Audio_player, context.path()) "+context.path().toAbsolutePath());
-             f = context.path().toFile();
-             logger.log("Audio_player, opening audio file: "+f.getAbsolutePath());
-        }
-        Start_context.send_started(context,logger);
-
-        Audio_player.init(aborter,logger);
-        play_this_song(f,logger);
-    }
-    //**********************************************************
-    private static boolean start_server(Logger logger)
-    //**********************************************************
-    {
-        // start the server to receive subsequent play requests
-        // this is to avoid the audio mess when several players
-        // are automatically "mixed" by the OS
-
-        Session_factory session_factory = () -> new Session() {
-            @Override
-            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
-            {
-                try {
-                    int size = dis.readInt();
-                    byte buffer[] = new byte[size];
-                    dis.read(buffer);
-                    String file_path = new String(buffer, StandardCharsets.UTF_8);
-                    File f1 = new File(file_path);
-                    play_this_song(f1,logger);
-                    String reply = PLAY_REQUEST_ACCEPTED;
-                    buffer = reply.getBytes(StandardCharsets.UTF_8);
-                    dos.writeInt(buffer.length);
-                    dos.write(buffer);
-                    logger.log("accepted file for playing");
-                }
-                catch (IOException e)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                }
-
-            }
-
-            @Override
-            public String name() {
-                return "";
-            }
-        };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("audio", logger), logger);
-        return tcp_server.start(AUDIO_PLAYER_PORT,false);
-    }
-
-
-
-    // entry #1
     //**********************************************************
     public static void play_song_in_separate_process(File song, Logger logger)
     //**********************************************************
@@ -172,7 +68,7 @@ public class Audio_player extends Application
         List<String> cmds = new ArrayList<>();
         logger.log("start_new_process_to_browse()");
         cmds.add("gradle");
-        cmds.add("klik2");
+        cmds.add("klik");
         String path =  "--args=\""+folder.toAbsolutePath()+"\"";
         cmds.add(path);
 
@@ -186,7 +82,7 @@ public class Audio_player extends Application
     public static void init(Aborter aborter,Logger logger)
     //**********************************************************
     {
-        instance = new Audio_player_frame(aborter, logger);
+        instance = new Audio_player_FX_UI(aborter, logger);
     }
     //**********************************************************
     public static void play_playlist(File file, Logger logger)
@@ -194,9 +90,8 @@ public class Audio_player extends Application
     {
         if ( instance == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player.init() before trying to play"));
+            init(Shared_services.shared_services_aborter,logger);
         }
-
         instance.play_playlist_internal(file);
     }
 
@@ -204,7 +99,7 @@ public class Audio_player extends Application
     public static void play_this_song(File song,Logger logger)
     //**********************************************************
     {
-        if ( song != null) song = sanitize_file_name(song, instance.aborter, logger);
+
         File finalSong = song;
         Runnable r = () ->
         {
@@ -219,51 +114,4 @@ public class Audio_player extends Application
         else Platform.runLater(r);
     }
 
-    //**********************************************************
-    static File sanitize_file_name(File song, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        String parent = song.getParent();
-        String file_name = song.getName();
-        String new_name = Static_files_and_paths_utilities.get_base_name(file_name);
-        new_name = new_name.replaceAll("\\[", "_");
-        new_name = new_name.replaceAll("]", "_");
-        new_name = new_name.replaceAll("\\(", "_");
-        new_name = new_name.replaceAll("\\)", "_");
-        /*new_name = new_name.replaceAll(" & ", "_and_");
-        new_name = new_name.replaceAll("&", "_and_");
-        new_name = new_name.replaceAll("-", "_");
-        new_name = new_name.replaceAll(":", "_");
-        new_name = new_name.replaceAll(";", "_");
-        new_name = new_name.replaceAll("\\?", "_");
-        new_name = new_name.replaceAll("!", "_");
-        new_name = new_name.replaceAll("\\.", "_");
-        new_name = new_name.replaceAll("'", "_");
-        new_name = new_name.replaceAll(",", "_");
-        new_name = new_name.replaceAll(" ", "_");
-        new_name = new_name.replaceAll("_+", "_");
-        */new_name = new_name.toLowerCase();
-        new_name = new_name+"."+Static_files_and_paths_utilities.get_extension(file_name);
-
-
-        if ( new_name.equals(file_name))
-        {
-            return song;
-        }
-        List<Old_and_new_Path> l = new ArrayList<>();
-        l.add(new Old_and_new_Path(song.toPath(),Path.of(parent,new_name), Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false));
-        Moving_files.actual_safe_moves(null, 100,100,l,true,aborter,logger);
-        File dest = new File(parent,new_name);
-        try
-        {
-            song.renameTo(dest);
-            logger.log("renamed "+song.getAbsolutePath()+" to "+dest.getAbsolutePath());
-        }
-        catch (Exception e)
-        {
-            logger.log(""+e);
-            return song;
-        }
-        return dest;
-    }
 }

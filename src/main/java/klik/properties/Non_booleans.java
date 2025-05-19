@@ -1,4 +1,4 @@
-//SOURCES ../audio/Audio_player_frame.java
+//SOURCES ../audio/Audio_player_FX_UI.java
 package klik.properties;
 
 import javafx.geometry.Rectangle2D;

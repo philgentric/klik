@@ -26,7 +26,7 @@ import klik.change.active_list_stage.Active_list_stage_action;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
-import klik.change.undo.Undo_engine;
+import klik.change.undo.Undo_for_moves;
 import klik.change.undo.Undo_item;
 import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.image_ml.ML_servers_util;
@@ -192,7 +192,7 @@ public class Virtual_landscape_menus
             Logger logger)
     //**********************************************************
     {
-        // we make a Item1_button but are only interested in the button...
+        // we make a Item_button but are only interested in the button...
         Item2_folder dummy = new Item2_folder(
                 owner,
                 virtual_landscape.the_Scene,
@@ -729,13 +729,13 @@ public class Virtual_landscape_menus
 
         undos_menu.getItems().add(make_menu_item(
                 "Undo_LAST_move_or_delete",
-                event -> Undo_engine.perform_last_undo_fx(owner,x,y,virtual_landscape.logger)));
+                event -> Undo_for_moves.perform_last_undo_fx(owner, x, y, virtual_landscape.logger)));
         undos_menu.getItems().add(make_menu_item(
                 "Show_Undos",
                 event -> pop_up_whole_undo_history()));
         undos_menu.getItems().add(make_menu_item(
                 "Clear_Undos",
-                event -> Undo_engine.remove_all_undo_items(owner,virtual_landscape.logger)));
+                event -> Undo_for_moves.remove_all_undo_items(owner, virtual_landscape.logger)));
     }
 
     //**********************************************************
@@ -759,14 +759,14 @@ public class Virtual_landscape_menus
     {
         Active_list_stage_action action = signature ->
         {
-            Map<String, Undo_item> signature_to_undo_item = Undo_engine.get_instance(virtual_landscape.logger).get_signature_to_undo_item();
+            Map<String, Undo_item> signature_to_undo_item = Undo_for_moves.get_instance(virtual_landscape.logger).get_signature_to_undo_item();
             Undo_item item = signature_to_undo_item.get(signature);
             if ( item == null)
             {
                 virtual_landscape.logger.log(Stack_trace_getter.get_stack_trace("item == null for signature="+signature));
                 return;
             }
-            if ( !Undo_engine.check_validity(item,virtual_landscape.logger))
+            if ( !Undo_for_moves.check_validity(item, virtual_landscape.logger))
             {
                 Popups.popup_warning(owner,"Invalid undo item ignored","The file was probably moved since?",true,virtual_landscape.logger);
                 return;
@@ -775,10 +775,10 @@ public class Virtual_landscape_menus
             double x = owner.getX()+100;
             double y = owner.getY()+100;
 
-            Undo_engine.perform_undo(item,owner,x,y,virtual_landscape.logger);
+            Undo_for_moves.perform_undo(item, owner, x, y, virtual_landscape.logger);
         };
         String title = My_I18n.get_I18n_string("Whole_Undo_History",virtual_landscape.logger);
-        Undo_engine.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_engine.get_instance(virtual_landscape.logger), action,virtual_landscape.logger));
+        Undo_for_moves.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_for_moves.get_instance(virtual_landscape.logger), action, virtual_landscape.logger));
     }
 
 

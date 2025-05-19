@@ -13,6 +13,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.browser.Shared_services;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -55,9 +56,10 @@ public class Launcher extends Application
     //**********************************************************
     {
 
-        Sys_init sys_init = Sys_init.get("Launcher");
-        Logger logger = sys_init.logger();
-        //Aborter aborter = sys_init.aborter();
+        Sys_init.init("Launcher app");
+        Logger logger = Shared_services.shared_services_logger;
+
+
         Look_and_feel_manager.init_Look_and_feel(logger);
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
@@ -82,7 +84,7 @@ public class Launcher extends Application
             set_look(b, vbox,look_and_feel,Icon_type.IMAGE,logger);
 
             b.setOnAction(event -> {
-                start_app_and_listen("klik2", klik_port.getAndIncrement(),stage, logger);
+                start_app_and_listen("klik", klik_port.getAndIncrement(),stage, logger);
             });
         }
         {

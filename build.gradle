@@ -92,30 +92,9 @@ tasks.register('klik', JavaExec) {
     //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
     //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
 
-
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
 }
-
-tasks.register('klik2', JavaExec) {
-    dependsOn 'classes'
-    mainClass = 'klik.Klik_application2'
-
-    // Java VM RAM size options:
-
-    // if you have only 2GB or not much more:
-    //applicationDefaultJvmArgs = ["-Xms1G"]
-
-    // if you have a lot of RAM say 64GB or more
-    applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr,duration=90s"]
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G","-XX:+UseZGC","-XX:StartFlightRecording:filename=recording.jfr"]
-
-
-    classpath = sourceSets.main.runtimeClasspath
-    group = 'applications'
-}
-
 
 
 tasks.register('image_viewer', JavaExec) {
@@ -126,7 +105,7 @@ tasks.register('image_viewer', JavaExec) {
 }
 tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.audio.Audio_player'
+    mainClass = 'klik.audio.Audio_player_application'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
 }

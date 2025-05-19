@@ -1,12 +1,11 @@
 package klik.experimental.fusk;
 
-import klik.properties.Non_booleans;
+import klik.actor.Aborter;
+import klik.browser.Shared_services;
 import klik.util.Sys_init;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
-import klik.actor.Aborter;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -170,9 +169,9 @@ public class Fusk_static_core
     //**********************************************************
     {
 
-        Sys_init sys_init = Sys_init.get("fusk test");
-        Logger logger = sys_init.logger();
-        Aborter aborter = sys_init.aborter();
+        Sys_init.init("fusk test");
+        Logger logger = Shared_services.shared_services_logger;
+        Aborter aborter = Shared_services.shared_services_aborter;
 
 
         Fusk_bytes.initialize( logger);

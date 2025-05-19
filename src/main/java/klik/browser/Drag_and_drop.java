@@ -200,22 +200,22 @@ public class Drag_and_drop
     //**********************************************************
     {
         node.setOnDragDetected(drag_event -> {
-            if (drag_and_drop_dbg) logger.log("Item1.init_drag_and_drop() drag detected SENDER SIDE");
+            if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
             Dragboard db = node.startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
 
             List<File> ll = new ArrayList<>();
             if(selection_handler != null)
             {
-                logger.log("Item1.init_drag_and_drop_SENDER_SIDE: selection_handler.isPresent()");
+                logger.log("Item.init_drag_and_drop_SENDER_SIDE: selection_handler.isPresent()");
                 ll.addAll(selection_handler.get_selected_files());
             }
-            logger.log("Item1.init_drag_and_drop_SENDER_SIDE: " + ll.size() + " files selected");
+            logger.log("Item.init_drag_and_drop_SENDER_SIDE: " + ll.size() + " files selected");
             // if we are here it is because the user is dragging an item
             if (!ll.contains(path.toFile()))
             {
                 ll.add(path.toFile());
-                logger.log("Item1.init_drag_and_drop_SENDER_SIDE: added the ONE target file: " + path.toAbsolutePath() );
+                logger.log("Item.init_drag_and_drop_SENDER_SIDE: added the ONE target file: " + path.toAbsolutePath() );
             }
             // this crashes the VM !!?? content.putFiles(ll);
             StringBuilder sb = new StringBuilder();
@@ -232,7 +232,7 @@ public class Drag_and_drop
         node.setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
             {
-                if (drag_and_drop_dbg) logger.log("Item1.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
+                if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
                 /*
                 DO NOT report it: it will be reported by the receiver Browser scene
                 List<Old_and_new_Path> l = new ArrayList<>();

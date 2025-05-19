@@ -44,6 +44,7 @@ public class Properties_manager
     public Properties_manager(Path f_, String tag, Aborter aborter,Logger logger)
     //**********************************************************
     {
+        Objects.requireNonNull(aborter);
         this.tag = tag;
         this.aborter = aborter;
         this.logger = logger;
@@ -97,7 +98,7 @@ public class Properties_manager
                     }
                     if ( disk_store_request_queue.peek() != null)
                     {
-                        logger.log("ignoring as there are more requests for saving Properties store engine : " + tag + " " + the_properties_path);
+                        //logger.log("ignoring as there are more requests for saving Properties store engine : " + tag + " " + the_properties_path);
                         // if another request is already in flight, we will have an opportunity to save very soon
                         continue;
                     }
@@ -119,7 +120,7 @@ public class Properties_manager
     private void save()
     //**********************************************************
     {
-       //if (dbg)
+       if (dbg)
             logger.log("Properties: save "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))

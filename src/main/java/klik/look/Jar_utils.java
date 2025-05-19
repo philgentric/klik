@@ -1,7 +1,7 @@
 package klik.look;
 
 import javafx.scene.image.Image;
-import klik.Klik_application2;
+import klik.Klik_application;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -74,7 +74,7 @@ public class Jar_utils
             return url;
         }
         // this scheme works with Gradle
-        return Klik_application2.class.getResource(name);
+        return Klik_application.class.getResource(name);
     }
 
     //**********************************************************
@@ -92,7 +92,7 @@ public class Jar_utils
         }
         //System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
         // this scheme works with Gradle
-        return Klik_application2.class.getResourceAsStream(name);
+        return Klik_application.class.getResourceAsStream(name);
     }
 
 }
