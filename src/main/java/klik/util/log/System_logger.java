@@ -2,8 +2,7 @@
 
 package klik.util.log;
 
-import klik.actor.Aborter;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.properties.Debugging_features;
 
 //*******************************************************
@@ -12,7 +11,7 @@ public class System_logger
 {
 	public static Logger get_system_logger(String tag)
 	{
-		if ( Booleans.get_boolean(Debugging_features.use_file_logging.name()))
+		if ( Zooleans.get_boolean(Debugging_features.use_file_logging.name()))
 		{
 			return new File_logger(tag);
 		}

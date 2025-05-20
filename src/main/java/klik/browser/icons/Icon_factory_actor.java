@@ -16,9 +16,9 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.properties.Cache_folder;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
@@ -347,7 +347,7 @@ public class Icon_factory_actor implements Actor
 
             if (dbg)
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            double length = Non_booleans.get_animated_gif_duration_for_a_video();
+            double length = Non_zooleans.get_animated_gif_duration_for_a_video();
 
             File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
@@ -468,7 +468,7 @@ public class Icon_factory_actor implements Actor
             File wd = file_in.getParentFile();
             if ( ! Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger))
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Zooleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 
                 logger.log(warning_GraphicsMagick);
                 return null;
@@ -494,7 +494,7 @@ public class Icon_factory_actor implements Actor
                 renderer.setSubsamplingAllowed(true);
                 int i = 0;
                 {
-                    //int dpi = Non_booleans.get_icon_size(logger);
+                    //int dpi = Non_zooleans.get_icon_size(logger);
                     BufferedImage image = renderer.renderImage(i);
                     if (pdf_dbg)
                         logger.log("PDF = " + image.getWidth() + "x" + image.getHeight() + " aspect ratio = " + ((double) (image.getWidth()) / (double) (image.getHeight())));

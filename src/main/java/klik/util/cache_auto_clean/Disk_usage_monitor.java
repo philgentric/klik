@@ -3,9 +3,9 @@ package klik.util.cache_auto_clean;
 import javafx.stage.Window;
 import klik.browser.Shared_services;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Booleans;
+import klik.properties.Non_zooleans;
+import klik.properties.Zooleans;
 import klik.properties.Cache_folder;
-import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -45,12 +45,12 @@ public class Disk_usage_monitor
             monitored_folders.add(tt);
         }
 
-        for ( Path t : Non_booleans.get_existing_trash_dirs(logger))
+        for ( Path t : Non_zooleans.get_existing_trash_dirs(logger))
         {
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Non_booleans.get_folder_warning_size();
+        warning_limit_bytes = Non_zooleans.get_folder_warning_size();
 
 
     }
@@ -89,7 +89,7 @@ public class Disk_usage_monitor
                     continue;
                 }
                 boolean cleared = false;
-                if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES))
+                if (Zooleans.get_boolean(Zooleans.AUTO_PURGE_DISK_CACHES))
                 {
                     for (Cache_folder cache_folder : Cache_folder.values())
                     {

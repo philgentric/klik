@@ -2,6 +2,7 @@ package klik.util.tcp;
 
 //SOURCES ./TCP_server.java
 
+import klik.properties.Properties_server;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.System_logger;
@@ -13,13 +14,14 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 
 //**********************************************************
 public class TCP_client
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
 
 
     //**********************************************************
@@ -33,16 +35,9 @@ public class TCP_client
         {
             //client_socket.setKeepAlive(false);
             if ( dbg) logger.log("TCP client connected on "+host+" "+port_number+" sending ->"+request+"<-");
-            byte[] buffer = request.getBytes(StandardCharsets.UTF_8);
-            dos.writeInt(buffer.length);
-            dos.write(buffer);
+            TCP_util.write_string(request,dos);
             dos.flush();
-            if ( dbg) logger.log("write done");
-            int size_in = dis.readInt();
-            if ( dbg) logger.log("got "+size_in);
-            buffer = new byte[size_in];
-            dis.read(buffer);
-            String reply = new String(buffer,StandardCharsets.UTF_8);
+            String reply = TCP_util.read_string(dis);
             if ( dbg) logger.log("got ->"+reply+"<-");
             return new TCP_client_out(true,reply,"");
         }
@@ -67,6 +62,127 @@ public class TCP_client
 
     }
 
+
+    //**********************************************************
+    public static TCP_client_out request2(String host, int port_number, String request1, String request2, Logger logger)
+    //**********************************************************
+    {
+        try( Socket client_socket = new Socket(host,port_number);
+             DataInputStream dis = new DataInputStream(client_socket.getInputStream());
+             DataOutputStream dos = new DataOutputStream(client_socket.getOutputStream())
+        )
+        {
+            //client_socket.setKeepAlive(false);
+            if ( dbg) logger.log("TCP client connected on "+host+" "+port_number+" sending ->"+request1+"<-");
+            TCP_util.write_string(request1,dos);
+            if ( dbg) logger.log("TCP client connected on "+host+" "+port_number+" sending ->"+request2+"<-");
+            TCP_util.write_string(request2,dos);
+            dos.flush();
+            if ( dbg) logger.log("write done");
+            String reply = TCP_util.read_string(dis);
+            if ( dbg) logger.log("got ->"+reply+"<-");
+            return new TCP_client_out(true,reply,"");
+        }
+        catch (UnknownHostException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return new TCP_client_out(false,"",""+e);
+
+        }
+        catch (ConnectException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(e+" Cannot connect is a server at "+host+":"+port_number+" started?"));
+            return new TCP_client_out(false,"","Cannot connect! Is a server at "+host+":"+port_number+" started?");
+
+        }
+        catch (IOException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return new TCP_client_out(false,"",""+e);
+
+        }
+
+    }
+
+    public static List<String> request_all_keys(String host, int port_number, Logger logger)
+    {
+        try( Socket client_socket = new Socket(host,port_number);
+             DataInputStream dis = new DataInputStream(client_socket.getInputStream());
+             DataOutputStream dos = new DataOutputStream(client_socket.getOutputStream())
+        )
+        {
+            List<String> result = new java.util.ArrayList<>();
+            for(;;)
+            {
+                String k = TCP_util.read_string(dis);
+                if ( k.equals("end")) break;
+                result.add(k);
+            }
+            return result;
+        }
+        catch (UnknownHostException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return List.of();
+
+        }
+        catch (ConnectException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(e+" Cannot connect is a server at "+host+":"+port_number+" started?"));
+            return List.of();
+        }
+        catch (IOException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return List.of();
+        }
+
+    }
+
+    public record KV(String k, String v){}
+
+    //**********************************************************
+    public static List<KV> requestN(String host, int port_number, Logger logger)
+    //**********************************************************
+    {
+        try( Socket client_socket = new Socket(host,port_number);
+             DataInputStream dis = new DataInputStream(client_socket.getInputStream());
+             DataOutputStream dos = new DataOutputStream(client_socket.getOutputStream())
+        )
+        {
+            List<KV> result = new java.util.ArrayList<>();
+            for(;;)
+            {
+                String k = TCP_util.read_string(dis);
+                if ( k.equals(Properties_server.E_ND_O_F_K_EYS)) break;
+                String v = TCP_util.read_string(dis);
+                result.add(new KV(k,v));
+
+            }
+            return result;
+        }
+        catch (UnknownHostException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return List.of();
+
+        }
+        catch (ConnectException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(e+" Cannot connect is a server at "+host+":"+port_number+" started?"));
+            return List.of();
+        }
+        catch (IOException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            return List.of();
+        }
+
+    }
+
+
+
+
     //**********************************************************
     public static void main( String []args)
     //**********************************************************
@@ -76,7 +192,7 @@ public class TCP_client
 
         logger.log("status: "+tco.status());
         logger.log("reply: "+tco.reply());
-        logger.log("message: "+tco.message());
+        logger.log("error_message: "+tco.error_message());
     }
 
 }

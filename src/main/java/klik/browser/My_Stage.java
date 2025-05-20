@@ -12,7 +12,7 @@ import klik.util.log.Logger;
 // so you press escape once and you kill 3 windows...
 // unexpected collateral damage
 //**********************************************************
-public class My_Stage2
+public class My_Stage
 //**********************************************************
 {
     public final Logger logger;
@@ -21,7 +21,7 @@ public class My_Stage2
     public int escape = 0;
 
     //**********************************************************
-    public My_Stage2(Stage the_Stage, Logger logger)
+    public My_Stage(Stage the_Stage, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
@@ -43,7 +43,7 @@ public class My_Stage2
     //**********************************************************
     {
         if ( usage_count == 0) {
-            the_Stage.addEventHandler(KeyEvent.KEY_PRESSED, new Escape_keyboard_handler2(b));
+            the_Stage.addEventHandler(KeyEvent.KEY_PRESSED, new Escape_keyboard_handler(b));
         }
         usage_count++;
         //logger.log("My_Stage usage_count="+usage_count);

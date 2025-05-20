@@ -1,9 +1,8 @@
 //SOURCES ../../unstable/backup/Backup_engine.java
 package klik.change.history;
 
-import klik.actor.Aborter;
 import klik.browser.Shared_services;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.experimental.backup.Backup_engine;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
@@ -46,18 +45,18 @@ public class History_engine
         this.logger = logger;
         if ( global_history_properties_manager == null)
         {
-            String home = System.getProperty(Non_booleans.USER_HOME);
-            Path p = Paths.get(home, Non_booleans.CONF_DIR, HISTORY_FILENAME);
+            String home = System.getProperty(Non_zooleans.USER_HOME);
+            Path p = Paths.get(home, Non_zooleans.CONF_DIR, HISTORY_FILENAME);
             global_history_properties_manager = new Properties_manager(p, "History DB", Shared_services.shared_services_aborter, logger);
         }
     }
 
     //**********************************************************
-    public static void clear(Aborter aborter, Logger logger)
+    public static void clear(Logger logger)
     //**********************************************************
     {
         get_instance(logger).clear_all_internal();
-        Backup_engine.remove_all_properties(aborter,logger);
+        Backup_engine.remove_all_properties();
     }
     //**********************************************************
     public static void erase_if_too_old(int days, Logger logger)

@@ -24,7 +24,7 @@ static utilities for drag-and-drop
 public class Drag_and_drop
 //**********************************************************
 {
-    public static boolean drag_and_drop_dbg = true;
+    public static boolean drag_and_drop_dbg = false;
     public static boolean drag_and_drop_ultra_dbg = false;
 
     //**********************************************************
@@ -124,7 +124,7 @@ public class Drag_and_drop
         }
 
 
-        //boolean destination_is_trash = Non_booleans.is_this_trash(destination_dir,logger);
+        //boolean destination_is_trash = Non_zooleans.is_this_trash(destination_dir,logger);
         if (drag_and_drop_dbg) logger.log("\n\naccept_drag_dropped_as_a_move_in " + origin+" destination= "+destination_dir+" is_trash="+ destination_is_trash);
 
         double x = drag_event.getX();

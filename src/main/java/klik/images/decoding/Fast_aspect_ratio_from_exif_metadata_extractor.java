@@ -6,7 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -32,7 +32,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         {
             sb.add(path.toString());
         }
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
+        boolean with_fusk = Zooleans.get_boolean(Zooleans.FUSK_IS_ACTIVE);
         InputStream is = From_disk.get_image_InputStream(path, with_fusk, report_if_not_found, aborter, logger);
         if ( is == null)
         {

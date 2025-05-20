@@ -26,7 +26,6 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
-import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
@@ -37,7 +36,7 @@ import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.properties.Experimental_features;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
@@ -306,7 +305,7 @@ public class Item2_file_with_icon extends Item2_file
         
         {
             context_menu.getItems().add(Item2.create_show_file_size_menu_item(get_item_path(), dbg, logger));
-            if (Booleans.get_boolean(Experimental_features.enable_tags.name()))
+            if (Zooleans.get_boolean(Experimental_features.enable_tags.name()))
             {
                 context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }

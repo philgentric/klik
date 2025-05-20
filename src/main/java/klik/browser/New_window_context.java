@@ -13,7 +13,7 @@ import klik.util.log.Logger;
 import java.nio.file.Path;
 
 //**********************************************************
-public class New_window_context2
+public class New_window_context
 //**********************************************************
 {
     private static final boolean dbg = true;
@@ -21,7 +21,7 @@ public class New_window_context2
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
     //**********************************************************
-    private New_window_context2(
+    private New_window_context(
             Path target,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target)
@@ -45,7 +45,7 @@ public class New_window_context2
     public static Window_provider additional_no_past(Path new_path, Logger logger)
     //**********************************************************
     {
-        New_window_context2 context = new New_window_context2(
+        New_window_context context = new New_window_context(
                 new_path,
                 null,
                 null);
@@ -66,7 +66,7 @@ public class New_window_context2
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
-        New_window_context2 context =  new New_window_context2(
+        New_window_context context =  new New_window_context(
                 new_and_old_path,
                 rectangle,
                 null);
@@ -127,7 +127,7 @@ public class New_window_context2
         double w2 = s.getBounds().getWidth() * ratio_tall;
         rectangle = new Rectangle2D(rectangle.getMinX()+w_fat, rectangle.getMinY(), w2, h);
 
-        New_window_context2 context = new New_window_context2(
+        New_window_context context = new New_window_context(
                 new_and_old_path,
                 rectangle,
                 null);
@@ -171,7 +171,7 @@ public class New_window_context2
         Browsing_caches.scroll_position_cache.put(old_and_new_path.toAbsolutePath().toString(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
-        New_window_context2 context =  new New_window_context2(
+        New_window_context context =  new New_window_context(
                 old_and_new_path,
                 rectangle,
                 shutdown_target);
@@ -200,7 +200,7 @@ public class New_window_context2
             logger.log("yop, recorded that " + old_path.toAbsolutePath() + " has top left =" + top_left.toString());
         }
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
-        New_window_context2 context =  new New_window_context2(
+        New_window_context context =  new New_window_context(
                 new_path,
                 rectangle,
                 shutdown_target);
@@ -225,7 +225,7 @@ public class New_window_context2
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
 
-        New_window_context2 context = new New_window_context2(new_path, rectangle, null);
+        New_window_context context = new New_window_context(new_path, rectangle, null);
         new Image_playlist(context, logger);
     }
 
@@ -239,7 +239,7 @@ public class New_window_context2
     {
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
-        New_window_context2 context = new New_window_context2(new_path, rectangle, shutdown_target);
+        New_window_context context = new New_window_context(new_path, rectangle, shutdown_target);
         new Image_playlist(context, logger);
     }
 
@@ -250,7 +250,7 @@ public class New_window_context2
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
         Path path = create_new_playlist_file(owner, logger);
-        New_window_context2 context = new New_window_context2(path, rectangle, null);
+        New_window_context context = new New_window_context(path, rectangle, null);
         new Image_playlist(context, logger);
     }
 
@@ -274,10 +274,10 @@ public class New_window_context2
                 try {
                     String local = new_name;
                     if ( !local.endsWith("." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION;
-                    String home = System.getProperty(Non_booleans.USER_HOME);
+                    String home = System.getProperty(Non_zooleans.USER_HOME);
                     Path new_playlist_file = Path.of( home, local);
                     Files.createFile(new_playlist_file); //Files.createDirectory(new_dir);
-                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_booleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
+                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_zooleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
                     return new_playlist_file;
                 } catch (IOException e) {
                     logger.log("new directory creation FAILED: " + e);

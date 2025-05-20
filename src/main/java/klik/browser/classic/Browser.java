@@ -24,8 +24,8 @@
 //SOURCES ./items/Item_image.java
 //SOURCES ./items/Item.java
 
-//SOURCES ../properties/Non_booleans.java
-//SOURCES ../properties/Non_booleans.java
+//SOURCES ../properties/Non_zooleans.java
+//SOURCES ../properties/Non_zooleans.java
 //SOURCES ./icons/image_properties_cache/Image_properties_RAM_cache.java
 //SOURCES ./icons/Refresh_target.java
 //SOURCES ./icons/Icon_factory_actor.java
@@ -50,8 +50,8 @@ import klik.browser.*;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
-import klik.properties.Booleans;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
+import klik.properties.Zooleans;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
@@ -68,14 +68,14 @@ public class Browser extends Abstract_browser
 {
     public final Path_list_provider path_list_provider;
     //**********************************************************
-    public Browser(New_window_context2 context, Logger logger_)
+    public Browser(New_window_context context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
         Path path;
         if ( context.target_path == null)
         {
-            path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
+            path = Paths.get(System.getProperty(Non_zooleans.USER_HOME));
         }
         else
         {
@@ -124,7 +124,7 @@ public class Browser extends Abstract_browser
         monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(path_list_provider.get_folder_path(), logger);
 
         if (!monitor_this_folder) {
-            if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS)) {
+            if (Zooleans.get_boolean(Zooleans.MONITOR_BROWSED_FOLDERS)) {
                 monitor_this_folder = true;
             }
         }
@@ -161,7 +161,7 @@ public class Browser extends Abstract_browser
         Runnable r = () -> {
             // can be super slow on network drives or slow drives
             // (e.g. USB)  ==> run in a thread
-            int how_many_files = path_list_provider.how_many_files_and_folders(Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES), Booleans.get_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES));
+            int how_many_files = path_list_provider.how_many_files_and_folders(Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_FILES), Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_DIRECTORIES));
 
             Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(name + " :     " + (long) how_many_files + " files & folders"), logger);
 

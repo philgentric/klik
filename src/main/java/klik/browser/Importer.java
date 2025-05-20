@@ -11,13 +11,12 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.util.execute.Scheduled_thread_pool;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
@@ -30,8 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,7 +42,7 @@ public class Importer
     public static void perform_import(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(Non_zooleans.USER_HOME))).toPath();
 
 
         Path target = home.resolve(Path.of("Pictures"));
@@ -143,7 +140,7 @@ public class Importer
     public static void estimate_size(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(Non_zooleans.USER_HOME))).toPath();
 
         Path target = home.resolve(Path.of("Pictures"));
 

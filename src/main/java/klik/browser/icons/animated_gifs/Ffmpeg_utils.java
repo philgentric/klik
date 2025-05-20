@@ -23,7 +23,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.change.Change_gang;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
@@ -119,7 +119,7 @@ public class Ffmpeg_utils
         if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
         {
 
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            Zooleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
         //logger.log("->"+sb.toString()+"<-");
 
@@ -153,7 +153,7 @@ public class Ffmpeg_utils
         File wd = audio_path.getParent().toFile();
         if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            Zooleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
         //logger.log("->"+sb.toString()+"<-");
 
@@ -230,7 +230,7 @@ public class Ffmpeg_utils
         StringBuilder sb = new StringBuilder();
         if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            Zooleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
         logger.log("\n\n\n ffmpeg output :\n"+ sb +"\n\n\n");
 
@@ -279,7 +279,7 @@ public class Ffmpeg_utils
         StringBuilder sb = new StringBuilder();
         if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            Zooleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
         logger.log("\n\n\n ffmpeg output :\n"+ sb +"\n\n\n");
 

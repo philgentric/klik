@@ -13,7 +13,7 @@ import klik.look.Look_and_feel_manager;
 import klik.experimental.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
@@ -150,7 +150,7 @@ public class From_disk
             logger.log("load_image_fx NOT DONE because running low on memory ! ");
             return null;
         }
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
+        boolean with_fusk = Zooleans.get_boolean(Zooleans.FUSK_IS_ACTIVE);
         InputStream input_stream = get_image_InputStream(original_image_file, with_fusk, report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
         Image image = new Image(input_stream);
@@ -191,7 +191,7 @@ public class From_disk
     //**********************************************************
     {
         //long start = System.currentTimeMillis();
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
+        boolean with_fusk = Zooleans.get_boolean(Zooleans.FUSK_IS_ACTIVE);
         Image image = null;
         try(InputStream input_stream = get_image_InputStream(original_image_file, with_fusk, report_if_not_found, aborter,logger))
         {

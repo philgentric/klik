@@ -1,17 +1,14 @@
 package klik.change.undo;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
 import klik.browser.Shared_services;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.properties.Properties_manager;
 import klik.util.files_and_paths.Command_old_and_new_Path;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
-import klik.util.info_stage.Info_stage;
-import klik.util.info_stage.Line_for_info_stage;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -38,14 +35,14 @@ public class Undo_core implements Datetime_to_signature_source
     //**********************************************************
     {
         logger  = logger_;
-        String home = System.getProperty(Non_booleans.USER_HOME);
-        Path p = Paths.get(home, Non_booleans.CONF_DIR, undo_filename);
+        String home = System.getProperty(Non_zooleans.USER_HOME);
+        Path p = Paths.get(home, Non_zooleans.CONF_DIR, undo_filename);
         if( properties_manager == null)
         {
             properties_manager = new Properties_manager(p, "Undo DB", Shared_services.shared_services_aborter, logger);
         }
         List<Undo_item> l = read_all_undo_items_from_disk();
-        if (dbg) logger.log("undo store "+l.size()+" items loaded");
+        if (dbg) logger.log("undo store "+l.size()+" items loaded from "+undo_filename);
     }
 
 
@@ -216,11 +213,12 @@ public class Undo_core implements Datetime_to_signature_source
         properties_manager.store_properties();
     }
 
+    /*
     //**********************************************************
     public static void show_all_events(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Properties_manager local = Non_booleans.get_main_properties_manager();
+        IProperties local = Non_zooleans.get_main_properties_manager();
 
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Items that can be undone:"));
@@ -261,12 +259,12 @@ public class Undo_core implements Datetime_to_signature_source
 
         Info_stage.show_info_stage("Undos", l, null);
     }
-
+*/
     //**********************************************************
     public List<Undo_item> read_all_undo_items_from_disk()
     //**********************************************************
     {
-        if ( dbg) logger.log("Undo_core READ");
+        if ( dbg) logger.log(("Undo_core READ"));
         Command_old_and_new_Path cmd = Command_old_and_new_Path.command_move;
         Status_old_and_new_Path stt = Status_old_and_new_Path.move_done;
 

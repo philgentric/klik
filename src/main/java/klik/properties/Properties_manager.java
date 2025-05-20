@@ -82,18 +82,10 @@ public class Properties_manager
             {
                 try {
                     Boolean b = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
-                    if (aborter.should_abort())
-                    {
-                        // always save on clean exit
-                        save();
-                        logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
-                        return;
-                    }
                     if ( b == null)
                     {
-                        // this is a time out (20 seconds),
-                        // the tile out is here to make sure we read the aborter
-                        // no need save
+                        // this is a time out (20 seconds), nothing to save
+                        if (aborter.should_abort()) return;
                         continue;
                     }
                     if ( disk_store_request_queue.peek() != null)
@@ -102,13 +94,16 @@ public class Properties_manager
                         // if another request is already in flight, we will have an opportunity to save very soon
                         continue;
                     }
-
                     save();
+                    if (aborter.should_abort())
+                    {
+                        logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
+                        return;
+                    }
                 }
                 catch (InterruptedException e)
                 {
-                    save();
-                    logger.log("saving INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
+                    logger.log("INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
                     return;
                 }
             }
@@ -120,7 +115,7 @@ public class Properties_manager
     private void save()
     //**********************************************************
     {
-       if (dbg)
+       //if (dbg)
             logger.log("Properties: save "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
@@ -347,7 +342,7 @@ public class Properties_manager
     public void add_with_age(String key, String value, boolean with_age)
     //**********************************************************
     {
-        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
+        if (dbg) logger.log("add with age " + key + "=" + value);
 
         LocalDateTime now = LocalDateTime.now();
         add(key + AGE, now.toString());

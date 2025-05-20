@@ -43,13 +43,13 @@ public class Test
             @Override
             public String run(Message m) {
                 Message1 m1 = (Message1) m;
-                System.out.println("Actor "+actor_name+" runs message: "+m1.s);
+                System.out.println("Actor "+actor_name+" runs error_message: "+m1.s);
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("Actor "+actor_name+" DONE message: "+m1.s);
+                System.out.println("Actor "+actor_name+" DONE error_message: "+m1.s);
 
                 return actor_name+" ended: "+m1.s;
             }

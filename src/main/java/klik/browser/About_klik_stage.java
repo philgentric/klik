@@ -1,6 +1,6 @@
 package klik.browser;
 
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 
@@ -79,7 +79,7 @@ public class About_klik_stage
         l.add(new Line_for_info_stage(false,"    Time consuming operations are performed asynchronously so that the UI remains fluid"));
         l.add(new Line_for_info_stage(true,"The little features that make Klik great:"));
         l.add(new Line_for_info_stage(false,"     You can easily rename things (folders and files)"));
-        l.add(new Line_for_info_stage(false,"     Klik remembers all settings (in a human readable file called "+ Non_booleans.PROPERTIES_FILENAME +")"));
+        l.add(new Line_for_info_stage(false,"     Klik remembers all settings (in a human readable file called "+ Non_zooleans.PROPERTIES_FILENAME +")"));
         l.add(new Line_for_info_stage(false,"     You can visualise how much room a folder takes on disk (folder size = everything including all sub-folder's content)"));
         l.add(new Line_for_info_stage(false,"     Klik tells you how many pictures a folder contains"));
         l.add(new Line_for_info_stage(false,"     Klik history remembers the folders you visited, so you can shortcut. It can be cleared."));

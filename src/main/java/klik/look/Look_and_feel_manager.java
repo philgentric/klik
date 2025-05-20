@@ -819,7 +819,7 @@ public class Look_and_feel_manager
             ImageView image_view = new ImageView(image);
             image_view.setPreserveRatio(true);
             {
-                //if (H < Non_booleans.get_font_size()) H = Non_booleans.get_font_size();
+                //if (H < Non_zooleans.get_font_size()) H = Non_zooleans.get_font_size();
                 image_view.setFitHeight(height);
             }
             if (color == null) {

@@ -16,7 +16,7 @@ import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
 
@@ -41,7 +41,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
 
     protected Filesystem_item_modification_watcher filesystem_item_modification_watcher;
-    protected My_Stage2 my_Stage;
+    protected My_Stage my_Stage;
     protected Virtual_landscape virtual_landscape;
     protected final Logger logger;
     protected Aborter aborter;
@@ -68,7 +68,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     }
 
     //**********************************************************
-    public void init(New_window_context2 context, Change_receiver change_receiver,String badge)
+    public void init(New_window_context context, Change_receiver change_receiver, String badge)
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();
@@ -80,7 +80,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         aborter = new Aborter("Abstract_browser for: " + get_name(), logger);
 
-        my_Stage = new My_Stage2(new Stage(), logger);
+        my_Stage = new My_Stage(new Stage(), logger);
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
             System.out.println("Klik browser window exit");
@@ -95,7 +95,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         if (count == 1)
         {
-            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW);
+            Rectangle2D r = Non_zooleans.get_window_bounds(BROWSER_WINDOW);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -163,7 +163,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             return;
         }
         if (dbg) logger.log("ChangeListener: image window position and/or size changed");
-        Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW,logger);
+        Non_zooleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW,logger);
     }
 
 

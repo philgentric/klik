@@ -3,7 +3,6 @@ package klik.audio;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,15 +10,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.scene.paint.Color;
@@ -29,21 +22,15 @@ import klik.actor.Aborter;
 import klik.browser.Drag_and_drop;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Popups;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import java.io.*;
+import java.util.*;
 
 //**********************************************************
-public class Audio_player_FX_UI implements Song_adding_receiver
+public class Audio_player_FX_UI implements Music_UI
 //**********************************************************
 {
     private static final boolean dbg =  false;
@@ -52,19 +39,23 @@ public class Audio_player_FX_UI implements Song_adding_receiver
     private static final String PAUSE = "Pause";
     private static final String PLAY = "Play";
     Stage stage;
-    VBox the_vertical_box;
     VBox the_equalizer_vbox =  new VBox();
     HBox the_equalizer_hbox = new HBox();
     HBox the_sound_control_hbox = new HBox();
-    Button Save_Playlist_Under_A_New_Name;
+    Button save_playlist_under_a_new_name;
     Button next;
     Button previous;
     Button play_pause;
     Slider balance_slider;
     Slider the_timeline_slider;
-    Label now_value;
+    VBox the_vertical_box;
+
+    Label now_value_label;
+    Label duration_value_label;
+    Label playlist_name_label;
     Label the_status_label;
-    Label duration_value;
+    Label total_duration;
+
     ScrollPane scroll_pane;
     Logger logger;
     Aborter aborter;
@@ -74,14 +65,16 @@ public class Audio_player_FX_UI implements Song_adding_receiver
 
     double volume = 0.5;
     double balance = 0.0;
-    Label playlist_name;
+
+    //Browser browser = null;
 
     String pause_string;
     String play_string;
     static final boolean keyword_dbg = true;
 
     // STATE:
-    Playlist playlist;
+
+    private final Playlist playlist;
 
     //**********************************************************
     Audio_player_FX_UI(Aborter aborter, Logger logger)
@@ -90,8 +83,8 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         this.aborter= aborter;
         this.logger = logger;
         stage = new Stage();
-        playlist = new Playlist(this,logger);
-        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER);
+        this.playlist = new Playlist(this, stage,logger);
+        Rectangle2D r = Non_zooleans.get_window_bounds(AUDIO_PLAYER);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
         stage.setWidth(r.getWidth());
@@ -99,7 +92,7 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             //if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-            Non_booleans.save_window_bounds(stage,AUDIO_PLAYER,logger);
+            Non_zooleans.save_window_bounds(stage,AUDIO_PLAYER,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -125,12 +118,13 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         // called only on EXTERNAL close requests i.e. hitting the cross in the title
         stage.setOnCloseRequest(windowEvent -> {
             logger.log("Audio player closing");
-            clean_up();
+            stop_current_media();
             stage.close();
-            Audio_player.instance = null;
+            Audio_player.ui = null;
         });
 
-        playlist.add_listener();
+        //playlist.add_listener(stage);
+
         BorderPane bottom_border_pane = define_bottom_pane(the_top_vbox, scroll_pane);
 
         Scene scene = new Scene(bottom_border_pane);
@@ -139,16 +133,8 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         stage.show();
 
         playlist.init();
-
     }
 
-
-    //**********************************************************
-    public void change_song(File song)
-    //**********************************************************
-    {
-        playlist.change_song(song);
-    }
 
     //**********************************************************
     private BorderPane define_bottom_pane(Pane top_pane, ScrollPane scroll_pane)
@@ -198,15 +184,16 @@ public class Audio_player_FX_UI implements Song_adding_receiver
 
             Button remove_from_playlist = new Button(My_I18n.get_I18n_string("Remove_playing_song_from_playlist",logger));
             Look_and_feel_manager.set_button_look(remove_from_playlist, true);
-            remove_from_playlist.setOnAction(_ -> playlist.remove_from_playlist_and_jump_to_next());
+            remove_from_playlist.setOnAction(actionEvent -> playlist.remove_from_playlist_and_jump_to_next());
             returned.getChildren().add(remove_from_playlist);
         }
+
         {
 
-            Button undo_remove = new Button(My_I18n.get_I18n_string("Undo_Remove",logger));
-            Look_and_feel_manager.set_button_look(undo_remove, true);
-            undo_remove.setOnAction(_ -> playlist.undo_remove());
-            returned.getChildren().add(undo_remove);
+            Button undo_remove_button = new Button(My_I18n.get_I18n_string("Undo_Remove",logger));
+            Look_and_feel_manager.set_button_look(undo_remove_button, true);
+            undo_remove_button.setOnAction(actionEvent -> playlist.undo_remove());
+            returned.getChildren().add(undo_remove_button);
         }
         {
             Region spacer = new Region();
@@ -222,10 +209,10 @@ public class Audio_player_FX_UI implements Song_adding_receiver
             returned.getChildren().add(spacer);
         }
 
-        playlist_name = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+playlist.get_playlist_name());
-        playlist_name.setMinWidth(200);
-        Look_and_feel_manager.set_region_look(playlist_name);
-        returned.getChildren().add(playlist_name);
+        playlist_name_label = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+playlist.get_playlist_name());
+        playlist_name_label.setMinWidth(200);
+        Look_and_feel_manager.set_region_look(playlist_name_label);
+        returned.getChildren().add(playlist_name_label);
 
         {
             Region spacer = new Region();
@@ -234,15 +221,16 @@ public class Audio_player_FX_UI implements Song_adding_receiver
             returned.getChildren().add(spacer);
         }
 
-        Save_Playlist_Under_A_New_Name = new Button(My_I18n.get_I18n_string("Save_Playlist_Under_A_New_Name",logger));
+        save_playlist_under_a_new_name = new Button(My_I18n.get_I18n_string("Save_Playlist_Under_A_New_Name",logger));
         {
-            Save_Playlist_Under_A_New_Name.setOnAction(actionEvent -> save_new_playlist());
+            save_playlist_under_a_new_name.setOnAction(actionEvent -> save_new_playlist());
         }
-        Look_and_feel_manager.set_button_look(Save_Playlist_Under_A_New_Name,true);
-        returned.getChildren().add(Save_Playlist_Under_A_New_Name);
+        Look_and_feel_manager.set_button_look(save_playlist_under_a_new_name,true);
+        returned.getChildren().add(save_playlist_under_a_new_name);
 
         return returned;
     }
+
 
     //**********************************************************
     private Button define_landing_zone_button()
@@ -289,7 +277,7 @@ public class Audio_player_FX_UI implements Song_adding_receiver
             }
 
             Dragboard dragboard = drag_event.getDragboard();
-            List<File> the_list = new ArrayList<>();
+            List<String> the_list = new ArrayList<>();
             String s = dragboard.getString();
             if (s == null) {
                 logger.log( "dragboard.getString()== null");
@@ -301,7 +289,7 @@ public class Audio_player_FX_UI implements Song_adding_receiver
                 {
                     if (ss.isBlank()) continue;
                     logger.log(" drag ACCEPTED for additional file: " + ss);
-                    the_list.add(new File(ss));
+                    the_list.add(ss);
                 }
                 if (the_list.isEmpty())
                 {
@@ -313,11 +301,11 @@ public class Audio_player_FX_UI implements Song_adding_receiver
                 for (File fff : l)
                 {
                     logger.log("... drag ACCEPTED for file= " + fff.getAbsolutePath());
-                    if ( !the_list.contains(fff) )  the_list.add(fff);
+                    if ( !the_list.contains(fff.getAbsolutePath()) )  the_list.add(fff.getAbsolutePath());
                 }
             }
 
-            playlist.add(the_list, stage, stage.getX()+100, stage.getY()+100);
+            playlist.user_wants_to_add_songs(the_list);
 
             // tell the source
             drag_event.setDropCompleted(true);
@@ -346,6 +334,8 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         VBox returned = new VBox();
         Button landing_zone = define_landing_zone_button();
         returned.getChildren().add(landing_zone);
+        total_duration = new Label();
+        returned.getChildren().add(total_duration);
         return returned;
     }
 
@@ -499,7 +489,7 @@ public class Audio_player_FX_UI implements Song_adding_receiver
 
         Button shuffle = new Button(My_I18n.get_I18n_string("Shuffle",logger));
         Look_and_feel_manager.set_button_look(shuffle, true);
-        shuffle.setOnAction(_->FXCollections.shuffle(playlist.observable_playlist));
+        shuffle.setOnAction(_->playlist.shuffle());
         returned.getChildren().add(shuffle);
 
 
@@ -575,9 +565,9 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         Label duration_text = new Label(My_I18n.get_I18n_string("Duration",logger)+" : ");
         Look_and_feel_manager.set_region_look(duration_text);
         hbox.getChildren().add(duration_text);
-        duration_value = new Label("0.0s");
-        Look_and_feel_manager.set_region_look(duration_value);
-        hbox.getChildren().add(duration_value);
+        duration_value_label = new Label("0.0s");
+        Look_and_feel_manager.set_region_look(duration_value_label);
+        hbox.getChildren().add(duration_value_label);
 
         {
             Region spacer = new Region();
@@ -618,71 +608,15 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         Label now_text = new Label(My_I18n.get_I18n_string("Now",logger)+" : ");
         Look_and_feel_manager.set_region_look(now_text);
         hbox.getChildren().add(now_text);
-        now_value = new Label("0.0s");
-        Look_and_feel_manager.set_region_look(now_value);
+        now_value_label = new Label("0.0s");
+        Look_and_feel_manager.set_region_look(now_value_label);
 
-        hbox.getChildren().add(now_value);
+        hbox.getChildren().add(now_value_label);
         return hbox;
     }
 
-    @Override
-    public void play_song_with_new_media_player(File new_song, Integer current_time_s)
-    {
-        String encoded;
-        try
-        {
-            encoded = "file://" + new_song.getCanonicalPath();
-        }
-        catch (IOException e)
-        {
-            logger.log("\n\nFATAL: " + e);
-            return;
-        }
-        encoded = encoded.replaceAll(" ", "%20");
-
-        try
-        {
-            Media sound = new Media(encoded);
-            MediaPlayer tmp_media_player = new MediaPlayer(sound);
-
-
-
-            tmp_media_player.setCycleCount(1);
-            tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
-            tmp_media_player.setOnReady(() -> on_player_ready(tmp_media_player));
-            tmp_media_player.setOnPlaying(() -> {
-                if ( current_time_s != null)
-                {
-                    //logger.log(" OnPlaying, jumping: "+ current_time_s);
-                    Duration target = Duration.seconds(current_time_s);
-                    the_media_player_option.get().seek(target);
-                }});
-
-            play_pause.setText(pause_string);
-
-        }
-        catch (MediaException me)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(me.toString()));
-            //logger.log((me.toString()));
-            playlist.remove_from_playlist_and_jump_to_next();
-        }
-        catch (IllegalArgumentException e)
-        {
-            Popups.popup_Exception(e, 256, "Fatal", logger);
-            playlist.remove_from_playlist_and_jump_to_next();
-        }
-        stage.show();
-    }
-
-    @Override
-    public void set_playlist_name_display(String new_playlist_name)
-    {
-        playlist_name.setText(new_playlist_name);
-    }
-
     //**********************************************************
-    private void on_player_ready(MediaPlayer new_media_player)
+    private void on_player_ready(MediaPlayer local_)
     //**********************************************************
     {
         if ( the_media_player_option.isPresent())
@@ -690,8 +624,8 @@ public class Audio_player_FX_UI implements Song_adding_receiver
             the_media_player_option.get().stop();
             the_media_player_option.get().dispose();
         }
-        the_media_player_option = Optional.of(new_media_player);
-        the_equalizer_option = Optional.of(new_media_player.getAudioEqualizer());
+        the_media_player_option = Optional.of(local_);
+        the_equalizer_option = Optional.of(local_.getAudioEqualizer());
         equalizer_bands = the_equalizer_option.get().getBands();
         //logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());
 
@@ -704,8 +638,8 @@ public class Audio_player_FX_UI implements Song_adding_receiver
             if (dbg) logger.log("player changing current time:"+newValue.toSeconds());
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
-            now_value.setText((int)seconds+" seconds");
-            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds);
+            now_value_label.setText((int)seconds+" seconds");
+            if ( seconds > 20) Non_zooleans.save_curent_time_in_song((int)seconds);
         });
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
@@ -716,27 +650,35 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         the_media_player_option.get().setVolume(volume);
         the_media_player_option.get().setBalance(balance);
         the_media_player_option.get().play();
-        String s = (int)seconds+" seconds";
+        String s = get_nice_string_for_duration(seconds);
+        duration_value_label.setText(s);
+
+
+    }
+
+    //**********************************************************
+    public static String get_nice_string_for_duration(double seconds)
+    //**********************************************************
+    {
+        String s = (int) seconds +" s";
         if ( seconds > 3600)
         {
-            int h = (int)seconds/3600;
-            int m = ((int)seconds - h*3600)/60;
+            int h = (int) seconds /3600;
+            int m = ((int) seconds - h*3600)/60;
             double ss = seconds - h*3600 - m*60;
             ss *= 10;
             ss = (double)((int)ss)/10.0;
-            s = h+ " hours, "+m+" minutes, "+ ss+ " seconds";
+            s = h+ " h "+m+" m "+ ss+ " s";
         }
         else if ( seconds > 60)
         {
-            int m = (int)seconds/60;
+            int m = (int) seconds /60;
             double ss = seconds - m*60;
             ss *= 10;
             ss = (double)((int)ss)/10.0;
-            s = m+" minutes, "+ ss+ " seconds";
+            s = m+" m "+ ss+ " s";
         }
-        duration_value.setText(s);
-
-
+        return s;
     }
 
     boolean equalizer_created = false;
@@ -819,10 +761,9 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         return reset_button;
     }
 
-
     //**********************************************************
     @Override
-    public void clean_up()
+    public void stop_current_media()
     //**********************************************************
     {
         if (the_media_player_option.isPresent())
@@ -831,13 +772,146 @@ public class Audio_player_FX_UI implements Song_adding_receiver
             the_media_player_option.get().dispose();
             the_media_player_option = Optional.empty();
         }
-
     }
 
+    //**********************************************************
     @Override
     public void set_title(String s)
+    //**********************************************************
     {
-        stage.setTitle(s);
+        Runnable r = () -> stage.setTitle(s);
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
+    @Override
+    public void set_total_duration(String s)
+    //**********************************************************
+    {
+        Runnable r = () -> total_duration.setText(s);
+        Platform.runLater(r);
+    }
+
+
+
+    //**********************************************************
+    @Override
+    public void play_song_with_new_media_player(String new_song, Integer current_time_s)
+    //**********************************************************
+    {
+        String encoded;
+        try
+        {
+            encoded = "file://"+(new File(new_song)).getCanonicalPath();
+        }
+        catch (IOException e)
+        {
+            logger.log("ERROR "+e);
+            return;
+        }
+        encoded = encoded.replaceAll(" ","%20");
+
+
+        Media sound;
+        try
+        {
+            sound = new Media(encoded);
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.log("invalid media NAME or PATH: "+encoded);
+            logger.log(""+e);
+            playlist.remove(new_song);
+            return;
+        }
+        catch (MediaException e)
+        {
+            logger.log("\n\nInvalid media, unlisted: "+encoded+"\n\n");
+            playlist.remove(new_song);
+            return;
+        }
+        MediaPlayer local = new MediaPlayer(sound);
+        local.setCycleCount(1);
+        local.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
+        local.setOnReady(() -> {
+            on_player_ready(local);
+        });
+        local.setOnPlaying(() -> {
+            if ( current_time_s != null)
+            {
+                logger.log("seeking to "+current_time_s);
+                Duration target = Duration.seconds(current_time_s);
+                if (the_media_player_option.isPresent()) the_media_player_option.get().seek(target);
+            }
+        });
+        Runnable r = () -> play_pause.setText(pause_string);
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
+    @Override
+    public void set_playlist_name_display(String new_play_list_name)
+    //**********************************************************
+    {
+        Runnable r = () -> playlist_name_label.setText(new_play_list_name);
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
+    @Override
+    public void add_song(Button song)
+    //**********************************************************
+    {
+        Runnable r = () -> the_vertical_box.getChildren().add(song);
+        Platform.runLater(r);
+    }
+
+
+    //**********************************************************
+    @Override
+    public void add_songs(List<Button> songs)
+    //**********************************************************
+    {
+        Runnable r = () -> the_vertical_box.getChildren().addAll(songs);
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
+    @Override
+    public void remove_song(Button b)
+    //**********************************************************
+    {
+        Runnable r = () -> the_vertical_box.getChildren().remove(b);
+        Platform.runLater(r);
+    }
+
+
+    //**********************************************************
+    @Override
+    public void remove_all_songs()
+    //**********************************************************
+    {
+        Runnable r = () -> the_vertical_box.getChildren().clear();
+        Platform.runLater(r);
+    }
+
+
+    //**********************************************************
+    @Override
+    public void scroll_to(String target)
+    //**********************************************************
+    {
+        Runnable r = () -> scroll_pane.setVvalue(playlist.get_scroll_for(target));
+        Platform.runLater(r);
+    }
+
+    //**********************************************************
+    @Override
+    public void set_status(String s)
+    //**********************************************************
+    {
+        Runnable r = () -> the_status_label.setText(s);
+        Platform.runLater(r);
     }
 
 
@@ -845,38 +919,33 @@ public class Audio_player_FX_UI implements Song_adding_receiver
     private void save_new_playlist()
     //**********************************************************
     {
+
         // need to do it on swing event thread
         // as we use fileChooser to be able to display hidden folders
-        Runnable r = () -> playlist.choose_playlist_file_name(stage);
+        Runnable r = () -> playlist.choose_playlist_file_name();
         SwingUtilities.invokeLater(r);
     }
-
-
 
     //**********************************************************
     public void play_playlist_internal(File playlist_file_)
     //**********************************************************
     {
-        if ( Non_booleans.get_main_properties_manager().get(Playlist.PLAYLIST_FILE_NAME) == null)
-        {
-            Non_booleans.get_main_properties_manager().add(Playlist.PLAYLIST_FILE_NAME, playlist_file_.getAbsolutePath());
-        }
+
         //logger.log("Going to play list: "+playlist_file.getAbsolutePath());
         playlist.load_playlist(playlist_file_);
         if ( playlist.is_empty())
         {
             previous.setDisable(true);
             next.setDisable(true);
-
             logger.log("WARNING: playlist is empty !?");
             return;
         }
         previous.setDisable(false);
         next.setDisable(false);
-
         playlist.play_fist_song();
 
     }
+
 
     //**********************************************************
     void handle_keyboard(final KeyEvent key_event, Logger logger)
@@ -985,30 +1054,8 @@ public class Audio_player_FX_UI implements Song_adding_receiver
         play_pause.setText(play_string);
     }
 
-    @Override
-    public void add(Button song)
+    public void change_song(String song)
     {
-        Runnable r = () -> the_vertical_box.getChildren().add(song);
-        Platform.runLater(r);
-    }
-
-    @Override
-    public void remove(Button song)
-    {
-        the_vertical_box.getChildren().remove(song);
-    }
-
-    @Override
-    public void scroll_to(File target)
-    {
-        double v = playlist.file_to_scroll(target);
-        scroll_pane.setVvalue(v);
-    }
-
-    @Override
-    public void set_status(String s)
-    {
-        the_status_label.setText(s);
-
+        playlist.change_song(song);
     }
 }

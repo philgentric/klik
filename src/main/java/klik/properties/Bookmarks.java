@@ -1,8 +1,5 @@
 package klik.properties;
 
-import klik.actor.Aborter;
-import klik.util.log.Logger;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,17 +13,16 @@ public class Bookmarks
     public static final String BOOK_MARKS = "BOOK_MARKS";
     private final String key_base; // name of this bookmarks in properties file
     private final List<String> cache;
-    private final Properties_manager pm;
+    private final IProperties pm;
 
     //**********************************************************
     public Bookmarks(String key_base_)
     //**********************************************************
     {
         key_base = key_base_;
-        pm = Non_booleans.get_main_properties_manager();
+        pm = Non_zooleans.get_main_properties_manager();
         cache = get_bookmarks_of(pm, key_base);
     }
-
 
     //**********************************************************
     public static Bookmarks get_bookmarks()
@@ -35,13 +31,13 @@ public class Bookmarks
         return new Bookmarks(BOOK_MARKS);
     }
 
-
     //**********************************************************
-    public List<String> get_bookmarks_of(Properties_manager pm, String key_base)
+    public List<String> get_bookmarks_of(IProperties pm, String key_base)
     //**********************************************************
     {
         List<String> returned = new ArrayList<>();
-        for (int i = 0; i < max; i++) {
+        for (int i = 0; i < max; i++)
+        {
             String path = pm.get(key_base + i);
             if (path == null) continue;
             returned.add(path);
@@ -65,7 +61,7 @@ public class Bookmarks
         if ( is_already_there(p)) return;
         String s = p.toAbsolutePath().toString();
         cache.add(s);
-        pm.save_multiple(key_base, s, false);
+        pm.set(key_base, s);
     }
 
 
@@ -73,7 +69,8 @@ public class Bookmarks
     private boolean is_already_there(Path candidate)
     //**********************************************************
     {
-        for (String k : pm.get_all_keys()) {
+        for (String k : pm.get_all_keys())
+        {
             if (!k.startsWith(BOOK_MARKS)) continue;
             String x = pm.get(k);
             if (x == null) continue;

@@ -24,9 +24,7 @@ import java.nio.charset.StandardCharsets;
 public class Audio_player_application extends Application
 //**********************************************************
 {
-    private final static boolean dbg = true;
-    static Audio_player_FX_UI instance = null;
-    public static final int AUDIO_PLAYER_PORT = 34539;
+   public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
 
     //**********************************************************
@@ -38,9 +36,9 @@ public class Audio_player_application extends Application
     public void start(Stage stage) throws Exception
     //**********************************************************
     {
-        Sys_init.init("Audio_player");
+        Sys_init.init("Audio_player_application");
         Logger logger = Shared_services.shared_services_logger;
-        Start_context context = Start_context.get_context(this);
+        Start_context context = Start_context.get_context_and_args(this);
 
         if (  !start_server(logger))
         {
@@ -52,7 +50,7 @@ public class Audio_player_application extends Application
             return;
         }
 
-        logger.log("Audio_player start");
+        logger.log("Audio_player_application starts");
 
 
         Look_and_feel_manager.init_Look_and_feel(logger);
@@ -62,12 +60,12 @@ public class Audio_player_application extends Application
 
         Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
 
-        File f = null;
+        String f = null;
         if ( context.path() != null)
         {
-             logger.log("Audio_player, context.path()) "+context.path().toAbsolutePath());
-             f = context.path().toFile();
-             logger.log("Audio_player, opening audio file: "+f.getAbsolutePath());
+             logger.log("Audio_player_application, context.path()) "+context.path().toAbsolutePath());
+             f = context.path().toAbsolutePath().toString();
+             logger.log("Audio_player_application, opening audio file: "+f);
         }
         Start_context.send_started(context,logger);
 
@@ -87,17 +85,11 @@ public class Audio_player_application extends Application
             public void on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try {
-                    int size = dis.readInt();
-                    byte buffer[] = new byte[size];
-                    dis.read(buffer);
-                    String file_path = new String(buffer, StandardCharsets.UTF_8);
-                    File f1 = new File(file_path);
-                    Audio_player.play_this_song(f1,logger);
-                    String reply = PLAY_REQUEST_ACCEPTED;
-                    buffer = reply.getBytes(StandardCharsets.UTF_8);
-                    dos.writeInt(buffer.length);
-                    dos.write(buffer);
-                    logger.log("accepted file for playing");
+                    String file_path = TCP_util.read_string(dis);
+                    Audio_player.play_this_song(file_path,logger);
+                    TCP_util.write_string(PLAY_REQUEST_ACCEPTED,dos);
+                    dos.flush();
+                    logger.log("Audio_player_application server accepted file for playing");
                 }
                 catch (IOException e)
                 {
@@ -111,7 +103,7 @@ public class Audio_player_application extends Application
                 return "";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("audio", logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Audio_player_application TCP server", logger), logger);
         return tcp_server.start(AUDIO_PLAYER_PORT,false);
     }
 

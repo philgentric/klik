@@ -2,7 +2,7 @@ package klik;
 
 import javafx.application.Application;
 import klik.actor.Actor_engine;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
@@ -21,7 +21,7 @@ public record Start_context(List<String> args, int port, Path path)
     // args[0] is String (typically a path designating the content) ... and more strings could follow
     // args[0] is Integer (typically the port on which to reply "started" ... and more strings could follow
     //**********************************************************
-    public static Start_context get_context(Application application)
+    public static Start_context get_context_and_args(Application application)
     //**********************************************************
     {
         Application.Parameters params = application.getParameters();
@@ -31,7 +31,7 @@ public record Start_context(List<String> args, int port, Path path)
         Path path = null;
         if (raw_args.isEmpty())
         {
-            path = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
+            path = (new File(System.getProperty(Non_zooleans.USER_HOME))).toPath();
         }
         else {
 

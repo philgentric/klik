@@ -11,11 +11,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import klik.actor.Aborter;
-import klik.properties.Non_booleans;
+import klik.properties.IProperties;
+import klik.properties.Non_zooleans;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
-
-import java.util.Set;
 
 //**********************************************************
 public class Tag_items_management_stage
@@ -44,9 +43,9 @@ public class Tag_items_management_stage
         the_stage.setHeight(300);
         the_stage.setTitle("Manage stored tags");
 
-        Properties_manager pm = Non_booleans.get_main_properties_manager();
+        IProperties pm = Non_zooleans.get_main_properties_manager();
 
-
+/*
         Set<String> l = pm.get_all_keys();
         if ( l.isEmpty())
         {
@@ -64,7 +63,7 @@ public class Tag_items_management_stage
             }
         }
         add_a(the_pane, "STORED_TAG_AAA", pm, logger);
-
+*/
         the_stage.show();
     }
 

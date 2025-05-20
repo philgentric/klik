@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /* when debugging you may want to be able to print out the call stack
- * this is a wrapper for getting such a string message
+ * this is a wrapper for getting such a string error_message
  */
 //**********************************************************
 public class Stack_trace_getter

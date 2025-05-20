@@ -10,10 +10,7 @@ import klik.browser.comparators.Aspect_ratio_comparator;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.properties.Booleans;
-import klik.properties.Cache_folder;
-import klik.properties.File_sort_by;
-import klik.properties.Non_booleans;
+import klik.properties.*;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -60,7 +57,7 @@ public class Animated_gif_from_folder
         //    return null;
         //}
 
-        int icon_size = Non_booleans.get_icon_size();
+        int icon_size = Non_zooleans.get_icon_size();
 
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
         Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner,Cache_folder.klik_folder_icon_cache,logger);
@@ -111,7 +108,7 @@ public class Animated_gif_from_folder
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
             if (!Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger))
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Zooleans.manage_show_GraphicsMagick_install_warning(owner,logger);
                 logger.log(warning_GraphicsMagick);
                 logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;

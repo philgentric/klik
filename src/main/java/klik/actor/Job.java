@@ -22,11 +22,11 @@ public class Job
         }
         if ( message==null)
         {
-            logger.log_stack_trace("FATAL message cannot be null");
+            logger.log_stack_trace("FATAL error_message cannot be null");
         }
         if ( message.get_aborter()==null)
         {
-            logger.log_stack_trace("FATAL message.Aborter cannot be null");
+            logger.log_stack_trace("FATAL error_message.Aborter cannot be null");
             System.exit(-1);
         }
         this.actor = actor;

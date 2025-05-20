@@ -144,10 +144,10 @@ public enum File_sort_by {
     File_sort_by from_cache = cached.get(folder_path);
     if ( from_cache != null) return from_cache;
 
-    String s = Non_booleans.get_main_properties_manager().get(SORT_FILES_BY);
+    String s = Non_zooleans.get_main_properties_manager().get(SORT_FILES_BY);
     if (s == null)
     {
-      Non_booleans.get_main_properties_manager().add(SORT_FILES_BY, File_sort_by.NAME.name());
+      Non_zooleans.get_main_properties_manager().set(SORT_FILES_BY, File_sort_by.NAME.name());
       cached.put(folder_path, File_sort_by.NAME);
       return File_sort_by.NAME;
     }
@@ -182,7 +182,7 @@ public enum File_sort_by {
       logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
       return;
     }
-    Non_booleans.get_main_properties_manager().add(SORT_FILES_BY, b.name());
+    Non_zooleans.get_main_properties_manager().set(SORT_FILES_BY, b.name());
   }
 
 }

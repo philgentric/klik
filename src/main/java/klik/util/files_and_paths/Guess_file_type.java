@@ -5,7 +5,7 @@ import klik.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.images.decoding.Exif_metadata_extractor;
-import klik.properties.Booleans;
+import klik.properties.Zooleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
@@ -180,7 +180,7 @@ public class Guess_file_type
         File wd = path.getParent().toFile();
         if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            Zooleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
         logger.log("->"+sb+"<-");
 

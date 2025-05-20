@@ -16,7 +16,7 @@ import klik.browser.items.Item2_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
@@ -307,33 +307,12 @@ public class Image_context
         the_image_view.setViewport(r);
     }
 
-
-    //**********************************************************
-    private static List<String> load_keyword_exclusion_list(Logger logger)
-    //**********************************************************
-    {
-
-        List<String> returned = new ArrayList<>();
-        int max = Non_booleans.get_excluded_keyword_list_max_size(logger);
-        for (int i = 0; i < max; i++) {
-            String key = Non_booleans.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Non_booleans.get_main_properties_manager().get(key);
-            if (kw != null) {
-                String lower = kw.toLowerCase();
-                returned.add(lower);
-                logger.log("excluded key word: ->" + lower + "<-");
-            }
-        }
-        return returned;
-    }
-
     //**********************************************************
     void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Aborter aborter)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
-        List<String> exclusion_list = load_keyword_exclusion_list(logger);
-        Keyword_extractor ke = new Keyword_extractor(logger, exclusion_list);
+        Keyword_extractor ke = new Keyword_extractor(logger, List.of());
         Set<String> keywords_set = ke.extract_keywords_from_file_and_dir_names(path);
         if (keywords_set == null) {
             logger.log("FATAL null keywords ??? ");
@@ -541,13 +520,13 @@ public class Image_context
     //**********************************************************
     {
         String old_file_name = path.getFileName().toString().toLowerCase();
-        if (old_file_name.contains(Non_booleans.ULTIM))
+        if (old_file_name.contains(Non_zooleans.ULTIM))
         {
-            logger.log("no vote, name already contains " + Non_booleans.ULTIM);
+            logger.log("no vote, name already contains " + Non_zooleans.ULTIM);
             return Optional.empty();
         }
 
-        Path new_path = Moving_files.generate_new_candidate_name(path,"", Non_booleans.ULTIM, logger);
+        Path new_path = Moving_files.generate_new_candidate_name(path,"", Non_zooleans.ULTIM, logger);
         return image_stage.change_name_of_file(new_path);
     }
 

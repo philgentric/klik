@@ -20,7 +20,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -28,6 +28,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.Session;
 import klik.util.tcp.Session_factory;
 import klik.util.tcp.TCP_server;
+import klik.util.tcp.TCP_util;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Show_running_film_frame;
 
@@ -35,7 +36,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -64,7 +64,7 @@ public class Launcher extends Application
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         Look_and_feel_manager.set_region_look(vbox);
-        double font_size = Non_booleans.get_font_size(logger);
+        double font_size = Non_zooleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         Language_manager.init_registered_languages(logger);
@@ -102,14 +102,14 @@ public class Launcher extends Application
     }
 
     //**********************************************************
-    private static void start_app_and_listen(String tag, int port, Stage stage, Logger logger)
+    private static void start_app_and_listen(String app_name, int port, Stage stage, Logger logger)
     //**********************************************************
     {
         Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
 
         List<String> cmds = new ArrayList<>();
         cmds.add("gradle");
-        cmds.add(tag);
+        cmds.add(app_name);
         String arg =  "--args=\""+port+"\"";
         cmds.add(arg);
 
@@ -119,15 +119,15 @@ public class Launcher extends Application
             logger.log(sb.toString());
         };
         Actor_engine.execute(r, logger);
-        start_server_and_wait_for_reply(tag,port,hourglass, logger);
+        start_server_and_wait_for_reply(app_name,port,hourglass, logger);
     }
 
     //**********************************************************
-    private static boolean start_server_and_wait_for_reply(String tag, int port, Hourglass hourglass, Logger logger)
+    private static boolean start_server_and_wait_for_reply(String app_name, int port, Hourglass hourglass, Logger logger)
     //**********************************************************
     {
-        // start the server to receive the "started" message and stop the hourglass
-        // note the audio player, if already started, will send the "started" message
+        // start the server to receive the "started" error_message and stop the hourglass
+        // note the audio player, if already started, will send the "started" error_message
         // this is because in the launcher, after a audio_player
         // was started, it might have been killed ...
 
@@ -136,13 +136,10 @@ public class Launcher extends Application
             public void on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try {
-                    int size = dis.readInt();
-                    byte buffer[] = new byte[size];
-                    dis.read(buffer);
-                    String msg = new String(buffer, StandardCharsets.UTF_8);
+                    String msg = TCP_util.read_string(dis);
                    if ( msg.equals(STARTED))
                     {
-                        logger.log("STARTED RECEIVED for: "+tag);
+                        logger.log("STARTED RECEIVED for: "+app_name);
                         if ( hourglass != null) hourglass.close();
                     }
 
@@ -156,10 +153,10 @@ public class Launcher extends Application
 
             @Override
             public String name() {
-                return "launcher for app: "+tag;
+                return "launcher for app: "+app_name;
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter(tag, logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter(app_name, logger), logger);
         Runnable r = () -> tcp_server.start(port,false);
         Actor_engine.execute(r, logger);
 

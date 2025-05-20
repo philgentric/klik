@@ -6,11 +6,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
-
-import java.util.*;
 
 //**********************************************************
 public class Preferences_stage
@@ -68,7 +65,6 @@ public class Preferences_stage
     {
         //logger.log(Stack_trace_getter.get_stack_trace("define!!!"));
         vbox.getChildren().clear();
-        Map<String, Boolean> properties = Booleans.get_all_booleans();
 
         {
             Label lab = new Label("Debug");
@@ -77,7 +73,7 @@ public class Preferences_stage
         }
         for(Debugging_features f : Debugging_features.values())
         {
-            add_one_line(f.name(), properties);
+            add_one_line(f.name());
         }
         vbox.getChildren().add(new Separator());
         {
@@ -87,7 +83,7 @@ public class Preferences_stage
         }
         for(Advanced_features f : Advanced_features.values())
         {
-            add_one_line(f.name(), properties);
+            add_one_line(f.name());
         }
         vbox.getChildren().add(new Separator());
         {
@@ -97,22 +93,21 @@ public class Preferences_stage
         }
         for(Experimental_features f : Experimental_features.values())
         {
-            add_one_line(f.name(), properties);
+            add_one_line(f.name());
         }
     }
 
     //**********************************************************
-    private void add_one_line(String name, Map<String, Boolean> properties)
+    private void add_one_line(String name)
     //**********************************************************
     {
         CheckBox cb = new CheckBox(name);
         cb.setMnemonicParsing(false);
-        Boolean v = properties.get(name);
+        Boolean v = Zooleans.get_boolean(name);
         if ( v == null)
         {
             v = false;
-            properties.put(name,v);
-            Booleans.set_boolean(name,v,logger);
+            Zooleans.set_boolean(name,v);
         }
         cb.setSelected(v);
         Look_and_feel_manager.set_CheckBox_look(cb);
@@ -121,8 +116,7 @@ public class Preferences_stage
         {
             Boolean value = cb.isSelected();
             logger.log("Preference changing for: "+ name+ "new value:"+value);
-            properties.put(name,value);
-            Booleans.set_boolean(name,value,logger);
+            Zooleans.set_boolean(name,value);
         });
         vbox.getChildren().add(cb);
     }

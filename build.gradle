@@ -122,6 +122,12 @@ tasks.register('TCP_client', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     group = 'unit tests'
 }
+tasks.register('Properties_server', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.properties.Properties_server'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'unit tests'
+}
 
 
 

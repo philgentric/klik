@@ -2,8 +2,7 @@ package klik.look;
 
 import javafx.scene.Node;
 import javafx.scene.control.PopupControl;
-import klik.actor.Aborter;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.log.Logger;
 
 //**********************************************************
@@ -20,7 +19,7 @@ public class Font_size
     public static String get_font_size(Logger logger)
     //**********************************************************
     {
-        return FX_FONT_SIZE + Non_booleans.get_font_size(logger) + PX;
+        return FX_FONT_SIZE + Non_zooleans.get_font_size(logger) + PX;
     }
 
 
@@ -29,7 +28,7 @@ public class Font_size
     public static void apply_font_size(Node node,  Logger logger)
     //**********************************************************
     {
-        double size = Non_booleans.get_font_size(logger);
+        double size = Non_zooleans.get_font_size(logger);
         if (dbg) logger.log("applying font size " + size);
         apply_font_size(node, size, logger);
     }
@@ -76,7 +75,7 @@ public class Font_size
     public static void apply_font_size(PopupControl popup_control, Logger logger)
     //**********************************************************
     {
-        double size = Non_booleans.get_font_size(logger);
+        double size = Non_zooleans.get_font_size(logger);
         if (dbg) logger.log("applying font size " + size);
         apply_font_size(popup_control, size,logger);
     }

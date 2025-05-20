@@ -8,11 +8,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Booleans;
-import klik.properties.Cache_folder;
-import klik.experimental.work_in_progress.RAM_disk;
-import klik.properties.Properties_manager;
-import klik.properties.Non_booleans;
+import klik.properties.*;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -67,17 +63,7 @@ public class Image_properties_RAM_cache
     public static Path get_image_properties_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE))
-        {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folder.klik_image_properties_cache.name(), owner, logger);
-            //if (dbg)
-            if (tmp_dir != null) {
-                logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
-            }
-            return tmp_dir;
-        }
-
-        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,logger);
+        Path tmp_dir = Non_zooleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
         }

@@ -3,7 +3,7 @@ package klik.image_indexer;
 
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.log.Logger;
 
 import java.nio.file.Files;
@@ -123,7 +123,7 @@ public class Image_indexer
             {
                 if (ultimate)
                 {
-                    if (!returned.getFileName().toString().toLowerCase().contains(Non_booleans.ULTIM) )
+                    if (!returned.getFileName().toString().toLowerCase().contains(Non_zooleans.ULTIM) )
                     {
                         target = increment(target);
                         continue;
@@ -192,7 +192,7 @@ public class Image_indexer
         if (p == null) return;
         if (ultimate)
         {
-            if (!p.getFileName().toString().toLowerCase().contains(Non_booleans.ULTIM)) return;
+            if (!p.getFileName().toString().toLowerCase().contains(Non_zooleans.ULTIM)) return;
         }
         returned.add(p);
     }

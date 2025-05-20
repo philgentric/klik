@@ -66,7 +66,7 @@
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
 //SOURCES look/my_i18n/Language_manager.java
-//SOURCES properties/Non_booleans.java
+//SOURCES properties/Non_zooleans.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
 //SOURCES util/log/File_logger.java
@@ -75,7 +75,7 @@
 //SOURCES util/info_stage/*.java
 //SOURCES util/tcp/TCP_client.java
 //SOURCES util/tcp/TCP_client_out.java
-//SOURCES properties/Booleans.java
+//SOURCES properties/Zooleans.java
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/icons/Virtual_landscape.java
@@ -132,7 +132,7 @@ public class Klik_application extends Application
         Logger logger = Shared_services.shared_services_logger;
 
         primary_stage = primary_stage_;
-        Start_context context = Start_context.get_context(this);
+        Start_context context = Start_context.get_context_and_args(this);
 
         primary_stage.setOnCloseRequest(event -> {
             System.out.println("Klik_application primary_stage setOnCloseRequest exit");
@@ -152,7 +152,7 @@ public class Klik_application extends Application
         {
             path = context.path();
         }
-        Window_provider window_provider = New_window_context2.additional_no_past(path,logger);
+        Window_provider window_provider = New_window_context.additional_no_past(path,logger);
         new Monitor(window_provider, logger).start();
 
         Start_context.send_started(context,logger);

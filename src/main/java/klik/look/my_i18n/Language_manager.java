@@ -16,7 +16,7 @@
 package klik.look.my_i18n;
 
 
-import klik.properties.Non_booleans;
+import klik.properties.Non_zooleans;
 import klik.util.log.Logger;
 
 import java.util.*;
@@ -76,7 +76,7 @@ public class Language_manager
             //l.print_all();
             registered_languages.put(l.language_key(), l);
         }
-        String language_key = Non_booleans.get_language_key();
+        String language_key = Non_zooleans.get_language_key();
         instance = registered_languages.get(language_key);
 
         if (instance == null) instance = registered_languages.get((new English()).language_key());
@@ -90,7 +90,7 @@ public class Language_manager
     {
         System.out.println("using language_key ->"+language_key+"<-");
         instance = registered_languages.get(language_key);
-        Non_booleans.set_language_key(language_key);
+        Non_zooleans.set_language_key(language_key);
         Locale.setDefault(instance.locale);
 
     }
