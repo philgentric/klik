@@ -274,10 +274,10 @@ public class New_window_context
                 try {
                     String local = new_name;
                     if ( !local.endsWith("." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION;
-                    String home = System.getProperty(Non_zooleans.USER_HOME);
+                    String home = System.getProperty(Non_booleans.USER_HOME);
                     Path new_playlist_file = Path.of( home, local);
                     Files.createFile(new_playlist_file); //Files.createDirectory(new_dir);
-                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_zooleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
+                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_booleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
                     return new_playlist_file;
                 } catch (IOException e) {
                     logger.log("new directory creation FAILED: " + e);

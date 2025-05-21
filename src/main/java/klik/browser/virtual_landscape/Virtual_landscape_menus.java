@@ -24,6 +24,7 @@ import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Active_list_stage_action;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.change.history.History_engine;
+import klik.change.bookmarks.Bookmarks;
 import klik.change.history.History_item;
 import klik.change.undo.Undo_for_moves;
 import klik.change.undo.Undo_item;
@@ -106,8 +107,13 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Invert_vertical_scroll_direction",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.VERTICAL_SCROLL_INVERTED));
-        item.setOnAction(actionEvent -> Zooleans.set_boolean(Zooleans.VERTICAL_SCROLL_INVERTED,((CheckMenuItem) actionEvent.getSource()).isSelected()));
+        item.setSelected(Vertical_slider.inverted);
+        item.setOnAction(actionEvent ->
+                {
+                    boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
+                    Booleans.set_boolean(Booleans.VERTICAL_SCROLL_INVERTED,val);
+                    Vertical_slider.inverted = val;
+                });
         return item;
     }
 
@@ -143,9 +149,9 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Show_icons_for_images_and_videos",virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.SHOW_ICONS));
+        item.setSelected(Virtual_landscape.show_icons_instead_of_text);
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.SHOW_ICONS,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            Booleans.set_boolean(Booleans.SHOW_ICONS,((CheckMenuItem) actionEvent.getSource()).isSelected());
             virtual_landscape.redraw_fx("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -159,9 +165,11 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Show_icons_for_folders", virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.ICONS_FOR_FOLDERS));
+        item.setSelected(Virtual_landscape.icons_for_folders);
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.ICONS_FOR_FOLDERS,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            boolean val =((CheckMenuItem) actionEvent.getSource()).isSelected();
+            Virtual_landscape.icons_for_folders = val;
+            Booleans.set_boolean(Booleans.ICONS_FOR_FOLDERS,val);
             virtual_landscape.redraw_fx("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -172,9 +180,11 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Show_single_column", virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.SINGLE_COLUMN));
+        item.setSelected(Virtual_landscape.single_column);
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.SINGLE_COLUMN,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
+            Booleans.set_boolean(Booleans.SINGLE_COLUMN,val);
+            Virtual_landscape.single_column = val;
             virtual_landscape.redraw_fx("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -222,9 +232,11 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Show_hidden_directories", virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_DIRECTORIES));
+        item.setSelected(Virtual_landscape.show_hidden_folders);
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.SHOW_HIDDEN_DIRECTORIES,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            boolean val= ((CheckMenuItem) actionEvent.getSource()).isSelected();
+            Virtual_landscape.show_hidden_folders = val;
+            Booleans.set_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES,val);
             virtual_landscape.redraw_fx("show hidden file boolean changed");
         });
         return item;
@@ -237,9 +249,9 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("DONT_ZOOM_SMALL_IMAGES", virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.DONT_ZOOM_SMALL_IMAGES));
+        item.setSelected(Booleans.get_boolean_defaults_to_true(Booleans.DONT_ZOOM_SMALL_IMAGES));
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.DONT_ZOOM_SMALL_IMAGES,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            Booleans.set_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES,((CheckMenuItem) actionEvent.getSource()).isSelected());
             virtual_landscape.redraw_fx("dont_zoom_small_images boolean changed");
         });
         return item;
@@ -268,8 +280,8 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Monitor_Browsed_Folders",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.MONITOR_BROWSED_FOLDERS));
-        item.setOnAction(actionEvent -> Zooleans.set_boolean(Zooleans.MONITOR_BROWSED_FOLDERS,((CheckMenuItem) actionEvent.getSource()).isSelected()));
+        item.setSelected(Booleans.get_boolean_defaults_to_true(Booleans.MONITOR_BROWSED_FOLDERS));
+        item.setOnAction(actionEvent -> Booleans.set_boolean(Booleans.MONITOR_BROWSED_FOLDERS,((CheckMenuItem) actionEvent.getSource()).isSelected()));
         return item;
     }
 
@@ -285,8 +297,8 @@ public class Virtual_landscape_menus
         MenuItem item = new MenuItem(text);
 
         item.setOnAction(actionEvent -> {
-            //Non_zooleans.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),virtual_landscape.logger);
-            TextInputDialog dialog = new TextInputDialog(""+ Non_zooleans.get_folder_warning_size());
+            //Non_booleans.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),virtual_landscape.logger);
+            TextInputDialog dialog = new TextInputDialog(""+ Non_booleans.get_folder_warning_size());
             Look_and_feel_manager.set_dialog_look(dialog);
             dialog.initOwner(owner);
             dialog.setWidth(800);
@@ -301,7 +313,7 @@ public class Virtual_landscape_menus
                 try
                 {
                     int val = Integer.parseInt(new_val);
-                    Non_zooleans.set_cache_size_limit_warning_megabytes_fx(val);
+                    Non_booleans.set_cache_size_limit_warning_megabytes_fx(val);
 
                 }
                 catch (NumberFormatException e)
@@ -323,10 +335,12 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Enable_fusk",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.FUSK_IS_ACTIVE));
+        item.setSelected(Virtual_landscape.fusk_is_active);
         item.setOnAction(actionEvent ->
         {
-            Zooleans.set_boolean(Zooleans.FUSK_IS_ACTIVE,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
+            Booleans.set_boolean(Booleans.FUSK_IS_ACTIVE,val);
+            virtual_landscape.fusk_is_active = val;
             virtual_landscape.redraw_fx("enable fusk boolean changed");
 
         });
@@ -341,9 +355,9 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Auto_purge_cache",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.AUTO_PURGE_DISK_CACHES));
+        item.setSelected(Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES));
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.AUTO_PURGE_DISK_CACHES,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            Booleans.set_boolean(Booleans.AUTO_PURGE_DISK_CACHES,((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
     }
@@ -355,9 +369,11 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Show_hidden_files",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_FILES));
+        item.setSelected(Virtual_landscape.show_hidden_files);
         item.setOnAction(actionEvent -> {
-            Zooleans.set_boolean(Zooleans.SHOW_HIDDEN_FILES,((CheckMenuItem) actionEvent.getSource()).isSelected());
+            boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
+            Booleans.set_boolean(Booleans.SHOW_HIDDEN_FILES,val);
+            Virtual_landscape.show_hidden_files = val;
             virtual_landscape.redraw_fx("show hidden file boolean changed");
         });
         return item;
@@ -579,7 +595,7 @@ public class Virtual_landscape_menus
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> {
                 virtual_landscape.logger.log("clearing history");
-                History_engine.clear(virtual_landscape.logger);
+                History_engine.get(virtual_landscape.aborter,virtual_landscape.logger).clear();
                 New_window_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_folder_path(), owner,virtual_landscape.get_top_left(),virtual_landscape.logger);
 
             });
@@ -590,15 +606,15 @@ public class Virtual_landscape_menus
         int on_screen = 0;
         MenuItem more = null;
         Map<String, History_item> path_already_done = new HashMap<>();
-        for (History_item hi : History_engine.get_instance(virtual_landscape.logger).get_all_history_items())
+        for (History_item hi : History_engine.get(virtual_landscape.aborter,virtual_landscape.logger).get_all_history_items())
         {
             if ( on_screen < max_on_screen)
             {
-                if ( path_already_done.get(hi.path) != null)
+                if ( path_already_done.get(hi.value) != null)
                 {
                     continue;
                 }
-                String displayed_string = hi.path;
+                String displayed_string = hi.value;
 
                 if ( displayed_string.length() > MAX_MENU_ITEM_STRING_LENGTH)
                 {
@@ -608,7 +624,7 @@ public class Virtual_landscape_menus
                 }
                 MenuItem item = new MenuItem(displayed_string);
                 item.setMnemonicParsing(false);
-                if ( hi.path.equals(virtual_landscape.path_list_provider.get_folder_path().toAbsolutePath().toString()))
+                if ( hi.value.equals(virtual_landscape.path_list_provider.get_folder_path().toAbsolutePath().toString()))
                 {
                     // show the one we are in as inactive
                     item.setDisable(true);
@@ -619,8 +635,8 @@ public class Virtual_landscape_menus
                 }
                 item.setOnAction(event ->
                 {
-                    Path path = Path.of(hi.path);
-                    if (Zooleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
+                    Path path = Path.of(hi.value);
+                    if (Virtual_landscape.enable_image_playlists )
                     {
                         if ( Guess_file_type.is_this_path_an_image_playlist(path))
                         {
@@ -631,9 +647,9 @@ public class Virtual_landscape_menus
 
                     }
                     // else
-                    New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi.path), owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger);
+                    New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi.value), owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger);
                 });
-                path_already_done.put(hi.path,hi);
+                path_already_done.put(hi.value,hi);
                 history_menu.getItems().add(item);
                 on_screen++;
             }
@@ -656,7 +672,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         if ( the_whole_history == null) the_whole_history = new HashMap<>();
-        the_whole_history.put(hi.time_stamp,hi.path);
+        the_whole_history.put(hi.time_stamp,hi.value);
     }
 
 
@@ -682,23 +698,23 @@ public class Virtual_landscape_menus
         {
             String text = My_I18n.get_I18n_string("Bookmark_this",virtual_landscape.logger);
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Bookmarks.get_bookmarks().add(local));
+            item.setOnAction(event -> Bookmarks.get(virtual_landscape.aborter,virtual_landscape.logger).add(local.toAbsolutePath().toString()));
             bookmarks_menu.getItems().add(item);
         }
         {
             String text = My_I18n.get_I18n_string("Clear_Bookmarks",virtual_landscape.logger);
             MenuItem item = new MenuItem(text);
-            item.setOnAction(event -> Bookmarks.get_bookmarks().clear());
+            item.setOnAction(event -> Bookmarks.get(virtual_landscape.aborter,virtual_landscape.logger).clear());
             bookmarks_menu.getItems().add(item);
         }
 
-        for (String hi : Bookmarks.get_bookmarks().get_list())
+        for (String hi : Bookmarks.get(virtual_landscape.aborter,virtual_landscape.logger).get_list())
         {
-            if ( hi.equals(local.toAbsolutePath().toString()))
-            {
+            //if ( hi.equals(local.toAbsolutePath().toString()))
+            //{
                 // no interrest in showing the one we are in !
-                continue;
-            }
+            //    continue;
+            //}
             MenuItem item = new MenuItem(hi);
             item.setOnAction(event -> New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi), owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger));
             bookmarks_menu.getItems().add(item);
@@ -813,9 +829,11 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Language",virtual_landscape.logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
+        String current = Non_booleans.get_language_key();
+
         for( String language_key : Language_manager.get_registered_language_keys())
         {
-            create_check_menu_item_for_language(menu, language_key, all_check_menu_items);
+            create_check_menu_item_for_language(menu, language_key, current, all_check_menu_items);
         }
         return menu;
     }
@@ -825,10 +843,11 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Escape",virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.ESCAPE_FAST_EXIT));
+        item.setSelected(Virtual_landscape.exit_on_escape);
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Zooleans.set_boolean(Zooleans.ESCAPE_FAST_EXIT,value);
+            Booleans.set_boolean(Booleans.ESCAPE_FAST_EXIT,value);
+            Virtual_landscape.exit_on_escape = value;
         });
         return item;
     }
@@ -839,20 +858,19 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Play_Ding_When_Long_Operations_End",virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Zooleans.get_boolean(Zooleans.DING_IS_ON));
+        item.setSelected(Booleans.get_boolean(Booleans.DING_IS_ON));
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Zooleans.set_boolean(Zooleans.DING_IS_ON,value);
+            Booleans.set_boolean(Booleans.DING_IS_ON,value);
         });
         return item;
     }
 
     //**********************************************************
-    public void create_check_menu_item_for_language(Menu menu, String language_key, List<CheckMenuItem> all_check_menu_items)
+    public void create_check_menu_item_for_language(Menu menu, String language_key, String current, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(language_key);
-        String current = Non_zooleans.get_language_key();
         item.setSelected(current.equals(language_key));
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -877,7 +895,7 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Length_of_video_sample",virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length+" s");
-        int actual_size = Non_zooleans.get_animated_gif_duration_for_a_video();
+        int actual_size = Non_booleans.get_animated_gif_duration_for_a_video();
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -886,7 +904,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_zooleans.set_animated_gif_duration_for_a_video(length);
+                Non_booleans.set_animated_gif_duration_for_a_video(length);
                 Popups.popup_warning(owner, "Note well:","You have to clear the icon cache to see the effect for already visited folders",false,virtual_landscape.logger);
             }
         });
@@ -898,9 +916,9 @@ public class Virtual_landscape_menus
     public void create_menu_item_for_one_column_width(Menu menu, int length, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_zooleans.COLUMN_WIDTH,virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length);
-        int actual_size = Non_zooleans.get_column_width();
+        int actual_size = Non_booleans.get_column_width();
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -909,7 +927,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_zooleans.set_column_width(length);
+                Non_booleans.set_column_width(length);
                 virtual_landscape.redraw_fx("column width changed");
             }
         });
@@ -932,7 +950,7 @@ public class Virtual_landscape_menus
             txt = My_I18n.get_I18n_string("Icon_Size",virtual_landscape.logger) + " = " +target_size;
         }
         CheckMenuItem item = new CheckMenuItem(txt);
-        int actual_size = Non_zooleans.get_icon_size();
+        int actual_size = Non_booleans.get_icon_size();
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -941,7 +959,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_zooleans.set_icon_size(target_size);
+                Non_booleans.set_icon_size(target_size);
                 virtual_landscape.logger.log("icon size changed to "+target_size);
                 virtual_landscape.redraw_fx("icon size changed");
             }
@@ -956,7 +974,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Folder_Icon_Size",virtual_landscape.logger) + " = " +target_size);
-        int actual_size = Non_zooleans.get_folder_icon_size();
+        int actual_size = Non_booleans.get_folder_icon_size();
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -965,7 +983,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_zooleans.set_folder_icon_size(target_size);
+                Non_booleans.set_folder_icon_size(target_size);
                 virtual_landscape.redraw_fx("folder icon size changed");
             }
         });
@@ -978,7 +996,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Font_size",virtual_landscape.logger) + " = " +target_size);
-        double actual_size = Non_zooleans.get_font_size(virtual_landscape.logger);
+        double actual_size = Non_booleans.get_font_size(virtual_landscape.logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -988,7 +1006,7 @@ public class Virtual_landscape_menus
                 {
                     if (cmi != local) cmi.setSelected(false);
                 }
-                Non_zooleans.set_font_size(target_size);
+                Non_booleans.set_font_size(target_size);
                 virtual_landscape.redraw_fx("font size changed");
             }
         });
@@ -1004,7 +1022,7 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Length_of_video_sample",virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_lenghts ={Non_zooleans.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
+        int[] possible_lenghts ={Non_booleans.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
         for ( int l : possible_lenghts)
         {
             create_menu_item_for_one_video_length(menu, l, all_check_menu_items);
@@ -1015,7 +1033,7 @@ public class Virtual_landscape_menus
     public Menu make_column_width_menu()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_zooleans.COLUMN_WIDTH,virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
@@ -1036,7 +1054,7 @@ public class Virtual_landscape_menus
         {
             if (( sort_by == File_sort_by.SIMILARITY_BY_PAIRS)||(sort_by == File_sort_by.SIMILARITY_BY_PURSUIT))
             {
-                if ( !Zooleans.get_boolean(Advanced_features.enable_image_similarity.name()))
+                if ( !Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
                 {
                     continue;
                 }
@@ -1065,7 +1083,7 @@ public class Virtual_landscape_menus
                 {
                     File_sort_by.set_sort_files_by(virtual_landscape.path_list_provider.get_folder_path(),sort_by,virtual_landscape.logger);
                     virtual_landscape.logger.log("new file/image sorting order= "+sort_by);
-                    if (Zooleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
+                    if (Virtual_landscape.enable_image_playlists )
                     {
                         if (virtual_landscape.path_list_provider instanceof Playlist_path_list_provider)
                         {
@@ -1115,7 +1133,7 @@ public class Virtual_landscape_menus
     {
         List<Icon_size> icon_sizes = new ArrayList<>();
         {
-            int[] possible_sizes = {32, 64, 128, Non_zooleans.DEFAULT_ICON_SIZE, 512, 1024};
+            int[] possible_sizes = {32, 64, 128, Non_booleans.DEFAULT_ICON_SIZE, 512, 1024};
             for (int size : possible_sizes)
             {
                 icon_sizes.add(new Icon_size(size, false, 0));
@@ -1131,7 +1149,7 @@ public class Virtual_landscape_menus
                 icon_sizes.add(new Icon_size(size, true, divider));
             }
         }
-        int current_icon_size = Non_zooleans.get_icon_size();
+        int current_icon_size = Non_booleans.get_icon_size();
         Icon_size cur = new Icon_size(current_icon_size,false,0);
         if ( !icon_sizes.contains(cur)) icon_sizes.add(cur);
         Comparator<? super Icon_size> comp = new Comparator<Icon_size>() {
@@ -1151,7 +1169,7 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Folder_Icon_Size",virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_sizes ={Non_zooleans.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
+        int[] possible_sizes ={Non_booleans.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
         for ( int size : possible_sizes)
         {
             create_menu_item_for_one_folder_icon_size(menu, size, all_check_menu_items);
@@ -1167,7 +1185,7 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         double[] candidate_sizes = {10,12,14,16,18,20,22,24,26};
         List<Double> possible_sizes = new ArrayList<>();
-        possible_sizes.add(Non_zooleans.get_font_size(virtual_landscape.logger));
+        possible_sizes.add(Non_booleans.get_font_size(virtual_landscape.logger));
         for (double candidateSize : candidate_sizes) {
             if (possible_sizes.contains(candidateSize)) continue;
             possible_sizes.add(candidateSize);

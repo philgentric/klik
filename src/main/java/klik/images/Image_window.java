@@ -21,9 +21,9 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
-import klik.properties.Zooleans;
+import klik.properties.Booleans;
 import klik.properties.File_sort_by;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.fusk.Fusk_strings;
@@ -81,7 +81,7 @@ public class Image_window
     //**********************************************************
     {
 
-        Rectangle2D bounds = Non_zooleans.get_window_bounds(IMAGE_WINDOW);
+        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
@@ -139,11 +139,9 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Zooleans.get_boolean(Zooleans.ESCAPE_FAST_EXIT);
+            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Booleans.ESCAPE_FAST_EXIT);
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(
-                            //browser,
-                            local, exit_on_escape_preference, keyEvent, logger));
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, exit_on_escape_preference, keyEvent, logger));
         }
 
         boolean high_quality = false;
@@ -158,7 +156,7 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
             long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, aborter, logger);
+            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, aborter, logger);
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
@@ -182,7 +180,7 @@ public class Image_window
         Aborter finalAborter = aborter;
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            if ( save_window_bounds) Non_zooleans.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
+            if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
         };
         the_Stage.xProperty().addListener(change_listener);
         the_Stage.yProperty().addListener(change_listener);
@@ -390,12 +388,12 @@ public class Image_window
             screen = Screen.getPrimary();
         }
 
-        Rectangle2D bounds = Non_zooleans.get_bounds(logger);
+        Rectangle2D bounds = Non_booleans.get_bounds(logger);
 
         if (bounds == null)
         {
             bounds = screen.getVisualBounds();
-            Non_zooleans.save_bounds(bounds,logger);
+            Non_booleans.save_bounds(bounds,logger);
         }
         Scene scene = stage.getScene();
         //logger.log("scene getX" + scene.getX());
@@ -553,7 +551,7 @@ public class Image_window
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
 
-            boolean dont_zoom = Zooleans.get_boolean(Zooleans.DONT_ZOOM_SMALL_IMAGES);
+            boolean dont_zoom = Booleans.get_boolean_defaults_to_true(Booleans.DONT_ZOOM_SMALL_IMAGES);
             boolean normal = true;
             if (dont_zoom)
             {

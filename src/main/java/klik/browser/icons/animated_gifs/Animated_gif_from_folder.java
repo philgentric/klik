@@ -57,7 +57,7 @@ public class Animated_gif_from_folder
         //    return null;
         //}
 
-        int icon_size = Non_zooleans.get_icon_size();
+        int icon_size = Non_booleans.get_icon_size();
 
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
         Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner,Cache_folder.klik_folder_icon_cache,logger);
@@ -85,7 +85,7 @@ public class Animated_gif_from_folder
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, x,y,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = File_sort_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( local_comp instanceof Aspect_ratio_comparator)
         {
@@ -108,7 +108,7 @@ public class Animated_gif_from_folder
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
             if (!Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger))
             {
-                Zooleans.manage_show_GraphicsMagick_install_warning(owner,logger);
+                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
                 logger.log(warning_GraphicsMagick);
                 logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;

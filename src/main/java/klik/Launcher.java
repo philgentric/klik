@@ -20,7 +20,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -64,7 +64,7 @@ public class Launcher extends Application
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         Look_and_feel_manager.set_region_look(vbox);
-        double font_size = Non_zooleans.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         Language_manager.init_registered_languages(logger);

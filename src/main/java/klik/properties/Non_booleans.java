@@ -8,8 +8,6 @@ import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.Logger;
 import klik.util.log.Simple_logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.tcp.TCP_client;
-import klik.util.tcp.TCP_client_out;
 import klik.util.ui.Popups;
 
 import java.io.File;
@@ -22,7 +20,7 @@ import java.util.List;
 
 
 //**********************************************************
-public class Non_zooleans
+public class Non_booleans
 //**********************************************************
 {
     private static final boolean dbg = false;
@@ -61,8 +59,7 @@ public class Non_zooleans
     // cached values
 
     private static IProperties the_iproperties;
-    private static Properties_server server;
-    
+
     private static int icon_size = -1;
     private static int folder_icon_size = -1;
     private static int video_length = -1;
@@ -82,51 +79,11 @@ public class Non_zooleans
     public static Aborter init_main_properties_manager(String aborter_name)
     //**********************************************************
     {
-        Logger tmp_logger = new Simple_logger();
-        Aborter returned = new Aborter(aborter_name,tmp_logger);
-        if (server == null)
-        {
-            String home = System.getProperty(USER_HOME);
-            Path p = Paths.get(home, CONF_DIR, PROPERTIES_FILENAME);
-            server = new Properties_server(p, "Preferences DB",returned,tmp_logger);
-        }
-        the_iproperties = new IProperties()
-        {
+        Logger logger = new Simple_logger();
+        Aborter aborter = new Aborter(aborter_name,logger);
 
-            @Override
-            public boolean set(String key, String value) {
-
-                TCP_client_out r = TCP_client.request2("localhost", Properties_server.PROPERTY_PORT_for_set, key, value, tmp_logger);
-                return r.status();
-            }
-
-            @Override
-            public String get(String key) 
-            {
-                TCP_client_out r = TCP_client.request("localhost", Properties_server.PROPERTY_PORT_for_get, key, tmp_logger);
-                if ( r.reply().equals("null")) return null;
-                return r.reply();
-            }
-
-            @Override
-            public void remove(String key) {
-                System.out.println("TODO implement remove "+key);
-
-            }
-
-            @Override
-            public void clear(String keyBase) {
-                System.out.println("TODO implement clear "+keyBase);
-
-            }
-
-            @Override
-            public List<String> get_all_keys()
-            {
-                return TCP_client.request_all_keys("localhost", Properties_server.PROPERTY_PORT_for_all, tmp_logger);
-            }
-        };
-        return returned;
+        the_iproperties = new File_based_IProperties("klik",aborter,logger);
+        return aborter;
     }
 
     //**********************************************************

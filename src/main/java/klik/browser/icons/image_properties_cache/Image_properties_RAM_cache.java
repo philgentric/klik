@@ -63,7 +63,7 @@ public class Image_properties_RAM_cache
     public static Path get_image_properties_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Non_zooleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,logger);
+        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
         }

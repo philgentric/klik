@@ -2,7 +2,7 @@ package klik.browser;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import klik.properties.Zooleans;
+import klik.browser.virtual_landscape.Virtual_landscape;
 
 //**********************************************************
 public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEvent>
@@ -30,8 +30,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
             browser.my_Stage.escape++;
             key_event.consume();
 
-            boolean exit_on_escape_preference = Zooleans.get_boolean(Zooleans.ESCAPE_FAST_EXIT);
-            if ( exit_on_escape_preference)
+            if (Virtual_landscape.exit_on_escape)
             {
                 if ( browser.keyboard_dbg) browser.logger.log(" Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
                 if ( browser.ignore_escape_as_the_stage_is_full_screen)

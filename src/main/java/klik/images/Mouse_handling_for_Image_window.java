@@ -420,8 +420,10 @@ public class Mouse_handling_for_Image_window
             logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: get_image_context is empty"));
             return;
         }
-        image_window.image_display_handler.get_image_context().get().the_image_view.setViewport(null);
-
+        {
+            Image_context ic = image_window.image_display_handler.get_image_context().get();
+            if ( ic != null) ic.the_image_view.setViewport(null);
+        }
         image_window.the_image_Pane.setOnDragDetected(event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
 

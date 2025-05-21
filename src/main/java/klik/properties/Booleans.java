@@ -10,7 +10,7 @@ import klik.util.ui.Popups;
 // these are user preferences that are saved to disk
 
 //**********************************************************
-public class Zooleans
+public class Booleans
 //**********************************************************
 {
     private static final boolean dbg = false;
@@ -36,27 +36,44 @@ public class Zooleans
     public static void set_boolean(String s, boolean b)
     //**********************************************************
     {
-        IProperties pm = Non_zooleans.get_main_properties_manager();
+        IProperties pm = Non_booleans.get_main_properties_manager();
         pm.set(s, String.valueOf(b));
 
     }
+
+    // this routine default to FALSE for absent values
     //**********************************************************
     public static boolean get_boolean(String s)
     //**********************************************************
     {
-        IProperties pm = Non_zooleans.get_main_properties_manager();
+        IProperties pm = Non_booleans.get_main_properties_manager();
         String bb = pm.get(s);
         Boolean b = Boolean.parseBoolean(bb);
-            return b;
+        return b;
+    }
+
+    //**********************************************************
+    public static boolean get_boolean_defaults_to_true(String s)
+    //**********************************************************
+    {
+        IProperties pm = Non_booleans.get_main_properties_manager();
+        String bb = pm.get(s);
+        if ( bb == null)
+        {
+            pm.set(s, "true");
+            return true;
+        }
+        Boolean b = Boolean.parseBoolean(bb);
+        return b;
     }
 
     //**********************************************************
     public static boolean get_show_ffmpeg_install_warning()
     //**********************************************************
     {
-        String s = Non_zooleans.get_main_properties_manager().get(SHOW_FFMPEG_INSTALL_WARNING);
+        String s = Non_booleans.get_main_properties_manager().get(SHOW_FFMPEG_INSTALL_WARNING);
         if (s == null) {
-            Non_zooleans.get_main_properties_manager().set(SHOW_FFMPEG_INSTALL_WARNING, "true");
+            Non_booleans.get_main_properties_manager().set(SHOW_FFMPEG_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -68,16 +85,16 @@ public class Zooleans
     public static void set_show_ffmpeg_install_warning(boolean b)
     //**********************************************************
     {
-        Non_zooleans.get_main_properties_manager().set(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
+        Non_booleans.get_main_properties_manager().set(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
     }
 
     //**********************************************************
     public static boolean get_show_GraphicsMagick_install_warning()
     //**********************************************************
     {
-        String s = Non_zooleans.get_main_properties_manager().get(SHOW_GraphicsMagick_INSTALL_WARNING);
+        String s = Non_booleans.get_main_properties_manager().get(SHOW_GraphicsMagick_INSTALL_WARNING);
         if (s == null) {
-            Non_zooleans.get_main_properties_manager().set(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
+            Non_booleans.get_main_properties_manager().set(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
             return true;
         }
         else
@@ -89,7 +106,7 @@ public class Zooleans
     public static void set_show_GraphicsMagick_install_warning(boolean b)
     //**********************************************************
     {
-        Non_zooleans.get_main_properties_manager().set(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
+        Non_booleans.get_main_properties_manager().set(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
     }
 
     static boolean ffmpeg_popup_done = false;

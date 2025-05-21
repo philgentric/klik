@@ -12,7 +12,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Filesystem_modification_reporter;
 import klik.util.log.File_logger;
@@ -72,7 +72,7 @@ public class Text_frame
 
         Stage stage = new Stage();
 
-        Rectangle2D r = Non_zooleans.get_window_bounds(TEXT_FRAME);
+        Rectangle2D r = Non_booleans.get_window_bounds(TEXT_FRAME);
         if ( r == null)
         {
             stage.setX(100);
@@ -102,7 +102,7 @@ public class Text_frame
         });
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
-            Non_zooleans.save_window_bounds(stage, TEXT_FRAME,logger);
+            Non_booleans.save_window_bounds(stage, TEXT_FRAME,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);

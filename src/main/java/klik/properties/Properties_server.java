@@ -28,6 +28,8 @@ public class Properties_server
     public static final int PROPERTY_PORT_for_set = 64913;
     public static final int PROPERTY_PORT_for_all = 64914;
     public static final String E_ND_O_F_K_EYS = "eND_oF_kEYS";
+    public static final String eNcoDeD_aS_nUlL = "eNcoDeD_aS_nUlL";
+
 
     private final Properties the_Properties;
     private final Path the_properties_path;
@@ -70,7 +72,7 @@ public class Properties_server
                 try {
                     String request = TCP_util.read_string(dis);
                     String value = the_Properties.getProperty(request);
-                    if ( value == null) value = "null";
+                    if ( value == null) value = eNcoDeD_aS_nUlL;
                     TCP_util.write_string(value, dos);
                     dos.flush();
                     if ( dbg) logger.log("Properties server GET done for " + request);
@@ -87,7 +89,7 @@ public class Properties_server
                 return "";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties TCP server", logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties GET TCP server", logger), logger);
         return tcp_server.start(PROPERTY_PORT_for_get,false);
     }
 
@@ -101,14 +103,22 @@ public class Properties_server
             @Override
             public void on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
-                try {
+                try
+                {
                     String key = TCP_util.read_string(dis);
                     String value = TCP_util.read_string(dis);
-                    the_Properties.setProperty(key, value);
+                    if ( value.equals(eNcoDeD_aS_nUlL))
+                    {
+                        the_Properties.remove(key);
+                    }
+                    else
+                    {
+                        the_Properties.setProperty(key, value);
+                    }
                     disk_store_request_queue.add(true);
                     TCP_util.write_string("ok", dos);
                     dos.flush();
-                    if ( dbg) logger.log("Properties server GET done for " + key+" "+value);
+                    if ( dbg) logger.log("Properties server SET done for " + key+" "+value);
                 }
                 catch (IOException e)
                 {
@@ -120,7 +130,7 @@ public class Properties_server
                 return "";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties TCP server", logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties SET TCP server", logger), logger);
         return tcp_server.start(PROPERTY_PORT_for_set,false);
     }
 
@@ -137,14 +147,17 @@ public class Properties_server
             {
                 try {
                     Enumeration<Object> e = the_Properties.keys();
+                    int count = 0;
                     while(e.hasMoreElements())
                     {
                         String k = (String) e.nextElement();
+                        if ( dbg) logger.log("Properties server GET key ="+k);
                         TCP_util.write_string(k, dos);
+                        count++;
                     }
                     TCP_util.write_string(E_ND_O_F_K_EYS, dos);
                     dos.flush();
-                    if ( dbg) logger.log("Properties server GET done for ALL");
+                    if ( dbg) logger.log("Properties server GET done for ALL "+count+" keys");
                 }
                 catch (IOException e)
                 {
@@ -156,18 +169,11 @@ public class Properties_server
                 return "";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties TCP server", logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties ALL KEYS TCP server", logger), logger);
         return tcp_server.start(PROPERTY_PORT_for_all,false);
     }
 
 
-
-    //**********************************************************
-    public Set<String> get_all_keys()
-    //**********************************************************
-    {
-        return the_Properties.stringPropertyNames();
-    }
 
     // trying to limit disk writes for source that can be super active
     // like the image properties cache or image feature vectors etc
@@ -215,7 +221,7 @@ public class Properties_server
     //**********************************************************
     {
        //if (dbg)
-            logger.log("Properties: save "+the_properties_path.toAbsolutePath());
+            logger.log("Properties_server: save "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
         {

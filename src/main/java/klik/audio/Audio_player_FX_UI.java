@@ -22,7 +22,7 @@ import klik.actor.Aborter;
 import klik.browser.Drag_and_drop;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 
 import javax.swing.*;
@@ -84,7 +84,7 @@ public class Audio_player_FX_UI implements Music_UI
         this.logger = logger;
         stage = new Stage();
         this.playlist = new Playlist(this, stage,logger);
-        Rectangle2D r = Non_zooleans.get_window_bounds(AUDIO_PLAYER);
+        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
         stage.setWidth(r.getWidth());
@@ -92,7 +92,7 @@ public class Audio_player_FX_UI implements Music_UI
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             //if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-            Non_zooleans.save_window_bounds(stage,AUDIO_PLAYER,logger);
+            Non_booleans.save_window_bounds(stage,AUDIO_PLAYER,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -639,7 +639,7 @@ public class Audio_player_FX_UI implements Music_UI
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value_label.setText((int)seconds+" seconds");
-            if ( seconds > 20) Non_zooleans.save_curent_time_in_song((int)seconds);
+            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds);
         });
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
@@ -657,28 +657,31 @@ public class Audio_player_FX_UI implements Music_UI
     }
 
     //**********************************************************
-    public static String get_nice_string_for_duration(double seconds)
+    public static String get_nice_string_for_duration(double seconds_in)
     //**********************************************************
     {
-        String s = (int) seconds +" s";
-        if ( seconds > 3600)
+        int d = 0;
+        int h = 0;
+        int m = 0;
+        int seconds = (int)seconds_in;
+
+        h = seconds /3600;
+        if ( h > 24)
         {
-            int h = (int) seconds /3600;
-            int m = ((int) seconds - h*3600)/60;
-            double ss = seconds - h*3600 - m*60;
-            ss *= 10;
-            ss = (double)((int)ss)/10.0;
-            s = h+ " h "+m+" m "+ ss+ " s";
+            d = h/24;
+            h = h - d*24;
+            seconds = seconds - d*24*3600 - h*3600;
         }
-        else if ( seconds > 60)
+        if ( seconds > 60)
         {
-            int m = (int) seconds /60;
-            double ss = seconds - m*60;
-            ss *= 10;
-            ss = (double)((int)ss)/10.0;
-            s = m+" m "+ ss+ " s";
+            m = seconds /60;
+            seconds = seconds - m*60;
         }
-        return s;
+        String returned = seconds+"s";
+        if( m>0) returned = m+"m "+returned;
+        if( h>0) returned = h+"h "+returned;
+        if( d>0) returned = d+"d "+returned;
+        return returned;
     }
 
     boolean equalizer_created = false;

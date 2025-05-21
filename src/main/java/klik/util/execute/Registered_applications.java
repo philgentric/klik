@@ -2,7 +2,7 @@ package klik.util.execute;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -47,7 +47,7 @@ public class Registered_applications
                     app_chooser.setDialogTitle("Please select the application to open files with the extension " + finalExtension);
                     app_chooser.setFileHidingEnabled(false);
                     app_chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                    Path home = Paths.get(System.getProperty(Non_zooleans.USER_HOME));
+                    Path home = Paths.get(System.getProperty(Non_booleans.USER_HOME));
                     app_chooser.setCurrentDirectory(home.toFile());
                     int status = app_chooser.showOpenDialog(null);
                     if (status == JFileChooser.APPROVE_OPTION) {
@@ -93,8 +93,8 @@ public class Registered_applications
     {
         if ( properties_manager == null)
         {
-            String home = System.getProperty(Non_zooleans.USER_HOME);
-            Path p = Paths.get(home, Non_zooleans.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
+            String home = System.getProperty(Non_booleans.USER_HOME);
+            Path p = Paths.get(home, Non_booleans.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
             properties_manager = new Properties_manager(p,"Registered applications DB",aborter,logger);
         }
         for (String key : properties_manager.get_all_keys())

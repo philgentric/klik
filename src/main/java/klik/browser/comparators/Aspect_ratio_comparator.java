@@ -13,18 +13,28 @@ public class Aspect_ratio_comparator implements Comparator<Path>, Clearable_RAM_
 {
     private final Image_properties_RAM_cache image_properties_ram_cache;
 
+    //**********************************************************
     public Aspect_ratio_comparator(Image_properties_RAM_cache image_properties_ram_cache)
+    //**********************************************************
     {
+        System.out.println("Aspect_ratio_comparator");
         this.image_properties_ram_cache = image_properties_ram_cache;
     }
 
 
+    //**********************************************************
     @Override
-    public void clear_RAM_cache() {
-
+    public void clear_RAM_cache()
+    //**********************************************************
+    {
+        image_properties_ram_cache.clear_cache();
     }
+
+
+    //**********************************************************
     @Override
     public int compare(Path p1, Path p2)
+    //**********************************************************
     {
         Image_properties ip1 = image_properties_ram_cache.get_from_cache(p1,null);
         if ( ip1 == null)

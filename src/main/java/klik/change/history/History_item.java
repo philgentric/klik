@@ -12,29 +12,29 @@ public class History_item
 
     public static Comparator<? super History_item> comparator_by_date = (Comparator<History_item>) (o1, o2) -> o2.time_stamp.compareTo(o1.time_stamp);
 
-    public final String path;
+    public final String value;
     public final LocalDateTime time_stamp;
     public final UUID uuid;
     private boolean available;
 
     // when reloading recorded history from file:
     //**********************************************************
-    public History_item(String path_, String time_stamp_, UUID uuid_)
+    public History_item(String value_, String time_stamp_, UUID uuid_)
     //**********************************************************
     {
-        Objects.requireNonNull(path_,"History_item constructor, path cannot be null");
+        Objects.requireNonNull(value_,"History_item constructor, path cannot be null");
         Objects.requireNonNull(time_stamp_,"History_item constructor, time_stamp cannot be null");
         Objects.requireNonNull(uuid_,"History_item constructor, uuid cannot be null");
-        path = path_;
+        value = value_;
         time_stamp = LocalDateTime.parse(time_stamp_);
         uuid = uuid_;
     }
     // when adding new stuff "live"
     //**********************************************************
-    public History_item(String path_, LocalDateTime time_stamp_)
+    public History_item(String value_, LocalDateTime time_stamp_)
     //**********************************************************
     {
-        path = path_;
+        value = value_;
         time_stamp = time_stamp_;
         uuid = UUID.randomUUID();
     }
@@ -51,7 +51,7 @@ public class History_item
     public String to_string()
     //**********************************************************
     {
-        return path +" "+time_stamp.toString()+" "+uuid;
+        return value +" "+time_stamp.toString()+" "+uuid;
     }
 
     public void set_available(boolean b)

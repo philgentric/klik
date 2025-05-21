@@ -21,9 +21,7 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Non_zooleans;
-import klik.properties.Zooleans;
-import klik.properties.Experimental_features;
+import klik.properties.Non_booleans;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
@@ -112,7 +110,7 @@ public class Item2_folder extends Item2 implements Icon_destination
             return;
         }*/
 
-        double button_width = Non_zooleans.get_column_width();
+        double button_width = Non_booleans.get_column_width();
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         Path local = get_item_path();
@@ -344,7 +342,7 @@ public class Item2_folder extends Item2 implements Icon_destination
     //**********************************************************
     {
 
-        if ( Zooleans.get_boolean(Zooleans.SINGLE_COLUMN))
+        if ( Virtual_landscape.single_column)
         {
             StringBuilder sb = new StringBuilder();
             try {
@@ -396,7 +394,7 @@ public class Item2_folder extends Item2 implements Icon_destination
                 Audio_player.play_playlist(get_item_path().toFile(),logger);
                 return;
             }
-            if (Zooleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
+            if (Virtual_landscape.enable_image_playlists )
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
                     logger.log("NOT IMPLEMENTED opening image playlist: " + get_item_path().toAbsolutePath());
@@ -497,7 +495,7 @@ public class Item2_folder extends Item2 implements Icon_destination
 
         give_a_menu_to_the_button(button,label);
 
-        //if ( Non_zooleans.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
+        //if ( Non_booleans.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
 
     }
 

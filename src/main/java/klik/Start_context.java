@@ -2,7 +2,7 @@ package klik;
 
 import javafx.application.Application;
 import klik.actor.Actor_engine;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
@@ -31,7 +31,7 @@ public record Start_context(List<String> args, int port, Path path)
         Path path = null;
         if (raw_args.isEmpty())
         {
-            path = (new File(System.getProperty(Non_zooleans.USER_HOME))).toPath();
+            path = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
         }
         else {
 

@@ -14,6 +14,7 @@ import klik.browser.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item2_file_with_icon;
+import klik.change.Redo_same_move_engine;
 import klik.change.undo.Undo_for_moves;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
@@ -21,7 +22,7 @@ import klik.image_ml.face_recognition.Face_recognition_message;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Advanced_features;
-import klik.properties.Zooleans;
+import klik.properties.Booleans;
 import klik.properties.Experimental_features;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
@@ -505,12 +506,12 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Zooleans.get_boolean(Experimental_features.enable_different_image_quality.name()))
+        if (Booleans.get_boolean(Experimental_features.enable_different_image_quality.name()))
         {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 
-        if ( Zooleans.get_boolean(Advanced_features.enable_image_similarity.name()))
+        if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
         {
             context_menu.getItems().add(Item2_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -521,7 +522,7 @@ public class Menus_for_image_window
                     image_window.logger));
         }
 
-        if ( Zooleans.get_boolean(Advanced_features.enable_face_recognition.name()))
+        if ( Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
         {
             String s = My_I18n.get_I18n_string("Face_recognition", logger);
             Menu fr_context_menu = new Menu(s);

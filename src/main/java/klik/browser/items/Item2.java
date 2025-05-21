@@ -32,15 +32,14 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.experimental.metadata.Tag_stage;
 import klik.images.Exif_stage;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Zooleans;
-import klik.properties.Experimental_features;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Folder_size;
 import klik.util.files_and_paths.From_disk;
@@ -235,7 +234,7 @@ public abstract class Item2 implements Icon_destination
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-                if ( Zooleans.get_boolean(Experimental_features.enable_tags.name()))
+                if ( Virtual_landscape.enable_tags)
                 {
                     context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
                 }
@@ -268,7 +267,7 @@ public abstract class Item2 implements Icon_destination
             context_menu.getItems().add(create_delete_menu_item());
 
             context_menu.getItems().add(Item2.create_show_file_size_menu_item(get_item_path(), dbg,logger));
-            if ( Zooleans.get_boolean(Experimental_features.enable_tags.name()))
+            if ( Virtual_landscape.enable_tags)
             {
                 context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
@@ -612,19 +611,19 @@ public abstract class Item2 implements Icon_destination
                 My_colors.save_color(get_item_path(),my_color.java_name(),logger);
                 if ( this instanceof Item2_file_no_icon ifni)
                 {
-                    double font_size = Non_zooleans.get_font_size( logger);
+                    double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color);
                 }
                 if ( this instanceof Item2_folder itf)
                 {
-                    double font_size = Non_zooleans.get_font_size( logger);
+                    double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color);
                 }
                 if ( this instanceof Item2_folder_with_icon itfwi)
                 {
-                    double font_size = Non_zooleans.get_font_size( logger);
+                    double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(itfwi.button, icon_height, color);
                 }

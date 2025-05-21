@@ -22,7 +22,7 @@ import klik.audio.Audio_player;
 import klik.browser.items.Item2_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -205,7 +205,7 @@ public class Stage_with_2_images
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
 			Path p = file.toPath();
-			Path trash_dir = Non_zooleans.get_trash_dir(p,logger);
+			Path trash_dir = Non_booleans.get_trash_dir(p,logger);
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
 			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));

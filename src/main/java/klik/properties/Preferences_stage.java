@@ -103,11 +103,11 @@ public class Preferences_stage
     {
         CheckBox cb = new CheckBox(name);
         cb.setMnemonicParsing(false);
-        Boolean v = Zooleans.get_boolean(name);
+        Boolean v = Booleans.get_boolean(name);
         if ( v == null)
         {
             v = false;
-            Zooleans.set_boolean(name,v);
+            Booleans.set_boolean(name,v);
         }
         cb.setSelected(v);
         Look_and_feel_manager.set_CheckBox_look(cb);
@@ -116,7 +116,7 @@ public class Preferences_stage
         {
             Boolean value = cb.isSelected();
             logger.log("Preference changing for: "+ name+ "new value:"+value);
-            Zooleans.set_boolean(name,value);
+            Booleans.set_boolean(name,value);
         });
         vbox.getChildren().add(cb);
     }

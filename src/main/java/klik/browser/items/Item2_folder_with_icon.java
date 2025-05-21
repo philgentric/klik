@@ -23,8 +23,7 @@ import klik.browser.virtual_landscape.*;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Zooleans;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -99,10 +98,10 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
                 logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
-        folder_icon_size = Non_zooleans.get_folder_icon_size();
+        folder_icon_size = Non_booleans.get_folder_icon_size();
         // launch content icon fabrication:
         text = text_;
-        double font_size = Non_zooleans.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         button = new Button(text);
@@ -187,7 +186,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     private void resize_the_box(Button button)
     //**********************************************************
     {
-        if ( Zooleans.get_boolean(Zooleans.SINGLE_COLUMN))
+        if ( Virtual_landscape.single_column)
         {
             button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
             button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);

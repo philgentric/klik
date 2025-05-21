@@ -66,7 +66,7 @@
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
 //SOURCES look/my_i18n/Language_manager.java
-//SOURCES properties/Non_zooleans.java
+//SOURCES properties/Non_booleans.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
 //SOURCES util/log/File_logger.java
@@ -75,7 +75,7 @@
 //SOURCES util/info_stage/*.java
 //SOURCES util/tcp/TCP_client.java
 //SOURCES util/tcp/TCP_client_out.java
-//SOURCES properties/Zooleans.java
+//SOURCES properties/Booleans.java
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/icons/Virtual_landscape.java
@@ -94,7 +94,7 @@
 //SOURCES image_ml/face_recognition/Face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java
-//SOURCES properties/Bookmarks.java
+//SOURCES change/bookmarks/Bookmarks.java
 //SOURCES actor/Message.java
 //SOURCES actor/Job.java
 package klik;

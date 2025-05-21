@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Zooleans;
+import klik.properties.Booleans;
 import klik.util.files_and_paths.Ding;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
@@ -429,7 +429,7 @@ public class Finder_frame implements Search_receiver
 		{
 			long now = System.currentTimeMillis();
 			if (now - start_time > 3000) {
-				if (Zooleans.get_boolean(Zooleans.DING_IS_ON)) {
+				if (Booleans.get_boolean(Booleans.DING_IS_ON)) {
 					Ding.play("File finder took more than 3 seconds", logger);
 				}
 			}

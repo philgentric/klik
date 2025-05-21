@@ -104,7 +104,9 @@ public class TCP_client
 
     }
 
+    //**********************************************************
     public static List<String> request_all_keys(String host, int port_number, Logger logger)
+    //**********************************************************
     {
         try( Socket client_socket = new Socket(host,port_number);
              DataInputStream dis = new DataInputStream(client_socket.getInputStream());
@@ -115,7 +117,7 @@ public class TCP_client
             for(;;)
             {
                 String k = TCP_util.read_string(dis);
-                if ( k.equals("end")) break;
+                if ( k.equals(Properties_server.E_ND_O_F_K_EYS)) break;
                 result.add(k);
             }
             return result;

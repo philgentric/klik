@@ -11,7 +11,6 @@ import klik.browser.Drag_and_drop;
 import klik.browser.items.Item2;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Zooleans;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -329,7 +328,7 @@ public class Selection_handler
     //**********************************************************
     {
         reset_selection();
-        add_into_selected_files(path_list_provider.only_files(Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_FILES)));
+        add_into_selected_files(path_list_provider.only_files(Virtual_landscape.show_hidden_files));
         set_select_all_files(true);
     }
 }

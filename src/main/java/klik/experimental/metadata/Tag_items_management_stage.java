@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import klik.actor.Aborter;
 import klik.properties.IProperties;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
 
@@ -43,7 +43,7 @@ public class Tag_items_management_stage
         the_stage.setHeight(300);
         the_stage.setTitle("Manage stored tags");
 
-        IProperties pm = Non_zooleans.get_main_properties_manager();
+        IProperties pm = Non_booleans.get_main_properties_manager();
 
 /*
         Set<String> l = pm.get_all_keys();

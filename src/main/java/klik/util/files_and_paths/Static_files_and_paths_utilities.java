@@ -14,10 +14,10 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_zooleans;
-import klik.properties.Zooleans;
+import klik.properties.Non_booleans;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
@@ -209,7 +209,7 @@ public class Static_files_and_paths_utilities
             logger.log("nothing to delete");
             return;
         }
-        Path trash_dir = Non_zooleans.get_trash_dir(paths.get(0),logger);
+        Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
             return;
@@ -229,7 +229,7 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Non_zooleans.get_trash_dir(path,logger);
+        Path trash_dir = Non_booleans.get_trash_dir(path,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
             return;
@@ -300,7 +300,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
 
-        Path tmp_dir = Non_zooleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -314,7 +314,7 @@ public class Static_files_and_paths_utilities
     {
 
 
-        Path tmp_dir = Non_zooleans.get_absolute_dir_on_user_home(Cache_folder.klik_icon_cache.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -325,7 +325,7 @@ public class Static_files_and_paths_utilities
     public static Path get_folders_icons_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Non_zooleans.get_absolute_dir_on_user_home(Cache_folder.klik_folder_icon_cache.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("folder icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -348,7 +348,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Path icon_cache_dir = get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
-        int icon_size = Non_zooleans.get_icon_size();
+        int icon_size = Non_booleans.get_icon_size();
         String name = Icon_writer_actor.make_cache_name(path.toAbsolutePath().toString(), String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
         try {
@@ -413,7 +413,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Runnable r = () -> {
-            List<Path> trashes = Non_zooleans.get_existing_trash_dirs(logger);
+            List<Path> trashes = Non_booleans.get_existing_trash_dirs(logger);
             String s1 = My_I18n.get_I18n_string("Warning_delete", logger);
             double size = 0;
             for (Path trash : trashes) {
@@ -575,7 +575,6 @@ public class Static_files_and_paths_utilities
     private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        boolean count_hidden_files = Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_FILES);
         if ( !path.toFile().isDirectory())
         {
             logger.log(Stack_trace_getter.get_stack_trace("Stupid4: not a folder: "+path));
@@ -586,7 +585,7 @@ public class Static_files_and_paths_utilities
         {
             if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath()))
             {
-                if ( !count_hidden_files)
+                if ( !Virtual_landscape.show_hidden_files)
                 {
                     file_count_stop_counter.decrementAndGet();
                     return;
@@ -668,7 +667,7 @@ public class Static_files_and_paths_utilities
                 Runnable rr = new Runnable() {
                     @Override
                     public void run() {
-                        if ( s.contains("AccessDeniedException") && s.contains(Non_zooleans.TRASH_DIR))
+                        if ( s.contains("AccessDeniedException") && s.contains(Non_booleans.TRASH_DIR))
                         {
                             Popups.popup_warning(null,"There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,logger);
                         }
@@ -1099,12 +1098,12 @@ public class Static_files_and_paths_utilities
 
     public static Path get_cache_folder(Cache_folder cache_folder, Logger logger)
     {
-        return Non_zooleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
+        return Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
     }
 
     public static Path get_face_reco_folder(Logger logger)
     {
-        return Non_zooleans.get_absolute_hidden_dir_on_user_home(Non_zooleans.FACE_RECO_DIR, false, logger);
+        return Non_booleans.get_absolute_hidden_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, logger);
     }
 
 

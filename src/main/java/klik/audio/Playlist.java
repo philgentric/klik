@@ -15,7 +15,7 @@ import klik.change.undo.Undo_core;
 import klik.change.undo.Undo_item;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -277,7 +277,7 @@ public class Playlist
         Button future = file_to_button.get(f);
         if ( future == null)
         {
-            logger.log("WARNING: this file is not mapped: " + f);
+            if ( dbg) logger.log("WARNING: this file is not mapped: " + f);
             return;
         }
         if ( selected != null)
@@ -327,7 +327,7 @@ public class Playlist
         Integer current_time_s;
         if (new_song == null)
         {
-            String path = Non_zooleans.get_current_song();
+            String path = Non_booleans.get_current_song();
             if (path == null)
             {
                 current_time_s = null;
@@ -338,7 +338,7 @@ public class Playlist
             else
             {
                 new_song = path;
-                current_time_s = Non_zooleans.get_current_time_in_song();
+                current_time_s = Non_booleans.get_current_time_in_song();
             }
             if (new_song == null)
             {
@@ -350,7 +350,7 @@ public class Playlist
         {
             if ((new File(new_song)).exists() == false)
             {
-                logger.log(("FATAL: " + new_song + " does not exist"));
+                if ( dbg) logger.log(("warning: " + new_song + " does not exist"));
                 the_music_ui.set_status("File not found: " + new_song);
                 remove_from_playlist(new_song);
                 save_playlist();
@@ -362,8 +362,7 @@ public class Playlist
 
 
         double bitrate = Ffmpeg_utils.get_audio_bitrate(null, Path.of(new_song), logger);
-        //logger.log("bitrate= "+bitrate);
-        logger.log(  (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
+        if ( dbg) logger.log(  (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
         the_music_ui.set_status("Status: OK for:" + (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
 
 
@@ -375,7 +374,7 @@ public class Playlist
 
         the_music_ui.play_song_with_new_media_player(new_song, current_time_s);
         set_selected(the_song_path);
-        Non_zooleans.save_current_song(new_song);
+        Non_booleans.save_current_song(new_song);
 
     }
 
@@ -420,7 +419,7 @@ public class Playlist
     {
         if (!Guess_file_type.is_this_extension_an_audio(Static_files_and_paths_utilities.get_extension((new File(song)).getName())))
         {
-            logger.log("Rejected as a possible song due to extension: "+(new File(song)).getName());
+            if ( dbg) logger.log("Rejected as a possible song due to extension: "+(new File(song)).getName());
             return;
         }
         String parent = (new File(song)).getParent();
@@ -475,7 +474,7 @@ public class Playlist
     public static File get_playlist_file()
     //**********************************************************
     {
-        String playlist_file_name = Non_zooleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME);
+        String playlist_file_name = Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME);
         if (playlist_file_name != null)
         {
             Path p = Path.of(playlist_file_name);
@@ -490,9 +489,9 @@ public class Playlist
 
         // new empty playlist with default name
         playlist_file_name = "playlist." + Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION;
-        Non_zooleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file_name);
-        String home = System.getProperty(Non_zooleans.USER_HOME);
-        Path p = Paths.get(home, Non_zooleans.CONF_DIR, playlist_file_name);
+        Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file_name);
+        String home = System.getProperty(Non_booleans.USER_HOME);
+        Path p = Paths.get(home, Non_booleans.CONF_DIR, playlist_file_name);
         return p.toFile();
     }
 
@@ -502,9 +501,9 @@ public class Playlist
     //**********************************************************
     {
         playlist_file = get_playlist_file();
-        //logger.log("playlist_file="+playlist_file.getAbsolutePath());
+        if ( dbg) logger.log("playlist_file="+playlist_file.getAbsolutePath());
         String playlist_name_s = extract_playlist_name();
-        logger.log("playlist_name=" + playlist_name_s);
+        if ( dbg) logger.log("playlist_name=" + playlist_name_s);
         return playlist_name_s;
     }
 
@@ -521,11 +520,11 @@ public class Playlist
     void jump_to_next()
     //**********************************************************
     {
-        logger.log("jumping to next song");
+        if ( dbg) logger.log("jumping to next song");
 
         if (the_playlist.isEmpty())
         {
-            logger.log("empty playlist");
+            logger.log("Warning: empty playlist");
             return;
         }
 
@@ -534,7 +533,7 @@ public class Playlist
             String file = the_playlist.get(i);
             if (file.equals(the_song_path))
             {
-                logger.log("found current song in playlist as #" + i);
+                if ( dbg) logger.log("found current song in playlist as #" + i);
 
                 int k = i + 1;
                 if (k >= the_playlist.size()) k = 0;
@@ -543,7 +542,7 @@ public class Playlist
                 return;
             }
         }
-        logger.log("jumping to next song ... ??? current song not found");
+        logger.log("FATAL: jumping to next song ... ??? current song not found");
 
     }
 
@@ -577,7 +576,7 @@ public class Playlist
             if (file.equals(target))
             {
                 double returned = (double) i / (double) (the_playlist.size() - 1);
-                logger.log(" scroll to " + i + " => " + returned);
+                if ( dbg) logger.log(" scroll to " + i + " => " + returned);
                 return returned;
             }
         }
@@ -594,7 +593,7 @@ public class Playlist
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (saving_dir == null)
         {
-            String home = System.getProperty(Non_zooleans.USER_HOME);
+            String home = System.getProperty(Non_booleans.USER_HOME);
             saving_dir = new File(home, "playlists");
             if (!saving_dir.exists())
             {
@@ -647,7 +646,7 @@ public class Playlist
     public void change_play_list_name(String new_playlist_name)
     //**********************************************************
     {
-        Non_zooleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, new_playlist_name);
+        Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, new_playlist_name);
         playlist_file = new File(saving_dir, new_playlist_name);
         save_playlist();
         the_music_ui.set_playlist_name_display(extract_playlist_name());
@@ -692,7 +691,7 @@ public class Playlist
                 add_to_playlist(song_path);
             }
             playlist_file = playlist_file_;
-            Non_zooleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
+            Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
 
             logger.log("\n\nloaded " + the_playlist.size() + " songs from file:" + playlist_file.getAbsolutePath() + "\n\n");
             update_playlist_size_info();
@@ -770,7 +769,7 @@ public class Playlist
     {
         String to_be_removed = the_song_path;
         jump_to_next(); // will change the song
-        logger.log("removing from playlist: " + to_be_removed);
+        if ( dbg) logger.log("removing from playlist: " + to_be_removed);
         remove_from_playlist(to_be_removed);
         save_playlist();
     }
@@ -783,7 +782,7 @@ public class Playlist
         Undo_item last = undo_core.get_most_recent();
         if (last == null)
         {
-            logger.log("nothing to undo");
+            if ( dbg) logger.log("nothing to undo");
             return;
         }
         List<Old_and_new_Path> l = last.oans;
@@ -792,7 +791,7 @@ public class Playlist
             //if ( o.cmd != Command_old_and_new_Path.command_remove_for_playlist) continue;
             //if ( o.status != Status_old_and_new_Path.before_command) continue;
             if (o.old_Path == null) continue;
-            logger.log("undo remove from play list for" + o.old_Path);
+            if ( dbg) logger.log("undo remove from play list for" + o.old_Path);
             add_to_playlist(o.old_Path.toAbsolutePath().toString());
         }
 
@@ -811,10 +810,10 @@ public class Playlist
         if ( the_playlist.contains(added_song))
         {
             // that song is ALREADY in the list
-            logger.log("Song already listed: "+added_song);
+            if ( dbg) logger.log("Song already listed: "+added_song);
             return false;
         }
-        logger.log("Added song: "+added_song);
+        if ( dbg) logger.log("Added song: "+added_song);
         add_to_playlist(added_song);
         return true;
     }

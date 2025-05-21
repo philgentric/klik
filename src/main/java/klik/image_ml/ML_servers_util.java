@@ -1,6 +1,7 @@
 package klik.image_ml;
 
 import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -278,9 +279,10 @@ public class ML_servers_util
                 list_of_ports += port + " ";
             }
             String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_MobileNet_servers "+list_of_ports;
-            TextField tf = new TextField(cmd);
+            TextArea tf = new TextArea(cmd);
             Look_and_feel_manager.set_region_look(tf);
             tf.setEditable(false);
+            tf.setWrapText(true);
             vb.getChildren().add(tf);
         }
 

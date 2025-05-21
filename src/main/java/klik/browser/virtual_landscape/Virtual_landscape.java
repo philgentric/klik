@@ -94,6 +94,20 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private static final double MARGIN_Y = 50;
     public static final String CONTACT_SHEET_FILE_NAME = "contact_sheet.pdf";
 
+    public static boolean single_column = Booleans.get_boolean(Booleans.SINGLE_COLUMN);
+    public static boolean enable_image_playlists = Booleans.get_boolean(Experimental_features.enable_image_playlists.name());
+    public static boolean enable_tags = Booleans.get_boolean(Experimental_features.enable_tags.name());
+    public static boolean enable_fusk = Booleans.get_boolean(Experimental_features.enable_fusk.name());
+    public static boolean fusk_is_active = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
+    public static boolean show_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
+    public static boolean show_hidden_folders = Booleans.get_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES);
+    public static boolean show_icons_instead_of_text = Booleans.get_boolean_defaults_to_true(Booleans.SHOW_ICONS);
+    public static boolean icons_for_folders = Booleans.get_boolean_defaults_to_true(Booleans.ICONS_FOR_FOLDERS);
+    public static boolean exit_on_escape = Booleans.get_boolean_defaults_to_true(Booleans.ESCAPE_FAST_EXIT);
+
+
+
+
 
     public final Aborter aborter;
     final Logger logger;
@@ -187,7 +201,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         selection_handler = new Selection_handler(the_Pane, this, this, logger);
 
         browser_menus = new Virtual_landscape_menus(this, change_receiver, owner);
-        //exit_on_escape_preference = Zooleans.get_boolean(Zooleans.ESCAPE_FAST_EXIT,logger);
+        //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
         the_Scene = define_UI();
 
 
@@ -209,7 +223,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         set_scroll_to_listener(vertical_slider);
 
 
-        double font_size = Non_zooleans.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
         start_redraw_engine(owner, aborter, logger);
     }
@@ -496,10 +510,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void change_icon_size(double fac)
     //**********************************************************
     {
-        int new_icon_size = (int) (Non_zooleans.get_icon_size() * fac);
+        int new_icon_size = (int) (Non_booleans.get_icon_size() * fac);
         if (new_icon_size < 20) new_icon_size = 20;
         if ( Browser.keyboard_dbg) logger.log("new icon size = "+new_icon_size);
-        Non_zooleans.set_icon_size(new_icon_size);
+        Non_booleans.set_icon_size(new_icon_size);
         //icon_manager.modify_button_fonts(fac);
         redraw_fx("new icon size "+new_icon_size);
     }
@@ -532,7 +546,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         Path scroll_to = Browsing_caches.scroll_position_cache.get(path_list_provider.get_name());
 
-        logger.log("yop getting scroll to ->"+scroll_to+"<- for: "+path_list_provider.get_name());
+        logger.log("getting scroll to ->"+scroll_to+"<- for: "+path_list_provider.get_name());
         return scroll_to;
     }
 
@@ -694,9 +708,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        double file_button_height = 2 * Non_zooleans.get_font_size(logger);
+        double file_button_height = 2 * Non_booleans.get_font_size(logger);
 
-        boolean show_icons_instead_of_text = Zooleans.get_boolean(Zooleans.SHOW_ICONS);
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = 0;
         List<Item2> current_row = new ArrayList<>();
@@ -836,7 +849,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         // manage the non-iconifed-files section
-        double row_increment_for_files = 2 * Non_zooleans.get_font_size(logger);
+        double row_increment_for_files = 2 * Non_booleans.get_font_size(logger);
 
         for (Path path : paths_manager.non_iconized.keySet())
         {
@@ -910,7 +923,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (dbg) logger.log("Virtual_landscape process_folders (0) ");
 
         double actual_row_increment;
-        if ( Zooleans.get_boolean(Zooleans.ICONS_FOR_FOLDERS))
+        if ( Virtual_landscape.icons_for_folders)
         {
             actual_row_increment = row_increment_for_dirs_with_picture;
 
@@ -1125,7 +1138,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         //logger.log("check_visibility: "+ all_items_map.values().size()+" items are ready "+from);
         double pane_height = the_Pane.getHeight();
-        int icon_size = Non_zooleans.get_icon_size();
+        int icon_size = Non_booleans.get_icon_size();
         double min_y = Double.MAX_VALUE;
         for (Item2 item : all_items_map.values())
         {
@@ -1581,7 +1594,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        double font_size = Non_zooleans.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(logger);
         double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
         Button up_button;
@@ -1614,7 +1627,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             String trash_text = My_I18n.get_I18n_string("Trash", logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
-                    Non_zooleans.get_trash_dir(path_list_provider.get_folder_path(),logger),
+                    Non_booleans.get_trash_dir(path_list_provider.get_folder_path(),logger),
                     trash_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -1650,7 +1663,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void apply_font()
     //**********************************************************
     {
-        if (dbg) logger.log("applying font size " + Non_zooleans.get_font_size(logger));
+        if (dbg) logger.log("applying font size " + Non_booleans.get_font_size(logger));
         for (Node x : always_on_front_nodes) {
             Font_size.apply_font_size(x,logger);
         }
@@ -1724,7 +1737,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String undo_bookmark_history = My_I18n.get_I18n_string("Bookmarks", logger);
             undo_bookmark_history += " & " + My_I18n.get_I18n_string("History", logger);
             Button undo_bookmark_history_button = new Button(undo_bookmark_history);
-            undo_bookmark_history_button.setOnAction(e -> button_undo_bookmark_history(e));
+            undo_bookmark_history_button.setOnAction(e -> button_undo_and_bookmark_and_history(e));
             top_pane.getChildren().add(undo_bookmark_history_button);
             top_buttons.add(undo_bookmark_history_button);
             always_on_front_nodes.add(undo_bookmark_history_button);
@@ -1764,12 +1777,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    private void button_undo_bookmark_history(ActionEvent e)
+    private void button_undo_and_bookmark_and_history(ActionEvent e)
     //**********************************************************
     {
-        ContextMenu undo_bookmark_history = define_contextmenu_undo_bookmark_history();
+        ContextMenu undo_and_bookmark_and_history = define_contextmenu_undo_bookmark_history();
         Button b = (Button) e.getSource();
-        undo_bookmark_history.show(b, Side.TOP, 0, 0);
+        undo_and_bookmark_and_history.show(b, Side.TOP, 0, 0);
     }
 
     //**********************************************************
@@ -1871,7 +1884,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(logger)));
 
 
-        if (Zooleans.get_boolean(Experimental_features.enable_tags.name()))
+        if (Virtual_landscape.enable_tags)
         {
             view_menu.getItems().add(browser_menus.make_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(aborter,logger)));
         }
@@ -1893,7 +1906,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String create_string = My_I18n.get_I18n_string("Create",logger);
             Menu create = new Menu(create_string);
             create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
-            if (Zooleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
+            if (Virtual_landscape.enable_image_playlists)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
                 //create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
@@ -1913,7 +1926,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             files_menu.getItems().add(search);
         }
-        if (Zooleans.get_boolean(Advanced_features.enable_face_recognition.name()))
+        if (Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
         {
             Menu face_recognition = new Menu("Face recognition");
             face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());
@@ -1928,21 +1941,21 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String cleanup = My_I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (Zooleans.get_boolean(Advanced_features.enable_recursive_empty_folders_removal.name()))
+            if (Booleans.get_boolean(Advanced_features.enable_recursive_empty_folders_removal.name()))
             {
                 clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
             }
-            if (Zooleans.get_boolean(Experimental_features.enable_clean_up_names.name()) )
+            if (Booleans.get_boolean(Experimental_features.enable_clean_up_names.name()) )
             {
                 clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
             }
-            if ( Zooleans.get_boolean(Experimental_features.enable_remove_corrupted_images.name()) )
+            if ( Booleans.get_boolean(Experimental_features.enable_remove_corrupted_images.name()) )
             {
                 clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
             }
 
 
-            if (Zooleans.get_boolean(Advanced_features.enable_bit_level_deduplication.name()) )
+            if (Booleans.get_boolean(Advanced_features.enable_bit_level_deduplication.name()) )
             {
                 Menu deduplicate = new Menu("File deduplication tool");
                 deduplicate.getItems().add(create_help_on_deduplication_menu_item());
@@ -1952,7 +1965,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 clean.getItems().add(deduplicate);
             }
 
-            if (Zooleans.get_boolean(Advanced_features.enable_image_similarity.name()) )
+            if (Booleans.get_boolean(Advanced_features.enable_image_similarity.name()) )
             {
                 MenuItem deduplicate_menu_item = create_manual_deduplication_by_similarity_menu_item2();
                 clean.getItems().add(deduplicate_menu_item);
@@ -1963,14 +1976,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             files_menu.getItems().add(clean);
         }
 
-        if (Zooleans.get_boolean(Experimental_features.enable_backup.name()))
+        if (Booleans.get_boolean(Experimental_features.enable_backup.name()))
         {
             files_menu.getItems().add(browser_menus.make_backup_menu());
         }
 
-        if (Zooleans.get_boolean(Experimental_features.enable_fusk.name()) )
+        if (enable_fusk )
         {
-            if (Zooleans.get_boolean(Zooleans.FUSK_IS_ACTIVE))
+            if (fusk_is_active)
             {
                 files_menu.getItems().add(browser_menus.make_fusk_menu());
             }
@@ -2018,7 +2031,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void sort_by_year_internal()
     //**********************************************************
     {
-        List<File> files = path_list_provider.only_files(Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_FILES));
+        List<File> files = path_list_provider.only_files(Virtual_landscape.show_hidden_files);
         if (files == null) {
             logger.log("ERROR: cannot list files in " + path_list_provider.get_name());
         }
@@ -2129,7 +2142,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if ( !Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger))
         {
 
-            Zooleans.manage_show_GraphicsMagick_install_warning(owner,logger);
+            Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 
             Popups.popup_warning(owner, "Contact sheet generation command failed:", warning_GraphicsMagick,false,logger);
         }
@@ -2216,10 +2229,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
 
-        //if (Zooleans.get_boolean(Zooleans.AUTO_PURGE_DISK_CACHES,logger)) {
+        //if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger)) {
         pref.getItems().add(browser_menus.make_auto_purge_disk_caches_check_menu_item());
         //}
-        //if (Zooleans.get_boolean(Zooleans.MONITOR_BROWSED_FOLDERS,logger)) {
+        //if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger)) {
         pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
         pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
         //}
@@ -2228,7 +2241,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
 
         pref.getItems().add(browser_menus.make_icon_size_menu());
-        if ( Zooleans.get_boolean(Zooleans.ICONS_FOR_FOLDERS))
+        if ( Virtual_landscape.icons_for_folders)
         {
             pref.getItems().add(browser_menus.make_folder_icon_size_menu());
         }
@@ -2240,16 +2253,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         pref.getItems().add(browser_menus.make_ding_menu_item());
         pref.getItems().add(browser_menus.make_escape_menu_item());
         pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item());
-        if (Zooleans.get_boolean(Advanced_features.enable_face_recognition.name()))
+        if (Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
         {
             pref.getItems().add(browser_menus.make_start_face_recognition_menu_item());
         }
-        if (Zooleans.get_boolean(Advanced_features.enable_image_similarity.name()))
+        if (Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
         {
             pref.getItems().add(browser_menus.make_start_image_similarity_servers_menu_item());
         }
 
-        if (Zooleans.get_boolean(Experimental_features.enable_fusk.name()))
+        if (Virtual_landscape.enable_fusk)
         {
             pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
         }
@@ -2263,7 +2276,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     event -> Static_files_and_paths_utilities.clear_trash(true,owner, aborter, logger)));
 
             pref.getItems().add(browser_menus.make_clear_all_caches_menu_item());
-            if (Zooleans.get_boolean(Advanced_features.enable_detailed_cache_cleaning_options.name()))
+            if (Booleans.get_boolean(Advanced_features.enable_detailed_cache_cleaning_options.name()))
             {
 
                 Menu cleanup = new Menu(My_I18n.get_I18n_string("Cache_cleaning",logger));
@@ -2750,12 +2763,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         logger.log("Virtual_landscape: set_comparators");
+
+
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
 
-        other_file_comparator = File_sort_by.get_preliminary_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
-                x,y,aborter,logger);
+        other_file_comparator = File_sort_by.get_non_image_comparator(path_list_provider, logger);
 
-        image_file_comparator = other_file_comparator;
+        image_file_comparator = File_sort_by.get_image_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
+                x,y,aborter,logger);;
 
         // these MUST be mutually exclusive:
         paths_manager.folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
@@ -2769,9 +2784,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         logger.log("Virtual_landscape: scan_list");
 
-        boolean show_icons_instead_of_text = Zooleans.get_boolean(Zooleans.SHOW_ICONS);
-        boolean show_hidden_files = Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_FILES);
-        boolean show_hidden_directories = Zooleans.get_boolean(Zooleans.SHOW_HIDDEN_DIRECTORIES);
 
         if ( dbg) if (Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
 
@@ -2781,7 +2793,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             //for ( File f : files)
 
-            for ( Path path : path_list_provider.only_folder_paths(show_hidden_directories)) {
+            for ( Path path : path_list_provider.only_folder_paths(show_hidden_folders)) {
                 if (dbg) logger.log("Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                 if (aborter.should_abort()) {
@@ -2832,7 +2844,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Actor_engine.execute(r,logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
-            if (Zooleans.get_boolean(Zooleans.DING_IS_ON)) {
+            if (Booleans.get_boolean(Booleans.DING_IS_ON)) {
                 Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }
@@ -2902,17 +2914,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
 
         if ( dbg) logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
-        boolean single_column = Zooleans.get_boolean(Zooleans.SINGLE_COLUMN);
         if (scroll_dbg) logger.log(("geometry_changed single_column="+single_column));
 
         if ( dbg) logger.log("Virtual_landscape map_buttons_and_icons");
 
-        double row_increment_for_dirs = 2 * Non_zooleans.get_font_size(logger);
-        int folder_icon_size = Non_zooleans.get_folder_icon_size();
-        int column_increment_for_folders = Non_zooleans.get_column_width();
+        double row_increment_for_dirs = 2 * Non_booleans.get_font_size(logger);
+        int folder_icon_size = Non_booleans.get_folder_icon_size();
+        int column_increment_for_folders = Non_booleans.get_column_width();
         if ( column_increment_for_folders < folder_icon_size) column_increment_for_folders = folder_icon_size;
 
-        int icon_size = Non_zooleans.get_icon_size();
+        int icon_size = Non_booleans.get_icon_size();
         int column_increment_for_icons = icon_size;
 
         if ( single_column)
@@ -2926,7 +2937,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         double scene_width = the_Scene.getWidth();
 
-        double top_delta_y = 2 * Non_zooleans.get_font_size(logger);
+        double top_delta_y = 2 * Non_booleans.get_font_size(logger);
         if (error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
             show_error_icon(iv_denied,top_delta_y);
@@ -3030,7 +3041,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         if ( local_file_comparator == null)
         {
-            logger.log("SHOOOOOOOOOOOOT local_file_comparator is null");
+            logger.log("FATAL: local_file_comparator is null");
         }
         else
         {

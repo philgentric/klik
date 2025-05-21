@@ -16,7 +16,7 @@ import klik.browser.items.Item2_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
-import klik.properties.Non_zooleans;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Fast_date_from_OS;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
@@ -520,13 +520,13 @@ public class Image_context
     //**********************************************************
     {
         String old_file_name = path.getFileName().toString().toLowerCase();
-        if (old_file_name.contains(Non_zooleans.ULTIM))
+        if (old_file_name.contains(Non_booleans.ULTIM))
         {
-            logger.log("no vote, name already contains " + Non_zooleans.ULTIM);
+            logger.log("no vote, name already contains " + Non_booleans.ULTIM);
             return Optional.empty();
         }
 
-        Path new_path = Moving_files.generate_new_candidate_name(path,"", Non_zooleans.ULTIM, logger);
+        Path new_path = Moving_files.generate_new_candidate_name(path,"", Non_booleans.ULTIM, logger);
         return image_stage.change_name_of_file(new_path);
     }
 
