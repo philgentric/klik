@@ -5,13 +5,17 @@ import klik.util.log.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+//**********************************************************
 public class Properties_with_base
+//**********************************************************
 {
     private final String key_base; // base name in properties file
     private final IProperties ip;
     private final int max;
 
+    //**********************************************************
     public Properties_with_base(IProperties ip, String key_base, int max, Logger logger)
+    //**********************************************************
     {
         this.max = max;
         this.key_base = key_base;
@@ -26,7 +30,7 @@ public class Properties_with_base
         for (int i = 0; i < max; i++)
         {
             String path = ip.get(key_base + i);
-            System.out.println("complex item: "+(key_base + i)+"->"+path+"<-");
+            System.out.println((key_base + i)+"->"+path+"<-");
             if (path != null) returned.add(path);
         }
         return returned;
@@ -85,12 +89,6 @@ public class Properties_with_base
     //**********************************************************
     {
         System.out.println("bookmark clearing: ->"+key_base+"<-");
-        for (int i = 0; i < max; i++)
-        {
-            String path = ip.get(key_base + i);
-            if ( path == null) continue;
-            System.out.println("bookmark clearing slot: ->"+i+"<-");
-            ip.remove(key_base+i);
-        }
+        ip.clear();
     }
 }

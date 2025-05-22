@@ -13,24 +13,24 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public static final double half_slider_width = 20;
+    public static final double slider_width = 40;
     final Slider the_Slider;
     Logger logger;
     private final Aborter aborter;
-    Pane pane;
+    Pane the_big_display_pane;
     public static boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED);
 
     //**********************************************************
     public Vertical_slider(
             Window stage,
-            Pane pane_,
+            Pane the_big_display_pane,
             Virtual_landscape virtual_landscape,
-            Logger logger_)
+            Logger logger)
     //**********************************************************
     {
         this.aborter = virtual_landscape.aborter;
-        logger = logger_;
-        pane = pane_;
+        this.logger = logger;
+        this.the_big_display_pane = the_big_display_pane;
 
 
         // we set 100 as pixel_height is not known at slider creation time
@@ -38,8 +38,6 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         double max = 100;
         double val = 0;
         the_Slider = new Slider(min,max,val);//Virtual_landscape.landscape_height);
-
-        pane.getChildren().add(the_Slider);
 
         the_Slider.setOrientation(Orientation.VERTICAL);
         the_Slider.toFront();
@@ -75,13 +73,13 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     //**********************************************************
     {
         if ( dbg) logger.log("virtual_landscape_height="+virtual_landscape_height);
-        if ( dbg) logger.log("pane_height="+pane.getHeight());
+        if ( dbg) logger.log("pane_height="+ the_big_display_pane.getHeight());
 
-        double pixel_height = virtual_landscape_height - pane.getHeight();
+        double pixel_height = virtual_landscape_height - the_big_display_pane.getHeight();
         if (pixel_height < 0)
         {
             // the virtual landscape height is smaller than the pane's height
-            pixel_height = pane.getHeight();
+            pixel_height = the_big_display_pane.getHeight();
         }
         if ( dbg)
             logger.log("pixel_height (slider SETMAX to) ="+pixel_height);
@@ -217,8 +215,6 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     //**********************************************************
     {
         if ( dbg) logger.log("adapt_slider_to_scene stage.getWidth()="+stage.getWidth()+" h = "+stage.getHeight());
-        the_Slider.setTranslateX(stage.getWidth() - half_slider_width);//vertical.getWidth());
-        the_Slider.setTranslateY(half_slider_width);//vertical.getWidth());
         double height = stage.getHeight() - 100;
         the_Slider.setPrefHeight(height);//2 * half_slider_width);
 

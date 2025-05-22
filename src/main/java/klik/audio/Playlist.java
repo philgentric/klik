@@ -269,15 +269,28 @@ public class Playlist
 
 
     //**********************************************************
-    private void set_selected(String f)
+    private void set_selected(String path)
     //**********************************************************
     {
 
-        if (dbg) logger.log("set_selected " + f);
-        Button future = file_to_button.get(f);
+        if (dbg) logger.log("set_selected " + path);
+
+        if ( (new File(path)).exists() == false)
+
+        {
+            logger.log("this file is gone: " + path);
+            if ( the_playlist.isEmpty())
+            {
+                // nothing to play
+                return;
+            }
+            path = the_playlist.get(0);
+        }
+
+        Button future = file_to_button.get(path);
         if ( future == null)
         {
-            if ( dbg) logger.log("WARNING: this file is not mapped: " + f);
+            if ( dbg) logger.log("WARNING: this file is not mapped: " + path);
             return;
         }
         if ( selected != null)
@@ -285,14 +298,17 @@ public class Playlist
             if (selected == future)
             {
                 // already selected
-                if (dbg) logger.log("already selected " + f);
+                if (dbg) logger.log("already selected " + path);
                 return;
             }
             set_background_to(future, "#90D5FF");
             reset_background_to_default(selected);
         }
         selected = future;
-        the_music_ui.scroll_to(f);
+
+        the_music_ui.scroll_to(path);
+        Non_booleans.save_current_song(path);
+
 
     }
 
@@ -374,7 +390,6 @@ public class Playlist
 
         the_music_ui.play_song_with_new_media_player(new_song, current_time_s);
         set_selected(the_song_path);
-        Non_booleans.save_current_song(new_song);
 
     }
 
@@ -467,6 +482,7 @@ public class Playlist
             playlist_file = get_playlist_file();
         }
         load_playlist(playlist_file);
+        change_song(null);
     }
 
 
@@ -542,7 +558,8 @@ public class Playlist
                 return;
             }
         }
-        logger.log("FATAL: jumping to next song ... ??? current song not found");
+        logger.log("jumping to next song but current song not found");
+        change_song(null);
 
     }
 
@@ -563,6 +580,8 @@ public class Playlist
                 return;
             }
         }
+        logger.log("jumping to previous song but current song not found");
+        change_song(null);
     }
 
 

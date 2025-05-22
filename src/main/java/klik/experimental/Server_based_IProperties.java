@@ -63,4 +63,13 @@ public class Server_based_IProperties implements IProperties
     public String get_tag() {
         return "Server_based_IProperties";
     }
+
+    @Override
+    public void clear() {
+        List<String> keys = get_all_keys();
+        for (String k : keys)
+        {
+            remove(k);
+        }
+    }
 }

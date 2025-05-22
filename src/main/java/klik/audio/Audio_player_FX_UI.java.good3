@@ -45,7 +45,7 @@ public class Audio_player_FX_UI implements Music_UI
     Button save_playlist_under_a_new_name;
     Button next;
     Button previous;
-    Button play_pause_button;
+    Button play_pause;
     Slider balance_slider;
     Slider the_timeline_slider;
     VBox the_vertical_box;
@@ -84,12 +84,6 @@ public class Audio_player_FX_UI implements Music_UI
         this.logger = logger;
         stage = new Stage();
         this.playlist = new Playlist(this, stage,logger);
-
-
-        pause_string = My_I18n.get_I18n_string(PAUSE,logger);
-        play_string = My_I18n.get_I18n_string(PLAY,logger);
-        logger.log("play_string = " + play_string);
-
         Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
@@ -117,6 +111,9 @@ public class Audio_player_FX_UI implements Music_UI
 
         ScrollPane scroll_pane = define_scrollpane_with_songs();
 
+        pause_string = My_I18n.get_I18n_string(PAUSE,logger);
+        play_string = My_I18n.get_I18n_string(PLAY,logger);
+
 
         // called only on EXTERNAL close requests i.e. hitting the cross in the title
         stage.setOnCloseRequest(windowEvent -> {
@@ -125,6 +122,8 @@ public class Audio_player_FX_UI implements Music_UI
             stage.close();
             Audio_player.ui = null;
         });
+
+        //playlist.add_listener(stage);
 
         BorderPane bottom_border_pane = define_bottom_pane(the_top_vbox, scroll_pane);
 
@@ -237,6 +236,7 @@ public class Audio_player_FX_UI implements Music_UI
     private Button define_landing_zone_button()
     //**********************************************************
     {
+        //Button landing_zone = new Button(My_I18n.get_I18n_string("Drop new music files or folders here",logger));
         Button landing_zone = new Button("Drop new music files or folders here");
         Look_and_feel_manager.set_button_look(landing_zone, true);
         landing_zone.setMinHeight(100);
@@ -404,9 +404,12 @@ public class Audio_player_FX_UI implements Music_UI
     {
         Button reset_balance = new Button(My_I18n.get_I18n_string("Reset_Balance",logger));
         Look_and_feel_manager.set_button_look(reset_balance,true);
-        reset_balance.setOnAction(_ -> {
-            balance_slider.setValue(0);
-            the_media_player_option.get().setBalance(0);
+        reset_balance.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                balance_slider.setValue(0);
+                the_media_player_option.get().setBalance(0);
+            }
         });
         return reset_balance;
     }
@@ -421,17 +424,20 @@ public class Audio_player_FX_UI implements Music_UI
 
         Button mute = new Button(My_I18n.get_I18n_string("Mute",logger));
         Look_and_feel_manager.set_button_look(mute,true);
-        mute.setOnAction(_ -> {
-            MediaPlayer mp = the_media_player_option.get();
-            if ( mp.isMute())
-            {
-                mp.setMute(false);
-                mute.setText("Mute");
-            }
-            else
-            {
-                mp.setMute(true);
-                mute.setText(My_I18n.get_I18n_string("Unmute",logger)); //"Unmute");
+        mute.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                MediaPlayer mp = the_media_player_option.get();
+                if ( mp.isMute())
+                {
+                    mp.setMute(false);
+                    mute.setText("Mute");
+                }
+                else
+                {
+                    mp.setMute(true);
+                    mute.setText(My_I18n.get_I18n_string("Unmute",logger)); //"Unmute");
+                }
             }
         });
         returned.getChildren().add(mute);
@@ -585,10 +591,12 @@ public class Audio_player_FX_UI implements Music_UI
             hbox.getChildren().add(spacer);
         }
 
-        play_pause_button = new Button(pause_string);
-        Look_and_feel_manager.set_button_look(play_pause_button, true);
-        play_pause_button.setOnAction(_ -> toggle_play_stop());
-        hbox.getChildren().add(play_pause_button);
+        play_pause = new Button(pause_string);
+        Look_and_feel_manager.set_button_look(play_pause, true);
+        play_pause.setOnAction(_ -> {
+            toggle_play_stop();
+        });
+        hbox.getChildren().add(play_pause);
 
         {
             Region spacer = new Region();
@@ -839,7 +847,8 @@ public class Audio_player_FX_UI implements Music_UI
                 if (the_media_player_option.isPresent()) the_media_player_option.get().seek(target);
             }
         });
-        Platform.runLater(() -> play_pause_button.setText(pause_string));
+        Runnable r = () -> play_pause.setText(pause_string);
+        Platform.runLater(r);
     }
 
     //**********************************************************
@@ -1036,7 +1045,7 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         the_media_player_option.get().play();
-        play_pause_button.setText(pause_string);
+        play_pause.setText(pause_string);
 
     }
 
@@ -1045,7 +1054,7 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         the_media_player_option.get().pause();
-        play_pause_button.setText(play_string);
+        play_pause.setText(play_string);
     }
 
     public void change_song(String song)

@@ -1,10 +1,7 @@
 package klik.properties;
 
 import klik.actor.Aborter;
-import klik.browser.Shared_services;
 import klik.util.log.Logger;
-import klik.util.tcp.TCP_client;
-import klik.util.tcp.TCP_client_out;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,7 +13,7 @@ import java.util.Set;
 public class File_based_IProperties implements IProperties
 //**********************************************************
 {
-    private final static boolean dbg = false;
+    private final static boolean dbg = true;
     private final Logger logger;
     private final String tag;
     private final Properties_manager pm;
@@ -37,7 +34,7 @@ public class File_based_IProperties implements IProperties
     public boolean set(String key, String value)
     //**********************************************************
     {
-        if( dbg) logger.log("File_based_IProperties set()"+key+"-"+value);
+        if( dbg) logger.log("File_based_IProperties "+tag+" set() "+key+"-"+value);
         return pm.add(key, value);
     }
     //**********************************************************
@@ -45,23 +42,32 @@ public class File_based_IProperties implements IProperties
     public String get(String key)
     //**********************************************************
     {
-        if( dbg) logger.log("File_based_IProperties get()"+key);
+        if( dbg) logger.log("File_based_IProperties "+tag+" get() "+key);
         return pm.get(key);
     }
     //**********************************************************
     @Override
     public void remove(String key)
+    //*********************************************************
+    {
+        if( dbg) logger.log("File_based_IProperties "+tag+" remove() "+key);
+        pm.remove(key);
+    }
+
+    //**********************************************************
+    @Override
+    public void clear()
     //**********************************************************
     {
-        if( dbg) logger.log("File_based_IProperties remove() "+key);
-        pm.remove(key);
+        if( dbg) logger.log("File_based_IProperties "+tag+" clear() ");
+        pm.clear();
     }
     //**********************************************************
     @Override
     public List<String> get_all_keys()
     //**********************************************************
     {
-        if( dbg) logger.log("File_based_IProperties get_all_keys()");
+        if( dbg) logger.log("File_based_IProperties "+tag+" get_all_keys()");
         Set<String> x = pm.get_all_keys();
         List<String> result = new ArrayList<>();
         result.addAll(x);
@@ -75,4 +81,5 @@ public class File_based_IProperties implements IProperties
     {
         return tag;
     }
+
 }

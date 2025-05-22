@@ -45,6 +45,7 @@ public class History_engine
     public void clear()
     //**********************************************************
     {
+        System.out.println("clearing history");
         ph.clear();
     }
 }

@@ -9,4 +9,5 @@ public interface IProperties
     void remove(String key);
     List<String> get_all_keys();
     String get_tag();
+    void clear();
 }

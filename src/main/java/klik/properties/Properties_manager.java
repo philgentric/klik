@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class Properties_manager
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final String AGE = "_age";
     public static final int max = 30;
 
@@ -38,7 +38,7 @@ public class Properties_manager
     private final String tag;
 
     // saving to file is done in a separate thread:
-    public final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
     public Properties_manager(Path f_, String tag, Aborter aborter,Logger logger)
@@ -81,8 +81,8 @@ public class Properties_manager
             for(;;)
             {
                 try {
-                    Boolean b = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
-                    if ( b == null)
+                    Boolean reload_before_save = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
+                    if ( reload_before_save == null)
                     {
                         // this is a time out (20 seconds), nothing to save
                         if (aborter.should_abort()) return;
@@ -94,7 +94,7 @@ public class Properties_manager
                         // if another request is already in flight, we will have an opportunity to save very soon
                         continue;
                     }
-                    save();
+                    save(reload_before_save);
                     if (aborter.should_abort())
                     {
                         logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
@@ -112,49 +112,46 @@ public class Properties_manager
     }
 
     //**********************************************************
-    private void save()
+    private void save(boolean reload_before_save)
     //**********************************************************
     {
-        // before saving to disk we will reload the properties
-        // because another instance may have made changes and saved then to disk
-        // the reconciliation will consist in:
-        // 1. adding all entries that are on disk but not in this RAM hashmap
-        // 2. resolve conflict on a given value:keep the most recent value
-
-        Properties tmp = new Properties();
-        load_properties(tmp, the_properties_path);
-        for (String k : tmp.stringPropertyNames())
+        if ( reload_before_save)
         {
-            String v = the_Properties.getProperty(k);
-            if ( v == null)
+            // before saving to disk we will reload the properties
+            // because another instance may have made changes and saved then to disk
+            // the reconciliation will consist in:
+            // 1. adding all entries that are on disk but not in this RAM hashmap
+            // 2. resolve conflict on a given value:keep the most recent value
+
+            Properties on_disk = new Properties();
+            load_properties(on_disk, the_properties_path);
+            for (String k : on_disk.stringPropertyNames())
             {
-                // absent in THIS RAM hashtable =  must be added
-                the_Properties.setProperty(k, tmp.getProperty(k));
-                String age= tmp.getProperty(k + AGE);
-                if ( age == null)
-                {
-                    age = LocalDateTime.now().toString();
-                }
-                the_Properties.setProperty(k + AGE, age);
-            }
-            else
-            {
-                String age_here_s = the_Properties.getProperty(k + AGE);
-                if ( age_here_s == null) continue;
-                // conflict : take the most recent one
-                String age_on_disk_s = tmp.getProperty(k + AGE);
-                if ( age_on_disk_s == null) continue;
-                LocalDateTime age_here = LocalDateTime.parse(age_here_s);
-                LocalDateTime age_on_disk = LocalDateTime.parse(age_on_disk_s);
-                if (age_on_disk.isAfter(age_here))
-                {
-                    // the value in this hashtable is outdated, let us update it
-                    the_Properties.setProperty(k, tmp.getProperty(k));
-                    the_Properties.setProperty(k + AGE, age_on_disk_s);
+                String v = the_Properties.getProperty(k);
+                if (v == null) {
+                    // absent in THIS RAM hashtable =  must be added
+                    the_Properties.setProperty(k, on_disk.getProperty(k));
+                    String age = on_disk.getProperty(k + AGE);
+                    if (age == null) {
+                        age = LocalDateTime.now().toString();
+                    }
+                    the_Properties.setProperty(k + AGE, age);
+                } else {
+                    String age_here_s = the_Properties.getProperty(k + AGE);
+                    if (age_here_s == null) continue;
+                    // conflict : take the most recent VALUE
+                    String age_on_disk_s = on_disk.getProperty(k + AGE);
+                    if (age_on_disk_s == null) continue;
+                    LocalDateTime age_here = LocalDateTime.parse(age_here_s);
+                    LocalDateTime age_on_disk = LocalDateTime.parse(age_on_disk_s);
+                    if (age_on_disk.isAfter(age_here)) {
+                        // the value in this hashtable is outdated, let us update it
+                        the_Properties.setProperty(k, on_disk.getProperty(k));
+                        the_Properties.setProperty(k + AGE, age_on_disk_s);
+                    }
                 }
             }
         }
-
         save_to_disk();
     }
 
@@ -162,7 +159,7 @@ public class Properties_manager
     private void save_to_disk()
     //**********************************************************
     {
-       if (dbg) logger.log("Properties_manager: save "+the_properties_path.toAbsolutePath());
+       if (dbg) logger.log("Properties_manager: save to disk "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
         {
@@ -239,10 +236,6 @@ public class Properties_manager
     }
 
 
-    /*
-     * low level API: use only for single ponctual items
-     */
-
     //**********************************************************
     public String get(String key)
     //**********************************************************
@@ -259,10 +252,12 @@ public class Properties_manager
 
 
     //**********************************************************
-    private void clear()
+    void clear()
     //**********************************************************
     {
+        logger.log("clearing properties");
         the_Properties.clear();
+        disk_store_request_queue.add(false);
     }
 
 
@@ -283,7 +278,9 @@ public class Properties_manager
     //**********************************************************
     {
         the_Properties.remove(key+AGE);
-        return the_Properties.remove(key);
+        Object returned = the_Properties.remove(key);
+        disk_store_request_queue.add(true);
+        return returned;
     }
 
     //**********************************************************

@@ -112,7 +112,13 @@ public class Properties_for_history
                 logger.log("WEIRD history key failed?");
                 continue;
             }
-            LocalDateTime ts = LocalDateTime.parse(ip.get(k + AGE));
+            String age_s = ip.get(k + AGE);
+            if ( age_s == null)
+            {
+                logger.log("WEIRD cannot get age from key?"+k);
+                continue;
+            }
+            LocalDateTime ts = LocalDateTime.parse(age_s);
             if (ts == null) {
                 logger.log("WEIRD cannot get timestamp from key?");
                 continue;
@@ -128,10 +134,8 @@ public class Properties_for_history
     public void clear()
     //**********************************************************
     {
-        for ( String k : ip.get_all_keys())
-        {
-            ip.remove(k);
-        }
+        System.out.println("clearing history");
+        ip.clear();
     }
 
 

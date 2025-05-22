@@ -202,6 +202,19 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         browser_menus = new Virtual_landscape_menus(this, change_receiver, owner);
         //exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT,logger);
+
+
+        {
+            //logger.log("creating vertical slider");
+            vertical_slider = new Vertical_slider(owner, the_Pane, this, logger);
+            //always_on_front_nodes.add(vertical_slider.the_Slider);
+            slider_width = Vertical_slider.slider_width;
+        }
+
+        set_Landscape_height_listener(vertical_slider);
+        set_scroll_to_listener(vertical_slider);
+
+
         the_Scene = define_UI();
 
 
@@ -210,17 +223,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         ((Stage)owner).setScene(the_Scene);
 
         if ( dbg) logger.log("Virtual_landscape constructor");
-
-        {
-            //logger.log("creating vertical slider");
-            vertical_slider = new Vertical_slider(owner, the_Pane, this, logger);
-            mandatory_in_pane.add(vertical_slider.the_Slider);
-            always_on_front_nodes.add(vertical_slider.the_Slider);
-            slider_width = 2 * Vertical_slider.half_slider_width;
-        }
-
-        set_Landscape_height_listener(vertical_slider);
-        set_scroll_to_listener(vertical_slider);
 
 
         double font_size = Non_booleans.get_font_size(logger);
@@ -1646,8 +1648,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
 
         Pane top_pane = define_top_bar_using_buttons_deep(height, up_button, trash);
-        BorderPane bottom_border_pane = define_bottom_pane(top_pane);
-        Scene returned = new Scene(bottom_border_pane);//, W, H);
+        BorderPane border_pane = define_border_pane(top_pane);
+        Scene returned = new Scene(border_pane);//, W, H);
 
 
 
@@ -1685,12 +1687,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    private BorderPane define_bottom_pane(Pane top_pane)
+    private BorderPane define_border_pane(Pane top_pane)
     //**********************************************************
     {
         BorderPane returned = new BorderPane();
         returned.setTop(top_pane);
         returned.setCenter(the_Pane);
+        VBox for_vertical_slider = new VBox();
+        for_vertical_slider.getChildren().add(vertical_slider.the_Slider);
+        returned.setRight(for_vertical_slider);
         VBox the_status_bar = new VBox();
         status = new TextField(get_status());
         Look_and_feel_manager.set_region_look(status);
