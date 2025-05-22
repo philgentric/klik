@@ -20,32 +20,34 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import klik.actor.Aborter;
 import klik.browser.Drag_and_drop;
-import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
-import klik.util.ui.Popups;
-import klik.util.log.Stack_trace_getter;
-
-import javax.swing.*;
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import static klik.audio.Audio_player.sanitize_file_name;
-import static klik.properties.Non_booleans.USER_HOME;
-
 //**********************************************************
-public class Audio_player_FX_UI
-
+public class Audio_player_FX_UI implements Music_UI
+//**********************************************************
+{
+    private static final boolean dbg =  false;
+    public static final int WIDTH = 500;
+    public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
+    private static final String PAUSE = "Pause";
+    private static final String PLAY = "Play";
+    Stage stage;
+    VBox the_equalizer_vbox =  new VBox();
+    HBox the_equalizer_hbox = new HBox();
+    HBox the_sound_control_hbox = new HBox();
+    Button save_playlist_under_a_new_name;
+    Button next;
+    Button previous;
+    Button play_pause;
+    Slider balance_slider;
+    Slider the_timeline_slider;
     VBox the_vertical_box;
 
     Label now_value_label;
@@ -54,11 +56,16 @@ public class Audio_player_FX_UI
     Label the_status_label;
     Label total_duration;
 
-    Label now_value;
-    Label duration_value;
-    ObservableList<File> observable_playlist = FXCollections.observableArrayList();
-    Map<File, Button> file_to_button;
-    Button selected = null;
+    ScrollPane scroll_pane;
+    Logger logger;
+    Aborter aborter;
+    private volatile Optional<MediaPlayer> the_media_player_option = Optional.empty();
+    private volatile Optional<AudioEqualizer> the_equalizer_option = Optional.empty();
+    private ObservableList<EqualizerBand> equalizer_bands;
+
+    double volume = 0.5;
+    double balance = 0.0;
+
     //Browser browser = null;
 
     String pause_string;
@@ -115,6 +122,8 @@ public class Audio_player_FX_UI
             stage.close();
             Audio_player.ui = null;
         });
+
+        //playlist.add_listener(stage);
 
         BorderPane bottom_border_pane = define_bottom_pane(the_top_vbox, scroll_pane);
 
@@ -199,10 +208,6 @@ public class Audio_player_FX_UI
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
-        playlist_file = get_playlist_file(aborter,logger);
-        //logger.log("playlist_file="+playlist_file.getAbsolutePath());
-        String playlist_name_s = extract_playlist_name();
-        logger.log("playlist_name="+playlist_name_s);
 
         playlist_name_label = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+playlist.get_playlist_name());
         playlist_name_label.setMinWidth(200);
@@ -307,23 +312,6 @@ public class Audio_player_FX_UI
             drag_event.consume();
         });
         return landing_zone;
-    }
-
-    //**********************************************************
-    private void load_folder(File f)
-    //**********************************************************
-    {
-        File[] files = f.listFiles();
-        if ( files == null) return ;
-        for (File ff : files)
-        {
-            if ( ff.isDirectory()) load_folder(ff);
-            else
-            {
-                ff = sanitize_file_name(ff,aborter,logger);
-                add_and_save_if_needed(ff);
-            }
-        }
     }
 
 
@@ -489,13 +477,13 @@ public class Audio_player_FX_UI
 
         previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song",logger));
         Look_and_feel_manager.set_button_look(previous, true);
-        previous.setOnAction(_ -> jump_to_previous());
+        previous.setOnAction(_ -> playlist.jump_to_previous());
         returned.getChildren().add(previous);
 
 
         next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",logger));
         Look_and_feel_manager.set_button_look(next, true);
-        next.setOnAction(_ -> jump_to_next());
+        next.setOnAction(_ -> playlist.jump_to_next());
         returned.getChildren().add(next);
 
 
@@ -515,7 +503,6 @@ public class Audio_player_FX_UI
     private ScrollPane define_scrollpane_with_songs()
     //**********************************************************
     {
-        file_to_button = new HashMap<>();
         scroll_pane = new ScrollPane();
         Look_and_feel_manager.set_region_look(scroll_pane);
         scroll_pane.addEventFilter(KeyEvent.KEY_PRESSED, key_event -> {
@@ -524,12 +511,12 @@ public class Audio_player_FX_UI
             {
             case UP:
                 logger.log("handle event: UP");
-                jump_to_previous();
+                playlist.jump_to_previous();
                 key_event.consume(); // prevent default key handling
                 break;
             case DOWN:
                 logger.log("handle event: DOWN");
-                jump_to_next();
+                playlist.jump_to_next();
                 key_event.consume(); // prevent default key handling
                 break;
             }
@@ -537,63 +524,13 @@ public class Audio_player_FX_UI
 
         Look_and_feel_manager.set_region_look(scroll_pane);
         scroll_pane.setPrefSize(WIDTH, 600);
-        VBox the_vertical_box = new VBox();
+        the_vertical_box = new VBox();
         scroll_pane.setContent(the_vertical_box);
 
         scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll_pane.setPrefHeight(3000);
-        observable_playlist.addListener(new ListChangeListener<File>() {
-            @Override
-            public void onChanged(Change<? extends File> change) {
-                while ( change.next())
-                {
-                    for (File f : change.getRemoved())
-                    {
-                        Button b = file_to_button.get(f);
-                        if ( b != null)
-                        {
-                            the_vertical_box.getChildren().remove(b);
-                            file_to_button.remove(f);
-                            save_observable_playlist();
-                        }
-                    }
-                    for (File f : change.getAddedSubList())
-                    {
-                        Button b = new Button(f.getName());
-                        b.setMnemonicParsing(false);
-                        Look_and_feel_manager.set_button_look(b,false);
-                        {
-                            ContextMenu the_context_menu = new ContextMenu();
-                            Look_and_feel_manager.set_context_menu_look(the_context_menu);
-                            MenuItem the_menu_item = new MenuItem("Browse folder");
-                            the_menu_item.setOnAction(event -> {
-                                Path parent = f.toPath().getParent();
-                                Audio_player.start_new_process_to_browse(parent,logger);
-                            });
-                            the_context_menu.getItems().add(the_menu_item);
-                            b.setOnContextMenuRequested((ContextMenuEvent event) -> {
-                                //if ( dbg)
-                                    logger.log("show context menu of button:"+ f.toPath().toAbsolutePath());
-                                the_context_menu.show(b, event.getScreenX(), event.getScreenY());
-                            });
 
-                        }
-                        b.setPrefWidth(2000);
-                        the_vertical_box.getChildren().add(b);
-                        Look_and_feel_manager.set_button_look(b,false);
-                        file_to_button.put(f,b);
-                        b.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent actionEvent) {
-                                change_song(f);
-                                set_selected(f);
-                            }
-                        });
-                    }
-                }
-            }
-        });
         return scroll_pane;
     }
 
@@ -679,200 +616,6 @@ public class Audio_player_FX_UI
     }
 
     //**********************************************************
-    void change_song(File new_song)
-    //**********************************************************
-    {
-        Integer current_time_s;
-        if (new_song == null) {
-            String path = Non_booleans.get_current_song();
-            if (path == null) {
-                current_time_s = null;
-                if ( observable_playlist == null) return;
-                if ( observable_playlist.isEmpty()) return;
-                new_song = observable_playlist.get(0);
-            } else {
-                new_song = new File(path);
-                current_time_s = Non_booleans.get_current_time_in_song();
-            }
-            if (new_song == null) {
-
-                logger.log("FATAL: cannot cope with new_song is null");
-                return;
-            }
-        } else {
-            if (new_song.exists() == false)
-            {
-                logger.log(("FATAL: " + new_song.getAbsolutePath() + " does not exist"));
-                the_status_label.setText("File not found: "+new_song.getAbsolutePath());
-                remove_from_playlist_thats_all(new_song);
-                return;
-            }
-            current_time_s = 0;
-        }
-
-        change_song_real(new_song, current_time_s);
-    }
-    //**********************************************************
-    private void change_song_real(File new_song, Integer current_time_s)
-    //**********************************************************
-    {
-        Non_booleans.save_current_song(new_song);
-
-        double bitrate = Ffmpeg_utils.get_audio_bitrate(null,new_song.toPath(),logger);
-        //logger.log("bitrate= "+bitrate);
-        logger.log(new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
-        the_status_label.setText("Status: OK for:"+new_song.getName()+" (bitrate= "+bitrate+" kb/s)");
-
-        clean_up();
-        the_song_file = new_song;
-        add_and_save_if_needed(the_song_file);
-
-        stage.setTitle(the_song_file.getName() +"       bitrate= "+bitrate+" kb/s");
-
-        String encoded;
-        try
-        {
-            encoded = "file://"+the_song_file.getCanonicalPath();
-        }
-        catch (IOException e)
-        {
-            logger.log("\n\nFATAL: "+e);
-            return;
-        }
-        encoded = encoded.replaceAll(" ","%20");
-
-        try
-        {
-            Media sound = new Media(encoded);
-            MediaPlayer tmp_media_player = new MediaPlayer(sound);
-
-
-
-            tmp_media_player.setCycleCount(1);
-            tmp_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
-            tmp_media_player.setOnReady(() -> on_player_ready(tmp_media_player));
-            tmp_media_player.setOnPlaying(() -> {
-                if ( current_time_s != null)
-                {
-                    //logger.log(" OnPlaying, jumping: "+ current_time_s);
-                    Duration target = Duration.seconds(current_time_s);
-                        the_media_player_option.get().seek(target);
-                }});
-
-            play_pause.setText(pause_string);
-
-        }
-        catch (MediaException me)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(me.toString()));
-            //logger.log((me.toString()));
-            remove_from_playlist_thats_all(new_song);
-        }
-        catch (IllegalArgumentException e)
-        {
-            Popups.popup_Exception(e,256,"Fatal",logger);
-            remove_from_playlist_thats_all(new_song);
-        }
-        stage.show();
-    }
-
-
-    //**********************************************************
-    private void add_and_save_if_needed(File added_song)
-    //**********************************************************
-    {
-        if ( added_song == null) return;
-        for (File file : observable_playlist)
-        {
-            if (file.getAbsolutePath().equals(added_song.getAbsolutePath()))
-            {
-                // that song is ALREADY in the list
-                set_selected(added_song);
-                return;
-            }
-        }
-        observable_playlist.add(added_song);
-        set_selected(added_song);
-        scroll_pane.setVvalue(1.0);           //1.0 means 100% at the bottom
-        save_observable_playlist();
-    }
-
-    //**********************************************************
-    private void set_selected(File f)
-    //**********************************************************
-    {
-
-        if ( dbg) logger.log("set_selected "+f);
-        Button future = file_to_button.get(f);
-        if ( selected == future)
-        {
-            // already selected
-            if ( dbg) logger.log("already selected "+f);
-            return;
-        }
-        if ( future!=null)
-        {
-            String s = future.getStyle();
-            if ( dbg) logger.log("style before = "+s);
-            s = change_background_color(s,"#90D5FF");
-            if ( dbg) logger.log("style after = "+s);
-            future.setStyle(s);
-        }
-        else
-        {
-            logger.log("this file is gone: "+f.getAbsolutePath());
-            return;
-        }
-        if ( selected != null)
-        {
-            if ( dbg) logger.log("resetting background for previously selected");
-            String s = selected.getStyle();
-            if ( dbg) logger.log("style before = "+s);
-            s = change_background_color(s,"#ffffff");
-            if ( dbg) logger.log("style after = "+s);
-            selected.setStyle(s);
-
-            //selected.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        }
-        selected = future;
-
-        //b.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-
-    }
-
-    //**********************************************************
-    private String change_background_color(String style, String new_color)
-    //**********************************************************
-    {
-        // assume style is a string with ';' separated items
-        // like this: "-fx-background-color: <<<<some color value>>>>>>>"
-        // parse the string to replace the current value of -fx-background-color
-        // with the new one
-        String returned = "";
-        String[] items = style.split(";");
-        boolean found = false;
-        for ( String item : items)
-        {
-            String[] parts = item.split(":");
-            if ( parts[0].trim().equals("-fx-background-color"))
-            {
-                found = true;
-                returned += parts[0]+":"+new_color+";";
-            }
-            else{
-                returned += item+";";
-            }
-        }
-        if ( found == false)
-        {
-            returned += "-fx-background-color:"+new_color+";";
-
-        }
-        //if ( returned.endsWith(";")) returned = returned.substring(0,returned.length()-1);
-        return returned;
-    }
-
-    //**********************************************************
     private void on_player_ready(MediaPlayer local_)
     //**********************************************************
     {
@@ -888,7 +631,7 @@ public class Audio_player_FX_UI
 
         define_equalizer();
 
-        the_media_player_option.get().setOnEndOfMedia(() -> jump_to_next());
+        the_media_player_option.get().setOnEndOfMedia(() -> playlist.jump_to_next());
 
         // the player pilots how the slider moves during playback
         the_media_player_option.get().currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
@@ -1172,25 +915,8 @@ public class Audio_player_FX_UI
     {
         Runnable r = () -> the_status_label.setText(s);
         Platform.runLater(r);
-
     }
 
-    //**********************************************************
-    double file_to_scroll(File f)
-    //**********************************************************
-    {
-        for (int i = 0; i < observable_playlist.size(); i++)
-        {
-            File file = observable_playlist.get(i);
-            if (file == f)
-            {
-                double returned = (double)i/(double)(observable_playlist.size()-1);
-                logger.log(" scroll to "+i+" => "+returned);
-                return  returned;
-            }
-        }
-        return 1.0;
-    }
 
     //**********************************************************
     private void save_new_playlist()
@@ -1204,96 +930,13 @@ public class Audio_player_FX_UI
     }
 
     //**********************************************************
-    private void choose_playlist_file_name()
-    //**********************************************************
-    {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileHidingEnabled(false); // reason to use SWING !!!
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if ( saving_dir == null)
-        {
-            String home = System.getProperty(USER_HOME);
-            saving_dir = new File(home,"playlists");
-            if ( !saving_dir.exists())
-            {
-                if (!saving_dir.mkdir())
-                {
-                    logger.log("WARNING: creating directory failed for: "+saving_dir.getAbsolutePath());
-                }
-            }
-        }
-        chooser.setCurrentDirectory(saving_dir.getParentFile());
-        chooser.setSelectedFile(saving_dir);
-        int status = chooser.showOpenDialog(null);
-        if (status != JFileChooser.APPROVE_OPTION) return;
-        saving_dir = chooser.getSelectedFile();
-        Platform.runLater(() -> choose_playlist_name());
-    }
-
-    //**********************************************************
-    private  void choose_playlist_name()
-    //**********************************************************
-    {
-        TextInputDialog dialog = new TextInputDialog("playlistname");
-        Look_and_feel_manager.set_dialog_look(dialog);
-        dialog.initOwner(stage);
-        dialog.setTitle("Choose a name for the playlist");
-        dialog.setContentText("playlistname");
-
-        // The Java 8 way to get the response value (with lambda expression).
-        //result.ifPresent(name -> logger.log("Your name: " + name));
-        // Traditional way to get the response value.
-        Optional<String> result = dialog.showAndWait();
-        if (result.isEmpty()) {
-            logger.log("playlist not saved");
-            Popups.popup_warning(stage, "Not saved ", "plylist not saved", true, logger);
-            return;
-        }
-
-        String playlist_name = result.get();
-        this.playlist_name.setText(playlist_name);
-
-        if ( !playlist_name.endsWith(KLIK_AUDIO_PLAYLIST_EXTENSION)) playlist_name += "."+ KLIK_AUDIO_PLAYLIST_EXTENSION;
-
-        playlist_file = new File(saving_dir,playlist_name);
-        save_observable_playlist();
-    }
-
-    //**********************************************************
-    private void save_observable_playlist()
-    //**********************************************************
-    {
-        if ( playlist_file == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
-            return;
-        }
-        //logger.log("Saving playlist as:" + playlist_file.getAbsolutePath());
-        try
-        {
-            FileWriter fw = new FileWriter(playlist_file);
-            for (File f : observable_playlist)
-            {
-                fw.write(f.getAbsolutePath() + "\n");
-            }
-            fw.close();
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("not saved"+e.toString()));
-        }
-    }
-
-
-
-
-    //**********************************************************
     public void play_playlist_internal(File playlist_file_)
     //**********************************************************
     {
+
         //logger.log("Going to play list: "+playlist_file.getAbsolutePath());
-        load_playlist(playlist_file_);
-        if ( observable_playlist.isEmpty())
+        playlist.load_playlist(playlist_file_);
+        if ( playlist.is_empty())
         {
             previous.setDisable(true);
             next.setDisable(true);
@@ -1303,69 +946,7 @@ public class Audio_player_FX_UI
         previous.setDisable(false);
         next.setDisable(false);
         playlist.play_fist_song();
-        File first = observable_playlist.get(0);
-        change_song(first);
 
-    }
-
-    //**********************************************************
-    private void load_playlist(File playlist_file_)
-    //**********************************************************
-    {
-        if ( playlist_file_ == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
-            return;
-        }
-        try {
-            BufferedReader br = new BufferedReader( new FileReader(playlist_file_));
-            observable_playlist.clear();
-            for(;;)
-            {
-                String song_path = br.readLine();
-                if ( song_path == null ) break;
-                File song = new File(song_path);
-                song = sanitize_file_name(song, aborter, logger);
-                add_and_save_if_needed(song);
-            }
-            playlist_file = playlist_file_;
-        } catch (FileNotFoundException e) {
-            try {
-                playlist_file.createNewFile();
-            } catch (IOException ex) {
-                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            }
-            if (playlist_file.canWrite())
-            {
-                playlist_name.setText(extract_playlist_name());
-                return;
-            }
-            playlist_file = null;
-            logger.log(Stack_trace_getter.get_stack_trace("cannot write"+e.toString()));
-        } catch (IOException e) {
-            playlist_file = null;
-            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-        }
-    }
-
-    //**********************************************************
-    public static File get_playlist_file(Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        String playlist_file_name = Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME);
-        if ( playlist_file_name == null)
-        {
-            playlist_file_name = "playlist."+ Audio_player_FX_UI.KLIK_AUDIO_PLAYLIST_EXTENSION;
-            Non_booleans.get_main_properties_manager().add(PLAYLIST_FILE_NAME,playlist_file_name);
-        }
-        else
-        {
-            Path p = Path.of(playlist_file_name);
-            if (p.isAbsolute()) return p.toFile();
-        }
-        String home = System.getProperty(USER_HOME);
-        Path p = Paths.get(home, Non_booleans.CONF_DIR, playlist_file_name);
-        return p.toFile();
     }
 
 
@@ -1389,7 +970,7 @@ public class Audio_player_FX_UI
                 break;
             case F9:
                 if ( keyword_dbg) logger.log("F9");
-                jump_to_next();
+                playlist.jump_to_next();
                 break;
 
             case UP:
@@ -1402,14 +983,14 @@ public class Audio_player_FX_UI
 
             case LEFT:
                 if ( keyword_dbg) logger.log("left");
-                jump_to_previous();
+                playlist.jump_to_previous();
                 break;
 
             case SPACE:
                 if ( keyword_dbg) logger.log("space");
             case RIGHT:
                 if ( keyword_dbg) logger.log("right");
-                jump_to_next();
+                playlist.jump_to_next();
                 break;
 
             default:
