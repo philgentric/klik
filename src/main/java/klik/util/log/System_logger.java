@@ -2,7 +2,6 @@
 
 package klik.util.log;
 
-import klik.actor.Aborter;
 import klik.properties.Booleans;
 import klik.properties.Debugging_features;
 

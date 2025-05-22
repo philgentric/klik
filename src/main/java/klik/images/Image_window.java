@@ -139,11 +139,9 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT);
+            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Booleans.ESCAPE_FAST_EXIT);
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(
-                            //browser,
-                            local, exit_on_escape_preference, keyEvent, logger));
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, exit_on_escape_preference, keyEvent, logger));
         }
 
         boolean high_quality = false;
@@ -158,7 +156,7 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
             long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_true_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, aborter, logger);
+            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, aborter, logger);
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
@@ -553,7 +551,7 @@ public class Image_window
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
 
-            boolean dont_zoom = Booleans.get_boolean(Booleans.DONT_ZOOM_SMALL_IMAGES);
+            boolean dont_zoom = Booleans.get_boolean_defaults_to_true(Booleans.DONT_ZOOM_SMALL_IMAGES);
             boolean normal = true;
             if (dont_zoom)
             {

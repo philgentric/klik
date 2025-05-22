@@ -10,10 +10,7 @@ import klik.browser.comparators.Aspect_ratio_comparator;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.properties.Booleans;
-import klik.properties.Cache_folder;
-import klik.properties.File_sort_by;
-import klik.properties.Non_booleans;
+import klik.properties.*;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -88,7 +85,7 @@ public class Animated_gif_from_folder
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Comparator<? super Path> local_comp = File_sort_by.get_true_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, x,y,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = File_sort_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( local_comp instanceof Aspect_ratio_comparator)
         {

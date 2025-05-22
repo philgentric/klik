@@ -56,7 +56,7 @@ public enum Iconifiable_item_type
         if (Guess_file_type.is_this_extension_a_png(extension)) return image_png;
         if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return image_not_gif_not_png;
 
-        System.out.println(("WARNING: from_extension returns DEFAULT 'other'' for path: " + path));
+        //System.out.println(("WARNING: from_extension returns DEFAULT 'other'' for path: " + path));
 
         return other;
     }

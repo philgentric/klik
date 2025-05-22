@@ -94,7 +94,7 @@
 //SOURCES image_ml/face_recognition/Face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java
-//SOURCES properties/Bookmarks.java
+//SOURCES change/bookmarks/Bookmarks.java
 //SOURCES actor/Message.java
 //SOURCES actor/Job.java
 package klik;
@@ -132,7 +132,7 @@ public class Klik_application extends Application
         Logger logger = Shared_services.shared_services_logger;
 
         primary_stage = primary_stage_;
-        Start_context context = Start_context.get_context(this);
+        Start_context context = Start_context.get_context_and_args(this);
 
         primary_stage.setOnCloseRequest(event -> {
             System.out.println("Klik_application primary_stage setOnCloseRequest exit");
@@ -152,7 +152,7 @@ public class Klik_application extends Application
         {
             path = context.path();
         }
-        Window_provider window_provider = New_window_context2.additional_no_past(path,logger);
+        Window_provider window_provider = New_window_context.additional_no_past(path,logger);
         new Monitor(window_provider, logger).start();
 
         Start_context.send_started(context,logger);

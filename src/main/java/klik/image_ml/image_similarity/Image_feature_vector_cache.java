@@ -10,10 +10,9 @@ import klik.actor.Aborter;
 import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.virtual_landscape.Path_list_provider;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
-import klik.properties.Booleans;
 import klik.properties.Non_booleans;
-import klik.experimental.work_in_progress.RAM_disk;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -74,15 +73,6 @@ public class Image_feature_vector_cache
     public static Path get_image_feature_vector_cache_dir(Stage owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE))
-        {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folder.klik_image_properties_cache.name(), owner, logger);
-            //if (dbg)
-            if (tmp_dir != null) {
-                logger.log("Image feature vector cache folder=" + tmp_dir.toAbsolutePath());
-            }
-            return tmp_dir;
-        }
 
         Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_feature_vectors_cache.name(), false,logger);
         if (dbg) if (tmp_dir != null) {
@@ -262,7 +252,7 @@ public class Image_feature_vector_cache
     {
         List<Path> images = new ArrayList<>();
         List<Path> missing_images = new ArrayList<>();
-        for (Path p : path_list_provider.only_file_paths(Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES)))
+        for (Path p : path_list_provider.only_file_paths(Virtual_landscape.show_hidden_files))
         {
             if ( !Guess_file_type.is_file_an_image(p.toFile())) continue;
             images.add(p);

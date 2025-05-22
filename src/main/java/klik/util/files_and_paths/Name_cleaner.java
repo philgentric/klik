@@ -1,11 +1,9 @@
 package klik.util.files_and_paths;
 
 import klik.browser.Shared_services;
-import klik.properties.Non_booleans;
 import klik.util.Sys_init;
 import klik.util.log.Logger;
 
-import java.util.List;
 import java.util.UUID;
 
 //**********************************************************
@@ -39,12 +37,6 @@ public class Name_cleaner
         }
 
         String new_str = base_name.trim();
-        List<String> l = Non_booleans.get_cleanup_tokens();
-        for (String s : l)
-        {
-            logger.log("cleanup token:"+s);
-            new_str = new_str.replaceAll("(?i)"+s, ""); // (?i) is the regex for ignoring case
-        }
 
         new_str = new_str.replaceAll("\\s",    "_");
         if ( dbg) logger.log("1 "+new_str);

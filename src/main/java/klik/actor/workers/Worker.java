@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Worker
 //**********************************************************
 {
-    // a worker (aka runner) is owner of ONE thread and uses it to run actor-message pairs from the engine queue
+    // a worker (aka runner) is owner of ONE thread and uses it to run actor-error_message pairs from the engine queue
     LinkedBlockingQueue<Job> engine_input_queue;
     Logger logger;
     String name;
@@ -52,7 +52,7 @@ public class Worker
                     }
                     if (job.actor == null)
                     {
-                        logger.log("BAD BAD null actor in message :"+job.to_string());
+                        logger.log("BAD BAD null actor in error_message :"+job.to_string());
                         continue;
                     }
                     Actor_engine.threads_in_flight.incrementAndGet();

@@ -164,7 +164,7 @@ public class Show_running_film_frame_with_abort_button implements Hourglass
 	public void has_ended(String message, boolean sleep)
 	//**********************************************************
 	{
-		//logger.log("running man has ended "+message);
+		//logger.log("running man has ended "+error_message);
 
 		long sleep_time = System.currentTimeMillis()-start;
 		if ( sleep_time > 3000) sleep_time = 3000;

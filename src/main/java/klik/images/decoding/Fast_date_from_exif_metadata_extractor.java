@@ -6,7 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import klik.actor.Aborter;
-import klik.properties.Booleans;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -31,8 +31,7 @@ public class Fast_date_from_exif_metadata_extractor
     //**********************************************************
     {
 
-        boolean with_fusk = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
-        InputStream is = From_disk.get_image_InputStream(path, with_fusk, true, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, Virtual_landscape.fusk_is_active, true, aborter, logger);
         if ( is == null)
         {
             return LocalDateTime.now();

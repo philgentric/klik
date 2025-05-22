@@ -50,7 +50,7 @@ public class Properties_manager
         this.logger = logger;
         the_properties_path = f_;
         the_Properties = new Properties();
-        load_properties();
+        load_properties(the_Properties, the_properties_path);
         start_store_engine( aborter,  logger);
 
         //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
@@ -82,18 +82,10 @@ public class Properties_manager
             {
                 try {
                     Boolean b = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
-                    if (aborter.should_abort())
-                    {
-                        // always save on clean exit
-                        save();
-                        logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
-                        return;
-                    }
                     if ( b == null)
                     {
-                        // this is a time out (20 seconds),
-                        // the tile out is here to make sure we read the aborter
-                        // no need save
+                        // this is a time out (20 seconds), nothing to save
+                        if (aborter.should_abort()) return;
                         continue;
                     }
                     if ( disk_store_request_queue.peek() != null)
@@ -102,13 +94,16 @@ public class Properties_manager
                         // if another request is already in flight, we will have an opportunity to save very soon
                         continue;
                     }
-
                     save();
+                    if (aborter.should_abort())
+                    {
+                        logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
+                        return;
+                    }
                 }
                 catch (InterruptedException e)
                 {
-                    save();
-                    logger.log("saving INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
+                    logger.log("INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
                     return;
                 }
             }
@@ -120,8 +115,54 @@ public class Properties_manager
     private void save()
     //**********************************************************
     {
-       if (dbg)
-            logger.log("Properties: save "+the_properties_path.toAbsolutePath());
+        // before saving to disk we will reload the properties
+        // because another instance may have made changes and saved then to disk
+        // the reconciliation will consist in:
+        // 1. adding all entries that are on disk but not in this RAM hashmap
+        // 2. resolve conflict on a given value:keep the most recent value
+
+        Properties tmp = new Properties();
+        load_properties(tmp, the_properties_path);
+        for (String k : tmp.stringPropertyNames())
+        {
+            String v = the_Properties.getProperty(k);
+            if ( v == null)
+            {
+                // absent in THIS RAM hashtable =  must be added
+                the_Properties.setProperty(k, tmp.getProperty(k));
+                String age= tmp.getProperty(k + AGE);
+                if ( age == null)
+                {
+                    age = LocalDateTime.now().toString();
+                }
+                the_Properties.setProperty(k + AGE, age);
+            }
+            else
+            {
+                String age_here_s = the_Properties.getProperty(k + AGE);
+                if ( age_here_s == null) continue;
+                // conflict : take the most recent one
+                String age_on_disk_s = tmp.getProperty(k + AGE);
+                if ( age_on_disk_s == null) continue;
+                LocalDateTime age_here = LocalDateTime.parse(age_here_s);
+                LocalDateTime age_on_disk = LocalDateTime.parse(age_on_disk_s);
+                if (age_on_disk.isAfter(age_here))
+                {
+                    // the value in this hashtable is outdated, let us update it
+                    the_Properties.setProperty(k, tmp.getProperty(k));
+                    the_Properties.setProperty(k + AGE, age_on_disk_s);
+                }
+            }
+        }
+
+        save_to_disk();
+    }
+
+    //**********************************************************
+    private void save_to_disk()
+    //**********************************************************
+    {
+       if (dbg) logger.log("Properties_manager: save "+the_properties_path.toAbsolutePath());
 
         if (!Files.exists(the_properties_path))
         {
@@ -170,7 +211,7 @@ public class Properties_manager
     }
 
     //**********************************************************
-    private void load_properties()
+    private void load_properties(Properties target, Path path)
     //**********************************************************
     {
         if (dbg) logger.log("load_properties()");
@@ -178,16 +219,16 @@ public class Properties_manager
         try
         {
 
-            if (Files.exists(the_properties_path))
+            if (Files.exists(path))
             {
-                if (!Files.isReadable(the_properties_path))
+                if (!Files.isReadable(path))
                 {
-                    logger.log("cannot read properties from:" + the_properties_path.toAbsolutePath());
+                    logger.log("cannot read properties from:" + path.toAbsolutePath());
                     return;
                 }
-                fis = new FileInputStream(the_properties_path.toFile());
-                the_Properties.load(fis);
-                if (dbg) logger.log("properties loaded from:" + the_properties_path.toAbsolutePath());
+                fis = new FileInputStream(path.toFile());
+                target.load(fis);
+                if (dbg) logger.log("properties loaded from:" + path.toAbsolutePath());
                 fis.close();
             }
 
@@ -231,6 +272,7 @@ public class Properties_manager
     //**********************************************************
     {
         the_Properties.setProperty(key, value);
+        the_Properties.setProperty(key+AGE, LocalDateTime.now().toString());
         disk_store_request_queue.add(true);
         return true;
     }
@@ -240,14 +282,8 @@ public class Properties_manager
     public Object remove(String key)
     //**********************************************************
     {
+        the_Properties.remove(key+AGE);
         return the_Properties.remove(key);
-    }
-
-    //**********************************************************
-    public void remove(String key, String value)
-    //**********************************************************
-    {
-        the_Properties.remove(key, value);
     }
 
     //**********************************************************
@@ -258,13 +294,13 @@ public class Properties_manager
         {
             String key = key_base + i;
             String value = get(key);
-            if (value != null) remove(key, value);
+            if (value != null) remove(key);
 
             // maybe we also stored the age?
             {
                 String key2 = key_base + i + AGE;
                 String value2 = get(key2);
-                if (value2 != null) remove(key2, value2);
+                if (value2 != null) remove(key2);
             }
         }
         store_properties();
@@ -277,19 +313,7 @@ public class Properties_manager
      * When max is reached, the oldest element is overwritten
      */
 
-    // list all stored values for a base-key
-    //**********************************************************
-    public List<String> get_values_for_base(String key_base)
-    //**********************************************************
-    {
-        List<String> returned = new ArrayList<>();
-        for (int i = 0; i < max; i++)
-        {
-            if (get(key_base + i) != null) returned.add(get(key_base + i));
-        }
-        Collections.sort(returned);
-        return returned;
-    }
+
 
     Comparator<? super Pair<String, String>> comp = Comparator.comparing((Pair<String, String> o) -> o.getKey()).thenComparing(Pair::getValue);
 
@@ -309,22 +333,15 @@ public class Properties_manager
     public Pair<String,String> add_for_base(String base, String value)
     //**********************************************************
     {
-        String key = save_multiple(base,value,false);
+        String key = save_multiple(base,value);
         return new Pair<>(key,value);
-    }
-    //**********************************************************
-    public void delete(String key, boolean and_save, Logger logger)
-    //**********************************************************
-    {
-        remove(key);
-        if ( and_save) store_properties();
     }
 
 
 
     // saves a value for a base-key, handling oldest-replacement silently
     //**********************************************************
-    public String save_multiple(String key_base, String value, boolean with_age)
+    public String save_multiple(String key_base, String value)
     //**********************************************************
     {
         // avoid saving several times the same value
@@ -339,27 +356,11 @@ public class Properties_manager
         }
         String key = get_one_empty_key_for_base(key_base);
 
-        add_with_age(key, value, with_age);
+        add(key, value);
         return key;
     }
 
-    //**********************************************************
-    public void add_with_age(String key, String value, boolean with_age)
-    //**********************************************************
-    {
-        if (dbg) logger.log("Non_booleans: imperative_store " + key + "=" + value);
 
-        LocalDateTime now = LocalDateTime.now();
-        add(key + AGE, now.toString());
-        if (with_age)
-        {
-            the_Properties.setProperty(key + AGE, now.toString());
-        }
-        else
-        {
-            the_Properties.setProperty(key, value);
-        }
-    }
 
 
     // if there are no more available slots,
@@ -410,6 +411,34 @@ public class Properties_manager
 
 
     //**********************************************************
+    public void delete(String key, boolean and_save, Logger logger)
+    //**********************************************************
+    {
+        remove(key);
+        if ( and_save) store_properties();
+    }
+
+
+
+    /*
+
+    // list all stored values for a base-key
+    //**********************************************************
+    public List<String> get_values_for_base(String key_base)
+    //**********************************************************
+    {
+        List<String> returned = new ArrayList<>();
+        for (int i = 0; i < max; i++)
+        {
+            if (get(key_base + i) != null) returned.add(get(key_base + i));
+        }
+        Collections.sort(returned);
+        return returned;
+    }
+
+
+
+    //**********************************************************
     public boolean remove_invalid_dir(Path dir)
     //**********************************************************
     {
@@ -430,9 +459,7 @@ public class Properties_manager
         return false;
     }
 
-    /*
-     * unit test
-     */
+    /// unit test
 
     //**********************************************************
     public static void main(String[] deb)
@@ -467,5 +494,5 @@ public class Properties_manager
     }
 
 
-
+*/
 }

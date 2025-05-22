@@ -23,7 +23,6 @@ import klik.browser.virtual_landscape.*;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
@@ -122,7 +121,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
                 {
                     Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
                     if ( is_parent()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up-button, the old path is the current path
-                    New_window_context2.replace_different_folder(shutdown_target, get_item_path(),owner, old_folder_path,top_left_provider.get_top_left(),logger);
+                    New_window_context.replace_different_folder(shutdown_target, get_item_path(),owner, old_folder_path,top_left_provider.get_top_left(),logger);
                 });
         Tooltip.install(button,new Tooltip(get_item_path().getFileName().toString()));
 
@@ -187,7 +186,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     private void resize_the_box(Button button)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
+        if ( Virtual_landscape.single_column)
         {
             button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
             button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);

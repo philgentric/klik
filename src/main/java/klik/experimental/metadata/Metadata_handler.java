@@ -73,7 +73,7 @@ public class Metadata_handler
     public Pair<String,String> add_for_base(String base, String value)
     //**********************************************************
     {
-        String key = properties_manager.save_multiple(base,value,false);
+        String key = properties_manager.save_multiple(base,value);
         return new Pair<>(key,value);
     }
 

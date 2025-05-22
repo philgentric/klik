@@ -160,11 +160,9 @@ public class TCP_server
                     String got = new String(buffer, StandardCharsets.UTF_8);
                     logger.log("got ->"+got+"<-");
                     String answer = "server got this ->"+got+"<-";
-                    buffer = answer.getBytes(StandardCharsets.UTF_8);
+                    TCP_util.write_string(answer,dos);
+                    dos.flush();
                     logger.log("sending back ->"+answer+"<-");
-
-                    dos.writeInt(buffer.length);
-                    dos.write(buffer);
                 }
                 catch (IOException e)
                 {

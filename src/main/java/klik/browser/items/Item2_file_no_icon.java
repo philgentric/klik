@@ -14,7 +14,7 @@ import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
-import klik.browser.New_window_context2;
+import klik.browser.New_window_context;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -23,8 +23,6 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Booleans;
-import klik.properties.Experimental_features;
 import klik.properties.Non_booleans;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
@@ -324,7 +322,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
     //**********************************************************
     {
 
-        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
+        if ( Virtual_landscape.single_column)
         {
             StringBuilder sb = new StringBuilder();
             try {
@@ -376,11 +374,11 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
                 Audio_player.play_playlist(get_item_path().toFile(),logger);
                 return;
             }
-            if (Booleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
+            if (Virtual_landscape.enable_image_playlists )
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
                     logger.log("NOT IMPLEMENTED opening image playlist: " + get_item_path().toAbsolutePath());
-                    //New_window_context2.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
+                    //New_window_context.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
                     return;
                 }
             }
@@ -449,7 +447,7 @@ public class Item2_file_no_icon extends Item2_file implements Icon_destination
 
             Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
             if ( is_parent()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
-            New_window_context2.replace_different_folder(
+            New_window_context.replace_different_folder(
                     shutdown_target,
                     get_item_path(),
                     owner,

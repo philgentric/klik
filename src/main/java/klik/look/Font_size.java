@@ -2,7 +2,6 @@ package klik.look;
 
 import javafx.scene.Node;
 import javafx.scene.control.PopupControl;
-import klik.actor.Aborter;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 

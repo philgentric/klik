@@ -75,8 +75,8 @@ public class Backup_actor_for_one_folder implements Actor
     //**********************************************************
     {
         logger.log(message);
-        //file_termination_reporter.has_ended(message,null);
-        //subfolder_termination_reporter.has_ended(message,null);
+        //file_termination_reporter.has_ended(error_message,null);
+        //subfolder_termination_reporter.has_ended(error_message,null);
     }
 
     //**********************************************************

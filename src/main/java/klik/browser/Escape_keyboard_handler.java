@@ -2,15 +2,15 @@ package klik.browser;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import klik.properties.Booleans;
+import klik.browser.virtual_landscape.Virtual_landscape;
 
 //**********************************************************
-public class Escape_keyboard_handler2 implements javafx.event.EventHandler<KeyEvent>
+public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEvent>
 //**********************************************************
 {
     private final Abstract_browser browser;
     //**********************************************************
-    public Escape_keyboard_handler2(Abstract_browser browser)
+    public Escape_keyboard_handler(Abstract_browser browser)
     //**********************************************************
     {
         //browser.logger.log("creating External_close_event_handler for: "+browser.signature());
@@ -30,8 +30,7 @@ public class Escape_keyboard_handler2 implements javafx.event.EventHandler<KeyEv
             browser.my_Stage.escape++;
             key_event.consume();
 
-            boolean exit_on_escape_preference = Booleans.get_boolean(Booleans.ESCAPE_FAST_EXIT);
-            if ( exit_on_escape_preference)
+            if (Virtual_landscape.exit_on_escape)
             {
                 if ( browser.keyboard_dbg) browser.logger.log(" Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
                 if ( browser.ignore_escape_as_the_stage_is_full_screen)

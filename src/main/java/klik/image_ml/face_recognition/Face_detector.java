@@ -161,7 +161,7 @@ public class Face_detector
         {
             return new Face_detection_result(null, Face_recognition_status.server_not_reacheable);
         }
-        // Get the response code and message
+        // Get the response code and error_message
         try {
             int response_code = connection.getResponseCode();
         } catch (IOException e) {

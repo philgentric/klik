@@ -1,4 +1,4 @@
-package klik.images;
+package klik.change;
 
 import javafx.stage.Stage;
 import klik.actor.Aborter;
@@ -10,10 +10,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Redo_same_move_engine {
+//**********************************************************
+public class Redo_same_move_engine
+//**********************************************************
+{
 
     static public Path last_destination_folder = null;
+    //**********************************************************
     public static void same_move(Path old_path, Stage the_stage, Logger logger)
+//**********************************************************
     {
         if ( last_destination_folder == null)
         {

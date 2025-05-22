@@ -12,12 +12,12 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Booleans;
+import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.properties.Non_booleans;
 import klik.util.files_and_paths.*;
 import klik.experimental.deduplicate.manual.Stage_with_2_images;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
 import klik.experimental.deduplicate.manual.Againor;
-import klik.properties.Non_booleans;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -454,9 +454,8 @@ public class Deduplication_engine implements Againor, Abortable
     //**********************************************************
     {
         console_window.set_status_text("Scanning directories");
-        boolean also_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
 
-        List<File_with_a_few_bytes> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, also_hidden_files, logger);
+        List<File_with_a_few_bytes> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, Virtual_landscape.show_hidden_files, logger);
         //Collections.sort(files, by_path_length);
         logger.log("deduplication scan done "+files.size()+" files found");
 

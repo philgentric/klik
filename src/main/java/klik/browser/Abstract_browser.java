@@ -41,7 +41,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
 
     protected Filesystem_item_modification_watcher filesystem_item_modification_watcher;
-    protected My_Stage2 my_Stage;
+    protected My_Stage my_Stage;
     protected Virtual_landscape virtual_landscape;
     protected final Logger logger;
     protected Aborter aborter;
@@ -68,7 +68,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     }
 
     //**********************************************************
-    public void init(New_window_context2 context, Change_receiver change_receiver,String badge)
+    public void init(New_window_context context, Change_receiver change_receiver, String badge)
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();
@@ -80,7 +80,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         aborter = new Aborter("Abstract_browser for: " + get_name(), logger);
 
-        my_Stage = new My_Stage2(new Stage(), logger);
+        my_Stage = new My_Stage(new Stage(), logger);
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
             System.out.println("Klik browser window exit");
@@ -121,7 +121,8 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK);
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
-        History_engine.get_instance(logger).add(get_name());
+        //History_engine.get_instance(logger).add(get_name());
+        History_engine.get(aborter,logger).add(get_name());
 
 
         Change_gang.register(change_receiver, aborter, logger);

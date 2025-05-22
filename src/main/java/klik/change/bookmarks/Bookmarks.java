@@ -1,50 +1,55 @@
-package klik.change.history;
+package klik.change.bookmarks;
 
 import klik.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
+import klik.properties.Properties_with_base;
 import klik.util.log.Logger;
 
 import java.util.List;
 
 //**********************************************************
-public class History_engine
+public class Bookmarks
 //**********************************************************
 {
-    private final Properties_for_history ph;
+    private static Bookmarks instance = null;
+    private final Logger logger;
+    private final IProperties ip;
+    private final Properties_with_base pb;
+
     //**********************************************************
-    private History_engine(Aborter aborter, Logger logger)
+    private Bookmarks(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties ip = new File_based_IProperties("history",aborter,logger);
-        ph = new Properties_for_history(ip,  10, logger);
+        this.logger = logger;
+        ip = new File_based_IProperties("bookmarks",aborter,logger);
+        pb = new Properties_with_base(ip,"bookmark_",30,logger);
     }
 
     //**********************************************************
-    public static History_engine get(Aborter aborter, Logger logger)
+    public static Bookmarks get(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return new History_engine(aborter,logger);
+        if ( instance == null) instance = new Bookmarks(aborter,logger);
+        return instance;
     }
 
     //**********************************************************
     public void add(String s)
     //**********************************************************
     {
-        ph.add_and_prune(s);
+        pb.add(s);
     }
-
-    //**********************************************************
-    public List<History_item> get_all_history_items()
-    //**********************************************************
-    {
-        return ph.get_all_history_items();
-    }
-
     //**********************************************************
     public void clear()
     //**********************************************************
     {
-        ph.clear();
+        pb.clear();
+    }
+    //**********************************************************
+    public List<String> get_list()
+    //**********************************************************
+    {
+        return pb.get_all();
     }
 }

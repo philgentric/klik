@@ -7,7 +7,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_for_moves;
-import klik.images.Redo_same_move_engine;
+import klik.change.Redo_same_move_engine;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.experimental.metadata.Metadata_handler;
@@ -235,6 +235,7 @@ public class Moving_files
     private static Hourglass check_show_running_film(Window owner, double x, double y, List<Old_and_new_Path> the_list, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if ( the_list.isEmpty()) return null;
         boolean show_running_film = false;
 
         if ( the_list.size() > 2 ) show_running_film = true;
@@ -513,11 +514,8 @@ public class Moving_files
         {
             logger.log("FAILED to move file, target dir does not exists->" + oandn.get_new_Path().getParent() + "<-" + e0);
             Path path = oandn.get_new_Path().getParent();
-            if (Non_booleans.get_main_properties_manager().remove_invalid_dir(path)) {
-                logger.log("move failed because dir does not exist, so it has been removed from properties : " + path);
-            } else {
-                logger.log("WARNING: move failed because dir does not exist, but it could NOT be removed from properties : " + path);
-            }
+            Non_booleans.get_main_properties_manager().remove(path.toAbsolutePath().toString());
+
             return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, oandn.cmd, Status_old_and_new_Path.target_dir_does_not_exist,false);
         } else {
             logger.log("destination folder exists but ... FAILED to move file for some other reason->" + oandn.get_old_Path().toAbsolutePath() +

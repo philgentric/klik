@@ -29,10 +29,10 @@ import java.util.List;
 public class Audio_player extends Application
 //**********************************************************
 {
-    private final static boolean dbg = true;
-    static Audio_player_FX_UI instance = null;
+    static Audio_player_FX_UI ui = null;
     public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
+
 
     //**********************************************************
     public static void main(String[] args) {launch(args);}
@@ -141,7 +141,7 @@ public class Audio_player extends Application
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             logger.log("status: "+tco.status());
             logger.log("reply: "+tco.reply());
-            logger.log("message: "+tco.message());
+            logger.log("error_message: "+tco.error_message());
         }
         else
         {
@@ -187,34 +187,32 @@ public class Audio_player extends Application
     public static void init(Aborter aborter,Logger logger)
     //**********************************************************
     {
-        instance = new Audio_player_FX_UI(aborter, logger);
+        ui = new Audio_player_FX_UI(aborter, logger);
     }
     //**********************************************************
     public static void play_playlist(File file, Logger logger)
     //**********************************************************
     {
-        if ( instance == null)
+        if ( ui == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player.init() before trying to play"));
         }
-
-        instance.play_playlist_internal(file);
+        ui.play_playlist_internal(file);
     }
 
     //**********************************************************
-    public static void play_this_song(File song,Logger logger)
+    public static void play_this_song(String song,Logger logger)
     //**********************************************************
     {
-        if ( song != null) song = sanitize_file_name(song, instance.aborter, logger);
-        File finalSong = song;
+        String finalSong = song;
         Runnable r = () ->
         {
-            if (instance == null)
+            if (ui == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player.init() before trying to play"));
+                logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player2.init() before trying to play"));
             }
 
-            instance.change_song(finalSong);
+            ui.change_song(finalSong);
         };
         if (Platform.isFxApplicationThread()) r.run();
         else Platform.runLater(r);

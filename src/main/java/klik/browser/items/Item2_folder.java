@@ -21,8 +21,6 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Booleans;
-import klik.properties.Experimental_features;
 import klik.properties.Non_booleans;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
@@ -344,7 +342,7 @@ public class Item2_folder extends Item2 implements Icon_destination
     //**********************************************************
     {
 
-        if ( Booleans.get_boolean(Booleans.SINGLE_COLUMN))
+        if ( Virtual_landscape.single_column)
         {
             StringBuilder sb = new StringBuilder();
             try {
@@ -396,11 +394,11 @@ public class Item2_folder extends Item2 implements Icon_destination
                 Audio_player.play_playlist(get_item_path().toFile(),logger);
                 return;
             }
-            if (Booleans.get_boolean(Experimental_features.enable_image_playlists.name()) )
+            if (Virtual_landscape.enable_image_playlists )
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
                     logger.log("NOT IMPLEMENTED opening image playlist: " + get_item_path().toAbsolutePath());
-                    //New_window_context2.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
+                    //New_window_context.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
                     return;
                 }
             }
@@ -483,7 +481,7 @@ public class Item2_folder extends Item2 implements Icon_destination
                 old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
                 logger.log("\n\nreplace_different_folder old_folder_path "+old_folder_path+" \ntop_left_provider.get_top_left() "+top_left_provider.get_top_left());
             }
-            New_window_context2.replace_different_folder(
+            New_window_context.replace_different_folder(
                     shutdown_target,
                     get_item_path(),
                     owner,

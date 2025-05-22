@@ -25,21 +25,20 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.audio.Audio_info_frame;
-import klik.browser.New_window_context2;
+import klik.browser.New_window_context;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.experimental.metadata.Tag_stage;
 import klik.images.Exif_stage;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Booleans;
-import klik.properties.Experimental_features;
 import klik.properties.Non_booleans;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Folder_size;
@@ -235,7 +234,7 @@ public abstract class Item2 implements Icon_destination
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-                if ( Booleans.get_boolean(Experimental_features.enable_tags.name()))
+                if ( Virtual_landscape.enable_tags)
                 {
                     context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
                 }
@@ -268,7 +267,7 @@ public abstract class Item2 implements Icon_destination
             context_menu.getItems().add(create_delete_menu_item());
 
             context_menu.getItems().add(Item2.create_show_file_size_menu_item(get_item_path(), dbg,logger));
-            if ( Booleans.get_boolean(Experimental_features.enable_tags.name()))
+            if ( Virtual_landscape.enable_tags)
             {
                 context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
@@ -321,7 +320,7 @@ public abstract class Item2 implements Icon_destination
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
 
-            New_window_context2.additional_no_past(get_item_path().getParent(),logger);
+            New_window_context.additional_no_past(get_item_path().getParent(),logger);
         });
         return browse;
     }
@@ -517,7 +516,7 @@ public abstract class Item2 implements Icon_destination
             if (dbg) logger.log("File size");
             String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(path,logger);
             String message = My_I18n.get_I18n_string("File_size_for", logger) +"\n"+ path.getFileName().toString();
-            //Popups.popup_warning(message, file_size, false,logger);
+            //Popups.popup_warning(error_message, file_size, false,logger);
             Stage local_stage = new Stage();
             local_stage.setHeight(200);
             local_stage.setWidth(600);

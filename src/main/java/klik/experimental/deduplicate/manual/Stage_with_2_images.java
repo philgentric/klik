@@ -1,6 +1,6 @@
 //SOURCES ../My_File_and_status.java
 //SOURCES ../../../util/files_and_paths/File_pair.java
-//SOURCES ../../../audio/Audio_player.java
+//SOURCES ../../../audio/Audio_player2.java
 package klik.experimental.deduplicate.manual;
 
 import javafx.geometry.Orientation;

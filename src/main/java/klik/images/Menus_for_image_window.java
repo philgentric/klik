@@ -10,10 +10,11 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.New_window_context2;
+import klik.browser.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item2_file_with_icon;
+import klik.change.Redo_same_move_engine;
 import klik.change.undo.Undo_for_moves;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
@@ -259,7 +260,7 @@ public class Menus_for_image_window
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             New_window_context2.additional_no_past(
+             New_window_context.additional_no_past(
                      image_window.image_display_handler.get_image_context().get().path.getParent(),
                      image_window.logger);
         });

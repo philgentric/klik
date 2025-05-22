@@ -24,7 +24,7 @@ static utilities for drag-and-drop
 public class Drag_and_drop
 //**********************************************************
 {
-    public static boolean drag_and_drop_dbg = true;
+    public static boolean drag_and_drop_dbg = false;
     public static boolean drag_and_drop_ultra_dbg = false;
 
     //**********************************************************

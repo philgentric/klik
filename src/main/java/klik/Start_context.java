@@ -21,7 +21,7 @@ public record Start_context(List<String> args, int port, Path path)
     // args[0] is String (typically a path designating the content) ... and more strings could follow
     // args[0] is Integer (typically the port on which to reply "started" ... and more strings could follow
     //**********************************************************
-    public static Start_context get_context(Application application)
+    public static Start_context get_context_and_args(Application application)
     //**********************************************************
     {
         Application.Parameters params = application.getParameters();

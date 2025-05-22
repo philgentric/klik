@@ -18,15 +18,16 @@ public class History_auto_clean
         logger = logger_;
     }
 
+    /*
     //**********************************************************
     public boolean monitor()
     //**********************************************************
     {
         Undo_for_moves.erase_if_too_old(1000, 100, logger);
-        History_engine.erase_if_too_old(100,logger);
+        History_engine.get(logger).erase_if_too_old(100);
         return true;
     }
-
+*/
 
 
 }

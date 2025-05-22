@@ -307,33 +307,12 @@ public class Image_context
         the_image_view.setViewport(r);
     }
 
-
-    //**********************************************************
-    private static List<String> load_keyword_exclusion_list(Logger logger)
-    //**********************************************************
-    {
-
-        List<String> returned = new ArrayList<>();
-        int max = Non_booleans.get_excluded_keyword_list_max_size(logger);
-        for (int i = 0; i < max; i++) {
-            String key = Non_booleans.EXCLUDED_KEYWORD_PREFIX + i;
-            String kw = Non_booleans.get_main_properties_manager().get(key);
-            if (kw != null) {
-                String lower = kw.toLowerCase();
-                returned.add(lower);
-                logger.log("excluded key word: ->" + lower + "<-");
-            }
-        }
-        return returned;
-    }
-
     //**********************************************************
     void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Aborter aborter)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
-        List<String> exclusion_list = load_keyword_exclusion_list(logger);
-        Keyword_extractor ke = new Keyword_extractor(logger, exclusion_list);
+        Keyword_extractor ke = new Keyword_extractor(logger, List.of());
         Set<String> keywords_set = ke.extract_keywords_from_file_and_dir_names(path);
         if (keywords_set == null) {
             logger.log("FATAL null keywords ??? ");

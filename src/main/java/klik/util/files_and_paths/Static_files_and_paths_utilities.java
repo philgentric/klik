@@ -14,15 +14,14 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Booleans;
-import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
+import klik.properties.Cache_folder;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
-import klik.experimental.work_in_progress.RAM_disk;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
 import klik.util.ui.Jfx_batch_injector;
@@ -300,15 +299,6 @@ public class Static_files_and_paths_utilities
     public static Path get_cache_dir(Window owner, Cache_folder cache_folder, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE))
-        {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(cache_folder.name(), owner, logger);
-            //if (dbg)
-            if (tmp_dir != null) {
-                logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
-            }
-            return tmp_dir;
-        }
 
         Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
@@ -322,15 +312,7 @@ public class Static_files_and_paths_utilities
     public static Path get_icons_cache_dir(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( Booleans.get_boolean(Booleans.RAM_DISK_IS_ACTIVE,logger))
-        {
-            Path tmp_dir = RAM_disk.get_absolute_dir_on_RAM_disk(Cache_folder.klik_icon_cache.name(), owner, logger);
-            //if (dbg)
-            if (tmp_dir != null) {
-                logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
-            }
-            return tmp_dir;
-        }
+
 
         Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
@@ -593,7 +575,6 @@ public class Static_files_and_paths_utilities
     private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        boolean count_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
         if ( !path.toFile().isDirectory())
         {
             logger.log(Stack_trace_getter.get_stack_trace("Stupid4: not a folder: "+path));
@@ -604,7 +585,7 @@ public class Static_files_and_paths_utilities
         {
             if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath()))
             {
-                if ( !count_hidden_files)
+                if ( !Virtual_landscape.show_hidden_files)
                 {
                     file_count_stop_counter.decrementAndGet();
                     return;
