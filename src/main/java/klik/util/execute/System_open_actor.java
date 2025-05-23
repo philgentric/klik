@@ -125,7 +125,7 @@ public class System_open_actor implements Actor
         // Output file is empty
         StringBuilder sb = new StringBuilder();
         File wd = som.path.toFile().getParentFile();
-        if (!Execute_command.execute_command_list(list, wd, 2000, sb, som.logger))
+        if (Execute_command.execute_command_list(list, wd, 2000, sb, som.logger) == null)
         {
             som.logger.log("open special failed:\n"+ sb +"\n\n\n");
             return true;
@@ -150,7 +150,7 @@ public class System_open_actor implements Actor
         // Output file is empty
         StringBuilder sb = new StringBuilder();
         File wd = som.path.toFile().getParentFile();
-        if (!Execute_command.execute_command_list(list, wd, 2000, sb, som.logger))
+        if (Execute_command.execute_command_list(list, wd, 2000, sb, som.logger)==null)
         {
             som.logger.log("open special failed:\n"+ sb +"\n\n\n");
             return true;

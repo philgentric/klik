@@ -24,8 +24,8 @@ ext {
 }
 */
 
+version = "1.0" // application_version
 group = 'klik'
-version = '0.9'
 
 
 // this is REQUIRED with a JDK that does not bundle javaFX

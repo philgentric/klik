@@ -19,7 +19,7 @@ public class Execute_command
     public static final String IN_WORKING_DIR = "in working dir";
 
     //**********************************************************
-    public static boolean execute_command_list(List<String> command_tokens, File wd, int max_ms_wait_time, StringBuilder to_be_returned, Logger logger)
+    public static String execute_command_list(List<String> command_tokens, File wd, int max_ms_wait_time, StringBuilder to_be_returned, Logger logger)
     //**********************************************************
     {
         StringBuilder received_line = new StringBuilder();
@@ -29,6 +29,7 @@ public class Execute_command
         }
         if ( to_be_returned != null) to_be_returned.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
 
+        String output = "";
         ProcessBuilder process_builder = new ProcessBuilder(command_tokens);
         process_builder.directory(wd);
         process_builder.redirectErrorStream(true);
@@ -48,7 +49,7 @@ public class Execute_command
             {
                 logger.log("EXEC error: " + e1 + "\n");
             }
-            return false;
+            return null;
         }
 
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -57,6 +58,7 @@ public class Execute_command
         {
             while ((message = stdInput.readLine()) != null)
             {
+                output += message + "\n";
                 if ( to_be_returned != null)
                 {
                     to_be_returned.append(message);
@@ -75,7 +77,7 @@ public class Execute_command
             {
                 logger.log_stack_trace(e.toString());
             }
-            return false;
+            return null;
         }
         //System.out.println("going to wait");
         try
@@ -93,14 +95,14 @@ public class Execute_command
             {
                 logger.log_stack_trace(e.toString());
             }
-            return false;
+            return null;
         }
         if ( to_be_returned != null)
         {
             to_be_returned.append(EXECUTE_COMMAND_END_OF_WAIT_OK);
         }
 
-        return true;
+        return output;
     }
 
 

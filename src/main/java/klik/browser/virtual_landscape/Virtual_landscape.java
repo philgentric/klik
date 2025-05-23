@@ -2144,7 +2144,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
         File wd = (path_list_provider.get_folder_path()).toFile();
-        if ( !Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger))
+        if ( Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger) == null)
         {
 
             Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);

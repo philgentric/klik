@@ -243,7 +243,7 @@ public abstract class Feature_vector_source
         //list.add("python.*run_server.*");
         StringBuilder sb = new StringBuilder();
         File wd = new File (".");
-        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
+        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger)==null)
         {
             logger.log("failed:\n"+ sb );
             return false;

@@ -466,7 +466,7 @@ public class Icon_factory_actor implements Actor
             StringBuilder sb = null;
             if ( pdf_dbg) sb = new StringBuilder();
             File wd = file_in.getParentFile();
-            if ( ! Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger))
+            if ( Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger) == null)
             {
                 Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 

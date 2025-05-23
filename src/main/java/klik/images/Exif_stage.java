@@ -185,7 +185,7 @@ public class Exif_stage
         graphicsMagick_command_line.add(path.toAbsolutePath().toString());
 
         StringBuilder sb = new StringBuilder();
-        if ( ! Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger))
+        if ( Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger) == null)
         {
             logger.log(warning_GraphicsMagick);
             return null;

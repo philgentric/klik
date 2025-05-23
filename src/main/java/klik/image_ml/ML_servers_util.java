@@ -73,7 +73,7 @@ public class ML_servers_util
         ll.add("nohup bash -c 'source ~/venv-metal/bin/activate; ./python_for_face_reco/launch_MobileNetV2_servers "+list_of_ports+"' &");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status = Execute_command.execute_command_list(ll,wd,Integer.MAX_VALUE,sb,logger);
+        Execute_command.execute_command_list(ll,wd,Integer.MAX_VALUE,sb,logger);
         logger.log(sb.toString());
 
         logger.log("MobileNetV2 image similarity servers started");
@@ -91,7 +91,15 @@ public class ML_servers_util
         ll.add("launch_face_servers");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status = Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        boolean status;
+        if (Execute_command.execute_command_list(ll,wd,20000,sb,logger)==null)
+        {
+            status = false;
+        }
+        else
+        {
+            status = true;
+        }
         logger.log(sb.toString());
         return status;
     }
@@ -106,9 +114,13 @@ public class ML_servers_util
         ll.add("kill_face_servers");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status = Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        if(Execute_command.execute_command_list(ll,wd,20000,sb,logger)==null)
+        {
+            logger.log("failed to stop face detection servers");
+            return false;
+        }
         logger.log(sb.toString());
-        return status;
+        return true;
     }
 
     //**********************************************************
@@ -122,9 +134,13 @@ public class ML_servers_util
         File wd = new File("./python_for_face_reco");
 
         StringBuilder sb = new StringBuilder();
-        boolean status = Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        if (Execute_command.execute_command_list(ll,wd,20000,sb,logger) ==null)
+        {
+            logger.log("failed to start image similarity servers");
+            return false;
+        }
         logger.log(sb.toString());
-        return status;
+        return true;
     }
 
     //**********************************************************
@@ -138,9 +154,13 @@ public class ML_servers_util
         File wd = new File("./python_for_face_reco");
 
         StringBuilder sb = new StringBuilder();
-        boolean status = Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        if(Execute_command.execute_command_list(ll,wd,20000,sb,logger)==null)
+        {
+            logger.log("failed to stop image similarity servers");
+            return false;
+        }
         logger.log(sb.toString());
-        return status;
+        return true;
     }
 
 
@@ -156,9 +176,13 @@ public class ML_servers_util
         ll.add("venv");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status =   Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        if( Execute_command.execute_command_list(ll,wd,20000,sb,logger) == null)
+        {
+            logger.log("failed to create venv");
+            return false;
+        }
         logger.log(sb.toString());
-        return status;
+        return true;
     }
 
     //**********************************************************
@@ -180,10 +204,15 @@ public class ML_servers_util
         ll.add("source venv/bin/activate");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status =   Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        if( Execute_command.execute_command_list(ll,wd,20000,sb,logger) == null)
+        {
+            logger.log("failed to activate venv");
+            venv_activated = false;
+            return false;
+        }
         logger.log(sb.toString());
-        venv_activated = status;
-        return status;
+        venv_activated = true;
+        return true;
     }
 
     //**********************************************************
@@ -197,9 +226,13 @@ public class ML_servers_util
         ll.add("requirements.txt");
         File wd = new File("./python_for_face_reco");
         StringBuilder sb = new StringBuilder();
-        boolean status =   Execute_command.execute_command_list(ll,wd,20000,sb,logger);
+        if (Execute_command.execute_command_list(ll,wd,20000,sb,logger) ==null)
+        {
+            logger.log("failed to install requirements");
+            return false;
+        }
         logger.log(sb.toString());
-        return status;
+        return true;
     }
 
 

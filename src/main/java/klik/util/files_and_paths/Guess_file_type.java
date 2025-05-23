@@ -178,7 +178,7 @@ public class Guess_file_type
         list.add(path.getFileName().toString());
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
-        if (!Execute_command.execute_command_list(list, wd, 2000, sb, logger))
+        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
         {
             Booleans.manage_show_ffmpeg_install_warning(owner,logger);
         }

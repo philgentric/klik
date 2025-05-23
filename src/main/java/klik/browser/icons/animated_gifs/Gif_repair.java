@@ -65,7 +65,7 @@ public class Gif_repair
         graphicsMagick_command_line.add(uuid+"_frame_%03d.gif");
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
-        if ( !Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger))
+        if ( Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger) ==null)
         {
 
             Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
@@ -97,7 +97,7 @@ public class Gif_repair
             graphicsMagick_command_line.add(final_dest.toAbsolutePath().toString());
             StringBuilder sb = null;
             if ( dbg) sb = new StringBuilder();
-            if ( ! Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger))
+            if ( Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger) == null)
             {
                 Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
                 logger.log(warning_GraphicsMagick);
@@ -112,7 +112,7 @@ public class Gif_repair
             l.add("rm");
             l.add("frame_0*.gif");
             l.add(image_context.path.getFileName().toString());
-            if ( ! Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger))
+            if ( Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger) == null)
             {
                 Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
 

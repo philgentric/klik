@@ -106,7 +106,7 @@ public class Animated_gif_from_folder
         {
             StringBuilder sb = null;
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
-            if (!Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger))
+            if (Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger) == null)
             {
                 Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
                 logger.log(warning_GraphicsMagick);
@@ -151,7 +151,7 @@ public class Animated_gif_from_folder
 
         StringBuilder sb = null;
         if (dbg_GraphicsMagick_call) sb = new StringBuilder();
-        if (!Execute_command.execute_command_list(graphicsMagick_command_line, new File("."), 2000, sb, logger))
+        if (Execute_command.execute_command_list(graphicsMagick_command_line, new File("."), 2000, sb, logger) == null)
         {
             logger.log("FAILED: make_animated_gif_from_all_images_in_folder "+graphicsMagick_command_line);
         }
