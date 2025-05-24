@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.items.Item2_file_with_icon;
+import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
@@ -495,7 +495,7 @@ public class Image_context
                 Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l);
 
-        Item2_file_with_icon.open_an_image(true,
+        Item_file_with_icon.open_an_image(true,
                 path_list_provider,
                 path_comparator_source,
                 new_path,logger);

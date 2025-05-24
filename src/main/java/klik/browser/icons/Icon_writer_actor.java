@@ -20,7 +20,9 @@ public class Icon_writer_actor implements Actor
 //**********************************************************
 {
 	private static final boolean dbg = false;
-	private static final boolean dbg_names = true;
+	// dbg_names is super useful to debug this feature BUT it has a major caveat:
+	// folders with [whaztever] in the name will not have an animated icon
+	private static final boolean dbg_names = false;
 
 	Path cache_dir;
 	Logger logger;
@@ -113,6 +115,8 @@ public class Icon_writer_actor implements Actor
 	{
 		s = s.replace("/", "_");
 		s = s.replace(".", "_");
+		s = s.replace("\\[", "_");
+		s = s.replace("]", "_");
 		//s = s.replace(" ", "_"); this is a bug: files named "xxx_yyy" and "xxx yyy" get the same icon!, sometimes no icon e.g. pdf
 		return s;
 	}

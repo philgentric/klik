@@ -8,7 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import klik.browser.Drag_and_drop;
-import klik.browser.items.Item2;
+import klik.browser.items.Item;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -282,9 +282,9 @@ public class Selection_handler
     {
         if ( Drag_and_drop.drag_and_drop_dbg) logger.log("selection area is: x=" + x + ", y=" + y + ", w= " + w + ", h= " + h);
 
-        List<Item2> items = virtual_landscape.get_items_in(the_pane, x, y, w, h);
+        List<Item> items = virtual_landscape.get_items_in(the_pane, x, y, w, h);
         if (Drag_and_drop.drag_and_drop_dbg) logger.log("=============selection=============");
-        for (Item2 i : items)
+        for (Item i : items)
         {
             i.set_is_selected(); // show visible feedback to user AND add to list
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("extract_selected_files: "+i.get_item_path().toAbsolutePath());

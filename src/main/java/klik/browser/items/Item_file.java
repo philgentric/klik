@@ -13,7 +13,7 @@ import klik.util.log.Logger;
 import java.nio.file.Path;
 
 //**********************************************************
-public abstract class Item2_file extends Item2
+public abstract class Item_file extends Item
 //**********************************************************
 {
     protected Path path;
@@ -22,7 +22,7 @@ public abstract class Item2_file extends Item2
 
 
     //**********************************************************
-    public Item2_file(
+    public Item_file(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,

@@ -40,7 +40,7 @@ import java.util.Random;
 
 
 //**********************************************************
-public class Item2_folder_with_icon extends Item2_folder implements Icon_destination, Disk_foot_print_receiver
+public class Item_folder_with_icon extends Item_folder implements Icon_destination, Disk_foot_print_receiver
 //**********************************************************
 {
     public static final boolean dbg = false;
@@ -59,7 +59,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     private  final Image_properties_RAM_cache image_properties_RAM_cache;
 
     //**********************************************************
-    public Item2_folder_with_icon(
+    public Item_folder_with_icon(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
@@ -69,7 +69,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
             int column_width_,
             double height,
             boolean is_trash_,
-            boolean is_parent_,
+            Path is_parent_of,
             Image_properties_RAM_cache image_properties_RAM_cache,
             Shutdown_target shutdown_target,
             Path_list_provider path_list_provider,
@@ -88,7 +88,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
                 text_,
                 height,
                 is_trash_,
-                is_parent_,
+                is_parent_of,
                 image_properties_RAM_cache,
                 shutdown_target,
                 path_list_provider,
@@ -104,9 +104,9 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
         double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
-        button = new Button(text);
-        button.setMnemonicParsing(false);
-        button.setTextOverrun(OverrunStyle.ELLIPSIS);
+        //button = new Button(text);
+        //button.setMnemonicParsing(false);
+        //button.setTextOverrun(OverrunStyle.ELLIPSIS);
         the_image_pane = new FlowPane();
         the_image_pane.setAlignment(Pos.BOTTOM_LEFT);
         the_image_pane.setMinWidth(folder_icon_size);
@@ -117,20 +117,24 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
         button.setContentDisplay(ContentDisplay.BOTTOM);
 
         Look_and_feel_manager.set_button_look(button,true);
+
+        /*Look_and_feel_manager.set_button_look(button,true);
         button.setOnAction(actionEvent ->
                 {
                     Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
-                    if ( is_parent()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up-button, the old path is the current path
-                    New_window_context.replace_different_folder(shutdown_target, get_item_path(),owner, old_folder_path,top_left_provider.get_top_left(),logger);
+                    if ( this.is_parent_of()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
+                    Browsing_caches.scroll_position_cache.put(old_folder_path.toAbsolutePath().toString(),top_left_provider.get_top_left());
+
+                    New_window_context.replace_different_folder(shutdown_target, get_item_path(),owner,logger);
                 });
         Tooltip.install(button,new Tooltip(get_item_path().getFileName().toString()));
-
+*/
         resize_the_box(button);
-
+/*
         Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,get_item_path(),is_trash(),logger);
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
         give_a_menu_to_the_button(button,null);
-
+*/
     }
 
 
@@ -154,7 +158,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public int get_icon_size()
     //**********************************************************
     {
@@ -162,7 +166,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void you_are_visible_specific()
     //**********************************************************
     {
@@ -266,7 +270,7 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
 
     // this call is intended only from a working thread typically: in the icon factory 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
@@ -368,14 +372,14 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void set_is_unselected_internal()
     {
         Look_and_feel_manager.give_button_a_file_style(button);
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void set_is_selected_internal()
     //**********************************************************
     {
@@ -399,10 +403,10 @@ public class Item2_folder_with_icon extends Item2_folder implements Icon_destina
 
     //**********************************************************
     @Override
-    public boolean is_parent()
+    public Path is_parent_of()
     //**********************************************************
     {
-        return false;
+        return is_parent_of;
     }
 
 

@@ -21,7 +21,7 @@ import klik.actor.Aborter;
 import klik.audio.Audio_player;
 import klik.browser.Drag_and_drop;
 import klik.browser.New_window_context;
-import klik.browser.items.Item2_file_with_icon;
+import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.my_i18n.My_I18n;
@@ -130,7 +130,7 @@ public class Results_frame
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
-				Item2_file_with_icon.open_an_image(
+				Item_file_with_icon.open_an_image(
 						true,
 						path_list_provider,
 						path_comparator_source,
@@ -188,7 +188,7 @@ public class Results_frame
 			{
 				double x = stage.getX()+100;
 				double y = stage.getY()+100;
-				MenuItem rename = Item2_file_with_icon.get_rename_MenuItem(path,stage,x, y, aborter,logger);
+				MenuItem rename = Item_file_with_icon.get_rename_MenuItem(path,stage,x, y, aborter,logger);
 				context_menu.getItems().add(rename);
 			}
 

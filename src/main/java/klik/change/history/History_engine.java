@@ -17,7 +17,7 @@ public class History_engine
     //**********************************************************
     {
         IProperties ip = new File_based_IProperties("history",aborter,logger);
-        ph = new Properties_for_history(ip,  10, logger);
+        ph = new Properties_for_history(ip,  300, logger);
     }
 
     //**********************************************************

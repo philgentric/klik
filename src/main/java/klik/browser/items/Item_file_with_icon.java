@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 //**********************************************************
-public class Item2_file_with_icon extends Item2_file
+public class Item_file_with_icon extends Item_file
 //**********************************************************
 {
     protected ImageView image_view;
@@ -66,7 +66,7 @@ public class Item2_file_with_icon extends Item2_file
     private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
-    public Item2_file_with_icon(
+    public Item_file_with_icon(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
@@ -167,13 +167,13 @@ public class Item2_file_with_icon extends Item2_file
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void set_is_unselected_internal()
     {
         if ( image_view != null) image_view.setViewport(null);
     }
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void set_is_selected_internal()
     //**********************************************************
     {
@@ -218,7 +218,7 @@ public class Item2_file_with_icon extends Item2_file
         }
     }
 
-    @Override // Item2
+    @Override // Item
     public Path get_path_for_display(boolean try_deep) {
         return get_item_path();
     }
@@ -238,10 +238,10 @@ public class Item2_file_with_icon extends Item2_file
 
     //**********************************************************
     @Override
-    public boolean is_parent()
+    public Path is_parent_of()
     //**********************************************************
     {
-        return false;
+        return null;
     }
 
     //**********************************************************
@@ -297,16 +297,16 @@ public class Item2_file_with_icon extends Item2_file
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+get_item_path());
-                Item2_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),logger);
+                Item_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),logger);
             });
             context_menu.getItems().add(menu_item);
         }
         
         {
-            context_menu.getItems().add(Item2.create_show_file_size_menu_item(get_item_path(), dbg, logger));
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, logger));
             if (Virtual_landscape.enable_tags)
             {
-                context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
         }
 
@@ -593,7 +593,7 @@ public class Item2_file_with_icon extends Item2_file
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public int get_icon_size()
     //**********************************************************
     {
@@ -601,7 +601,7 @@ public class Item2_file_with_icon extends Item2_file
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void you_are_visible_specific()
     //**********************************************************
     {
@@ -616,7 +616,7 @@ public class Item2_file_with_icon extends Item2_file
 
     }
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void you_are_invisible_specific()
     //**********************************************************
     {

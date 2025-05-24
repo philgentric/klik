@@ -31,7 +31,7 @@ public class Browsing_caches
     // make sure we go again at the same scroll point when we enter a given folder AGAIN
     // the key is the visited folder, the value is the scroll position,
     // that is : the path of the top-left item when leaving that folder
-    public static Map<String, Path> scroll_position_cache = new HashMap<>();
+    private static Map<String, Path> scroll_position_cache = new HashMap<>();
     public static Map<String,Image_properties_RAM_cache> image_properties_RAM_cache_of_caches = new HashMap<>();
     public static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
 
@@ -45,5 +45,20 @@ public class Browsing_caches
         }
         image_properties_RAM_cache = tmp;
 
+    }
+
+    public static void scroll_position_cache_write(Path folder_path, Path top_left_item_path)
+    {
+        scroll_position_cache.put(folder_path.toAbsolutePath().toString(), top_left_item_path);
+    }
+
+    public static void scroll_position_cache_clear() {
+        scroll_position_cache.clear();
+    }
+
+
+    public static Path scroll_position_cache_read(Path folder_path)
+    {
+        return scroll_position_cache.get(folder_path.toAbsolutePath().toString());
     }
 }

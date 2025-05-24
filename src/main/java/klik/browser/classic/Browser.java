@@ -198,10 +198,12 @@ public class Browser extends Abstract_browser
                     // when a file is dropped in.
                     // if a file was moved away or deleted
                     // recording its new path would be a bad bug
-                    if ( oan.new_Path != null) {
-                        if (oan.new_Path.startsWith(path_list_provider.get_folder_path())) {
+                    if ( oan.new_Path != null)
+                    {
+                        if (oan.new_Path.startsWith(path_list_provider.get_folder_path()))
+                        {
                             // make sure the window will scroll to the landing point of the displaced file
-                            Browsing_caches.scroll_position_cache.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), oan.new_Path);
+                            Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(), oan.new_Path);
                         }
                     }
                 }

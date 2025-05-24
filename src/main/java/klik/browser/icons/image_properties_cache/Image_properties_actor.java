@@ -20,7 +20,7 @@ public class Image_properties_actor implements Actor
 
         if (image_properties_message.aborter.should_abort())
         {
-            image_properties_message.logger.log("Image_properties_actor aborting "+image_properties_message.path);
+            if (dbg) image_properties_message.logger.log("Image_properties_actor aborting "+image_properties_message.path);
             return "aborted";
         }
 

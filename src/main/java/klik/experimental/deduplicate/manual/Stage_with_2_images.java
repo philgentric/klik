@@ -19,7 +19,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
-import klik.browser.items.Item2_file_with_icon;
+import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Non_booleans;
@@ -182,7 +182,7 @@ public class Stage_with_2_images
 			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
             if (is_image)
 			{
-				Runnable r = () -> Item2_file_with_icon.open_an_image(false,path_list_provider, path_comparator_source,file.toPath(),logger);
+				Runnable r = () -> Item_file_with_icon.open_an_image(false,path_list_provider, path_comparator_source,file.toPath(),logger);
 				Actor_engine.execute(r,logger);
                 //Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
             }

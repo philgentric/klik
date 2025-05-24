@@ -13,7 +13,7 @@ import klik.actor.Actor_engine;
 import klik.browser.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.browser.items.Item2_file_with_icon;
+import klik.browser.items.Item_file_with_icon;
 import klik.change.Redo_same_move_engine;
 import klik.change.undo.Undo_for_moves;
 import klik.image_ml.face_recognition.Face_detection_type;
@@ -513,7 +513,7 @@ public class Menus_for_image_window
 
         if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
         {
-            context_menu.getItems().add(Item2_file_with_icon.create_show_similar_menu_item(
+            context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
                     image_properties_cache,
                     image_window.the_Stage,

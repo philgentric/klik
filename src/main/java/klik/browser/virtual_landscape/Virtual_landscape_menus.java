@@ -18,7 +18,7 @@ import klik.browser.Icon_size;
 import klik.browser.New_window_context;
 import klik.browser.Shared_services;
 import klik.browser.classic.Folder_path_list_provider;
-import klik.browser.items.Item2_folder;
+import klik.browser.items.Item_folder;
 import klik.change.Change_receiver;
 import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Active_list_stage_action;
@@ -196,13 +196,13 @@ public class Virtual_landscape_menus
             String text,
             double height,
             double min_width,
-            boolean is_trash,
-            boolean is_parent,
+            boolean is_trash_button,
+            Path is_parent_of,
             Logger logger)
     //**********************************************************
     {
         // we make a Item_button but are only interested in the button...
-        Item2_folder dummy = new Item2_folder(
+        Item_folder dummy = new Item_folder(
                 owner,
                 virtual_landscape.the_Scene,
                 virtual_landscape.selection_handler,
@@ -210,8 +210,8 @@ public class Virtual_landscape_menus
                 null,
                 text,
                 height,
-                is_trash,
-                is_parent,
+                is_trash_button,
+                is_parent_of,
                 virtual_landscape.browsing_caches.image_properties_RAM_cache,
                 virtual_landscape.shutdown_target,
                 new Folder_path_list_provider(path),
@@ -646,8 +646,10 @@ public class Virtual_landscape_menus
                         }
 
                     }
-                    // else
-                    New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi.value), owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger);
+                    Path old_folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    Browsing_caches.scroll_position_cache_write(old_folder_path,virtual_landscape.get_top_left());
+
+                    New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi.value), owner,virtual_landscape.logger);
                 });
                 path_already_done.put(hi.value,hi);
                 history_menu.getItems().add(item);
@@ -680,7 +682,10 @@ public class Virtual_landscape_menus
     private void pop_up_whole_history()
     //**********************************************************
     {
-        Active_list_stage_action action = text -> New_window_context.replace_different_folder(virtual_landscape.shutdown_target,Path.of(text),owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger);
+        Active_list_stage_action action = text -> {
+            Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
+            New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(text), owner, virtual_landscape.logger);
+        };
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
             @Override
             public Map<LocalDateTime, String> get_map_of_date_to_signature() {
@@ -716,7 +721,10 @@ public class Virtual_landscape_menus
             //    continue;
             //}
             MenuItem item = new MenuItem(hi);
-            item.setOnAction(event -> New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi), owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger));
+            item.setOnAction(event -> {
+                Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
+                New_window_context.replace_different_folder(virtual_landscape.shutdown_target, Path.of(hi), owner,virtual_landscape.logger);
+            });
             bookmarks_menu.getItems().add(item);
 
         }
@@ -750,7 +758,8 @@ public class Virtual_landscape_menus
             String text = f.getAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
             item.setOnAction(event -> {
-                    New_window_context.replace_different_folder(virtual_landscape.shutdown_target,f.toPath(),owner,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),virtual_landscape.logger);
+                Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
+                New_window_context.replace_different_folder(virtual_landscape.shutdown_target,f.toPath(),owner,virtual_landscape.logger);
             });
             roots_menu.getItems().add(item);
         }

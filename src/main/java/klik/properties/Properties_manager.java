@@ -27,7 +27,8 @@ import java.util.concurrent.TimeUnit;
 public class Properties_manager
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
+    private static final boolean ultra_dbg = false;
     public static final String AGE = "_age";
     public static final int max = 30;
 
@@ -178,7 +179,7 @@ public class Properties_manager
         }
         else
         {
-            if (dbg) logger.log(" file exists:"+ the_properties_path);
+            if (ultra_dbg) logger.log(" file exists:"+ the_properties_path);
         }
 
         if (!Files.isWritable(the_properties_path))
@@ -189,7 +190,7 @@ public class Properties_manager
         }
         else
         {
-            if (dbg) logger.log(" file is writable:"+ the_properties_path);
+            if (ultra_dbg) logger.log(" file is writable:"+ the_properties_path);
         }
 
         try

@@ -62,7 +62,7 @@ public class New_window_context
     //**********************************************************
     {
         // make sure the new window is scrolled at the same position
-        Browsing_caches.scroll_position_cache.put(new_and_old_path.toAbsolutePath().toString(),top_left);
+        Browsing_caches.scroll_position_cache_write(new_and_old_path,top_left);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
 
@@ -105,7 +105,7 @@ public class New_window_context
             Logger logger)
     //**********************************************************
     {
-        Browsing_caches.scroll_position_cache.put(new_and_old_path.toAbsolutePath().toString(),top_left);
+        Browsing_caches.scroll_position_cache_write(new_and_old_path,top_left);
 
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(parent_window.getX(), parent_window.getY(), parent_window.getWidth(), parent_window.getHeight());
 
@@ -168,7 +168,7 @@ public class New_window_context
             Logger logger)
     //**********************************************************
     {
-        Browsing_caches.scroll_position_cache.put(old_and_new_path.toAbsolutePath().toString(),top_left);
+        Browsing_caches.scroll_position_cache_write(old_and_new_path,top_left);
 
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
         New_window_context context =  new New_window_context(
@@ -184,21 +184,11 @@ public class New_window_context
             Shutdown_target shutdown_target,
             Path new_path,
             Window parent_window,
-            Path old_path,
-            Path top_left,
+            //Path old_path,
             Logger logger)
     //**********************************************************
     {
         logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
-        if( top_left == null)
-        {
-            logger.log("SHOULD NOT HAPPEN  top left is null for old path: " + old_path.toAbsolutePath());
-        }
-        else
-        {
-            Browsing_caches.scroll_position_cache.put(old_path.toAbsolutePath().toString(),top_left);
-            logger.log("yop, recorded that " + old_path.toAbsolutePath() + " has top left =" + top_left.toString());
-        }
         Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
         New_window_context context =  new New_window_context(
                 new_path,

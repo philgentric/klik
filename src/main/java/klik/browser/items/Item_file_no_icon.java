@@ -12,7 +12,9 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
-import klik.browser.*;
+import klik.browser.Drag_and_drop;
+import klik.browser.Image_and_properties;
+import klik.browser.New_window_context;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -46,120 +48,77 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
-public class Item2_folder extends Item2 implements Icon_destination
+public class Item_file_no_icon extends Item_file implements Icon_destination
 //**********************************************************
 {
     public static final boolean dbg = true;
     public Button button;
     public Label label;
-    public final boolean is_trash;
-    public final boolean is_parent;
     public String text;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private final Image_properties_RAM_cache image_properties_RAM_cache;
     private final Shutdown_target shutdown_target;
     private final Top_left_provider top_left_provider;
-    protected final Path_comparator_source path_comparator_source;
-
+    private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
-    public Item2_folder(
+    public Item_file_no_icon(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
             Color color,
             String text_,
-            double height,
-            boolean is_trash_,
-            boolean is_parent_,
             Image_properties_RAM_cache image_properties_RAM_cache,
             Shutdown_target shutdown_target,
+            Path path,
             Path_list_provider path_list_provider,
-            Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
+            Path_comparator_source path_comparator_source,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
-        super(
-                owner,
-                scene,
-                selection_handler,
-                icon_factory_actor,
-                color,
-                path_list_provider,
-                aborter,
-                logger);
+        super(owner,scene,selection_handler,icon_factory_actor,color, path, path_list_provider,aborter, logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
         this.path_comparator_source = path_comparator_source;
         text = text_;
-        is_trash = is_trash_;
-        is_parent = is_parent_;
-        /*
         if (path == null) {
-            is_dir = false;
-            button = new Button("----------");
-            button.setPrefWidth(Control.USE_COMPUTED_SIZE);
-            button.setTextOverrun(OverrunStyle.ELLIPSIS);
-            button.setGraphicTextGap(20);
-            Look_and_feel_manager.set_button_look(button,false);
+            logger.log(Stack_trace_getter.get_stack_trace("FATAL: path is null"));
             return;
-        }*/
+        }
 
         double button_width = Non_booleans.get_column_width();
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
-        Path local = get_item_path();
-        if ( local == null)
-        {
-            logger.log("PANIC PATH is null");
-            return;
-        }
-        if (Files.isDirectory(local))
-        {
-            button_for_a_directory(text, button_width, height, color);
-        }
-        else
-        {
-            logger.log("SHOULD NOT HAPPEN Item2_folder path is not a dorectory!");
-        }
+        button_for_a_non_image_file( text,button_width);
+
         Look_and_feel_manager.set_button_look(button,false);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
-        Tooltip.install(button,new Tooltip(get_item_path().toString()));
-
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
-
+        Tooltip.install(button,new Tooltip(path.toString()));
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
     }
-
-
-
-    @Override
-    public Iconifiable_item_type get_item_type() {
-        return null;
-    }
-
 
     @Override
     void set_new_path(Path newPath) {
-
+        path = newPath;
     }
 
     @Override
     public Path get_item_path() {
-        return path_list_provider.get_folder_path();
+        return path;
     }
 
     public ImageView get_image_view(){return null;}
     public Pane get_pane(){return null;}
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void you_are_visible_specific()
     //**********************************************************
     {
@@ -167,7 +126,7 @@ public class Item2_folder extends Item2 implements Icon_destination
     }
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void you_are_invisible_specific()
     //**********************************************************
     {
@@ -176,7 +135,7 @@ public class Item2_folder extends Item2 implements Icon_destination
 
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public int get_icon_size()
     //**********************************************************
     {
@@ -217,12 +176,10 @@ public class Item2_folder extends Item2 implements Icon_destination
     // this call is intended only from a working thread
     // in the icon factory as
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
-        if (is_trash) return null;
-        if (is_parent) return null;
         // for a file the displayed icon is built from the file itself, if supported:
         if ( !get_item_path().toFile().isDirectory()) return get_item_path();
 
@@ -319,7 +276,7 @@ public class Item2_folder extends Item2 implements Icon_destination
 
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void set_is_unselected_internal()
     {
         Look_and_feel_manager.give_button_a_file_style(button);
@@ -327,7 +284,7 @@ public class Item2_folder extends Item2 implements Icon_destination
 
 
     //**********************************************************
-    @Override // Item2
+    @Override // Item
     public void set_is_selected_internal()
     //**********************************************************
     {
@@ -451,8 +408,8 @@ public class Item2_folder extends Item2 implements Icon_destination
         }
 
         button.setOnAction(event -> {
-            logger.log("BUTTON PRESSED for folder:"+text);
-
+            logger.log(Stack_trace_getter.get_stack_trace("BUTTON PRESSED for item file no icon :"+text));
+/*
             if (get_item_path() == null)
             {
                 // protect crash when going up: root has no parent
@@ -460,35 +417,24 @@ public class Item2_folder extends Item2 implements Icon_destination
                 return;
             }
 
-            // as the button represents a folder, clicking on it "opens" that folder
+            // if the button represents a folder, clicking on it "opens" that folder
             // = we create a NEW browser, as a replacement
 
-            if( dbg) logger.log("Item2_folder button setOnAction calling replace_different_folder");
+            if( dbg) logger.log("Item_file_no_icon button setOnAction calling replace_different_folder");
 
-            logger.log("\n\nget_item_path "+get_item_path()+"\npath_list_provider.get_folder_path()="+path_list_provider.get_folder_path());
-            Path old_folder_path;
-            Path top_left;
-            if ( is_parent())
-            {
-                top_left = top_left_provider.get_top_left();
-                if ( top_left != null) top_left = top_left.getParent();
-                old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
-                logger.log("\n\nreplace_different_folder IS PARENT old_folder_path "+old_folder_path+" \ntop_left "+top_left);
-            }
-            else
-            {
-                top_left = top_left_provider.get_top_left();
-                old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
-                logger.log("\n\nreplace_different_folder old_folder_path "+old_folder_path+" \ntop_left_provider.get_top_left() "+top_left_provider.get_top_left());
-            }
+            // the place we are going is the path of the button = get_item_path()
+            // to record the scroll_to i.e. the current position, we need the place we are coming from = the current path of the browser
+            // this is the parent EXCEPT when the button is the parent aka up button
+            Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
+            if ( is_up_button()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
+            Browsing_caches.scroll_position_cache.put(old_folder_path.toAbsolutePath().toString(),top_left_provider.get_top_left());
+
             New_window_context.replace_different_folder(
                     shutdown_target,
                     get_item_path(),
                     owner,
-                    old_folder_path,
-                    top_left,
                     logger);
-
+*/
         });
 
         Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,get_item_path(),is_trash(),logger);
@@ -575,8 +521,6 @@ public class Item2_folder extends Item2 implements Icon_destination
         Actor_engine.execute(r, logger);
     }
 
-
-
     @Override
     public Node get_Node() {
         return button;
@@ -610,16 +554,16 @@ public class Item2_folder extends Item2 implements Icon_destination
     public boolean is_trash()
     //**********************************************************
     {
-        return is_trash;
+        return false;
     }
 
 
     //**********************************************************
     @Override
-    public boolean is_parent()
+    public Path is_parent_of()
     //**********************************************************
     {
-        return is_parent;
+        return null;
     }
 
     //**********************************************************
@@ -627,7 +571,7 @@ public class Item2_folder extends Item2 implements Icon_destination
     public String get_string()
     //**********************************************************
     {
-        return "is dir: " + get_item_path().toAbsolutePath();
+        return "is file: " + get_item_path().toAbsolutePath();
     }
 
 

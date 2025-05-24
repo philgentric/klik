@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
-public abstract class Item2 implements Icon_destination
+public abstract class Item implements Icon_destination
 //**********************************************************
 {
     protected static final boolean dbg = false;
@@ -92,7 +92,7 @@ public abstract class Item2 implements Icon_destination
 
 
     //**********************************************************
-    public Item2(
+    public Item(
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
@@ -152,7 +152,7 @@ public abstract class Item2 implements Icon_destination
     public abstract double get_Width();
     public abstract double get_Height();
     public abstract boolean is_trash();
-    public abstract boolean is_parent();
+    public abstract Path is_parent_of();
 
 
     @Override // Icon_destination
@@ -230,13 +230,13 @@ public abstract class Item2 implements Icon_destination
                 MenuItem menu_item = create_clear_trash_menu_item();
                 context_menu.getItems().add(menu_item);
             }
-            if(!is_trash() && !is_parent())
+            if(!is_trash() && (is_parent_of()==null))
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
                 if ( Virtual_landscape.enable_tags)
                 {
-                    context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
+                    context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
                 }
                 context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
                 context_menu.getItems().add(create_delete_menu_item());
@@ -256,7 +256,7 @@ public abstract class Item2 implements Icon_destination
             }
             if ( this.get_item_type() == Iconifiable_item_type.video)
             {
-                Item2_file_with_icon.make_menu_items_for_videos(get_item_path(),owner,context_menu,dbg, aborter,logger);
+                Item_file_with_icon.make_menu_items_for_videos(get_item_path(),owner,context_menu,dbg, aborter,logger);
             }
 
             // is a "plain" file
@@ -266,10 +266,10 @@ public abstract class Item2 implements Icon_destination
             context_menu.getItems().add(create_copy_menu_item());
             context_menu.getItems().add(create_delete_menu_item());
 
-            context_menu.getItems().add(Item2.create_show_file_size_menu_item(get_item_path(), dbg,logger));
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg,logger));
             if ( Virtual_landscape.enable_tags)
             {
-                context_menu.getItems().add(Item2.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
         }
 
@@ -434,7 +434,7 @@ public abstract class Item2 implements Icon_destination
                     set_new_path(new_path);
                     if ( local_label == null)
                     {
-                        // the item is a Item2_folder_with_icon
+                        // the item is a Item_folder_with_icon
                         if (dbg) logger.log("rename done");
                         local_button.setText(new_dir_name);
                         local_button.setGraphic(restored);
@@ -609,19 +609,19 @@ public abstract class Item2 implements Icon_destination
                 //logger.log("is selected: ->"+localized_name+"<-");
                 color = my_color.color();
                 My_colors.save_color(get_item_path(),my_color.java_name(),logger);
-                if ( this instanceof Item2_file_no_icon ifni)
+                if ( this instanceof Item_file_no_icon ifni)
                 {
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color);
                 }
-                if ( this instanceof Item2_folder itf)
+                if ( this instanceof Item_folder itf)
                 {
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color);
                 }
-                if ( this instanceof Item2_folder_with_icon itfwi)
+                if ( this instanceof Item_folder_with_icon itfwi)
                 {
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
