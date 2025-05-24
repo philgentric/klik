@@ -63,8 +63,7 @@ public class Animated_gif_from_folder
         Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner,Cache_folder.klik_folder_icon_cache,logger);
         Path output_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(output_animated_gif)) {
-            //if (dbg)
-                logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
+            if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
             return output_animated_gif;
         }
         if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder in = " + path_list_provider.get_name() + " target out = " + output_animated_gif);

@@ -22,7 +22,7 @@ import java.util.*;
 public class Undo_core implements Datetime_to_signature_source
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
     private final Logger logger;
     static final boolean ultra_dbg = false;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
@@ -93,6 +93,7 @@ public class Undo_core implements Datetime_to_signature_source
     public Map<String, Undo_item> get_signature_to_undo_item_map()
     //**********************************************************
     {
+        logger.log("reading undo items from disk");
         Map<String, Undo_item> returned = new HashMap<>();
         List<Undo_item> ll = read_all_undo_items_from_disk();
         for ( Undo_item ui: ll)
@@ -157,7 +158,6 @@ public class Undo_core implements Datetime_to_signature_source
     public void remove_all_undo_items_from_property_file(Window owner)
     //**********************************************************
     {
-
         String s1 = My_I18n.get_I18n_string("Warning_delete_undo", logger);
         if (!Popups.popup_ask_for_confirmation(owner, s1, "", logger)) return;
 
@@ -210,7 +210,7 @@ public class Undo_core implements Datetime_to_signature_source
                 }
             }
         }
-        properties_manager.store_properties();
+        properties_manager.store_properties(false);
     }
 
     /*
@@ -348,7 +348,7 @@ public class Undo_core implements Datetime_to_signature_source
             }
             j++;
         }
-        properties_manager.store_properties();
+        properties_manager.store_properties(false);
 
     }
 
@@ -374,7 +374,8 @@ public class Undo_core implements Datetime_to_signature_source
             }
             else
             {
-                if ( dbg) logger.log("OK removed "+key+" from properties");
+                //if ( dbg)
+                    logger.log("OK UNDO removed "+key+" from properties");
             }
         }
         {
@@ -419,7 +420,7 @@ public class Undo_core implements Datetime_to_signature_source
             }
             j++;
         }
-        properties_manager.store_properties();
+        properties_manager.store_properties(false);
     }
 
     //**********************************************************

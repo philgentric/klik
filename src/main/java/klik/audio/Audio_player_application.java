@@ -43,7 +43,7 @@ public class Audio_player_application extends Application
         if (  !start_server(logger))
         {
             logger.log("failed to start server: this is normal if another instance exists already");
-            Start_context.send_started_raw(context,logger);
+            Start_context.send_started_raw(context.port(),logger);
             stage.close();
             Platform.exit();
             System.exit(0);

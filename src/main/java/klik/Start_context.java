@@ -15,7 +15,7 @@ import java.util.List;
 public record Start_context(List<String> args, int port, Path path)
 //**********************************************************
 {
-    private static boolean dbg = true;
+    private static boolean dbg = false;
     // 3 cases
     // no args
     // args[0] is String (typically a path designating the content) ... and more strings could follow
@@ -66,16 +66,16 @@ public record Start_context(List<String> args, int port, Path path)
     //**********************************************************
     {
         if(context.port()<0) return;
-        Runnable r = () -> send_started_raw(context, logger);
+        Runnable r = () -> send_started_raw(context.port(), logger);
         Actor_engine.execute(r, logger);
     }
 
     //**********************************************************
-    public static void send_started_raw(Start_context context, Logger logger)
+    public static void send_started_raw(int port_number, Logger logger)
     //**********************************************************
     {
-        if(context.port()<0) return;
-        TCP_client.request("localhost", context.port(), Launcher.STARTED, logger);
+        if(port_number<0) return;
+        TCP_client.request("localhost", port_number, Launcher.STARTED, logger);
     }
 
 }

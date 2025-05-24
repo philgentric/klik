@@ -82,6 +82,6 @@ public class Metadata_handler
     //**********************************************************
     {
         properties_manager.remove(key);
-        if ( and_save) properties_manager.store_properties();
+        if ( and_save) properties_manager.store_properties(false);
     }
 }

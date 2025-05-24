@@ -16,7 +16,7 @@ import java.nio.file.Path;
 public class New_window_context
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public final Path target_path; // this can be an absolute folder path or a image play list FILE  path
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown

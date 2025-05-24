@@ -19,7 +19,7 @@ import java.util.concurrent.BlockingQueue;
 public class Runnable_for_finding_duplicate_file_pairs_similarity implements Runnable
 //**********************************************************
 {
-	private static final boolean dbg = true;
+	private static final boolean dbg = false;
 	private static final double SPECIAL_SIMILARITY_THRESHOLD = 0.024;
 	Logger logger;
 	private final List<File_with_a_few_bytes> all_files;

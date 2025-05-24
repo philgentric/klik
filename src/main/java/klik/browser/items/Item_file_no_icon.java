@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Item_file_no_icon extends Item_file implements Icon_destination
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public Button button;
     public Label label;
     public String text;

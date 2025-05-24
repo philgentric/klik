@@ -39,7 +39,6 @@ public class Look_and_feel_manager
     public static final String MUSIC = "Music";
     public static final String LAUNCHER = "Launcher";
 
-    public static final boolean icon_load_dbg = true;
     public static final boolean look_dbg = false;
     public static Logger logger;
 

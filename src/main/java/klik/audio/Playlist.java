@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Playlist
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
     private final Logger logger;
     static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
 

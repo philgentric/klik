@@ -65,10 +65,10 @@ public class Properties_manager
     }
 
     //**********************************************************
-    public void store_properties()
+    public void store_properties(boolean reload_before_save)
     //**********************************************************
     {
-        disk_store_request_queue.add(true);
+        disk_store_request_queue.add(reload_before_save);
     }
 
     // trying to limit disk writes for source that can be super active
@@ -301,7 +301,7 @@ public class Properties_manager
                 if (value2 != null) remove(key2);
             }
         }
-        store_properties();
+        store_properties(false);
     }
 
 
@@ -409,11 +409,11 @@ public class Properties_manager
 
 
     //**********************************************************
-    public void delete(String key, boolean and_save, Logger logger)
+    public void delete(String key, boolean and_save)
     //**********************************************************
     {
         remove(key);
-        if ( and_save) store_properties();
+        if ( and_save) store_properties(false);
     }
 
 

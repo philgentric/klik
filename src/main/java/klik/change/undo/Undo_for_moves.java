@@ -108,7 +108,12 @@ public class Undo_for_moves implements Datetime_to_signature_source
 
     }
 
-
+    //**********************************************************
+    public static void remove_invalid_undo_item(Undo_item item, Logger logger)
+    //**********************************************************
+    {
+        get_instance(logger).core.remove_undo_item(item);
+    }
 
 
     //**********************************************************

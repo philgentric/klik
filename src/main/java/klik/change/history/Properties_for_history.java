@@ -19,7 +19,7 @@ import static klik.properties.Properties_manager.AGE;
 public class Properties_for_history
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
     private final Logger logger;
     private final IProperties ip;
     private final int max;

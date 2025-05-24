@@ -102,12 +102,15 @@ public class Active_list_stage
             //Font_size.apply_font_size(b,logger);
             Look_and_feel_manager.set_button_look(b, true);
 
-            if (on_action != null) b.setOnAction(actionEvent ->
+            if (on_action != null)
             {
-                String signature = map.get(local_date_time_as_key);
-                logger.log("ACTION for: "+signature);
-                on_action.on_click(signature);
-            });
+                b.setOnAction(actionEvent ->
+                {
+                    String signature = map.get(local_date_time_as_key);
+                    logger.log("ACTION for: "+signature);
+                    on_action.on_click(signature);
+                });
+            }
             vbox.getChildren().add(b);
         }
     }

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class Properties_server
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final int PROPERTY_PORT_for_get = 64912;
     public static final int PROPERTY_PORT_for_set = 64913;
     public static final int PROPERTY_PORT_for_all = 64914;

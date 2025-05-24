@@ -192,7 +192,7 @@ public class Image_properties_RAM_cache
         {
             pm.remove(key);
         }
-        if ( !cleanup.isEmpty()) pm.store_properties();
+        if ( !cleanup.isEmpty()) pm.store_properties(false);
 
         if ( dbg)
         {
@@ -217,7 +217,7 @@ public class Image_properties_RAM_cache
             saved++;
             pm.add(e.getKey(), e.getValue().to_string());
         }
-        pm.store_properties();
+        pm.store_properties(false);
         if (dbg) logger.log(saved +" TRUE items of aspect ratio cache saved to file");
     }
     //**********************************************************

@@ -130,13 +130,14 @@ public class Image_similarity implements Clearable_RAM_cache
         Image_window returned = new Image_window(
                 ms.path(), x, y, W, H, s, false,path_list_provider,
                 Optional.of(path_comparator_source.get_path_comparator()),
-                aborter,logger);
+                new Aborter("dummy34",logger),logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
+        logger.log("path"+ms.path());
         logger.log("x="+returned.the_Stage.getX());
         logger.log("y="+returned.the_Stage.getY());
 
-        //show_vector_differences(ms,not_same, x,y+H);
+        show_vector_differences(ms,false, x,y+H);
 
     }
 

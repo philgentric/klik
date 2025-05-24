@@ -124,7 +124,7 @@ public class Tag_items_management_stage
 
                 String result = text_edit.getText();
                 if (result.isEmpty()) {
-                    pm.delete(p.getKey(), true, logger);
+                    pm.delete(p.getKey(), true);
                     logger.log("remove " + p);
                     box.getChildren().remove(text_edit);
                 } else {

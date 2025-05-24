@@ -2,6 +2,8 @@ package klik.image_ml.image_similarity;
 
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -9,6 +11,7 @@ import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
+import klik.images.Keyboard_handling_for_Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -100,6 +103,17 @@ public class Vector_window
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
             if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,VECTOR_WINDOW,logger);
         };
+
+        the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
+                key_event -> {
+                    if (key_event.getCode() == KeyCode.ESCAPE)
+                    {
+                        the_Stage.close();
+                        key_event.consume();
+                    }
+                });
+
+
         the_Stage.xProperty().addListener(change_listener);
         the_Stage.yProperty().addListener(change_listener);
         the_Stage.widthProperty().addListener(change_listener);

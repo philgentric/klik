@@ -781,6 +781,7 @@ public class Virtual_landscape_menus
             if ( !Undo_for_moves.check_validity(item, virtual_landscape.logger))
             {
                 Popups.popup_warning(owner,"Invalid undo item ignored","The file was probably moved since?",true,virtual_landscape.logger);
+                Undo_for_moves.remove_invalid_undo_item(item, virtual_landscape.logger);
                 return;
             }
             virtual_landscape.logger.log("\n\n\n undo_item="+item.to_string());

@@ -1,6 +1,7 @@
 package klik;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,10 +26,7 @@ import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.tcp.Session;
-import klik.util.tcp.Session_factory;
-import klik.util.tcp.TCP_server;
-import klik.util.tcp.TCP_util;
+import klik.util.tcp.*;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame;
@@ -39,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -242,10 +241,19 @@ public class Launcher extends Application
         String arg =  "--args=\""+port+"\"";
         cmds.add(arg);
 
+        AtomicBoolean failed = new AtomicBoolean(false);
         Runnable r = () -> {
             StringBuilder sb = new StringBuilder();
             Execute_command.execute_command_list_no_wait(cmds, new File("."), 20 * 1000, sb, logger);
             logger.log(sb.toString());
+            if ( sb.toString().contains("BUILD FAILED"))
+            {
+                // this does not work because execute_command_list_no_wait does not write anything into the sb
+                logger.log("\n\n\n\n\n\nBUILD FAILED\n\n\n\n\n\n");
+                Platform.runLater(() -> Popups.simple_alert("BUILD FAILED"));
+                failed.set(true);
+                Start_context.send_started_raw(port,logger); // this is to unblock the hourglass
+            }
         };
         Actor_engine.execute(r, logger);
         start_server_and_wait_for_reply(app_name,port,hourglass, logger);
@@ -260,6 +268,7 @@ public class Launcher extends Application
         // this is because in the launcher, after a audio_player
         // was started, it might have been killed ...
 
+        logger.log("start_server_and_wait_for_reply for: "+app_name);
         Session_factory session_factory = () -> new Session() {
             @Override
             public void on_client_connection(DataInputStream dis, DataOutputStream dos)
