@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -13,9 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.*;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
@@ -35,23 +32,23 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Text_frame
+public class Text_frame2
 //**********************************************************
 {
     private static final String TEXT_FRAME = "Text_frame";
     private final Path the_path;
-    private final VBox container = new VBox();
-    private final ScrollPane scroll_pane;
+    private final WebView web_view = new WebView();
+   // private final ScrollPane scroll_pane;
     private final Logger logger;
     private final Stage stage;
     private final AtomicInteger size = new AtomicInteger(20);
 
     public static void show(Path path, Logger logger) {
-        new Text_frame(path,logger);
+        new Text_frame2(path,logger);
     }
 
     //**********************************************************
-    private Text_frame(Path path_, Logger logger_)
+    private Text_frame2(Path path_, Logger logger_)
     //**********************************************************
     {
         the_path = path_;
@@ -60,19 +57,11 @@ public class Text_frame
         Aborter aborter = new Aborter("Text_frame",logger);
         Filesystem_modification_reporter reporter = () -> {
             //logger.log("Filesystem_item_modification_watcher event ==> RELOADING");
-            Platform.runLater(Text_frame.this::reload);
+            Platform.runLater(Text_frame2.this::reload);
         };
         watcher.init(the_path, reporter, false, 100000, aborter, logger);
-
-
-        scroll_pane = new ScrollPane();
-        scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        container.prefWidthProperty().bind(scroll_pane.widthProperty());
-        scroll_pane.setContent(container);
-        //set_font_size(container, size.get());
-
-        Scene scene = new Scene(scroll_pane);
+        web_view.setFontScale(2.0);
+        Scene scene = new Scene(web_view);
 
 
         stage = new Stage();
@@ -148,22 +137,24 @@ public class Text_frame
     private void reload()
     //**********************************************************
     {
-        //vbox.getChildren().clear();
-        container.getChildren().clear();
+        //web_view.getEngine().load("about:blank");
 
         try {
             List<String> lines = Files.readAllLines(the_path);
             if ( lines.isEmpty())
             {
-                container.getChildren().add(new Label(" ======= EMPTY FILE  ========="));
+                web_view.getEngine().loadContent(" ======= EMPTY FILE  =========");
             }
             else {
+                StringBuilder t = new StringBuilder();
+                t.append("<style type=\"text/css\">\n");
+                t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
+                t.append("</style>");
                 for (String s : lines)
                 {
-                    Text t = new Text(s+" \n");
-                    t.setStyle("-fx-border-color: transparent;-fx-focus-color: transparent;-fx-text-box-border: transparent;-fx-font: "+ size+" Helvetica; -fx-font-weight: bold;");
-                    container.getChildren().add(t);
+                    t.append("<p>").append(s).append("</p>");
                 }
+                web_view.getEngine().loadContent(t.toString());
             }
         }
         catch ( MalformedInputException e)
@@ -177,8 +168,7 @@ public class Text_frame
                 {
                     if (( b == 10)||(b==13))
                     {
-                        container.getChildren().add(new TextField(line+"\n"));
-                        line = "";
+                        line+="\n";
                     }
                     else
                     {
@@ -186,26 +176,18 @@ public class Text_frame
                         line += new String(bb, StandardCharsets.UTF_8);
                     }
                 }
+                web_view.getEngine().loadContent(line);
             } catch (IOException ex) {
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                container.getChildren().add(new TextField(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n"));
+                web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n");
             }
 
         }
         catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            container.getChildren().add(new TextField(" ======= CANNOT READ THIS FILE (IS NOT UTF-8 TEXT?)  ========="+"\n"));
+            web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE (IS NOT UTF-8 TEXT?)  ========="+"\n");
 
         }
     }
 
-    //**********************************************************
-    private static void set_font_size(Pane vbox, int size)
-    //**********************************************************
-    {
-        for ( Node n : vbox.getChildren())
-        {
-            n.setStyle("-fx-font: "+ size+" Helvetica; -fx-font-weight: bold;");
-        }
-    }
 }

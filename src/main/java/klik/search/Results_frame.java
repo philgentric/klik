@@ -27,11 +27,11 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Text_frame;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
+import klik.util.ui.Text_frame2;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,7 +142,7 @@ public class Results_frame
 				Audio_player.play_song_in_separate_process(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
-				Text_frame.show(path, logger);
+				Text_frame2.show(path, logger);
 			} else {
 				System_open_actor.open_with_system(stage, path, aborter, logger);
 			}

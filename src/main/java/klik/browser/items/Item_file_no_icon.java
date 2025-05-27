@@ -32,7 +32,7 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
-import klik.util.ui.Text_frame;
+import klik.util.ui.Text_frame2;
 
 import java.io.File;
 import java.io.IOException;
@@ -342,7 +342,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if ( Guess_file_type.is_this_path_a_text(get_item_path()))
             {
                 logger.log("opening text: " + get_item_path().toAbsolutePath());
-                Text_frame.show(get_item_path(),logger);
+                Text_frame2.show(get_item_path(),logger);
                 return;
             }
             if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path()))
