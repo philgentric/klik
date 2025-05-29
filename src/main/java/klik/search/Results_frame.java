@@ -31,7 +31,7 @@ import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
-import klik.util.ui.Text_frame2;
+import klik.util.ui.Text_frame;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,7 +142,7 @@ public class Results_frame
 				Audio_player.play_song_in_separate_process(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
-				Text_frame2.show(path, logger);
+				Text_frame.show(path, path_comparator_source);
 			} else {
 				System_open_actor.open_with_system(stage, path, aborter, logger);
 			}

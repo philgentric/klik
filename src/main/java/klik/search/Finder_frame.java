@@ -64,26 +64,25 @@ public class Finder_frame implements Search_receiver
 	//**********************************************************
 	public Finder_frame(
 			List<String> input_keywords,
-			boolean look_only_for_images_,
+			boolean look_only_for_images,
 			Path_list_provider path_list_provider,
 			Path_comparator_source path_comparator_source,
 			Aborter aborter,
-			Logger logger_)
+			Logger logger)
 	//**********************************************************
 	{
 		this.aborter = aborter;
 		this.path_list_provider = path_list_provider;
 		this.path_comparator_source = path_comparator_source;
+		this.logger = logger;
+		this.look_only_for_images = look_only_for_images;
 		if ( !path_list_provider.get_folder_path().toFile().isDirectory())
 		{
-			logger_.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
-			//target_path = target_path.getParent();
+			logger.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
 		}
-		look_only_for_images = look_only_for_images_;
-		//this.browser = browser;
-		logger = logger_;
 		stage = new Stage();
 
+		logger.log("Finder_frame created");
 
 		stage.setOnCloseRequest(_ -> {if ( session !=null) session.stop_search();});
 
@@ -450,13 +449,10 @@ public class Finder_frame implements Search_receiver
 	}
 
 	//**********************************************************
-	//private static final Comparator<? super String> string_length_comparator = (Comparator<String>) (o1, o2) -> (Integer.valueOf(o2.length())).compareTo(Integer.valueOf(o1.length()));
-
-
-	//**********************************************************
 	void start_search()
 	//**********************************************************
 	{
+		logger.log("Finder_frame::start_search()");
 		List<String> keywords = new ArrayList<>(keyword_to_slot.keySet());
 
 		String local_extension = null;

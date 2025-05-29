@@ -7,13 +7,12 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
-import javafx.scene.web.WebView;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.properties.Non_booleans;
@@ -32,36 +31,44 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Text_frame2
+public class Text_frame_with_labels
 //**********************************************************
 {
-    private static final String TEXT_FRAME = "Text_frame";
+    private static final String TEXT_FRAME = "Text_frame_with_labels";
     private final Path the_path;
-    private final WebView web_view = new WebView();
-   // private final ScrollPane scroll_pane;
+    private final VBox container = new VBox();
+    private final ScrollPane scroll_pane;
     private final Logger logger;
     private final Stage stage;
     private final AtomicInteger size = new AtomicInteger(20);
 
     public static void show(Path path, Logger logger) {
-        new Text_frame2(path,logger);
+        new Text_frame_with_labels(path,logger);
     }
 
     //**********************************************************
-    private Text_frame2(Path path_, Logger logger_)
+    private Text_frame_with_labels(Path path_, Logger logger_)
     //**********************************************************
     {
         the_path = path_;
-        logger = new File_logger("Text_frame");//logger_;
+        logger = new File_logger("Text_frame_with_labels");//logger_;
         Filesystem_item_modification_watcher watcher = new Filesystem_item_modification_watcher();
-        Aborter aborter = new Aborter("Text_frame",logger);
+        Aborter aborter = new Aborter("Text_frame_with_labels",logger);
         Filesystem_modification_reporter reporter = () -> {
             //logger.log("Filesystem_item_modification_watcher event ==> RELOADING");
-            Platform.runLater(Text_frame2.this::reload);
+            Platform.runLater(Text_frame_with_labels.this::reload);
         };
         watcher.init(the_path, reporter, false, 100000, aborter, logger);
-        web_view.setFontScale(2.0);
-        Scene scene = new Scene(web_view);
+
+
+        scroll_pane = new ScrollPane();
+        scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        container.prefWidthProperty().bind(scroll_pane.widthProperty());
+        scroll_pane.setContent(container);
+        //set_font_size(container, size.get());
+
+        Scene scene = new Scene(scroll_pane);
 
 
         stage = new Stage();
@@ -92,7 +99,7 @@ public class Text_frame2
                 });
 
         stage.setOnCloseRequest(e -> {
-            aborter.abort("Text_frame is closing");
+            aborter.abort("Text_frame_with_labels is closing");
         });
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
@@ -137,24 +144,22 @@ public class Text_frame2
     private void reload()
     //**********************************************************
     {
-        //web_view.getEngine().load("about:blank");
+        //vbox.getChildren().clear();
+        container.getChildren().clear();
 
         try {
             List<String> lines = Files.readAllLines(the_path);
             if ( lines.isEmpty())
             {
-                web_view.getEngine().loadContent(" ======= EMPTY FILE  =========");
+                container.getChildren().add(new Label(" ======= EMPTY FILE  ========="));
             }
             else {
-                StringBuilder t = new StringBuilder();
-                t.append("<style type=\"text/css\">\n");
-                t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
-                t.append("</style>");
                 for (String s : lines)
                 {
-                    t.append("<p>").append(s).append("</p>");
+                    Text t = new Text(s+" \n");
+                    t.setStyle("-fx-border-color: transparent;-fx-focus-color: transparent;-fx-text-box-border: transparent;-fx-font: "+ size+" Helvetica; -fx-font-weight: bold;");
+                    container.getChildren().add(t);
                 }
-                web_view.getEngine().loadContent(t.toString());
             }
         }
         catch ( MalformedInputException e)
@@ -168,7 +173,8 @@ public class Text_frame2
                 {
                     if (( b == 10)||(b==13))
                     {
-                        line+="\n";
+                        container.getChildren().add(new TextField(line+"\n"));
+                        line = "";
                     }
                     else
                     {
@@ -176,18 +182,26 @@ public class Text_frame2
                         line += new String(bb, StandardCharsets.UTF_8);
                     }
                 }
-                web_view.getEngine().loadContent(line);
             } catch (IOException ex) {
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n");
+                container.getChildren().add(new TextField(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n"));
             }
 
         }
         catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE (IS NOT UTF-8 TEXT?)  ========="+"\n");
+            container.getChildren().add(new TextField(" ======= CANNOT READ THIS FILE (IS NOT UTF-8 TEXT?)  ========="+"\n"));
 
         }
     }
 
+    //**********************************************************
+    private static void set_font_size(Pane vbox, int size)
+    //**********************************************************
+    {
+        for ( Node n : vbox.getChildren())
+        {
+            n.setStyle("-fx-font: "+ size+" Helvetica; -fx-font-weight: bold;");
+        }
+    }
 }

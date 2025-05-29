@@ -1,4 +1,4 @@
-//SOURCES ../../util/ui/Text_frame.java
+//SOURCES ../../util/ui/Text_frame_with_labels.java
 package klik.browser.items;
 
 import javafx.scene.Node;
@@ -14,7 +14,6 @@ import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
-import klik.browser.New_window_context;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -32,7 +31,7 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
-import klik.util.ui.Text_frame2;
+import klik.util.ui.Text_frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -342,7 +341,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if ( Guess_file_type.is_this_path_a_text(get_item_path()))
             {
                 logger.log("opening text: " + get_item_path().toAbsolutePath());
-                Text_frame2.show(get_item_path(),logger);
+                Text_frame.show(get_item_path(),path_comparator_source);
                 return;
             }
             if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path()))

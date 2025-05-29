@@ -1,4 +1,4 @@
-//SOURCES ../../util/ui/Text_frame.java
+//SOURCES ../../util/ui/Text_frame_with_labels.java
 package klik.browser.items;
 
 import javafx.scene.Node;

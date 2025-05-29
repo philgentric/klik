@@ -213,7 +213,7 @@ public class Browser extends Abstract_browser
             break;
             case one_new_file, one_file_gone: {
                 //if (dbg)
-                    logger.log("2 Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
+                    logger.log("CHANGE GANG received: Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
                 virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
             }
             break;
