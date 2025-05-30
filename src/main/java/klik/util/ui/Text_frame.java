@@ -2,14 +2,17 @@ package klik.util.ui;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Worker;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
+import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Filesystem_modification_reporter;
@@ -24,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 //**********************************************************
@@ -44,7 +48,15 @@ public class Text_frame
         new Text_frame(path,path_comparator_source);
     }
 
-    List<String> searched = new ArrayList<>();
+    String marked = "";
+    List<Integer> line_numbers_of_marked_items = new ArrayList<>();
+    int height_in_pixels_of_one_line = 0;
+
+    int scroll = 0;
+    int number_of_items = 0;
+    List<Integer> id_of_marked_items = new ArrayList<>();
+    int marked_item_index = 0;
+
     //**********************************************************
     private Text_frame(Path path_, Path_comparator_source path_comparator_source)
     //**********************************************************
@@ -61,6 +73,28 @@ public class Text_frame
         };
         watcher.init(the_path, reporter, false, 100000, aborter, logger);
         web_view.setFontScale(2.0);
+
+
+        web_view.getEngine().getLoadWorker().stateProperty().addListener((_, _, newState) ->
+        {
+            // is executed once the page is re-loaded
+            if (newState == Worker.State.SUCCEEDED)
+            {
+                web_view.getEngine().executeScript("window.scroll(0," + scroll + ");");
+            }
+
+            // this trick works only for "short lines" i.e. to get auto-warp we declare a line as <p>
+            // so long lines will occupy more than 1 line
+            int total_scroll_height = (int)web_view.getEngine().executeScript("document.body.scrollHeight");
+            logger.log("total_scroll_height="+total_scroll_height);
+            logger.log("number_of_items="+ number_of_items);
+
+            height_in_pixels_of_one_line = total_scroll_height/ number_of_items;
+            logger.log("height_in_pixels_of_one_line="+height_in_pixels_of_one_line);
+
+        });
+
+
         Scene scene = new Scene(web_view);
         
         stage = new Stage();
@@ -80,7 +114,7 @@ public class Text_frame
             stage.setWidth(r.getWidth());
             stage.setHeight(r.getHeight());
         }
-        stage.setTitle(the_path.toAbsolutePath()+ "   (READ ONLY)   Select text and press 's' or 'k' to highlight all instances");
+        stage.setTitle(the_path.toAbsolutePath()+ "   (READ ONLY)   Select text and press s,k or m to highlight all instances, then d or n to jump down and u or p to jump up");
         stage.setScene(scene);
 
         stage.addEventHandler(KeyEvent.KEY_PRESSED,
@@ -109,7 +143,7 @@ public class Text_frame
     {
         logger.log("process_key_event in Text_frame:"+key_event);
 
-        if (key_event.getCode() == KeyCode.ESCAPE)
+        if (key_event.getCode().equals(KeyCode.ESCAPE))
         {
             logger.log("process_key_event in Text_frame: ESCAPE");
 
@@ -120,33 +154,70 @@ public class Text_frame
         if (key_event.isMetaDown())
         {
             double font_scale = font_size_times_1000.get();
-            if ( key_event.getCode() == KeyCode.EQUALS)
+            if ( key_event.getCode().equals(KeyCode.EQUALS))
             {
                 if ( font_scale > 4000) font_size_times_1000.set(4000);
                 web_view.setFontScale(font_scale/1000.0);
             }
-            else if ( key_event.getCode() == KeyCode.MINUS)
+            else if ( key_event.getCode().equals(KeyCode.MINUS))
             {
                 if ( font_scale <0.1 ) font_size_times_1000.set(4000);
                 web_view.setFontScale(font_scale/1000.0);
             }
         }
-        if((key_event.getText().equals("k"))||(key_event.getText().equals("K"))||(key_event.getText().equals("s"))||(key_event.getText().equals("S")))
+        String accelerators_for_marking[] = {"m","k","s"};
+
+        for ( String accel : accelerators_for_marking)
         {
-            logger.log("process_key_event in Text_frame: k like search_using_keywords_from_the_name");
-
-
-            String selection = (String) web_view.getEngine().executeScript("window.getSelection().toString()");
-            String[] pieces = selection.split(" ");
-            searched.clear();
-            for (String k : pieces)
+            if ( key_event.getText().equals(accel))
             {
-                if ( k.trim().isEmpty()) continue;
-                searched.add(k.trim());
-                logger.log("process_key_event in Text_frame: k like search_using_keywords_from_the_name: k="+k);
+                if (search_and_mark()) return true;
             }
-            reload();
+        }
 
+        if( key_event.isControlDown() && key_event.getCode().equals(KeyCode.F))
+        {
+            if (search_and_mark()) return true;
+        }
+
+        if( key_event.isMetaDown() && key_event.getCode().equals(KeyCode.F))
+        {
+            if (search_and_mark()) return true;
+        }
+
+        if ( key_event.getText().equals("u") || key_event.getText().equals("p"))
+        {
+            logger.log("process_key_event in Text_frame: UP");
+            int target_id = line_numbers_of_marked_items.get(marked_item_index);
+            logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
+
+            marked_item_index--;
+            if ( marked_item_index < 0) marked_item_index = line_numbers_of_marked_items.size()-1;
+            String target_s = ""+target_id;
+            String script =
+                    "{" +
+                            "let element = document.getElementById("+target_s+");" +
+                            "if ( element) element.scrollIntoView();"+
+                            "}";
+
+            web_view.getEngine().executeScript(script);
+        }
+        if ( key_event.getText().equals("d")|| key_event.getText().equals("n"))
+        {
+            logger.log("process_key_event in Text_frame: DOWN");
+            int target_id = line_numbers_of_marked_items.get(marked_item_index);
+            logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
+
+            marked_item_index++;
+            if ( marked_item_index >= line_numbers_of_marked_items.size()) marked_item_index = 0;
+            String target_s = ""+target_id;
+            String script =
+            "{" +
+                    "let element = document.getElementById("+target_s+");" +
+                    "if ( element) element.scrollIntoView();"+
+            "}";
+
+            web_view.getEngine().executeScript(script);
 
         }
         logger.log("process_key_event in Text_frame: DONE");
@@ -155,33 +226,66 @@ public class Text_frame
     }
 
     //**********************************************************
+    private boolean search_and_mark()
+    //**********************************************************
+    {
+        logger.log("process_key_event in Text_frame: ");
+        marked = (String) web_view.getEngine().executeScript("window.getSelection().toString()");
+        if( marked.isEmpty())
+        {
+            logger.log("process_key_event in Text_frame: marked is empty");
+            TextInputDialog dialog = new TextInputDialog("Enter text");
+            Look_and_feel_manager.set_dialog_look(dialog);
+            dialog.initOwner(stage);
+            dialog.setTitle("Enter text to search");
+            dialog.setHeaderText("Enter text to search, then use 'd' or 'n' to jump down and 'u' or 'p' to jump up");
+            dialog.setContentText("Text:");
+
+            logger.log("dialog !");
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent())
+            {
+                marked = result.get();
+                reload();
+            }
+            return true;
+        }
+        reload();
+        return true;
+    }
+
+    //**********************************************************
     private void reload()
     //**********************************************************
     {
-        web_view.getEngine().load("about:blank");
+        scroll = (int) web_view.getEngine().executeScript("window.scrollY");
+        logger.log("scroll="+scroll);
 
+        web_view.getEngine().load("about:blank");
+        line_numbers_of_marked_items.clear();
+        number_of_items = 0;
         try {
             List<String> lines = Files.readAllLines(the_path);
             if ( lines.isEmpty())
             {
                 web_view.getEngine().loadContent(" ======= EMPTY FILE  =========");
             }
-            else {
+            else
+            {
                 StringBuilder t = new StringBuilder();
                 t.append("<style type=\"text/css\">\n");
                 t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
                 t.append("</style>");
                 for (String line : lines)
                 {
-                    for ( String w : searched)
+                    if ( line.contains(marked))
                     {
-                        if ( line.contains(w))
-                        {
-                            logger.log("found ->"+w+"<-");
-                            line = line.replace(w, "<mark>" + w + "</mark>");
-                        }
+                        line = line.replace(marked, "<mark>" + marked + "</mark>");
+                        line_numbers_of_marked_items.add(number_of_items);
                     }
-                    t.append("<p>").append(line).append("</p>");
+                    String ID_s = ""+number_of_items;
+                    t.append("<p id=\""+ ID_s +"\">").append(line).append("</p>");
+                    number_of_items++;
                 }
                 web_view.getEngine().loadContent(t.toString());
             }
