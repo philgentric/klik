@@ -5,6 +5,7 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.log.Logger;
 import klik.actor.Aborter;
 import klik.util.log.Stack_trace_getter;
@@ -99,7 +100,8 @@ public final static boolean dbg = false;
   //**********************************************************
   {
     Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, x, y, aborter, logger);
-    return new Similarity_comparator_pairs_of_closests(similarity_cache, path_list_provider, x, y, aborter, logger);
+    Image_feature_vector_cache fv_cache = get_fv_cache(path_list_provider, x, y, aborter, logger);
+    return new Similarity_comparator_pairs_of_closests(fv_cache, similarity_cache, path_list_provider, x, y, aborter, logger);
   }
 
   //**********************************************************
@@ -108,13 +110,29 @@ public final static boolean dbg = false;
   //**********************************************************
   {
     Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, x, y, aborter, logger);
+    Image_feature_vector_cache fv_cache = get_fv_cache(path_list_provider, x, y, aborter, logger);
     return new Similarity_comparator_by_pursuit(
+            fv_cache,
             similarity_cache,
             path_list_provider,
             path_comparator_source,
             image_properties_cache,
             x, y,
             aborter, logger);
+  }
+
+  //**********************************************************
+  private static Image_feature_vector_cache get_fv_cache(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
+  //**********************************************************
+  {
+     Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors= Browsing_caches.images_and_feature_vectors_cache.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+
+    if ( images_and_feature_vectors == null)
+    {
+      images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, aborter, logger);
+    }
+    Image_feature_vector_cache fv_cache = images_and_feature_vectors.image_feature_vector_ram_cache();
+    return fv_cache;
   }
 
   //**********************************************************

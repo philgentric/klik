@@ -27,9 +27,10 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     protected final List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
+    public Similarity_comparator(Image_feature_vector_cache fv_cache, Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
     //**********************************************************
     {
+        this.fv_cache = fv_cache;
         this.logger = logger;
         this.similarity_cache = similarity_cache;
         this.images = path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files);

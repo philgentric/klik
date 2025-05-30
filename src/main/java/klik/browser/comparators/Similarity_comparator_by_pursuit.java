@@ -7,6 +7,7 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.util.log.Logger;
 
@@ -22,6 +23,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
 
     //**********************************************************
     public Similarity_comparator_by_pursuit(
+            Image_feature_vector_cache fv_cache,
             Similarity_cache similarity_cache,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
@@ -31,7 +33,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             Logger logger_)
     //**********************************************************
     {
-        super(similarity_cache, path_list_provider, logger_);
+        super(fv_cache,similarity_cache, path_list_provider, logger_);
 
         //Collections.shuffle(images);
         //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);

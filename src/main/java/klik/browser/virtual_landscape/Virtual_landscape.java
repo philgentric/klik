@@ -274,7 +274,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void clear_image_feature_vector_RAM_cache()
     //**********************************************************
     {
-        Image_feature_vector_cache.images_and_feature_vectors_cache.clear();
+        Browsing_caches.images_and_feature_vectors_cache.clear();
     }
 
     //**********************************************************

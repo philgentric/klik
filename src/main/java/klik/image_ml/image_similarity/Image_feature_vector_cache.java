@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
+import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
@@ -37,10 +38,7 @@ public class Image_feature_vector_cache
     protected final Path cache_file_path;
 
 
-    public record Images_and_feature_vectors(Image_feature_vector_cache image_feature_vector_ram_cache, List<Path> images)
-    {
-    }
-    public final static Map<String, Images_and_feature_vectors> images_and_feature_vectors_cache = new HashMap<>();
+    public record Images_and_feature_vectors(Image_feature_vector_cache image_feature_vector_ram_cache, List<Path> images) { }
     private final Map<String, Feature_vector> path_to_feature_vector_cache = new ConcurrentHashMap<>();
     private final Image_feature_vector_actor image_feature_vector_actor;
 
@@ -222,13 +220,13 @@ public class Image_feature_vector_cache
     public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Images_and_feature_vectors images_and_feature_vectors = images_and_feature_vectors_cache.get(path_list_provider.get_name());
+        Images_and_feature_vectors images_and_feature_vectors = Browsing_caches.images_and_feature_vectors_cache.get(path_list_provider.get_name());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( images_and_feature_vectors == null)
         {
             Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, calling ML servers to get feature vectors",20000, x,y,logger);
             images_and_feature_vectors = read_from_disk_and_update(path_list_provider,in_flight, aborter,logger);
-            images_and_feature_vectors_cache.put(path_list_provider.get_name(),images_and_feature_vectors);
+            Browsing_caches.images_and_feature_vectors_cache.put(path_list_provider.get_name(),images_and_feature_vectors);
             return images_and_feature_vectors;
         }
         images_and_feature_vectors.image_feature_vector_ram_cache.update(path_list_provider, in_flight, aborter,logger);
