@@ -50,11 +50,8 @@ public class Text_frame
 
     String marked = "";
     List<Integer> line_numbers_of_marked_items = new ArrayList<>();
-    int height_in_pixels_of_one_line = 0;
-
     int scroll = 0;
     int number_of_items = 0;
-    List<Integer> id_of_marked_items = new ArrayList<>();
     int marked_item_index = 0;
 
     //**********************************************************
@@ -82,15 +79,6 @@ public class Text_frame
             {
                 web_view.getEngine().executeScript("window.scroll(0," + scroll + ");");
             }
-
-            // this trick works only for "short lines" i.e. to get auto-warp we declare a line as <p>
-            // so long lines will occupy more than 1 line
-            int total_scroll_height = (int)web_view.getEngine().executeScript("document.body.scrollHeight");
-            logger.log("total_scroll_height="+total_scroll_height);
-            logger.log("number_of_items="+ number_of_items);
-
-            height_in_pixels_of_one_line = total_scroll_height/ number_of_items;
-            logger.log("height_in_pixels_of_one_line="+height_in_pixels_of_one_line);
 
         });
 
@@ -309,6 +297,7 @@ public class Text_frame
                         line += new String(bb, StandardCharsets.UTF_8);
                     }
                 }
+                
                 web_view.getEngine().loadContent(line);
             } catch (IOException ex) {
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
