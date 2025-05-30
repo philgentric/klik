@@ -46,6 +46,7 @@ public class Results_frame
 	HashMap<String, List<Path>> search_results;
 	Stage stage = new Stage();
 	ImageView iv;
+	VBox vbox;
 	//final Browser browser;
 	final Aborter aborter;
 	private final Path_list_provider path_list_provider;
@@ -64,7 +65,7 @@ public class Results_frame
 		this.aborter = aborter;
 		this.logger = logger;
 
-		VBox vbox = new VBox();
+		vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
@@ -243,6 +244,10 @@ public class Results_frame
 			});
 			the_result_vbox.getChildren().clear();
 			the_result_vbox.getChildren().addAll(all_results);
+
+			iv.setImage(null);
+			vbox.getChildren().remove(iv);
+
 
 		},logger);
 

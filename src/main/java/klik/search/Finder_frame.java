@@ -43,6 +43,8 @@ public class Finder_frame implements Search_receiver
 	Logger logger;
 	private final Aborter aborter;
 
+	Path target_path;
+
 	final private Map<String, Keyword_slot> keyword_to_slot =  new HashMap<>(); // this is the textfield to report the number of matches
 	private final Stage stage;
 	private boolean look_only_for_images = false;
@@ -156,8 +158,8 @@ public class Finder_frame implements Search_receiver
 	{
 		VBox settings_vbox = new VBox();
 		{
-			final Path[] target_path = {path_list_provider.get_folder_path()};
-			Label target_folder_label = new Label(target_path[0].toAbsolutePath().toString());
+			target_path = path_list_provider.get_folder_path();
+			Label target_folder_label = new Label(target_path.toAbsolutePath().toString());
 			settings_vbox.getChildren().add(target_folder_label);
 			Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", logger));
 			Look_and_feel_manager.set_button_look(up,true);
@@ -166,11 +168,11 @@ public class Finder_frame implements Search_receiver
 
 			up.setOnAction(_ -> {
                 session.stop_search();
-                Path parent = target_path[0].getParent();
+                Path parent = target_path.getParent();
                 if (parent != null)
                 {
-                    target_path[0] = parent;
-                    target_folder_label.setText(target_path[0].toAbsolutePath().toString());
+                    target_path = parent;
+                    target_folder_label.setText(target_path.toAbsolutePath().toString());
                     start_search();
                 }
             });
@@ -423,7 +425,7 @@ public class Finder_frame implements Search_receiver
 	public void has_ended(Search_status search_status)
 	//**********************************************************
 	{
-		logger.log("has_ended() "+search_status);
+		//logger.log("has_ended() "+search_status);
 		if ( search_status != Search_status.interrupted)
 		{
 			long now = System.currentTimeMillis();
@@ -469,7 +471,6 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		Path target_path = path_list_provider.get_folder_path();
 		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
 		session = new Search_session(
 				path_list_provider,

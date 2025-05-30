@@ -54,7 +54,7 @@ public class Finder_actor implements Actor
         }
         visited_files = 0;
         visited_folders =0;
-        logger.log("Finder::search()");
+        logger.log("Finder::search() in folder: "+fm.search_config.path().toAbsolutePath());
         print_keywords(fm.search_config.keywords(),fm.extension);
 
         fm.callback.has_ended(find_similar_files(fm));

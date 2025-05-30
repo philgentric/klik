@@ -297,7 +297,7 @@ public class Text_frame
                         line += new String(bb, StandardCharsets.UTF_8);
                     }
                 }
-                
+
                 web_view.getEngine().loadContent(line);
             } catch (IOException ex) {
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
