@@ -8,11 +8,13 @@ import klik.util.files_and_paths.File_pair;
 import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.function.Supplier;
 
 
 //**********************************************************
@@ -29,9 +31,11 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	private final Image_similarity image_similarity;
 	private final boolean quasi_same;
 	private final Image_properties_RAM_cache image_properties_cache;
+	private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
 			Image_properties_RAM_cache image_properties_cache,
+			Supplier<Image_feature_vector_cache> fv_cache_supplier,
 			Path_comparator_source path_comparator_source,
 			boolean quasi_same,
 			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
@@ -42,6 +46,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	//**********************************************************
 	{
 		this.image_properties_cache = image_properties_cache;
+		this.fv_cache_supplier = fv_cache_supplier;
 		this.quasi_same = quasi_same;
 		all_files = all_files_;
 		logger = logger_;
@@ -68,13 +73,34 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		if ( dbg) logger.log("Runnable_for_finding_duplicate_file_pair_similarity RUN starts");
 		int ignored = 0;
 		List<Path> already_done = new ArrayList<>();
+		Image_feature_vector_cache fv_cache = fv_cache_supplier.get();
+		if ( fv_cache == null)
+		{
+			logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv_cache is null"));
+			return;
+		}
+
 		for (File_with_a_few_bytes f : all_files)
 		{
 			if ( private_aborter.should_abort()) return;
 			if (!Guess_file_type.is_file_an_image(f.file)) continue;
 			double x = deduplication_by_similarity_engine.owner.getX()+100;
 			double y = deduplication_by_similarity_engine.owner.getY()+100;
-			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(quasi_same, f.file.toPath(), already_done,1, false, SPECIAL_SIMILARITY_THRESHOLD, image_properties_cache, false,x,y,deduplication_by_similarity_engine.console_window.count_pairs_examined);
+			List<Image_similarity.Most_similar> similars = image_similarity.find_similars(
+					quasi_same,
+					f.file.toPath(),
+					already_done,
+					1,
+					false,
+					SPECIAL_SIMILARITY_THRESHOLD,
+					image_properties_cache,
+					()->fv_cache,
+					false,
+					x,
+					y,
+					deduplication_by_similarity_engine.console_window.count_pairs_examined,
+					private_aborter
+					);
 			already_done.add(f.file.toPath());
 			if ( similars.isEmpty()) continue;
 			deduplication_by_similarity_engine.duplicates_found.incrementAndGet();

@@ -60,8 +60,8 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 from functools import partial
 
 def run_server(port, config_number):
+    print("Starting local MTCNN FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
     server_address = ('localhost', port)
     handler = partial(FaceDetectionHandler, config_number)
     httpd = HTTPServer(server_address, handler)
-    print("Starting local MTCNN FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
     httpd.serve_forever()

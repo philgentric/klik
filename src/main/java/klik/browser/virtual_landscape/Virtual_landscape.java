@@ -73,6 +73,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
@@ -274,7 +275,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void clear_image_feature_vector_RAM_cache()
     //**********************************************************
     {
-        Browsing_caches.images_and_feature_vectors_cache.clear();
+        Browsing_caches.fv_cache_of_caches.clear();
     }
 
     //**********************************************************
@@ -784,6 +785,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     null,
                     cache_aspect_ratio,
                     browsing_caches.image_properties_RAM_cache,
+                    ()->Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, 0, 0, aborter, logger).fv_cache(),
                     path,
                     path_list_provider,
                     this,
@@ -2325,6 +2327,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
 
+    //**********************************************************
+    public Supplier<Image_feature_vector_cache> get_fv_cache = new Supplier<>()
+    //**********************************************************
+    {
+        public Image_feature_vector_cache get() {
+
+            Image_feature_vector_cache.Images_and_feature_vectors local = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, 0, 0, aborter, logger);
+            return local.fv_cache();
+        }
+    };
 
     //**********************************************************
     private MenuItem create_manual_deduplication_by_similarity_menu_item()
@@ -2335,7 +2347,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(path_list_provider,this,false,owner, path_list_provider.get_folder_path().toFile(), browsing_caches.image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(
+                    path_list_provider,
+                    this,
+                    false,
+                    owner,
+                    path_list_provider.get_folder_path().toFile(),
+                    browsing_caches.image_properties_RAM_cache,
+                    get_fv_cache,
+                    logger)).do_your_job();
         });
         return item0;
     }
@@ -2350,7 +2370,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         MenuItem item0 = new MenuItem(text);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(path_list_provider,this,true,owner, path_list_provider.get_folder_path().toFile(), browsing_caches.image_properties_RAM_cache, logger)).do_your_job();
+            (new Deduplication_by_similarity_engine(
+                    path_list_provider,
+                    this,
+                    true,
+                    owner,
+                    path_list_provider.get_folder_path().toFile(),
+                    browsing_caches.image_properties_RAM_cache,
+                    get_fv_cache,
+                    logger)).do_your_job();
         });
         return item0;
     }

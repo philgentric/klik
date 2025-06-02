@@ -296,7 +296,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path get_cache_dir(Window owner, Cache_folder cache_folder, Logger logger)
+    public static Path get_cache_dir(Cache_folder cache_folder, Logger logger)
     //**********************************************************
     {
 
@@ -344,10 +344,10 @@ public class Static_files_and_paths_utilities
 */
 
     //**********************************************************
-    public static void clear_one_icon_from_cache_on_disk(Path path, Stage owner, Aborter aborter, Logger logger)
+    public static void clear_one_icon_from_cache_on_disk(Path path, Logger logger)
     //**********************************************************
     {
-        Path icon_cache_dir = get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
+        Path icon_cache_dir = get_cache_dir( Cache_folder.klik_icon_cache,logger);
         int icon_size = Non_booleans.get_icon_size();
         String name = Icon_writer_actor.make_cache_name(path.toAbsolutePath().toString(), String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
@@ -364,7 +364,7 @@ public class Static_files_and_paths_utilities
     public static double clear_DISK_cache(Cache_folder cache_folder, boolean show_popup, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path icons = get_cache_dir(owner, cache_folder,logger);
+        Path icons = get_cache_dir(cache_folder,logger);
         return clear_folder(icons, cache_folder.name()+" cache on disk", show_popup, owner, aborter, logger);
     }
     //**********************************************************

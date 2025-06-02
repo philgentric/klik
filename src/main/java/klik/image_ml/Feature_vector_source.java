@@ -76,6 +76,16 @@ public abstract class Feature_vector_source
         //ML_servers_util.init_image_similarity(logger);
         int random_port = get_random_port();
         Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, aborter,logger);
+
+        if ( x==null)
+        {
+            logger.log("get_feature_vector_from_server_generic: FAILED for:->"+path+"<- random_port="+random_port);
+            if ( path.toFile().exists())
+            {
+                logger.log("file exists, "+path.toFile().length()+" but feature vector is null");
+            }
+            else logger.log("file does not exist: "+path);
+        }
         long local_end = System.currentTimeMillis();
         long local_dur = local_end - local_start;
         SUM_dur += local_dur;
@@ -90,7 +100,7 @@ public abstract class Feature_vector_source
         long end = System.currentTimeMillis();
         long local_dur = end - start;
         double dur_s = (double)local_dur/1_000.0;
-        logger.log("TX_rate="+(double)tx_count/(double)dur_s+" tx/s (tx_count="+tx_count+" for: "+dur_s+" secconds)");
+        logger.log("feature vector TX_rate="+(double)tx_count/(double)dur_s+" tx/s (tx_count="+tx_count+" for: "+dur_s+" secconds)");
         logger.log("total server call time="+ SUM_dur/1000 +"s, average concurency="+(double) SUM_dur /(double)local_dur);
     }
 
@@ -135,7 +145,8 @@ public abstract class Feature_vector_source
                     popup_done.set(true);
                     popup(null,logger);
                 }
-                return null;
+                logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source::get_feature_vector_from_server_generic SERVER NOT STARTED.."));
+                //return null;
             }
         }
 
@@ -226,7 +237,7 @@ public abstract class Feature_vector_source
             logger.log("json parsing failed: feature vector is null");
         }
         else {
-            //logger.log("feature vector size:"+fv.features.length);
+            //logger.log("GOT a feature vector of size:"+fv.features.length);
         }
 
         return fv;
@@ -239,13 +250,13 @@ public abstract class Feature_vector_source
         List<String> list = new ArrayList<>();
         list.add("pgrep");
         list.add("-f");
-        list.add("python");
-        //list.add("python.*run_server.*");
+        list.add("Python");
+        //list.add("Python.*run_server.*");
         StringBuilder sb = new StringBuilder();
         File wd = new File (".");
         if (Execute_command.execute_command_list(list, wd, 2000, sb, logger)==null)
         {
-            logger.log("failed:\n"+ sb );
+            logger.log("WARNING, checking if servers are running => failed(1):\n"+ sb );
             return false;
         }
         // scan sb looking for integers (PIDs)
@@ -265,6 +276,7 @@ public abstract class Feature_vector_source
             }
         }
         // no PIDs found
+        logger.log("WARNING, checking if servers are running => failed(2):\n"+ sb );
         return false;
     }
     //**********************************************************

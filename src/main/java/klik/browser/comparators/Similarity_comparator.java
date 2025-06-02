@@ -11,6 +11,7 @@ import klik.util.log.Logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Supplier;
 
 
 // a per-folder cache of image distances
@@ -21,16 +22,16 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     protected final Map<Path, Integer> dummy_names = new HashMap<>();
 
     private final Map<Path_pair, Integer> distances_cache = new HashMap<>();
-    protected Image_feature_vector_cache fv_cache = null;
+    protected Supplier<Image_feature_vector_cache> fv_cache_supplier = null;
     Logger logger;
     protected final Similarity_cache similarity_cache;
     protected final List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Image_feature_vector_cache fv_cache, Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
+    public Similarity_comparator(Supplier<Image_feature_vector_cache> fv_cache_supplier, Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
     //**********************************************************
     {
-        this.fv_cache = fv_cache;
+        this.fv_cache_supplier = fv_cache_supplier;
         this.logger = logger;
         this.similarity_cache = similarity_cache;
         this.images = path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files);
@@ -43,7 +44,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     public void clear_RAM_cache()
     //**********************************************************
     {
-        if(fv_cache != null) fv_cache.clear_feature_vector_RAM_cache();
+        if(fv_cache_supplier.get() != null) fv_cache_supplier.get().clear_feature_vector_RAM_cache();
         distances_cache.clear();
         dummy_names.clear();
         if ( similarity_cache != null) similarity_cache.clear();

@@ -1,5 +1,6 @@
 package klik.properties;
 
+import klik.browser.Shared_services;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -99,9 +100,14 @@ public final static boolean dbg = false;
   private static Similarity_comparator_pairs_of_closests get_similarity_comparator_pairs_of_closests(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
-    Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, x, y, aborter, logger);
-    Image_feature_vector_cache fv_cache = get_fv_cache(path_list_provider, x, y, aborter, logger);
-    return new Similarity_comparator_pairs_of_closests(fv_cache, similarity_cache, path_list_provider, x, y, aborter, logger);
+    Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, x, y, logger);
+    Image_feature_vector_cache fv_cache = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, aborter, logger).fv_cache();
+    return new Similarity_comparator_pairs_of_closests(
+            ()->fv_cache,
+            similarity_cache,
+            path_list_provider,
+            x, y,
+            aborter, logger);
   }
 
   //**********************************************************
@@ -109,10 +115,10 @@ public final static boolean dbg = false;
           Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Image_properties_RAM_cache image_properties_cache, double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
-    Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, x, y, aborter, logger);
-    Image_feature_vector_cache fv_cache = get_fv_cache(path_list_provider, x, y, aborter, logger);
+    Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, x, y, logger);
+    Image_feature_vector_cache fv_cache = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, aborter, logger).fv_cache();
     return new Similarity_comparator_by_pursuit(
-            fv_cache,
+            ()->fv_cache,
             similarity_cache,
             path_list_provider,
             path_comparator_source,
@@ -121,28 +127,15 @@ public final static boolean dbg = false;
             aborter, logger);
   }
 
-  //**********************************************************
-  private static Image_feature_vector_cache get_fv_cache(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
-  //**********************************************************
-  {
-     Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors= Browsing_caches.images_and_feature_vectors_cache.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
-
-    if ( images_and_feature_vectors == null)
-    {
-      images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, aborter, logger);
-    }
-    Image_feature_vector_cache fv_cache = images_and_feature_vectors.image_feature_vector_ram_cache();
-    return fv_cache;
-  }
 
   //**********************************************************
-  private static Similarity_cache get_similarity_cache(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
+  private static Similarity_cache get_similarity_cache(Path_list_provider path_list_provider, double x, double y, Logger logger)
   //**********************************************************
   {
     Similarity_cache similarity_cache = Browsing_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
     if (similarity_cache == null)
     {
-      similarity_cache = new Similarity_cache(path_list_provider, x, y, aborter, logger);
+      similarity_cache = new Similarity_cache(path_list_provider, x, y, Shared_services.shared_services_aborter, logger);
       Browsing_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
     }
     return similarity_cache;

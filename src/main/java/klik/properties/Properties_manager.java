@@ -17,6 +17,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
@@ -143,8 +144,24 @@ public class Properties_manager
                     // conflict : take the most recent VALUE
                     String age_on_disk_s = on_disk.getProperty(k + AGE);
                     if (age_on_disk_s == null) continue;
-                    LocalDateTime age_here = LocalDateTime.parse(age_here_s);
-                    LocalDateTime age_on_disk = LocalDateTime.parse(age_on_disk_s);
+                    LocalDateTime age_here;
+                    try {
+                        age_here = LocalDateTime.parse(age_here_s);
+                    }
+                    catch (DateTimeParseException e)
+                    {
+                        logger.log("WARNING cannot parse this date string? ->"+age_here_s+"<-");
+                        return;
+                    }
+                    LocalDateTime age_on_disk;
+                    try {
+                        age_on_disk = LocalDateTime.parse(age_on_disk_s);
+                    }
+                    catch (DateTimeParseException e)
+                    {
+                        logger.log("WARNING cannot parse this date string? ->"+age_on_disk_s+"<-");
+                        return;
+                    }
                     if (age_on_disk.isAfter(age_here)) {
                         // the value in this hashtable is outdated, let us update it
                         the_Properties.setProperty(k, on_disk.getProperty(k));

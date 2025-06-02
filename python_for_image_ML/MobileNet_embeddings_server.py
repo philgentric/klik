@@ -44,7 +44,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #print("feature_vector: "+str(feature_vector))
         # size is 62720 for MobileNetV2 "full" and reduced to 1280 with 'pooling=avg'
         # and 960 with MobileNetV3Large
-        print("feature vector size: "+str(feature_vector.size))
+        print("MobileNet EMBEDDINGS feature vector size: "+str(feature_vector.size))
 
         data = {'features': feature_vector.tolist()[0]}  # Convert numpy array to list for JSON
 
@@ -63,9 +63,9 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
 
 def run_server(port):
+    print("Starting local MobileNet EMBEDDINGS server on port: "+str(port))
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
     httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     httpd.socket.listen(1024)
-    print("Starting local MobileNet IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

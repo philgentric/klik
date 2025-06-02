@@ -111,9 +111,8 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 from functools import partial
 
 def run_server(port, config_name):
+    print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+config_name)
     server_address = ('localhost', port)
     handler = partial(FaceDetectionHandler, config_name)
-    print("Starting local HAARS FACE DETECTION with config: "+config_name)
     httpd = HTTPServer(server_address, handler)
-    print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+config_name)
     httpd.serve_forever()

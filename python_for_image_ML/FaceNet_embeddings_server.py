@@ -13,11 +13,11 @@ from facenet_pytorch import InceptionResnetV1
 class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
     model = InceptionResnetV1(pretrained='vggface2')  # Load FaceNet model only once
-    print("Embeddings server started: vggface2 model loaded")
+    print("FaceNet Embeddings server started: vggface2 model loaded")
 
     def do_GET(self):
         image_raw_url = self.path[1:]
-        #print("going to open image_raw_url:    "+image_raw_url)
+        print("FaceNet Embeddings server, going to open image_raw_url:    "+image_raw_url)
         decoded_url = urllib.parse.unquote_plus(image_raw_url)
 
         img = keras.utils.load_img(decoded_url, target_size=(160, 160))  # FaceNet uses 160x160 input size
@@ -41,7 +41,10 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
         #print("FaceNet feature vector: " + str(feature_vector))
 
-        # Convert the tensor to a NumPy array and flatten it
+        print("FaceNet EMBEDDINGS feature vector size: "+str(feature_vector.size))
+
+
+    # Convert the tensor to a NumPy array and flatten it
         double_values = feature_vector.detach().numpy().flatten().tolist()
         data = {'features': double_values}
         x = json.dumps(data)
@@ -54,7 +57,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         pass
 
 def run_server(port):
+    print("Starting local FaceNet FACE EMBEDDINGS server on port: "+str(port))
     server_address = ('localhost', port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
-    print("Starting local FaceNet IMAGE EMBEDDINGS server on port: "+str(port))
     httpd.serve_forever()

@@ -289,17 +289,17 @@ public class Face_recognition_actor implements Actor
     private static Eval_results eval_a_face(Path face, Face_recognition_service service, Aborter aborter)
     //**********************************************************
     {
-        service.logger.log("crumbeval_a_face");
+        service.logger.log("crumb:eval_a_face");
 
         start = System.nanoTime();
         Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition(aborter);
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {
-            service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed "));
+            service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed ! are the servers started ?"));
             return new Eval_results("error",null,Eval_situation.nothing_found,false,"error",new ArrayList<>());
         }
-        service.logger.log("crumbeval_a_face  b");
+        service.logger.log("crumb:eval_a_face  b");
         long fv_time = System.nanoTime()-start;
         feature_vector_total_ns += fv_time;
 
@@ -485,9 +485,12 @@ public class Face_recognition_actor implements Actor
         service.logger.log("Face detected");
 
         // write the image to disk, the tmp path will be passed to the embedding server
-        String tag = "tmp_unknown_face"+ "_"+ UUID.randomUUID();
-        Path tmp_image_reco = Static_files_and_paths_utilities.get_cache_dir(null, Cache_folder.klik_icon_cache,service.logger);
-        Path tmp_path_to_face = Face_recognition_service.write_tmp_image(image_face, tmp_image_reco,tag,service.logger);
+        Path face_reco_cache_folder = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_face_reco_cache,service.logger);
+        service.logger.log("face_reco_folder = "+face_reco_cache_folder);
+
+        String file_name_base = "tmp_unknown_face_"+ UUID.randomUUID();
+        Path tmp_path_to_face = Face_recognition_service.write_tmp_image(image_face, face_reco_cache_folder,file_name_base,service.logger);
+        service.logger.log("tmp_path_to_face = "+tmp_path_to_face);
 
         Eval_results eval_result = eval_a_face(tmp_path_to_face,service, aborter);
         if (display_face_reco_window) service.show_face_recognition_window(image_face,eval_result, aborter);

@@ -28,6 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 //**********************************************************
 public class Deduplication_by_similarity_engine implements Againor, Abortable
@@ -35,6 +36,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
 {
     public final Window owner;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
     Logger logger;
     BlockingQueue<Similarity_file_pair> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
     AtomicInteger threads_in_flight = new AtomicInteger(0);
@@ -50,13 +52,22 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
-    public Deduplication_by_similarity_engine(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,boolean quasi_same, Window owner, File target_dir_, Image_properties_RAM_cache image_properties_RAM_cache,Logger logger_)
+    public Deduplication_by_similarity_engine(
+            Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
+            boolean quasi_same,
+            Window owner,
+            File target_dir_,
+            Image_properties_RAM_cache image_properties_RAM_cache,
+            Supplier<Image_feature_vector_cache> fv_cache_supplier,
+            Logger logger_)
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
         this.path_comparator_source = path_comparator_source;
         this.quasi_same = quasi_same;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.fv_cache_supplier = fv_cache_supplier;
         this.owner = owner;
         target_dir = target_dir_;
         logger = logger_;
@@ -126,7 +137,11 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         console_window.total_pairs_to_be_examined.addAndGet(pairs);
 
         // launch actor (feeder) in another tread
-        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder = new Runnable_for_finding_duplicate_file_pairs_similarity(image_properties_RAM_cache, path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
+        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder =
+                new Runnable_for_finding_duplicate_file_pairs_similarity(
+                        image_properties_RAM_cache,
+                        fv_cache_supplier,
+                        path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue, private_aborter, logger);
         Actor_engine.execute(duplicate_finder,logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");

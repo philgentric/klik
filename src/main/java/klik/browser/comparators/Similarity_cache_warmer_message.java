@@ -10,15 +10,15 @@ public class Similarity_cache_warmer_message implements Message
 //**********************************************************
 {
 
-    private final Aborter aborter;
+    private final Aborter browser_aborter;
     final Path p1;
 
     //**********************************************************
-    public Similarity_cache_warmer_message(Aborter aborter, Path p1)
+    public Similarity_cache_warmer_message(Aborter browser_aborter, Path p1)
     //**********************************************************
     {
 
-        this.aborter = aborter;
+        this.browser_aborter = browser_aborter;
         this.p1 = p1;
     }
     @Override
@@ -28,6 +28,6 @@ public class Similarity_cache_warmer_message implements Message
 
     @Override
     public Aborter get_aborter() {
-        return aborter;
+        return browser_aborter;
     }
 }

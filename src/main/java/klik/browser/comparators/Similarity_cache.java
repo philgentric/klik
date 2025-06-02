@@ -26,16 +26,14 @@ public class Similarity_cache
 //**********************************************************
 {
     private final Path_list_provider path_list_provider;
-    private final Aborter aborter;
     private final Path similarity_cache_file_path;
     private final Logger logger;
     private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
 
     //**********************************************************
-    public Similarity_cache(Path_list_provider path_list_provider,double x, double y, Aborter aborter, Logger logger)
+    public Similarity_cache(Path_list_provider path_list_provider,double x, double y, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
-        this.aborter = aborter;
         this.path_list_provider = path_list_provider;
         this.logger = logger;
         String cache_name = "similarity";
@@ -48,26 +46,26 @@ public class Similarity_cache
         }
         similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
 
-        if ( !reload_similarity_cache_from_disk())
+        if ( !reload_similarity_cache_from_disk(browser_aborter))
         {
             // no cache on disk, have to recalculate and save
             // in a thread!
 
-            Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, aborter, logger);
+            Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, browser_aborter, logger);
             if (result == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("ERROR: cannot preload all feature vectors"));
                 return;
             }
-            Image_feature_vector_cache fv_cache = result.image_feature_vector_ram_cache();
-            fill_cache_and_save_to_disk(result.images(),fv_cache, x,y,aborter, logger);
+            Image_feature_vector_cache fv_cache = result.fv_cache();
+            fill_cache_and_save_to_disk(result.images(),fv_cache, x,y,browser_aborter, logger);
 
             //logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
         }
     }
 
     //**********************************************************
-    private void fill_cache_and_save_to_disk(List<Path> images, Image_feature_vector_cache fv_cache, double x, double y, Aborter aborter, Logger logger)
+    private void fill_cache_and_save_to_disk(List<Path> images, Image_feature_vector_cache fv_cache, double x, double y, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(images.size());
@@ -77,12 +75,12 @@ public class Similarity_cache
         CountDownLatch cdl = new CountDownLatch(images.size());
         for (Path p1 : images)
         {
-            if ( aborter.should_abort())
+            if ( browser_aborter.should_abort())
             {
-                logger.log("aborting Similarity_cache "+ aborter.reason);
+                logger.log("aborting Similarity_cache "+ browser_aborter.reason);
                 break;
             }
-            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(aborter, p1);
+            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(browser_aborter, p1);
             Job_termination_reporter tr = (message, job) -> {
                 cdl.countDown();
                 in_flight.decrementAndGet();
@@ -103,7 +101,7 @@ public class Similarity_cache
     }
 
     //**********************************************************
-    public boolean reload_similarity_cache_from_disk()
+    public boolean reload_similarity_cache_from_disk(Aborter browser_aborter)
     //**********************************************************
     {
         logger.log("reloading similarities from disk");
@@ -114,9 +112,9 @@ public class Similarity_cache
             int number_of_items = dis.readInt();
             for ( int k = 0; k < number_of_items; k++)
             {
-                if ( aborter.should_abort())
+                if ( browser_aborter.should_abort())
                 {
-                    logger.log("aborting : Similarity_cache::reload_similarity_cache_from_disk "+aborter.reason);
+                    logger.log("aborting : Similarity_cache::reload_similarity_cache_from_disk "+browser_aborter.reason);
                     return false;
                 }
                 String path1_string = dis.readUTF();

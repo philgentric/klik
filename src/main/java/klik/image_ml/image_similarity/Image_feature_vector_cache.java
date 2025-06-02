@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
+import klik.browser.Shared_services;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
@@ -33,12 +34,12 @@ public class Image_feature_vector_cache
 {
     public final static boolean dbg = false;
     protected final Logger logger;
-    private final Aborter aborter;
+    private final Aborter shared_services_aborter;
     protected final String cache_type;
     protected final Path cache_file_path;
 
 
-    public record Images_and_feature_vectors(Image_feature_vector_cache image_feature_vector_ram_cache, List<Path> images) { }
+    public record Images_and_feature_vectors(Image_feature_vector_cache fv_cache, List<Path> images) { }
     private final Map<String, Feature_vector> path_to_feature_vector_cache = new ConcurrentHashMap<>();
     private final Image_feature_vector_actor image_feature_vector_actor;
 
@@ -47,19 +48,19 @@ public class Image_feature_vector_cache
     private final Actor_engine_based_on_workers local_actor_engine;
 
     //**********************************************************
-    public Image_feature_vector_cache(String tag, String cache_type_, Aborter aborter_, Logger logger_)
+    private Image_feature_vector_cache(String tag, String cache_type_, Aborter shared_services_aborter, Logger logger_)
     //**********************************************************
     {
         instance_number = instance_number_generator++;
         logger = logger_;
-        aborter = aborter_;
+        this.shared_services_aborter = shared_services_aborter; // as this is a shared cache, closing the browser that created it must not disable it
         cache_type = cache_type_;
         String local = cache_type + tag;//path.toAbsolutePath();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".fv_cache";
-        Path dir = get_image_feature_vector_cache_dir(null, aborter,logger);
+        Path dir = get_image_feature_vector_cache_dir(null, shared_services_aborter,logger);
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_type +" cache file ="+cache_file_path);
-        image_feature_vector_actor = new Image_feature_vector_actor(aborter);
+        image_feature_vector_actor = new Image_feature_vector_actor(shared_services_aborter);
 
         // reason to use workers is to limit the number of concurrent HTTP requests
         // to the vgg19 python servers that are not good at queuing requests
@@ -81,7 +82,7 @@ public class Image_feature_vector_cache
 
     //**********************************************************
     // if wait_if_needed is true, tr can be null
-    public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed)
+    public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed, Aborter browser_aborter)
     //**********************************************************
     {
         Feature_vector feature_vector =  path_to_feature_vector_cache.get(key_from_path(p));
@@ -90,16 +91,21 @@ public class Image_feature_vector_cache
             if ( tr != null) tr.has_ended("found in cache",null);
             return feature_vector;
         }
-        if ( aborter.should_abort())
+        if ( shared_services_aborter.should_abort())
         {
-            logger.log(("image feature vector cache instance#"+instance_number+" request aborted: ->"+aborter.name+"<- reason="+aborter.reason+ " target path="+p));
+            logger.log(("image feature vector cache instance#"+instance_number+" request aborted: ->"+shared_services_aborter.name+"<- reason="+shared_services_aborter.reason+ " target path="+p));
+            return null;
+        }
+        if ( browser_aborter.should_abort())
+        {
+            logger.log(("image feature vector cache instance#"+instance_number+" request aborted: ->"+browser_aborter.name+"<- reason="+browser_aborter.reason+ " target path="+p));
             return null;
         }
         else
         {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
-        Image_feature_vector_message imp = new Image_feature_vector_message(p,this,aborter,logger);
+        Image_feature_vector_message imp = new Image_feature_vector_message(p,this,browser_aborter,logger);
         if ( wait_if_needed)
         {
             image_feature_vector_actor.run(imp); // blocking call
@@ -133,7 +139,7 @@ public class Image_feature_vector_cache
         if (dbg) logger.log("feature vector cache file cleared");
     }
     //**********************************************************
-    public synchronized void reload_cache_from_disk(AtomicInteger in_flight, Aborter aborter)
+    public synchronized void reload_cache_from_disk(AtomicInteger in_flight, Aborter browser_aborter)
     //**********************************************************
     {
         int reloaded = 0;
@@ -143,9 +149,9 @@ public class Image_feature_vector_cache
             in_flight.set(number_of_vectors);
             for ( int i = 0; i < number_of_vectors; i++)
             {
-                if ( aborter.should_abort())
+                if ( browser_aborter.should_abort())
                 {
-                    logger.log("aborting : Image_feature_vector_cache::reload_cache_from_disk "+aborter.reason);
+                    logger.log("aborting : Image_feature_vector_cache::reload_cache_from_disk "+browser_aborter.reason);
                     return;
                 }
                 String path_string = dis.readUTF();
@@ -173,7 +179,7 @@ public class Image_feature_vector_cache
         }
 
         //if (dbg)
-            logger.log(cache_type +": "+reloaded+" feature vectors reloaded from file");
+            logger.log(Stack_trace_getter.get_stack_trace(cache_type +": "+reloaded+" feature vectors reloaded from file"));
 
         if ( dbg)
         {
@@ -217,35 +223,34 @@ public class Image_feature_vector_cache
     }
 
     //**********************************************************
-    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path_list_provider path_list_provider, double x, double y, Aborter aborter, Logger logger)
+    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path_list_provider path_list_provider, double x, double y, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
-        Images_and_feature_vectors images_and_feature_vectors = Browsing_caches.images_and_feature_vectors_cache.get(path_list_provider.get_name());
+        Image_feature_vector_cache image_feature_vector_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
-        if ( images_and_feature_vectors == null)
+        if ( image_feature_vector_cache == null)
         {
             Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, calling ML servers to get feature vectors",20000, x,y,logger);
-            images_and_feature_vectors = read_from_disk_and_update(path_list_provider,in_flight, aborter,logger);
-            Browsing_caches.images_and_feature_vectors_cache.put(path_list_provider.get_name(),images_and_feature_vectors);
+            image_feature_vector_cache = new Image_feature_vector_cache(path_list_provider.get_name(), "image_feature_vectors", Shared_services.shared_services_aborter, logger);
+            Images_and_feature_vectors images_and_feature_vectors = image_feature_vector_cache.read_from_disk_and_update(path_list_provider,in_flight, browser_aborter,logger);
+            Browsing_caches.fv_cache_of_caches.put(path_list_provider.get_name(),image_feature_vector_cache);
             return images_and_feature_vectors;
         }
-        images_and_feature_vectors.image_feature_vector_ram_cache.update(path_list_provider, in_flight, aborter,logger);
-        return images_and_feature_vectors;
+        return image_feature_vector_cache.update(path_list_provider, in_flight,browser_aborter,logger);
     }
 
     //**********************************************************
-    private static Images_and_feature_vectors read_from_disk_and_update(Path_list_provider path_list_provider , AtomicInteger in_flight, Aborter aborter, Logger logger)
+    private Images_and_feature_vectors read_from_disk_and_update(Path_list_provider path_list_provider , AtomicInteger in_flight, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
-        Image_feature_vector_cache image_feature_vector_ram_cache = new Image_feature_vector_cache(path_list_provider.get_name(), "image_feature_vectors", aborter, logger);
-        image_feature_vector_ram_cache.reload_cache_from_disk(in_flight,aborter);
+        reload_cache_from_disk(in_flight,browser_aborter);
 
-        logger.log("read_from_disk "+image_feature_vector_ram_cache.path_to_feature_vector_cache.size()+" fv from disk for:"+path_list_provider.get_name());
-        return image_feature_vector_ram_cache.update( path_list_provider, in_flight,aborter, logger);
+        logger.log("read_from_disk "+path_to_feature_vector_cache.size()+" fv from disk for:"+path_list_provider.get_name());
+        return update( path_list_provider, in_flight, browser_aborter, logger);
     }
 
     //**********************************************************
-    private  Images_and_feature_vectors update(Path_list_provider path_list_provider, AtomicInteger in_flight, Aborter aborter, Logger logger)
+    private  Images_and_feature_vectors update(Path_list_provider path_list_provider, AtomicInteger in_flight, Aborter browser_aborter,Logger logger)
     //**********************************************************
     {
         List<Path> images = new ArrayList<>();
@@ -267,16 +272,19 @@ public class Image_feature_vector_cache
         };
         for (Path p :missing_images)
         {
-            get_from_cache(p,tr,false);
+            get_from_cache(p,tr,false, browser_aborter);
         }
         try {
             cdl.await();
         } catch (InterruptedException e) {
             logger.log("Images_and_feature_vectors from_disk interrupted:"+e);
         }
-        logger.log("update: "+missing_images.size()+" new images added for:"+path_list_provider.get_name());
 
-        if (!missing_images.isEmpty()) save_whole_cache_to_disk();
+        if (!missing_images.isEmpty())
+        {
+            logger.log(("update: "+missing_images.size()+" new images added for:"+path_list_provider.get_name()));
+            save_whole_cache_to_disk();
+        }
         return new Images_and_feature_vectors(this, images);
     }
 

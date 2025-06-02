@@ -60,7 +60,7 @@ public class Animated_gif_from_folder
         int icon_size = Non_booleans.get_icon_size();
 
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
-        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner,Cache_folder.klik_folder_icon_cache,logger);
+        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_folder_icon_cache,logger);
         Path output_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(output_animated_gif)) {
             if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
@@ -78,7 +78,7 @@ public class Animated_gif_from_folder
         graphicsMagick_command_line.add(frames);
         graphicsMagick_command_line.add(output_animated_gif.toAbsolutePath().toString());
 
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(owner, Cache_folder.klik_icon_cache,logger);
+        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache,logger);
         List<Path> to_be_cleaned_up = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
         for (File f : images_in_folder) paths.add(f.toPath());

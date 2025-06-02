@@ -21,6 +21,7 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 
 //**********************************************************
@@ -63,6 +65,8 @@ public class Image_window
     boolean is_full_screen = false;
     Path dir;
     private final Image_properties_RAM_cache image_properties_cache;
+    private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
+    private Image_feature_vector_cache fv_cache;
     Path_list_provider path_list_provider;
     public Path_comparator_source path_comparator_source;
 
@@ -125,6 +129,17 @@ public class Image_window
             Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),tmp);
         }
         image_properties_cache = tmp;
+
+
+        fv_cache_supplier = () ->
+        {
+            if ( fv_cache == null)
+            {
+                Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,  x,  y,  aborter,  logger);
+                fv_cache= images_and_feature_vectors.fv_cache();
+            }
+            return fv_cache;
+        };
 
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
@@ -224,7 +239,7 @@ public class Image_window
         EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY)
             {
-                image_display_handler.handle_mouse_clicked_secondary(image_properties_cache,the_Stage, mouseEvent,logger);
+                image_display_handler.handle_mouse_clicked_secondary(image_properties_cache,fv_cache_supplier,the_Stage, mouseEvent,logger);
             }
         };
         the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);

@@ -32,6 +32,7 @@ import klik.browser.virtual_landscape.Selection_handler;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.experimental.work_in_progress.Multiple_image_window;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
@@ -52,6 +53,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 
 //**********************************************************
@@ -63,6 +65,7 @@ public class Item_file_with_icon extends Item_file
     public Double aspect_ratio;
     public static Image default_icon;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
     private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
@@ -74,6 +77,7 @@ public class Item_file_with_icon extends Item_file
             Color color,
             Double aspect_ratio,
             Image_properties_RAM_cache image_properties_RAM_cache,
+            Supplier<Image_feature_vector_cache> fv_cache_supplier,
             Path path_,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
@@ -94,6 +98,7 @@ public class Item_file_with_icon extends Item_file
                 logger);
         this.aspect_ratio = aspect_ratio;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.fv_cache_supplier = fv_cache_supplier;
         this.path_comparator_source = path_comparator_source;
         double actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
@@ -258,7 +263,7 @@ public class Item_file_with_icon extends Item_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(get_item_path(),image_properties_RAM_cache,owner, path_comparator_source,aborter,logger);
+            MenuItem menu_item = create_show_similar_menu_item(get_item_path(),image_properties_RAM_cache,fv_cache_supplier,owner, path_comparator_source,aborter,logger);
             context_menu.getItems().add(menu_item);
         }
         
@@ -341,9 +346,10 @@ public class Item_file_with_icon extends Item_file
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
                                                          Image_properties_RAM_cache image_properties_cache,
+                                                         Supplier<Image_feature_vector_cache> fv_cache_supplier,
                                                          Window owner,
                                                          Path_comparator_source path_comparator_source,
-                                                         Aborter aborter,
+                                                         Aborter browser_aborter,
                                                          Logger logger)
     //**********************************************************
     {
@@ -358,8 +364,11 @@ public class Item_file_with_icon extends Item_file
                 image_similarity = new Image_similarity(
                         new Folder_path_list_provider(image_path.getParent()),
                         path_comparator_source,
-                        x,y,aborter,logger);
-                image_similarity.find_similars(false, image_path,null, N,true, Double.MAX_VALUE,image_properties_cache, false,x,y,null);
+                        x,y,browser_aborter,logger);
+                image_similarity.find_similars(
+                        false,
+                        image_path,
+                        null, N,true, Double.MAX_VALUE,image_properties_cache, fv_cache_supplier,false,x,y,null,browser_aborter);
             };
             Actor_engine.execute(r,logger);
         });
@@ -396,7 +405,7 @@ public class Item_file_with_icon extends Item_file
             MenuItem menu_item = new MenuItem("Generate gif animations from a video, interactively");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
-                Ffmpeg_utils.interactive(path,aborter,logger);
+                Ffmpeg_utils.interactive(path,logger);
             });
             context_menu.getItems().add(menu_item);
         }

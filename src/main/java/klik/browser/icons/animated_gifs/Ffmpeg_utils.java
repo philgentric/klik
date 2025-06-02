@@ -340,7 +340,7 @@ public class Ffmpeg_utils
     static Logger logger;
 
     //**********************************************************
-    public static void interactive(Path video_path_, Aborter aborter, Logger logger_)
+    public static void interactive(Path video_path_, Logger logger_)
     //**********************************************************
     {
         video_path = video_path_;
@@ -350,7 +350,7 @@ public class Ffmpeg_utils
 
         Platform.runLater(() -> {
             the_stage = new Stage();
-            icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(the_stage, Cache_folder.klik_icon_cache,logger);
+            icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.klik_icon_cache,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);

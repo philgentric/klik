@@ -10,6 +10,7 @@ import klik.util.log.Logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Supplier;
 
 
 //**********************************************************
@@ -20,7 +21,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
     // the distances are computed in the constructor
     //**********************************************************
     public Similarity_comparator_pairs_of_closests(
-            Image_feature_vector_cache fv_cache,
+            Supplier<Image_feature_vector_cache> fv_cache_supplier,
             Similarity_cache similarity_cache,
             Path_list_provider path_list_provider,
             double x, double y,
@@ -28,7 +29,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
             Logger logger_)
     //**********************************************************
     {
-        super(fv_cache,similarity_cache, path_list_provider, logger_);
+        super(fv_cache_supplier,similarity_cache, path_list_provider, logger_);
 
         //logger.log("\n\nmin "+Similarity_cache_warmer_actor.min+" max "+Similarity_cache_warmer_actor.max);
         if ( aborter.should_abort()) return;

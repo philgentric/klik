@@ -14,12 +14,14 @@ import klik.browser.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_file_with_icon;
+import klik.browser.virtual_landscape.Browsing_caches;
 import klik.change.Redo_same_move_engine;
 import klik.change.undo.Undo_for_moves;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.image_ml.face_recognition.Face_recognition_actor;
 import klik.image_ml.face_recognition.Face_recognition_message;
 import klik.image_ml.face_recognition.Face_recognition_service;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Advanced_features;
 import klik.properties.Booleans;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static klik.images.Image_display_handler.build_Image_context;
 
@@ -492,6 +495,7 @@ public class Menus_for_image_window
     //**********************************************************
     public static ContextMenu make_context_menu(Image_window image_window,
                                                 Image_properties_RAM_cache image_properties_cache,
+                                                Supplier<Image_feature_vector_cache> fv_cache_supplier,
                                                 Logger logger)
     //**********************************************************
     {
@@ -516,6 +520,7 @@ public class Menus_for_image_window
             context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
                     image_properties_cache,
+                    fv_cache_supplier,
                     image_window.the_Stage,
                     image_window.path_comparator_source,
                     image_window.aborter,

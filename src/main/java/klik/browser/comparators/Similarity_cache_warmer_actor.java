@@ -37,38 +37,38 @@ public class Similarity_cache_warmer_actor implements Actor
     //**********************************************************
     {
 
-        Similarity_cache_warmer_message dnm = (Similarity_cache_warmer_message)m;
-        Feature_vector emb1 = cache.get_from_cache(dnm.p1,null,true);
+        Similarity_cache_warmer_message scwm = (Similarity_cache_warmer_message)m;
+        Aborter browser_aborter = scwm.get_aborter();
+        Feature_vector emb1 = cache.get_from_cache(scwm.p1,null,true,browser_aborter);
         if ( emb1 == null)
         {
-            emb1 = cache.get_from_cache(dnm.p1,null,true);
+            emb1 = cache.get_from_cache(scwm.p1,null,true,browser_aborter);
             if ( emb1 == null)
             {
-                logger.log(" emb1 == null for "+dnm.p1);
+                logger.log(" emb1 == null for "+scwm.p1);
                 return "ERROR";
             }
         }
 
-        Aborter aborter = dnm.get_aborter();
         for (Path p2 : images)
         {
-            if ( p2.getFileName().toString().equals(dnm.p1.getFileName().toString())) continue;
+            if ( p2.getFileName().toString().equals(scwm.p1.getFileName().toString())) continue;
             //if (!Guess_file_type.is_file_an_image(p2.toFile())) {
             //    continue;
             //}
-            Path_pair pp = Path_pair.get(dnm.p1, p2);
+            Path_pair pp = Path_pair.get(scwm.p1, p2);
             // already in cache?
             if ( similarities_hashtable.get(pp) != null)
             {
                 //logger.log("not computed: similarity already in cache "+p1+" vs "+p2);
                 continue;
             }
-            if (aborter.should_abort()) return "aborted";
+            if (browser_aborter.should_abort()) return "aborted";
 
             //logger.log("processing "+p1+" vs "+p2);
-            Feature_vector emb2 = cache.get_from_cache(p2, null, true);
+            Feature_vector emb2 = cache.get_from_cache(p2, null, true,browser_aborter);
             if (emb2 == null) {
-                emb2 = cache.get_from_cache(p2, null, true);
+                emb2 = cache.get_from_cache(p2, null, true,browser_aborter);
                 if (emb2 == null) {
                     logger.log(" emb2 == null for " + p2);
                     continue;

@@ -801,9 +801,17 @@ public class Face_recognition_service
     //**********************************************************
     {
         Path path =  Embeddings_prototype.make_image_path(folder_path,tag,logger);
+        logger.log("writing tmp image to: "+path+" face="+face.getWidth()+"x"+face.getHeight());
         try {
             BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);
-            ImageIO.write(bi, "png", path.toFile());
+            logger.log("BufferedImage="+bi.getWidth()+"x"+bi.getHeight());
+            boolean status = ImageIO.write(bi, "png", path.toFile());
+            // RICK boolean status = ImageIO.write(bi, "png", new File("/Users/philippegentric/Desktop/toto/titi.png"));//path.toFile());
+            if ( !status)
+            {
+                logger.log("could not write tmp image to: "+path);
+                return null;
+            }
         }
         catch (IOException e)
         {

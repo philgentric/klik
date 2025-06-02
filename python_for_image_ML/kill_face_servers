@@ -5,10 +5,12 @@
 FACENET_EMBEDDINGS_PORTS=(8020 8021)
 
 for PORT in "${FACENET_EMBEDDINGS_PORTS[@]}"; do
-    pids=$(pgrep -f "python.*run_server.*${PORT}" | xargs)
+    pids=$(pgrep -f "Python.*run_server.*${PORT}" | xargs)
     if [ -n "$pids" ]; then
         echo "Killing process(es) ${pids} for port ${PORT}"
         kill $pids
+    else
+        echo "No process(es) found for port ${PORT}"
     fi
 done
 
@@ -21,9 +23,11 @@ FACE_DETECTION_PORTS=(
 8110 8111)
 
 for PORT in "${FACE_DETECTION_PORTS[@]}"; do
-    pids=$(pgrep -f "python.*run_server.*${PORT}" | xargs)
+    pids=$(pgrep -f "Python.*run_server.*${PORT}" | xargs)
     if [ -n "$pids" ]; then
         echo "Killing process(es) ${pids} for port ${PORT}"
         kill $pids
+    else
+        echo "No process(es) found for port ${PORT}"
     fi
 done

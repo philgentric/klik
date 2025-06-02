@@ -16,6 +16,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
@@ -33,6 +34,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 //**********************************************************
 public class Image_display_handler implements Change_receiver, Slide_show_slave
@@ -183,10 +185,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
 
     //**********************************************************
-    void handle_mouse_clicked_secondary(Image_properties_RAM_cache image_properties_cache, Window window, MouseEvent e, Logger logger)
+    void handle_mouse_clicked_secondary(Image_properties_RAM_cache image_properties_cache, Supplier<Image_feature_vector_cache> fv_cache_supplier, Window window, MouseEvent e, Logger logger)
     //**********************************************************
     {
-        ContextMenu contextMenu = Menus_for_image_window.make_context_menu(image_window, image_properties_cache, logger);
+        ContextMenu contextMenu = Menus_for_image_window.make_context_menu(image_window, image_properties_cache, fv_cache_supplier,logger);
         contextMenu.show(window, e.getScreenX(), e.getScreenY());
     }
 
@@ -228,7 +230,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                     Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path);
-                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage, aborter,logger);
+                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,logger);
                         // reload the image
                         Optional<Image_context> option = local_getImage_context(local.path,  aborter);
                         if ( option.isPresent())
