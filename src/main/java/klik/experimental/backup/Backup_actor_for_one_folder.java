@@ -31,23 +31,23 @@ public class Backup_actor_for_one_folder implements Actor
     public final Aborter aborter;
     Backup_actor_for_one_file file_actor;
     Backup_actor_for_one_folder folder_actor;
-    public final boolean enable_deep_byte_check;
-    public final boolean enable_check_for_same_file_different_name;
+    public final boolean deep_byte_check;
+    public final boolean check_for_same_file_different_name;
     private Actor_engine_based_on_workers actor_engine_based_on_workers;
 
 
     //**********************************************************
     public Backup_actor_for_one_folder(Backup_stats stats_,
-                                       boolean enable_check_for_same_file_different_name,
-                                       boolean enable_deep_byte_check,
+                                       boolean check_for_same_file_different_name,
+                                       boolean deep_byte_check,
                                        ConcurrentLinkedQueue<String> reports_,
                                        Aborter aborter_,
                                        Actor_engine_based_on_workers actor_engine_based_on_workers_,
                                        Logger logger_)
     //**********************************************************
     {
-        this.enable_check_for_same_file_different_name = enable_check_for_same_file_different_name;
-        this.enable_deep_byte_check = enable_deep_byte_check;
+        this.check_for_same_file_different_name = check_for_same_file_different_name;
+        this.deep_byte_check = deep_byte_check;
         stats = stats_;
         reports = reports_;
         logger = logger_;
@@ -93,7 +93,7 @@ public class Backup_actor_for_one_folder implements Actor
         // ok, we will really have something to backup
         stats.target_dir_count.incrementAndGet();
         boolean slow = false;
-        if (( enable_check_for_same_file_different_name)||(enable_deep_byte_check))
+        if (( check_for_same_file_different_name)||(deep_byte_check))
         {
             slow = true;
             mini_console = new Per_folder_mini_console(aborter,logger);
@@ -101,12 +101,12 @@ public class Backup_actor_for_one_folder implements Actor
             mini_console.init(request);
         }
 
-        boolean local_enable_check_for_same_file_different_name = enable_check_for_same_file_different_name;
+        boolean local_check_for_same_file_different_name = check_for_same_file_different_name;
         if (!request.destination_dir.exists()) {
             if (request.destination_dir.mkdir()) {
                 logger.log("created folder: " + request.destination_dir);
                 // first time backup, no need to check for previous files
-                local_enable_check_for_same_file_different_name = false;
+                local_check_for_same_file_different_name = false;
             } else {
                 return my_abort(request,"FATAL ! could not create folder: " + request.destination_dir);
             }
@@ -137,13 +137,13 @@ public class Backup_actor_for_one_folder implements Actor
             //this is to do 1 thread per file, benchmarks indicate this is bad on small machines and/or slow (e.g. external) disks
             Actor_engine.run(
                     new Backup_actor_for_one_file(stats, logger), // need on actor instance per task because the file comparator is not reentrant
-                    new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, enable_check_for_same_file_different_name, request.aborter,logger),
+                    new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, check_for_same_file_different_name, request.aborter,logger),
                     null,
                     logger
             );
             so instead we do it on the current thread:
             */
-            file_actor.run(new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, local_enable_check_for_same_file_different_name, enable_deep_byte_check,request.aborter,logger));
+            file_actor.run(new File_backup_job_request(request.destination_dir, file_to_be_copied, mini_console, local_check_for_same_file_different_name, deep_byte_check,request.aborter,logger));
             count++;
         }
         if ( dbg) logger.log("Folder "+request.source_dir.getAbsolutePath()+" "+count+" files backups DONE");
@@ -173,12 +173,12 @@ public class Backup_actor_for_one_folder implements Actor
             }
             if ( launch_in_thread)
             {
-                actor_engine_based_on_workers.run(new Backup_actor_for_one_folder(stats, enable_check_for_same_file_different_name,enable_deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger), directory_backup_job_request, null, logger);
+                actor_engine_based_on_workers.run(new Backup_actor_for_one_folder(stats, check_for_same_file_different_name,deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger), directory_backup_job_request, null, logger);
                 threads_launched++;
             }
             else
             {
-                if ( folder_actor == null) folder_actor = new Backup_actor_for_one_folder(stats, enable_check_for_same_file_different_name,enable_deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger);
+                if ( folder_actor == null) folder_actor = new Backup_actor_for_one_folder(stats, check_for_same_file_different_name,deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger);
                 folder_actor.do_one_folder(directory_backup_job_request);
             }
             if (mini_console != null) mini_console.show_progress();

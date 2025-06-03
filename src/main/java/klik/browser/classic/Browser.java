@@ -51,6 +51,7 @@ import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
+import klik.properties.Advanced_features;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
@@ -124,8 +125,10 @@ public class Browser extends Abstract_browser
         // ALWAYS monitor external drives
         monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(path_list_provider.get_folder_path(), logger);
 
-        if (!monitor_this_folder) {
-            if (Booleans.get_boolean_defaults_to_true(Booleans.MONITOR_BROWSED_FOLDERS)) {
+        if (!monitor_this_folder)
+        {
+            if (Booleans.get_boolean(Advanced_features.folders_monitoring.name()))
+            {
                 monitor_this_folder = true;
             }
         }
@@ -133,7 +136,8 @@ public class Browser extends Abstract_browser
         if (monitor_this_folder) {
             Runnable r = () -> {
                 filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, Shared_services.shared_services_aborter, logger);
-                if (filesystem_item_modification_watcher == null) {
+                if (filesystem_item_modification_watcher == null)
+                {
                     logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
                 }
             };
@@ -207,13 +211,14 @@ public class Browser extends Abstract_browser
                         }
                     }
                 }
+                logger.log("redraw_fx due to change gang");
                 virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
             }
             ;
             break;
             case one_new_file, one_file_gone: {
-                //if (dbg)
-                    logger.log("CHANGE GANG received: Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
+                if (dbg) logger.log("CHANGE GANG received: Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
+                logger.log("redraw_fx due to change gang");
                 virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
             }
             break;

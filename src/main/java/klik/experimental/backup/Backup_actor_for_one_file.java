@@ -144,7 +144,7 @@ public class Backup_actor_for_one_file implements Actor
         if (destination_file.exists() == true)
         {
             long[] bytes_read = new long[1];
-            Similarity_result status = process_in_case_destination_exists(file_backup_job_request.file_to_be_copied, target_name, destination_file, file_comparator,file_backup_job_request.mini_console,bytes_read, file_backup_job_request.enable_deep_byte_check);
+            Similarity_result status = process_in_case_destination_exists(file_backup_job_request.file_to_be_copied, target_name, destination_file, file_comparator,file_backup_job_request.mini_console,bytes_read, file_backup_job_request.deep_byte_check);
             returned.bytes_read = bytes_read[0];
             if ( status == Similarity_result.aborted)
             {
@@ -196,7 +196,7 @@ public class Backup_actor_for_one_file implements Actor
         }
         // last check: there might already be a copy as a file with a different name
 
-        if ( file_backup_job_request.enable_check_for_same_file_different_name)
+        if ( file_backup_job_request.check_for_same_file_different_name)
         {
 
             Path obsolete_name = check_for_same_file_different_name(

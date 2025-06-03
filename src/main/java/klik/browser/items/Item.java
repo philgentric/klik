@@ -234,7 +234,7 @@ public abstract class Item implements Icon_destination
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-                if ( Virtual_landscape.enable_tags)
+                if ( Virtual_landscape.tags)
                 {
                     context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
                 }
@@ -267,7 +267,7 @@ public abstract class Item implements Icon_destination
             context_menu.getItems().add(create_delete_menu_item());
 
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg,logger));
-            if ( Virtual_landscape.enable_tags)
+            if ( Virtual_landscape.tags)
             {
                 context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }

@@ -270,13 +270,13 @@ public class Mouse_handling_for_Image_window
             if (mouseEvent.getButton() != MouseButton.SECONDARY) mouse_released_pix_for_pix(mouseEvent);
         };
 
-        enable_drag_and_drop(image_stage);
+        drag_and_drop(image_stage);
 
     }
 
 
     //**********************************************************
-    private void enable_pix_for_pix(Stage the_stage)
+    private void pix_for_pix(Stage the_stage)
     //**********************************************************
     {
 
@@ -317,7 +317,7 @@ public class Mouse_handling_for_Image_window
 
 
     //**********************************************************
-    private void enable_click_to_zoom(Pane pane)
+    private void click_to_zoom(Pane pane)
     //**********************************************************
     {
         pane.addEventHandler(MouseEvent.MOUSE_PRESSED, mouse_pressed_click_to_zoom_event_handler);
@@ -346,7 +346,7 @@ public class Mouse_handling_for_Image_window
                 if (old_mode == Mouse_mode.drag_and_drop) return;
                 if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_window.the_image_Pane);
                 if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.the_Stage);
-                enable_drag_and_drop(image_window);
+                drag_and_drop(image_window);
                 // REFRESH i.e. especially when going out of pix-for-pix
                 if(!something_is_wrong_with_image_size())
                 {
@@ -361,14 +361,14 @@ public class Mouse_handling_for_Image_window
                 }
                 if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_window.the_image_Pane);
                 if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_window.the_image_Pane);
-                enable_pix_for_pix(image_window.the_Stage);
+                pix_for_pix(image_window.the_Stage);
                 pix_for_pix();
             }
             case click_to_zoom -> {
                 if (old_mode == Mouse_mode.click_to_zoom) return;
                 if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_window.the_image_Pane);
                 if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.the_Stage);
-                enable_click_to_zoom(image_window.the_image_Pane);
+                click_to_zoom(image_window.the_image_Pane);
             }
         }
 
@@ -411,13 +411,13 @@ public class Mouse_handling_for_Image_window
 
 
     //**********************************************************
-    private void enable_drag_and_drop(Image_window image_window)
+    private void drag_and_drop(Image_window image_window)
     //**********************************************************
     {
 
         if(image_window.image_display_handler.get_image_context().isEmpty())
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD enable_drag_and_drop: get_image_context is empty"));
+            logger.log(Stack_trace_getter.get_stack_trace("BADBABDBAD drag_and_drop: get_image_context is empty"));
             return;
         }
         {
@@ -460,7 +460,7 @@ public class Mouse_handling_for_Image_window
     // and the side effect is that the current directory will change
 
         image_window.the_image_Pane.setOnDragDropped(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragDropped");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragDropped");
 
             Dragboard db = drag_event.getDragboard();
             List<File> l = db.getFiles();
@@ -490,18 +490,18 @@ public class Mouse_handling_for_Image_window
         });
 
         image_window.the_image_Pane.setOnDragOver(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragOver");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             drag_event.consume();
             image_window.the_Stage.requestFocus();
         });
         image_window.the_image_Pane.setOnDragEntered(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragEntered");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragEntered");
             Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane);
             drag_event.consume();
         });
         image_window.the_image_Pane.setOnDragExited(drag_event -> {
-            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView enable_drag_and_drop DragExited");
+            if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragExited");
             if (image_window.image_display_handler.get_image_context().isPresent())
             {
                 image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString());

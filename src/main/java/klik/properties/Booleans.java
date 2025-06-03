@@ -14,21 +14,7 @@ public class Booleans
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public static final String SHOW_HIDDEN_FILES = "show_hidden_files";
-    public static final String SHOW_HIDDEN_DIRECTORIES = "show_hidden_directories";
-    public static final String SINGLE_COLUMN = "single_column";
-    public static final String ICONS_FOR_FOLDERS = "icons_for_folders";
-    public static final String DONT_ZOOM_SMALL_IMAGES = "dont_zoom_small_images";
-    public static final String VERTICAL_SCROLL_INVERTED = "vertical_scroll_inverted";
-    public static final String SHOW_ICONS = "show_icons";
-    public static final String MONITOR_BROWSED_FOLDERS = "monitor_browsed_folders";
-    public static final String FUSK_IS_ACTIVE = "fusk_is_active";
-    public static final String DING_IS_ON = "play_ding_when_long_operations_end";
-    public static final String ESCAPE_FAST_EXIT = "escape_fast_exit";
-    public static final String ENABLE_SHIFT_D_IS_SURE_DELETE = "enable_shift_d_is_sure_delete";
-
-    public static final String AUTO_PURGE_DISK_CACHES = "AUTO_PURGE_DISK_CACHES";
-
+      public static final String FUSK_IS_ACTIVE = "fusk_is_active";
     private static final String SHOW_FFMPEG_INSTALL_WARNING = "SHOW_FFMPEG_INSTALL_WARNING";
     private static final String SHOW_GraphicsMagick_INSTALL_WARNING = "SHOW_GraphicsMagick_INSTALL_WARNING";
 

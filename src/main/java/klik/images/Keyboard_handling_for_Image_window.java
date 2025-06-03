@@ -6,6 +6,8 @@ import javafx.stage.Window;
 import klik.browser.New_window_context;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.experimental.metadata.Tag_stage;
+import klik.properties.Advanced_features;
+import klik.properties.Basic_features;
 import klik.properties.Booleans;
 import klik.properties.Experimental_features;
 import klik.util.log.Logger;
@@ -63,7 +65,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Booleans.get_boolean(Booleans.ENABLE_SHIFT_D_IS_SURE_DELETE))
+            if (Booleans.get_boolean(Advanced_features.shift_d_is_sure_delete.name()))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -193,7 +195,7 @@ public class Keyboard_handling_for_Image_window
             case "t","T" -> {
                 if (keyword_dbg) logger.log("t like tag");
 
-                if( Booleans.get_boolean(Experimental_features.enable_tags.name())) {
+                if( Booleans.get_boolean(Experimental_features.tags.name())) {
 
                     if (image_window.image_display_handler.get_image_context().isEmpty()) return;
                     Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, image_window.aborter,logger);

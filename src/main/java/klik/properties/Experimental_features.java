@@ -2,12 +2,13 @@ package klik.properties;
 
 public enum Experimental_features
 {
-    enable_backup,
-    enable_fusk,
-    enable_different_image_quality,
-    enable_clean_up_names,
-    enable_remove_corrupted_images,
-    enable_tags,
-    enable_ram_disk,
-    enable_image_playlists
+    backup,
+    tags,
+    clean_up_names,
+    remove_corrupted_images,
+    ram_disk,
+    image_playlists,
+    different_image_quality,
+    fusk,
+    fusk_is_active,
 }

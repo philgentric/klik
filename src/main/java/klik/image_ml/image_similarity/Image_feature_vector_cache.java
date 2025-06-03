@@ -223,7 +223,11 @@ public class Image_feature_vector_cache
     }
 
     //**********************************************************
-    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(Path_list_provider path_list_provider, double x, double y, Aborter browser_aborter, Logger logger)
+    public static Images_and_feature_vectors preload_all_feature_vector_in_cache(
+            Path_list_provider path_list_provider,
+            double x, double y,
+            Aborter browser_aborter,
+            Logger logger)
     //**********************************************************
     {
         Image_feature_vector_cache image_feature_vector_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
@@ -250,12 +254,14 @@ public class Image_feature_vector_cache
     }
 
     //**********************************************************
-    private  Images_and_feature_vectors update(Path_list_provider path_list_provider, AtomicInteger in_flight, Aborter browser_aborter,Logger logger)
+    private  Images_and_feature_vectors update(
+            Path_list_provider path_list_provider,
+            AtomicInteger in_flight, Aborter browser_aborter,Logger logger)
     //**********************************************************
     {
         List<Path> images = new ArrayList<>();
         List<Path> missing_images = new ArrayList<>();
-        for (Path p : path_list_provider.only_file_paths(Virtual_landscape.show_hidden_files))
+        for (Path p : path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files))
         {
             if ( !Guess_file_type.is_file_an_image(p.toFile())) continue;
             images.add(p);

@@ -235,12 +235,7 @@ public class Drag_and_drop
                 if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
                 /*
                 DO NOT report it: it will be reported by the receiver Browser scene
-                List<Old_and_new_Path> l = new ArrayList<>();
-                Command_old_and_new_Path k = Command_old_and_new_Path.command_move;
-                Old_and_new_Path oan = new Old_and_new_Path(null,f,k);
-                oan.set_status(Status_old_and_new_Path.status_moved);
-                l.add(oan);
-                Change_gang.report_event(l);*/
+                */
 
                 if( selection_handler!= null)
                 {

@@ -87,7 +87,8 @@ public class Filesystem_item_modification_watcher
     public static Filesystem_item_modification_watcher monitor_folder(Path folder_path, int timeout_in_minutes, Aborter monitoring_aborter, Logger logger)
     //**********************************************************
     {
-        Filesystem_modification_reporter reporter = () -> {
+        Filesystem_modification_reporter reporter = () ->
+        {
             List<Old_and_new_Path> oanps = new ArrayList<>();
             Command_old_and_new_Path cmd = Command_old_and_new_Path.command_move;
             Old_and_new_Path oan = new Old_and_new_Path(folder_path, folder_path, cmd, Status_old_and_new_Path.a_change_occured_in_this_folder,false);

@@ -37,7 +37,7 @@ public class Selection_handler
     double x1;
     double y1;
     Rectangle rect = new Rectangle(0, 0, 1, 1);
-    private static final boolean enable_multiple_selections = true;
+    private static final boolean multiple_selections = true;
 
     Selection_state selection_state = Selection_state.nothing_selected;
 
@@ -163,7 +163,7 @@ public class Selection_handler
             // dont consume event
             return;
         }
-        if (!enable_multiple_selections)
+        if (!multiple_selections)
         {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_pressed() giving up, multiple selection disabled by config");
             return;
@@ -202,7 +202,7 @@ public class Selection_handler
     public void handle_mouse_dragged(final MouseEvent mouse_event)
     //**********************************************************
     {
-        if (!enable_multiple_selections) return;
+        if (!multiple_selections) return;
 
         if ( selection_state != Selection_state.selection_started)
         {
@@ -226,7 +226,7 @@ public class Selection_handler
     void handle_mouse_released(final MouseEvent mouse_event)
     //**********************************************************
     {
-        if (!enable_multiple_selections) return;
+        if (!multiple_selections) return;
         if ( selection_state != Selection_state.selection_started)
         {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("handle_mouse_released: GIVING UP since selection_state != Selection_state.selection_started");

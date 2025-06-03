@@ -22,6 +22,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.properties.Basic_features;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
@@ -154,7 +155,7 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Booleans.ESCAPE_FAST_EXIT);
+            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Basic_features.escape_fast_exit.name());
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
                     keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, exit_on_escape_preference, keyEvent, logger));
         }
@@ -239,7 +240,12 @@ public class Image_window
         EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY)
             {
-                image_display_handler.handle_mouse_clicked_secondary(image_properties_cache,fv_cache_supplier,the_Stage, mouseEvent,logger);
+                image_display_handler.handle_mouse_clicked_secondary(
+                        image_properties_cache,
+                        fv_cache_supplier,
+                        the_Stage,
+                        mouseEvent,
+                        logger);
             }
         };
         the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
@@ -566,7 +572,7 @@ public class Image_window
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
 
-            boolean dont_zoom = Booleans.get_boolean_defaults_to_true(Booleans.DONT_ZOOM_SMALL_IMAGES);
+            boolean dont_zoom = Booleans.get_boolean_defaults_to_true(Basic_features.dont_zoom_small_images.name());
             boolean normal = true;
             if (dont_zoom)
             {

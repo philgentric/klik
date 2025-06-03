@@ -12,6 +12,9 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
 import klik.images.Image_window;
+import klik.properties.Advanced_features;
+import klik.properties.Basic_features;
+import klik.properties.Booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
@@ -28,19 +31,9 @@ public class Image_similarity implements Clearable_RAM_cache
 //**********************************************************
 {
 
-    //**********************************************************
-    @Override
-    public void clear_RAM_cache()
-    //**********************************************************
-    {
-        similarities.clear();
-        //images_and_feature_vectors.fv_cache().clear_feature_vector_RAM_cache();
-    }
 
     public static final double W = 300;
     public static final double H = 300;
-
-    //Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors;
 
     final List<Path> images;
     Map<Path,Map<Path,Double>> similarities = new HashMap<>();
@@ -48,6 +41,9 @@ public class Image_similarity implements Clearable_RAM_cache
     public final Path_comparator_source path_comparator_source;
     public final Logger logger;
     public final Aborter aborter;
+
+    private boolean show_vector_differences;
+
     //**********************************************************
     public Image_similarity(
             Path_list_provider path_list_provider,
@@ -60,8 +56,16 @@ public class Image_similarity implements Clearable_RAM_cache
         this.path_comparator_source = path_comparator_source;
         this.logger = logger;
         this.aborter = aborter;
-        Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,x,y,aborter,logger);
-        images = images_and_feature_vectors.images();
+        images = path_list_provider.only_image_paths(Booleans.get_boolean(Basic_features.show_hidden_files.name()));
+        show_vector_differences = Booleans.get_boolean(Advanced_features.display_image_distances.name());
+    }
+
+    //**********************************************************
+    @Override
+    public void clear_RAM_cache()
+    //**********************************************************
+    {
+        similarities.clear();
     }
 
     //**********************************************************
@@ -151,14 +155,16 @@ public class Image_similarity implements Clearable_RAM_cache
         logger.log("x="+returned.the_Stage.getX());
         logger.log("y="+returned.the_Stage.getY());
 
-        show_vector_differences(ms,false, x,y+H);
+        if (show_vector_differences)
+        {
+            show_vector_differences(ms,false, x,y+H);
+        }
 
     }
 
     private void show_vector_differences(Most_similar ms, boolean not_same, double x, double y)
     {
         Vector_window vw = new Vector_window("Distance: "+ms.similarity,x,y,ms.fv1,ms.fv2,not_same,true,logger);
-
     }
 
     //**********************************************************

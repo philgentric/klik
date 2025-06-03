@@ -466,7 +466,7 @@ public class Face_recognition_service
                 }
             }
             TextField textField = new TextField();
-            if (eval_result != null) textField.setDisable(!eval_result.enable_adding());
+            if (eval_result != null) textField.setDisable(!eval_result.adding());
 
             {
                 HBox hBox = new HBox();
@@ -477,7 +477,7 @@ public class Face_recognition_service
             {
                 HBox hBox = new HBox();
                 ComboBox<String> comboBox = new ComboBox<>();
-                if (eval_result != null) comboBox.setDisable(!eval_result.enable_adding());
+                if (eval_result != null) comboBox.setDisable(!eval_result.adding());
 
                 comboBox.getItems().addAll(Face_recognition_service.get_instance(stage,logger).get_prototype_labels());
                 if (eval_result != null) {
@@ -499,7 +499,7 @@ public class Face_recognition_service
                 vBox.getChildren().add(hBox);
             }
             if (eval_result != null) {
-                if (!eval_result.enable_adding())
+                if (!eval_result.adding())
                 {
                     if (face_image != null)
                     {
@@ -520,7 +520,7 @@ public class Face_recognition_service
             {
                 HBox hBox = new HBox();
                 Button add = new Button("Add to training set");
-                if (eval_result != null) add.setDisable(!eval_result.enable_adding());
+                if (eval_result != null) add.setDisable(!eval_result.adding());
                 add.setOnAction(e -> {
                     String image_label = textField.getText();
                     if (image_label.trim().isEmpty()) {
@@ -556,7 +556,7 @@ public class Face_recognition_service
             if (eval_result != null) {
                 HBox hBox = new HBox();
                 Button remove = new Button("REMOVE this face from the training set (bad face or wrong label)");
-                remove.setDisable(!eval_result.enable_adding());
+                remove.setDisable(!eval_result.adding());
                 remove.setOnAction(e -> {
 
                     Embeddings_prototype guilty = tag_to_prototype.get(eval_result.tag());

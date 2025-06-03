@@ -269,7 +269,7 @@ public class Face_recognition_actor implements Actor
         normal
     }
 
-    record Eval_results(String label, Feature_vector feature_vector, Eval_situation eval_situation, boolean enable_adding, String tag, List<Eval_result_for_one_prototype> list){};
+    record Eval_results(String label, Feature_vector feature_vector, Eval_situation eval_situation, boolean adding, String tag, List<Eval_result_for_one_prototype> list){};
 
 
     //**********************************************************

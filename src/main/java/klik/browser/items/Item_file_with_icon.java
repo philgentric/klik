@@ -263,7 +263,14 @@ public class Item_file_with_icon extends Item_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = create_show_similar_menu_item(get_item_path(),image_properties_RAM_cache,fv_cache_supplier,owner, path_comparator_source,aborter,logger);
+            MenuItem menu_item = create_show_similar_menu_item(
+                    get_item_path(),
+                    image_properties_RAM_cache,
+                    fv_cache_supplier,
+                    owner,
+                    path_comparator_source,
+                    aborter,
+                    logger);
             context_menu.getItems().add(menu_item);
         }
         
@@ -309,7 +316,7 @@ public class Item_file_with_icon extends Item_file
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, logger));
-            if (Virtual_landscape.enable_tags)
+            if (Virtual_landscape.tags)
             {
                 context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
@@ -342,7 +349,6 @@ public class Item_file_with_icon extends Item_file
     }
 
     static final int N = 5;
-    public static Image_similarity image_similarity;
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
                                                          Image_properties_RAM_cache image_properties_cache,
@@ -361,14 +367,20 @@ public class Item_file_with_icon extends Item_file
             {
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                image_similarity = new Image_similarity(
+                Image_similarity image_similarity = new Image_similarity(
                         new Folder_path_list_provider(image_path.getParent()),
                         path_comparator_source,
                         x,y,browser_aborter,logger);
                 image_similarity.find_similars(
                         false,
                         image_path,
-                        null, N,true, Double.MAX_VALUE,image_properties_cache, fv_cache_supplier,false,x,y,null,browser_aborter);
+                        null,
+                        N,
+                        true,
+                        Double.MAX_VALUE,
+                        image_properties_cache,
+                        fv_cache_supplier,
+                        false,x,y,null,browser_aborter);
             };
             Actor_engine.execute(r,logger);
         });

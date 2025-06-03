@@ -95,16 +95,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private static final double MARGIN_Y = 50;
     public static final String CONTACT_SHEET_FILE_NAME = "contact_sheet.pdf";
 
-    public static boolean single_column = Booleans.get_boolean(Booleans.SINGLE_COLUMN);
-    public static boolean enable_image_playlists = Booleans.get_boolean(Experimental_features.enable_image_playlists.name());
-    public static boolean enable_tags = Booleans.get_boolean(Experimental_features.enable_tags.name());
-    public static boolean enable_fusk = Booleans.get_boolean(Experimental_features.enable_fusk.name());
+    public static boolean single_column = Booleans.get_boolean(Basic_features.single_column.name());
+    public static boolean image_playlists = Booleans.get_boolean(Experimental_features.image_playlists.name());
+    public static boolean tags = Booleans.get_boolean(Experimental_features.tags.name());
+    public static boolean fusk = Booleans.get_boolean(Experimental_features.fusk.name());
     public static boolean fusk_is_active = Booleans.get_boolean(Booleans.FUSK_IS_ACTIVE);
-    public static boolean show_hidden_files = Booleans.get_boolean(Booleans.SHOW_HIDDEN_FILES);
-    public static boolean show_hidden_folders = Booleans.get_boolean(Booleans.SHOW_HIDDEN_DIRECTORIES);
-    public static boolean show_icons_instead_of_text = Booleans.get_boolean_defaults_to_true(Booleans.SHOW_ICONS);
-    public static boolean icons_for_folders = Booleans.get_boolean_defaults_to_true(Booleans.ICONS_FOR_FOLDERS);
-    public static boolean exit_on_escape = Booleans.get_boolean_defaults_to_true(Booleans.ESCAPE_FAST_EXIT);
+    public static boolean show_hidden_files = Booleans.get_boolean(Basic_features.show_hidden_files.name());
+    public static boolean show_hidden_folders = Booleans.get_boolean(Basic_features.show_hidden_directories.name());
+    public static boolean show_icons_instead_of_text = Booleans.get_boolean_defaults_to_true(Basic_features.show_icons.name());
+    public static boolean icons_for_folders = Booleans.get_boolean_defaults_to_true(Basic_features.icons_for_folders.name());
+    public static boolean exit_on_escape = Booleans.get_boolean_defaults_to_true(Basic_features.escape_fast_exit.name());
 
 
 
@@ -137,7 +137,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     boolean show_how_many_files_deep_in_each_folder_done = false;
     boolean show_total_size_deep_in_each_folder_done = false;
-    //private final Browser the_browser;
     private final Window owner;
     public Error_type error_type;
 
@@ -146,13 +145,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     Map<Path,Long> folder_total_sizes_cache;
     Map<Path,Long> folder_file_count_cache;
 
-
-
     private final List<Item> future_pane_content = new ArrayList<>();
-
-
     public Vertical_slider vertical_slider;
-    public double slider_width = 40;
+    public double slider_width;
     public final Scene the_Scene;
     public final Pane the_Pane;
     public final Selection_handler selection_handler;
@@ -169,6 +164,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public static boolean show_running_film = true;
 
     public final Browsing_caches browsing_caches;
+    private Image_feature_vector_cache fv_cache;
 
     //**********************************************************
     public Virtual_landscape(Path_list_provider path_list_provider,
@@ -777,6 +773,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 cache_aspect_ratio = ip.get_aspect_ratio();
             }
+
+            Supplier<Image_feature_vector_cache> fv_cache_supplier = () ->
+            {
+                if ( fv_cache != null) return fv_cache;
+                double x = owner.getX()+100;
+                double y = owner.getY()+100;
+                Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,  x,  y,  aborter,  logger);
+                fv_cache= images_and_feature_vectors.fv_cache();
+                return fv_cache;
+            };
+
             Item item = new Item_file_with_icon(
                     owner,
                     the_Scene,
@@ -785,7 +792,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     null,
                     cache_aspect_ratio,
                     browsing_caches.image_properties_RAM_cache,
-                    ()->Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, 0, 0, aborter, logger).fv_cache(),
+                    fv_cache_supplier,
                     path,
                     path_list_provider,
                     this,
@@ -1864,7 +1871,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(logger)));
 
 
-        if (Virtual_landscape.enable_tags)
+        if (Virtual_landscape.tags)
         {
             view_menu.getItems().add(browser_menus.make_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(aborter,logger)));
         }
@@ -1886,7 +1893,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String create_string = My_I18n.get_I18n_string("Create",logger);
             Menu create = new Menu(create_string);
             create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
-            if (Virtual_landscape.enable_image_playlists)
+            if (Virtual_landscape.image_playlists)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
                 //create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
@@ -1906,7 +1913,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             files_menu.getItems().add(search);
         }
-        if (Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
+        if (Booleans.get_boolean(Advanced_features.face_recognition.name()))
         {
             Menu face_recognition = new Menu("Face recognition");
             face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());
@@ -1921,21 +1928,21 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String cleanup = My_I18n.get_I18n_string("Clean_Up",logger);
             Menu clean = new Menu(cleanup);
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (Booleans.get_boolean(Advanced_features.enable_recursive_empty_folders_removal.name()))
+            if (Booleans.get_boolean(Advanced_features.recursive_empty_folders_removal.name()))
             {
                 clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
             }
-            if (Booleans.get_boolean(Experimental_features.enable_clean_up_names.name()) )
+            if (Booleans.get_boolean(Experimental_features.clean_up_names.name()) )
             {
                 clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
             }
-            if ( Booleans.get_boolean(Experimental_features.enable_remove_corrupted_images.name()) )
+            if ( Booleans.get_boolean(Experimental_features.remove_corrupted_images.name()) )
             {
                 clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
             }
 
 
-            if (Booleans.get_boolean(Advanced_features.enable_bit_level_deduplication.name()) )
+            if (Booleans.get_boolean(Advanced_features.bit_level_deduplication.name()) )
             {
                 Menu deduplicate = new Menu("File deduplication tool");
                 deduplicate.getItems().add(create_help_on_deduplication_menu_item());
@@ -1945,7 +1952,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 clean.getItems().add(deduplicate);
             }
 
-            if (Booleans.get_boolean(Advanced_features.enable_image_similarity.name()) )
+            if (Booleans.get_boolean(Advanced_features.image_similarity.name()) )
             {
                 MenuItem deduplicate_menu_item = create_manual_deduplication_by_similarity_menu_item2();
                 clean.getItems().add(deduplicate_menu_item);
@@ -1956,12 +1963,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             files_menu.getItems().add(clean);
         }
 
-        if (Booleans.get_boolean(Experimental_features.enable_backup.name()))
+        if (Booleans.get_boolean(Experimental_features.backup.name()))
         {
             files_menu.getItems().add(browser_menus.make_backup_menu());
         }
 
-        if (enable_fusk )
+        if (fusk )
         {
             if (fusk_is_active)
             {
@@ -2201,21 +2208,18 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Look_and_feel_manager.set_context_menu_look(pref);
 
 
-        pref.getItems().add(browser_menus.make_show_single_column_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_icons_for_images_and_videos_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_hidden_directories_check_menu_item());
-        pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
-        pref.getItems().add(browser_menus.make_dont_zoom_small_images_check_menu_item());
-
-
-
+        //pref.getItems().add(browser_menus.make_show_single_column_check_menu_item());
+        //pref.getItems().add(browser_menus.make_show_icons_for_images_and_videos_check_menu_item());
+        //pref.getItems().add(browser_menus.make_show_icons_for_folders_check_menu_item());
+        //pref.getItems().add(browser_menus.make_show_hidden_directories_check_menu_item());
+        //pref.getItems().add(browser_menus.make_show_hidden_files_check_menu_item());
+        //pref.getItems().add(browser_menus.make_dont_zoom_small_images_check_menu_item());
         //if (Booleans.get_boolean(Booleans.AUTO_PURGE_DISK_CACHES,logger)) {
-        pref.getItems().add(browser_menus.make_auto_purge_disk_caches_check_menu_item());
+        //pref.getItems().add(browser_menus.make_auto_purge_disk_caches_check_menu_item());
         //}
         //if (Booleans.get_boolean(Booleans.MONITOR_BROWSED_FOLDERS,logger)) {
-        pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
-        pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
+        //pref.getItems().add(browser_menus.make_monitor_browsed_folders_check_menu_item());
+        //pref.getItems().add(browser_menus.make_stop_monitoring_menu_item());
         //}
 
 
@@ -2231,21 +2235,21 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         pref.getItems().add(browser_menus.make_style_menu_item());
         pref.getItems().add(browser_menus.make_language_menu());
         pref.getItems().add(browser_menus.make_video_length_menu());
-        pref.getItems().add(browser_menus.make_ding_menu_item());
-        pref.getItems().add(browser_menus.make_escape_menu_item());
-        pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item());
-        if (Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
+        //pref.getItems().add(browser_menus.make_ding_menu_item());
+        //pref.getItems().add(browser_menus.make_escape_menu_item());
+        //pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item());
+        if (Booleans.get_boolean(Advanced_features.face_recognition.name()))
         {
             pref.getItems().add(browser_menus.make_start_face_recognition_menu_item());
         }
-        if (Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
+        if (Booleans.get_boolean(Advanced_features.image_similarity.name()))
         {
             pref.getItems().add(browser_menus.make_start_image_similarity_servers_menu_item());
         }
 
-        if (Virtual_landscape.enable_fusk)
+        if (Virtual_landscape.fusk)
         {
-            pref.getItems().add(browser_menus.make_enable_fusk_check_menu_item());
+            pref.getItems().add(browser_menus.make_fusk_check_menu_item());
         }
         pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item(logger));
 
@@ -2257,7 +2261,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     event -> Static_files_and_paths_utilities.clear_trash(true,owner, aborter, logger)));
 
             pref.getItems().add(browser_menus.make_clear_all_caches_menu_item());
-            if (Booleans.get_boolean(Advanced_features.enable_detailed_cache_cleaning_options.name()))
+            if (Booleans.get_boolean(Debugging_features.detailed_cache_cleaning_options.name()))
             {
 
                 Menu cleanup = new Menu(My_I18n.get_I18n_string("Cache_cleaning",logger));
@@ -2333,7 +2337,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         public Image_feature_vector_cache get() {
 
-            Image_feature_vector_cache.Images_and_feature_vectors local = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, 0, 0, aborter, logger);
+            Image_feature_vector_cache.Images_and_feature_vectors local = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, owner.getX()+100, owner.getY()+100, aborter, logger);
             return local.fv_cache();
         }
     };
@@ -2851,7 +2855,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Actor_engine.execute(r,logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
-            if (Booleans.get_boolean(Booleans.DING_IS_ON)) {
+            if (Booleans.get_boolean(Advanced_features.play_ding_after_long_processes.name())) {
                 Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }

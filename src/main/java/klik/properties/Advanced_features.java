@@ -2,11 +2,16 @@ package klik.properties;
 
 public enum Advanced_features
 {
-    enable_face_recognition,
-    enable_image_similarity,
-    enable_bit_level_deduplication,
-    enable_recursive_empty_folders_removal,
+    folders_monitoring,
+    inverted_scroll,
+    face_recognition,
+    image_similarity,
+    bit_level_deduplication,
+    recursive_empty_folders_removal,
     auto_purge_icon_disk_cache,
     auto_purge_disk_caches,
-    enable_detailed_cache_cleaning_options,
+    display_image_distances,
+    auto_caches_purge,
+    play_ding_after_long_processes,
+    shift_d_is_sure_delete,
 }

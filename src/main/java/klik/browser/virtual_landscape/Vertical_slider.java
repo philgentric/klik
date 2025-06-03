@@ -5,6 +5,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.properties.Advanced_features;
 import klik.properties.Booleans;
 import klik.util.log.Logger;
 
@@ -18,7 +19,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     Logger logger;
     private final Aborter aborter;
     Pane the_big_display_pane;
-    public static boolean inverted = Booleans.get_boolean(Booleans.VERTICAL_SCROLL_INVERTED);
+    public static boolean inverted = Booleans.get_boolean(Advanced_features.inverted_scroll.name());
 
     //**********************************************************
     public Vertical_slider(

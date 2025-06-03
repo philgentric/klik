@@ -510,12 +510,12 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Booleans.get_boolean(Experimental_features.enable_different_image_quality.name()))
+        if (Booleans.get_boolean(Experimental_features.different_image_quality.name()))
         {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 
-        if ( Booleans.get_boolean(Advanced_features.enable_image_similarity.name()))
+        if ( Booleans.get_boolean(Advanced_features.image_similarity.name()))
         {
             context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -527,7 +527,7 @@ public class Menus_for_image_window
                     image_window.logger));
         }
 
-        if ( Booleans.get_boolean(Advanced_features.enable_face_recognition.name()))
+        if ( Booleans.get_boolean(Advanced_features.face_recognition.name()))
         {
             String s = My_I18n.get_I18n_string("Face_recognition", logger);
             Menu fr_context_menu = new Menu(s);

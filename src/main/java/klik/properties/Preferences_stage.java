@@ -66,16 +66,18 @@ public class Preferences_stage
         //logger.log(Stack_trace_getter.get_stack_trace("define!!!"));
         vbox.getChildren().clear();
 
+
         {
-            Label lab = new Label("Debug");
+            Label lab = new Label("Basic features");
             Look_and_feel_manager.set_region_look(lab);
             vbox.getChildren().add(lab);
         }
-        for(Debugging_features f : Debugging_features.values())
+        for(Basic_features f : Basic_features.values())
         {
             add_one_line(f.name());
         }
         vbox.getChildren().add(new Separator());
+
         {
             Label lab = new Label("Advanced features");
             Look_and_feel_manager.set_region_look(lab);
@@ -86,6 +88,7 @@ public class Preferences_stage
             add_one_line(f.name());
         }
         vbox.getChildren().add(new Separator());
+
         {
             Label lab = new Label("Experimental features");
             Look_and_feel_manager.set_region_look(lab);
@@ -95,13 +98,30 @@ public class Preferences_stage
         {
             add_one_line(f.name());
         }
+        vbox.getChildren().add(new Separator());
+
+        {
+            Label lab = new Label("Debug");
+            Look_and_feel_manager.set_region_look(lab);
+            vbox.getChildren().add(lab);
+        }
+        for(Debugging_features f : Debugging_features.values())
+        {
+            add_one_line(f.name());
+        }
+
     }
 
     //**********************************************************
     private void add_one_line(String name)
     //**********************************************************
     {
-        CheckBox cb = new CheckBox(name);
+        String addendum = "";
+        if (name.equals(Basic_features.icons_for_folders.name()))
+        {
+            addendum = " (requires restart)";
+        }
+        CheckBox cb = new CheckBox(name+addendum);
         cb.setMnemonicParsing(false);
         Boolean v = Booleans.get_boolean(name);
         if ( v == null)
