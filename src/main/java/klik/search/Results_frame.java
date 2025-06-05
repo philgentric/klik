@@ -107,7 +107,7 @@ public class Results_frame
 			String key, boolean is_max, Path path)
 	//**********************************************************
 	{
-		Rectangle2D rectangle = new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
+		//Rectangle2D rectangle = new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
 
 		Button b = new Button(key +" => "+ path);
 		if(is_max)
@@ -182,6 +182,8 @@ public class Results_frame
 					double x = stage.getX()+100;
 					double y = stage.getY()+100;
 					Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
+					// need to remove the button from the list
+					the_result_vbox.getChildren().remove(b);
 
 				});
 				context_menu.getItems().add(delete);

@@ -7,7 +7,6 @@ import klik.Start_context;
 import klik.actor.Aborter;
 import klik.browser.Shared_services;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.util.Sys_init;
 import klik.util.log.Logger;
@@ -16,9 +15,7 @@ import klik.util.tcp.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 //**********************************************************
 public class Audio_player_application extends Application
@@ -54,7 +51,6 @@ public class Audio_player_application extends Application
 
 
         Look_and_feel_manager.init_Look_and_feel(logger);
-        Language_manager.init_registered_languages(logger);
 
         String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC,logger);
 

@@ -51,6 +51,23 @@ to start the music player directly:
 
 (note well: normally you can run only one player at a time)
 
+
+### Install ffmpeg
+
+(klik uses ffmepg to make animated icons for videos)
+
+**brew install ffmpeg**
+
+### Install graphicsmagick
+
+(klik uses graphicsmagick to make icons for PDF files and animated icons for folders)
+
+**brew install graphicsmagick**
+
+
+
+
+
 Note: as an alternative to gradle, you can use jbang:
 
 **sdk install jbang**

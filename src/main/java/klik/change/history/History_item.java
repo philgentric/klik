@@ -12,7 +12,7 @@ public class History_item
 
     public static Comparator<? super History_item> comparator_by_date = (Comparator<History_item>) (o1, o2) -> o2.time_stamp.compareTo(o1.time_stamp);
 
-    public final String value;
+    public final String value; // typically a pah
     public final LocalDateTime time_stamp;
     public final UUID uuid;
     private boolean available;

@@ -22,7 +22,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.properties.Basic_features;
+import klik.properties.features.Basic_feature;
 import klik.properties.Booleans;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
@@ -155,7 +155,7 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Basic_features.escape_fast_exit.name());
+            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Basic_feature.Use_escape_to_close_windows.name());
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
                     keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, exit_on_escape_preference, keyEvent, logger));
         }
@@ -572,9 +572,8 @@ public class Image_window
             // the trick that works however is to rotate a Pane containing the imageview !!!
             the_image_Pane.setRotate(rot);
 
-            boolean dont_zoom = Booleans.get_boolean_defaults_to_true(Basic_features.dont_zoom_small_images.name());
             boolean normal = true;
-            if (dont_zoom)
+            if (Virtual_landscape.dont_zoom_small_images)
             {
                 Image image = local_image_context.image;
                 double pane_height = the_image_Pane.getHeight();

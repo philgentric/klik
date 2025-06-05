@@ -298,7 +298,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     //**********************************************************
     {
 
-        if ( Virtual_landscape.single_column)
+        if ( Virtual_landscape.show_single_column)
         {
             StringBuilder sb = new StringBuilder();
             try {
@@ -350,7 +350,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 Audio_player.play_playlist(get_item_path().toFile(),logger);
                 return;
             }
-            if (Virtual_landscape.image_playlists )
+            if (Virtual_landscape.enable_image_playlists)
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
                     logger.log("NOT IMPLEMENTED opening image playlist: " + get_item_path().toAbsolutePath());

@@ -316,7 +316,7 @@ public class Item_file_with_icon extends Item_file
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, logger));
-            if (Virtual_landscape.tags)
+            if (Virtual_landscape.enable_tags)
             {
                 context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }

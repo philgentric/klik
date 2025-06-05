@@ -51,9 +51,12 @@ import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
-import klik.properties.Advanced_features;
+import klik.change.history.History_engine;
+import klik.change.history.History_item;
+import klik.properties.features.Advanced_feature;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
+import klik.properties.features.Basic_feature;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
@@ -78,6 +81,16 @@ public class Browser extends Abstract_browser
         if ( context.target_path == null)
         {
             path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
+            if ( Booleans.get_boolean_defaults_to_true(Basic_feature.Reload_last_folder_on_startup.name()))
+            {
+                History_item h = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
+                if ( h != null)
+                {
+                    path = Path.of(h.value);
+                    logger.log("reloading last folder from history:"+path);
+                }
+            }
+
         }
         else
         {
@@ -127,7 +140,7 @@ public class Browser extends Abstract_browser
 
         if (!monitor_this_folder)
         {
-            if (Booleans.get_boolean(Advanced_features.folders_monitoring.name()))
+            if (Booleans.get_boolean(Advanced_feature.Monitor_folders.name()))
             {
                 monitor_this_folder = true;
             }

@@ -65,7 +65,6 @@
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
-//SOURCES look/my_i18n/Language_manager.java
 //SOURCES properties/Non_booleans.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
@@ -91,7 +90,7 @@
 //SOURCES change/history/History_item.java
 //SOURCES change/undo/Undo_for_moves.java
 //SOURCES change/undo/Undo_item.java
-//SOURCES image_ml/face_recognition/Face_recognition_service.java
+//SOURCES image_ml/Enable_face_recognition/Enable_face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java
 //SOURCES change/bookmarks/Bookmarks.java
@@ -103,7 +102,6 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import klik.browser.*;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.Language_manager;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
@@ -140,9 +138,6 @@ public class Klik_application extends Application
         });
 
         Print_system_info.print();
-
-        Language_manager.init_registered_languages(logger);
-
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);

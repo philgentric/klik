@@ -248,7 +248,7 @@ public class ML_servers_util
     };
 
     //**********************************************************
-    static String[] face_recognition_lines =
+    static String[] Enable_face_recognition_lines =
     //**********************************************************
     {
             "",
@@ -260,12 +260,12 @@ public class ML_servers_util
     };
 
     //**********************************************************
-    public static void show_face_recognition_manual()
+    public static void show_Enable_face_recognition_manual()
     //**********************************************************
     {
         Stage stage = new Stage();
         VBox vb = new VBox();
-        for ( String l : face_recognition_lines)
+        for ( String l : Enable_face_recognition_lines)
         {
             TextField tf = new TextField(l);
             Look_and_feel_manager.set_region_look(tf);

@@ -299,9 +299,12 @@ public abstract class Look_and_feel
     {
         Look_and_feel look_and_feel = null;
         String style_s = Non_booleans.get_main_properties_manager().get(STYLE);
-        if (style_s == null) {
+        boolean and_save = false;
+        if (style_s == null)
+        {
             // DEFAULT STYLE, first time klik is launched on the platform
             look_and_feel = new Look_and_feel_light(logger);
+            and_save = true;
         } else {
             for (Look_and_feel laf : Look_and_feel_manager.registered) {
                 if (laf.name.equals(style_s)) {
@@ -310,10 +313,11 @@ public abstract class Look_and_feel
                 }
             }
         }
-        if (look_and_feel == null) {
+        if (look_and_feel == null)
+        {
             look_and_feel = new Look_and_feel_light(logger);
         }
-        Non_booleans.get_main_properties_manager().set(STYLE, look_and_feel.name);
+        if ( and_save)Non_booleans.get_main_properties_manager().set(STYLE, look_and_feel.name);
         return look_and_feel;
     }
 

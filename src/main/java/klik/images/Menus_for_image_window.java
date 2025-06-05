@@ -14,7 +14,6 @@ import klik.browser.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_file_with_icon;
-import klik.browser.virtual_landscape.Browsing_caches;
 import klik.change.Redo_same_move_engine;
 import klik.change.undo.Undo_for_moves;
 import klik.image_ml.face_recognition.Face_detection_type;
@@ -23,9 +22,9 @@ import klik.image_ml.face_recognition.Face_recognition_message;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Advanced_features;
+import klik.properties.features.Advanced_feature;
 import klik.properties.Booleans;
-import klik.properties.Experimental_features;
+import klik.properties.features.Experimental_feature;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -288,11 +287,11 @@ public class Menus_for_image_window
     Face recognition
      */
     //**********************************************************
-    public static MenuItem get_perform_face_recognition_no_face_detection_menu_item(
+    public static MenuItem get_perform_face_recognition_service_no_face_detection_menu_item(
             Image_window image_window)
     //**********************************************************
     {
-        MenuItem mi = new MenuItem("Perform_face_recognition_DIRECTLY");//My_I18n.get_I18n_string("Open", image_window.logger));
+        MenuItem mi = new MenuItem("Perform_face_recognition_service_DIRECTLY");//My_I18n.get_I18n_string("Open", image_window.logger));
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -510,12 +509,12 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Booleans.get_boolean(Experimental_features.different_image_quality.name()))
+        if (Booleans.get_boolean(Experimental_feature.Enable_different_image_scaling.name()))
         {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 
-        if ( Booleans.get_boolean(Advanced_features.image_similarity.name()))
+        if ( Booleans.get_boolean(Advanced_feature.Enable_image_similarity.name()))
         {
             context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -527,29 +526,29 @@ public class Menus_for_image_window
                     image_window.logger));
         }
 
-        if ( Booleans.get_boolean(Advanced_features.face_recognition.name()))
+        if ( Booleans.get_boolean(Advanced_feature.Enable_face_recognition.name()))
         {
-            String s = My_I18n.get_I18n_string("Face_recognition", logger);
+            String s = My_I18n.get_I18n_string("face_recognition_service", logger);
             Menu fr_context_menu = new Menu(s);
             context_menu.getItems().add(fr_context_menu);
             fr_context_menu.getItems().add(make_menu_item(
                     image_window,
-                    "Perform_face_recognition_with_high_precision_face_detector",
+                    "Perform_face_recognition_service_with_high_precision_face_detector",
                     event -> face_rec(Face_detection_type.MTCNN, image_window)));
             fr_context_menu.getItems().add(make_menu_item(
                     image_window,
-                    "Perform_face_recognition_with_optimistic_face_detector",
+                    "Perform_face_recognition_service_with_optimistic_face_detector",
                     event -> face_rec(Face_detection_type.haars_false_positioves, image_window)));
             fr_context_menu.getItems().add(make_menu_item(
                     image_window,
-                    "Perform_face_recognition_with_ALT1_face_detector",
+                    "Perform_face_recognition_service_with_ALT1_face_detector",
                     event -> face_rec(Face_detection_type.haars_alt1, image_window)));
             fr_context_menu.getItems().add(make_menu_item(
                     image_window,
-                    "Perform_face_recognition_with_ALT2_face_detector",
+                    "Perform_face_recognition_service_with_ALT2_face_detector",
                     event -> face_rec(Face_detection_type.haars_alt2, image_window)));
 
-            context_menu.getItems().add(get_perform_face_recognition_no_face_detection_menu_item(image_window));
+            context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
         }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));

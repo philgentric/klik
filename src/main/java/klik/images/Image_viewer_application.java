@@ -7,7 +7,6 @@ import klik.actor.Aborter;
 import klik.browser.Shared_services;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.Language_manager;
 import klik.util.Sys_init;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
@@ -35,7 +34,6 @@ public class Image_viewer_application extends Application
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
         Look_and_feel_manager.init_Look_and_feel(logger);
-        Language_manager.init_registered_languages(logger);
 
         Parameters params = getParameters();
         List<String> list = params.getRaw();

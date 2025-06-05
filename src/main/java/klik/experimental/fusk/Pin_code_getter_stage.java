@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.properties.Booleans;
+import klik.properties.features.Debugging_feature;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 
@@ -174,7 +175,7 @@ public class Pin_code_getter_stage
             disable_fusk.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    Booleans.set_boolean(Booleans.FUSK_IS_ACTIVE,false);
+                    Booleans.set_boolean(Debugging_feature.Fusk_is_active.name(),false);
                     Virtual_landscape.fusk_is_active = false;
                     logger.log("fusk disabled");
                     local_stage.close();

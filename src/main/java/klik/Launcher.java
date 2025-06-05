@@ -19,7 +19,6 @@ import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
-import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.Sys_init;
@@ -66,8 +65,6 @@ public class Launcher extends Application
         Look_and_feel_manager.set_region_look(vbox);
         double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
-
-        Language_manager.init_registered_languages(logger);
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,logger);
 

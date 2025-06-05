@@ -276,14 +276,16 @@ public class Non_booleans
         double font_size = 16; // this is the default immediately after installing or after erasing properties
         // first time, we look it up on disk
         String font_size_s = get_main_properties_manager().get(FONT_SIZE);
-        if (font_size_s != null) {
+        if (font_size_s != null)
+        {
             try {
                 font_size = Double.parseDouble(font_size_s);
             } catch (NumberFormatException e) {
                 logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
+                font_size = 16;
             }
         }
-        get_main_properties_manager().set(FONT_SIZE, String.valueOf(font_size));
+        //get_main_properties_manager().set(FONT_SIZE, String.valueOf(font_size));
         font_size_cache = font_size;
         return font_size;
     }

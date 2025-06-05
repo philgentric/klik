@@ -47,6 +47,19 @@ cette opération va créer un dossier 'klik' avec tout le code source.
 
 **gradle run**
 
+### Installez ffmpeg
+
+(klik utilise ffmepg pour fabriquer les icones animées des vidéos)
+
+**brew install ffmpeg**
+
+### Installez graphicsmagick
+
+(klik utilise graphicsmagick pour fabriquer les icones des fichiers PDF, les icones animées des dossiers etc)
+
+**brew install graphicsmagick**
+
+
 
 Note: en alternative à utiliser gradle, vous pouvez utiliser jbang:
 

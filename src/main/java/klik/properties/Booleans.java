@@ -2,6 +2,7 @@
 package klik.properties;
 
 import javafx.stage.Window;
+import klik.properties.features.Debugging_feature;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
@@ -13,10 +14,9 @@ import klik.util.ui.Popups;
 public class Booleans
 //**********************************************************
 {
-    private static final boolean dbg = false;
-      public static final String FUSK_IS_ACTIVE = "fusk_is_active";
-    private static final String SHOW_FFMPEG_INSTALL_WARNING = "SHOW_FFMPEG_INSTALL_WARNING";
-    private static final String SHOW_GraphicsMagick_INSTALL_WARNING = "SHOW_GraphicsMagick_INSTALL_WARNING";
+    static boolean ffmpeg_popup_done = false;
+    static boolean GraphicsMagick_popup_done = false;
+
 
     //**********************************************************
     public static void set_boolean(String s, boolean b)
@@ -53,54 +53,14 @@ public class Booleans
         return b;
     }
 
-    //**********************************************************
-    public static boolean get_show_ffmpeg_install_warning()
-    //**********************************************************
-    {
-        String s = Non_booleans.get_main_properties_manager().get(SHOW_FFMPEG_INSTALL_WARNING);
-        if (s == null) {
-            Non_booleans.get_main_properties_manager().set(SHOW_FFMPEG_INSTALL_WARNING, "true");
-            return true;
-        }
-        else
-        {
-            return Boolean.parseBoolean(s);
-        }
-    }
-    //**********************************************************
-    public static void set_show_ffmpeg_install_warning(boolean b)
-    //**********************************************************
-    {
-        Non_booleans.get_main_properties_manager().set(SHOW_FFMPEG_INSTALL_WARNING, String.valueOf(b));
-    }
 
-    //**********************************************************
-    public static boolean get_show_GraphicsMagick_install_warning()
-    //**********************************************************
-    {
-        String s = Non_booleans.get_main_properties_manager().get(SHOW_GraphicsMagick_INSTALL_WARNING);
-        if (s == null) {
-            Non_booleans.get_main_properties_manager().set(SHOW_GraphicsMagick_INSTALL_WARNING, "true");
-            return true;
-        }
-        else
-        {
-            return Boolean.parseBoolean(s);
-        }
-    }
-    //**********************************************************
-    public static void set_show_GraphicsMagick_install_warning(boolean b)
-    //**********************************************************
-    {
-        Non_booleans.get_main_properties_manager().set(SHOW_GraphicsMagick_INSTALL_WARNING, String.valueOf(b));
-    }
 
-    static boolean ffmpeg_popup_done = false;
+
     //**********************************************************
     public static void manage_show_ffmpeg_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_show_ffmpeg_install_warning())
+        if ( get_boolean(Debugging_feature.Show_ffmpeg_install_warning.name()))
         {
             if ( !ffmpeg_popup_done)
             {
@@ -109,18 +69,17 @@ public class Booleans
                 logger.log("WARNING: " + msg);
                 Jfx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing ffmepg again, click OK", logger)) {
-                        set_show_ffmpeg_install_warning(false);
+                        set_boolean(Debugging_feature.Show_ffmpeg_install_warning.name(),false);
                     }
                 },logger);
             }
         }
     }
-    static boolean GraphicsMagick_popup_done = false;
     //**********************************************************
     public static void manage_show_GraphicsMagick_install_warning(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( get_show_GraphicsMagick_install_warning())
+        if ( get_boolean(Debugging_feature.Show_GraphicsMagick_install_warning.name()))
         {
             if(!GraphicsMagick_popup_done)
             {
@@ -129,7 +88,7 @@ public class Booleans
                 logger.log("WARNING: " + msg);
                 Jfx_batch_injector.inject(() -> {
                     if (Popups.popup_ask_for_confirmation(owner, msg,"If you do not want to see this warning about installing GraphicsMagick again, click OK", logger)) {
-                        set_show_GraphicsMagick_install_warning(false);
+                        set_boolean(Debugging_feature.Show_GraphicsMagick_install_warning.name(),false);
                     }
                 },logger);
             }

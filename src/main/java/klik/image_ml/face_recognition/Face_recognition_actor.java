@@ -1,7 +1,7 @@
 //SOURCES ./Eval_result_for_one_prototype.java
 //SOURCES ../Feature_vector.java
 //SOURCES ../Feature_vector_source.java
-//SOURCES ./Feature_vector_source_for_face_recognition.java
+//SOURCES ./Feature_vector_source_for_Face_recognition.java
 //SOURCES ./Face_detection_type.java
 //SOURCES ./Face_recognition_status.java
 //SOURCES ./Face_detector.java
@@ -84,7 +84,7 @@ public class Face_recognition_actor implements Actor
     {
         //service.logger.log("process_file FILE before: "+file.getAbsolutePath());
         Face_recognition_results face_recognition_results = detect_and_recognize(file.toPath(), face_detection_type, display_face_reco_window,aborter);
-        //service.logger.log("process_file FILE after : "+file.getAbsolutePath()+ " "+ face_recognition_results.status);
+        //service.logger.log("process_file FILE after : "+file.getAbsolutePath()+ " "+ Face_recognition_results.status);
         switch ( face_recognition_results.face_recognition_status)
         {
             case server_not_reacheable:
@@ -162,9 +162,9 @@ public class Face_recognition_actor implements Actor
     //**********************************************************
     {
         //service.logger.log("process_file FILE before: "+file.getAbsolutePath());
-        Face_recognition_results face_recognition_results = recognize_a_face(file.toPath(), display_face_reco_window,aborter,service);
-        //service.logger.log("process_file FILE after : "+file.getAbsolutePath()+ " "+ face_recognition_results.status);
-        switch ( face_recognition_results.face_recognition_status)
+        Face_recognition_results Face_recognition_results = recognize_a_face(file.toPath(), display_face_reco_window,aborter,service);
+        //service.logger.log("process_file FILE after : "+file.getAbsolutePath()+ " "+ Face_recognition_results.status);
+        switch ( Face_recognition_results.face_recognition_status)
         {
             case server_not_reacheable:
                 service.logger.log("just_recognize:server_not_reacheable");
@@ -224,15 +224,15 @@ public class Face_recognition_actor implements Actor
                     // no training
                     break;
                 }
-                if ( label.equals(face_recognition_results.label))
+                if ( label.equals(Face_recognition_results.label))
                 {
                     service.training_stats.face_correctly_recognized_not_recorded.incrementAndGet();
                     service.training_stats.done.incrementAndGet();
                     service.logger.log("label was correct, skipping "+file.getName() );
                     break;
                 }
-                service.logger.log("ADDING "+file.getName()+" as label was NOT correct: "+face_recognition_results.label);
-                 add_prototype_to_set(file,label,face_recognition_results,aborter);
+                service.logger.log("ADDING "+file.getName()+" as label was NOT correct: "+Face_recognition_results.label);
+                 add_prototype_to_set(file,label,Face_recognition_results,aborter);
                 break;
             case no_face_recognized :
                 service.logger.log("just_recognize: NO face_recognized");
@@ -247,14 +247,14 @@ public class Face_recognition_actor implements Actor
                 }
                 service.training_stats.face_wrongly_recognized_recorded.incrementAndGet();
                 service.training_stats.done.incrementAndGet();
-                add_prototype_to_set(file,label,face_recognition_results,aborter);
+                add_prototype_to_set(file,label,Face_recognition_results,aborter);
                 break;
             default:
                 service.logger.log(Stack_trace_getter.get_stack_trace("just_recognize: should not happen"));
                 break;
 
         }
-        return face_recognition_results.image_path;
+        return Face_recognition_results.image_path;
     }
 
 
@@ -451,7 +451,7 @@ public class Face_recognition_actor implements Actor
             StringBuilder sb = new StringBuilder();
             sb.append("label : ");
             sb.append(label);
-            sb.append(" face_recognition_status: ");
+            sb.append(" Face_recognition_status: ");
             sb.append(face_recognition_status);
             return sb.toString();
         }
@@ -566,7 +566,7 @@ public class Face_recognition_actor implements Actor
 
 
     //**********************************************************
-    private boolean add_prototype_to_set(File f, String label, Face_recognition_results face_recognition_results, Aborter aborter)
+    private boolean add_prototype_to_set(File f, String label, Face_recognition_results Face_recognition_results, Aborter aborter)
     //**********************************************************
     {
         boolean check_this_is_a_face = false;
@@ -574,17 +574,17 @@ public class Face_recognition_actor implements Actor
         if (check_this_is_a_face)
         {
             //make a last check: but is this a face ????
-            Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(face_recognition_results.image_path(), Face_detection_type.haars_alt1, false,service.logger);
+            Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(Face_recognition_results.image_path(), Face_detection_type.haars_alt1, false,service.logger);
 
             if (face_detection_result.status() != Face_recognition_status.face_detected)
             {
                 service.skipped();
-                service.logger.log("NOT adding prototype as the final face check fails , for: "+face_recognition_results.image_path());
+                service.logger.log("NOT adding prototype as the final face check fails , for: "+Face_recognition_results.image_path());
                 return false;
             }
             else
             {
-                service.logger.log("ADDING prototype as the final face check is OK , status is: "+face_recognition_results.image_path());
+                service.logger.log("ADDING prototype as the final face check is OK , status is: "+Face_recognition_results.image_path());
             }
         }
 
@@ -603,7 +603,7 @@ public class Face_recognition_actor implements Actor
         service.training_stats.done.incrementAndGet();
 
         Prototype_adder_actor actor = new Prototype_adder_actor(service);
-        Prototype_adder_message msg = new Prototype_adder_message(label,face_recognition_results.image(),face_recognition_results.feature_vector() , aborter);
+        Prototype_adder_message msg = new Prototype_adder_message(label,Face_recognition_results.image(),Face_recognition_results.feature_vector() , aborter);
         Actor_engine.run(actor,msg,null, service.logger);
         return true;
     }

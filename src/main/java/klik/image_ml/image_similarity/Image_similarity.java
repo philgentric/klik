@@ -9,11 +9,11 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
 import klik.images.Image_window;
-import klik.properties.Advanced_features;
-import klik.properties.Basic_features;
+import klik.properties.features.Advanced_feature;
 import klik.properties.Booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -56,8 +56,8 @@ public class Image_similarity implements Clearable_RAM_cache
         this.path_comparator_source = path_comparator_source;
         this.logger = logger;
         this.aborter = aborter;
-        images = path_list_provider.only_image_paths(Booleans.get_boolean(Basic_features.show_hidden_files.name()));
-        show_vector_differences = Booleans.get_boolean(Advanced_features.display_image_distances.name());
+        images = path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files);
+        show_vector_differences = Booleans.get_boolean(Advanced_feature.Display_image_distances.name());
     }
 
     //**********************************************************

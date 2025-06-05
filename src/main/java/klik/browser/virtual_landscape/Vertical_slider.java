@@ -5,8 +5,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.properties.Advanced_features;
-import klik.properties.Booleans;
 import klik.util.log.Logger;
 
 //**********************************************************
@@ -19,7 +17,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     Logger logger;
     private final Aborter aborter;
     Pane the_big_display_pane;
-    public static boolean inverted = Booleans.get_boolean(Advanced_features.inverted_scroll.name());
+    //public static boolean inverted = Booleans.get_boolean(Advanced_feature.Invert_vectical_scroll.name());
 
     //**********************************************************
     public Vertical_slider(
@@ -101,7 +99,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         {
             fraction = slider_value / the_Slider.getMax(); // normalize (0,1)
         }
-        if (inverted)
+        //if (inverted)
         {
             fraction = 1.0 - fraction;
         }
@@ -125,7 +123,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
             pixel_height = 42;
         }
         double tmp = pixels/pixel_height; // normalize (0,1)
-        if (inverted)
+        //if (inverted)
         {
             tmp = 1.0 - tmp;
         }
@@ -159,15 +157,15 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     public boolean request_scroll_relative(double dy)
     //**********************************************************
     {
-        if (inverted)
+        //if (inverted)
         {
             if ( Virtual_landscape.scroll_dbg) logger.log("scroll is inverted="+dy+" ==> "+(-dy));
             dy = -dy;
         }
-        else
+        /*else
         {
             if ( Virtual_landscape.scroll_dbg) logger.log("scroll is not inverted="+dy);
-        }
+        }*/
         double old_val = the_Slider.getValue();
         if ( dbg) logger.log("scroll_relative old_val="+old_val);
         if ( dbg) logger.log("scroll_relative dy="+dy);

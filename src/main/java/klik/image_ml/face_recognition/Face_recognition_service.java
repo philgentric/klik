@@ -106,7 +106,7 @@ public class Face_recognition_service
             Window owner, Logger logger)
     //**********************************************************
     {
-        Optional<String> localo = get_face_recognition_model_name(logger);
+        Optional<String> localo = get_Face_recognition_model_name(logger);
 
         if ( localo.isEmpty()) return;
 
@@ -134,7 +134,7 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    private static Optional<String> get_face_recognition_model_name(Logger logger)
+    private static Optional<String> get_Face_recognition_model_name(Logger logger)
     //**********************************************************
     {
 
@@ -190,7 +190,7 @@ public class Face_recognition_service
         Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for auto train to complete",20*3600,x,y,logger);
         Aborter aborter_for_auto_train = running_film.aborter;
 
-        Face_recognition_actor face_recognition_actor = new Face_recognition_actor(this);
+        Face_recognition_actor Face_recognition_actor = new Face_recognition_actor(this);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -256,7 +256,7 @@ public class Face_recognition_service
             }
 
             AtomicInteger label_in_flight = new AtomicInteger(0);
-            auto_folder_for_one_label(f,label, face_recognition_actor, aborter_for_auto_train, files_in_flight, label_in_flight);
+            auto_folder_for_one_label(f,label, Face_recognition_actor, aborter_for_auto_train, files_in_flight, label_in_flight);
         }
 
         // DONT save_internal(aborter_for_auto_train);
@@ -268,7 +268,7 @@ public class Face_recognition_service
 
     //**********************************************************
     private boolean auto_folder_for_one_label(File dir, String label,
-                                              Face_recognition_actor face_recognition_actor,
+                                              Face_recognition_actor Face_recognition_actor,
                                               Aborter aborter_for_auto_train,
                                               AtomicInteger files_in_flight,
                                               AtomicInteger label_in_flight)
@@ -317,7 +317,7 @@ public class Face_recognition_service
 
             if ( f.isDirectory())
             {
-                if ( !auto_folder_for_one_label(f,label, face_recognition_actor, aborter_for_auto_train, files_in_flight,label_in_flight))
+                if ( !auto_folder_for_one_label(f,label, Face_recognition_actor, aborter_for_auto_train, files_in_flight,label_in_flight))
                 {
                     logger.log("auto_folder returns false, aborting folder "+dir);
                     return false;
@@ -327,7 +327,7 @@ public class Face_recognition_service
             {
                 label_in_flight.incrementAndGet();
                 Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);
-                Actor_engine.run(face_recognition_actor, msg, tr, logger);
+                Actor_engine.run(Face_recognition_actor, msg, tr, logger);
            }
         }
         logger.log("Folder done: "+dir.getAbsolutePath());
@@ -360,15 +360,15 @@ public class Face_recognition_service
         if ( size > 200) size = 200;
         if (Platform.isFxApplicationThread())
         {
-            show_face_recognition_window_internal(size,face,eval_result);
+            show_Face_recognition_window_internal(size,face,eval_result);
         }
         else {
             int size2 = size;
-            Jfx_batch_injector.inject(()->show_face_recognition_window_internal(size2,face,eval_result),logger);
+            Jfx_batch_injector.inject(()->show_Face_recognition_window_internal(size2,face,eval_result),logger);
         }
     }
     //**********************************************************
-    public void show_face_recognition_window_internal(
+    public void show_Face_recognition_window_internal(
             //Browser browser,
             int size,
             Image face_image,
@@ -926,11 +926,11 @@ public class Face_recognition_service
             if ( part1)
             {
                 // part1: ask the full set==> must return an exact match
-                Face_recognition_actor.Face_recognition_results face_recognition_results = Face_recognition_actor.recognize_a_face(face_path2,false,aborter_for_self, this);
+                Face_recognition_actor.Face_recognition_results Face_recognition_results = Face_recognition_actor.recognize_a_face(face_path2,false,aborter_for_self, this);
 
-                logger.log(face_recognition_results.to_string()+"\n\n\n");
+                logger.log(Face_recognition_results.to_string()+"\n\n\n");
 
-                if ( face_recognition_results.face_recognition_status() == Face_recognition_status.exact_match)
+                if ( Face_recognition_results.face_recognition_status() == Face_recognition_status.exact_match)
                 {
                     // this is what is expected of course !
                 }

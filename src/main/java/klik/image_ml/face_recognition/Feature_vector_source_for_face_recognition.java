@@ -30,7 +30,7 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
     //**********************************************************
     {
         int returned = random.nextInt(port[0],port[0]+port.length);
-        System.out.println("Feature_vector_source_for_face_recognition, get_random_port: "+returned);
+        System.out.println("Feature_vector_source_for_Enable_face_recognition, get_random_port: "+returned);
         return returned;
     }
 

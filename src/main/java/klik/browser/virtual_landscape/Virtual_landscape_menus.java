@@ -1,6 +1,6 @@
 //SOURCES ./About_klik_stage.java
 //SOURCES ./Icon_size.java
-//SOURCES ../image_ml/face_recognition/Face_recognition_service.java
+//SOURCES ../image_ml/Enable_face_recognition/Enable_face_recognition_service.java
 //SOURCES ../image_ml/ML_servers_util.java
 //SOURCES ../image_ml/image_similarity/Image_feature_vector_cache.java
 //SOURCES ../util/files_and_paths/Name_cleaner.java
@@ -34,9 +34,11 @@ import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.Language_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.look.my_i18n.Language;
 import klik.properties.*;
+import klik.properties.features.Advanced_feature;
+import klik.properties.features.Debugging_feature;
 import klik.util.files_and_paths.*;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
@@ -101,13 +103,13 @@ public class Virtual_landscape_menus
 
 
     //**********************************************************
-    public MenuItem make_start_face_recognition_menu_item()
+    public MenuItem make_start_Enable_face_recognition_menu_item()
     //**********************************************************
     {
-        String text = "Show manual about how to start face recognition servers";//My_I18n.get_I18n_string("Invert_vertical_scroll_direction",virtual_landscape.logger);
+        String text = "Show manual about how to start face recognition servers";//My_I18n.get_I18n_string("Inverted_scroll",virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            ML_servers_util.show_face_recognition_manual();
+            ML_servers_util.show_Enable_face_recognition_manual();
         });
         return item;
     }
@@ -117,7 +119,7 @@ public class Virtual_landscape_menus
     public MenuItem make_start_image_similarity_servers_menu_item()
     //**********************************************************
     {
-        String text = "Show manual about how to start image similarity servers";//My_I18n.get_I18n_string("Invert_vertical_scroll_direction",virtual_landscape.logger);
+        String text = "Show manual about how to start image similarity servers";//My_I18n.get_I18n_string("Inverted_scroll",virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             ML_servers_util.show_image_similarity_manual();
@@ -125,7 +127,7 @@ public class Virtual_landscape_menus
         return item;
     }
 
-
+/*
     //**********************************************************
     public CheckMenuItem make_show_icons_for_images_and_videos_check_menu_item()
     //**********************************************************
@@ -134,7 +136,7 @@ public class Virtual_landscape_menus
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Virtual_landscape.show_icons_instead_of_text);
         item.setOnAction(actionEvent -> {
-            Booleans.set_boolean(Basic_features.show_icons.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
+            Booleans.set_boolean(Basic_feature.show_icons.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
             virtual_landscape.redraw_fx("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -152,7 +154,7 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent -> {
             boolean val =((CheckMenuItem) actionEvent.getSource()).isSelected();
             Virtual_landscape.icons_for_folders = val;
-            Booleans.set_boolean(Basic_features.icons_for_folders.name(), val);
+            Booleans.set_boolean(Basic_feature.icons_for_folders.name(), val);
             virtual_landscape.redraw_fx("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
@@ -166,13 +168,13 @@ public class Virtual_landscape_menus
         item.setSelected(Virtual_landscape.single_column);
         item.setOnAction(actionEvent -> {
             boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Basic_features.single_column.name(), val);
+            Booleans.set_boolean(Basic_feature.single_column.name(), val);
             Virtual_landscape.single_column = val;
             virtual_landscape.redraw_fx("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
     }
-
+*/
     //**********************************************************
     public Button make_button_that_behaves_like_a_folder(
             Path path,
@@ -207,7 +209,7 @@ public class Virtual_landscape_menus
     }
 
 
-
+/*
     //**********************************************************
     public MenuItem make_show_hidden_directories_check_menu_item()
     //**********************************************************
@@ -219,7 +221,7 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent -> {
             boolean val= ((CheckMenuItem) actionEvent.getSource()).isSelected();
             Virtual_landscape.show_hidden_folders = val;
-            Booleans.set_boolean(Basic_features.show_hidden_directories.name(),val);
+            Booleans.set_boolean(Basic_feature.Show_hidden_directories.name(),val);
             virtual_landscape.redraw_fx("show hidden file boolean changed");
         });
         return item;
@@ -229,18 +231,18 @@ public class Virtual_landscape_menus
     public MenuItem make_dont_zoom_small_images_check_menu_item()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("DONT_ZOOM_SMALL_IMAGES", virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string("Dont_zoom_small_images", virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Booleans.get_boolean_defaults_to_true(Basic_features.dont_zoom_small_images.name()));
+        item.setSelected(Booleans.get_boolean_defaults_to_true(Basic_feature.dont_zoom_small_images.name()));
         item.setOnAction(actionEvent -> {
-            Booleans.set_boolean(Basic_features.dont_zoom_small_images.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
+            Booleans.set_boolean(Basic_feature.Dont_zoom_small_images.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
             virtual_landscape.redraw_fx("dont_zoom_small_images boolean changed");
         });
         return item;
     }
 
-
+*/
 
 
 
@@ -258,14 +260,14 @@ public class Virtual_landscape_menus
     }
     /*
     //**********************************************************
-    public MenuItem make_monitor_browsed_folders_check_menu_item()
+    public MenuItem make_Monitor_folders_check_menu_item()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Monitor_Browsed_Folders",virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string("Monitor_folders",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Booleans.get_boolean(Advanced_features.folders_monitoring.name()));
-        item.setOnAction(actionEvent -> Booleans.set_boolean(Advanced_features.folders_monitoring.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected()));
+        item.setSelected(Booleans.get_boolean(Advanced_feature.folders_monitoring.name()));
+        item.setOnAction(actionEvent -> Booleans.set_boolean(Advanced_feature.folders_monitoring.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected()));
         return item;
     }
     */
@@ -323,9 +325,9 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent ->
         {
             boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Booleans.FUSK_IS_ACTIVE,val);
+            Booleans.set_boolean(Debugging_feature.Fusk_is_active.name(),val);
             virtual_landscape.fusk_is_active = val;
-            virtual_landscape.redraw_fx("enable fusk boolean changed");
+            virtual_landscape.redraw_fx("fusk activation changed: "+val);
 
         });
         return item;
@@ -339,13 +341,13 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Auto_purge_cache",virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Booleans.get_boolean(Advanced_features.auto_purge_disk_caches.name()));
+        item.setSelected(Booleans.get_boolean(Advanced_feature.auto_purge_disk_caches.name()));
         item.setOnAction(actionEvent -> {
-            Booleans.set_boolean(Advanced_features.auto_purge_disk_caches.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
+            Booleans.set_boolean(Advanced_feature.auto_purge_disk_caches.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
         });
         return item;
     }
-*/
+
     //**********************************************************
     public MenuItem make_show_hidden_files_check_menu_item()
     //**********************************************************
@@ -356,15 +358,15 @@ public class Virtual_landscape_menus
         item.setSelected(Virtual_landscape.show_hidden_files);
         item.setOnAction(actionEvent -> {
             boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Basic_features.show_hidden_files.name(),val);
+            Booleans.set_boolean(Basic_feature.show_hidden_files.name(),val);
             Virtual_landscape.show_hidden_files = val;
             virtual_landscape.redraw_fx("show hidden file boolean changed");
         });
         return item;
     }
-
+*/
     //**********************************************************
-    public MenuItem make_add_to_face_recognition_training_set_menu_item()
+    public MenuItem make_add_to_Enable_face_recognition_training_set_menu_item()
     //**********************************************************
     {
         String text = "Add all images to face recognition training set";
@@ -620,7 +622,7 @@ public class Virtual_landscape_menus
                 item.setOnAction(event ->
                 {
                     Path path = Path.of(hi.value);
-                    if (Virtual_landscape.image_playlists )
+                    if (Virtual_landscape.enable_image_playlists)
                     {
                         if ( Guess_file_type.is_this_path_an_image_playlist(path))
                         {
@@ -825,7 +827,7 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         String current = Non_booleans.get_language_key();
 
-        for( String language_key : Language_manager.get_registered_language_keys())
+        for( Language language_key : Language.values())
         {
             create_check_menu_item_for_language(menu, language_key, current, all_check_menu_items);
         }
@@ -841,7 +843,7 @@ public class Virtual_landscape_menus
         item.setSelected(Virtual_landscape.exit_on_escape);
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Basic_features.escape_fast_exit.name(), value);
+            Booleans.set_boolean(Basic_feature.escape_fast_exit.name(), value);
             Virtual_landscape.exit_on_escape = value;
         });
         return item;
@@ -854,19 +856,19 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Play_Ding_When_Long_Operations_End",virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Booleans.get_boolean(Advanced_features.play_ding_after_long_processes.name()));
+        item.setSelected(Booleans.get_boolean(Advanced_feature.play_ding_after_long_processes.name()));
         item.setOnAction(actionEvent -> {
             boolean value = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Advanced_features.play_ding_after_long_processes.name(), value);
+            Booleans.set_boolean(Advanced_feature.play_ding_after_long_processes.name(), value);
         });
         return item;
     }
 */
     //**********************************************************
-    public void create_check_menu_item_for_language(Menu menu, String language_key, String current, List<CheckMenuItem> all_check_menu_items)
+    public void create_check_menu_item_for_language(Menu menu, Language language_key, String current, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
-        CheckMenuItem item = new CheckMenuItem(language_key);
+        CheckMenuItem item = new CheckMenuItem(language_key.name());
         item.setSelected(current.equals(language_key));
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -876,8 +878,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Language_manager.set_current_language_key(language_key);
-                My_I18n.reset();
+                My_I18n.set_new_language(language_key);
                 New_window_context.replace_same_folder(virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_folder_path(),owner,virtual_landscape.get_top_left(),virtual_landscape.logger);
             }
         });
@@ -1050,7 +1051,7 @@ public class Virtual_landscape_menus
         {
             if (( sort_by == File_sort_by.SIMILARITY_BY_PAIRS)||(sort_by == File_sort_by.SIMILARITY_BY_PURSUIT))
             {
-                if ( !Booleans.get_boolean(Advanced_features.image_similarity.name()))
+                if ( !Booleans.get_boolean(Advanced_feature.Enable_image_similarity.name()))
                 {
                     continue;
                 }
@@ -1079,7 +1080,7 @@ public class Virtual_landscape_menus
                 {
                     File_sort_by.set_sort_files_by(virtual_landscape.path_list_provider.get_folder_path(),sort_by,virtual_landscape.logger);
                     virtual_landscape.logger.log("new file/image sorting order= "+sort_by);
-                    if (Virtual_landscape.image_playlists )
+                    if (Virtual_landscape.enable_image_playlists)
                     {
                         if (virtual_landscape.path_list_provider instanceof Playlist_path_list_provider)
                         {
@@ -1348,6 +1349,6 @@ public class Virtual_landscape_menus
 
     public MenuItem get_advanced_preferences()
     {
-        return make_menu_item("Advanced_And_Experimental_Features",event -> Preferences_stage.show_Preferences_stage("Preferences", virtual_landscape.logger));
+        return make_menu_item("Advanced_And_Experimental_Features",event -> Preferences_stage.show_Preferences_stage("Preferences", virtual_landscape));
     }
 }

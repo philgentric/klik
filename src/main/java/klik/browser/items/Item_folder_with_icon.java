@@ -190,7 +190,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     private void resize_the_box(Button button)
     //**********************************************************
     {
-        if ( Virtual_landscape.single_column)
+        if ( Virtual_landscape.show_single_column)
         {
             button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
             button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
