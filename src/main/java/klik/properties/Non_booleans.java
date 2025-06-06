@@ -94,15 +94,19 @@ public class Non_booleans
         String x_s = pm.get(key+SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
+
         String y_s = pm.get(key+SCREEN_TOP_LEFT_Y);
         if (y_s == null) return default_rectangle();
         double y = Double.parseDouble(y_s);
+
         String w_s = pm.get(key+SCREEN_WIDTH);
         if (w_s == null) return default_rectangle();
         double w = Double.parseDouble(w_s);
+
         String h_s = pm.get(key+SCREEN_HEIGHT);
         if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
+
         return new Rectangle2D(x, y, w, h);
     }
 
@@ -319,6 +323,12 @@ public class Non_booleans
     {
         get_main_properties_manager().set(LANGUAGE_KEY, s);
 
+    }
+
+
+    public static void force_reload_from_disk()
+    {
+        get_main_properties_manager().force_reload_from_disk();
     }
 
 /*
@@ -574,4 +584,5 @@ public class Non_booleans
         if ( s == null) return 0;
         return Integer.parseInt(s);
     }
+
 }

@@ -3,6 +3,8 @@ package klik.browser;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 
 //**********************************************************
 public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEvent>
@@ -30,7 +32,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
             browser.my_Stage.escape++;
             key_event.consume();
 
-            if (Virtual_landscape.exit_on_escape)
+            if (Feature_cache.get(Feature.Use_escape_to_close_windows))
             {
                 if ( browser.keyboard_dbg) browser.logger.log(" Escape event handler, ignore_escape_as_the_stage_is_full_screen="+browser.ignore_escape_as_the_stage_is_full_screen);
                 if ( browser.ignore_escape_as_the_stage_is_full_screen)

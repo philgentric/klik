@@ -38,6 +38,8 @@ import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -81,6 +83,7 @@ public class Item_file_with_icon extends Item_file
             Path path_,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
+            int port,
             Aborter aborter,
             Logger logger)
 
@@ -94,6 +97,7 @@ public class Item_file_with_icon extends Item_file
                 color,
                 path_,
                 path_list_provider,
+                port,
                 aborter,
                 logger);
         this.aspect_ratio = aspect_ratio;
@@ -163,7 +167,7 @@ public class Item_file_with_icon extends Item_file
 
         if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
-            open_an_image(true,path_list_provider,path_comparator_source,get_item_path(),logger);
+            open_an_image(true,port,path_list_provider,path_comparator_source,get_item_path(),logger);
         }
         else
         {
@@ -189,6 +193,7 @@ public class Item_file_with_icon extends Item_file
 
     //**********************************************************
     public static void open_an_image(boolean same_process,
+                                     int port,
                                      Path_list_provider path_list_provider,
                                      Path_comparator_source path_comparator_source,
                                      Path path, Logger logger)
@@ -203,7 +208,7 @@ public class Item_file_with_icon extends Item_file
                 return;
             }
             Optional<Comparator<Path>> image_comparator = Optional.of(x);
-            Image_window.get_Image_window(path, path_list_provider,image_comparator, new Aborter("Image_viewer",logger),logger);
+            Image_window.get_Image_window(port,path, path_list_provider,image_comparator, new Aborter("Image_viewer",logger),logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
         else
@@ -269,6 +274,7 @@ public class Item_file_with_icon extends Item_file
                     fv_cache_supplier,
                     owner,
                     path_comparator_source,
+                    port,
                     aborter,
                     logger);
             context_menu.getItems().add(menu_item);
@@ -309,14 +315,14 @@ public class Item_file_with_icon extends Item_file
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+get_item_path());
-                Item_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),logger);
+                Item_file_with_icon.open_an_image(false,port,path_list_provider,path_comparator_source,get_item_path(),logger);
             });
             context_menu.getItems().add(menu_item);
         }
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, logger));
-            if (Virtual_landscape.enable_tags)
+            if (Feature_cache.get(Feature.Enable_tags))
             {
                 context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
@@ -355,6 +361,7 @@ public class Item_file_with_icon extends Item_file
                                                          Supplier<Image_feature_vector_cache> fv_cache_supplier,
                                                          Window owner,
                                                          Path_comparator_source path_comparator_source,
+                                                         int port,
                                                          Aborter browser_aborter,
                                                          Logger logger)
     //**********************************************************
@@ -370,7 +377,7 @@ public class Item_file_with_icon extends Item_file
                 Image_similarity image_similarity = new Image_similarity(
                         new Folder_path_list_provider(image_path.getParent()),
                         path_comparator_source,
-                        x,y,browser_aborter,logger);
+                        x,y,port,browser_aborter,logger);
                 image_similarity.find_similars(
                         false,
                         image_path,

@@ -16,6 +16,8 @@ import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
 import klik.properties.Non_booleans;
 import klik.properties.Cache_folder;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -261,7 +263,7 @@ public class Image_feature_vector_cache
     {
         List<Path> images = new ArrayList<>();
         List<Path> missing_images = new ArrayList<>();
-        for (Path p : path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files))
+        for (Path p : path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files)))
         {
             if ( !Guess_file_type.is_file_an_image(p.toFile())) continue;
             images.add(p);

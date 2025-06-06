@@ -23,6 +23,8 @@ import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
@@ -75,11 +77,12 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Path_list_provider path_list_provider,
             Top_left_provider top_left_provider,
             Path_comparator_source path_comparator_source,
+            int port,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
-        super(owner,scene,selection_handler,icon_factory_actor,color, path, path_list_provider,aborter, logger);
+        super(owner,scene,selection_handler,icon_factory_actor,color, path, path_list_provider,port,aborter, logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
@@ -298,7 +301,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     //**********************************************************
     {
 
-        if ( Virtual_landscape.show_single_column)
+        if ( Feature_cache.get(Feature.Show_single_column))
         {
             StringBuilder sb = new StringBuilder();
             try {
@@ -350,7 +353,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 Audio_player.play_playlist(get_item_path().toFile(),logger);
                 return;
             }
-            if (Virtual_landscape.enable_image_playlists)
+            if (Feature_cache.get(Feature.Enable_image_playlists))
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
                     logger.log("NOT IMPLEMENTED opening image playlist: " + get_item_path().toAbsolutePath());

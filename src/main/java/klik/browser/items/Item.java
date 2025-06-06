@@ -32,7 +32,6 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.experimental.metadata.Tag_stage;
 import klik.images.Exif_stage;
 import klik.look.Font_size;
@@ -40,6 +39,8 @@ import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Folder_size;
 import klik.util.files_and_paths.From_disk;
@@ -90,9 +91,11 @@ public abstract class Item implements Icon_destination
     // not final because renaming a folder requires to change the path_list_provider
     // this is ok as long as there is no other browser open on that folder: the change_gang manages this
 
+    protected final int port;
 
     //**********************************************************
     public Item(
+            int port,
             Window owner,
             Scene scene,
             Selection_handler selection_handler,
@@ -103,6 +106,7 @@ public abstract class Item implements Icon_destination
             Logger logger)
     //**********************************************************
     {
+        this.port = port;
         this.path_list_provider = path_list_provider;
         this.aborter = aborter;
         this.owner = owner;
@@ -234,7 +238,7 @@ public abstract class Item implements Icon_destination
             {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-                if ( Virtual_landscape.enable_tags)
+                if ( Feature_cache.get(Feature.Enable_tags))
                 {
                     context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
                 }
@@ -267,7 +271,7 @@ public abstract class Item implements Icon_destination
             context_menu.getItems().add(create_delete_menu_item());
 
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg,logger));
-            if ( Virtual_landscape.enable_tags)
+            if ( Feature_cache.get(Feature.Enable_tags))
             {
                 context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
             }
@@ -320,7 +324,7 @@ public abstract class Item implements Icon_destination
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
 
-            New_window_context.additional_no_past(get_item_path().getParent(),logger);
+            New_window_context.additional_no_past(port, get_item_path().getParent(),logger);
         });
         return browse;
     }

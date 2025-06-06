@@ -17,6 +17,7 @@ import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
 
@@ -139,7 +140,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         logger.log("Browser init");
         monitor();
-        virtual_landscape = new Virtual_landscape(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
+        virtual_landscape = new Virtual_landscape(context.port,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -206,6 +207,10 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         // plus memory leak! ==> the RAM footprint keeps growing
         Change_gang.deregister(this, aborter);
         if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
+
+        Feature_cache.deregister_for_all(virtual_landscape);
+        Feature_cache.string_deregister_for(Non_booleans.LANGUAGE_KEY,virtual_landscape);
+
         virtual_landscape.stop_scan();
         //the_Pane.getChildren().clear();
         //if (icon_manager != null) icon_manager.cancel_all();

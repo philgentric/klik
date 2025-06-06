@@ -24,6 +24,8 @@ import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -75,6 +77,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
+            int port,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -94,6 +97,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 path_list_provider,
                 path_comparator_source,
                 top_left_provider,
+                port,
                 aborter,
                 logger);
         column_width = column_width_;
@@ -190,7 +194,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     private void resize_the_box(Button button)
     //**********************************************************
     {
-        if ( Virtual_landscape.show_single_column)
+        if ( Feature_cache.get(Feature.Show_single_column))
         {
             button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
             button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);

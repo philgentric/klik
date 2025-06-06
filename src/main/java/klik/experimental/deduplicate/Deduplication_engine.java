@@ -14,6 +14,8 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.*;
 import klik.experimental.deduplicate.manual.Stage_with_2_images;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
@@ -455,7 +457,7 @@ public class Deduplication_engine implements Againor, Abortable
     {
         console_window.set_status_text("Scanning directories");
 
-        List<File_with_a_few_bytes> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, Virtual_landscape.show_hidden_files, logger);
+        List<File_with_a_few_bytes> files = Deduplication_console_window.get_all_files_down(target_dir, console_window, Feature_cache.get(Feature.Show_hidden_files), logger);
         //Collections.sort(files, by_path_length);
         logger.log("deduplication scan done "+files.size()+" files found");
 

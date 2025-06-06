@@ -3,6 +3,8 @@ package klik.image_indexer;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 
@@ -49,7 +51,7 @@ class State
         //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
 
 
-        List<Path> path_list = path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files);//new ArrayList<>();
+        List<Path> path_list = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));//new ArrayList<>();
         if (dbg) logger.log(("image file source scan for:"+target));
         /*
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, target))

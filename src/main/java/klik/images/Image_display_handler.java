@@ -54,25 +54,26 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     // alternate rescaler:
     boolean alternate_rescaler = false;
     public final Aborter aborter;
+    final int port;
 
 
     //**********************************************************
-    public static Optional<Image_display_handler> get_Image_display_handler_instance(Path_list_provider path_list_provider, boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    public static Optional<Image_display_handler> get_Image_display_handler_instance(Path_list_provider path_list_provider, boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, int port, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Optional<Image_context> image_context_ = build_Image_context(use_alternate_rescaler,path, aborter, logger_);
+        Optional<Image_context> image_context_ = build_Image_context(use_alternate_rescaler,path, port,aborter, logger_);
         if (image_context_.isEmpty())
         {
             logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
         }
 
-        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), v_, file_comparator, aborter, logger_));
+        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), v_, file_comparator, port,aborter, logger_));
         return returned;
     }
 
     //**********************************************************
-    static Optional<Image_context> build_Image_context(boolean use_alternate_rescaler, Path path, Aborter aborter, Logger logger_)
+    static Optional<Image_context> build_Image_context(boolean use_alternate_rescaler, Path path, int port, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         Optional<Image_context> image_context_;
@@ -83,15 +84,16 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         }
         else
         {
-            image_context_ = Image_context.get_Image_context(path, aborter, logger_);
+            image_context_ = Image_context.get_Image_context(path, port,aborter, logger_);
         }
         return image_context_;
     }
 
     //**********************************************************
-    private Image_display_handler(Path_list_provider path_list_provider, Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    private Image_display_handler(Path_list_provider path_list_provider, Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, int port, Aborter aborter, Logger logger_)
     //**********************************************************
     {
+        this.port = port;
         this.aborter = aborter;
         image_context = Optional.of(image_context_);
         logger = logger_;
@@ -120,7 +122,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 if ( forward_size > 10) forward_size = 10;//Image_decoding_actor_for_cache.CACHE_SIZE;
                 logger.log("forward_size="+forward_size);
 
-                image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
+                image_cache = new Image_cache_cafeine(forward_size,port,aborter,logger);
             }
         }
         else
@@ -149,7 +151,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         }
         else
         {
-            image_context = Image_context.get_Image_context(path,aborter, logger);
+            image_context = Image_context.get_Image_context(path,port,aborter, logger);
         }
         return image_context;
     }
@@ -300,7 +302,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
             Path p = image_indexer.get().path_from_index(0);
             if ( p == null) return;
-            image_context = Image_context.get_Image_context(p,aborter,logger);
+            image_context = Image_context.get_Image_context(p,port,aborter,logger);
         }
         if ( dbg) logger.log("change_image_relative delta=" + delta);
 

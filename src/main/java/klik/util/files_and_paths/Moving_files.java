@@ -8,7 +8,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_for_moves;
 import klik.change.Redo_same_move_engine;
-import klik.properties.features.Advanced_feature;
+import klik.properties.features.Feature;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.experimental.metadata.Metadata_handler;
@@ -448,7 +448,7 @@ public class Moving_files
 
                 if ( System.currentTimeMillis()-start > 5_000)
                 {
-                    if (Booleans.get_boolean(Advanced_feature.Play_ding_after_long_processes.name()))
+                    if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name()))
                     {
                         Ding.play("file moving takes more than 5s", logger);
                     }

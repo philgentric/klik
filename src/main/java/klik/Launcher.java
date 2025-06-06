@@ -14,6 +14,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.audio.Audio_player_application;
 import klik.browser.Shared_services;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
@@ -21,6 +22,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.properties.features.String_change_target;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -48,19 +50,27 @@ public class Launcher extends Application
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
+    public static final String LANGUAGE_CHANGED = "LANGUAGE_CHANGED";
     public static double estimated_text_label_height;
+
+    private Stage stage;
+    private Logger logger;
+    private VBox vbox;
+    private AtomicInteger klik_port;
+    private AtomicInteger audio_player_port;
+
     //**********************************************************
     @Override
-    public void start(Stage stage) throws Exception
+    public void start(Stage stage_) throws Exception
     //**********************************************************
     {
-
+        stage = stage_;
         Sys_init.init("Launcher app");
-        Logger logger = Shared_services.shared_services_logger;
+        logger = Shared_services.shared_services_logger;
 
 
         Look_and_feel_manager.init_Look_and_feel(logger);
-        VBox vbox = new VBox();
+        vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         Look_and_feel_manager.set_region_look(vbox);
         double font_size = Non_booleans.get_font_size(logger);
@@ -70,47 +80,56 @@ public class Launcher extends Application
 
         Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER);
 
-        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
 
 
-        AtomicInteger klik_port = new AtomicInteger(12345);
-        AtomicInteger audio_player_port = new AtomicInteger(23456);
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application",logger));
-
-            set_look(b, vbox,look_and_feel,Icon_type.IMAGE,logger);
-
-            b.setOnAction(event -> {
-                start_app_and_listen("klik", klik_port.getAndIncrement(),stage, logger);
-            });
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player",logger));
-            set_look(b, vbox,look_and_feel,Icon_type.MUSIC,logger);
-            b.setOnAction(event -> {
-                start_app_and_listen("audio_player", audio_player_port.getAndIncrement(),stage,logger);
-            });
-        }
-        {
-            Button b = new Button("Show version");
-            set_look(b, vbox,look_and_feel,null,logger);
-            b.setOnAction(event -> {
-                show_version(stage,logger);
-            });
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version",logger));
-            set_look(b, vbox,look_and_feel,null,logger);
-            b.setOnAction(event -> {
-                get_most_recent_version(stage,logger);
-            });
-        }
+        klik_port = new AtomicInteger(12345);
+        audio_player_port = new AtomicInteger(23456);
+        define_UI( );
 
 
         Scene scene = new Scene(vbox);
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
         stage.show();
+    }
+
+    //**********************************************************
+    private void define_UI()
+    //**********************************************************
+    {
+        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
+
+        vbox.getChildren().clear();
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", logger));
+
+            set_look(b, vbox, look_and_feel,Icon_type.IMAGE, logger);
+
+            b.setOnAction(event -> {
+                start_app_and_listen(this,"klik", klik_port.getAndIncrement(), stage, logger);
+            });
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", logger));
+            set_look(b, vbox, look_and_feel,Icon_type.MUSIC, logger);
+            b.setOnAction(event -> {
+                start_app_and_listen(this,"audio_player", audio_player_port.getAndIncrement(), stage, logger);
+            });
+        }
+        {
+            Button b = new Button("Show version");
+            set_look(b, vbox, look_and_feel,null, logger);
+            b.setOnAction(event -> {
+                show_version(stage, logger);
+            });
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", logger));
+            set_look(b, vbox, look_and_feel,null, logger);
+            b.setOnAction(event -> {
+                get_most_recent_version(stage, logger);
+            });
+        }
     }
 
     //**********************************************************
@@ -227,7 +246,7 @@ public class Launcher extends Application
     }
 
     //**********************************************************
-    private static void start_app_and_listen(String app_name, int port, Stage stage, Logger logger)
+    private static void start_app_and_listen(Launcher launcher, String app_name, int port, Stage stage, Logger logger)
     //**********************************************************
     {
         Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
@@ -253,11 +272,11 @@ public class Launcher extends Application
             }
         };
         Actor_engine.execute(r, logger);
-        start_server_and_wait_for_reply(app_name,port,hourglass, logger);
+        start_server_and_wait_for_reply(app_name,port,hourglass, launcher,logger);
     }
 
     //**********************************************************
-    private static boolean start_server_and_wait_for_reply(String app_name, int port, Hourglass hourglass, Logger logger)
+    private static boolean start_server_and_wait_for_reply(String app_name, int port, Hourglass hourglass, Launcher launcher, Logger logger)
     //**********************************************************
     {
         // start the server to receive the "started" error_message and stop the hourglass
@@ -274,8 +293,18 @@ public class Launcher extends Application
                     String msg = TCP_util.read_string(dis);
                     if ( msg.equals(STARTED))
                     {
-                        logger.log("STARTED RECEIVED for: "+app_name);
+                        logger.log("Launcher: STARTED RECEIVED for: "+app_name);
                         if ( hourglass != null) hourglass.close();
+                    }
+                    if (msg.startsWith(LANGUAGE_CHANGED))
+                    {
+                        Non_booleans.force_reload_from_disk();
+                        String new_lang = msg.split(" ")[1];
+                        logger.log("Launcher: LANGUAGE_CHANGED RECEIVED for: "+app_name+ " new lang is "+new_lang);
+                        logger.log("Launcher: checking the language value is updated on disk: "+Non_booleans.get_language_key());
+                        My_I18n.reset();
+                        Platform.runLater(() -> launcher.define_UI());
+                        // broken in the audio player: TCP_client.request("localhost", Audio_player_application.AUDIO_PLAYER_PORT,msg,logger);
                     }
                 }
                 catch (IOException e)
@@ -333,4 +362,5 @@ public class Launcher extends Application
             b.setMaxHeight(h);
         }
     }
+
 }

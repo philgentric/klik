@@ -9,6 +9,8 @@ import klik.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -83,7 +85,7 @@ public class Exif_metadata_extractor
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
-            if (Virtual_landscape.fusk_is_active) {
+            if (Feature_cache.get(Feature.Fusk_is_active)) {
                 if (Fusk_static_core.is_fusk(path,logger)) {
                     String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
                     exif_metadata.add("... which is a fusk of: ->" + Fusk_strings.defusk_string(base, logger) + "<-");
@@ -143,7 +145,7 @@ public class Exif_metadata_extractor
 
         image_is_damaged = false;
 
-        InputStream is = From_disk.get_image_InputStream(path, Virtual_landscape.fusk_is_active, report_if_not_found, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             image_is_damaged = true;

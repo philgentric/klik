@@ -18,7 +18,6 @@ public class Audio_player
 //**********************************************************
 {
     static Audio_player_FX_UI ui = null;
-    public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
 
 
@@ -27,10 +26,11 @@ public class Audio_player
     //**********************************************************
     {
         // try to connect in case an audio player is already started
-        TCP_client_out tco = TCP_client.request("localhost",AUDIO_PLAYER_PORT,song.getAbsolutePath().toString(),logger);
+        TCP_client_out tco = TCP_client.request("localhost",Audio_player_application.AUDIO_PLAYER_PORT,song.getAbsolutePath().toString(),logger);
         if ( tco.status())
         {
-            if ( tco.reply().equals(PLAY_REQUEST_ACCEPTED)) {
+            if ( tco.reply().equals(PLAY_REQUEST_ACCEPTED))
+            {
                 logger.log("apparently the TCP server in the separate audio_player process accepted the song");
                 return;
             }
@@ -80,7 +80,7 @@ public class Audio_player
 
 
     //**********************************************************
-    public static void init(Aborter aborter,Logger logger)
+    public static void init_ui(Aborter aborter, Logger logger)
     //**********************************************************
     {
         ui = new Audio_player_FX_UI(aborter, logger);
@@ -91,7 +91,7 @@ public class Audio_player
     {
         if ( ui == null)
         {
-            init(Shared_services.shared_services_aborter,logger);
+            init_ui(Shared_services.shared_services_aborter,logger);
         }
         ui.play_playlist_internal(file);
     }

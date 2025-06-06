@@ -3,6 +3,7 @@
 package klik.experimental.fusk;
 
 import klik.actor.Aborter;
+import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -62,7 +63,7 @@ public class Fusk_bytes implements Pin_code_client
             logger.log(Stack_trace_getter.get_stack_trace("creating instance"));
             instance = new Fusk_bytes(logger);
         }
-        return instance.init( logger);
+        return instance.init(logger);
     }
 
     //**********************************************************

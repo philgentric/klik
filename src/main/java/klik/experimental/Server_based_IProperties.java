@@ -72,4 +72,11 @@ public class Server_based_IProperties implements IProperties
             remove(k);
         }
     }
+
+    @Override
+    public void force_reload_from_disk()
+    {
+        logger.log("WARNING: Server_based_IProperties force_reload_from_disk() NOT IMPLEMENTED");
+
+    }
 }

@@ -26,12 +26,14 @@ public class Image_cache_cafeine implements Cache_interface
     Cache<String, Image_context> cache;
     private final int forward_size;
     private final Aborter aborter;
+    final int port;
 
     //**********************************************************
-    public Image_cache_cafeine(int forward_size_, Aborter aborter, Logger logger_)
+    public Image_cache_cafeine(int forward_size_, int port,Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.aborter = aborter;
+        this.port =port;
         forward_size = forward_size_;
         cache = Caffeine.newBuilder()
                 .maximumSize(2*forward_size+1)
@@ -80,7 +82,7 @@ public class Image_cache_cafeine implements Cache_interface
 
         for (Path path: kk)
         {
-            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, aborter);
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, port, aborter);
             if (ultra_dbg)
                 logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
@@ -122,7 +124,7 @@ public class Image_cache_cafeine implements Cache_interface
     public void evict(Path path)
     //**********************************************************
     {
-        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,null, aborter);
+        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,null, port,aborter);
         String key = request.make_key();
         cache.invalidate(key);
         if (ultra_dbg) logger.log("       Evicted:" + key );

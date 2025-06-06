@@ -18,6 +18,7 @@ public class Finder
             Path_comparator_source path_comparator_source,
             List<String> keywords,
             boolean search_only_images,
+            int port,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -27,6 +28,7 @@ public class Finder
                     search_only_images,
                     path_list_provider,
                     path_comparator_source,
+                    port,
                     aborter,
                     logger);
             popup.start_search();

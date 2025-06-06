@@ -19,6 +19,8 @@ import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.properties.Cache_folder;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
@@ -585,7 +587,7 @@ public class Static_files_and_paths_utilities
         {
             if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath()))
             {
-                if ( !Virtual_landscape.show_hidden_files)
+                if ( !Feature_cache.get(Feature.Show_hidden_files))
                 {
                     file_count_stop_counter.decrementAndGet();
                     return;

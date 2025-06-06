@@ -129,16 +129,21 @@ public class Properties_manager
             load_properties(on_disk, the_properties_path);
             for (String k : on_disk.stringPropertyNames())
             {
+                if ( k.endsWith(AGE)) continue;
                 String v = the_Properties.getProperty(k);
-                if (v == null) {
+                if (v == null)
+                {
                     // absent in THIS RAM hashtable =  must be added
                     the_Properties.setProperty(k, on_disk.getProperty(k));
                     String age = on_disk.getProperty(k + AGE);
-                    if (age == null) {
+                    if (age == null)
+                    {
                         age = LocalDateTime.now().toString();
                     }
                     the_Properties.setProperty(k + AGE, age);
-                } else {
+                }
+                else
+                {
                     String age_here_s = the_Properties.getProperty(k + AGE);
                     if (age_here_s == null) continue;
                     // conflict : take the most recent VALUE
@@ -226,7 +231,7 @@ public class Properties_manager
     }
 
     //**********************************************************
-    private void load_properties(Properties target, Path path)
+    public void load_properties(Properties target, Path path)
     //**********************************************************
     {
         if (dbg) logger.log("load_properties()");
@@ -431,6 +436,13 @@ public class Properties_manager
     {
         remove(key);
         if ( and_save) store_properties(false);
+    }
+
+    //**********************************************************
+    public void force_reload_from_disk()
+    //**********************************************************
+    {
+        load_properties(the_Properties,the_properties_path);
     }
 
 

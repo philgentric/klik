@@ -3,7 +3,7 @@ package klik.util.cache_auto_clean;
 import javafx.stage.Window;
 import klik.browser.Shared_services;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.Advanced_feature;
+import klik.properties.features.Feature;
 import klik.properties.Non_booleans;
 import klik.properties.Booleans;
 import klik.properties.Cache_folder;
@@ -90,7 +90,7 @@ public class Disk_usage_monitor
                     continue;
                 }
                 boolean cleared = false;
-                if (Booleans.get_boolean(Advanced_feature.Monitor_folders.name()))
+                if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name()))
                 {
                     for (Cache_folder cache_folder : Cache_folder.values())
                     {

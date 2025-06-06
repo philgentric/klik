@@ -80,14 +80,14 @@ public class Audio_player_FX_UI implements Music_UI
     Audio_player_FX_UI(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        this.aborter= aborter;
+        this.aborter = aborter;
         this.logger = logger;
         stage = new Stage();
-        this.playlist = new Playlist(this, stage,logger);
+        this.playlist = new Playlist(this, stage, logger);
 
 
-        pause_string = My_I18n.get_I18n_string(PAUSE,logger);
-        play_string = My_I18n.get_I18n_string(PLAY,logger);
+        pause_string = My_I18n.get_I18n_string(PAUSE, logger);
+        play_string = My_I18n.get_I18n_string(PLAY, logger);
         logger.log("play_string = " + play_string);
 
         Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER);
@@ -98,7 +98,7 @@ public class Audio_player_FX_UI implements Music_UI
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             //if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-            Non_booleans.save_window_bounds(stage,AUDIO_PLAYER,logger);
+            Non_booleans.save_window_bounds(stage, AUDIO_PLAYER, logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -130,7 +130,7 @@ public class Audio_player_FX_UI implements Music_UI
 
         Scene scene = new Scene(bottom_border_pane);
         stage.setScene(scene);
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> handle_keyboard( keyEvent, logger));
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> handle_keyboard(keyEvent, logger));
         stage.show();
 
         playlist.init();

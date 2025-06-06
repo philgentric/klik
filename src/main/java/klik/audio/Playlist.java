@@ -40,7 +40,6 @@ public class Playlist
     static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
 
     List<String> the_playlist = new ArrayList<>();
-    //private ObservableList<String> observable_playlist = FXCollections.observableArrayList();
     Map<String, Button> file_to_button = new HashMap<>();
     Button selected = null;
 

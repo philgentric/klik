@@ -64,6 +64,13 @@ public class File_based_IProperties implements IProperties
         if( dbg_set) logger.log("File_based_IProperties "+tag+" clear() ");
         pm.clear();
     }
+
+    @Override
+    public void force_reload_from_disk()
+    {
+        pm.force_reload_from_disk();
+    }
+
     //**********************************************************
     @Override
     public List<String> get_all_keys()

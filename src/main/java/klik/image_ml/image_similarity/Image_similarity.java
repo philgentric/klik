@@ -13,8 +13,9 @@ import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
 import klik.images.Image_window;
-import klik.properties.features.Advanced_feature;
+import klik.properties.features.Feature;
 import klik.properties.Booleans;
+import klik.properties.features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
@@ -43,21 +44,23 @@ public class Image_similarity implements Clearable_RAM_cache
     public final Aborter aborter;
 
     private boolean show_vector_differences;
+    int port;
 
     //**********************************************************
     public Image_similarity(
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            double x, double y,
+            double x, double y, int port,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
+        this.port = port;
         this.path_list_provider = path_list_provider;
         this.path_comparator_source = path_comparator_source;
         this.logger = logger;
         this.aborter = aborter;
-        images = path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files);
-        show_vector_differences = Booleans.get_boolean(Advanced_feature.Display_image_distances.name());
+        images = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+        show_vector_differences = Booleans.get_boolean(Feature.Display_image_distances.name());
     }
 
     //**********************************************************
@@ -145,7 +148,7 @@ public class Image_similarity implements Clearable_RAM_cache
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
-        Image_window returned = new Image_window(
+        Image_window returned = new Image_window(port,
                 ms.path(), x, y, W, H, s, false,path_list_provider,
                 Optional.of(path_comparator_source.get_path_comparator()),
                 new Aborter("dummy34",logger),logger);

@@ -2,6 +2,8 @@ package klik.look.my_i18n;
 
 import klik.look.Jar_utils;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature_cache;
+import klik.properties.features.String_change_target;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -28,6 +30,7 @@ public class My_I18n
         if (instance == null)
         {
             String language_key = Non_booleans.get_language_key();
+            //logger.log(Stack_trace_getter.get_stack_trace("My_I18n instance is null, rebuilding for "+language_key));
             Language language = Language.valueOf(language_key);
             Locale locale = language.get_locale();
             instance = new My_I18n(language, locale, logger);
@@ -127,6 +130,15 @@ public class My_I18n
     {
         Non_booleans.set_language_key(my_locale_codes.name());
         instance = null;
+        Feature_cache.update_string(Non_booleans.LANGUAGE_KEY,my_locale_codes.name());
     }
+
+    //**********************************************************
+    public static void reset()
+    //**********************************************************
+    {
+        instance = null;
+    }
+
 
 }

@@ -3,11 +3,14 @@ package klik.audio;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import klik.Launcher;
 import klik.Start_context;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Shared_services;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Non_booleans;
 import klik.util.Sys_init;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -23,21 +26,23 @@ public class Audio_player_application extends Application
 {
    public static final int AUDIO_PLAYER_PORT = 34539;
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY REQUEST ACCEPTED";
-
+    private Stage stage;
+    Logger logger;
     //**********************************************************
     public static void main(String[] args) {launch(args);}
     //**********************************************************
 
     //**********************************************************
     @Override
-    public void start(Stage stage) throws Exception
+    public void start(Stage stage_) throws Exception
     //**********************************************************
     {
+        this.stage = stage_;
         Sys_init.init("Audio_player_application");
-        Logger logger = Shared_services.shared_services_logger;
+        logger = Shared_services.shared_services_logger;
         Start_context context = Start_context.get_context_and_args(this);
 
-        if (  !start_server(logger))
+        if (  !start_server())
         {
             logger.log("failed to start server: this is normal if another instance exists already");
             Start_context.send_started_raw(context.port(),logger);
@@ -47,29 +52,36 @@ public class Audio_player_application extends Application
             return;
         }
 
-        logger.log("Audio_player_application starts");
+        init(context);
+    }
 
+    private void init(Start_context context)
+    {
+        logger.log("Audio_player_application starts");
 
         Look_and_feel_manager.init_Look_and_feel(logger);
 
-        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC,logger);
+        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, logger);
 
         Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
 
         String f = null;
-        if ( context.path() != null)
+        if ( context != null)
         {
-             logger.log("Audio_player_application, context.path()) "+context.path().toAbsolutePath());
-             f = context.path().toAbsolutePath().toString();
-             logger.log("Audio_player_application, opening audio file: "+f);
+            if (context.path() != null)
+            {
+                logger.log("Audio_player_application, context.path()) " + context.path().toAbsolutePath());
+                f = context.path().toAbsolutePath().toString();
+                logger.log("Audio_player_application, opening audio file: " + f);
+            }
+            Start_context.send_started(context, logger);
         }
-        Start_context.send_started(context,logger);
-
-        Audio_player.init(Shared_services.shared_services_aborter, logger);
-        Audio_player.play_this_song(f,logger);
+        Audio_player.init_ui(Shared_services.shared_services_aborter, logger);
+        Audio_player.play_this_song(f, logger);
     }
+
     //**********************************************************
-    private static boolean start_server(Logger logger)
+    private boolean start_server()
     //**********************************************************
     {
         // start the server to receive subsequent play requests
@@ -81,10 +93,30 @@ public class Audio_player_application extends Application
             public void on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try {
-                    String file_path = TCP_util.read_string(dis);
-                    Audio_player.play_this_song(file_path,logger);
-                    TCP_util.write_string(PLAY_REQUEST_ACCEPTED,dos);
-                    dos.flush();
+                    String received = TCP_util.read_string(dis);
+                    if (received.startsWith(Launcher.LANGUAGE_CHANGED))
+                    {
+                        Non_booleans.force_reload_from_disk();
+                        String new_lang = received.split(" ")[1];
+                        logger.log("Audio player: LANGUAGE_CHANGED RECEIVED new lang is "+new_lang);
+                        logger.log("Audio player: checking the language value is updated on disk: "+Non_booleans.get_language_key());
+                        My_I18n.reset();
+                        Runnable r = () -> {
+                            Platform.runLater(() ->
+                            {
+                                //init(null);
+                                Audio_player.init_ui(Shared_services.shared_services_aborter, logger);
+                            }
+                            );
+                        };
+                        Actor_engine.execute(r,logger);
+                    }
+                    else
+                    {
+                        Audio_player.play_this_song(received, logger);
+                        TCP_util.write_string(PLAY_REQUEST_ACCEPTED, dos);
+                        dos.flush();
+                    }
                     logger.log("Audio_player_application server accepted file for playing");
                 }
                 catch (IOException e)

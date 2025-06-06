@@ -59,7 +59,7 @@ public class Multiple_image_window
     //**********************************************************
     {
         Aborter aborter = new Aborter("Multiple_image_window",logger_);
-        Optional<Image_context> option = Image_context.get_Image_context(path, aborter, logger_);
+        Optional<Image_context> option = Image_context.get_Image_context(path, -1,aborter, logger_);
         if (option.isEmpty()) {
             logger_.log(Stack_trace_getter.get_stack_trace("Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();

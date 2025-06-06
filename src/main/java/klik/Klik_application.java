@@ -147,7 +147,7 @@ public class Klik_application extends Application
         {
             path = context.path();
         }
-        Window_provider window_provider = New_window_context.additional_no_past(path,logger);
+        Window_provider window_provider = New_window_context.additional_no_past(context.port(),path,logger);
         new Monitor(window_provider, logger).start();
 
         Start_context.send_started(context,logger);

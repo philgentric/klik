@@ -34,6 +34,7 @@ public class Search_session implements Callback_for_file_found_publish
 	//private final Browser browser;
 	private final Window window;
 	final Results_frame find_result_frame;
+	final int port;
 
 
 
@@ -41,9 +42,10 @@ public class Search_session implements Callback_for_file_found_publish
 	public Search_session(Path_list_provider path_list_provider,
 						  Path_comparator_source path_comparator_source,
 						  Search_config search_config,
-						  Search_receiver search_receiver, Window window, Logger logger)
+						  Search_receiver search_receiver, Window window, int port, Logger logger)
 	//**********************************************************
 	{
+		this.port = port;
 		this.window = window;
 		this.logger = logger;
 		local_aborter = new Aborter("Search_session",logger);
@@ -178,7 +180,7 @@ public class Search_session implements Callback_for_file_found_publish
 			if ( find_result_frame != null)
 			{
 				boolean is_max = keys.equals(get_max_key());
-				find_result_frame.inject_search_results(sr,keys, is_max, window);
+				find_result_frame.inject_search_results(sr,keys, is_max, window,port);
 			}
 		}
 

@@ -41,6 +41,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
 			List<File_with_a_few_bytes> all_files_,
 			BlockingQueue<Similarity_file_pair> output_queue,
+			int port,
 			Aborter private_aborter_,
 			Logger logger_)
 	//**********************************************************
@@ -58,7 +59,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		image_similarity = new Image_similarity(
 				new Folder_path_list_provider(deduplication_by_similarity_engine.target_dir.toPath()),
 				path_comparator_source,
-				x,y,
+				x,y, port,
 				deduplication_by_similarity_engine.private_aborter,logger);
 
 	}

@@ -57,9 +57,10 @@ public class Image_context
     public boolean image_is_damaged;
     public String title="";
     public final FileTime creation_time;
+    final int port;
 
     //**********************************************************
-    public static Optional<Image_context> get_Image_context(Path path, Aborter aborter,Logger logger_)
+    public static Optional<Image_context> get_Image_context(Path path, int port,Aborter aborter,Logger logger_)
     //**********************************************************
     {
         if ( !Files.exists(path)) return Optional.empty();
@@ -71,17 +72,18 @@ public class Image_context
         if ( local_image.isError())
         {
             Image broken = Jar_utils.get_broken_icon(300,logger_);
-            return Optional.of(new Image_context(path,path,broken,logger_));
+            return Optional.of(new Image_context(path,path,broken,port,logger_));
         }
-        Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image, logger_));
+        Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image, port,logger_));
         return returned;
     }
 
 
     //**********************************************************
-    public Image_context(Path current_path,Path previous_path_, Image image_, Logger logger_)
+    public Image_context(Path current_path,Path previous_path_, Image image_, int port,Logger logger_)
     //**********************************************************
     {
+        this.port = port;
         path = current_path;
         previous_path = previous_path_;
         logger = logger_;
@@ -109,6 +111,7 @@ public class Image_context
     public Image_context(Image im_,  Logger logger_)
     //**********************************************************
     {
+        port = -1;
         logger = logger_;
         image = im_;
         path = null;
@@ -308,7 +311,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Aborter aborter)
+    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,int port, Aborter aborter)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -336,7 +339,7 @@ public class Image_context
         Finder.find(
                 path_list_provider,
                 path_comparator_source,
-                keywords,true,aborter,logger);
+                keywords,true,port,aborter,logger);
     }
 
 
@@ -348,11 +351,12 @@ public class Image_context
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             boolean search_only_for_images,
+            int port,
             Aborter aborter)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find( path_list_provider, path_comparator_source,given_keywords, search_only_for_images,owner,aborter,logger);
+        ask_user_and_find( path_list_provider, path_comparator_source,given_keywords, search_only_for_images,owner,port,aborter,logger);
     }
 
 
@@ -363,6 +367,7 @@ public class Image_context
             List<String> keywords,
             boolean search_only_for_images,
             Window owner,
+            int port,
             Aborter aborter,
             Logger logger
     )
@@ -398,7 +403,7 @@ public class Image_context
                     Finder.find(
                             path_list_provider,
                             path_comparator_source,
-                            keywords,search_only_for_images,aborter,logger);
+                            keywords,search_only_for_images,port,aborter,logger);
                 }
             }
 
@@ -496,6 +501,7 @@ public class Image_context
         Change_gang.report_changes(l);
 
         Item_file_with_icon.open_an_image(true,
+                port,
                 path_list_provider,
                 path_comparator_source,
                 new_path,logger);

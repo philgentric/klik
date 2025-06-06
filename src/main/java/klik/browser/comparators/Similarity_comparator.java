@@ -6,6 +6,8 @@ import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -34,7 +36,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         this.fv_cache_supplier = fv_cache_supplier;
         this.logger = logger;
         this.similarity_cache = similarity_cache;
-        this.images = path_list_provider.only_image_paths(Virtual_landscape.show_hidden_files);
+        this.images = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
         shuffle();
     }
 
@@ -90,7 +92,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
     protected void add_non_images(Path_list_provider path_list_provider, int i) {
         // then we add the non-images
-        for ( File f : path_list_provider.only_files(Virtual_landscape.show_hidden_files))
+        for ( File f : path_list_provider.only_files(Feature_cache.get(Feature.Show_hidden_files)))
         {
             if ( images.contains(f.toPath())) continue;
             dummy_names.put(f.toPath(), i);

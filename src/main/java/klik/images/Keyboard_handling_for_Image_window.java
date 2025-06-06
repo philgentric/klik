@@ -6,9 +6,8 @@ import javafx.stage.Window;
 import klik.browser.New_window_context;
 import klik.image_ml.face_recognition.Face_detection_type;
 import klik.experimental.metadata.Tag_stage;
-import klik.properties.features.Advanced_feature;
+import klik.properties.features.Feature;
 import klik.properties.Booleans;
-import klik.properties.features.Experimental_feature;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -26,11 +25,12 @@ public class Keyboard_handling_for_Image_window
     //**********************************************************
     static void handle_keyboard(
             Image_window image_window,
-            boolean exit_on_escape_preference,
             final KeyEvent key_event,
             Logger logger)
     //**********************************************************
     {
+
+        boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Feature.Use_escape_to_close_windows.name());
 
         Window window = image_window.the_Stage;
         if ( keyword_dbg) logger.log("Image_stage KeyEvent="+key_event);
@@ -64,7 +64,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Booleans.get_boolean(Advanced_feature.Shift_d_is_sure_delete.name()))
+            if (Booleans.get_boolean(Feature.Shift_d_is_sure_delete.name()))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -101,7 +101,7 @@ public class Keyboard_handling_for_Image_window
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
                 New_window_context.additional_no_past(
-                        image_window.image_display_handler.get_image_context().get().path.getParent(),
+                        image_window.port, image_window.image_display_handler.get_image_context().get().path.getParent(),
                         logger);
                 key_event.consume();
                 return;
@@ -159,6 +159,7 @@ public class Keyboard_handling_for_Image_window
                 image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                         image_window.path_list_provider,
                         image_window.path_comparator_source,
+                        image_window.port,
                         image_window.aborter);
                 key_event.consume();
                 return;
@@ -194,7 +195,7 @@ public class Keyboard_handling_for_Image_window
             case "t","T" -> {
                 if (keyword_dbg) logger.log("t like tag");
 
-                if( Booleans.get_boolean(Experimental_feature.Enable_tags.name())) {
+                if( Booleans.get_boolean(Feature.Enable_tags.name())) {
 
                     if (image_window.image_display_handler.get_image_context().isEmpty()) return;
                     Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, image_window.aborter,logger);

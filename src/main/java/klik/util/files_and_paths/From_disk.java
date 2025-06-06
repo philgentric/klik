@@ -14,6 +14,8 @@ import klik.look.Look_and_feel_manager;
 import klik.experimental.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
@@ -150,7 +152,7 @@ public class From_disk
             logger.log("load_image_fx NOT DONE because running low on memory ! ");
             return null;
         }
-        InputStream input_stream = get_image_InputStream(original_image_file, Virtual_landscape.fusk_is_active, report_if_not_found, aborter, logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
         Image image = new Image(input_stream);
         try {
@@ -191,7 +193,7 @@ public class From_disk
     {
         //long start = System.currentTimeMillis();
         Image image = null;
-        try(InputStream input_stream = get_image_InputStream(original_image_file, Virtual_landscape.fusk_is_active, report_if_not_found, aborter,logger))
+        try(InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter,logger))
         {
             if ( input_stream == null)
             {

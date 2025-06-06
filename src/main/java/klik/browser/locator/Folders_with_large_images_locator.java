@@ -40,24 +40,27 @@ public class Folders_with_large_images_locator
 
     private final Aborter private_aborter;
     private Monitor monitor = null;
+    final int port;
 
     //**********************************************************
     public static void locate(Path top, int minimum_count, int min_bytes, 
-                              Window owner, Aborter aborter,
+                              Window owner, int port,
+                              Aborter aborter,
                               Logger logger)
     //**********************************************************
     {
-        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, owner,aborter,logger);
+        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, owner,port,aborter,logger);
         instance.search();
     }
 
 
     //**********************************************************
     private Folders_with_large_images_locator(Path top, int minimum_count, int min_bytes, 
-                                              Window owner, Aborter aborter,
+                                              Window owner, int port, Aborter aborter,
                                               Logger logger)
     //**********************************************************
     {
+        this.port = port;
         this.top = top;
         this.minimum_count = minimum_count;
         this.min_bytes = min_bytes;
@@ -385,7 +388,7 @@ public class Folders_with_large_images_locator
             {
                 String final_S = s;
                 Jfx_batch_injector.inject(()-> New_window_context.additional_no_past(
-                        key_to_path(final_S),
+                        port, key_to_path(final_S),
                         logger),logger);
                 count++;
             }

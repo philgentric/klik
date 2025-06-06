@@ -49,14 +49,14 @@ import klik.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
-import klik.properties.features.Advanced_feature;
+import klik.properties.features.Feature;
 import klik.properties.Booleans;
 import klik.properties.Non_booleans;
-import klik.properties.features.Basic_feature;
+import klik.properties.features.Feature_cache;
+import klik.properties.features.Feature_change_target;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
@@ -68,7 +68,7 @@ import java.util.List;
 
 
 //**********************************************************
-public class Browser extends Abstract_browser
+public class Browser extends Abstract_browser implements Feature_change_target
 //**********************************************************
 {
     public final Path_list_provider path_list_provider;
@@ -81,7 +81,7 @@ public class Browser extends Abstract_browser
         if ( context.target_path == null)
         {
             path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
-            if ( Booleans.get_boolean_defaults_to_true(Basic_feature.Reload_last_folder_on_startup.name()))
+            if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name()))
             {
                 History_item h = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
                 if ( h != null)
@@ -103,12 +103,58 @@ public class Browser extends Abstract_browser
             logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
 
     }
+
+
+    @Override // Feature_change_target
+    public void update(Feature feature, boolean new_val)
+    {
+        monitor();
+
+    }
+
     //**********************************************************
     @Override // Abstract_browser
     public void monitor()
     //**********************************************************
     {
-        monitor_folder();
+        Feature_cache.register_for(Feature.Monitor_folders,this);
+        boolean monitor_this_folder = false;
+
+        // ALWAYS monitor external drives
+        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(path_list_provider.get_folder_path(), logger);
+
+        if (!monitor_this_folder)
+        {
+            if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name()))
+            {
+                monitor_this_folder = true;
+            }
+        }
+
+        if (monitor_this_folder)
+        {
+            Runnable r = () -> {
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, Shared_services.shared_services_aborter, logger);
+                if (filesystem_item_modification_watcher == null)
+                {
+                    logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
+                }
+                else
+                {
+                    logger.log("Started monitoring folder " + path_list_provider.get_folder_path());
+
+                }
+            };
+            Actor_engine.execute(r, logger);
+        }
+        else
+        {
+            if ( filesystem_item_modification_watcher != null)
+            {
+                logger.log("Stopped monitoring folder " + path_list_provider.get_folder_path());
+                filesystem_item_modification_watcher.cancel();
+            }
+        }
     }
 
     //**********************************************************
@@ -128,35 +174,6 @@ public class Browser extends Abstract_browser
         return path_list_provider.get_name();
     }
 
-
-    //**********************************************************
-    private void monitor_folder()
-    //**********************************************************
-    {
-        boolean monitor_this_folder = false;
-
-        // ALWAYS monitor external drives
-        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(path_list_provider.get_folder_path(), logger);
-
-        if (!monitor_this_folder)
-        {
-            if (Booleans.get_boolean(Advanced_feature.Monitor_folders.name()))
-            {
-                monitor_this_folder = true;
-            }
-        }
-
-        if (monitor_this_folder) {
-            Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, Shared_services.shared_services_aborter, logger);
-                if (filesystem_item_modification_watcher == null)
-                {
-                    logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
-                }
-            };
-            Actor_engine.execute(r, logger);
-        }
-    }
 
 
 
@@ -179,7 +196,7 @@ public class Browser extends Abstract_browser
         Runnable r = () -> {
             // can be super slow on network drives or slow drives
             // (e.g. USB)  ==> run in a thread
-            int how_many_files = path_list_provider.how_many_files_and_folders(Virtual_landscape.show_hidden_files, Virtual_landscape.show_hidden_folders);
+            int how_many_files = path_list_provider.how_many_files_and_folders(Feature_cache.get(Feature.Show_hidden_files), Feature_cache.get(Feature.Show_hidden_folders));
 
             Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(name + " :     " + (long) how_many_files + " files & folders"), logger);
 

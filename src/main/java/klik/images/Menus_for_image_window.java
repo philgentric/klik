@@ -22,9 +22,8 @@ import klik.image_ml.face_recognition.Face_recognition_message;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.Advanced_feature;
+import klik.properties.features.Feature;
 import klik.properties.Booleans;
-import klik.properties.features.Experimental_feature;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -127,7 +126,7 @@ public class Menus_for_image_window
         }
 
         image_display_handler.logger.log("GIF repair2 OK");
-        Optional<Image_context> option = Image_context.get_Image_context(local_path, image_window.aborter, image_window.logger);
+        Optional<Image_context> option = Image_context.get_Image_context(local_path, image_window.port, image_window.aborter, image_window.logger);
         if (option.isEmpty()) {
             image_display_handler.logger.log("getting a new image context failed after gif repair");
         } else {
@@ -162,6 +161,7 @@ public class Menus_for_image_window
                     image_window.path_list_provider,
                     image_window.path_comparator_source,
                     false,
+                    image_window.port,
                     image_window.aborter);
         });
         return search_y;
@@ -177,6 +177,7 @@ public class Menus_for_image_window
             image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                     image_window.path_list_provider,
                     image_window.path_comparator_source,
+                    image_window.port,
                     image_window.aborter);
         });
         return search_k;
@@ -263,7 +264,7 @@ public class Menus_for_image_window
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
              New_window_context.additional_no_past(
-                     image_window.image_display_handler.get_image_context().get().path.getParent(),
+                     image_window.port, image_window.image_display_handler.get_image_context().get().path.getParent(),
                      image_window.logger);
         });
         return browse;
@@ -295,7 +296,7 @@ public class Menus_for_image_window
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.logger);
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.port,image_window.logger);
             if ( recognition_services == null) return;
 
             AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -317,7 +318,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage,image_window.logger);
+        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage,image_window.port,image_window.logger);
         if (recognition_services == null) return;
 
         Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
@@ -346,7 +347,7 @@ public class Menus_for_image_window
             if (new_high_quality != image_window.image_display_handler.alternate_rescaler)
             {
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                Optional<Image_context> option = build_Image_context(new_high_quality, image_window.image_display_handler.get_image_context().get().path, image_window.aborter, image_window.logger);
+                Optional<Image_context> option = build_Image_context(new_high_quality, image_window.image_display_handler.get_image_context().get().path, image_window.port, image_window.aborter, image_window.logger);
                 option.ifPresent(image_window::set_image);
             }
 
@@ -509,12 +510,12 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Booleans.get_boolean(Experimental_feature.Enable_different_image_scaling.name()))
+        if (Booleans.get_boolean(Feature.Enable_different_image_scaling.name()))
         {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
         }
 
-        if ( Booleans.get_boolean(Advanced_feature.Enable_image_similarity.name()))
+        if ( Booleans.get_boolean(Feature.Enable_image_similarity.name()))
         {
             context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -522,11 +523,12 @@ public class Menus_for_image_window
                     fv_cache_supplier,
                     image_window.the_Stage,
                     image_window.path_comparator_source,
+                    image_window.port,
                     image_window.aborter,
                     image_window.logger));
         }
 
-        if ( Booleans.get_boolean(Advanced_feature.Enable_face_recognition.name()))
+        if ( Booleans.get_boolean(Feature.Enable_face_recognition.name()))
         {
             String s = My_I18n.get_I18n_string("face_recognition_service", logger);
             Menu fr_context_menu = new Menu(s);

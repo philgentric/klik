@@ -10,4 +10,5 @@ public interface IProperties
     List<String> get_all_keys();
     String get_tag();
     void clear();
+    void force_reload_from_disk();
 }

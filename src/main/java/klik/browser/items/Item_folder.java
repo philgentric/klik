@@ -70,11 +70,13 @@ public class Item_folder extends Item implements Icon_destination
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
+            int port,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
         super(
+                port,
                 owner,
                 scene,
                 selection_handler,
@@ -384,6 +386,7 @@ public class Item_folder extends Item implements Icon_destination
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
             New_window_context.replace_different_folder(
+                    port,
                     shutdown_target,
                     get_item_path(),
                     owner,

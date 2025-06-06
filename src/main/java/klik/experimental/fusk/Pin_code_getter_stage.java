@@ -11,9 +11,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Actor_engine;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.properties.Booleans;
-import klik.properties.features.Debugging_feature;
+import klik.properties.features.Feature;
+import klik.properties.features.Feature_cache;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 
@@ -62,7 +62,7 @@ public class Pin_code_getter_stage
                         break;
                     }
                 }
-                client.set_pin_code( get_pin_code());
+                client.set_pin_code(get_pin_code());
 
                 logger.log("fusk signature init, pin_code="+get_pin_code());
             }
@@ -175,8 +175,8 @@ public class Pin_code_getter_stage
             disable_fusk.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    Booleans.set_boolean(Debugging_feature.Fusk_is_active.name(),false);
-                    Virtual_landscape.fusk_is_active = false;
+                    Booleans.set_boolean(Feature.Fusk_is_active.name(),false);
+                    Feature_cache.update_cached_feature(Feature.Fusk_is_active,false);
                     logger.log("fusk disabled");
                     local_stage.close();
                 }

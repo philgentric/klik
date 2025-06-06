@@ -29,7 +29,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             Image_properties_RAM_cache image_properties_cache,
-            double x, double y,
+            double x, double y, int port,
             Aborter browser_aborter,
             Logger logger_)
     //**********************************************************
@@ -93,7 +93,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         }
 
         // we "extend" each pair by looking for the closest neighbors of each pair member
-        Image_similarity similarity = new Image_similarity(path_list_provider, path_comparator_source, x,y,browser_aborter, logger);
+        Image_similarity similarity = new Image_similarity(path_list_provider, path_comparator_source, x,y,port,browser_aborter, logger);
 
         dummy_names.clear();
         int max_friend = 2;

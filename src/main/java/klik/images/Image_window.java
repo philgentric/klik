@@ -22,10 +22,10 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.properties.features.Basic_feature;
-import klik.properties.Booleans;
+import klik.properties.features.Feature;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
+import klik.properties.features.Feature_cache;
 import klik.util.files_and_paths.*;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.fusk.Fusk_strings;
@@ -71,18 +71,19 @@ public class Image_window
     Path_list_provider path_list_provider;
     public Path_comparator_source path_comparator_source;
 
+    public final int port;
 
     //**********************************************************
-    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
+    public static Image_window get_Image_window(int port, Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_window returned = on_same_screen(path, path_list_provider,image_comparator,aborter,logger_);
+        Image_window returned = on_same_screen(port, path, path_list_provider,image_comparator,aborter,logger_);
 
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
+    private static Image_window on_same_screen(int port,Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
     //**********************************************************
     {
 
@@ -92,7 +93,7 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window( path, x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
+        Image_window returned = new Image_window(port, path, x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -101,6 +102,7 @@ public class Image_window
 
     //**********************************************************
     public Image_window(
+            int port,
             Path first_image_path,
             double x, double y,
             double w, double h,
@@ -112,6 +114,7 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
+        this.port = port;
         this.aborter = aborter;
         this. path_list_provider = path_list_provider;
         this.title_optional_addendum = title_optional_addendum;
@@ -155,9 +158,8 @@ public class Image_window
         the_Stage.show();
         {
             Image_window local = this;
-            boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Basic_feature.Use_escape_to_close_windows.name());
             the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, exit_on_escape_preference, keyEvent, logger));
+                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
         }
 
         boolean high_quality = false;
@@ -172,11 +174,11 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
             long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, aborter, logger);
+            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, port,aborter, logger);
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, port,aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -573,7 +575,7 @@ public class Image_window
             the_image_Pane.setRotate(rot);
 
             boolean normal = true;
-            if (Virtual_landscape.dont_zoom_small_images)
+            if (Feature_cache.get(Feature.Dont_zoom_small_images))
             {
                 Image image = local_image_context.image;
                 double pane_height = the_image_Pane.getHeight();
@@ -634,7 +636,7 @@ public class Image_window
 
         // set the new context: keep the previous path so that multiple renames can be performed
         // and the indexer will find the right "unchanged" index
-        Image_context local_new_image_context = new Image_context(new_path, old_path, image_display_handler.get_image_context().get().image, logger);
+        Image_context local_new_image_context = new Image_context(new_path, old_path, image_display_handler.get_image_context().get().image, port, logger);
         logger.log("change_name_of_file local_new_image_context\n      previous="+local_new_image_context.previous_path+"\n      path="+local_new_image_context.previous_path);
         image_display_handler.set_image_context(local_new_image_context);
 
