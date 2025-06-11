@@ -54,6 +54,9 @@ public class Non_booleans
     public static final String FACE_RECO_DIR = "face_reco";
     private static final String AUDIO_PLAYER_CURRENT_SONG = "AUDIO_PLAYER_CURRENT_SONG";
     private static final String AUDIO_PLAYER_CURRENT_TIME = "AUDIO_PLAYER_CURRENT_TIME";
+    private static final String AUDIO_PLAYER_EQUALIZER_BAND_ = "AUDIO_PLAYER_EQUALIZER_BAND_";
+    private static final String AUDIO_PLAYER_VOLUME = "AUDIO_PLAYER_VOLUME";
+
 
 
     // cached values
@@ -69,20 +72,20 @@ public class Non_booleans
     public static IProperties get_main_properties_manager()
     //**********************************************************
     {
-        if (the_iproperties == null)
-        {
+        if (the_iproperties == null) {
             init_main_properties_manager("Iproperties aborter");
         }
         return the_iproperties;
     }
+
     //**********************************************************
     public static Aborter init_main_properties_manager(String aborter_name)
     //**********************************************************
     {
         Logger logger = new Simple_logger();
-        Aborter aborter = new Aborter(aborter_name,logger);
+        Aborter aborter = new Aborter(aborter_name, logger);
 
-        the_iproperties = new File_based_IProperties("klik",aborter,logger);
+        the_iproperties = new File_based_IProperties("klik", aborter, logger);
         return aborter;
     }
 
@@ -91,19 +94,19 @@ public class Non_booleans
     //**********************************************************
     {
         IProperties pm = get_main_properties_manager();
-        String x_s = pm.get(key+SCREEN_TOP_LEFT_X);
+        String x_s = pm.get(key + SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
 
-        String y_s = pm.get(key+SCREEN_TOP_LEFT_Y);
+        String y_s = pm.get(key + SCREEN_TOP_LEFT_Y);
         if (y_s == null) return default_rectangle();
         double y = Double.parseDouble(y_s);
 
-        String w_s = pm.get(key+SCREEN_WIDTH);
+        String w_s = pm.get(key + SCREEN_WIDTH);
         if (w_s == null) return default_rectangle();
         double w = Double.parseDouble(w_s);
 
-        String h_s = pm.get(key+SCREEN_HEIGHT);
+        String h_s = pm.get(key + SCREEN_HEIGHT);
         if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
 
@@ -115,14 +118,13 @@ public class Non_booleans
     //**********************************************************
     {
         Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-        if ( dbg) logger.log("saving bounds="+r);
+        if (dbg) logger.log("saving bounds=" + r);
         IProperties pm = get_main_properties_manager();
-        pm.set(key+ SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
-        pm.set(key+ SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
-        pm.set(key+ SCREEN_WIDTH, String.valueOf(r.getWidth()));
-        pm.set(key+ SCREEN_HEIGHT, String.valueOf(r.getHeight()));
+        pm.set(key + SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
+        pm.set(key + SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
+        pm.set(key + SCREEN_WIDTH, String.valueOf(r.getWidth()));
+        pm.set(key + SCREEN_HEIGHT, String.valueOf(r.getHeight()));
     }
-
 
 
     //**********************************************************
@@ -159,7 +161,6 @@ public class Non_booleans
     }
 
 
-
     //**********************************************************
     public static int get_column_width()
     //**********************************************************
@@ -184,8 +185,6 @@ public class Non_booleans
         column_width = l;
         get_main_properties_manager().set(COLUMN_WIDTH, String.valueOf(column_width));
     }
-
-
 
 
     //**********************************************************
@@ -225,7 +224,6 @@ public class Non_booleans
     }
 
 
-
     //**********************************************************
     public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes)
     //**********************************************************
@@ -239,15 +237,12 @@ public class Non_booleans
     {
         int warning_megabytes = DEFAULT_SIZE_WARNING_MEGABYTES;
         String warning_bytes_s = get_main_properties_manager().get(DISK_CACHE_SIZE_WARNING_MEGABYTES);
-        if (warning_bytes_s != null)
-        {
-            warning_megabytes = (int)Double.parseDouble(warning_bytes_s);
+        if (warning_bytes_s != null) {
+            warning_megabytes = (int) Double.parseDouble(warning_bytes_s);
         }
         get_main_properties_manager().set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
         return warning_megabytes;
     }
-
-
 
 
     //**********************************************************
@@ -259,7 +254,6 @@ public class Non_booleans
     }
 
 
-
     //**********************************************************
     public static void set_folder_icon_size(int target_size)
     //**********************************************************
@@ -267,7 +261,6 @@ public class Non_booleans
         folder_icon_size = target_size;
         get_main_properties_manager().set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
     }
-
 
 
     static double font_size_cache = -1.0;
@@ -280,8 +273,7 @@ public class Non_booleans
         double font_size = 16; // this is the default immediately after installing or after erasing properties
         // first time, we look it up on disk
         String font_size_s = get_main_properties_manager().get(FONT_SIZE);
-        if (font_size_s != null)
-        {
+        if (font_size_s != null) {
             try {
                 font_size = Double.parseDouble(font_size_s);
             } catch (NumberFormatException e) {
@@ -302,7 +294,6 @@ public class Non_booleans
         font_size_cache = target_size;
         get_main_properties_manager().set(FONT_SIZE, String.valueOf(target_size));
     }
-
 
 
     //**********************************************************
@@ -326,8 +317,7 @@ public class Non_booleans
     }
 
 
-    public static void force_reload_from_disk()
-    {
+    public static void force_reload_from_disk() {
         get_main_properties_manager().force_reload_from_disk();
     }
 
@@ -367,44 +357,38 @@ public class Non_booleans
         if (dbg) logger.log("dir_name=" + relative_dir_name);
         String home = System.getProperty(USER_HOME);
         if (dbg) logger.log("user home =" + home);
-        return from_top_folder(home, relative_dir_name,can_fail, logger);
+        return from_top_folder(home, relative_dir_name, can_fail, logger);
     }
-
 
 
     //**********************************************************
     public static Path from_top_folder(String top_folder, String relative_dir_name, boolean can_fail, Logger logger)
     //**********************************************************
     {
-        Path conf_dir1 = Paths.get(top_folder,CONF_DIR);
-        if (!conf_dir1.toFile().exists())
-        {
+        Path conf_dir1 = Paths.get(top_folder, CONF_DIR);
+        if (!conf_dir1.toFile().exists()) {
             try {
                 Files.createDirectory(conf_dir1);
             } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed "+e;
-                if ( can_fail)
-                {
+                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed " + e;
+                if (can_fail) {
                     logger.log(err);
                     return null;
                 }
-                Popups.popup_Exception(e,300,err,logger);
+                Popups.popup_Exception(e, 300, err, logger);
                 return null;
             }
         }
 
         // do it deeper, this way icons don't show up in $home/.klik to avoid privacy violation when browsing $home
 
-        Path conf_dir2 = Paths.get(conf_dir1.toString(),CONF_DIR+"_privacy_screen");
-        if (!conf_dir2.toFile().exists())
-        {
-            try
-            {
+        Path conf_dir2 = Paths.get(conf_dir1.toString(), CONF_DIR + "_privacy_screen");
+        if (!conf_dir2.toFile().exists()) {
+            try {
                 Files.createDirectory(conf_dir2);
-            } catch (IOException e)
-            {
+            } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e,300,err,logger);
+                Popups.popup_Exception(e, 300, err, logger);
                 return null;
             }
         }
@@ -412,16 +396,13 @@ public class Non_booleans
 
         Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
         if (dbg) logger.log("get_dir returns=" + returned.toAbsolutePath());
-        if (!Files.exists(returned))
-        {
+        if (!Files.exists(returned)) {
             try {
                 Files.createDirectory(returned);
                 return returned;
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e, 300,err,logger);
+                Popups.popup_Exception(e, 300, err, logger);
                 return null;
             }
         }
@@ -439,20 +420,18 @@ public class Non_booleans
     {
 
         Path full_path = for_this.toAbsolutePath();
-        if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes")))
-        {
+        if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes"))) {
             // this is MacOS...
-            logger.log("get_trash_dir "+ for_this.toAbsolutePath());
-            Path volume = get_MacOS_volume(for_this,logger);
-            if ( volume == null) {
-                logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath() +" fails");
+            logger.log("get_trash_dir " + for_this.toAbsolutePath());
+            Path volume = get_MacOS_volume(for_this, logger);
+            if (volume == null) {
+                logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
             }
-            return from_top_folder(volume.toString(),TRASH_DIR,true, logger);
+            return from_top_folder(volume.toString(), TRASH_DIR, true, logger);
         }
 
-        Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR,false,logger);
-        if ( trash_dir == null)
-        {
+        Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, logger);
+        if (trash_dir == null) {
             logger.log("PANIC: trash dir unknown");
             return null;
         }
@@ -467,23 +446,19 @@ public class Non_booleans
         //logger.log("get_MacOS_volume ENTRY = "+for_this);
 
         Path volume = for_this.toAbsolutePath();
-        for(;;)
-        {
+        for (; ; ) {
             Path test = volume.getParent();
-            if ( test == null)
-            {
+            if (test == null) {
                 //logger.log("get_MacOS_volume test == null ");
                 break;
             }
-            if ( test.getFileName() == null)
-            {
+            if (test.getFileName() == null) {
                 //logger.log("get_MacOS_volume test == null ");
                 break;
             }
             //logger.log("get_MacOS_volume testing "+test);
-            if ( test.toString().equals("/Volumes"))
-            {
-                logger.log("get_MacOS_volume returning "+volume);
+            if (test.toString().equals("/Volumes")) {
+                logger.log("get_MacOS_volume returning " + volume);
                 return volume;
             }
             volume = volume.getParent();
@@ -500,36 +475,29 @@ public class Non_booleans
     //**********************************************************
     {
         List<Path> trashes = new ArrayList<>();
-        for ( File f : File.listRoots())
-        {
+        for (File f : File.listRoots()) {
             //logger.log("root ->"+f+"<-");
-            if ( f.toString().equals("/"))
-            {
-                Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR,false,logger);
+            if (f.toString().equals("/")) {
+                Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, logger);
                 trashes.add(trash_dir);
                 // unix system...
-                Path volumes = Path.of("/","Volumes");
+                Path volumes = Path.of("/", "Volumes");
                 File[] files = volumes.toFile().listFiles();
-                if ( files == null) continue;
-                for ( File ff : files)
-                {
-                    if ( ff.isDirectory())
-                    {
-                        Path test = Path.of(ff.toPath().toString(),".klik");
+                if (files == null) continue;
+                for (File ff : files) {
+                    if (ff.isDirectory()) {
+                        Path test = Path.of(ff.toPath().toString(), ".klik");
                         if (Files.exists(test)) {
                             trashes.add(test);
                         }
                     }
                 }
-            }
-            else
-            {
-                if ( f.getName().startsWith("C:")) {
-                    Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR,false,logger);
+            } else {
+                if (f.getName().startsWith("C:")) {
+                    Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, logger);
                     trashes.add(trash_dir);
-                }
-                else {
-                    Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR,true, logger);
+                } else {
+                    Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR, true, logger);
                     trashes.add(trash_dir);
                     logger.log("WARNING: untested trash on windows drives !!!!");
                 }
@@ -559,30 +527,85 @@ public class Non_booleans
     }
 
     static int previous = -1;
+
     //**********************************************************
     public static void save_curent_time_in_song(int time)
     //**********************************************************
     {
-        if ( previous > 0)
-        {
-            if ( previous/10 == time/10) return;
+        if (previous > 0) {
+            if (previous / 10 == time / 10) return;
         }
         previous = time;
         //logger.log("save_curent_time_in_song "+time);
         IProperties pm = get_main_properties_manager();
-        pm.set(AUDIO_PLAYER_CURRENT_TIME, ""+time);
+        pm.set(AUDIO_PLAYER_CURRENT_TIME, "" + time);
 
     }
 
 
     //**********************************************************
-    public static Integer get_current_time_in_song ()
+    public static Integer get_current_time_in_song(Logger logger)
     //**********************************************************
     {
         IProperties pm = get_main_properties_manager();
-        String s =  pm.get(AUDIO_PLAYER_CURRENT_TIME);
-        if ( s == null) return 0;
-        return Integer.parseInt(s);
+        String s = pm.get(AUDIO_PLAYER_CURRENT_TIME);
+        if (s == null) return 0;
+        int returned = 0;
+        try {
+            returned = Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            logger.log("WARNING: cannot parse player current time->" + s + "<-");
+        }
+        return returned;
     }
 
+    //**********************************************************
+    public static double get_equalizer_value_for_band(int i, Logger logger)
+    //**********************************************************
+    {
+        IProperties pm = get_main_properties_manager();
+        String s = pm.get(AUDIO_PLAYER_EQUALIZER_BAND_ + i);
+        if (s == null) return 0;
+
+        double value = 0;
+        try {
+            value = Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            logger.log("WARNING: cannot parse equalizer value for band " + i + "->" + s + "<-");
+        }
+        return value;
+    }
+
+    //**********************************************************
+    public static void save_equalizer_value_for_band(int i, double value)
+    //**********************************************************
+    {
+        IProperties pm = get_main_properties_manager();
+        pm.set(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
+    }
+
+    //**********************************************************
+    public static void save_audio_volume(double value)
+    //**********************************************************
+    {
+        IProperties pm = get_main_properties_manager();
+        pm.set(AUDIO_PLAYER_VOLUME, "" + value);
+    }
+
+    //**********************************************************
+    public static double get_audio_volume(Logger logger)
+    //**********************************************************
+    {
+        IProperties pm = get_main_properties_manager();
+        String s = pm.get(AUDIO_PLAYER_VOLUME);
+        if (s == null) return 0.5;
+
+        double value = 0;
+        try {
+            value = Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            logger.log("WARNING: cannot parse volume->" + s + "<-");
+        }
+        return value;
+    }
 }

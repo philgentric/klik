@@ -65,7 +65,7 @@ Klik browser window display icons for still images, animated gifs are displayed 
 
 Klik image windows supports jpeg, png, gif, animated gif, bmp, wbmp.
 
-Klik includes a (minimal) audio player with play lists!-)
+Klik includes an audio player with play lists that can load music from folders and import youtube URls 
 
 Klik relies on your default system applications for:
 - video play

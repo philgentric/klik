@@ -350,7 +350,8 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path()))
             {
                 logger.log("opening audio playlist: " + get_item_path().toAbsolutePath());
-                Audio_player.play_playlist(get_item_path().toFile(),logger);
+                //Audio_player.play_playlist(get_item_path().toFile(),logger);
+                Audio_player.play_play_list_in_separate_process(get_item_path().toFile(),logger);
                 return;
             }
             if (Feature_cache.get(Feature.Enable_image_playlists))

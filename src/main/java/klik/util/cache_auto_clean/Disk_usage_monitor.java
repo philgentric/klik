@@ -84,7 +84,7 @@ public class Disk_usage_monitor
                 if ( !monitored_folder.auto_delete)
                 {
                     Popups.popup_warning(owner,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
-                            "Consider clearing it...(using Files/Clean menu item)\n" +
+                            "Consider clearing it...\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
                             true,logger);
                     continue;
@@ -105,7 +105,7 @@ public class Disk_usage_monitor
                 if ( !warning_issued)
                 {
                     Popups.popup_warning(owner,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
-                            "Consider clearing it...(using Files/Clean menu item)\n" +
+                            "Consider clearing it...\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
                             true,logger);
                     warning_issued = true;

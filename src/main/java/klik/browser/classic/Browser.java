@@ -213,10 +213,12 @@ public class Browser extends Abstract_browser implements Feature_change_target
     //**********************************************************
     {
 
-        if (!my_Stage.the_Stage.isShowing()) {
-            logger.log("you_receive_this_because_a_file_event_occurred_somewhere event ignored");
-            return;
-        }
+        if ( virtual_landscape.change_events_off) return;
+        //if (!my_Stage.the_Stage.isShowing())
+        //{
+        //    logger.log("you_receive_this_because_a_file_event_occurred_somewhere event ignored");
+        //    return;
+        //}
 
         logger.log("Browser for: "+path_list_provider.get_folder_path()+ ", CHANGE GANG CALL received");
 
@@ -244,7 +246,6 @@ public class Browser extends Abstract_browser implements Feature_change_target
                 logger.log("redraw_fx due to change gang");
                 virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
             }
-            ;
             break;
             case one_new_file, one_file_gone: {
                 if (dbg) logger.log("CHANGE GANG received: Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);

@@ -39,8 +39,8 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         the_Slider = new Slider(min,max,val);//Virtual_landscape.landscape_height);
 
         the_Slider.setOrientation(Orientation.VERTICAL);
-        the_Slider.toFront();
-        the_Slider.setVisible(true);
+        //the_Slider.toFront();
+        //the_Slider.setVisible(true);
 
         adapt_slider_to_scene(stage);
 

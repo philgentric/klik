@@ -130,6 +130,7 @@ public class Item_file_with_icon extends Item_file
                     context_menu.show(image_view, event.getScreenX(), event.getScreenY());
                     return;
                 }
+                // meta is control on windows and 'command' in macos
                 if (event.isMetaDown()) {
                     Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",owner, path, false, path_list_provider, logger);
                     if (option.isEmpty()) {

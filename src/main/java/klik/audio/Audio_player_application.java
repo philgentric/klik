@@ -12,6 +12,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.Sys_init;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -19,6 +20,7 @@ import klik.util.tcp.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
 //**********************************************************
 public class Audio_player_application extends Application
@@ -55,7 +57,9 @@ public class Audio_player_application extends Application
         init(context);
     }
 
+    //**********************************************************
     private void init(Start_context context)
+    //**********************************************************
     {
         logger.log("Audio_player_application starts");
 
@@ -77,7 +81,7 @@ public class Audio_player_application extends Application
             Start_context.send_started(context, logger);
         }
         Audio_player.init_ui(Shared_services.shared_services_aborter, logger);
-        Audio_player.play_this_song(f, logger);
+        Audio_player.play_this(f, logger);
     }
 
     //**********************************************************
@@ -113,9 +117,9 @@ public class Audio_player_application extends Application
                     }
                     else
                     {
-                        Audio_player.play_this_song(received, logger);
                         TCP_util.write_string(PLAY_REQUEST_ACCEPTED, dos);
                         dos.flush();
+                        Audio_player.play_this(received, logger);
                     }
                     logger.log("Audio_player_application server accepted file for playing");
                 }

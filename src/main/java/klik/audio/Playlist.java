@@ -16,6 +16,7 @@ import klik.change.undo.Undo_item;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -204,6 +205,7 @@ public class Playlist
             List<String> oks = new ArrayList<>();
             for (String path : the_list)
             {
+
                 File f = new File(path);
                 if (f.isDirectory())
                 {
@@ -224,8 +226,12 @@ public class Playlist
                 if ( !the_playlist.contains(o.new_Path.toAbsolutePath().toString()))
                 {
                     finaly.add(o.new_Path.toAbsolutePath().toString());
-                    last = o.new_Path.toAbsolutePath().toString();
                 }
+                else
+                {
+                    logger.log(o.new_Path.toAbsolutePath().toString()+" not added = already there!");
+                }
+                last = o.new_Path.toAbsolutePath().toString();
             }
             for ( String f : oks)
             {
@@ -247,6 +253,7 @@ public class Playlist
         Actor_engine.execute(r, logger);
 
     }
+
 
 
     //**********************************************************
@@ -353,7 +360,7 @@ public class Playlist
             else
             {
                 new_song = path;
-                current_time_s = Non_booleans.get_current_time_in_song();
+                current_time_s = Non_booleans.get_current_time_in_song(logger);
             }
             if (new_song == null)
             {
@@ -439,6 +446,28 @@ public class Playlist
         String parent = (new File(song)).getParent();
         String file_name = (new File(song)).getName();
         String new_name = Static_files_and_paths_utilities.get_base_name(file_name);
+
+        char[] x = new_name.toCharArray();
+        new_name = "";
+        boolean last_was_underscore = true; //avoid leading underscores
+        for ( char c:x)
+        {
+            if (is_allowed(c))
+            {
+                new_name += c;
+                last_was_underscore = false;
+            }
+            else
+            {
+                if( !last_was_underscore)
+                {
+                    new_name += "_";
+                    last_was_underscore = true;
+                }
+            }
+        }
+        /*
+        new_name = new_name.replaceAll("\\|", "_");
         new_name = new_name.replaceAll("\\[", "_");
         new_name = new_name.replaceAll("]", "_");
         new_name = new_name.replaceAll("\\(", "_");
@@ -458,7 +487,10 @@ public class Playlist
         new_name = new_name.replaceAll(",", "_");
         new_name = new_name.replaceAll(" ", "_");
         new_name = new_name.replaceAll("_+", "_");
-        new_name = new_name.toLowerCase();
+        */
+        //new_name = new_name.toLowerCase();
+
+
         new_name = new_name + "." + Static_files_and_paths_utilities.get_extension(file_name);
 
 
@@ -470,6 +502,18 @@ public class Playlist
 
         out.add(new Old_and_new_Path(Path.of(song), Path.of(parent, new_name),Command_old_and_new_Path.command_rename,Status_old_and_new_Path.before_command,false));
 
+    }
+
+    //**********************************************************
+    private static boolean is_allowed(char c)
+    //**********************************************************
+    {
+        int i = (int) c;
+        if ((i>= 48) &&( i <= 57)) return true; // numbers 0-9
+        if ((i>= 65) &&( i <= 90)) return true; // uppercase A-Z
+        if ((i>= 97) &&( i <= 122)) return true; //lowercase a-z
+        if (i == 95) return true; // underscore
+        return false;
     }
 
     //**********************************************************

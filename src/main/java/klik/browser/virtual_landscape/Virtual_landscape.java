@@ -1903,6 +1903,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Each_Folder_Total_Size",event -> show_total_size_deep_in_each_folder()));
         view_menu.getItems().add(browser_menus.make_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage()));
         view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> redraw_fx("refresh")));
+        if( !change_events_off) view_menu.getItems().add(browser_menus.make_menu_item("Disable_change_events",event -> change_events_off = true));
+        if( change_events_off) view_menu.getItems().add(browser_menus.make_menu_item("Enable_change_events",event -> change_events_off = false));
 
 
         view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(logger)));
@@ -1915,6 +1917,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         return view_menu;
     }
+
+    public boolean change_events_off = false;
+
 
     //**********************************************************
     private ContextMenu define_contextmenu_files()

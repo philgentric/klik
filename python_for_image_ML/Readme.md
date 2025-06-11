@@ -39,7 +39,8 @@ pip install tensorflow-macos
 
 pip install tensorflow-metal
 
-cd ./python_for_face_reco
+(assuming your shell is in the klik source code home directory:)
+cd ./python_for_image_ML
 
 pip install -r requirements.txt
 

@@ -19,15 +19,20 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.Drag_and_drop;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Show_running_film_frame;
 
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+
 
 //**********************************************************
 public class Audio_player_FX_UI implements Music_UI
@@ -237,7 +242,7 @@ public class Audio_player_FX_UI implements Music_UI
     private Button define_landing_zone_button()
     //**********************************************************
     {
-        Button landing_zone = new Button("Drop new music files or folders here");
+        Button landing_zone = new Button("Drop music files or folders here\nOr paste youtube URLs");
         Look_and_feel_manager.set_button_look(landing_zone, true);
         landing_zone.setMinHeight(100);
         BackgroundFill background_fill = new BackgroundFill(Color.LIGHTCORAL, CornerRadii.EMPTY, Insets.EMPTY);
@@ -419,14 +424,15 @@ public class Audio_player_FX_UI implements Music_UI
         HBox hbox = define_volume_hbox();
         returned.getChildren().add(hbox);
 
-        Button mute = new Button(My_I18n.get_I18n_string("Mute",logger));
+        String mute_string = My_I18n.get_I18n_string("Mute",logger);
+        Button mute = new Button(mute_string);
         Look_and_feel_manager.set_button_look(mute,true);
         mute.setOnAction(_ -> {
             MediaPlayer mp = the_media_player_option.get();
             if ( mp.isMute())
             {
                 mp.setMute(false);
-                mute.setText("Mute");
+                mute.setText(mute_string);
             }
             else
             {
@@ -451,13 +457,15 @@ public class Audio_player_FX_UI implements Music_UI
         iv.setFitWidth(20);
         volume_hbox.getChildren().add(iv);
 
-        Slider volume_slider = new Slider(0, 1, 0.5);
+        volume = Non_booleans.get_audio_volume(logger);
+        Slider volume_slider = new Slider(0, 1, volume);
         volume_slider.setMinWidth(30);
         volume_hbox.getChildren().add(volume_slider);
         volume_slider.valueProperty().addListener((observableValue, number, t1) -> {
             if (the_media_player_option.isEmpty()) return;
             volume = volume_slider.getValue();
             the_media_player_option.get().setVolume(volume);
+            Non_booleans.save_audio_volume(volume);
         });
         return volume_hbox;
     }
@@ -694,8 +702,9 @@ public class Audio_player_FX_UI implements Music_UI
                 s.valueProperty().removeListener((ChangeListener<? super Number>) listener);
 
                 listener = (ov, old_val_, new_val_) -> {
-                    double slider = new_val_.doubleValue();
-                    equalizer_bands.get(finalI).setGain(slider);
+                    double slider_value = new_val_.doubleValue();
+                    equalizer_bands.get(finalI).setGain(slider_value);
+                    Non_booleans.save_equalizer_value_for_band(finalI, slider_value);
                 };
                 s.valueProperty().addListener(listener);
                 listeners.add(listener);
@@ -703,21 +712,17 @@ public class Audio_player_FX_UI implements Music_UI
         }
         else
         {
+
             double MIN = -24;
             double MAX = 12;
-            double DEFAULT = 0;
-            double LEFT= 20;
-            double y= 100;
             int how_many_rectangles = equalizer_bands.size();
-            double w = 10;
-            double x = LEFT;
             for (int i = 0; i < how_many_rectangles; i++)
             {
-                Slider s = new Slider(MIN, MAX, DEFAULT);
+                double value = Non_booleans.get_equalizer_value_for_band(i,logger);
+                Slider s = new Slider(MIN, MAX, value);
                 s.setMinHeight(100);
                 s.setMinWidth(30);
                 s.setOrientation(Orientation.VERTICAL);
-                x += w;
                 the_equalizer_hbox.getChildren().add(s);
                 int finalI = i;
                 ChangeListener<? super Number>  listener = (ov, old_val_, new_val_) -> {
@@ -742,15 +747,11 @@ public class Audio_player_FX_UI implements Music_UI
     {
         Button reset_button = new Button(My_I18n.get_I18n_string("Reset_Equalizer",logger));
         Look_and_feel_manager.set_button_look(reset_button,true);
-        reset_button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent)
-            {
-                for (int i = 0; i < equalizer_bands.size(); i++)
-                {
-                    equalizer_bands.get(i).setGain(0.0);
-                    sliders.get(i).setValue(0.0);
-                }
+        reset_button.setOnAction(actionEvent -> {
+            for (int i = 0; i < equalizer_bands.size(); i++) {
+                equalizer_bands.get(i).setGain(0.0);
+                sliders.get(i).setValue(0.0);
+                Non_booleans.save_equalizer_value_for_band(i, 0.0);
             }
         });
         return reset_button;
@@ -945,10 +946,45 @@ public class Audio_player_FX_UI implements Music_UI
     void handle_keyboard(final KeyEvent key_event, Logger logger)
     //**********************************************************
     {
+        if ( keyword_dbg) logger.log("Audio_player_FX_UI KeyEvent="+key_event);
 
-        if ( keyword_dbg) logger.log("Image_stage KeyEvent="+key_event);
+        if (key_event.isMetaDown() && key_event.getCode() == KeyCode.V) {
+            // user is pasting some text, typicalky youtube URL
+            System.out.println("Meta + V pressed");
+            try {
+                // Get the system clipboard
+                Clipboard clipboard = Clipboard.getSystemClipboard();
 
-        logger.log("Image_stage KeyEvent.code"+key_event.getCode());
+                if (clipboard.hasContent(DataFormat.PLAIN_TEXT)) {
+                    String content = clipboard.getString();
+                    System.out.println("Clipboard Content: " + content);
+                    Runnable r = () -> {
+                        Hourglass x = Show_running_film_frame.show_running_film(
+                                stage,
+                                stage.getX()+100,
+                                stage.getY()+100,
+                                "Importing audio tracks",
+                                30*60,
+                                aborter,
+                                logger);
+                        List<String> file_names = import_from_youtube(content);
+                        x.close();
+                        if ( !file_names.isEmpty())
+                        {
+                            Platform.runLater(() -> playlist.user_wants_to_add_songs(file_names));
+                        }
+                    };
+                    Actor_engine.execute(r,logger);
+                } else {
+                    System.out.println("No text content in clipboard");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error accessing clipboard");
+            }
+        }
+
+
         switch (key_event.getCode())
         {
             case F7:
@@ -1007,6 +1043,41 @@ public class Audio_player_FX_UI implements Music_UI
 
         key_event.consume();
 
+    }
+
+
+    //**********************************************************
+    private List<String> import_from_youtube(String youtube_url)
+    //**********************************************************
+    {
+        //yt-dlp -x --audio-format aac --audio-quality 0 https://youtu.be/3DB-uJ0TxKQ
+
+        logger.log("going to extract audio tracks from URl:"+youtube_url);
+
+        List<String> cmds = new ArrayList<>();
+        cmds.add("yt-dlp");
+        cmds.add("-x");
+        cmds.add("--audio-format");
+        cmds.add("aac");
+        cmds.add("--audio-quality");
+        cmds.add("0");
+        cmds.add(youtube_url);
+
+        StringBuilder sb = new StringBuilder();
+        String home = System.getProperty(Non_booleans.USER_HOME);
+        Execute_command.execute_command_list(cmds, new File(home), 20 * 1000, sb, logger);
+        logger.log(sb.toString());
+
+        List<String> returned = new ArrayList<>();
+        String detector = "[ExtractAudio] Destination:";
+        for ( String l : sb.toString().split("\n"))
+        {
+            if (l.startsWith(detector))
+            {
+                returned.add(home+ File.separator+l.substring(detector.length()).trim());
+            }
+        }
+        return returned;
     }
 
     //**********************************************************
