@@ -100,7 +100,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         init(context,this,"klik");
 
         //if ( dbg)
-            logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
+            logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
 
     }
 

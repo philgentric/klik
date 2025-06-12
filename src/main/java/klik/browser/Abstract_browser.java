@@ -120,7 +120,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         my_Stage.the_Stage.setHeight(height);
         my_Stage.the_Stage.show();
 
-        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK);
+        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK,logger);
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         //History_engine.get_instance(logger).add(get_name());
         History_engine.get(aborter,logger).add(get_name());
@@ -209,7 +209,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         if (filesystem_item_modification_watcher != null) filesystem_item_modification_watcher.cancel();
 
         Feature_cache.deregister_for_all(virtual_landscape);
-        Feature_cache.string_deregister_for(Non_booleans.LANGUAGE_KEY,virtual_landscape);
+        Feature_cache.string_deregister_all(virtual_landscape);
 
         virtual_landscape.stop_scan();
         //the_Pane.getChildren().clear();

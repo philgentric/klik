@@ -224,7 +224,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu);
+        Look_and_feel_manager.set_context_menu_look(context_menu,logger);
         Path local_path = get_item_path();
         if (Files.isDirectory(local_path))
         {
@@ -617,19 +617,19 @@ public abstract class Item implements Icon_destination
                 {
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                    Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color);
+                    Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color,logger);
                 }
                 if ( this instanceof Item_folder itf)
                 {
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                    Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color);
+                    Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color,logger);
                 }
                 if ( this instanceof Item_folder_with_icon itfwi)
                 {
                     double font_size = Non_booleans.get_font_size( logger);
                     double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                    Look_and_feel_manager.set_button_look_as_folder(itfwi.button, icon_height, color);
+                    Look_and_feel_manager.set_button_look_as_folder(itfwi.button, icon_height, color,logger);
                 }
             }
         });

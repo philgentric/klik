@@ -140,7 +140,6 @@ public class Klik_application extends Application
         Print_system_info.print();
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
-        Look_and_feel_manager.init_Look_and_feel(logger);
 
         Path path = null;
         if ( context.path() != null)

@@ -298,7 +298,7 @@ public class From_disk
         if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB)
         {
             logger.log("load_icon_from_cache_fx WARNING: running low on memory ! loading default icon");
-            return Look_and_feel_manager.get_default_icon(icon_size);
+            return Look_and_feel_manager.get_default_icon(icon_size,logger);
         }
         File f = file_for_icon_caching(cache_dir,original_image_file,tag, extension);
         if (dbg) logger.log("load_icon_from_disk file is:"+f.getAbsolutePath()+" for "+original_image_file);

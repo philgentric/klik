@@ -53,7 +53,7 @@ public class Importer
         Path new_dir = null;
 
         TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", logger));
-        Look_and_feel_manager.set_dialog_look(dialog);
+        Look_and_feel_manager.set_dialog_look(dialog,logger);
         dialog.initOwner(owner);
         dialog.setWidth(800);
         dialog.setTitle(My_I18n.get_I18n_string("New_directory", logger));

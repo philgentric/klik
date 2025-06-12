@@ -19,7 +19,7 @@ import java.util.List;
 public class Disk_usage_monitor
 //**********************************************************
 {
-
+    private static final boolean dbg = false;
     public static final String TRASH_FOLDER = "Trash folder";
     public final Logger logger;
     public final Window owner;
@@ -40,7 +40,7 @@ public class Disk_usage_monitor
 
         for (Cache_folder cache_folder : Cache_folder.values())
         {
-            logger.log("starting Disk_usage_monitor for :" + cache_folder);
+            if(dbg) logger.log("starting Disk_usage_monitor for :" + cache_folder);
             Path ff = Static_files_and_paths_utilities.get_cache_folder(cache_folder, logger);
             Monitored_folder tt = new Monitored_folder(cache_folder.name(), ff, true);
             monitored_folders.add(tt);

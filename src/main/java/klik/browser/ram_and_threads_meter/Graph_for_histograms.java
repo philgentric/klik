@@ -81,7 +81,7 @@ public class Graph_for_histograms
                 r.setManaged(false);
                 x += w + gap;
                 r.setFill(color);
-                rectangles_of_the_curve.put(i, r);
+                rectangles_of_the_curve.put(Integer.valueOf(i), r);
                 the_hbox.getChildren().add(r);
             }
             create_v_scale(largest_count);
@@ -107,7 +107,7 @@ public class Graph_for_histograms
         double y = val_to_pix(largest_count, 0);
         min_x = new Rectangle(x_offset+LEFT+ADJUST, RAM_and_threads_meters_stage.DISPLAY_PIXEL_HEIGHT-y, 3, 20);
         min_x.setManaged(false);
-        min_x.setFill(Look_and_feel_manager.get_instance().get_foreground_color());
+        min_x.setFill(Look_and_feel_manager.get_instance(logger).get_foreground_color());
         the_hbox.getChildren().add(min_x);
 
 
@@ -122,7 +122,7 @@ public class Graph_for_histograms
         the_hbox.getChildren().remove(max_x);
         max_x = new Rectangle(x_offset+LEFT+ADJUST +how_many_rectangles *(w+gap), RAM_and_threads_meters_stage.DISPLAY_PIXEL_HEIGHT-y, 3, 20);
         max_x.setManaged(false);
-        max_x.setFill(Look_and_feel_manager.get_instance().get_foreground_color());
+        max_x.setFill(Look_and_feel_manager.get_instance(logger).get_foreground_color());
         the_hbox.getChildren().add(max_x);
 
 
@@ -185,7 +185,7 @@ public class Graph_for_histograms
             Rectangle horizontal_line = new Rectangle(x_offset +LEFT, RAM_and_threads_meters_stage.DISPLAY_PIXEL_HEIGHT-ii, WIDTH, 1);
             v_scale_bars.add(horizontal_line);
             horizontal_line.setManaged(false);
-            horizontal_line.setFill(Look_and_feel_manager.get_instance().get_foreground_color());
+            horizontal_line.setFill(Look_and_feel_manager.get_instance(logger).get_foreground_color());
             the_hbox.getChildren().add(horizontal_line);
             Text text = new Text(""+(int)val);
             v_scale_texts.add(text);

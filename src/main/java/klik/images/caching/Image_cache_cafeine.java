@@ -39,7 +39,7 @@ public class Image_cache_cafeine implements Cache_interface
                 .maximumSize(2*forward_size+1)
                 .build();
         logger = logger_;
-        logger.log("Cafeine max size = "+(2*forward_size+1));
+        if(ultra_dbg) logger.log("Cafeine max size = "+(2*forward_size+1));
         image_decoding_actor = new Image_decoding_actor_for_cache(logger);// need a single instance
     }
 

@@ -125,12 +125,12 @@ public class My_I18n
 
 
     //**********************************************************
-    public static void set_new_language(Language my_locale_codes)
+    public static void set_new_language(Language language, int port, Logger logger)
     //**********************************************************
     {
-        Non_booleans.set_language_key(my_locale_codes.name());
+        Non_booleans.set_language_key(language.name());
         instance = null;
-        Feature_cache.update_string(Non_booleans.LANGUAGE_KEY,my_locale_codes.name());
+        Feature_cache.update_string(Non_booleans.LANGUAGE_KEY,language.name(),port,logger);
     }
 
     //**********************************************************

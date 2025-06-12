@@ -292,7 +292,7 @@ public class Menus_for_image_window
             Image_window image_window)
     //**********************************************************
     {
-        MenuItem mi = new MenuItem("Perform_face_recognition_service_DIRECTLY");//My_I18n.get_I18n_string("Open", image_window.logger));
+        MenuItem mi = new MenuItem("Perform_face_recognition_service_DIRECTLY (debug)");//My_I18n.get_I18n_string("Open", image_window.logger));
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -500,7 +500,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         final ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu);
+        Look_and_feel_manager.set_context_menu_look(context_menu,logger);
         context_menu.getItems().add(manage_full_screen(image_window));
 
         List<MenuItem> l = manage_slide_show(image_window);
@@ -530,7 +530,7 @@ public class Menus_for_image_window
 
         if ( Booleans.get_boolean(Feature.Enable_face_recognition.name()))
         {
-            String s = My_I18n.get_I18n_string("face_recognition_service", logger);
+            String s = My_I18n.get_I18n_string("Face_recognition_service", logger);
             Menu fr_context_menu = new Menu(s);
             context_menu.getItems().add(fr_context_menu);
             fr_context_menu.getItems().add(make_menu_item(
@@ -550,7 +550,7 @@ public class Menus_for_image_window
                     "Perform_face_recognition_service_with_ALT2_face_detector",
                     event -> face_rec(Face_detection_type.haars_alt2, image_window)));
 
-            context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
+            fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
         }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));

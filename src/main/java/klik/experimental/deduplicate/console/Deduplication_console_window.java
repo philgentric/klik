@@ -81,7 +81,7 @@ public class Deduplication_console_window
 
         stage.setTitle(title);
         VBox vbox = new VBox();
-        Look_and_feel_manager.set_region_look(vbox);
+        Look_and_feel_manager.set_region_look(vbox,logger);
         Scene scene = new Scene(vbox);//, w, h, Color.WHITE);
         stage.setScene(scene);
         stage.show();
@@ -95,7 +95,7 @@ public class Deduplication_console_window
             }
         });
         Button cancel = new Button("cancel");
-        Look_and_feel_manager.set_button_look(cancel,true);
+        Look_and_feel_manager.set_button_look(cancel,true,logger);
         {
             cancel.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -109,23 +109,23 @@ public class Deduplication_console_window
         vbox.getChildren().add(cancel);
         {
             label_status = new Label(STATUS);
-            Look_and_feel_manager.set_region_look(label_status);
+            Look_and_feel_manager.set_region_look(label_status,logger);
             vbox.getChildren().add(label_status);
         }
         {
             label_directory_examined = new Label();
-            Look_and_feel_manager.set_region_look(label_directory_examined);
+            Look_and_feel_manager.set_region_look(label_directory_examined,logger);
             vbox.getChildren().add(label_directory_examined);
             label_total_files_to_be_examined= new Label();
-            Look_and_feel_manager.set_region_look(label_total_files_to_be_examined);
+            Look_and_feel_manager.set_region_look(label_total_files_to_be_examined,logger);
             vbox.getChildren().add(label_total_files_to_be_examined);
             label_total_pairs_to_be_examined= new Label();
-            Look_and_feel_manager.set_region_look(label_total_pairs_to_be_examined);
+            Look_and_feel_manager.set_region_look(label_total_pairs_to_be_examined,logger);
             vbox.getChildren().add(label_total_pairs_to_be_examined);
         }
         {
             label_examined = new Label();
-            Look_and_feel_manager.set_region_look(label_examined);
+            Look_and_feel_manager.set_region_look(label_examined,logger);
 
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_examined);
@@ -135,7 +135,7 @@ public class Deduplication_console_window
         }
         if ( !just_count) {
             label_count_to_be_deleted = new Label();
-            Look_and_feel_manager.set_region_look(label_count_to_be_deleted);
+            Look_and_feel_manager.set_region_look(label_count_to_be_deleted,logger);
 
             //label_count_to_be_deleted.setWrapText(true);
             vbox.getChildren().add(label_count_to_be_deleted);
@@ -144,7 +144,7 @@ public class Deduplication_console_window
         if ( !just_count)
         {
             label_count_deleted = new Label();
-            Look_and_feel_manager.set_region_look(label_count_deleted);
+            Look_and_feel_manager.set_region_look(label_count_deleted,logger);
 
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_count_deleted);

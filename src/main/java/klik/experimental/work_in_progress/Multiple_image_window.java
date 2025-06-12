@@ -131,7 +131,7 @@ public class Multiple_image_window
         {
             //Image image = Look_and_feel_manager.get_default_icon(300);
             //if (image != null) the_stage.getIcons().add(image);
-            Look_and_feel_manager.set_icon_for_main_window(the_stage,"multi", Look_and_feel_manager.Icon_type.KLIK);
+            Look_and_feel_manager.set_icon_for_main_window(the_stage,"multi", Look_and_feel_manager.Icon_type.KLIK,logger);
         }
         the_stage.setWidth(w);
         the_stage.setHeight(h);

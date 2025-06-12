@@ -187,6 +187,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         Feature_cache.register_for_all(this);
         Feature_cache.string_register_for(Non_booleans.LANGUAGE_KEY,this);
+        Feature_cache.string_register_for(Non_booleans.STYLE_KEY,this);
 
         the_Pane = new Pane();
 
@@ -235,29 +236,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if ( key.equals(Non_booleans.LANGUAGE_KEY))
         {
             New_window_context.replace_same_folder(port,shutdown_target,path_list_provider.get_folder_path(),owner,get_top_left(),logger);
-            send_language_changed(new_value,port, logger);
+        }
+        else if ( key.equals(Non_booleans.STYLE_KEY))
+        {
+            New_window_context.replace_same_folder(port,shutdown_target,path_list_provider.get_folder_path(),owner,get_top_left(),logger);
         }
     }
 
-    //**********************************************************
-    public static void send_language_changed(String new_lang,int port, Logger logger)
-    //**********************************************************
-    {
-        if(port<0) return;
-        Runnable r = () -> send_language_changed_raw(new_lang,port, logger);
-        Actor_engine.execute(r, logger);
-    }
-
-    //**********************************************************
-    public static void send_language_changed_raw(String new_lang,int port_number, Logger logger)
-    //**********************************************************
-    {
-        if(port_number<0) return;
-
-        logger.log("virtual_landscape sending LANGUAGE_CHANGED on port: "+port_number);
-
-        TCP_client.request("localhost", port_number, Launcher.LANGUAGE_CHANGED+" "+new_lang, logger);
-    }
 
     //**********************************************************
     @Override // Selection_reporter
@@ -684,7 +669,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         Path scroll_to = Browsing_caches.scroll_position_cache_read(path_list_provider.get_folder_path());
-        logger.log("compute_geometry folder=\n"+"      "+path_list_provider.get_name()+"\n      scroll_to="+scroll_to);
+        //logger.log("scroll_to folder=\n"+"      "+path_list_provider.get_name()+"\n      scroll_to="+scroll_to);
 
         current_vertical_offset = get_y_offset_of(scroll_to);
         if ( scroll_to_listener == null)
@@ -796,14 +781,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         for ( Path path : paths_manager.iconized_paths)
         {
-            Double cache_aspect_ratio = 1.0;
+            Double cache_aspect_ratio = Double.valueOf(1.0);
             Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
             if ( ip == null) {
                 logger.log(Stack_trace_getter.get_stack_trace("warning: CACHE MISS !!"));
             }
             else
             {
-                cache_aspect_ratio = ip.get_aspect_ratio();
+                cache_aspect_ratio = (Double) ip.get_aspect_ratio();
             }
 
             Supplier<Image_feature_vector_cache> fv_cache_supplier = () ->
@@ -1633,10 +1618,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     path_list_provider.get_folder_path(),
                     logger);
             {
-                Image icon = Look_and_feel_manager.get_up_icon(height);
+                Image icon = Look_and_feel_manager.get_up_icon(height,logger);
                 if (icon == null)
-                    logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_up_icon_path());
-                Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, null,true);
+                    logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance(logger).get_up_icon_path());
+                Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, null,true,logger);
 
             }
             top_buttons.add(up_button);
@@ -1654,10 +1639,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     null,
                     logger);
             {
-                Image icon = Look_and_feel_manager.get_trash_icon(height);
+                Image icon = Look_and_feel_manager.get_trash_icon(height,logger);
                 if (icon == null)
-                    logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance().get_bookmarks_icon_path());
-                Look_and_feel_manager.set_button_and_image_look(trash, icon, height,null, true);
+                    logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance(logger).get_bookmarks_icon_path());
+                Look_and_feel_manager.set_button_and_image_look(trash, icon, height,null, true,logger);
 
             }
             top_buttons.add(trash);
@@ -1706,25 +1691,25 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         BorderPane returned = new BorderPane();
         {
             returned.setTop(top_pane);
-            Look_and_feel_manager.set_region_look(top_pane);
+            Look_and_feel_manager.set_region_look(top_pane,logger);
 
         }
         returned.setCenter(the_Pane);
         {
             VBox for_vertical_slider = new VBox();
             for_vertical_slider.getChildren().add(vertical_slider.the_Slider);
-            Look_and_feel_manager.set_region_look(for_vertical_slider);
+            Look_and_feel_manager.set_region_look(for_vertical_slider,logger);
 
             returned.setRight(for_vertical_slider);
         }
         {
             VBox the_status_bar = new VBox();
             status = new TextField(get_status());
-            Look_and_feel_manager.set_region_look(status);
+            Look_and_feel_manager.set_region_look(status,logger);
             the_status_bar.getChildren().add(status);
             returned.setBottom(the_status_bar);
         }
-        Look_and_feel_manager.set_region_look(returned);
+        Look_and_feel_manager.set_region_look(returned,logger);
         return returned;
     }
 
@@ -1748,7 +1733,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Region spacer2 = new Region();
             top_pane2.getChildren().add(spacer2);
             HBox.setHgrow(spacer2, Priority.SOMETIMES);
-            Look_and_feel_manager.set_region_look(top_pane2);
+            Look_and_feel_manager.set_region_look(top_pane2,logger);
             top_pane.getChildren().add(top_pane2);
         }
         top_pane.getChildren().add(new Separator());
@@ -1767,8 +1752,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             undo_bookmark_history_button.setOnAction(e -> button_undo_and_bookmark_and_history(e));
             top_pane.getChildren().add(undo_bookmark_history_button);
             top_buttons.add(undo_bookmark_history_button);
-            Image icon = Look_and_feel_manager.get_bookmarks_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(undo_bookmark_history_button, icon, height,null, false);
+            Image icon = Look_and_feel_manager.get_bookmarks_icon(height,logger);
+            Look_and_feel_manager.set_button_and_image_look(undo_bookmark_history_button, icon, height,null, false,logger);
         }
         {
             String files = My_I18n.get_I18n_string("Files", logger);
@@ -1776,8 +1761,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             files_button.setOnAction(e -> button_files(e));
             top_pane.getChildren().add(files_button);
             top_buttons.add(files_button);
-            Image icon = Look_and_feel_manager.get_folder_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(files_button, icon, height,null, false);
+            Image icon = Look_and_feel_manager.get_folder_icon(height,logger);
+            Look_and_feel_manager.set_button_and_image_look(files_button, icon, height,null, false,logger);
         }
         {
             String view = My_I18n.get_I18n_string("View", logger);
@@ -1785,8 +1770,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             view_button.setOnAction(e -> button_view(e));
             top_pane.getChildren().add(view_button);
             top_buttons.add(view_button);
-            Image icon = Look_and_feel_manager.get_view_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(view_button, icon, height,null, false);
+            Image icon = Look_and_feel_manager.get_view_icon(height,logger);
+            Look_and_feel_manager.set_button_and_image_look(view_button, icon, height,null, false,logger);
         }
         {
             String preferences = My_I18n.get_I18n_string("Preferences", logger);
@@ -1794,8 +1779,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             preferences_button.setOnAction(e -> button_preferences(e));
             top_pane.getChildren().add(preferences_button);
             top_buttons.add(preferences_button);
-            Image icon = Look_and_feel_manager.get_preferences_icon(height);
-            Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height,null, false);
+            Image icon = Look_and_feel_manager.get_preferences_icon(height,logger);
+            Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height,null, false,logger);
         }
     }
 
@@ -1859,7 +1844,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         ContextMenu undo_bookmark_history_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(undo_bookmark_history_menu);
+        Look_and_feel_manager.set_context_menu_look(undo_bookmark_history_menu,logger);
 
         undo_bookmark_history_menu.getItems().add(browser_menus.make_undos_menu());
         undo_bookmark_history_menu.getItems().add(browser_menus.make_bookmarks_menu());
@@ -1873,7 +1858,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         ContextMenu view_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(view_menu);
+        Look_and_feel_manager.set_context_menu_look(view_menu,logger);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
         view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(port,path_list_provider.get_folder_path(),owner,get_top_left(),logger)));
@@ -1926,7 +1911,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         ContextMenu files_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(files_menu);
+        Look_and_feel_manager.set_context_menu_look(files_menu,logger);
 
         files_menu.getItems().add(browser_menus.make_select_all_files_menu_item(logger));
         files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
@@ -2080,7 +2065,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             FileTime ft = x.creationTime();
             LocalDateTime ldt = ft.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            int year = ldt.getYear();
+            Integer year = (Integer) ldt.getYear();
             Path folder = folders.get(year);
             if (folder == null)
             {
@@ -2195,7 +2180,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", logger));
-        Look_and_feel_manager.set_dialog_look(dialog);
+        Look_and_feel_manager.set_dialog_look(dialog,logger);
         dialog.initOwner(owner);
         dialog.setWidth(owner.getWidth());
         dialog.setTitle(My_I18n.get_I18n_string("New_directory", logger));
@@ -2248,7 +2233,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         ContextMenu pref = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(pref);
+        Look_and_feel_manager.set_context_menu_look(pref,logger);
 
 
         pref.getItems().add(browser_menus.make_file_sort_method_menu());
@@ -2810,7 +2795,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void set_comparators(double x, double y)
     //**********************************************************
     {
-        logger.log("Virtual_landscape: set_comparators");
+        //logger.log("Virtual_landscape: set_comparators");
 
 
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
@@ -2830,7 +2815,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void scan_list()
     //**********************************************************
     {
-        logger.log("Virtual_landscape: scan_list");
+        //logger.log("Virtual_landscape: scan_list");
 
 
         if ( dbg) if (Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
@@ -2888,7 +2873,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void all_image_properties_acquired_4(long start, Hourglass running_film)
     //**********************************************************
     {
-        logger.log("Virtual_landscale::all_image_properties_acquired() ");
+        //logger.log("Virtual_landscale::all_image_properties_acquired() ");
         Runnable r = () -> browsing_caches.image_properties_RAM_cache.save_whole_cache_to_disk();
         Actor_engine.execute(r,logger);
 
@@ -2898,7 +2883,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
         }
         get_path_comparator();
-        logger.log("all_image_properties_acquired, going to refresh");
+        //logger.log("all_image_properties_acquired, going to refresh");
         refresh_UI("all_image_properties_acquired", running_film);
 
     }
@@ -2910,7 +2895,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         sort_iconized_items(from);
 
         Runnable r = () -> {
-            logger.log("refresh_UI_after_scan_dir " + from);
+            //logger.log("refresh_UI_after_scan_dir " + from);
             refresh_UI_on_fx_thread( from,running_film);
         };
         Jfx_batch_injector.inject(r, logger);
@@ -2925,9 +2910,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         if ( dbg) logger.log("refresh_UI_on_fx_thread from: " + from);
 
-        compute_geometry("scene_geometry_changed from: " + from,
-                //scroll_to,
-                running_film);
+        compute_geometry("scene_geometry_changed from: " + from, running_film);
 
         if (dbg) logger.log("adapt_slider_to_scene");
 
@@ -2985,7 +2968,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         double top_delta_y = 2 * Non_booleans.get_font_size(logger);
         if (error_type == Error_type.DENIED) {
-            ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size));
+            ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size,logger));
             show_error_icon(iv_denied,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
@@ -2993,7 +2976,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             return;
         }
         if (error_type == Error_type.NOT_FOUND) {
-            ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size));
+            ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size,logger));
             show_error_icon(not_found,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);
@@ -3001,7 +2984,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             return;
         }
         if (error_type == Error_type.ERROR) {
-            ImageView unknown_error = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size));
+            ImageView unknown_error = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size,logger));
             show_error_icon(unknown_error,top_delta_y);
             if ( running_film != null) running_film.close();
             the_guard.set(false);

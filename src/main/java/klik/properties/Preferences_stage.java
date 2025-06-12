@@ -6,7 +6,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.features.*;
@@ -138,7 +137,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Basic features");
-            Look_and_feel_manager.set_region_look(lab);
+            Look_and_feel_manager.set_region_look(lab,logger);
             vbox_basic.getChildren().add(lab);
         }
         for(Feature f : basic_features)
@@ -149,7 +148,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Advanced features");
-            Look_and_feel_manager.set_region_look(lab);
+            Look_and_feel_manager.set_region_look(lab,logger);
             vbox_advanced.getChildren().add(lab);
         }
         for(Feature f : advanced_features)
@@ -163,7 +162,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Experimental features");
-            Look_and_feel_manager.set_region_look(lab);
+            Look_and_feel_manager.set_region_look(lab,logger);
             vbox_experimental.getChildren().add(lab);
         }
         for(Feature f : experimental_features)
@@ -174,7 +173,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Debug");
-            Look_and_feel_manager.set_region_look(lab);
+            Look_and_feel_manager.set_region_look(lab,logger);
             vbox_debug.getChildren().add(lab);
         }
         for(Feature f : debugging_features)
@@ -196,20 +195,20 @@ public class Preferences_stage
         if ( value0 == null)
         {
             logger.log("warning, no Boolean found for: "+ bf.name());
-            value0= false;
+            value0= (Boolean) false;
             Booleans.set_boolean(bf.name(),value0);
-            Feature_cache.update_cached_feature(bf,value0);
+            Feature_cache.update_cached_boolean(bf,value0);
 
         }
         cb.setSelected(value0);
-        Look_and_feel_manager.set_CheckBox_look(cb);
+        Look_and_feel_manager.set_CheckBox_look(cb,logger);
 
         cb.setOnAction(_ ->
         {
-            Boolean value = cb.isSelected();
+            Boolean value = (Boolean) cb.isSelected();
             logger.log("Preference changing for: "+ bf.name()+ "new value:"+value);
             Booleans.set_boolean(bf.name(),value); // this will trigger a file save
-            Feature_cache.update_cached_feature(bf,value);
+            Feature_cache.update_cached_boolean(bf,value);
         });
         vbox.getChildren().add(cb);
     }

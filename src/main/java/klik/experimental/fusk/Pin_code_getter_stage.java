@@ -176,7 +176,7 @@ public class Pin_code_getter_stage
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     Booleans.set_boolean(Feature.Fusk_is_active.name(),false);
-                    Feature_cache.update_cached_feature(Feature.Fusk_is_active,false);
+                    Feature_cache.update_cached_boolean(Feature.Fusk_is_active,false);
                     logger.log("fusk disabled");
                     local_stage.close();
                 }

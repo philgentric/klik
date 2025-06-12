@@ -111,7 +111,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             long remaining_RAM = From_disk.get_remaining_memory();
             int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
             int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
-            logger.log("cache_slots="+cache_slots);
+            //logger.log("cache_slots="+cache_slots);
             if( cache_slots < 3)
             {
                 image_cache = new Image_cache_dummy(logger);
@@ -120,7 +120,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             {
                 int forward_size = cache_slots/2;
                 if ( forward_size > 10) forward_size = 10;//Image_decoding_actor_for_cache.CACHE_SIZE;
-                logger.log("forward_size="+forward_size);
+                //logger.log("forward_size="+forward_size);
 
                 image_cache = new Image_cache_cafeine(forward_size,port,aborter,logger);
             }

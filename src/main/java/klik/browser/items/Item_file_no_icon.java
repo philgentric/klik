@@ -98,7 +98,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
         button_for_a_non_image_file( text,button_width);
 
-        Look_and_feel_manager.set_button_look(button,false);
+        Look_and_feel_manager.set_button_look(button,false,logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
@@ -281,7 +281,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     @Override // Item
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(button);
+        Look_and_feel_manager.give_button_a_file_style(button,logger);
     }
 
 
@@ -290,7 +290,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button);
+        Look_and_feel_manager.give_button_a_selected_file_style(button,logger);
     }
 
 
@@ -334,7 +334,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         //Font_size.set_preferred_font_size(button,logger);
         Font_size.apply_font_size(button,logger);
 
-        Look_and_feel_manager.give_button_a_file_style(button);
+        Look_and_feel_manager.give_button_a_file_style(button,logger);
         button.setTextAlignment(TextAlignment.RIGHT);
 
         button.setOnAction(event -> {
@@ -393,7 +393,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         button = new Button(extended_text);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
-        Look_and_feel_manager.set_button_look_as_folder(button, height, color);
+        Look_and_feel_manager.set_button_look_as_folder(button, height, color,logger);
         button.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
@@ -466,7 +466,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Long how_many_files_deep = folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
-                how_many_files_deep = Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
+                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
             count.decrementAndGet();
@@ -496,7 +496,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             {
                 //logger.log(path+" size not found in cache");
                 Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, logger);
-                bytes = sizes.bytes();
+                bytes = (Long) sizes.bytes();
                 //logger.log(path+" not found in cache, size is "+bytes+ "bytes");
                 folder_total_sizes.put(path,bytes);
             }

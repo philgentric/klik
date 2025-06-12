@@ -90,9 +90,9 @@ public class Active_list_stage
         {
             String time_stamp_string = local_date_time_as_key.getYear()
                     +" "+ local_date_time_as_key.getMonth()+
-                    " " +String.format("%02d", local_date_time_as_key.getDayOfMonth())
-                    +" "+String.format("%02d", local_date_time_as_key.getHour())
-                    +"h"+String.format("%02d", local_date_time_as_key.getMinute());
+                    " " +String.format("%02d", (Integer)local_date_time_as_key.getDayOfMonth())
+                    +" "+String.format("%02d", (Integer)local_date_time_as_key.getHour())
+                    +"h"+String.format("%02d", (Integer)local_date_time_as_key.getMinute());
             String button_text = time_stamp_string+ "\n"+ map.get(local_date_time_as_key);
 
             Button b = new Button(button_text);
@@ -100,7 +100,7 @@ public class Active_list_stage
             b.setTextAlignment(TextAlignment.LEFT);
             b.setPrefWidth(WIDTH);
             //Font_size.apply_font_size(b,logger);
-            Look_and_feel_manager.set_button_look(b, true);
+            Look_and_feel_manager.set_button_look(b, true,logger);
 
             if (on_action != null)
             {

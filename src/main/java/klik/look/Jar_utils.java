@@ -44,7 +44,7 @@ public class Jar_utils
         {
             if ( broken_icon.getHeight() == icon_size) return broken_icon;
         }
-        Look_and_feel local_instance = Look_and_feel_manager.get_instance();
+        Look_and_feel local_instance = Look_and_feel_manager.get_instance(logger);
         if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));

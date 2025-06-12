@@ -129,7 +129,7 @@ public class Selection_handler
     public void set_select_all_files(boolean b)
     //**********************************************************
     {
-        Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
+        Look_and_feel i = Look_and_feel_manager.get_instance(logger);
         if (b)
         {
             the_pane.setBackground(new Background(i.get_all_files_fill()));
@@ -144,7 +144,7 @@ public class Selection_handler
     public void set_select_all_folders(boolean b)
     //**********************************************************
     {
-        Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
+        Look_and_feel i = Look_and_feel_manager.get_instance(logger);
         if (b) {
             the_pane.setBackground(new Background(i.get_all_dirs_fill()));
 
@@ -181,7 +181,7 @@ public class Selection_handler
         rect.setArcWidth(5);
         rect.setArcHeight(5);
 
-        Color col = Look_and_feel_manager.get_instance().get_selection_box_color();
+        Color col = Look_and_feel_manager.get_instance(logger).get_selection_box_color();
 
         rect.setStroke(col);
         rect.setFill(Color.TRANSPARENT);

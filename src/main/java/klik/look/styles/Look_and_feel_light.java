@@ -3,6 +3,7 @@ package klik.look.styles;
 import javafx.scene.paint.Color;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
+import klik.look.Look_and_feel_style;
 import klik.util.log.Logger;
 
 import java.net.URL;
@@ -12,6 +13,7 @@ public class Look_and_feel_light extends Look_and_feel
 //**********************************************************
 {
 
+    public Look_and_feel_style get_look_and_feel_style(){return Look_and_feel_style.light;}
 
 
     public Look_and_feel_light(Logger logger_)

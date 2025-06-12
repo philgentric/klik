@@ -157,7 +157,7 @@ public class Graph_for_meters
             Rectangle horizontal_line = new Rectangle(x_offset +LEFT, RAM_and_threads_meters_stage.DISPLAY_PIXEL_HEIGHT-ii, WIDTH, 1);
             scale_bars.add(horizontal_line);
             horizontal_line.setManaged(false);
-            horizontal_line.setFill(Look_and_feel_manager.get_instance().get_foreground_color());
+            horizontal_line.setFill(Look_and_feel_manager.get_instance(logger).get_foreground_color());
             the_hbox.getChildren().add(horizontal_line);
             Text text = new Text(""+(int)val);
             scale_texts.add(text);

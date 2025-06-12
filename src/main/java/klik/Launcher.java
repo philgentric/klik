@@ -22,7 +22,6 @@ import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
-import klik.properties.features.String_change_target;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -50,7 +49,7 @@ public class Launcher extends Application
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
-    public static final String LANGUAGE_CHANGED = "LANGUAGE_CHANGED";
+    public static final String UI_CHANGED = "UI_CHANGED";
     public static double estimated_text_label_height;
 
     private Stage stage;
@@ -68,17 +67,15 @@ public class Launcher extends Application
         Sys_init.init("Launcher app");
         logger = Shared_services.shared_services_logger;
 
-
-        Look_and_feel_manager.init_Look_and_feel(logger);
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
-        Look_and_feel_manager.set_region_look(vbox);
+        Look_and_feel_manager.set_region_look(vbox,logger);
         double font_size = Non_booleans.get_font_size(logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,logger);
 
-        Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER);
+        Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,logger);
 
 
 
@@ -97,7 +94,7 @@ public class Launcher extends Application
     private void define_UI()
     //**********************************************************
     {
-        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance();
+        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(logger);
 
         vbox.getChildren().clear();
         {
@@ -296,15 +293,17 @@ public class Launcher extends Application
                         logger.log("Launcher: STARTED RECEIVED for: "+app_name);
                         if ( hourglass != null) hourglass.close();
                     }
-                    if (msg.startsWith(LANGUAGE_CHANGED))
+                    if (msg.startsWith(UI_CHANGED))
                     {
                         Non_booleans.force_reload_from_disk();
                         String new_lang = msg.split(" ")[1];
                         logger.log("Launcher: LANGUAGE_CHANGED RECEIVED for: "+app_name+ " new lang is "+new_lang);
                         logger.log("Launcher: checking the language value is updated on disk: "+Non_booleans.get_language_key());
                         My_I18n.reset();
+                        Look_and_feel_manager.reset();
                         Platform.runLater(() -> launcher.define_UI());
-                        // broken in the audio player: TCP_client.request("localhost", Audio_player_application.AUDIO_PLAYER_PORT,msg,logger);
+                        // broken in the audio player:
+                        TCP_client.request("localhost", Audio_player_application.AUDIO_PLAYER_PORT,msg,logger);
                     }
                 }
                 catch (IOException e)
@@ -330,7 +329,7 @@ public class Launcher extends Application
     private static void set_look(Button b, VBox vbox, Look_and_feel look_and_feel, Icon_type icon_type, Logger logger)
     //**********************************************************
     {
-        Look_and_feel_manager.set_button_look(b, true);
+        Look_and_feel_manager.set_button_look(b, true,logger);
         b.setPrefWidth(WIDTH);
         b.setAlignment(Pos.CENTER);
         b.setTextAlignment(TextAlignment.CENTER);

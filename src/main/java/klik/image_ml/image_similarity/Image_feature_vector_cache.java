@@ -181,7 +181,7 @@ public class Image_feature_vector_cache
         }
 
         //if (dbg)
-            logger.log(Stack_trace_getter.get_stack_trace(cache_type +": "+reloaded+" feature vectors reloaded from file"));
+            logger.log((cache_type +": "+reloaded+" feature vectors reloaded from file"));
 
         if ( dbg)
         {

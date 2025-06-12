@@ -16,7 +16,6 @@ import klik.change.undo.Undo_item;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
-import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -95,10 +94,10 @@ public class Playlist
         File f = new File(file_path);
         Button local_button = new Button(f.getParentFile().getName() + "    /    " + f.getName());
         local_button.setMnemonicParsing(false);
-        Look_and_feel_manager.set_button_look(local_button, false);
+        Look_and_feel_manager.set_button_look(local_button, false,logger);
         {
             ContextMenu the_context_menu = new ContextMenu();
-            Look_and_feel_manager.set_context_menu_look(the_context_menu);
+            Look_and_feel_manager.set_context_menu_look(the_context_menu,logger);
             {
                 MenuItem the_menu_item = new MenuItem("Browse folder");
                 the_menu_item.setOnAction(_ -> Audio_player.start_new_process_to_browse(f.toPath().getParent(),
@@ -132,7 +131,7 @@ public class Playlist
 
         }
         local_button.setPrefWidth(2000);
-        Look_and_feel_manager.set_button_look(local_button, false);
+        Look_and_feel_manager.set_button_look(local_button, false,logger);
         file_to_button.put(file_path, local_button);
         local_button.setOnAction(_ -> change_song(file_path));
         return local_button;
@@ -275,28 +274,27 @@ public class Playlist
 
 
     //**********************************************************
-    private void set_selected(String path)
+    void set_selected()
     //**********************************************************
     {
 
-        if (dbg) logger.log("set_selected " + path);
+        if (dbg) logger.log("set_selected " + the_song_path);
 
-        if ( (new File(path)).exists() == false)
-
+        if ( (new File(the_song_path)).exists() == false)
         {
-            logger.log("this file is gone: " + path);
+            logger.log("this file is gone: " + the_song_path);
             if ( the_playlist.isEmpty())
             {
                 // nothing to play
                 return;
             }
-            path = the_playlist.get(0);
+            the_song_path = the_playlist.get(0);
         }
 
-        Button future = file_to_button.get(path);
+        Button future = file_to_button.get(the_song_path);
         if ( future == null)
         {
-            if ( dbg) logger.log("WARNING: this file is not mapped: " + path);
+            if ( dbg) logger.log("WARNING: this file is not mapped: " + the_song_path);
             return;
         }
         if ( selected != null)
@@ -304,7 +302,7 @@ public class Playlist
             if (selected == future)
             {
                 // already selected
-                if (dbg) logger.log("already selected " + path);
+                if (dbg) logger.log("already selected " + the_song_path);
                 return;
             }
             set_background_to(future, "#90D5FF");
@@ -312,8 +310,8 @@ public class Playlist
         }
         selected = future;
 
-        the_music_ui.scroll_to(path);
-        Non_booleans.save_current_song(path);
+        the_music_ui.scroll_to(the_song_path);
+        Non_booleans.save_current_song(the_song_path);
 
 
     }
@@ -378,7 +376,7 @@ public class Playlist
                 save_playlist();
                 return;
             }
-            current_time_s = 0;
+            current_time_s = Integer.valueOf(0);
         }
 
 
@@ -395,7 +393,7 @@ public class Playlist
         add_one_song_to_playlist_if_not_already_there(the_song_path);
 
         the_music_ui.play_song_with_new_media_player(new_song, current_time_s);
-        set_selected(the_song_path);
+        set_selected();
 
     }
 
@@ -678,7 +676,7 @@ public class Playlist
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog("playlistname");
-        Look_and_feel_manager.set_dialog_look(dialog);
+        Look_and_feel_manager.set_dialog_look(dialog,logger);
         dialog.initOwner(owner);
         dialog.setTitle("Choose a name for the playlist");
         dialog.setContentText("playlistname");
@@ -750,7 +748,10 @@ public class Playlist
             {
                 String song_path = br.readLine();
                 if (song_path == null) break;
-                add_to_playlist(song_path);
+                if ( (new File(song_path)).exists())
+                {
+                    add_to_playlist(song_path);
+                }
             }
             playlist_file = playlist_file_;
             Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
@@ -819,8 +820,8 @@ public class Playlist
     private void get_media_duration(String path, AtomicLong seconds, CountDownLatch cdl)
     //**********************************************************
     {
-        double dur = Ffmpeg_utils.get_video_duration(null, Path.of(path), logger);
-        seconds.addAndGet((long) dur);
+        Double dur = Ffmpeg_utils.get_media_duration(null, Path.of(path), logger);
+        if ( dur != null) seconds.addAndGet((long) (double)dur);
         cdl.countDown();
     }
 

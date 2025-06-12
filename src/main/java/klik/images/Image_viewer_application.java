@@ -33,7 +33,6 @@ public class Image_viewer_application extends Application
 
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
-        Look_and_feel_manager.init_Look_and_feel(logger);
 
         Parameters params = getParameters();
         List<String> list = params.getRaw();

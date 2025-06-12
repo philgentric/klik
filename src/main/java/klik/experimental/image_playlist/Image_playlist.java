@@ -38,7 +38,7 @@ public class Image_playlist extends Abstract_browser
     private void set_pink_background(Logger logger)
     //**********************************************************
     {
-        Look_and_feel i = Look_and_feel_manager.get_look_and_feel_instance(logger);
+        Look_and_feel i = Look_and_feel_manager.get_instance(logger);
         virtual_landscape.the_Pane.setBackground(new Background(i.get_image_playlist_fill()));
     }
 

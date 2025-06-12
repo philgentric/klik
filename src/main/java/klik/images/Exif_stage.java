@@ -65,7 +65,7 @@ public class Exif_stage
         if ( exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
 
         TextField tf = new TextField(path.toAbsolutePath().toString());
-        Look_and_feel_manager.set_TextField_look(tf);
+        Look_and_feel_manager.set_TextField_look(tf,logger);
         tf.setMinWidth(WIDTH);
         textFlow.getChildren().add(tf);
 
@@ -73,13 +73,13 @@ public class Exif_stage
 
         {
             String file_size = Static_files_and_paths_utilities.get_1_line_string_with_size(path.toAbsolutePath(), logger);
-            new_line(file_size, textFlow);
+            new_line(file_size, textFlow,logger);
         }
         Exif_read_result res = load_exif(path, image, new Aborter("EXIF",logger),logger);
         for (String s : res.exif_items())
         {
             if ( exif_dbg) logger.log(s);
-            new_line(s, textFlow);
+            new_line(s, textFlow,logger);
         }
         {
             StringBuilder sb = get_GraphicsMagick_info(path,logger);
@@ -89,14 +89,14 @@ public class Exif_stage
             for (String line : lines) {
                 line = line.trim();
                 if (line.isEmpty()) continue;
-                new_line(line, textFlow);
+                new_line(line, textFlow,logger);
             }
         }
 
         if ( exif_dbg) logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
         ScrollPane sp = new ScrollPane();
-        Look_and_feel_manager.set_region_look(sp);
-        Look_and_feel_manager.set_region_look(textFlow);
+        Look_and_feel_manager.set_region_look(sp,logger);
+        Look_and_feel_manager.set_region_look(textFlow,logger);
         sp.setPrefSize(WIDTH, 600);
         sp.setContent(textFlow);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -136,11 +136,11 @@ public class Exif_stage
                 });
     }
 
-    private static void new_line(String file_size, TextFlow textFlow) {
+    private static void new_line(String file_size, TextFlow textFlow,Logger logger) {
         TextField text_field = new TextField(file_size);
         text_field.setEditable(false);
         text_field.setMinWidth(WIDTH);
-        Look_and_feel_manager.set_TextField_look(text_field);
+        Look_and_feel_manager.set_TextField_look(text_field,logger);
         textFlow.getChildren().add(text_field);
         textFlow.getChildren().add(new Text(System.lineSeparator()));
     }

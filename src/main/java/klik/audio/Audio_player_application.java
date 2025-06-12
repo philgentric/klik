@@ -12,7 +12,6 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.util.Sys_init;
-import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -20,7 +19,6 @@ import klik.util.tcp.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 
 //**********************************************************
 public class Audio_player_application extends Application
@@ -63,11 +61,9 @@ public class Audio_player_application extends Application
     {
         logger.log("Audio_player_application starts");
 
-        Look_and_feel_manager.init_Look_and_feel(logger);
-
         String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, logger);
 
-        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC);
+        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC,logger);
 
         String f = null;
         if ( context != null)
@@ -98,21 +94,15 @@ public class Audio_player_application extends Application
             {
                 try {
                     String received = TCP_util.read_string(dis);
-                    if (received.startsWith(Launcher.LANGUAGE_CHANGED))
+                    if (received.startsWith(Launcher.UI_CHANGED))
                     {
                         Non_booleans.force_reload_from_disk();
                         String new_lang = received.split(" ")[1];
                         logger.log("Audio player: LANGUAGE_CHANGED RECEIVED new lang is "+new_lang);
                         logger.log("Audio player: checking the language value is updated on disk: "+Non_booleans.get_language_key());
                         My_I18n.reset();
-                        Runnable r = () -> {
-                            Platform.runLater(() ->
-                            {
-                                //init(null);
-                                Audio_player.init_ui(Shared_services.shared_services_aborter, logger);
-                            }
-                            );
-                        };
+                        Look_and_feel_manager.reset();
+                        Runnable r = () -> Platform.runLater(() -> Audio_player.define_ui());
                         Actor_engine.execute(r,logger);
                     }
                     else

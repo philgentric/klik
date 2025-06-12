@@ -359,21 +359,24 @@ public class Icon_factory_actor implements Actor
             Path destination_gif_full_path = Paths.get(icon_cache_dir.toAbsolutePath().toString(), gif_animated_icon_file.getName());
 
             double skip = 0;
-            double duration_in_seconds = Ffmpeg_utils.get_video_duration(owner, destination.get_item_path(),logger);
-            if (duration_in_seconds > 3 * 3600) {
-                logger.log("WARNING: ffprobe reports duration that looks wrong");
-                duration_in_seconds = 1800;
-            }
+            Double duration_in_seconds = Ffmpeg_utils.get_media_duration(owner, destination.get_item_path(),logger);
+            if ( duration_in_seconds != null)
+            {
+                if (duration_in_seconds > 3 * 3600) {
+                    logger.log("WARNING: ffprobe reports duration that looks wrong");
+                    duration_in_seconds = 1800.0;
+                }
 
-            if (duration_in_seconds < 0) {
-                duration_in_seconds = length;
-            }
+                if (duration_in_seconds < 0) {
+                    duration_in_seconds = length;
+                }
 
-            if (duration_in_seconds < length) {
-                length = duration_in_seconds;
-            } else {
-                // jump to the middle of the movie
-                skip = duration_in_seconds / 2 - length;
+                if (duration_in_seconds < length) {
+                    length = duration_in_seconds;
+                } else {
+                    // jump to the middle of the movie
+                    skip = duration_in_seconds / 2 - length;
+                }
             }
 
 

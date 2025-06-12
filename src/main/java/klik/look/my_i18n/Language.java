@@ -2,7 +2,9 @@ package klik.look.my_i18n;
 
 import java.util.Locale;
 
+//**********************************************************
 public enum Language
+//**********************************************************
 {
     Breton,
     Chinese,
@@ -15,7 +17,9 @@ public enum Language
     Portuguese,
     Spanish;
 
+    //**********************************************************
     public Locale get_locale()
+    //**********************************************************
     {
         switch (this) {
             case Breton:

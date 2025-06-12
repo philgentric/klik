@@ -46,6 +46,7 @@ public class Non_booleans
     public static final String LANGUAGE_KEY = "LANGUAGE";
     public static final String FONT_SIZE = "FONT_SIZE";
     public static final String COLUMN_WIDTH = "Column_width"; //this must match the resource bundles
+    public static final String STYLE_KEY = "STYLE";
 
     public static final String USER_HOME = "user.home";
     public static final String CONF_DIR = ".klik";

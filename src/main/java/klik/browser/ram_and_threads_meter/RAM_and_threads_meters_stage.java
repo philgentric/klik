@@ -78,7 +78,7 @@ public class RAM_and_threads_meters_stage
             hbox.getChildren().add(graph.vbox);
             Scheduled_thread_pool.execute(graph.runnable, HEARTH_BEAT, TimeUnit.MILLISECONDS);
         }
-        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance().get_background_color());
+        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(logger).get_background_color());
         stage.setScene(scene);
         double context_length = Math.round((double)HEARTH_BEAT*(double)(Graph_for_meters.how_many_rectangles)/100.0)/10.0;
         stage.setTitle("Last "+context_length+" seconds");

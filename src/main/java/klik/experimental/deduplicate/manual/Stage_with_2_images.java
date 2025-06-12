@@ -86,7 +86,7 @@ public class Stage_with_2_images
 		Jfx_batch_injector.inject(() ->{
 				stage = new Stage();
 				the_big_vbox = new VBox();
-				Look_and_feel_manager.set_region_look(the_big_vbox);
+				Look_and_feel_manager.set_region_look(the_big_vbox,logger);
 				Scene scene = new Scene(the_big_vbox);
 				stage.setScene(scene);//, W, H));
 				stage.setOnCloseRequest((e) -> aborter.abort("Stage_with_2_images closing"));
@@ -116,7 +116,7 @@ public class Stage_with_2_images
 		the_big_vbox.getChildren().clear();
 
 		Button skip = new Button("Skip this pair");
-		Look_and_feel_manager.set_button_look(skip,true);
+		Look_and_feel_manager.set_button_look(skip,true,logger);
 		the_big_vbox.getChildren().add(skip);
 		skip.setOnAction(_ -> {
             againor.again();
@@ -175,7 +175,7 @@ public class Stage_with_2_images
 		double height = 0;
 
 		Button view = new Button("View this one");
-		Look_and_feel_manager.set_button_look(view,true);
+		Look_and_feel_manager.set_button_look(view,true,logger);
 		view.setOnAction(event -> {
 			boolean is_image = true;
 			if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
@@ -201,7 +201,7 @@ public class Stage_with_2_images
 		the_vbox.getChildren().add(view);
 
 		Button delete_button = new Button("Delete this one");
-		Look_and_feel_manager.set_button_look(delete_button,true);
+		Look_and_feel_manager.set_button_look(delete_button,true,logger);
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
 			Path p = file.toPath();
@@ -223,7 +223,7 @@ public class Stage_with_2_images
 			HBox hbox2 = new HBox();
 			{
 				Label label = new Label("Folder:"+file.getParentFile().getAbsolutePath());
-				Look_and_feel_manager.set_region_look(label);
+				Look_and_feel_manager.set_region_look(label,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				label.setTextOverrun(OverrunStyle.LEADING_WORD_ELLIPSIS);
@@ -238,7 +238,7 @@ public class Stage_with_2_images
 			HBox hbox2 = new HBox();
 			{
 				Label label = new Label("File:"+file.getName());
-				Look_and_feel_manager.set_region_look(label);
+				Look_and_feel_manager.set_region_look(label,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				hbox2.getChildren().add(label);
@@ -254,7 +254,7 @@ public class Stage_with_2_images
 			{
 				String size_in_kB = file.length()/1000+"kB";
 				Label label = new Label("File size: "+size_in_kB);
-				Look_and_feel_manager.set_region_look(label);
+				Look_and_feel_manager.set_region_look(label,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				hbox2.getChildren().add(label);
@@ -284,7 +284,7 @@ public class Stage_with_2_images
 					lab += " ========  SAME SIZE";
 				}
 				Label label = new Label(lab);
-				Look_and_feel_manager.set_region_look(label);
+				Look_and_feel_manager.set_region_look(label,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				hbox2.getChildren().add(label);

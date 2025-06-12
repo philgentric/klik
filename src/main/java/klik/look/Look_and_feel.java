@@ -32,7 +32,6 @@ public abstract class Look_and_feel
     public static final String LOOK_AND_FEEL_MENU_BUTTONS = "menu_buttons";
     public static final String LOOK_AND_FEEL_ALL_FILES = "look_and_feel_all_files";
     public static final String LOOK_AND_FEEL_ALL_DIRS = "look_and_feel_all_dirs";
-    public static final String STYLE = "STYLE";
 
 
     public static final boolean dbg = false;
@@ -97,6 +96,8 @@ public abstract class Look_and_feel
         background_fill = tmp_pane.getBackground().getFills().get(0);
         return background_fill;
     }
+
+    public abstract Look_and_feel_style get_look_and_feel_style();
 
     abstract public URL get_CSS_URL();
 
@@ -293,40 +294,6 @@ public abstract class Look_and_feel
         return w;
     }
 
-    //**********************************************************
-    public static Look_and_feel read_look_and_feel_from_properties_file(Logger logger)
-    //**********************************************************
-    {
-        Look_and_feel look_and_feel = null;
-        String style_s = Non_booleans.get_main_properties_manager().get(STYLE);
-        boolean and_save = false;
-        if (style_s == null)
-        {
-            // DEFAULT STYLE, first time klik is launched on the platform
-            look_and_feel = new Look_and_feel_light(logger);
-            and_save = true;
-        } else {
-            for (Look_and_feel laf : Look_and_feel_manager.registered) {
-                if (laf.name.equals(style_s)) {
-                    look_and_feel = laf;
-                    break;
-                }
-            }
-        }
-        if (look_and_feel == null)
-        {
-            look_and_feel = new Look_and_feel_light(logger);
-        }
-        if ( and_save)Non_booleans.get_main_properties_manager().set(STYLE, look_and_feel.name);
-        return look_and_feel;
-    }
-
-    //**********************************************************
-    public static void set_style(Look_and_feel style,  Logger logger)
-    //**********************************************************
-    {
-        Non_booleans.get_main_properties_manager().set(STYLE, style.name);
-    }
 
 }
 

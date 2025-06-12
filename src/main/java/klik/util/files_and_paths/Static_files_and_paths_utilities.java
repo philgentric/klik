@@ -865,7 +865,7 @@ public class Static_files_and_paths_utilities
         String old_name = path.getFileName().toString();
 
         TextInputDialog dialog = new TextInputDialog(old_name);
-        Look_and_feel_manager.set_dialog_look(dialog);
+        Look_and_feel_manager.set_dialog_look(dialog,logger);
         dialog.getDialogPane().setMinWidth(800);
         dialog.initOwner(owner);
         {
@@ -927,7 +927,7 @@ public class Static_files_and_paths_utilities
     {
         String old_name = path.getFileName().toString();
         TextInputDialog dialog = new TextInputDialog(old_name);
-        Look_and_feel_manager.set_dialog_look(dialog);
+        Look_and_feel_manager.set_dialog_look(dialog,logger);
         dialog.initOwner(owner);
         {
             String text = My_I18n.get_I18n_string("Folder_copy_name", logger);// to: " + parent.toAbsolutePath().toString();

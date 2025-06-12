@@ -223,7 +223,7 @@ public class Text_frame
         {
             logger.log("process_key_event in Text_frame: marked is empty");
             TextInputDialog dialog = new TextInputDialog("Enter text");
-            Look_and_feel_manager.set_dialog_look(dialog);
+            Look_and_feel_manager.set_dialog_look(dialog,logger);
             dialog.initOwner(stage);
             dialog.setTitle("Enter text to search");
             dialog.setHeaderText("Enter text to search, then use 'd' or 'n' to jump down and 'u' or 'p' to jump up");

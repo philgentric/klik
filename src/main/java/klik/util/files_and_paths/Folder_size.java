@@ -58,11 +58,11 @@ public class Folder_size
         local_stage.setHeight(size_stage_height);
         local_stage.setWidth(size_stage_width);
         VBox vbox = new VBox();
-        Look_and_feel_manager.set_region_look(vbox);
+        Look_and_feel_manager.set_region_look(vbox,logger);
 
         vbox.setAlignment(javafx.geometry.Pos.CENTER);
         ImageView iv;
-        iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
+        iv = new ImageView(Look_and_feel_manager.get_running_film_icon(logger));
         iv.setFitHeight(icon_height);
         iv.setPreserveRatio(true);
         vbox.getChildren().add(iv);
@@ -101,7 +101,7 @@ public class Folder_size
             Jfx_batch_injector.inject(() -> {
                 String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),logger);
 
-                iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());
+                iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(logger));
 
                 if (sizes.bytes() < 0)
                 {

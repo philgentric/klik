@@ -30,7 +30,7 @@ public class Properties_with_base
         for (int i = 0; i < max; i++)
         {
             String path = ip.get(key_base + i);
-            System.out.println((key_base + i)+"->"+path+"<-");
+            //System.out.println((key_base + i)+"->"+path+"<-");
             if (path != null) returned.add(path);
         }
         return returned;

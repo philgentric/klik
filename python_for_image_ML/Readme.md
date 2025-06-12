@@ -55,23 +55,23 @@ method2: "manually" start the python servers like this:
 AFTER a reboot: activate the virtual environment
 source ~/venv-metal/bin/activate
 
-Image embeddings python service : to start the embeddings servers, use the launch command:
+Image embeddings python service : to start the image similarity embeddings servers, use the launch command:
 
-./launch_MobileNet_servers
+./launch_image_similarity_servers
 
-(to kill the embeddings servers:
-./kill_embeddings_servers)
+(to kill the image similarity embeddings servers:
+./kill_image_similarity_servers)
 
 Face recognition servers : to start the face detection and face embeddings servers:
 open a shell/terminal, cd to this folder, type:
 
 source ~/venv-metal/bin/activate
-./launch_face_servers
+./launch_face_recognition_servers
 
 this will start several servers for respectively face detection (multiple flavors) and face embeddings 
 
 to kill the face recognition servers:
-./kill_face_servers
+./kill_face_recognition_servers
 
 ### Caveats ###
 

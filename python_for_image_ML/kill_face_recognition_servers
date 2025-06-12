@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# need to copy here the lists from  "launch_face_servers" ... bit dirty
+# need to copy here the lists from  "launch_face_recognition_servers" ... bit dirty
 
 FACENET_EMBEDDINGS_PORTS=(8020 8021)
 

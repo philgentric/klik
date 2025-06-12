@@ -105,7 +105,7 @@ public class Item_file_with_icon extends Item_file
         this.fv_cache_supplier = fv_cache_supplier;
         this.path_comparator_source = path_comparator_source;
         double actual_icon_size = icon_size / 3.0;
-        if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size);
+        if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size,logger);
 
         // first time
         image_view = new ImageView();
@@ -260,7 +260,7 @@ public class Item_file_with_icon extends Item_file
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu);
+        Look_and_feel_manager.set_context_menu_look(context_menu,logger);
 
         double x = owner.getX()+100;
         double y = owner.getY()+100;
@@ -553,7 +553,7 @@ public class Item_file_with_icon extends Item_file
                 logger.log("SHOULD NOT HAPPEN");
                 double local = image_and_properties.image().getWidth()/image_and_properties.image().getHeight();
                 if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
-                aspect_ratio = local;
+                aspect_ratio = (Double) local;
             }
         }
         // the above operation can take some time...

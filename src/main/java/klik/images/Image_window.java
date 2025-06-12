@@ -123,7 +123,7 @@ public class Image_window
         dir = first_image_path.getParent();
         the_Stage = new Stage();
         the_image_Pane = new StackPane();
-        Look_and_feel_manager.set_region_look(the_image_Pane);
+        Look_and_feel_manager.set_region_look(the_image_Pane,logger);
 
 
         Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
@@ -148,7 +148,7 @@ public class Image_window
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension);
         the_Scene = new Scene(the_image_Pane);
-        Color background = Look_and_feel_manager.get_instance().get_background_color();
+        Color background = Look_and_feel_manager.get_instance(logger).get_background_color();
         the_Scene.setFill(background);
         the_Stage.setScene(the_Scene);
         the_Stage.setX(x);
@@ -356,8 +356,8 @@ public class Image_window
         }
         else
         {
-            Look_and_feel current_style = Look_and_feel.read_look_and_feel_from_properties_file(logger);
-            background_fill = current_style.get_background_fill();
+            Look_and_feel laf = Look_and_feel_manager.get_instance(logger);
+            background_fill = laf.get_background_fill();
         }
         return background_fill;
     }

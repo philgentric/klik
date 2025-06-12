@@ -109,7 +109,14 @@ public class Item_folder extends Item implements Icon_destination
         Path local = get_item_path();
         if ( local == null)
         {
-            logger.log("PANIC PATH is null");
+            if ( text.isEmpty())
+            {
+                // this is top level / folder
+            }
+            else
+            {
+                logger.log("Warning PATH is null in item folder for ->"+text+"<-");
+            }
             return;
         }
         if (Files.isDirectory(local))
@@ -120,7 +127,7 @@ public class Item_folder extends Item implements Icon_destination
         {
             logger.log("SHOULD NOT HAPPEN Item_folder path is not a dorectory!");
         }
-        Look_and_feel_manager.set_button_look(button,false);
+        Look_and_feel_manager.set_button_look(button,false,logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
@@ -315,7 +322,7 @@ public class Item_folder extends Item implements Icon_destination
     @Override // Item
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(button);
+        Look_and_feel_manager.give_button_a_file_style(button,logger);
     }
 
 
@@ -324,7 +331,7 @@ public class Item_folder extends Item implements Icon_destination
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button);
+        Look_and_feel_manager.give_button_a_selected_file_style(button,logger);
     }
 
 
@@ -345,14 +352,14 @@ public class Item_folder extends Item implements Icon_destination
         button = new Button(extended_text);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
-        Look_and_feel_manager.set_button_look_as_folder(button, height, color);
+        Look_and_feel_manager.set_button_look_as_folder(button, height, color,logger);
         button.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
         if (get_item_path() == null)
         {
             // protect crash when going up: root has no parent
-            logger.log("WARNING no action for folder:"+text);
+            if ( !text.isEmpty()) logger.log("WARNING no action for folder ->"+text+"<-");
 
             if ( text.equals("Trash")) {
                 button.setOnAction(event -> {
@@ -420,7 +427,7 @@ public class Item_folder extends Item implements Icon_destination
             Long how_many_files_deep = folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
-                how_many_files_deep = Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
+                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
             count.decrementAndGet();
@@ -450,7 +457,7 @@ public class Item_folder extends Item implements Icon_destination
             {
                 //logger.log(path+" size not found in cache");
                 Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, logger);
-                bytes = sizes.bytes();
+                bytes = (Long) sizes.bytes();
                 //logger.log(path+" not found in cache, size is "+bytes+ "bytes");
                 folder_total_sizes.put(path,bytes);
             }

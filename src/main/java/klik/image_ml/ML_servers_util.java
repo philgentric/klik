@@ -260,7 +260,7 @@ public class ML_servers_util
     };
 
     //**********************************************************
-    public static void show_Enable_face_recognition_manual()
+    public static void show_face_recognition_manual(Logger logger)
     //**********************************************************
     {
         Stage stage = new Stage();
@@ -268,16 +268,16 @@ public class ML_servers_util
         for ( String l : Enable_face_recognition_lines)
         {
             TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf);
+            Look_and_feel_manager.set_region_look(tf,logger);
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
 
         Path p = Paths.get("");
         {
-            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_servers ";
+            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers ";
             TextField tf = new TextField(cmd);
-            Look_and_feel_manager.set_region_look(tf);
+            Look_and_feel_manager.set_region_look(tf,logger);
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
@@ -290,7 +290,7 @@ public class ML_servers_util
     }
 
     //**********************************************************
-    public static void show_image_similarity_manual()
+    public static void show_image_similarity_manual(Logger logger)
     //**********************************************************
     {
         Stage stage = new Stage();
@@ -299,7 +299,7 @@ public class ML_servers_util
         for ( String l : image_similarity_lines)
         {
             TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf);
+            Look_and_feel_manager.set_region_look(tf,logger);
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
@@ -311,9 +311,9 @@ public class ML_servers_util
             {
                 list_of_ports += port + " ";
             }
-            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_MobileNet_servers "+list_of_ports;
+            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_image_similarity_servers "+list_of_ports;
             TextArea tf = new TextArea(cmd);
-            Look_and_feel_manager.set_region_look(tf);
+            Look_and_feel_manager.set_region_look(tf,logger);
             tf.setEditable(false);
             tf.setWrapText(true);
             vb.getChildren().add(tf);

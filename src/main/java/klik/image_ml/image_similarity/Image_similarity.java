@@ -154,21 +154,14 @@ public class Image_similarity implements Clearable_RAM_cache
                 new Aborter("dummy34",logger),logger);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
-        logger.log("path"+ms.path());
-        logger.log("x="+returned.the_Stage.getX());
-        logger.log("y="+returned.the_Stage.getY());
+        //logger.log("show_one_at path"+ms.path()+" x="+returned.the_Stage.getX()+" y="+returned.the_Stage.getY());
 
         if (show_vector_differences)
         {
-            show_vector_differences(ms,false, x,y+H);
+            Vector_window vw = new Vector_window("Distance: "+ms.similarity,x,y,ms.fv1,ms.fv2,false,true,logger);
         }
-
     }
 
-    private void show_vector_differences(Most_similar ms, boolean not_same, double x, double y)
-    {
-        Vector_window vw = new Vector_window("Distance: "+ms.similarity,x,y,ms.fv1,ms.fv2,not_same,true,logger);
-    }
 
     //**********************************************************
     public List<Most_similar> find_similars_of(

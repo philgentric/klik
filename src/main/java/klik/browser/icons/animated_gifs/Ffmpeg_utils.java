@@ -54,11 +54,16 @@ public class Ffmpeg_utils
     public static void generate_many_gifs(Window owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        double duration_in_seconds = get_video_duration(owner, video_path,logger);
+        Double duration_in_seconds = get_media_duration(owner, video_path,logger);
+        if ( duration_in_seconds == null)
+        {
+            logger.log("FATAL: ffprobe cannot find duration of "+video_path);
+            return;
+        }
         if ( duration_in_seconds > 3*3600)
         {
             logger.log("WARNING: ffprobe reports duration that looks wrong?"+duration_in_seconds+" in hours="+duration_in_seconds/3600+ "... going to assume 30 minutes");
-            duration_in_seconds = 1800; // assume half an hour ...
+            duration_in_seconds = Double.valueOf(1800.0); // assume half an hour ...
         }
         String folder_name = video_path.getFileName().toString()+"_anim";
         File dir = new File(video_path.getParent().toFile(),folder_name);
@@ -87,7 +92,7 @@ public class Ffmpeg_utils
                 Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,logger), logger);
                 return;
             }
-            String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",start)+".gif";
+            String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",(Integer)start)+".gif";
             Path destination_gif_full_path = Path.of(dir.getAbsolutePath(),name);
 
             Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
@@ -103,19 +108,19 @@ public class Ffmpeg_utils
 
 
     //**********************************************************
-    public static double get_video_duration(
+    public static Double get_media_duration(
             Window owner,
-            Path video_path,
+            Path path,
             Logger logger)
     //**********************************************************
     {
         List<String> list = new ArrayList<>();
         list.add("ffprobe");
         list.add("-i");
-        list.add(video_path.getFileName().toString());
+        list.add(path.getFileName().toString());
         list.add("-show_format");
         StringBuilder sb = new StringBuilder();
-        File wd = video_path.getParent().toFile();
+        File wd = path.getParent().toFile();
         if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
         {
 
@@ -123,17 +128,26 @@ public class Ffmpeg_utils
         }
         //logger.log("->"+sb.toString()+"<-");
 
-        double duration = -1;
         String[] x = sb.toString().split("\\R");
-        for (String l : x) {
-            if (l.startsWith("duration=")) {
+        for (String l : x)
+        {
+            if (l.startsWith("duration="))
+            {
                 String sub = l.substring(9);
-                duration = Double.parseDouble(sub);
-                if (dbg) logger.log("FOUND DURATION" + duration + "seconds");
-                break;
+
+                try {
+                    double duration = Double.parseDouble(sub);
+                    if (dbg) logger.log("Found media DURATION: " + duration + " seconds");
+                    return (Double) duration;
+                }
+                catch(NumberFormatException e)
+                {
+                    return null;
+                }
+
             }
         }
-        return duration;
+        return null;
     }
 
 
@@ -357,11 +371,16 @@ public class Ffmpeg_utils
             the_imageview = new ImageView();
             the_imageview.setPreserveRatio(true);
             the_imageview.setFitHeight(512);
-            double full_clip_duration_in_seconds = get_video_duration(the_stage, video_path,logger);
+            Double full_clip_duration_in_seconds = get_media_duration(the_stage, video_path,logger);
 
+            if ( full_clip_duration_in_seconds == null)
+            {
+                logger.log("FATAL: ffprobe cannot find duration of "+video_path);
+                return;
+            }
             make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
             Pane vb = new VBox();
-            Look_and_feel_manager.set_region_look(vb);
+            Look_and_feel_manager.set_region_look(vb,logger);
             {
                 HBox hb =  new HBox();
                 {

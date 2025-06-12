@@ -30,9 +30,9 @@ public interface Embeddings_prototype
     static Path make_image_path(Path face_recognizer_path, String tag, Logger logger)
     //**********************************************************
     {
-        logger.log("make_image_path "+face_recognizer_path+" tag="+tag);
+        //logger.log("make_image_path "+face_recognizer_path+" tag="+tag);
         Path path =  Path.of(face_recognizer_path.toString(),tag+".png");
-        logger.log("make_image_path "+path);
+        //logger.log("make_image_path "+path);
 
         return path;
     }

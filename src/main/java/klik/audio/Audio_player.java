@@ -111,6 +111,16 @@ public class Audio_player
     //**********************************************************
     {
         ui = new Audio_player_FX_UI(aborter, logger);
+        define_ui();
+    }
+
+    //**********************************************************
+    public static void define_ui()
+    //**********************************************************
+    {
+        ui.define_ui();
+        ui.playlist_init();
+        ui.set_selected();
     }
 
 

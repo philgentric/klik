@@ -65,10 +65,10 @@ public class Results_frame
 		this.logger = logger;
 
 		vbox = new VBox();
-		Look_and_feel_manager.set_region_look(vbox);
+		Look_and_feel_manager.set_region_look(vbox,logger);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_film_icon());
+		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(logger));
 		iv.setFitHeight(100);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
@@ -77,7 +77,7 @@ public class Results_frame
 		vbox.getChildren().add(scroll_pane);
 		Scene scene = new Scene(vbox, 1000, 800);
 		//Scene scene = new Scene(scroll_pane, 800, 600);
-		Look_and_feel_manager.set_region_look(scroll_pane);
+		Look_and_feel_manager.set_region_look(scroll_pane,logger);
 
 		stage.setTitle(My_I18n.get_I18n_string("Search_Results", logger));
 		stage.setScene(scene);
@@ -116,7 +116,7 @@ public class Results_frame
 		}
 
 		b.setMnemonicParsing(false); // avoid removal of first underscore
-		Look_and_feel_manager.set_button_look(b, true);
+		Look_and_feel_manager.set_button_look(b, true,logger);
 		if (Files.isDirectory(path)) {
 			Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
 			b.setBorder(border);
@@ -152,7 +152,7 @@ public class Results_frame
 
 		// add a menu to the button!
 		ContextMenu context_menu = new ContextMenu();
-		Look_and_feel_manager.set_context_menu_look(context_menu);
+		Look_and_feel_manager.set_context_menu_look(context_menu,logger);
 
 
 		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",logger));
@@ -235,7 +235,7 @@ public class Results_frame
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
-			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon());
+			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(logger));
 
 			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
 			all_results.sort((o1, o2) -> {

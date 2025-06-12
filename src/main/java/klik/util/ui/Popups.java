@@ -34,7 +34,7 @@ public class Popups
                     "The error was: \n" + e);
 
             logger.log("Going to popup exception(2): " + e);
-            alert.setGraphic(new ImageView(Look_and_feel_manager.get_denied_icon(icon_size)));
+            alert.setGraphic(new ImageView(Look_and_feel_manager.get_denied_icon(icon_size,logger)));
             alert.showAndWait();
         },logger);
     }

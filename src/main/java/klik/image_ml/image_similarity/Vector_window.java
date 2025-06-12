@@ -88,7 +88,7 @@ public class Vector_window
             hbox.getChildren().add(square);
         }
         the_Scene = new Scene(vbox);
-        Color background = Look_and_feel_manager.get_instance().get_background_color();
+        Color background = Look_and_feel_manager.get_instance(logger).get_background_color();
         the_Scene.setFill(background);
         the_Stage.setScene(the_Scene);
         the_Stage.setX(x);

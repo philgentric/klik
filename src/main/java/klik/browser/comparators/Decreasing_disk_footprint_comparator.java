@@ -55,12 +55,12 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
         {
             Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(p,local_aborter, logger);
             s = sizes.bytes();
-            logger.log("get_disk_footprint_in_bytes folder = "+p+" "+s);
+            //logger.log("get_disk_footprint_in_bytes folder = "+p+" "+s);
         }
         else
         {
             s = p.toFile().length();
-            logger.log("get_disk_footprint_in_bytes file = "+p+" "+s);
+            //logger.log("get_disk_footprint_in_bytes file = "+p+" "+s);
         }
         disk_foot_prints_cache.put(p,s);
         return s;

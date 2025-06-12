@@ -497,7 +497,7 @@ public class Mouse_handling_for_Image_window
         });
         image_window.the_image_Pane.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragEntered");
-            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane);
+            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane,logger);
             drag_event.consume();
         });
         image_window.the_image_Pane.setOnDragExited(drag_event -> {

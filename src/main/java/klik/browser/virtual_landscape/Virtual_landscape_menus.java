@@ -16,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.stage.Window;
 import klik.browser.Icon_size;
 import klik.browser.New_window_context;
-import klik.browser.Shared_services;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.items.Item_folder;
 import klik.change.Change_receiver;
@@ -32,8 +31,8 @@ import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.image_ml.ML_servers_util;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.images.decoding.Exif_metadata_extractor;
-import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
+import klik.look.Look_and_feel_style;
 import klik.look.my_i18n.My_I18n;
 import klik.look.my_i18n.Language;
 import klik.properties.*;
@@ -109,7 +108,7 @@ public class Virtual_landscape_menus
         String text = "Show manual about how to start face recognition servers";//My_I18n.get_I18n_string("Inverted_scroll",virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            ML_servers_util.show_Enable_face_recognition_manual();
+            ML_servers_util.show_face_recognition_manual(virtual_landscape.logger);
         });
         return item;
     }
@@ -122,7 +121,7 @@ public class Virtual_landscape_menus
         String text = "Show manual about how to start image similarity servers";//My_I18n.get_I18n_string("Inverted_scroll",virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
-            ML_servers_util.show_image_similarity_manual();
+            ML_servers_util.show_image_similarity_manual(virtual_landscape.logger);
         });
         return item;
     }
@@ -223,7 +222,7 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent -> {
             //Non_booleans.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),virtual_landscape.logger);
             TextInputDialog dialog = new TextInputDialog(""+ Non_booleans.get_folder_warning_size());
-            Look_and_feel_manager.set_dialog_look(dialog);
+            Look_and_feel_manager.set_dialog_look(dialog, virtual_landscape.logger);
             dialog.initOwner(owner);
             dialog.setWidth(800);
             dialog.setTitle(My_I18n.get_I18n_string("Cache_Size_Warning_Limit",virtual_landscape.logger));
@@ -263,7 +262,7 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent ->
         {
             boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Feature_cache.update_cached_feature(Feature.Fusk_is_active,val);
+            Feature_cache.update_cached_boolean(Feature.Fusk_is_active,val);
 
         });
         return item;
@@ -725,7 +724,7 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Style",virtual_landscape.logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
-        for( Look_and_feel s : Look_and_feel_manager.registered)
+        for( Look_and_feel_style s : Look_and_feel_style.values())
         {
             create_check_menu_item_for_style(menu, s, all_check_menu_items);
         }
@@ -733,12 +732,12 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public void create_check_menu_item_for_style(Menu menu, Look_and_feel style, List<CheckMenuItem> all_check_menu_items)
+    public void create_check_menu_item_for_style(Menu menu, Look_and_feel_style style, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
-        CheckMenuItem check_menu_item = new CheckMenuItem(style.name);
-        Look_and_feel current_style = Look_and_feel.read_look_and_feel_from_properties_file(virtual_landscape.logger);
-        check_menu_item.setSelected(current_style.name.equals(style.name));
+        CheckMenuItem check_menu_item = new CheckMenuItem(style.name());
+        Look_and_feel_style current_style = Look_and_feel_manager.get_instance(virtual_landscape.logger).get_look_and_feel_style();
+        check_menu_item.setSelected(current_style.name().equals(style.name()));
         check_menu_item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
             if (local.isSelected()) {
@@ -746,8 +745,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Look_and_feel_manager.set_look_and_feel(style);
-                New_window_context.replace_same_folder(virtual_landscape.port, virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_folder_path(),owner,virtual_landscape.get_top_left(),virtual_landscape.logger);
+                Look_and_feel_manager.set_look_and_feel(style, virtual_landscape.port, virtual_landscape.logger);
             }
         });
         menu.getItems().add(check_menu_item);
@@ -784,7 +782,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                My_I18n.set_new_language(language_key); /// will trigger a repaint via String_change_target
+                My_I18n.set_new_language(language_key, virtual_landscape.port, virtual_landscape.logger); /// will trigger a repaint via String_change_target
             }
         });
         menu.getItems().add(item);
@@ -1087,10 +1085,10 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         double[] candidate_sizes = {10,12,14,16,18,20,22,24,26};
         List<Double> possible_sizes = new ArrayList<>();
-        possible_sizes.add(Non_booleans.get_font_size(virtual_landscape.logger));
+        possible_sizes.add(Double.valueOf(Non_booleans.get_font_size(virtual_landscape.logger)));
         for (double candidateSize : candidate_sizes) {
-            if (possible_sizes.contains(candidateSize)) continue;
-            possible_sizes.add(candidateSize);
+            if (possible_sizes.contains((Double)candidateSize)) continue;
+            possible_sizes.add((Double)candidateSize);
         }
         Collections.sort(possible_sizes);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();

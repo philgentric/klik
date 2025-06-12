@@ -120,7 +120,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         button.setGraphic(the_image_pane);
         button.setContentDisplay(ContentDisplay.BOTTOM);
 
-        Look_and_feel_manager.set_button_look(button,true);
+        Look_and_feel_manager.set_button_look(button,true,logger);
 
         /*Look_and_feel_manager.set_button_look(button,true);
         button.setOnAction(actionEvent ->
@@ -368,7 +368,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     //**********************************************************
     {
         label_for_sizes = new Label(s);
-        Look_and_feel_manager.set_label_look(label_for_sizes);
+        Look_and_feel_manager.set_label_look(label_for_sizes,logger);
         Jfx_batch_injector.inject(() -> {
             the_image_pane.getChildren().clear();
             the_image_pane.getChildren().add(label_for_sizes);
@@ -379,7 +379,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     @Override // Item
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(button);
+        Look_and_feel_manager.give_button_a_file_style(button,logger);
     }
 
     //**********************************************************
@@ -387,7 +387,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button);
+        Look_and_feel_manager.give_button_a_selected_file_style(button,logger);
     }
 
 

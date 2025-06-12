@@ -39,7 +39,7 @@ public class Histogram_stage
             hbox.getChildren().add(graph.vbox);
         }
 
-        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance().get_background_color());
+        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(logger).get_background_color());
         stage.setScene(scene);
         stage.setTitle("title");
         stage.setMinWidth(1200);

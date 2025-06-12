@@ -41,7 +41,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
         #print("FaceNet feature vector: " + str(feature_vector))
 
-        print("FaceNet EMBEDDINGS feature vector size: "+str(feature_vector.size))
+        print("FaceNet EMBEDDINGS feature vector size: "+str(feature_vector.size()))
 
 
     # Convert the tensor to a NumPy array and flatten it

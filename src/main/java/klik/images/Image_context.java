@@ -379,7 +379,7 @@ public class Image_context
             StringBuilder ttt = new StringBuilder();
             for (String ss : keywords) ttt.append(ss).append(" ");
             TextInputDialog dialog = new TextInputDialog(ttt.toString());
-            Look_and_feel_manager.set_dialog_look(dialog);
+            Look_and_feel_manager.set_dialog_look(dialog,logger);
             dialog.initOwner(owner);
             dialog.setTitle("Keywords");
             dialog.setHeaderText("Enter your keywords, separated by space");
