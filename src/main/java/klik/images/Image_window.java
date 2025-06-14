@@ -59,8 +59,7 @@ public class Image_window
     public final Stage the_Stage;
     public final Pane the_image_Pane;
     public final Label the_info_label;
-    public final Button info_button;
-    //public final Browser browser;
+    //public final Button info_button;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
@@ -138,13 +137,13 @@ public class Image_window
         the_info_label.setMaxWidth(400);
         the_info_label.setWrapText(true);
         StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
-        info_button = new Button("Info");
+/*        info_button = new Button("Info");
         Look_and_feel_manager.set_button_look(info_button,true,logger);
         info_button.setOnAction(event -> {
             the_image_Pane.getChildren().add(the_info_label);
         });
         StackPane.setAlignment(info_button, Pos.BOTTOM_LEFT);
-
+*/
 
         Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if ( tmp == null)
@@ -633,7 +632,7 @@ public class Image_window
 
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
-            the_image_Pane.getChildren().add(info_button);
+            the_image_Pane.getChildren().add(the_info_label);
             set_stage_title(local_image_context);
         },logger);
     }

@@ -21,7 +21,7 @@ import java.util.Optional;
 public class Keyboard_handling_for_Image_window
 //**********************************************************
 {
-    private static final boolean keyword_dbg = false;
+    private static final boolean keyword_dbg = true;
     //**********************************************************
     static void handle_keyboard(
             Image_window image_window,
@@ -251,6 +251,8 @@ public class Keyboard_handling_for_Image_window
             }
         }
 
+        if ( keyword_dbg) logger.log("keyboard : KeyEvent="+key_event.getCode());
+
         switch (key_event.getCode())
         {
             /*
@@ -269,8 +271,6 @@ public class Keyboard_handling_for_Image_window
             */
             case LEFT:
                 if ( keyword_dbg) logger.log("left");
-
-
                 image_window.image_display_handler.change_image_relative(-1, image_window.ultim_mode);
                 break;
 
@@ -278,8 +278,6 @@ public class Keyboard_handling_for_Image_window
                 if ( keyword_dbg) logger.log("space");
             case RIGHT:
                 if ( keyword_dbg) logger.log("right");
-
-
                 image_window.image_display_handler.change_image_relative(1, image_window.ultim_mode);
                 break;
 
