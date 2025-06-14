@@ -43,7 +43,7 @@ import static klik.images.Image_display_handler.build_Image_context;
 public class Menus_for_image_window
 //**********************************************************
 {
-
+    static MenuItem fullscreen;
 
     //**********************************************************
     public static void do_same_move(Image_window image_window)
@@ -470,28 +470,36 @@ public class Menus_for_image_window
     private static MenuItem manage_full_screen(Image_window image_window)
     //**********************************************************
     {
-        MenuItem fullscreen = new MenuItem(My_I18n.get_I18n_string("Go_full_screen", image_window.logger));
+        fullscreen = new MenuItem(My_I18n.get_I18n_string("Go_full_screen", image_window.logger));
         if (image_window.is_full_screen )
         {
             fullscreen.setText(My_I18n.get_I18n_string("Stop_full_screen",image_window.logger));
         }
 
         fullscreen.setOnAction(event -> {
-            if (image_window.is_full_screen )
-            {
-                image_window.the_Stage.setFullScreen(false);
-                image_window.is_full_screen = false;
-                fullscreen.setText(My_I18n.get_I18n_string("Go_full_screen",image_window.logger));
-            }
-            else
-            {
-                image_window.the_Stage.setFullScreen(true);
-                image_window.is_full_screen = true;
-                fullscreen.setText(My_I18n.get_I18n_string("Stop_full_screen",image_window.logger));
-            }
+            toggle_fullscreen(image_window);
         });
 
         return fullscreen;
+    }
+
+
+    //**********************************************************
+    static void toggle_fullscreen(Image_window image_window)
+    //**********************************************************
+    {
+        if (image_window.is_full_screen )
+        {
+            image_window.the_Stage.setFullScreen(false);
+            image_window.is_full_screen = false;
+            fullscreen.setText(My_I18n.get_I18n_string("Go_full_screen", image_window.logger));
+        }
+        else
+        {
+            image_window.the_Stage.setFullScreen(true);
+            image_window.is_full_screen = true;
+            fullscreen.setText(My_I18n.get_I18n_string("Stop_full_screen", image_window.logger));
+        }
     }
 
     //**********************************************************

@@ -134,11 +134,13 @@ public class Keyboard_handling_for_Image_window
                 return;
             }
             case "f","F" -> {
-                if (keyword_dbg) logger.log("f like Face Recognition");
+                //if (keyword_dbg) logger.log("f like Face Recognition");
+                //if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                //Menus_for_image_window.face_rec(Face_detection_type.MTCNN,image_window);
 
+                if (keyword_dbg) logger.log("f like Fullscreen");
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-
-                Menus_for_image_window.face_rec(Face_detection_type.MTCNN,image_window);
+                Menus_for_image_window.toggle_fullscreen(image_window);
 
                 key_event.consume();
                 return;

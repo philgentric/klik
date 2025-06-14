@@ -3,9 +3,12 @@ package klik.images;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -22,6 +25,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.look.my_i18n.My_I18n;
 import klik.properties.features.Feature;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
@@ -54,6 +58,8 @@ public class Image_window
     public final Scene the_Scene;
     public final Stage the_Stage;
     public final Pane the_image_Pane;
+    public final Label the_info_label;
+    public final Button info_button;
     //public final Browser browser;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
@@ -124,6 +130,20 @@ public class Image_window
         the_Stage = new Stage();
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane,logger);
+
+
+        String text = My_I18n.get_I18n_string("Image_window_info", logger);
+        text = text.replaceAll(",","\n");
+        the_info_label = new Label(text);
+        the_info_label.setMaxWidth(400);
+        the_info_label.setWrapText(true);
+        StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
+        info_button = new Button("Info");
+        Look_and_feel_manager.set_button_look(info_button,true,logger);
+        info_button.setOnAction(event -> {
+            the_image_Pane.getChildren().add(the_info_label);
+        });
+        StackPane.setAlignment(info_button, Pos.BOTTOM_LEFT);
 
 
         Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
@@ -613,6 +633,7 @@ public class Image_window
 
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
+            the_image_Pane.getChildren().add(info_button);
             set_stage_title(local_image_context);
         },logger);
     }
