@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,20 +23,18 @@ public class Execute_command
     //**********************************************************
     {
         StringBuilder received_line = new StringBuilder();
-        List<String> command_tokens2 = new ArrayList<>();
         for ( String s : command_tokens)
         {
             if ( s.contains(" "))
             {
-                s = "\"" + s + "\""; // if the command contains spaces, we need to quote it
+                logger.log("WARNING: command token contains space: " + s+" if this is a file name, consider changing the name to not contain spaces");
             }
             received_line.append(s).append(" ");
-            command_tokens2.add(s);
         }
         if ( to_be_returned != null) to_be_returned.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
 
         String output = "";
-        ProcessBuilder process_builder = new ProcessBuilder(command_tokens2);
+        ProcessBuilder process_builder = new ProcessBuilder(command_tokens);
         process_builder.directory(wd);
         process_builder.redirectErrorStream(true);
         Process p;
