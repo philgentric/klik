@@ -587,6 +587,7 @@ public class Icon_factory_actor implements Actor
         if (image_from_cache == null)
         {
             logger.log("Icon_factory thread: load from file FAILED for " + icon_destination.get_item_path().getFileName());
+            return null;
         }
         else
         {
