@@ -25,10 +25,6 @@ public class Execute_command
         StringBuilder received_line = new StringBuilder();
         for ( String s : command_tokens)
         {
-            if ( s.contains(" "))
-            {
-                logger.log("WARNING: command token contains space: " + s+" if this is a file name, consider changing the name to not contain spaces");
-            }
             received_line.append(s).append(" ");
         }
         if ( to_be_returned != null) to_be_returned.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
