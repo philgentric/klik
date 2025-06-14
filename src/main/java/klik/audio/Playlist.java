@@ -277,6 +277,7 @@ public class Playlist
     void set_selected()
     //**********************************************************
     {
+        if ( the_song_path == null) return;
 
         if (dbg) logger.log("set_selected " + the_song_path);
 
