@@ -60,7 +60,7 @@ public class Booleans
     public static void manage_show_ffmpeg_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean(Feature.Show_ffmpeg_install_warning.name()))
+        if ( get_boolean_defaults_to_true(Feature.Show_ffmpeg_install_warning.name()))
         {
             //if ( !ffmpeg_popup_done)
             {
@@ -79,7 +79,7 @@ public class Booleans
     public static void manage_show_GraphicsMagick_install_warning(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( get_boolean(Feature.Show_GraphicsMagick_install_warning.name()))
+        if ( get_boolean_defaults_to_true(Feature.Show_GraphicsMagick_install_warning.name()))
         {
             //if(!GraphicsMagick_popup_done)
             {

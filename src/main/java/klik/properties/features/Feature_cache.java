@@ -29,7 +29,9 @@ public class Feature_cache
             Feature.Show_icons_for_files,
             Feature.Reload_last_folder_on_startup,
             Feature.Monitor_folders,
-            Feature.Use_escape_to_close_windows);
+            Feature.Use_escape_to_close_windows,
+            Feature.Show_GraphicsMagick_install_warning,
+            Feature.Show_ffmpeg_install_warning);
 
     static {
         for (Feature f : Feature.values())
