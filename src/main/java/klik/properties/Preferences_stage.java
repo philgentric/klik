@@ -61,7 +61,7 @@ public class Preferences_stage
             Feature.Enable_name_cleaning,
             Feature.Enable_corrupted_images_removal,
             Feature.Enable_image_playlists,
-            Feature.Enable_different_image_scaling
+            //Feature.Enable_different_image_scaling
     };
     //**********************************************************
     public static void show_Preferences_stage(String title, Logger logger)

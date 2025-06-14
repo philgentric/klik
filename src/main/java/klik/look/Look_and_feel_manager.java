@@ -88,6 +88,12 @@ public class Look_and_feel_manager
                     break;
                 }
             }
+            if ( look_and_feel_style == null)
+            {
+                // the style is not known, so we set it to light
+                look_and_feel_style = Look_and_feel_style.light;
+                and_save = true;
+            }
         }
 
         if ( and_save)Non_booleans.get_main_properties_manager().set(Non_booleans.STYLE_KEY, look_and_feel_style.name());

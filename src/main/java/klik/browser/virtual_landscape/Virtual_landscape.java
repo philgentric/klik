@@ -1362,7 +1362,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 return i.get_javafx_y();
             }
         }
-        logger.log(Stack_trace_getter.get_stack_trace("\n\nnot found: Virtual_landscape::get_y_offset_of "+target+" (was typically deleted recently)"));
+        //logger.log(Stack_trace_getter.get_stack_trace("\n\nnot found: Virtual_landscape::get_y_offset_of "+target+" (was typically deleted recently)"));
 
         return 0;
     }

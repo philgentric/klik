@@ -27,7 +27,7 @@ public enum Feature
     Enable_name_cleaning,
     Enable_corrupted_images_removal,
     Enable_image_playlists,
-    Enable_different_image_scaling,
+//    Enable_different_image_scaling,
 
 
     Log_to_file,

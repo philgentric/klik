@@ -333,7 +333,7 @@ public class Menus_for_image_window
         Actor_engine.run(actor,msg,null, image_window.logger);
     }
 
-
+/*
     //**********************************************************
     private static CheckMenuItem get_quality_check_menu_item(Image_window image_window)
     //**********************************************************
@@ -354,6 +354,8 @@ public class Menus_for_image_window
         });
         return quality;
     }
+    */
+
 
     //**********************************************************
     private static MenuItem make_edit_menu_item(Image_window image_window)
@@ -510,10 +512,11 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit_menu_item(image_window));
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
-        if (Booleans.get_boolean(Feature.Enable_different_image_scaling.name()))
+
+        /*if (Booleans.get_boolean(Feature.Enable_different_image_scaling.name()))
         {
             context_menu.getItems().add(get_quality_check_menu_item(image_window));
-        }
+        }*/
 
         if ( Booleans.get_boolean(Feature.Enable_image_similarity.name()))
         {
