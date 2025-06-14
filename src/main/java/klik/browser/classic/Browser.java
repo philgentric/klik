@@ -83,11 +83,13 @@ public class Browser extends Abstract_browser implements Feature_change_target
             path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
             if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name()))
             {
-                History_item h = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
-                if ( h != null)
-                {
-                    path = Path.of(h.value);
-                    logger.log("reloading last folder from history:"+path);
+                List<History_item> l = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items();
+                if ( !l.isEmpty()) {
+                    History_item h = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
+                    if (h != null) {
+                        path = Path.of(h.value);
+                        logger.log("reloading last folder from history:" + path);
+                    }
                 }
             }
 
