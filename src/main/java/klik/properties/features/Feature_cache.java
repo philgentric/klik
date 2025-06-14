@@ -24,10 +24,24 @@ public class Feature_cache
     private static Map<Feature,List<Feature_change_target>> registered_for = new HashMap<>();
     private static List<Feature_change_target> registered_for_any_boolean_change = new ArrayList<>();
     public static Map<Feature,Boolean> boolean_feature_cache = new HashMap<>();
+
+    private static List<Feature> default_to_true = List.of(
+            Feature.Show_icons_for_files,
+            Feature.Reload_last_folder_on_startup,
+            Feature.Monitor_folders,
+            Feature.Use_escape_to_close_windows);
+
     static {
         for (Feature f : Feature.values())
         {
-            boolean_feature_cache.put(f, Booleans.get_boolean(f.name()));
+            if ( default_to_true.contains(f))
+            {
+                boolean_feature_cache.put(f,Booleans.get_boolean_defaults_to_true(f.name()));
+            }
+            else
+            {
+                boolean_feature_cache.put(f, Booleans.get_boolean(f.name()));
+            }
         }
     }
 
