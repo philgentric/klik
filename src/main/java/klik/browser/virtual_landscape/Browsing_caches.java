@@ -37,7 +37,9 @@ public class Browsing_caches
     public static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
     public final static Map<String, Image_feature_vector_cache> fv_cache_of_caches = new HashMap<>();
 
+    //**********************************************************
     public Browsing_caches(Path_list_provider path_list_provider, Aborter aborter, Logger logger)
+    //**********************************************************
     {
         Image_properties_RAM_cache tmp = image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if ( tmp == null)
@@ -49,17 +51,24 @@ public class Browsing_caches
 
     }
 
+    //**********************************************************
     public static void scroll_position_cache_write(Path folder_path, Path top_left_item_path)
+    //**********************************************************
     {
         scroll_position_cache.put(folder_path.toAbsolutePath().toString(), top_left_item_path);
     }
 
-    public static void scroll_position_cache_clear() {
+    //**********************************************************
+    public static void scroll_position_cache_clear()
+    //**********************************************************
+    {
         scroll_position_cache.clear();
     }
 
 
+    //**********************************************************
     public static Path scroll_position_cache_read(Path folder_path)
+    //**********************************************************
     {
         return scroll_position_cache.get(folder_path.toAbsolutePath().toString());
     }

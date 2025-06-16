@@ -24,8 +24,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Launcher;
-import klik.Start_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -64,7 +62,6 @@ import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.tcp.TCP_client;
 import klik.util.ui.*;
 
 import java.io.File;

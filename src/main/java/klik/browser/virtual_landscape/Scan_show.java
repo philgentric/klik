@@ -2,38 +2,42 @@ package klik.browser.virtual_landscape;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.util.log.Logger;
 
 //**********************************************************
 public class Scan_show
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final double FAC = 1.3;
     public final double MAX_SPEED;
     public final double MIN_SPEED;
-    private Timeline scan_show_animation_timeline;
-    long inter_frame_ms = 3;
+    private static final long inter_frame_ms = 30;
+    long last_start_sleep_ms;
     private final Scan_show_slave scan_show_slave;
     private final Logger logger;
-    private final Aborter aborter;
+    private Aborter the_aborter;
+    private final Aborter browser_aborter;
     private double dy;
+
 
     //**********************************************************
     Scan_show(Scan_show_slave scan_show_slave_, Vertical_slider slider, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        this.aborter = aborter;
+        this.browser_aborter = aborter;
         scan_show_slave = scan_show_slave_;
         logger = logger_;
         int number_of_rows = scan_show_slave.how_many_rows();
         double slider_unit_per_row = slider.the_Slider.getMax()/(double)number_of_rows;
         if ( dbg) logger.log("slider_unit_per_row="+slider_unit_per_row);
-        MIN_SPEED = slider_unit_per_row/3000.0;
+        sMIN_SPEED = slider_unit_per_row/3000.0;
         if ( dbg) logger.log("MIN_SPEED="+MIN_SPEED);
         MAX_SPEED = slider_unit_per_row/30.0;
         if ( dbg) logger.log("MAX_SPEED="+MAX_SPEED);
@@ -51,7 +55,64 @@ public class Scan_show
     private void start_the_show()
     //**********************************************************
     {
-        if ( aborter.should_abort()) return;
+        if ( browser_aborter.should_abort()) return;
+        if ( the_aborter != null)  return;
+
+        last_start_sleep_ms = System.currentTimeMillis();
+        the_aborter = new Aborter("browser scan show aborter", logger);
+        Runnable r = () -> {
+            if ( dbg) logger.log("scan show start runnable");
+            for(;;)
+            {
+                if (browser_aborter.should_abort())
+                {
+                    the_aborter = null;
+                    return;
+                }
+                if ( the_aborter == null) return;
+                if (the_aborter.should_abort())
+                {
+                    the_aborter = null;
+                    return;
+                }
+
+                long now = System.currentTimeMillis();
+                if ( now  > last_start_sleep_ms+inter_frame_ms)
+                {
+                    if ( dbg) logger.log("scan show too SLOW, skipping sleep AND delta");
+
+                    last_start_sleep_ms = now;
+                    continue;
+                }
+
+                if ( dbg) logger.log("scan show sleep for "+inter_frame_ms+" ms");
+                try {
+                    Thread.sleep(inter_frame_ms);
+                }
+                catch (InterruptedException e) {
+                    logger.log(""+e);
+                    the_aborter = null;
+                    return;
+                }
+                Runnable r1 = () -> {
+                    if ( scan_show_slave.scroll_a_bit(dy))
+                    {
+                        if ( dbg) logger.log("scan scroll done = "+dy);
+                    }
+                    else
+                    {
+                        if ( dbg) logger.log("inverting scan direction !");
+                        invert_scan_direction();
+                    }
+                    last_start_sleep_ms = System.currentTimeMillis();
+                };
+                Platform.runLater(r1);
+            }
+        };
+        Actor_engine.execute(r,logger);
+
+
+        /*
         if (scan_show_animation_timeline != null)
         {
             scan_show_animation_timeline.stop();
@@ -73,6 +134,8 @@ public class Scan_show
         scan_show_animation_timeline.getKeyFrames().add(new KeyFrame(Duration.millis(inter_frame_ms), eventHandler));
         scan_show_animation_timeline.setCycleCount(Timeline.INDEFINITE);
         scan_show_animation_timeline.play();
+
+         */
         if ( dbg) logger.log("scan show start " + inter_frame_ms);
 
     }
@@ -81,11 +144,18 @@ public class Scan_show
     void stop_the_show()
     //**********************************************************
     {
+        /*
         if (scan_show_animation_timeline != null)
         {
             scan_show_animation_timeline.stop();
             scan_show_animation_timeline = null;
 
+            if ( dbg) logger.log("scan show stop");
+        }*/
+        if ( the_aborter != null)
+        {
+            the_aborter.abort("stop_the_show");
+            the_aborter = null;
             if ( dbg) logger.log("scan show stop");
         }
     }

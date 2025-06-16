@@ -58,13 +58,12 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         double pixel_height = get_pixel_height(virtual_landscape.get_virtual_landscape_height());
         double new_pixel = slider_to_pixels(slider, pixel_height);
 
-        String reason = "";
         if ( Virtual_landscape.scroll_dbg)
         {
-            reason = "(normalized+inverted with pixel_height= "+pixel_height+") slider = "+ slider +"  ==> " +new_pixel;
+            String reason = "(normalized+inverted with pixel_height= "+pixel_height+") slider = "+ slider +"  ==> " +new_pixel;
             logger.log(reason);
         }
-        virtual_landscape.move_absolute(new_pixel, "VIRTUAL LANDSCAPE move absolute = slider moved! " +reason);
+        virtual_landscape.move_absolute(new_pixel, "VIRTUAL LANDSCAPE move absolute = slider moved! ");
     }
 
     //**********************************************************

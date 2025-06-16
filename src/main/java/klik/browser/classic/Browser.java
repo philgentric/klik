@@ -107,8 +107,10 @@ public class Browser extends Abstract_browser implements Feature_change_target
     }
 
 
+    //**********************************************************
     @Override // Feature_change_target
     public void update(Feature feature, boolean new_val)
+    //**********************************************************
     {
         monitor();
 
