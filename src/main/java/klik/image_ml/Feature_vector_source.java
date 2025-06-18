@@ -3,6 +3,7 @@ package klik.image_ml;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.execute.Execute_command;
@@ -59,7 +60,7 @@ public abstract class Feature_vector_source
 
 
     //**********************************************************
-    public Feature_vector get_feature_vector_from_server(Path path, Logger logger)
+    public Feature_vector get_feature_vector_from_server(Path path, Window owner, Logger logger)
     //**********************************************************
     {
         if ( aborter.should_abort())
@@ -75,7 +76,7 @@ public abstract class Feature_vector_source
         }
         //ML_servers_util.init_image_similarity(logger);
         int random_port = get_random_port();
-        Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, aborter,logger);
+        Feature_vector x = Feature_vector_source.get_feature_vector_from_server_generic(path, random_port, owner, aborter,logger);
 
         if ( x==null)
         {
@@ -123,7 +124,7 @@ public abstract class Feature_vector_source
     }
 
     //**********************************************************
-    static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Aborter aborter, Logger logger)
+    static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( aborter.should_abort())
@@ -143,7 +144,7 @@ public abstract class Feature_vector_source
                 if ( !popup_done.get())
                 {
                     popup_done.set(true);
-                    popup(null,logger);
+                    popup(owner,logger);
                 }
                 logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source::get_feature_vector_from_server_generic SERVER NOT STARTED.."));
                 //return null;
@@ -280,14 +281,14 @@ public abstract class Feature_vector_source
         return false;
     }
     //**********************************************************
-    private static void popup(Stage owner, Logger logger)
+    private static void popup(Window owner, Logger logger)
     //**********************************************************
     {
-        Jfx_batch_injector.inject(() -> Popups.popup_warning(owner,
+        Jfx_batch_injector.inject(() -> Popups.popup_warning(
                 "Servers not started.",
                 "This feature requires to start the Image Feature Extraction Servers\n" +
                         "Look in the menu 'preferences' for instructions",
-                false,logger), logger);
+                false,owner,logger), logger);
 
     }
 }

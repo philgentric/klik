@@ -5,6 +5,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.image_ml.image_similarity.Feature_vector_source_for_image_similarity;
 import klik.look.Look_and_feel_manager;
 import klik.util.execute.Execute_command;
@@ -260,7 +261,7 @@ public class ML_servers_util
     };
 
     //**********************************************************
-    public static void show_face_recognition_manual(Logger logger)
+    public static void show_face_recognition_manual(Window owner, Logger logger)
     //**********************************************************
     {
         Stage stage = new Stage();
@@ -268,7 +269,7 @@ public class ML_servers_util
         for ( String l : Enable_face_recognition_lines)
         {
             TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf,logger);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
@@ -277,7 +278,7 @@ public class ML_servers_util
         {
             String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers ";
             TextField tf = new TextField(cmd);
-            Look_and_feel_manager.set_region_look(tf,logger);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
@@ -290,7 +291,7 @@ public class ML_servers_util
     }
 
     //**********************************************************
-    public static void show_image_similarity_manual(Logger logger)
+    public static void show_image_similarity_manual(Window owner,Logger logger)
     //**********************************************************
     {
         Stage stage = new Stage();
@@ -299,7 +300,7 @@ public class ML_servers_util
         for ( String l : image_similarity_lines)
         {
             TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf,logger);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
@@ -313,7 +314,7 @@ public class ML_servers_util
             }
             String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_image_similarity_servers "+list_of_ports;
             TextArea tf = new TextArea(cmd);
-            Look_and_feel_manager.set_region_look(tf,logger);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
             tf.setEditable(false);
             tf.setWrapText(true);
             vb.getChildren().add(tf);

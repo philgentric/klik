@@ -1,4 +1,4 @@
-package klik.properties.features;
+package klik.properties.boolean_features;
 
 public enum Feature
 {
@@ -7,6 +7,7 @@ public enum Feature
     Show_hidden_files,
     Show_hidden_folders,
     Show_single_column,
+    Show_file_names_as_tooltips,
     Reload_last_folder_on_startup,
     Dont_zoom_small_images,
     Use_escape_to_close_windows,
@@ -34,7 +35,9 @@ public enum Feature
     Enable_detailed_cache_cleaning_options,
     Fusk_is_active,
     Show_ffmpeg_install_warning,
-    Show_GraphicsMagick_install_warning
+    Show_can_use_ESC_to_close_windows,
+    Show_graphicsmagick_install_warning,
+    max_RAM_is_defined_by_user
 
 
 }

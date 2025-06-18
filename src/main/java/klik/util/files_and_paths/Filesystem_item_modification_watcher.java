@@ -3,6 +3,7 @@
 
 package klik.util.files_and_paths;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.change.Change_gang;
 import klik.util.execute.Scheduled_thread_pool;
@@ -84,7 +85,7 @@ public class Filesystem_item_modification_watcher
 
 
     //**********************************************************
-    public static Filesystem_item_modification_watcher monitor_folder(Path folder_path, int timeout_in_minutes, Aborter monitoring_aborter, Logger logger)
+    public static Filesystem_item_modification_watcher monitor_folder(Path folder_path, int timeout_in_minutes, Window owner, Aborter monitoring_aborter, Logger logger)
     //**********************************************************
     {
         Filesystem_modification_reporter reporter = () ->
@@ -95,7 +96,7 @@ public class Filesystem_item_modification_watcher
             oanps.add(oan);
             if (dbg) logger.log("Filesystem_item_modification_watcher event:"+oan.get_string());
 
-            Change_gang.report_changes(oanps);
+            Change_gang.report_changes(oanps,owner);
         };
         Filesystem_item_modification_watcher fimw = new Filesystem_item_modification_watcher();
         if ( fimw.init(folder_path,reporter,false,timeout_in_minutes,monitoring_aborter,logger))

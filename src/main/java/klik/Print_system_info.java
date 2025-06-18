@@ -1,5 +1,8 @@
 package klik;
 
+import com.sun.management.OperatingSystemMXBean;
+
+import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,9 +32,13 @@ public class Print_system_info
     //**********************************************************
     {
 
-        System.out.println("Number of cores: "+Runtime.getRuntime().availableProcessors());
-        System.out.println("RAM total: "+(int)(Runtime.getRuntime().totalMemory()/1_000_000.0)+" MBytes");
-        System.out.println("RAM free: "+(int)(Runtime.getRuntime().freeMemory()/1_000_000.0)+" MBytes");
+        OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        System.out.println("\n\nNumber of cores: "+Runtime.getRuntime().availableProcessors());
+        System.out.println("Physical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
+        System.out.println("Java VM max RAM for klik: "+(int)(Runtime.getRuntime().maxMemory()/1_000_000_000.0)+" GBytes (reported by Runtime.maxMemory()");
+        //System.out.println("Java VM current RAM for klik: "+(int)(Runtime.getRuntime().totalMemory()/1_000_000_000.0)+" GBytes");
+        //System.out.println("Java VM currently free RAM for klik: "+(int)(Runtime.getRuntime().freeMemory()/1_000_000_000.0)+" GBytes");
+        System.out.println("\n\n");
     }
 
     //**********************************************************

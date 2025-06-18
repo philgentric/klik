@@ -293,7 +293,7 @@ public class Face_recognition_actor implements Actor
 
         start = System.nanoTime();
         Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition(aborter);
-        Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.logger);
+        Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector_from_server(face, service.owner, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {
             service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed ! are the servers started ?"));
@@ -465,19 +465,19 @@ public class Face_recognition_actor implements Actor
         if (face_detection_result.status() == Face_recognition_status.server_not_reacheable)
         {
             service.logger.log("face detection server unreachable");
-            if ( display_face_reco_window) Face_detector.warn_about_face_detector_server(service.logger);
+            if ( display_face_reco_window) Face_detector.warn_about_face_detector_server(service.owner,service.logger);
             return new Face_recognition_results(null, null, null,null,Face_recognition_status.server_not_reacheable);
         }
         if (face_detection_result.status() != Face_recognition_status.face_detected)
         {
-            if ( display_face_reco_window) service.show_face_recognition_window(face_detection_result.image(),null,aborter);
+            if ( display_face_reco_window) service.show_face_recognition_window(face_detection_result.image(),null,service.owner,aborter);
             return new Face_recognition_results(null,null, null,null, Face_recognition_status.no_face_detected);
         }
         Image image_face = face_detection_result.image();
 
         if (image_face == null)
         {
-            if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(service.logger);
+            if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(service.owner,service.logger);
             else service.logger.log("no face detected");
             return new Face_recognition_results(null,null,null,null, Face_recognition_status.no_face_detected);
         }
@@ -485,7 +485,7 @@ public class Face_recognition_actor implements Actor
         service.logger.log("Face detected");
 
         // write the image to disk, the tmp path will be passed to the embedding server
-        Path face_reco_cache_folder = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_face_reco_cache,service.logger);
+        Path face_reco_cache_folder = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_face_reco_cache,service.owner,service.logger);
         service.logger.log("face_reco_folder = "+face_reco_cache_folder);
 
         String file_name_base = "tmp_unknown_face_"+ UUID.randomUUID();
@@ -493,7 +493,7 @@ public class Face_recognition_actor implements Actor
         service.logger.log("tmp_path_to_face = "+tmp_path_to_face);
 
         Eval_results eval_result = eval_a_face(tmp_path_to_face,service, aborter);
-        if (display_face_reco_window) service.show_face_recognition_window(image_face,eval_result, aborter);
+        if (display_face_reco_window) service.show_face_recognition_window(image_face,eval_result, service.owner,aborter);
 
         String display_label = eval_result.label();
         if ( eval_result.label() == null)
@@ -528,14 +528,14 @@ public class Face_recognition_actor implements Actor
         if (face == null)
         {
             // TODO: these error messages are not accurate
-            if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(service.logger);
+            if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(service.owner,service.logger);
             else service.logger.log("fatal : cannot load image");
             return new Face_recognition_results(null,null, path_of_face,null,Face_recognition_status.no_face_detected);
         }
 
         if (display_face_reco_window)
         {
-            service.show_face_recognition_window(face,eval_result, aborter);
+            service.show_face_recognition_window(face,eval_result, service.owner,aborter);
         }
 
         String display_label = eval_result.label();

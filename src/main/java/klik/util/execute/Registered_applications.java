@@ -30,7 +30,7 @@ public class Registered_applications
     //**********************************************************
     {
         extension = extension.toLowerCase();
-        load_map(aborter,logger);
+        load_map(owner,aborter,logger);
 
         String returned =  map.get(extension);
         if ( returned != null)
@@ -88,14 +88,14 @@ public class Registered_applications
     }
 
     //**********************************************************
-    private static void load_map(Aborter aborter, Logger logger)
+    private static void load_map(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( properties_manager == null)
         {
             String home = System.getProperty(Non_booleans.USER_HOME);
             Path p = Paths.get(home, Non_booleans.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
-            properties_manager = new Properties_manager(p,"Registered applications DB",aborter,logger);
+            properties_manager = new Properties_manager(p,"Registered applications DB",owner,aborter,logger);
         }
         for (String key : properties_manager.get_all_keys())
         {

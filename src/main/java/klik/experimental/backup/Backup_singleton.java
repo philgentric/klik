@@ -56,7 +56,7 @@ public class Backup_singleton
                 if (e.source.equals(source))
                 {
                     if (e.destination.equals(destination)) {
-                        Popups.popup_warning(owner,"A backup like this is already running", "Sorry: denied",true,logger);
+                        Popups.popup_warning("A backup like this is already running", "Sorry: denied",true,owner,logger);
                         return;
                     }
                 }
@@ -71,18 +71,18 @@ public class Backup_singleton
                     + "(this is safe because files with same names, if different, will be renamed)\n"
                     + "Are you sure you want to do that ?";
 
-            if (!Popups.popup_ask_for_confirmation(owner, header, content, logger)) return;
+            if (!Popups.popup_ask_for_confirmation( header, content, owner,logger)) return;
         }
         boolean deep = false;
         {
         String header = "How deep should the file identity checks be?";
         String content = "Deep means= check every byte matches, cancel means = not deep, check just names and file sizes";
 
-        deep = Popups.popup_ask_for_confirmation(owner,header, content, logger);
+        deep = Popups.popup_ask_for_confirmation(header, content, owner,logger);
         }
         logger.log("backup deep = "+deep);
         Backup_engine b = new Backup_engine(source, destination, logger);
-        b.go(deep);
+        b.go(deep,owner);
         engines.add(b);
     }
 

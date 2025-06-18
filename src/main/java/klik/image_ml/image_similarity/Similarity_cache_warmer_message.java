@@ -1,5 +1,6 @@
-package klik.browser.comparators;
+package klik.image_ml.image_similarity;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Message;
 
@@ -12,12 +13,13 @@ public class Similarity_cache_warmer_message implements Message
 
     private final Aborter browser_aborter;
     final Path p1;
+    private final Window owner;
 
     //**********************************************************
-    public Similarity_cache_warmer_message(Aborter browser_aborter, Path p1)
+    public Similarity_cache_warmer_message(Window owner, Aborter browser_aborter, Path p1)
     //**********************************************************
     {
-
+        this.owner = owner;
         this.browser_aborter = browser_aborter;
         this.p1 = p1;
     }
@@ -30,4 +32,7 @@ public class Similarity_cache_warmer_message implements Message
     public Aborter get_aborter() {
         return browser_aborter;
     }
+
+    public Window get_owner() { return owner; }
+
 }

@@ -4,18 +4,18 @@
 
 package klik.util.files_and_paths;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.JavaFX_to_Swing;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.images.decoding.Fast_width_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.experimental.fusk.Fusk_static_core;
 
 import javafx.scene.image.Image;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
@@ -83,7 +83,7 @@ public class From_disk
     }
 
     //**********************************************************
-    public static Double determine_width(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static Double determine_width(Path path, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("\n\nFrom_disk determine_width "+path);
@@ -97,7 +97,7 @@ public class From_disk
         }
         if(Guess_file_type.is_file_an_image(path.toFile()))
         {
-            Image i = load_native_resolution_image_from_disk( path,  true, aborter,  logger);
+            Image i = load_native_resolution_image_from_disk( path,  true, owner, aborter,  logger);
             if ( i==null)
             {
                 logger.log("cannot load image to get aspect ratio(1)"+path);
@@ -113,7 +113,7 @@ public class From_disk
         return null;
     }
     //**********************************************************
-    public static double determine_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static double determine_aspect_ratio(Path path, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("\n\nFrom_disk get_aspect_ratio "+path);
@@ -127,7 +127,7 @@ public class From_disk
         }
         if(Guess_file_type.is_file_an_image(path.toFile()))
         {
-            Image i = load_native_resolution_image_from_disk( path,  true, aborter,  logger);
+            Image i = load_native_resolution_image_from_disk( path,  true, owner,aborter,  logger);
             if ( i==null)
             {
                 logger.log("cannot load image to get aspect ratio(1)"+path);
@@ -145,7 +145,7 @@ public class From_disk
 
 
     //**********************************************************
-    public static Image load_native_resolution_image_from_disk(Path original_image_file, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static Image load_native_resolution_image_from_disk(Path original_image_file, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB) {
@@ -154,7 +154,23 @@ public class From_disk
         }
         InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
-        Image image = new Image(input_stream);
+        Image image = null;
+        try
+        {
+            image =new Image(input_stream);
+        }
+        catch (OutOfMemoryError e)
+        {
+            logger.log("OutOfMemoryError when loading image from disk: "+original_image_file.toAbsolutePath()+" : "+e);
+            Popups.popup_Exception(null,100,"Your java VM machine is running out of RAM!\nclose some windows and/or try to increase the max in build.gradle and restart",owner,logger);
+            return null;
+        }
+        catch (Exception e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            Popups.popup_Exception(e,100,"An error occurred while loading an image from disk",owner,logger);
+            return null;
+        }
         try {
             input_stream.close();
         } catch (IOException e) {
@@ -166,7 +182,7 @@ public class From_disk
             if( image.getException().toString().contains("OutOfMemoryError"))
             {
                 logger.log("IMAGE decode Panic :"+image.getException());
-                Popups.popup_Exception(image.getException(),100,"Your java VM machine is running out of RAM, try to increase the max in build.gradle and restart",logger);
+                Popups.popup_Exception(image.getException(),100,"Your java VM machine is running out of RAM, try to increase the max in build.gradle and restart",owner,logger);
             }
             else if( image.getException().toString().contains("No loader for image data"))
             {
@@ -292,13 +308,14 @@ public class From_disk
             String tag,
             String extension,
             boolean dbg_local,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
         if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB)
         {
             logger.log("load_icon_from_cache_fx WARNING: running low on memory ! loading default icon");
-            return Look_and_feel_manager.get_default_icon(icon_size,logger);
+            return Look_and_feel_manager.get_default_icon(icon_size,owner,logger);
         }
         File f = file_for_icon_caching(cache_dir,original_image_file,tag, extension);
         if (dbg) logger.log("load_icon_from_disk file is:"+f.getAbsolutePath()+" for "+original_image_file);

@@ -144,7 +144,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 new Runnable_for_finding_duplicate_file_pairs_similarity(
                         image_properties_RAM_cache,
                         fv_cache_supplier,
-                        path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue, port,private_aborter, logger);
+                        path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue, port,owner, private_aborter, logger);
         Actor_engine.execute(duplicate_finder,logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");
@@ -263,7 +263,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 {
                     logger.log("\nduplicate finder is finished !!");
                     if (!end_reported) {
-                        Popups.popup_warning(owner, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
+                        Popups.popup_warning( "Search for duplicates ENDED", "(no duplicates found)", true, owner,logger);
                         end_reported = true;
                     }
                     console_window.set_end_examined();

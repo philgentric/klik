@@ -2,6 +2,7 @@ package klik.browser.items;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Window;
 import klik.look.my_i18n.My_I18n;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -22,29 +23,29 @@ public class My_colors
     public static Map<String,My_color> all_colors = new HashMap();
 
     //**********************************************************
-    public static synchronized void init_My_colors(Logger logger)
+    public static synchronized void init_My_colors(Window owner, Logger logger)
     //**********************************************************
     {
         all_colors.clear();
         Color col;
         String localized_name;
         {
-            localized_name = My_I18n.get_I18n_string(NO_COLOR,logger);
+            localized_name = My_I18n.get_I18n_string(NO_COLOR,owner,logger);
             col = null;
             all_colors.put(localized_name,new My_color(col, localized_name,null));
         }
         {
-            localized_name = My_I18n.get_I18n_string("Color_Red",logger);
+            localized_name = My_I18n.get_I18n_string("Color_Red",owner,logger);
             col = Color.RED;
             all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
         }
         {
-            localized_name = My_I18n.get_I18n_string("Color_Green", logger);
+            localized_name = My_I18n.get_I18n_string("Color_Green", owner,logger);
             col = Color.GREEN;
             all_colors.put(localized_name, new My_color(col, localized_name, col.toString()));
         }
         {
-            localized_name = My_I18n.get_I18n_string("Color_Blue",logger);
+            localized_name = My_I18n.get_I18n_string("Color_Blue",owner,logger);
             col = Color.BLUE;
             all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
         }
@@ -82,27 +83,27 @@ public class My_colors
 
 
     //**********************************************************
-    public static Circle get_circle(String localized_name, double radius, Logger logger)
+    public static Circle get_circle(String localized_name, double radius, Window owner, Logger logger)
     //**********************************************************
     {
-        My_color my_color = my_color_from_localized_name(localized_name,logger);
+        My_color my_color = my_color_from_localized_name(localized_name,owner,logger);
         if ( my_color == null) return null;
         return new Circle(radius, my_color.color());
     }
 
     //**********************************************************
-    public static Collection<My_color> get_all_colors(Logger logger)
+    public static Collection<My_color> get_all_colors(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( all_colors.isEmpty()) init_My_colors(logger);
+        if ( all_colors.isEmpty()) init_My_colors(owner,logger);
         return all_colors.values();
     }
 
     //**********************************************************
-    public static My_color my_color_from_localized_name(String localized_name, Logger logger)
+    public static My_color my_color_from_localized_name(String localized_name, Window owner,Logger logger)
     //**********************************************************
     {
-        for ( My_color my_color : get_all_colors(logger))
+        for ( My_color my_color : get_all_colors(owner,logger))
         {
             if ( my_color.localized_name().equals(localized_name)) return my_color;
         }
@@ -112,13 +113,13 @@ public class My_colors
 
 
     //**********************************************************
-    public static Color load_color_for_path(Path folderPath, Logger logger)
+    public static Color load_color_for_path(Path folderPath, Window owner,Logger logger)
     //**********************************************************
     {
         Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
         try {
             List<String> lines = Files.readAllLines(color_file);
-            Collection<My_color> all_colors = My_colors.get_all_colors(logger);
+            Collection<My_color> all_colors = My_colors.get_all_colors(owner,logger);
             for ( My_color my_color: all_colors)
             {
                 if ( my_color.java_name() == null) continue;

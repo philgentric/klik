@@ -1,6 +1,7 @@
 package klik.look.styles;
 
 import javafx.scene.paint.Color;
+import javafx.stage.Window;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_style;

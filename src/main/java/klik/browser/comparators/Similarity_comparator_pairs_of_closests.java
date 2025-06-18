@@ -5,9 +5,9 @@ package klik.browser.comparators;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.image_ml.image_similarity.Similarity_cache;
 import klik.util.log.Logger;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;

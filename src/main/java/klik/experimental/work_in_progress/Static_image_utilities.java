@@ -3,6 +3,7 @@ package klik.experimental.work_in_progress;
 //import javafx.embed.swing.SwingFXUtils;
 
 import javafx.scene.image.WritableImage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.Image_context;
@@ -26,15 +27,15 @@ public class Static_image_utilities
     private static final boolean dbg = false;
 
     //**********************************************************
-    public static Optional<Image_context> get_Image_context_with_alternate_rescaler(Path path_, double width, Aborter aborter, Logger logger_)
+    public static Optional<Image_context> get_Image_context_with_alternate_rescaler(Path path_, double width, Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         if (!Files.exists(path_)) return Optional.empty();
-        javafx.scene.image.Image local_image = From_disk.load_native_resolution_image_from_disk(path_, true, aborter, logger_);
+        javafx.scene.image.Image local_image = From_disk.load_native_resolution_image_from_disk(path_, true, owner, aborter, logger_);
         if ( local_image == null) return Optional.empty();
         if ( local_image.isError())
         {
-            javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300,logger_);
+            javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300,owner,logger_);
 
             return Optional.of(new Image_context(path_,path_, broken,-1,logger_));
         }

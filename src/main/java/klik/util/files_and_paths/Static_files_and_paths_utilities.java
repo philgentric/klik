@@ -7,20 +7,18 @@ package klik.util.files_and_paths;
 
 
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.properties.Cache_folder;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.disk_scanner.Dir_payload;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
@@ -211,9 +209,9 @@ public class Static_files_and_paths_utilities
             logger.log("nothing to delete");
             return;
         }
-        Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),logger);
+        Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explained",owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -231,9 +229,9 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Non_booleans.get_trash_dir(path,logger);
+        Path trash_dir = Non_booleans.get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning(owner, My_I18n.get_I18n_string("Nothing_done", logger), My_I18n.get_I18n_string("Nothing_done_explained", logger), false, logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explained", owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -298,11 +296,11 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path get_cache_dir(Cache_folder cache_folder, Logger logger)
+    public static Path get_cache_dir(Cache_folder cache_folder, Window owner,Logger logger)
     //**********************************************************
     {
 
-        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
+        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -346,11 +344,11 @@ public class Static_files_and_paths_utilities
 */
 
     //**********************************************************
-    public static void clear_one_icon_from_cache_on_disk(Path path, Logger logger)
+    public static void clear_one_icon_from_cache_on_disk(Path path, Window owner,Logger logger)
     //**********************************************************
     {
-        Path icon_cache_dir = get_cache_dir( Cache_folder.klik_icon_cache,logger);
-        int icon_size = Non_booleans.get_icon_size();
+        Path icon_cache_dir = get_cache_dir( Cache_folder.klik_icon_cache,owner,logger);
+        int icon_size = Non_booleans.get_icon_size(owner);
         String name = Icon_writer_actor.make_cache_name(path.toAbsolutePath().toString(), String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
         try {
@@ -366,7 +364,7 @@ public class Static_files_and_paths_utilities
     public static double clear_DISK_cache(Cache_folder cache_folder, boolean show_popup, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path icons = get_cache_dir(cache_folder,logger);
+        Path icons = get_cache_dir(cache_folder,owner,logger);
         return clear_folder(icons, cache_folder.name()+" cache on disk", show_popup, owner, aborter, logger);
     }
     //**********************************************************
@@ -392,7 +390,7 @@ public class Static_files_and_paths_utilities
             if (user_cancel(tag, size, owner, logger)) return 0.0;
         }
         logger.log(tag+", folder cleared: "+folder.toAbsolutePath()+" "+size+" bytes");
-        delete_for_ever_all_files_in_dir_in_a_thread(folder, true, logger);
+        delete_for_ever_all_files_in_dir_in_a_thread(folder, true, owner,logger);
         return size;
     }
 
@@ -402,11 +400,11 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         String s1 = "Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
-        String s2 = size / 1000_000_000.0 + My_I18n.get_I18n_string("GB_deleted", logger);
+        String s2 = size / 1000_000_000.0 + My_I18n.get_I18n_string("GB_deleted", owner,logger);
         if (size < 1_000_000_000) {
-            s2 = size / 1000_000.0 + My_I18n.get_I18n_string("MB_deleted", logger);
+            s2 = size / 1000_000.0 + My_I18n.get_I18n_string("MB_deleted", owner,logger);
         }
-        return !Popups.popup_ask_for_confirmation(owner, s1, s2, logger);
+        return !Popups.popup_ask_for_confirmation( s1, s2, owner,logger);
     }
 
 
@@ -415,29 +413,29 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Runnable r = () -> {
-            List<Path> trashes = Non_booleans.get_existing_trash_dirs(logger);
-            String s1 = My_I18n.get_I18n_string("Warning_delete", logger);
+            List<Path> trashes = Non_booleans.get_existing_trash_dirs(owner,logger);
+            String s1 = My_I18n.get_I18n_string("Warning_delete", owner,logger);
             double size = 0;
             for (Path trash : trashes) {
                 long tmp = get_size_on_disk(trash, aborter, logger);
                 logger.log("trash dir: "+trash+" "+tmp+" bytes");
                 size += tmp;
             }
-            String s2 = (int) (size / 1000_000.0) + My_I18n.get_I18n_string("MB_deleted", logger);//"MB of files will be truly deleted";
+            String s2 = (int) (size / 1000_000.0) + My_I18n.get_I18n_string("MB_deleted", owner,logger);//"MB of files will be truly deleted";
             if (size > 1000_000_000) {
                 double r1 = Math.round(size / 1000_000_00);
                 double s = r1 / 10.0;
-                s2 = (s) + My_I18n.get_I18n_string("GB_deleted", logger);//"MB of files will be truly deleted";
+                s2 = (s) + My_I18n.get_I18n_string("GB_deleted", owner,logger);//"MB of files will be truly deleted";
 
             }
             String finalS = s2;
             Runnable r2 = () -> {
                 if ( show_popup)
                 {
-                    if (!Popups.popup_ask_for_confirmation(owner, s1, finalS, logger)) return;
+                    if (!Popups.popup_ask_for_confirmation(s1, finalS, owner,logger)) return;
                 }
                 for (Path trash : trashes) {
-                    delete_for_ever_all_files_in_dir_in_a_thread(trash, true,logger);
+                    delete_for_ever_all_files_in_dir_in_a_thread(trash, true,owner,logger);
                     logger.log("deletion ongoing: "+trash);
                 }
                 logger.log("Clearing trash folders (one per drive): done");
@@ -603,31 +601,31 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static String get_1_line_string_for_byte_data_size(double size,Logger logger)
+    public static String get_1_line_string_for_byte_data_size(double size,Window owner,Logger logger)
     //**********************************************************
     {
         String returned;
         if (size < 1000) {
-            String bytes = My_I18n.get_I18n_string("Bytes", logger);
+            String bytes = My_I18n.get_I18n_string("Bytes", owner,logger);
             returned = size + " "+bytes;
         } else if (size < 1000_000) {
-            String kBytes = My_I18n.get_I18n_string("kBytes", logger);
+            String kBytes = My_I18n.get_I18n_string("kBytes", owner,logger);
             returned = String.format("%.1f", size / 1000.0) + " "+kBytes;
         } else if (size < 1000_000_000) {
-            String MBytes = My_I18n.get_I18n_string("MBytes", logger);
+            String MBytes = My_I18n.get_I18n_string("MBytes", owner,logger);
             returned = String.format("%.1f", size / 1000_000.0) + " "+MBytes;
         } else if (size < 1000_000_000_000.0) {
-            String GBytes = My_I18n.get_I18n_string("GBytes", logger);
+            String GBytes = My_I18n.get_I18n_string("GBytes", owner,logger);
             returned = String.format("%.1f", size / 1000_000_000.0) + " "+GBytes;
         } else {
-            String TBytes = My_I18n.get_I18n_string("TBytes", logger);
+            String TBytes = My_I18n.get_I18n_string("TBytes", owner,logger);
             returned = String.format("%.1f", size / 1000_000_000_000.0) + " "+TBytes;
         }
         return returned;
     }
 
     //**********************************************************
-    public static String get_1_line_string_with_size(Path path, Logger logger)
+    public static String get_1_line_string_with_size(Path path, Window owner, Logger logger)
     //**********************************************************
     {
         long BYTES = path.toFile().length();
@@ -635,23 +633,23 @@ public class Static_files_and_paths_utilities
         if (BYTES > 1000_000_000)
         {
             double GB = (double) BYTES / 1000_000_000.0;
-            String GBytes = My_I18n.get_I18n_string("GBytes", logger);
+            String GBytes = My_I18n.get_I18n_string("GBytes", owner,logger);
             sb.append(String.format("%.1f", GB)).append(" ").append(GBytes);
         }
         else if (BYTES > 1000_000)
         {
             double MB = (double) BYTES / 1000_000.0;
-            String MBytes = My_I18n.get_I18n_string("MBytes", logger);
+            String MBytes = My_I18n.get_I18n_string("MBytes", owner,logger);
             sb.append(String.format("%.1f", MB)).append(" ").append(MBytes);
         }
         else if (BYTES > 1000)
         {
-            String kBytes = My_I18n.get_I18n_string("kBytes", logger);
+            String kBytes = My_I18n.get_I18n_string("kBytes", owner,logger);
             sb.append(String.format("%.1f", (double) BYTES / 1000.0)).append(" ").append(kBytes);
         }
         else
         {
-            String bytes = My_I18n.get_I18n_string("Bytes", logger);
+            String bytes = My_I18n.get_I18n_string("Bytes", owner,logger);
             sb.append(BYTES).append(" ").append(bytes);
         }
 
@@ -659,11 +657,11 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Logger logger)
+    private static void delete_for_ever_all_files_in_dir_in_a_thread(Path dir, boolean also_folders, Window owner,Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
-            String s = delete_for_ever_all_files_in_dir(dir, also_folders,logger);
+            String s = delete_for_ever_all_files_in_dir(dir, also_folders,owner,logger);
             if ( s != null)
             {
                 Runnable rr = new Runnable() {
@@ -671,10 +669,10 @@ public class Static_files_and_paths_utilities
                     public void run() {
                         if ( s.contains("AccessDeniedException") && s.contains(Non_booleans.TRASH_DIR))
                         {
-                            Popups.popup_warning(null,"There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,logger);
+                            Popups.popup_warning("There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
                         }
                         else {
-                            Popups.popup_warning(null, "Error", s, false, logger);
+                            Popups.popup_warning( "Error", s, false, owner,logger);
                         }
                     }
                 };
@@ -687,7 +685,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    private static String delete_for_ever_all_files_in_dir(Path dir, boolean also_folders, Logger logger)
+    private static String delete_for_ever_all_files_in_dir(Path dir, boolean also_folders, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -699,7 +697,7 @@ public class Static_files_and_paths_utilities
             {
                 if (Files.isDirectory(p))
                 {
-                    String s = delete_for_ever_all_files_in_dir(p, also_folders, logger);
+                    String s = delete_for_ever_all_files_in_dir(p, also_folders, owner,logger);
                     if ( s != null) logger.log(s);
                     if (also_folders) Files.delete(p);
                 }
@@ -711,7 +709,7 @@ public class Static_files_and_paths_utilities
                 }
 
             }
-            Change_gang.report_changes(l);
+            Change_gang.report_changes(l,owner);
 
         }
         catch (IOException x)
@@ -835,7 +833,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path change_dir_name(Path old_path, String new_name,Aborter aborter , Logger logger)
+    public static Path change_dir_name(Path old_path, String new_name,Window owner, Aborter aborter , Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("change_dir_name, new name: " + new_name);
@@ -852,7 +850,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
-        Undo_for_moves.add(l, logger);
+        Undo_for_moves.add(l, owner,logger);
         return new_path;
         
     }
@@ -865,20 +863,20 @@ public class Static_files_and_paths_utilities
         String old_name = path.getFileName().toString();
 
         TextInputDialog dialog = new TextInputDialog(old_name);
-        Look_and_feel_manager.set_dialog_look(dialog,logger);
+        Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
         dialog.getDialogPane().setMinWidth(800);
         dialog.initOwner(owner);
         {
-            String text = My_I18n.get_I18n_string("Rename", logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Rename", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setTitle(text);
         }
         {
-            String text = My_I18n.get_I18n_string("Rename_explained", logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Rename_explained", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setHeaderText(text);
 
         }
         {
-            String text = My_I18n.get_I18n_string("New_name", logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("New_name", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setContentText(text);
         }
         // The Java 8 way to get the response value (with lambda expression).
@@ -903,15 +901,15 @@ public class Static_files_and_paths_utilities
                 if (Guess_file_type.is_this_path_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
                     logger.log("WARNING, extension restored");
                     new_name = new_name + "." + get_extension(old_name);
-                    Popups.popup_warning(owner, "extension restored: ", old_name + "=>" + new_name, true, logger);
+                    Popups.popup_warning( "extension restored: ", old_name + "=>" + new_name, true, owner,logger);
                 } else {
                     logger.log("WARNING, should not remove extension");
-                    Popups.popup_warning(owner, "extension lost?", old_name + "had an extension... and you entered a name without extension? :" + new_name, false, logger);
+                    Popups.popup_warning( "extension lost?", old_name + "had an extension... and you entered a name without extension? :" + new_name, false, owner,logger);
                 }
 
             } else {
                 if (!get_extension(new_name).equals(get_extension(old_name))) {
-                    Popups.popup_warning(owner, "extension check:", "you changed the file name extension", false, logger);
+                    Popups.popup_warning( "extension check:", "you changed the file name extension", false, owner,logger);
                 }
             }
         }
@@ -927,19 +925,19 @@ public class Static_files_and_paths_utilities
     {
         String old_name = path.getFileName().toString();
         TextInputDialog dialog = new TextInputDialog(old_name);
-        Look_and_feel_manager.set_dialog_look(dialog,logger);
+        Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
         dialog.initOwner(owner);
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name", logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_copy_name", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setTitle(text);
         }
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name_explained", logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_copy_name_explained", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setHeaderText(text);
 
         }
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name_explained", logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_copy_name_explained", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setContentText(text);
         }
         // The Java 8 way to get the response value (with lambda expression).
@@ -980,7 +978,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static boolean copy_dir(Path origin, Path new_path, Logger logger)
+    public static boolean copy_dir(Path origin, Path new_path, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -996,7 +994,7 @@ public class Static_files_and_paths_utilities
         List<Old_and_new_Path> l = new ArrayList<>();
         Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done, false);
         l.add(oan);
-        Change_gang.report_changes(l);
+        Change_gang.report_changes(l,owner);
         return true;
 
     }
@@ -1009,12 +1007,12 @@ public class Static_files_and_paths_utilities
     {
         if ( dbg) logger.log("copy_dir_in_a_thread start");
         Runnable r = () -> {
-            boolean status = copy_dir(path, new_path, logger);
+            boolean status = copy_dir(path, new_path, owner, logger);
             if (status) {
                 if (dbg) logger.log("Folder copy done: " + new_path);
             } else {
                 logger.log("Folder copy error!");
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "copy of dir failed", "see the logs", false, logger),logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning("copy of dir failed", "see the logs", false, owner,logger),logger);
             }
         };
         try {
@@ -1098,14 +1096,14 @@ public class Static_files_and_paths_utilities
         return age;
     }
 
-    public static Path get_cache_folder(Cache_folder cache_folder, Logger logger)
+    public static Path get_cache_folder(Cache_folder cache_folder, Window owner,Logger logger)
     {
-        return Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, logger);
+        return Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
     }
 
-    public static Path get_face_reco_folder(Logger logger)
+    public static Path get_face_reco_folder(Window owner,Logger logger)
     {
-        return Non_booleans.get_absolute_hidden_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, logger);
+        return Non_booleans.get_absolute_hidden_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, owner,logger);
     }
 
 

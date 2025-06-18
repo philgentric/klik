@@ -8,12 +8,12 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.change.undo.Undo_for_moves;
 import klik.change.Redo_same_move_engine;
-import klik.properties.features.Feature;
+import klik.properties.boolean_features.Feature;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.experimental.metadata.Metadata_handler;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Show_running_film_frame;
@@ -62,7 +62,7 @@ public class Moving_files
         }
 
         if (popup) {
-            Popups.popup_warning(owner, "Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, logger);
+            Popups.popup_warning( "Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, owner,logger);
         }
         perform_safe_moves_in_a_thread(owner, x,y,oan_list,  true, aborter,logger);
     }
@@ -128,7 +128,7 @@ public class Moving_files
     {
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for (Old_and_new_Path oanf : l) {
-            Path trash_dir = Non_booleans.get_trash_dir(oanf.old_Path,logger);
+            Path trash_dir = Non_booleans.get_trash_dir(oanf.old_Path,owner,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), oanf.get_old_Path().getFileName().toString()));
             Old_and_new_Path oanf2 = new Old_and_new_Path(oanf.old_Path, new_Path, oanf.cmd, oanf.status,false);
             l2.add(oanf2);
@@ -163,8 +163,8 @@ public class Moving_files
             {
                 // we rename the ICON to avoid remaking one
 
-                Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache,logger);
-                int icon_size = Non_booleans.get_icon_size();
+                Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache,owner,logger);
+                int icon_size = Non_booleans.get_icon_size(owner);
                 File current_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.old_Path,String.valueOf(icon_size), Icon_factory_actor.png_extension);
                 if (current_icon.exists()) {
                     File new_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.new_Path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
@@ -202,15 +202,15 @@ public class Moving_files
 
         if ( !done.isEmpty())
         {
-            Change_gang.report_changes(done);
+            Change_gang.report_changes(done,owner);
             if ( and_list_for_undo)
             {
-                Undo_for_moves.add(done, logger);
+                Undo_for_moves.add(done, owner, logger);
             }
         }
 
         if (!not_done.isEmpty()) {
-            Change_gang.report_changes(not_done);
+            Change_gang.report_changes(not_done,owner);
             StringBuilder sb = new StringBuilder();
             for (Old_and_new_Path i : not_done) {
                 sb.append(i.old_Path.toAbsolutePath());
@@ -222,7 +222,7 @@ public class Moving_files
             }
             boolean for_3seconds = true;
             if (not_done.size() >= 2) for_3seconds = false;
-            Popups.popup_warning(owner, "Moves not done?", sb.toString(), for_3seconds, logger);
+            Popups.popup_warning( "Moves not done?", sb.toString(), for_3seconds, owner,logger);
             logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
         }
 
@@ -288,7 +288,7 @@ public class Moving_files
                 }
                 else
                 {
-                    Path new_path = Paths.get(Non_booleans.get_trash_dir(oandn.old_Path, logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
+                    Path new_path = Paths.get(Non_booleans.get_trash_dir(oandn.old_Path, owner,logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
                     new_path = generate_new_candidate_name(new_path, "", "_identical_file", logger);
                     Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, new_path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.identical_file_moved_to_klik_trash,false);
                     logger.log(oandn.get_old_Path() + " moved to klik_trash because a file at destination has exactly the same content");
@@ -448,7 +448,7 @@ public class Moving_files
 
                 if ( System.currentTimeMillis()-start > 5_000)
                 {
-                    if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name()))
+                    if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name(),owner))
                     {
                         Ding.play("file moving takes more than 5s", logger);
                     }
@@ -477,19 +477,19 @@ public class Moving_files
                 // and then when a delete of the source folder is attempted... DirectoryNotEmptyException
                 //
                 logger.log("WARNING4: move failed " + oandn.get_old_Path() + " directory not empty exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
-                Popups.popup_warning(owner, "Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, logger);
+                Popups.popup_warning( "Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, owner,logger);
                 return move_failed(owner, oandn, x, aborter,logger);
             }
 
             logger.log(oandn.get_old_Path() + " directory not empty: it is not allowed!");
-            Popups.popup_Exception(x, 200, "Directory is not empty", logger);
+            Popups.popup_Exception(x, 200, "Directory is not empty", owner, logger);
             return move_failed(owner, oandn, x, aborter,logger);
         } catch (IOException e) {
             logger.log("WARNING5 "+oandn.get_old_Path() + " " + e);
             if ( !oandn.get_old_Path().toFile().canWrite())
             {
                 logger.log("cannot write "+oandn.get_old_Path() + " " + e);
-                Popups.popup_warning(owner, "File is not writeable:"+oandn.get_old_Path(), "This file cannot be moved because its file-system properties do not allow it", false, logger);
+                Popups.popup_warning("File is not writeable:"+oandn.get_old_Path(), "This file cannot be moved because its file-system properties do not allow it", false, owner,logger);
 
             }
             return move_failed(owner, oandn, e, aborter,logger);
@@ -515,7 +515,7 @@ public class Moving_files
         {
             logger.log("FAILED to move file, target dir does not exists->" + oandn.get_new_Path().getParent() + "<-" + e0);
             Path path = oandn.get_new_Path().getParent();
-            Non_booleans.get_main_properties_manager().remove(path.toAbsolutePath().toString());
+            Non_booleans.get_main_properties_manager(owner).remove(path.toAbsolutePath().toString());
 
             return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, oandn.cmd, Status_old_and_new_Path.target_dir_does_not_exist,false);
         } else {
@@ -537,12 +537,12 @@ public class Moving_files
 
 
                 String local_string =
-                        My_I18n.get_I18n_string("We_tried_moving", logger)
+                        My_I18n.get_I18n_string("We_tried_moving", owner,logger)
                                 + oandn.get_old_Path().toAbsolutePath()
-                                + My_I18n.get_I18n_string("Into", logger)
+                                + My_I18n.get_I18n_string("Into", owner,logger)
                                 + oandn.get_new_Path().toAbsolutePath()
-                                + My_I18n.get_I18n_string("And_it_worked", logger);
-                if (moving_files_dbg) Popups.popup_warning(owner, "Move success (dbg is on)", local_string, false, logger);
+                                + My_I18n.get_I18n_string("And_it_worked", owner,logger);
+                if (moving_files_dbg) Popups.popup_warning( "Move success (dbg is on)", local_string, false, owner,logger);
                 logger.log(local_string + "<-\n" + e0);
                 return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done,false);
             }

@@ -10,6 +10,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Pair;
 import klik.actor.Aborter;
 import klik.util.log.Logger;
@@ -23,20 +24,20 @@ public class Tag_stage
 {
 
     //**********************************************************
-    public static void open_tag_edit_stage(Path path, Aborter aborter, Logger logger)
+    public static void open_tag_edit_stage(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        open_tag_stage( path, true,  aborter,logger);
+        open_tag_stage( path, true,  owner, aborter,logger);
     }
     //**********************************************************
-    public static void open_tag_view_stage(Path path, Aborter aborter, Logger logger)
+    public static void open_tag_view_stage(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        open_tag_stage( path, false, aborter, logger);
+        open_tag_stage( path, false, owner, aborter, logger);
     }
 
     //**********************************************************
-    public static void open_tag_stage(Path path, boolean editable, Aborter aborter, Logger logger)
+    public static void open_tag_stage(Path path, boolean editable, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("Tag_stage "+path);
@@ -53,7 +54,7 @@ public class Tag_stage
         the_stage.setWidth(1200);
         the_stage.setHeight(300);
         the_stage.setTitle("Tags for "+path.toAbsolutePath());
-        Metadata_handler local_Metadata_handler = new Metadata_handler(path,aborter,logger);
+        Metadata_handler local_Metadata_handler = new Metadata_handler(path,owner,aborter,logger);
         //if ( ultra_dbg)
         {
             Set<String> l = local_Metadata_handler.get_all_keys();

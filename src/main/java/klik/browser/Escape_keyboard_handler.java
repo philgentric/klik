@@ -2,9 +2,8 @@ package klik.browser;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import klik.browser.virtual_landscape.Virtual_landscape;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 
 //**********************************************************
 public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEvent>

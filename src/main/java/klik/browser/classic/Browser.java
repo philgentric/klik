@@ -45,6 +45,7 @@
 
 package klik.browser.classic;
 
+import javafx.stage.Window;
 import klik.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.virtual_landscape.Browsing_caches;
@@ -52,11 +53,11 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
-import klik.properties.features.Feature;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Booleans;
 import klik.properties.Non_booleans;
-import klik.properties.features.Feature_cache;
-import klik.properties.features.Feature_change_target;
+import klik.properties.boolean_features.Feature_cache;
+import klik.properties.boolean_features.Feature_change_target;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
@@ -81,11 +82,11 @@ public class Browser extends Abstract_browser implements Feature_change_target
         if ( context.target_path == null)
         {
             path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
-            if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name()))
+            if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), context.originator))
             {
-                List<History_item> l = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items();
+                List<History_item> l = History_engine.get(context.originator, Shared_services.shared_services_aborter, logger).get_all_history_items();
                 if ( !l.isEmpty()) {
-                    History_item h = History_engine.get(Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
+                    History_item h = History_engine.get(context.originator, Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
                     if (h != null) {
                         path = Path.of(h.value);
                         logger.log("reloading last folder from history:" + path);
@@ -129,7 +130,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
 
         if (!monitor_this_folder)
         {
-            if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name()))
+            if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name(), my_Stage.the_Stage))
             {
                 monitor_this_folder = true;
             }
@@ -138,7 +139,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         if (monitor_this_folder)
         {
             Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, Shared_services.shared_services_aborter, logger);
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, Shared_services.shared_services_aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
                     logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
@@ -213,7 +214,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
 
     //**********************************************************
     @Override // Change_receiver
-    public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger)
+    public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Window owner, Logger logger)
     //**********************************************************
     {
 

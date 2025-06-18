@@ -35,11 +35,11 @@ public class Histogram_stage
         HBox hbox = new HBox();
         int x_offset = 5;
         {
-            Graph_for_histograms graph = new Graph_for_histograms("Histogram",values, x_offset,Color.RED, logger);
+            Graph_for_histograms graph = new Graph_for_histograms("Histogram",values, x_offset,Color.RED, stage,logger);
             hbox.getChildren().add(graph.vbox);
         }
 
-        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(logger).get_background_color());
+        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(stage,logger).get_background_color());
         stage.setScene(scene);
         stage.setTitle("title");
         stage.setMinWidth(1200);

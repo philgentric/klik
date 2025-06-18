@@ -23,7 +23,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.change.Change_gang;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Booleans;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.*;
 import klik.browser.icons.Icon_factory_actor;
@@ -76,7 +76,7 @@ public class Ffmpeg_utils
             }
             List<Old_and_new_Path> c = new ArrayList<>();
             c.add(new Old_and_new_Path(null,dir.toPath(),Command_old_and_new_Path.command_move,Status_old_and_new_Path.before_command,false));
-            Change_gang.report_changes(c);
+            Change_gang.report_changes(c, owner);
         }
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
@@ -89,7 +89,7 @@ public class Ffmpeg_utils
         {
             if (running_film.aborter.should_abort())
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,logger), logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning("ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,owner,logger), logger);
                 return;
             }
             String name = video_path.getFileName().toString()+"_part_"+String.format(us_locale,"%07d",(Integer)start)+".gif";
@@ -236,7 +236,7 @@ public class Ffmpeg_utils
             {
                 aborted_reported.set(true);
                 logger.log("video_to_gif abort reported");
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(owner, "ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false, logger), logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning("ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false,owner, logger), logger);
             }
             return;
         }
@@ -354,7 +354,7 @@ public class Ffmpeg_utils
     static Logger logger;
 
     //**********************************************************
-    public static void interactive(Path video_path_, Logger logger_)
+    public static void interactive(Path video_path_, Window owner,Logger logger_)
     //**********************************************************
     {
         video_path = video_path_;
@@ -364,7 +364,7 @@ public class Ffmpeg_utils
 
         Platform.runLater(() -> {
             the_stage = new Stage();
-            icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.klik_icon_cache,logger);
+            icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.klik_icon_cache,owner,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);
@@ -378,9 +378,9 @@ public class Ffmpeg_utils
                 logger.log("FATAL: ffprobe cannot find duration of "+video_path);
                 return;
             }
-            make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder(owner);//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
             Pane vb = new VBox();
-            Look_and_feel_manager.set_region_look(vb,logger);
+            Look_and_feel_manager.set_region_look(vb,owner,logger);
             {
                 HBox hb =  new HBox();
                 {
@@ -418,12 +418,12 @@ public class Ffmpeg_utils
                 {
                     gif_saving_dir = dir_chooser.getSelectedFile();
                     save_same.setDisable(false);
-                    save_now(new Aborter("interactive",logger),logger);
+                    save_now(owner,new Aborter("interactive",logger),logger);
                 }
             }));
             save_same.setOnAction(actionEvent -> {
                 if (gif_saving_dir== null) return;
-                save_now(new Aborter("interactive",logger),logger);
+                save_now(owner,new Aborter("interactive",logger),logger);
             });
 
             {
@@ -441,7 +441,7 @@ public class Ffmpeg_utils
                     EventHandler<ActionEvent> start_change = actionEvent -> {
                         start_time_seconds = Double.parseDouble(tf_start.getText());
                         logger.log(" START  =" + start_time_seconds);
-                        make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
+                        make_animated_gif_in_tmp_folder(owner);//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                     };
                     tf_start.setOnAction(start_change);
@@ -458,7 +458,7 @@ public class Ffmpeg_utils
                     hb.getChildren().add(jump);
                     jump.setOnAction(actionEvent -> {
                         change_start_time(start_time_seconds+duration_seconds);
-                        make_animated_gif_in_tmp_folder();
+                        make_animated_gif_in_tmp_folder(owner);
                     });
                 }
 
@@ -468,14 +468,14 @@ public class Ffmpeg_utils
                 {
                     HBox hb = new HBox();
                     double[] values ={0.1,0.5,1,5,10,30,60,180};
-                    for ( double val : values) add_change_start_time_button(val, video_path, logger, icon_cache_dir, hb);
+                    for ( double val : values) add_change_start_time_button(val, video_path, icon_cache_dir, hb,owner,logger);
                     vb.getChildren().add(hb);
                 }
 
                 {
                     HBox hb = new HBox();
                     double[] values ={-0.1,-0.5,-1,-5,-10,-30,-60,-180};
-                    for ( double val : values) add_change_start_time_button(val, video_path, logger, icon_cache_dir, hb);
+                    for ( double val : values) add_change_start_time_button(val, video_path, icon_cache_dir, hb,owner,logger);
                     vb.getChildren().add(hb);
                 }
             }
@@ -492,7 +492,7 @@ public class Ffmpeg_utils
                 EventHandler<ActionEvent> duration_change = actionEvent -> {
                     duration_seconds = Double.parseDouble(tf_duration.getText());
                     logger.log(" DURATION  ="+duration_seconds);
-                    make_animated_gif_in_tmp_folder();//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
+                    make_animated_gif_in_tmp_folder(owner);//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                 };
                 tf_duration.setOnAction(duration_change);
@@ -505,14 +505,14 @@ public class Ffmpeg_utils
                 {
                     HBox hb = new HBox();
                     double[] values ={0.1,0.5,1,5,10,30,60,180};
-                    for ( double val : values) add_change_duration_button(val,video_path, logger, icon_cache_dir, hb);
+                    for ( double val : values) add_change_duration_button(val,video_path, icon_cache_dir, hb, owner,logger);
                     vb.getChildren().add(hb);
                 }
 
                 {
                     HBox hb = new HBox();
                     double[] values ={-0.1,-0.5,-1,-5,-10,-30,-60,-180};
-                    for ( double val : values) add_change_duration_button(val, video_path, logger, icon_cache_dir, hb);
+                    for ( double val : values) add_change_duration_button(val, video_path, icon_cache_dir, hb, owner,logger);
                     vb.getChildren().add(hb);
                 }
             }
@@ -527,14 +527,14 @@ public class Ffmpeg_utils
     }
 
     //**********************************************************
-    private static void save_now(Aborter aborter, Logger logger)
+    private static void save_now(Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
         // if the user already saved, the file has been moved to the target folder
         // so we need to re-generate (use case is: user saved, changed her mind, erased the result, wants to redo it)
         if ( !temporary_gif_full_path.toFile().exists())
         {
-            make_animated_gif_in_tmp_folder();
+            make_animated_gif_in_tmp_folder(owner);
         }
         String new_name = temporary_gif_full_path.getFileName().toString();
 
@@ -563,7 +563,7 @@ public class Ffmpeg_utils
 
 
     //**********************************************************
-    private static void add_change_start_time_button(double amount, Path path, Logger logger, Path icon_cache_dir, HBox hb)
+    private static void add_change_start_time_button(double amount, Path path, Path icon_cache_dir, HBox hb,Window owner,Logger logger)
     //**********************************************************
     {
         String d = amount+" s";
@@ -574,13 +574,13 @@ public class Ffmpeg_utils
         button.setMaxWidth(HUNDRED);
         EventHandler<ActionEvent> plus_action = actionEvent -> {
             change_start_time(start_time_seconds+amount);
-            make_animated_gif_in_tmp_folder();//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder(owner);//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
         };
         button.setOnAction(plus_action);
         hb.getChildren().add(button);
     }
     //**********************************************************
-    private static void add_change_duration_button(double amount, Path path, Logger logger, Path icon_cache_dir, HBox hb)
+    private static void add_change_duration_button(double amount, Path path, Path icon_cache_dir, HBox hb, Window owner, Logger logger)
     //**********************************************************
     {
         String d = amount+" s";
@@ -591,14 +591,14 @@ public class Ffmpeg_utils
         button.setMaxWidth(HUNDRED);
         EventHandler<ActionEvent> plus_action = actionEvent -> {
             change_duration(duration_seconds+amount);
-            make_animated_gif_in_tmp_folder();//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder(owner);//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
         };
         button.setOnAction(plus_action);
         hb.getChildren().add(button);
     }
 
     //**********************************************************
-    private static void make_animated_gif_in_tmp_folder()
+    private static void make_animated_gif_in_tmp_folder(Window owner)
     //**********************************************************
     {
         logger.log("path="+ video_path);
@@ -622,7 +622,7 @@ public class Ffmpeg_utils
                 logger);
 
 
-        Image image = From_disk.load_icon_from_disk_cache(video_path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, From_disk.dbg, logger);
+        Image image = From_disk.load_icon_from_disk_cache(video_path, icon_cache_dir, icon_size, String.valueOf(icon_size), Icon_factory_actor.gif_extension, From_disk.dbg, owner,logger);
 
         if ( image == null) logger.log("image==null");
         else the_imageview.setImage(image);

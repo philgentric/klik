@@ -2,6 +2,7 @@
 //SOURCES ./House_keeping_message.java
 package klik.change;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.files_and_paths.Command_old_and_new_Path;
@@ -141,15 +142,15 @@ public class Change_gang
 
 
     //**********************************************************
-    public static void report_changes(List<Old_and_new_Path> l)
+    public static void report_changes(List<Old_and_new_Path> l, Window owner)
     //**********************************************************
     {
-        if ( instance != null) instance.event_internal(l);
+        if ( instance != null) instance.event_internal(l,owner);
     }
 
     // distribute the change event to all registered parties
     //**********************************************************
-    private void event_internal(List<Old_and_new_Path> l)
+    private void event_internal(List<Old_and_new_Path> l, Window owner)
     //**********************************************************
     {
         if (l.isEmpty()) return;
@@ -157,17 +158,17 @@ public class Change_gang
         for (Change_receiver w : change_gang_receivers)
         {
             if ( dbg) dedicated_logger.log("Change_gang.event_internal(), SENDING to gang member:" + w.get_Change_receiver_string());
-            w.you_receive_this_because_a_file_event_occurred_somewhere(l, dedicated_logger);
+            w.you_receive_this_because_a_file_event_occurred_somewhere(l, owner, dedicated_logger);
         }
     }
     // ... not really used
     //**********************************************************
-    public static void report_anomaly(Path path)
+    public static void report_anomaly(Path path, Window owner)
     //**********************************************************
     {
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(path,null, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.before_command,false));
-        Change_gang.report_changes(l);
+        Change_gang.report_changes(l,owner);
     }
 
 

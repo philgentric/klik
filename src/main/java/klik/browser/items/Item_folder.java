@@ -20,6 +20,8 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -56,7 +58,6 @@ public class Item_folder extends Item implements Icon_destination
 
     //**********************************************************
     public Item_folder(
-            Window owner,
             Scene scene,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
@@ -71,18 +72,19 @@ public class Item_folder extends Item implements Icon_destination
             Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
             int port,
+            Window owner,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
         super(
                 port,
-                owner,
                 scene,
                 selection_handler,
                 icon_factory_actor,
                 color,
                 path_list_provider,
+                owner,
                 aborter,
                 logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
@@ -103,7 +105,7 @@ public class Item_folder extends Item implements Icon_destination
             return;
         }*/
 
-        double button_width = Non_booleans.get_column_width();
+        double button_width = Non_booleans.get_column_width(owner);
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         Path local = get_item_path();
@@ -127,12 +129,14 @@ public class Item_folder extends Item implements Icon_destination
         {
             logger.log("SHOULD NOT HAPPEN Item_folder path is not a dorectory!");
         }
-        Look_and_feel_manager.set_button_look(button,false,logger);
+        Look_and_feel_manager.set_button_look(button,false,owner,logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
-        Tooltip.install(button,new Tooltip(get_item_path().toString()));
-
+        if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
+        {
+            Tooltip.install(button, new Tooltip(get_item_path().toString()));
+        }
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
 
     }
@@ -322,7 +326,7 @@ public class Item_folder extends Item implements Icon_destination
     @Override // Item
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(button,logger);
+        Look_and_feel_manager.give_button_a_file_style(button,owner,logger);
     }
 
 
@@ -331,7 +335,7 @@ public class Item_folder extends Item implements Icon_destination
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button,logger);
+        Look_and_feel_manager.give_button_a_selected_file_style(button,owner,logger);
     }
 
 
@@ -352,7 +356,7 @@ public class Item_folder extends Item implements Icon_destination
         button = new Button(extended_text);
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
-        Look_and_feel_manager.set_button_look_as_folder(button, height, color,logger);
+        Look_and_feel_manager.set_button_look_as_folder(button, height, color,owner,logger);
         button.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
@@ -363,7 +367,7 @@ public class Item_folder extends Item implements Icon_destination
 
             if ( text.equals("Trash")) {
                 button.setOnAction(event -> {
-                    Popups.popup_warning(owner,"WARNING","NO trash on this media: probably it is read only",true,logger);
+                    Popups.popup_warning("WARNING","NO trash on this media: probably it is read only",true,owner,logger);
                 });
             }
             return;
@@ -470,7 +474,7 @@ public class Item_folder extends Item implements Icon_destination
             StringBuilder sb =  new StringBuilder();
             sb.append(text);
             sb.append("       ");
-            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,logger));
+            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,owner,logger));
 
             //sb.append(", ");
             //sb.append(sizes.files());

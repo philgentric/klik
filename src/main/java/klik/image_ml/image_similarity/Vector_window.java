@@ -9,9 +9,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
-import klik.images.Keyboard_handling_for_Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -27,8 +27,8 @@ public class Vector_window
     private static final int STRIDE = 300/(int)WW;
 
     static boolean dbg = false;
-    public final Scene the_Scene;
-    public final Stage the_Stage;
+    public final Scene scene;
+    public final Stage stage;
     public final Logger logger;
     public String title_optional_addendum;
 
@@ -39,6 +39,7 @@ public class Vector_window
     //**********************************************************
     public Vector_window(
             String title, // this is used to display image similarity
+            Window owner,
             double x, double y,
             Feature_vector fv1,
             Feature_vector fv2,
@@ -51,7 +52,8 @@ public class Vector_window
         this.fv2 = fv2;
         this.title_optional_addendum = title;
         logger = logger_;
-        the_Stage = new Stage();
+        stage = new Stage();
+        stage.initOwner(owner);
         VBox vbox = new VBox();
 
         Feature_vector_mask fvm = new Feature_vector_mask(fv1,fv2,not_same,logger);
@@ -87,37 +89,37 @@ public class Vector_window
             Shape square = new Rectangle(WW,HH, color);
             hbox.getChildren().add(square);
         }
-        the_Scene = new Scene(vbox);
-        Color background = Look_and_feel_manager.get_instance(logger).get_background_color();
-        the_Scene.setFill(background);
-        the_Stage.setScene(the_Scene);
-        the_Stage.setX(x);
-        the_Stage.setY(y);
-        the_Stage.setWidth(Image_similarity.W);
-        the_Stage.setHeight(100);
-        the_Stage.show();
-        the_Stage.setTitle(title);
+        scene = new Scene(vbox);
+        Color background = Look_and_feel_manager.get_instance(stage,logger).get_background_color();
+        scene.setFill(background);
+        stage.setScene(scene);
+        stage.setX(x);
+        stage.setY(y);
+        stage.setWidth(Image_similarity.W);
+        stage.setHeight(100);
+        stage.show();
+        stage.setTitle(title);
 
 
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,VECTOR_WINDOW,logger);
+            if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+ stage.getWidth()+","+ stage.getHeight());
+            if ( save_window_bounds) Non_booleans.save_window_bounds(stage,VECTOR_WINDOW,logger);
         };
 
-        the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
+        stage.addEventHandler(KeyEvent.KEY_PRESSED,
                 key_event -> {
                     if (key_event.getCode() == KeyCode.ESCAPE)
                     {
-                        the_Stage.close();
+                        stage.close();
                         key_event.consume();
                     }
                 });
 
 
-        the_Stage.xProperty().addListener(change_listener);
-        the_Stage.yProperty().addListener(change_listener);
-        the_Stage.widthProperty().addListener(change_listener);
-        the_Stage.heightProperty().addListener(change_listener);
+        stage.xProperty().addListener(change_listener);
+        stage.yProperty().addListener(change_listener);
+        stage.widthProperty().addListener(change_listener);
+        stage.heightProperty().addListener(change_listener);
 
     }
 

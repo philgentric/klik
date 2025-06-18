@@ -6,18 +6,18 @@ package klik.image_ml.image_similarity;
 
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.Shared_services;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
 import klik.properties.Non_booleans;
 import klik.properties.Cache_folder;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -75,7 +75,7 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
 
-        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_feature_vectors_cache.name(), false,logger);
+        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_feature_vectors_cache.name(), false,owner,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image feature vector cache folder=" + tmp_dir.toAbsolutePath());
         }
@@ -84,7 +84,7 @@ public class Image_feature_vector_cache
 
     //**********************************************************
     // if wait_if_needed is true, tr can be null
-    public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed, Aborter browser_aborter)
+    public Feature_vector get_from_cache(Path p, Job_termination_reporter tr, boolean wait_if_needed, Window owner, Aborter browser_aborter)
     //**********************************************************
     {
         Feature_vector feature_vector =  path_to_feature_vector_cache.get(key_from_path(p));
@@ -107,7 +107,7 @@ public class Image_feature_vector_cache
         {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
-        Image_feature_vector_message imp = new Image_feature_vector_message(p,this,browser_aborter,logger);
+        Image_feature_vector_message imp = new Image_feature_vector_message(p,this,owner,browser_aborter,logger);
         if ( wait_if_needed)
         {
             image_feature_vector_actor.run(imp); // blocking call
@@ -227,6 +227,7 @@ public class Image_feature_vector_cache
     //**********************************************************
     public static Images_and_feature_vectors preload_all_feature_vector_in_cache(
             Path_list_provider path_list_provider,
+            Window owner,
             double x, double y,
             Aborter browser_aborter,
             Logger logger)
@@ -238,27 +239,27 @@ public class Image_feature_vector_cache
         {
             Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, calling ML servers to get feature vectors",20000, x,y,logger);
             image_feature_vector_cache = new Image_feature_vector_cache(path_list_provider.get_name(), "image_feature_vectors", Shared_services.shared_services_aborter, logger);
-            Images_and_feature_vectors images_and_feature_vectors = image_feature_vector_cache.read_from_disk_and_update(path_list_provider,in_flight, browser_aborter,logger);
+            Images_and_feature_vectors images_and_feature_vectors = image_feature_vector_cache.read_from_disk_and_update(path_list_provider,in_flight, owner, browser_aborter,logger);
             Browsing_caches.fv_cache_of_caches.put(path_list_provider.get_name(),image_feature_vector_cache);
             return images_and_feature_vectors;
         }
-        return image_feature_vector_cache.update(path_list_provider, in_flight,browser_aborter,logger);
+        return image_feature_vector_cache.update(path_list_provider, in_flight,owner, browser_aborter,logger);
     }
 
     //**********************************************************
-    private Images_and_feature_vectors read_from_disk_and_update(Path_list_provider path_list_provider , AtomicInteger in_flight, Aborter browser_aborter, Logger logger)
+    private Images_and_feature_vectors read_from_disk_and_update(Path_list_provider path_list_provider , AtomicInteger in_flight, Window owner, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
         reload_cache_from_disk(in_flight,browser_aborter);
 
         logger.log("read_from_disk "+path_to_feature_vector_cache.size()+" fv from disk for:"+path_list_provider.get_name());
-        return update( path_list_provider, in_flight, browser_aborter, logger);
+        return update( path_list_provider, in_flight, owner, browser_aborter, logger);
     }
 
     //**********************************************************
     private  Images_and_feature_vectors update(
             Path_list_provider path_list_provider,
-            AtomicInteger in_flight, Aborter browser_aborter,Logger logger)
+            AtomicInteger in_flight, Window owner, Aborter browser_aborter,Logger logger)
     //**********************************************************
     {
         List<Path> images = new ArrayList<>();
@@ -280,7 +281,7 @@ public class Image_feature_vector_cache
         };
         for (Path p :missing_images)
         {
-            get_from_cache(p,tr,false, browser_aborter);
+            get_from_cache(p,tr,false, owner, browser_aborter);
         }
         try {
             cdl.await();

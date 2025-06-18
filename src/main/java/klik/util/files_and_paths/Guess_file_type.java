@@ -5,7 +5,7 @@ import klik.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.images.decoding.Exif_metadata_extractor;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
@@ -195,12 +195,12 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    public static boolean is_this_path_a_animated_gif(Path path, Aborter aborter, Logger logger)
+    public static boolean is_this_path_a_animated_gif(Path path, Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (! Guess_file_type.is_this_path_a_gif(path)) return false;
 
-        Exif_metadata_extractor e = new Exif_metadata_extractor(path,logger);
+        Exif_metadata_extractor e = new Exif_metadata_extractor(path,owner,logger);
         List<String> l = e.get_exif_metadata(42,true,aborter,false);
 
         if ( l == null) return false;

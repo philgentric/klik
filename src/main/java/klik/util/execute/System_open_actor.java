@@ -74,11 +74,11 @@ public class System_open_actor implements Actor
 
             if (e.toString().contains("doesn't exist."))
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(som.window, "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e,false,som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e,false,som.owner,som.logger), som.logger);
             }
             else
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(som.window, "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false,som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false,som.owner,som.logger), som.logger);
             }
         }
         return null;
@@ -91,7 +91,7 @@ public class System_open_actor implements Actor
     {
         String extension = Static_files_and_paths_utilities.get_extension(som.path.toFile().getName());
 
-        String app = Registered_applications.get_registered_application(extension, som.window, som.aborter,som.logger);
+        String app = Registered_applications.get_registered_application(extension, som.owner, som.aborter,som.logger);
 
         if ( app == null)
         {
@@ -99,7 +99,7 @@ public class System_open_actor implements Actor
             return null;
         }
         som.logger.log("special open for " + som.path + " with " + app);
-        Jfx_batch_injector.inject(() -> Popups.popup_warning(som.window, "Calling MacOS open for: ", "Please wait " + som.path,true,som.logger), som.logger);
+        Jfx_batch_injector.inject(() -> Popups.popup_warning( "Calling MacOS open for: ", "Please wait " + som.path,true,som.owner,som.logger), som.logger);
 
         call_MACOS_open(som, app);
         //call_exec(som, app));

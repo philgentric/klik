@@ -1,5 +1,6 @@
 package klik.experimental.metadata;
 
+import javafx.stage.Window;
 import javafx.util.Pair;
 import klik.actor.Aborter;
 import klik.properties.Properties_manager;
@@ -18,12 +19,12 @@ public class Metadata_handler
     private final Properties_manager properties_manager;
 
     //**********************************************************
-    public Metadata_handler(Path described_file_, Aborter aborter, Logger logger)
+    public Metadata_handler(Path described_file_, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         described_file = described_file_;
         Path p = make_metadata_path(described_file_);
-        properties_manager = new Properties_manager(p,"metadata for "+described_file,aborter,logger);
+        properties_manager = new Properties_manager(p,"metadata for "+described_file,owner,aborter,logger);
     }
 
     //**********************************************************

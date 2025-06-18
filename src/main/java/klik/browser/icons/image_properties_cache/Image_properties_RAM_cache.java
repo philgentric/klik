@@ -4,6 +4,7 @@ package klik.browser.icons.image_properties_cache;
 //SOURCES ./Image_properties_message.java
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -33,16 +34,17 @@ public class Image_properties_RAM_cache
 
 
     //**********************************************************
-    public static Image_properties_RAM_cache get(Path_list_provider path_list_provider,Aborter aborter, Logger logger)
+    public static Image_properties_RAM_cache get(Path_list_provider path_list_provider,Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return new Image_properties_RAM_cache(path_list_provider,"Image properties cache", aborter, logger);
+        return new Image_properties_RAM_cache(path_list_provider,"Image properties cache", owner,aborter, logger);
     }
 
     //**********************************************************
     public Image_properties_RAM_cache(
             Path_list_provider path_list_provider,
-            String cache_name_, Aborter aborter_, Logger logger_)
+            String cache_name_,
+            Window owner, Aborter aborter_, Logger logger_)
     //**********************************************************
     {
         instance_number = instance_number_generator++;
@@ -55,7 +57,7 @@ public class Image_properties_RAM_cache
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 
-        pm = new Properties_manager(cache_file_path,"image properties cache for folder "+path_list_provider.get_name(),aborter,logger);
+        pm = new Properties_manager(cache_file_path,"image properties cache for folder "+path_list_provider.get_name(),owner,aborter,logger);
         image_properties_actor = new Image_properties_actor();
     }
 
@@ -63,7 +65,7 @@ public class Image_properties_RAM_cache
     public static Path get_image_properties_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,logger);
+        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_properties_cache.name(), false,owner, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image properties cache folder=" + tmp_dir.toAbsolutePath());
         }

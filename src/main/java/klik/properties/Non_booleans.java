@@ -3,6 +3,7 @@ package klik.properties;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.Logger;
@@ -57,7 +58,7 @@ public class Non_booleans
     private static final String AUDIO_PLAYER_CURRENT_TIME = "AUDIO_PLAYER_CURRENT_TIME";
     private static final String AUDIO_PLAYER_EQUALIZER_BAND_ = "AUDIO_PLAYER_EQUALIZER_BAND_";
     private static final String AUDIO_PLAYER_VOLUME = "AUDIO_PLAYER_VOLUME";
-
+    public static final String JAVA_VM_MAX_RAM = "max_RAM_in_GBytes"; // this is the maximum RAM that the Java VM can use, in GBytes
 
 
     // cached values
@@ -70,31 +71,31 @@ public class Non_booleans
     private static int column_width = -1;
 
     //**********************************************************
-    public static IProperties get_main_properties_manager()
+    public static IProperties get_main_properties_manager(Window owner)
     //**********************************************************
     {
         if (the_iproperties == null) {
-            init_main_properties_manager("Iproperties aborter");
+            init_main_properties_manager("Iproperties aborter",owner);
         }
         return the_iproperties;
     }
 
     //**********************************************************
-    public static Aborter init_main_properties_manager(String aborter_name)
+    public static Aborter init_main_properties_manager(String aborter_name, Window owner)
     //**********************************************************
     {
         Logger logger = new Simple_logger();
         Aborter aborter = new Aborter(aborter_name, logger);
 
-        the_iproperties = new File_based_IProperties("klik", aborter, logger);
+        the_iproperties = new File_based_IProperties("klik", owner,aborter, logger);
         return aborter;
     }
 
     //**********************************************************
-    public static Rectangle2D get_window_bounds(String key)
+    public static Rectangle2D get_window_bounds(String key, Window owner)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         String x_s = pm.get(key + SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
@@ -120,7 +121,7 @@ public class Non_booleans
     {
         Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
         if (dbg) logger.log("saving bounds=" + r);
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(stage);
         pm.set(key + SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
         pm.set(key + SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
         pm.set(key + SCREEN_WIDTH, String.valueOf(r.getWidth()));
@@ -136,144 +137,144 @@ public class Non_booleans
     }
 
     //**********************************************************
-    public static int get_animated_gif_duration_for_a_video()
+    public static int get_animated_gif_duration_for_a_video(Window owner)
     //**********************************************************
     {
         if (video_length > 0) return video_length;
         // first time, we look it up on disk
-        String video_length_s = get_main_properties_manager().get(VIDEO_SAMPLE_LENGTH);
+        String video_length_s = get_main_properties_manager(owner).get(VIDEO_SAMPLE_LENGTH);
         if (video_length_s == null) {
             video_length = DEFAULT_VIDEO_LENGTH;
         } else {
             double d_video_length = Double.parseDouble(video_length_s);
             video_length = (int) d_video_length;
         }
-        get_main_properties_manager().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
+        get_main_properties_manager(owner).set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return video_length;
     }
 
     //**********************************************************
-    public static void set_animated_gif_duration_for_a_video(int l)
+    public static void set_animated_gif_duration_for_a_video(int l,Window owner)
     //**********************************************************
     {
         video_length = l;
-        get_main_properties_manager().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
+        get_main_properties_manager(owner).set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
     }
 
 
     //**********************************************************
-    public static int get_column_width()
+    public static int get_column_width(Window owner)
     //**********************************************************
     {
         if (column_width > 0) return column_width;
         // first time, we look it up on disk
-        String column_width_s = get_main_properties_manager().get(COLUMN_WIDTH);
+        String column_width_s = get_main_properties_manager(owner).get(COLUMN_WIDTH);
         if (column_width_s == null) {
             column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
         } else {
             double local = Double.parseDouble(column_width_s);
             column_width = (int) local;
         }
-        get_main_properties_manager().set(COLUMN_WIDTH, String.valueOf(column_width));
+        get_main_properties_manager(owner).set(COLUMN_WIDTH, String.valueOf(column_width));
         return column_width;
     }
 
     //**********************************************************
-    public static void set_column_width(int l)
+    public static void set_column_width(int l, Window owner)
     //**********************************************************
     {
         column_width = l;
-        get_main_properties_manager().set(COLUMN_WIDTH, String.valueOf(column_width));
+        get_main_properties_manager(owner).set(COLUMN_WIDTH, String.valueOf(column_width));
     }
 
 
     //**********************************************************
-    public static int get_icon_size()
+    public static int get_icon_size(Window owner)
     //**********************************************************
     {
         if (icon_size > 0) return icon_size;
         // first time, we look it up on disk
-        String icon_size_s = get_main_properties_manager().get(ICON_SIZE);
+        String icon_size_s = get_main_properties_manager(owner).get(ICON_SIZE);
         if (icon_size_s == null) {
             icon_size = DEFAULT_ICON_SIZE;
         } else {
             double d_icon_size = Double.parseDouble(icon_size_s);
             icon_size = (int) d_icon_size;
         }
-        get_main_properties_manager().set(ICON_SIZE, String.valueOf(icon_size));
+        get_main_properties_manager(owner).set(ICON_SIZE, String.valueOf(icon_size));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return icon_size;
     }
 
     //**********************************************************
-    public static int get_folder_icon_size()
+    public static int get_folder_icon_size(Window owner)
     //**********************************************************
     {
         if (folder_icon_size > 0) return folder_icon_size;
         // first time, we look it up on disk
-        String folder_icon_size_s = get_main_properties_manager().get(FOLDER_ICON_SIZE);
+        String folder_icon_size_s = get_main_properties_manager(owner).get(FOLDER_ICON_SIZE);
         if (folder_icon_size_s == null) {
             folder_icon_size = DEFAULT_FOLDER_ICON_SIZE;
         } else {
             double d_icon_size = Double.parseDouble(folder_icon_size_s);
             folder_icon_size = (int) d_icon_size;
         }
-        get_main_properties_manager().set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
+        get_main_properties_manager(owner).set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
         //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
         return folder_icon_size;
     }
 
 
     //**********************************************************
-    public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes)
+    public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes, Window owner)
     //**********************************************************
     {
-        get_main_properties_manager().set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
+        get_main_properties_manager(owner).set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
     }
 
     //**********************************************************
-    public static int get_folder_warning_size()
+    public static int get_folder_warning_size(Window owner)
     //**********************************************************
     {
         int warning_megabytes = DEFAULT_SIZE_WARNING_MEGABYTES;
-        String warning_bytes_s = get_main_properties_manager().get(DISK_CACHE_SIZE_WARNING_MEGABYTES);
+        String warning_bytes_s = get_main_properties_manager(owner).get(DISK_CACHE_SIZE_WARNING_MEGABYTES);
         if (warning_bytes_s != null) {
             warning_megabytes = (int) Double.parseDouble(warning_bytes_s);
         }
-        get_main_properties_manager().set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
+        get_main_properties_manager(owner).set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
         return warning_megabytes;
     }
 
 
     //**********************************************************
-    public static void set_icon_size(int target_size)
+    public static void set_icon_size(int target_size, Window owner)
     //**********************************************************
     {
         icon_size = target_size;
-        get_main_properties_manager().set(ICON_SIZE, String.valueOf(icon_size));
+        get_main_properties_manager(owner).set(ICON_SIZE, String.valueOf(icon_size));
     }
 
 
     //**********************************************************
-    public static void set_folder_icon_size(int target_size)
+    public static void set_folder_icon_size(int target_size, Window owner)
     //**********************************************************
     {
         folder_icon_size = target_size;
-        get_main_properties_manager().set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
+        get_main_properties_manager(owner).set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
     }
 
 
     static double font_size_cache = -1.0;
 
     //**********************************************************
-    public static double get_font_size(Logger logger)
+    public static double get_font_size(Window owner,Logger logger)
     //**********************************************************
     {
         if (font_size_cache > 0) return font_size_cache;
         double font_size = 16; // this is the default immediately after installing or after erasing properties
         // first time, we look it up on disk
-        String font_size_s = get_main_properties_manager().get(FONT_SIZE);
+        String font_size_s = get_main_properties_manager(owner).get(FONT_SIZE);
         if (font_size_s != null) {
             try {
                 font_size = Double.parseDouble(font_size_s);
@@ -289,37 +290,37 @@ public class Non_booleans
 
 
     //**********************************************************
-    public static void set_font_size(double target_size)
+    public static void set_font_size(double target_size, Window owner)
     //**********************************************************
     {
         font_size_cache = target_size;
-        get_main_properties_manager().set(FONT_SIZE, String.valueOf(target_size));
+        get_main_properties_manager(owner).set(FONT_SIZE, String.valueOf(target_size));
     }
 
 
     //**********************************************************
-    public static String get_language_key()
+    public static String get_language_key(Window owner)
     //**********************************************************
     {
-        String s = get_main_properties_manager().get(LANGUAGE_KEY);
+        String s = get_main_properties_manager(owner).get(LANGUAGE_KEY);
         if (s == null) {
             s = "English";
-            get_main_properties_manager().set(LANGUAGE_KEY, s);
+            get_main_properties_manager(owner).set(LANGUAGE_KEY, s);
         }
         return s;
     }
 
     //**********************************************************
-    public static void set_language_key(String s)
+    public static void set_language_key(String s, Window owner)
     //**********************************************************
     {
-        get_main_properties_manager().set(LANGUAGE_KEY, s);
+        get_main_properties_manager(owner).set(LANGUAGE_KEY, s);
 
     }
 
 
-    public static void force_reload_from_disk() {
-        get_main_properties_manager().force_reload_from_disk();
+    public static void force_reload_from_disk(Window owner) {
+        get_main_properties_manager(owner).force_reload_from_disk();
     }
 
 /*
@@ -352,18 +353,18 @@ public class Non_booleans
 
     // returns a directory using that relative name, on the user home, creates it if needed
     //**********************************************************
-    public static Path get_absolute_hidden_dir_on_user_home(String relative_dir_name, boolean can_fail, Logger logger)
+    public static Path get_absolute_hidden_dir_on_user_home(String relative_dir_name, boolean can_fail, Window owner, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("dir_name=" + relative_dir_name);
         String home = System.getProperty(USER_HOME);
         if (dbg) logger.log("user home =" + home);
-        return from_top_folder(home, relative_dir_name, can_fail, logger);
+        return from_top_folder(home, relative_dir_name, can_fail, owner, logger);
     }
 
 
     //**********************************************************
-    public static Path from_top_folder(String top_folder, String relative_dir_name, boolean can_fail, Logger logger)
+    public static Path from_top_folder(String top_folder, String relative_dir_name, boolean can_fail, Window owner, Logger logger)
     //**********************************************************
     {
         Path conf_dir1 = Paths.get(top_folder, CONF_DIR);
@@ -376,7 +377,7 @@ public class Non_booleans
                     logger.log(err);
                     return null;
                 }
-                Popups.popup_Exception(e, 300, err, logger);
+                Popups.popup_Exception(e, 300, err, owner, logger);
                 return null;
             }
         }
@@ -389,7 +390,7 @@ public class Non_booleans
                 Files.createDirectory(conf_dir2);
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e, 300, err, logger);
+                Popups.popup_Exception(e, 300, err, owner, logger);
                 return null;
             }
         }
@@ -403,7 +404,7 @@ public class Non_booleans
                 return returned;
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
-                Popups.popup_Exception(e, 300, err, logger);
+                Popups.popup_Exception(e, 300, err, owner, logger);
                 return null;
             }
         }
@@ -416,7 +417,7 @@ public class Non_booleans
 
     // returns a directory using that relative name
     //**********************************************************
-    public static Path get_trash_dir(Path for_this, Logger logger)
+    public static Path get_trash_dir(Path for_this, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -428,10 +429,10 @@ public class Non_booleans
             if (volume == null) {
                 logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
             }
-            return from_top_folder(volume.toString(), TRASH_DIR, true, logger);
+            return from_top_folder(volume.toString(), TRASH_DIR, true, owner, logger);
         }
 
-        Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, logger);
+        Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
         if (trash_dir == null) {
             logger.log("PANIC: trash dir unknown");
             return null;
@@ -472,14 +473,14 @@ public class Non_booleans
 
 
     //**********************************************************
-    public static List<Path> get_existing_trash_dirs(Logger logger)
+    public static List<Path> get_existing_trash_dirs(Window owner,Logger logger)
     //**********************************************************
     {
         List<Path> trashes = new ArrayList<>();
         for (File f : File.listRoots()) {
             //logger.log("root ->"+f+"<-");
             if (f.toString().equals("/")) {
-                Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, logger);
+                Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
                 trashes.add(trash_dir);
                 // unix system...
                 Path volumes = Path.of("/", "Volumes");
@@ -495,10 +496,10 @@ public class Non_booleans
                 }
             } else {
                 if (f.getName().startsWith("C:")) {
-                    Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, logger);
+                    Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
                     trashes.add(trash_dir);
                 } else {
-                    Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR, true, logger);
+                    Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR, true, owner, logger);
                     trashes.add(trash_dir);
                     logger.log("WARNING: untested trash on windows drives !!!!");
                 }
@@ -511,26 +512,26 @@ public class Non_booleans
 
 
     //**********************************************************
-    public static void save_current_song(String path)
+    public static void save_current_song(String path, Window owner)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         pm.set(AUDIO_PLAYER_CURRENT_SONG, path);
 
     }
 
     //**********************************************************
-    public static String get_current_song()
+    public static String get_current_song(Window owner)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         return pm.get(AUDIO_PLAYER_CURRENT_SONG);
     }
 
     static int previous = -1;
 
     //**********************************************************
-    public static void save_curent_time_in_song(int time)
+    public static void save_curent_time_in_song(int time, Window owner)
     //**********************************************************
     {
         if (previous > 0) {
@@ -538,17 +539,17 @@ public class Non_booleans
         }
         previous = time;
         //logger.log("save_curent_time_in_song "+time);
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         pm.set(AUDIO_PLAYER_CURRENT_TIME, "" + time);
 
     }
 
 
     //**********************************************************
-    public static Integer get_current_time_in_song(Logger logger)
+    public static Integer get_current_time_in_song(Window owner,Logger logger)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         String s = pm.get(AUDIO_PLAYER_CURRENT_TIME);
         if (s == null) return 0;
         int returned = 0;
@@ -561,10 +562,10 @@ public class Non_booleans
     }
 
     //**********************************************************
-    public static double get_equalizer_value_for_band(int i, Logger logger)
+    public static double get_equalizer_value_for_band(int i, Window owner,Logger logger)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         String s = pm.get(AUDIO_PLAYER_EQUALIZER_BAND_ + i);
         if (s == null) return 0;
 
@@ -578,26 +579,26 @@ public class Non_booleans
     }
 
     //**********************************************************
-    public static void save_equalizer_value_for_band(int i, double value)
+    public static void save_equalizer_value_for_band(int i, double value, Window owner)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         pm.set(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
     }
 
     //**********************************************************
-    public static void save_audio_volume(double value)
+    public static void save_audio_volume(double value, Window owner)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         pm.set(AUDIO_PLAYER_VOLUME, "" + value);
     }
 
     //**********************************************************
-    public static double get_audio_volume(Logger logger)
+    public static double get_audio_volume(Window owner,Logger logger)
     //**********************************************************
     {
-        IProperties pm = get_main_properties_manager();
+        IProperties pm = get_main_properties_manager(owner);
         String s = pm.get(AUDIO_PLAYER_VOLUME);
         if (s == null) return 0.5;
 
@@ -606,6 +607,38 @@ public class Non_booleans
             value = Double.valueOf(s);
         } catch (NumberFormatException e) {
             logger.log("WARNING: cannot parse volume->" + s + "<-");
+        }
+        return value;
+    }
+
+
+    //**********************************************************
+    public static void save_java_VM_max_RAM(int value, Window owner, Logger logger)
+    //**********************************************************
+    {
+        File_based_IProperties f = new File_based_IProperties("ram",owner,new Aborter("ram", logger), logger);
+        f.set(JAVA_VM_MAX_RAM, "" + value);
+    }
+    //**********************************************************
+    public static int get_java_VM_max_RAM(Window owner, Logger logger)
+    //**********************************************************
+    {
+        File_based_IProperties f = new File_based_IProperties("ram",owner,new Aborter("ram", logger), logger);
+        String s = f.get(JAVA_VM_MAX_RAM);
+        if (s == null)
+        {
+            logger.log("warning, no java VM max RAM found, defaulting to 2 GBytes");
+            return 1; // default to 1 GBytes
+        }
+
+        int value = 0;
+        try {
+            value = Integer.valueOf(s);
+        }
+        catch (NumberFormatException e)
+        {
+            logger.log("WARNING: cannot parse volume->" + s + "<-");
+            return 1;
         }
         return value;
     }

@@ -71,10 +71,10 @@ public class Show_running_film_frame implements Hourglass
 		//logger.log("Show_running_film_frame: "+wait_message);
 		stage = new Stage();
 		VBox vbox = new VBox();
-		Look_and_feel_manager.set_region_look(vbox,logger);
+		Look_and_feel_manager.set_region_look(vbox,owner,logger);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(logger));
+		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(owner,logger));
 		iv.setFitHeight(100);
 		stage.setMinWidth(300);
 		iv.setPreserveRatio(true);
@@ -109,18 +109,18 @@ public class Show_running_film_frame implements Hourglass
 						// timeout
                         if (aborter.should_abort())
 						{
-							has_ended("aborted",false);
+							has_ended("aborted",false,owner);
 							return;
 						}
                         else count++;
                         if ( count > timeout_s)
 						{
-							has_ended("Time count out", false);
+							has_ended("Time count out", false,owner);
 							return;
 						}
 						continue;
                     }
-                    has_ended(wait_message + "... finished!", true);
+                    has_ended(wait_message + "... finished!", true,owner);
                     return;
                 }
 			} catch (InterruptedException e) {
@@ -131,7 +131,7 @@ public class Show_running_film_frame implements Hourglass
 	}
 	
 	//**********************************************************
-	public void has_ended(String message, boolean sleep)
+	public void has_ended(String message, boolean sleep, Window owner)
 	//**********************************************************
 	{
 		//logger.log("running man has ended "+error_message);
@@ -140,7 +140,7 @@ public class Show_running_film_frame implements Hourglass
 		if ( sleep_time > 1000) sleep_time = 1000;
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(message);//My_I18n.get_I18n_string("Search_Results_Ended", logger));
-			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(logger));
+			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(owner,logger));
 		},logger);
 
 		if ( sleep) {

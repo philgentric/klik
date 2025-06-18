@@ -1,7 +1,8 @@
 package klik.browser.virtual_landscape;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.comparators.Similarity_cache;
+import klik.image_ml.image_similarity.Similarity_cache;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.log.Logger;
@@ -38,13 +39,13 @@ public class Browsing_caches
     public final static Map<String, Image_feature_vector_cache> fv_cache_of_caches = new HashMap<>();
 
     //**********************************************************
-    public Browsing_caches(Path_list_provider path_list_provider, Aborter aborter, Logger logger)
+    public Browsing_caches(Path_list_provider path_list_provider, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Image_properties_RAM_cache tmp = image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if ( tmp == null)
         {
-            tmp = new Image_properties_RAM_cache(path_list_provider, "Image properties cache", aborter, logger);
+            tmp = new Image_properties_RAM_cache(path_list_provider, "Image properties cache", owner,aborter, logger);
             image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
         }
         image_properties_RAM_cache = tmp;

@@ -1,5 +1,6 @@
 package klik.change.bookmarks;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
@@ -18,19 +19,19 @@ public class Bookmarks
     private final Properties_with_base pb;
 
     //**********************************************************
-    private Bookmarks(Aborter aborter, Logger logger)
+    private Bookmarks(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
-        ip = new File_based_IProperties("bookmarks",aborter,logger);
+        ip = new File_based_IProperties("bookmarks",owner, aborter,logger);
         pb = new Properties_with_base(ip,"bookmark_",30,logger);
     }
 
     //**********************************************************
-    public static Bookmarks get(Aborter aborter, Logger logger)
+    public static Bookmarks get(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = new Bookmarks(aborter,logger);
+        if ( instance == null) instance = new Bookmarks(owner,aborter,logger);
         return instance;
     }
 

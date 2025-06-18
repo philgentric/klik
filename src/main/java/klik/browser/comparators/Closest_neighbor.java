@@ -1,5 +1,8 @@
 package klik.browser.comparators;
 
+import klik.image_ml.image_similarity.Path_pair;
+import klik.image_ml.image_similarity.Similarity_cache;
+
 import java.nio.file.Path;
 import java.util.List;
 

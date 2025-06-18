@@ -14,7 +14,7 @@ import klik.util.log.Logger;
 public class Scan_show
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final double FAC = 1.3;
     public final double MAX_SPEED;
     public final double MIN_SPEED;
@@ -37,9 +37,9 @@ public class Scan_show
         int number_of_rows = scan_show_slave.how_many_rows();
         double slider_unit_per_row = slider.the_Slider.getMax()/(double)number_of_rows;
         if ( dbg) logger.log("slider_unit_per_row="+slider_unit_per_row);
-        sMIN_SPEED = slider_unit_per_row/3000.0;
+        MIN_SPEED = slider_unit_per_row/300.0;
         if ( dbg) logger.log("MIN_SPEED="+MIN_SPEED);
-        MAX_SPEED = slider_unit_per_row/30.0;
+        MAX_SPEED = slider_unit_per_row/3.0;
         if ( dbg) logger.log("MAX_SPEED="+MAX_SPEED);
         dy = slider_unit_per_row/500.0;
         start_the_show();

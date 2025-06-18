@@ -1,6 +1,5 @@
 package klik.browser.icons.animated_gifs;
 
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Message;
@@ -9,8 +8,11 @@ import klik.util.log.Logger;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Animated_gif_generation_message implements Message {
-    public final Window owner;
+//**********************************************************
+public class Animated_gif_generation_message implements Message
+//**********************************************************
+{
+    public final Window originator;
     public final Path video_path;
     public final Path destination_gif_full_path;
     public final int dur;
@@ -20,14 +22,18 @@ public class Animated_gif_generation_message implements Message {
 
     public final Logger logger;
 
-    public Animated_gif_generation_message(Window owner, Path video_path, Path destination_gif_full_path, int dur, int start, Aborter aborter_, AtomicBoolean abort_reported, Logger logger) {
-        this.owner = owner;
+    //**********************************************************
+    public Animated_gif_generation_message(Window owner, Path video_path, Path destination_gif_full_path, int dur, int start,
+                                           Aborter aborter, AtomicBoolean abort_reported, Logger logger)
+    //**********************************************************
+    {
+        this.originator = owner;
         this.video_path = video_path;
         this.destination_gif_full_path = destination_gif_full_path;
         this.dur = dur;
         this.start = start;
         this.logger = logger;
-        aborter = aborter_;
+        this.aborter = aborter;
         this.abort_reported = abort_reported;
     }
 

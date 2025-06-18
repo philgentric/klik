@@ -3,9 +3,9 @@ package klik.util.cache_auto_clean;
 import javafx.stage.Window;
 import klik.browser.Shared_services;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.Feature;
+import klik.properties.boolean_features.Feature;
 import klik.properties.Non_booleans;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Booleans;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -41,17 +41,17 @@ public class Disk_usage_monitor
         for (Cache_folder cache_folder : Cache_folder.values())
         {
             if(dbg) logger.log("starting Disk_usage_monitor for :" + cache_folder);
-            Path ff = Static_files_and_paths_utilities.get_cache_folder(cache_folder, logger);
+            Path ff = Static_files_and_paths_utilities.get_cache_folder(cache_folder, owner, logger);
             Monitored_folder tt = new Monitored_folder(cache_folder.name(), ff, true);
             monitored_folders.add(tt);
         }
 
-        for ( Path t : Non_booleans.get_existing_trash_dirs(logger))
+        for ( Path t : Non_booleans.get_existing_trash_dirs(owner,logger))
         {
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Non_booleans.get_folder_warning_size();
+        warning_limit_bytes = Non_booleans.get_folder_warning_size(owner);
 
 
     }
@@ -62,7 +62,7 @@ public class Disk_usage_monitor
     {
         if ( warning_limit_bytes <= 0)
         {
-            logger.log("WARNING: "+     My_I18n.get_I18n_string("Cache_Size_Warning_Limit",logger)+" is zero = no limit, no monitoring!");
+            logger.log("WARNING: "+     My_I18n.get_I18n_string("Cache_Size_Warning_Limit",owner,logger)+" is zero = no limit, no monitoring!");
             return false;
         }
         //long total = 0;
@@ -83,14 +83,14 @@ public class Disk_usage_monitor
             {
                 if ( !monitored_folder.auto_delete)
                 {
-                    Popups.popup_warning(owner,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
+                    Popups.popup_warning(monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
-                            true,logger);
+                            true,owner,logger);
                     continue;
                 }
                 boolean cleared = false;
-                if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name()))
+                if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name(),owner))
                 {
                     for (Cache_folder cache_folder : Cache_folder.values())
                     {
@@ -104,10 +104,10 @@ public class Disk_usage_monitor
                 if ( cleared) continue;
                 if ( !warning_issued)
                 {
-                    Popups.popup_warning(owner,monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
+                    Popups.popup_warning(monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
-                            true,logger);
+                            true,owner,logger);
                     warning_issued = true;
                 }
             }

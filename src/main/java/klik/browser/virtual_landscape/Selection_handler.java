@@ -7,12 +7,13 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Window;
 import klik.browser.Drag_and_drop;
 import klik.browser.items.Item;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -97,14 +98,14 @@ public class Selection_handler
         {
             String s = "WARNING: directories in a multiple selection is disabled, ignoring: "+path;
             logger.log(s);
-            Popups.simple_alert(s);
+            Popups.simple_alert(s,virtual_landscape.owner,logger);
             return false;
         }
         if ( Files.isSymbolicLink(path))
         {
             String s = "WARNING: symbolic link in multiple selection is disabled, ignoring: "+path;
             logger.log(s);
-            Popups.simple_alert(s);
+            Popups.simple_alert(s,virtual_landscape.owner,logger);
             return false;
         }
         selected_files.add(path.toFile());
@@ -129,7 +130,7 @@ public class Selection_handler
     public void set_select_all_files(boolean b)
     //**********************************************************
     {
-        Look_and_feel i = Look_and_feel_manager.get_instance(logger);
+        Look_and_feel i = Look_and_feel_manager.get_instance(virtual_landscape.owner,logger);
         if (b)
         {
             the_pane.setBackground(new Background(i.get_all_files_fill()));
@@ -144,7 +145,7 @@ public class Selection_handler
     public void set_select_all_folders(boolean b)
     //**********************************************************
     {
-        Look_and_feel i = Look_and_feel_manager.get_instance(logger);
+        Look_and_feel i = Look_and_feel_manager.get_instance(virtual_landscape.owner,logger);
         if (b) {
             the_pane.setBackground(new Background(i.get_all_dirs_fill()));
 
@@ -181,7 +182,7 @@ public class Selection_handler
         rect.setArcWidth(5);
         rect.setArcHeight(5);
 
-        Color col = Look_and_feel_manager.get_instance(logger).get_selection_box_color();
+        Color col = Look_and_feel_manager.get_instance(virtual_landscape.owner,logger).get_selection_box_color();
 
         rect.setStroke(col);
         rect.setFill(Color.TRANSPARENT);

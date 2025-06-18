@@ -224,13 +224,13 @@ public class Playlist_path_list_provider implements Path_list_provider
                 paths.add(s);
             }
             save();
-            report_change();
+            report_change(owner);
         };
     }
 
 
     //**********************************************************
-    private void report_change()
+    private void report_change(Window owner)
     //**********************************************************
     {
         List<Old_and_new_Path> l = new ArrayList<>();
@@ -241,7 +241,7 @@ public class Playlist_path_list_provider implements Path_list_provider
                 Status_old_and_new_Path.edition_done,
                 false);
         l.add(oanp);
-        Change_gang.report_changes(l);
+        Change_gang.report_changes(l,owner);
     }
 
     //**********************************************************
@@ -251,7 +251,7 @@ public class Playlist_path_list_provider implements Path_list_provider
     {
         paths.remove(path.toAbsolutePath().toString());
         save();
-        report_change();
+        report_change(owner);
     }
 
     //**********************************************************
@@ -264,7 +264,7 @@ public class Playlist_path_list_provider implements Path_list_provider
             paths.remove(p.toAbsolutePath().toString());
         }
         save();
-        report_change();
+        report_change(owner);
     }
 
     //**********************************************************

@@ -1,5 +1,6 @@
 package klik.properties;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Shared_services;
@@ -41,7 +42,7 @@ public class Properties_server
     public final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
-    public Properties_server(Path f_, String tag, Aborter aborter, Logger logger)
+    public Properties_server(Path f_, String tag, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Objects.requireNonNull(aborter);
@@ -51,7 +52,7 @@ public class Properties_server
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties();
-        start_store_engine( aborter,  logger);
+        start_store_engine(owner, aborter,  logger);
         start_get_server();
         start_set_server();
         start_all_keys_server();
@@ -179,7 +180,7 @@ public class Properties_server
     // like the image properties cache or image feature vectors etc
     // but keep as safe as possible, especially always saved on clean exit (with aborter)
     //**********************************************************
-    private void start_store_engine(Aborter aborter, Logger logger)
+    private void start_store_engine(Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -199,7 +200,7 @@ public class Properties_server
                         // if another request is already in flight, we will have an opportunity to save very soon
                         continue;
                     }
-                    save();
+                    save(owner);
                     if (aborter.should_abort())
                     {
                         logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
@@ -217,7 +218,7 @@ public class Properties_server
     }
 
     //**********************************************************
-    private void save()
+    private void save(Window owner)
     //**********************************************************
     {
        //if (dbg)
@@ -245,7 +246,7 @@ public class Properties_server
 
         if (!Files.isWritable(the_properties_path))
         {
-            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", logger);
+            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", owner,logger);
             logger.log("ALERT: cannot write properties in:" + the_properties_path.toAbsolutePath());
             return;
         }
@@ -264,7 +265,7 @@ public class Properties_server
         catch (Exception e)
         {
             //logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
-            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, logger);
+            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, owner,logger);
 
         }
     }
@@ -303,11 +304,11 @@ public class Properties_server
     public static void main(String[] deb)
     //**********************************************************
     {
-        Sys_init.init("Audio_player_application");
+        Sys_init.init("Audio_player_application",null);
         Logger logger = Shared_services.shared_services_logger;
 
         File f_ = new File("test.txt");
-        Properties_server ps = new Properties_server(f_.toPath(), "unit test",new Aborter("dummy",logger),logger);
+        Properties_server ps = new Properties_server(f_.toPath(), "unit test",null,new Aborter("dummy",logger),logger);
 
         String key = "toto";
         String value = "tata";

@@ -11,9 +11,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klik.actor.Actor_engine;
-import klik.properties.Booleans;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 
@@ -175,8 +175,8 @@ public class Pin_code_getter_stage
             disable_fusk.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    Booleans.set_boolean(Feature.Fusk_is_active.name(),false);
-                    Feature_cache.update_cached_boolean(Feature.Fusk_is_active,false);
+                    Booleans.set_boolean(Feature.Fusk_is_active.name(),false,local_stage);
+                    Feature_cache.update_cached_boolean(Feature.Fusk_is_active,false,local_stage);
                     logger.log("fusk disabled");
                     local_stage.close();
                 }

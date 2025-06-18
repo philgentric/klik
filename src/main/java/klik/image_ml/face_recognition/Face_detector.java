@@ -1,6 +1,7 @@
 package klik.image_ml.face_recognition;
 
 import javafx.scene.image.Image;
+import javafx.stage.Window;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
@@ -226,17 +227,17 @@ public class Face_detector
     }
 
     //**********************************************************
-    public static void warn_about_face_detector_server(Logger logger)
+    public static void warn_about_face_detector_server(Window owner, Logger logger)
     //**********************************************************
     {
-        Popups.popup_warning(null,"Face detector server not found","You need to start the servers (face detection & face embbedings)",false,logger);
+        Popups.popup_warning("Face detector server not found","You need to start the servers (face detection & face embbedings)",false,owner,logger);
     }
 
     //**********************************************************
-    public static void warn_about_no_face_detected(Logger logger)
+    public static void warn_about_no_face_detected(Window owner,Logger logger)
     //**********************************************************
     {
-        Popups.popup_warning(null,"No face detected","Could not find a face?",false,logger);
+        Popups.popup_warning("No face detected","Could not find a face?",false,owner,logger);
     }
 
 

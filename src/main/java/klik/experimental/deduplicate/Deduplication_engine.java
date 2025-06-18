@@ -12,10 +12,9 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.properties.Non_booleans;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.*;
 import klik.experimental.deduplicate.manual.Stage_with_2_images;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
@@ -221,7 +220,7 @@ public class Deduplication_engine implements Againor, Abortable
                     + "going to delete:\n\t" + to_be_deleted.getAbsolutePath());
 
 
-            Path trash_dir = Non_booleans.get_trash_dir(to_be_deleted.toPath(),logger);
+            Path trash_dir = Non_booleans.get_trash_dir(to_be_deleted.toPath(),owner,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), to_be_deleted.getName()));
             Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
             ll.add(oanp);
@@ -388,8 +387,7 @@ public class Deduplication_engine implements Againor, Abortable
                     logger.log("\nduplicate finder is finished !!");
                     if (!end_reported)
                     {
-
-                        Popups.popup_warning(owner, "Search for duplicates ENDED", "(no duplicates found)", true, logger);
+                        Popups.popup_warning( "Search for duplicates ENDED", "(no duplicates found)", true, owner,logger);
                         end_reported = true;
                         return;
                     }

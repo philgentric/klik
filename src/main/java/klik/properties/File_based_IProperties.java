@@ -1,5 +1,6 @@
 package klik.properties;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -21,14 +22,14 @@ public class File_based_IProperties implements IProperties
     private final Properties_manager pm;
 
     //**********************************************************
-    public File_based_IProperties(String tag, Aborter aborter, Logger logger)
+    public File_based_IProperties(String tag, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.tag = tag;
         this.logger = logger;
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, tag+".properties");
-        pm = new Properties_manager(p, tag, aborter,logger);
+        pm = new Properties_manager(p, tag, owner, aborter,logger);
     }
 
     //**********************************************************

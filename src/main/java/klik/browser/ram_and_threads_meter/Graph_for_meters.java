@@ -5,6 +5,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import klik.look.Look_and_feel_manager;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -33,6 +34,7 @@ public class Graph_for_meters
     private static final double LEFT = 20;
     private static final double ADJUST = 20;
     private final static double WIDTH = how_many_rectangles *(w+gap)+LEFT;
+    public final Stage stage;
 
     int the_max=0;
     int[] values = new int[how_many_rectangles];
@@ -43,22 +45,24 @@ public class Graph_for_meters
 
     //**********************************************************
     public Graph_for_meters(
-            String name_,
-            double the_scale_max_,
-            Value_getter value_getter_,
-            Real_to_pixel real_to_pixel_,
-            int x_offset_,
-            Color color_,
-            Logger logger_)
+            String name,
+            double the_scale_max,
+            Value_getter value_getter,
+            Real_to_pixel real_to_pixel,
+            int x_offset,
+            Color color,
+            Stage stage,
+            Logger logger)
     //**********************************************************
     {
-        name = name_;
-        the_scale_max = the_scale_max_;
-        value_getter = value_getter_;
-        real_to_pixel = real_to_pixel_;
-        color = color_;
-        logger = logger_;
-        x_offset = x_offset_;
+        this.stage = stage;
+        this.name = name;
+        this.the_scale_max = the_scale_max;
+        this.value_getter = value_getter;
+        this.real_to_pixel = real_to_pixel;
+        this.color = color;
+        this.logger = logger;
+        this.x_offset = x_offset;
 
 
         vbox = new VBox();
@@ -73,7 +77,7 @@ public class Graph_for_meters
                 rectangles_of_the_curve.put(i, r);
                 the_hbox.getChildren().add(r);
             }
-            create_scale();
+            create_scale(stage);
 
             vbox.getChildren().add(the_hbox);
         }
@@ -124,7 +128,7 @@ public class Graph_for_meters
     }
 
     //**********************************************************
-    private void create_scale()
+    private void create_scale(Stage stage)
     //**********************************************************
     {
         double inc = the_scale_max/10.0;
@@ -157,7 +161,7 @@ public class Graph_for_meters
             Rectangle horizontal_line = new Rectangle(x_offset +LEFT, RAM_and_threads_meters_stage.DISPLAY_PIXEL_HEIGHT-ii, WIDTH, 1);
             scale_bars.add(horizontal_line);
             horizontal_line.setManaged(false);
-            horizontal_line.setFill(Look_and_feel_manager.get_instance(logger).get_foreground_color());
+            horizontal_line.setFill(Look_and_feel_manager.get_instance(stage,logger).get_foreground_color());
             the_hbox.getChildren().add(horizontal_line);
             Text text = new Text(""+(int)val);
             scale_texts.add(text);
@@ -188,7 +192,7 @@ public class Graph_for_meters
                     if (the_max>the_scale_max)
                     {
                         the_scale_max = the_max;
-                        create_scale();
+                        create_scale(stage);
                     }
                 }
                 last_text.setText(""+value);

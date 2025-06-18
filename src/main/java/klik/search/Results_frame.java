@@ -65,10 +65,10 @@ public class Results_frame
 		this.logger = logger;
 
 		vbox = new VBox();
-		Look_and_feel_manager.set_region_look(vbox,logger);
+		Look_and_feel_manager.set_region_look(vbox,stage,logger);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(logger));
+		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(stage,logger));
 		iv.setFitHeight(100);
 		iv.setPreserveRatio(true);
 		vbox.getChildren().add(iv);
@@ -77,9 +77,9 @@ public class Results_frame
 		vbox.getChildren().add(scroll_pane);
 		Scene scene = new Scene(vbox, 1000, 800);
 		//Scene scene = new Scene(scroll_pane, 800, 600);
-		Look_and_feel_manager.set_region_look(scroll_pane,logger);
+		Look_and_feel_manager.set_region_look(scroll_pane,stage,logger);
 
-		stage.setTitle(My_I18n.get_I18n_string("Search_Results", logger));
+		stage.setTitle(My_I18n.get_I18n_string("Search_Results", stage,logger));
 		stage.setScene(scene);
 		stage.setX(Finder_frame.MIN_WIDTH);
 		stage.setY(0);
@@ -103,7 +103,7 @@ public class Results_frame
 	//**********************************************************
 	private void make_one_button(
 			int port,
-			Window window,
+			Window owner,
 			String key, boolean is_max, Path path)
 	//**********************************************************
 	{
@@ -116,7 +116,7 @@ public class Results_frame
 		}
 
 		b.setMnemonicParsing(false); // avoid removal of first underscore
-		Look_and_feel_manager.set_button_look(b, true,logger);
+		Look_and_feel_manager.set_button_look(b, true,owner,logger);
 		if (Files.isDirectory(path)) {
 			Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
 			b.setBorder(border);
@@ -127,7 +127,7 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				New_window_context.additional_no_past(port, path,logger);
+				New_window_context.additional_no_past(port, path,owner,logger);
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
@@ -137,6 +137,7 @@ public class Results_frame
 						path_list_provider,
 						path_comparator_source,
 						path,
+						owner,
 						logger);
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
@@ -152,31 +153,31 @@ public class Results_frame
 
 		// add a menu to the button!
 		ContextMenu context_menu = new ContextMenu();
-		Look_and_feel_manager.set_context_menu_look(context_menu,logger);
+		Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
 
 
-		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",logger));
+		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",stage,logger));
 		browse.setOnAction(_ -> {
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			New_window_context.additional_no_past(port, local,logger);
+			New_window_context.additional_no_past(port, local,owner,logger);
 		});
 		context_menu.getItems().add(browse);
 
 		if (! path.toFile().isDirectory())
 		{
 			{
-				String text = My_I18n.get_I18n_string("Open_With_Registered_Application",logger);
+				String text = My_I18n.get_I18n_string("Open_With_Registered_Application",stage,logger);
 				MenuItem open_special = new MenuItem(text);
 				open_special.setOnAction(_ -> {
 					logger.log("Open_With_Registered_Application");
-					System_open_actor.open_special(window,path,aborter,logger);
+					System_open_actor.open_special(owner,path,aborter,logger);
 				});
 				context_menu.getItems().add(open_special);
 			}
 			{
-				String text = My_I18n.get_I18n_string("Delete",logger);
+				String text = My_I18n.get_I18n_string("Delete",stage,logger);
 				MenuItem delete = new MenuItem(text);
 				delete.setOnAction(_ -> {
 					logger.log("Delete");
@@ -233,9 +234,9 @@ public class Results_frame
 	{
 
 		Jfx_batch_injector.inject(() -> {
-			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", logger));
+			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", stage,logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
-			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(logger));
+			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(stage,logger));
 
 			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
 			all_results.sort((o1, o2) -> {

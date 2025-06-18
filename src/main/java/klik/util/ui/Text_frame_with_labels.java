@@ -73,7 +73,7 @@ public class Text_frame_with_labels
 
         stage = new Stage();
 
-        Rectangle2D r = Non_booleans.get_window_bounds(TEXT_FRAME);
+        Rectangle2D r = Non_booleans.get_window_bounds(TEXT_FRAME, stage);
         if ( r == null)
         {
             stage.setX(100);

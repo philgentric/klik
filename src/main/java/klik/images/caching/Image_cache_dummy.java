@@ -1,5 +1,6 @@
 package klik.images.caching;
 
+import javafx.stage.Window;
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
 import klik.util.log.Logger;
@@ -45,7 +46,7 @@ public class Image_cache_dummy implements Cache_interface
 
     //**********************************************************
     @Override
-    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward)//, boolean high_quality)//, int target_width)
+    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, Window owner)
     //**********************************************************
     {
     }
@@ -58,7 +59,7 @@ public class Image_cache_dummy implements Cache_interface
 
     //**********************************************************
     @Override // Image_cache_interface
-    public void evict(Path path)
+    public void evict(Path path, Window owner)
     //**********************************************************
     {
     }

@@ -9,6 +9,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Pair;
 import klik.actor.Aborter;
 import klik.properties.IProperties;
@@ -24,7 +25,7 @@ public class Tag_items_management_stage
     private static final String STORED_TAG = "StoredTag";
 
     //**********************************************************
-    public static void open_tag_management_stage(Aborter aborter, Logger logger)
+    public static void open_tag_management_stage(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
 
@@ -43,7 +44,7 @@ public class Tag_items_management_stage
         the_stage.setHeight(300);
         the_stage.setTitle("Manage stored tags");
 
-        IProperties pm = Non_booleans.get_main_properties_manager();
+        IProperties pm = Non_booleans.get_main_properties_manager(owner);
 
 /*
         Set<String> l = pm.get_all_keys();

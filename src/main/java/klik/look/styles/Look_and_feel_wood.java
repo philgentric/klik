@@ -1,6 +1,7 @@
 package klik.look.styles;
 
 import javafx.scene.paint.Color;
+import javafx.stage.Window;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_style;
@@ -14,8 +15,8 @@ public class Look_and_feel_wood extends Look_and_feel
 {
     public Look_and_feel_style get_look_and_feel_style(){return Look_and_feel_style.wood;}
 
-    public Look_and_feel_wood( Logger logger_) {
-        super("Wood", logger_);
+    public Look_and_feel_wood(Logger logger) {
+        super("Wood",logger);
     }
 
     @Override

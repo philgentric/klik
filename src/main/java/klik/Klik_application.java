@@ -126,7 +126,7 @@ public class Klik_application extends Application
     public void start(Stage primary_stage_) throws Exception
     //**********************************************************
     {
-        Sys_init.init("Klik_application");
+        Sys_init.init("Klik_application", primary_stage_);
         Logger logger = Shared_services.shared_services_logger;
 
         primary_stage = primary_stage_;
@@ -146,7 +146,7 @@ public class Klik_application extends Application
         {
             path = context.path();
         }
-        Window_provider window_provider = New_window_context.additional_no_past(context.port(),path,logger);
+        Window_provider window_provider = New_window_context.additional_no_past(context.port(),path,primary_stage_,logger);
         new Monitor(window_provider, logger).start();
 
         Start_context.send_started(context,logger);

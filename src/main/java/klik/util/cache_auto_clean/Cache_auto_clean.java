@@ -1,5 +1,6 @@
 package klik.util.cache_auto_clean;
 
+import javafx.stage.Window;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -29,14 +30,14 @@ public class Cache_auto_clean
 
 
     //**********************************************************
-    public Cache_auto_clean( Logger logger_)
+    public Cache_auto_clean(Window owner, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
 
         for(Cache_folder cache_folder : Cache_folder.values())
         {
-            monitored_folders.add(new Monitored_folder(cache_folder.name(), Static_files_and_paths_utilities.get_cache_folder(cache_folder,logger)));
+            monitored_folders.add(new Monitored_folder(cache_folder.name(), Static_files_and_paths_utilities.get_cache_folder(cache_folder,owner,logger)));
         }
     }
 

@@ -11,6 +11,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.properties.*;
+import klik.properties.boolean_features.Booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -34,7 +35,6 @@ makes an animated gif from the pictures inside a folder
 public class Animated_gif_from_folder
 //**********************************************************
 {
-    public static final String warning_GraphicsMagick = "This feature requires GraphicsMagick\n . for mac: brew install graphicsmagick\n . for all systems download from GraphicsMagick.org\n";
 
     private final static boolean dbg = false;
     public static final String FRAME1 = "Frame_";
@@ -57,10 +57,10 @@ public class Animated_gif_from_folder
         //    return null;
         //}
 
-        int icon_size = Non_booleans.get_icon_size();
+        int icon_size = Non_booleans.get_icon_size(owner);
 
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
-        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_folder_icon_cache,logger);
+        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_folder_icon_cache,owner,logger);
         Path output_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(output_animated_gif)) {
             if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
@@ -78,13 +78,13 @@ public class Animated_gif_from_folder
         graphicsMagick_command_line.add(frames);
         graphicsMagick_command_line.add(output_animated_gif.toAbsolutePath().toString());
 
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache,logger);
+        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache,owner, logger);
         List<Path> to_be_cleaned_up = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Comparator<? super Path> local_comp = File_sort_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, x,y,-1,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = File_sort_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, owner, x,y,-1,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( local_comp instanceof Aspect_ratio_comparator)
         {
@@ -107,8 +107,7 @@ public class Animated_gif_from_folder
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
             if (Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger) == null)
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
-                logger.log(warning_GraphicsMagick);
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
                 logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
                 return null;
             }

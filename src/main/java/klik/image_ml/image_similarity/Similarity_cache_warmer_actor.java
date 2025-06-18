@@ -1,10 +1,11 @@
-package klik.browser.comparators;
+package klik.image_ml.image_similarity;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
+import klik.browser.comparators.Similarity_comparator_by_pursuit;
 import klik.image_ml.Feature_vector;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -39,10 +40,11 @@ public class Similarity_cache_warmer_actor implements Actor
 
         Similarity_cache_warmer_message scwm = (Similarity_cache_warmer_message)m;
         Aborter browser_aborter = scwm.get_aborter();
-        Feature_vector emb1 = cache.get_from_cache(scwm.p1,null,true,browser_aborter);
+        Window owner = scwm.get_owner();
+        Feature_vector emb1 = cache.get_from_cache(scwm.p1,null,true,owner,browser_aborter);
         if ( emb1 == null)
         {
-            emb1 = cache.get_from_cache(scwm.p1,null,true,browser_aborter);
+            emb1 = cache.get_from_cache(scwm.p1,null,true,owner,browser_aborter);
             if ( emb1 == null)
             {
                 logger.log(" emb1 == null for "+scwm.p1);
@@ -66,9 +68,9 @@ public class Similarity_cache_warmer_actor implements Actor
             if (browser_aborter.should_abort()) return "aborted";
 
             //logger.log("processing "+p1+" vs "+p2);
-            Feature_vector emb2 = cache.get_from_cache(p2, null, true,browser_aborter);
+            Feature_vector emb2 = cache.get_from_cache(p2, null, true,owner, browser_aborter);
             if (emb2 == null) {
-                emb2 = cache.get_from_cache(p2, null, true,browser_aborter);
+                emb2 = cache.get_from_cache(p2, null, true,owner, browser_aborter);
                 if (emb2 == null) {
                     logger.log(" emb2 == null for " + p2);
                     continue;

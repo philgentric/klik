@@ -3,23 +3,25 @@ package klik.image_ml.image_similarity;
 //SOURCES ../Feature_vector_mask.java
 //SOURCES ./Vector_window.java
 
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.Feature_vector;
 import klik.image_ml.Feature_vector_mask;
 import klik.images.Image_window;
-import klik.properties.features.Feature;
-import klik.properties.Booleans;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import java.nio.file.Path;
@@ -50,7 +52,9 @@ public class Image_similarity implements Clearable_RAM_cache
     public Image_similarity(
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            double x, double y, int port,
+            double x, double y,
+            int port,
+            Window owner,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
@@ -60,7 +64,7 @@ public class Image_similarity implements Clearable_RAM_cache
         this.logger = logger;
         this.aborter = aborter;
         images = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
-        show_vector_differences = Booleans.get_boolean(Feature.Display_image_distances.name());
+        show_vector_differences = Booleans.get_boolean(Feature.Display_image_distances.name(),owner);
     }
 
     //**********************************************************
@@ -82,6 +86,7 @@ public class Image_similarity implements Clearable_RAM_cache
             Image_properties_RAM_cache image_properties_cache,
             Supplier<Image_feature_vector_cache> fv_cache_supplier,
             boolean use_mask,
+            Window owner,
             double x, double y,
             AtomicLong count_pairs_examined,
             Aborter browser_aborter)
@@ -101,7 +106,7 @@ public class Image_similarity implements Clearable_RAM_cache
             logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv_cache is null"));
             return new ArrayList<>();
         }
-        Feature_vector fv0 = fv_cache.get_from_cache(image_path, null, true, browser_aborter);
+        Feature_vector fv0 = fv_cache.get_from_cache(image_path, null, true, owner, browser_aborter);
         if ( fv0 ==null)
         {
             return new ArrayList<>();
@@ -116,6 +121,7 @@ public class Image_similarity implements Clearable_RAM_cache
                 fv_cache_supplier,
                 to_be_compared,
                 count_pairs_examined,
+                owner,
                 browser_aborter);
 
         if ( already_done!= null) already_done.add(image_path);
@@ -123,17 +129,31 @@ public class Image_similarity implements Clearable_RAM_cache
         {
             return most_similars;
         }
+        final double xx = x;
+        final double yy = y;
         Runnable rr = new Runnable() {
             @Override
             public void run() {
-                double x = 10;
-                double y = 10;
-                show_one_at(new Most_similar(image_path,fv0,fv0,0.0),x,y);
-                y += H;
+                double xxx = xx;
+                double yyy = yy;
+
+
+                Image_window local = show_one_at(new Most_similar(image_path,fv0,fv0,0.0),owner,xxx,yyy);
+                Image_window.stage_group.add(local);
+                yyy += H;
                 for ( Most_similar ms : most_similars)
                 {
-                    show_one_at(ms,x,y);
-                    x += W;
+                    local = show_one_at(ms,owner,xxx,yyy);
+                    Image_window.stage_group.add(local);
+                    xxx += W;
+                }
+
+                if ( Booleans.get_boolean_defaults_to_true(Feature.Show_can_use_ESC_to_close_windows.name(),owner))
+                {
+                    if (Popups.info_popup("After selecting one, you can use ESC to close these small windows one by one",owner,logger))
+                    {
+                        Booleans.set_boolean(Feature.Show_can_use_ESC_to_close_windows.name(), false,owner);
+                    }
                 }
             }
         };
@@ -144,12 +164,12 @@ public class Image_similarity implements Clearable_RAM_cache
 
 
     //**********************************************************
-    private void show_one_at(Most_similar ms,double x, double y)
+    private Image_window show_one_at(Most_similar ms, Window owner, double x, double y)
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
         Image_window returned = new Image_window(port,
-                ms.path(), x, y, W, H, s, false,path_list_provider,
+                ms.path(), owner, x, y, W, H, s, false,path_list_provider,
                 Optional.of(path_comparator_source.get_path_comparator()),
                 new Aborter("dummy34",logger),logger);
         returned.the_Stage.setX(x);
@@ -158,8 +178,9 @@ public class Image_similarity implements Clearable_RAM_cache
 
         if (show_vector_differences)
         {
-            Vector_window vw = new Vector_window("Distance: "+ms.similarity,x,y,ms.fv1,ms.fv2,false,true,logger);
+            Vector_window vw = new Vector_window("Distance: "+ms.similarity,owner,x,y,ms.fv1,ms.fv2,false,true,logger);
         }
+        return returned;
     }
 
 
@@ -175,6 +196,7 @@ public class Image_similarity implements Clearable_RAM_cache
             Supplier<Image_feature_vector_cache> fv_cache_supplier,
             List<Path> targets,
             AtomicLong count_pairs_examined,
+            Window owner,
             Aborter browser_aborter)
     //**********************************************************
     {
@@ -196,7 +218,7 @@ public class Image_similarity implements Clearable_RAM_cache
                 if ( ip0.h() != ip1.h()) continue;
             }
 
-            Feature_vector fv1 = fv_cache_supplier.get().get_from_cache(path1, null,true, browser_aborter);
+            Feature_vector fv1 = fv_cache_supplier.get().get_from_cache(path1, null,true, owner, browser_aborter);
             if (fv1 == null) continue; // server failure
 
             Double similarity = null;

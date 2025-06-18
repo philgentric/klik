@@ -1,5 +1,6 @@
 package klik.properties;
 
+import javafx.stage.Window;
 import javafx.util.Pair;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -43,7 +44,7 @@ public class Properties_manager
     private final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
-    public Properties_manager(Path f_, String tag, Aborter aborter,Logger logger)
+    public Properties_manager(Path f_, String tag, Window owner,Aborter aborter,Logger logger)
     //**********************************************************
     {
         Objects.requireNonNull(aborter);
@@ -53,7 +54,7 @@ public class Properties_manager
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties(the_Properties, the_properties_path);
-        start_store_engine( aborter,  logger);
+        start_store_engine(owner, aborter,  logger);
 
         //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
@@ -76,7 +77,7 @@ public class Properties_manager
     // like the image properties cache or image feature vectors etc
     // but keep as safe as possible, especially always saved on clean exit (with aborter)
     //**********************************************************
-    private void start_store_engine(Aborter aborter, Logger logger)
+    private void start_store_engine(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -96,7 +97,7 @@ public class Properties_manager
                         // if another request is already in flight, we will have an opportunity to save very soon
                         continue;
                     }
-                    save(reload_before_save);
+                    save(reload_before_save, owner);
                     if (aborter.should_abort())
                     {
                         logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
@@ -114,7 +115,7 @@ public class Properties_manager
     }
 
     //**********************************************************
-    private void save(boolean reload_before_save)
+    private void save(boolean reload_before_save, Window owner)
     //**********************************************************
     {
         if ( reload_before_save)
@@ -175,11 +176,11 @@ public class Properties_manager
                 }
             }
         }
-        save_to_disk();
+        save_to_disk(owner);
     }
 
     //**********************************************************
-    private void save_to_disk()
+    private void save_to_disk(Window owner)
     //**********************************************************
     {
        if (dbg) logger.log("Properties_manager: save to disk "+the_properties_path.toAbsolutePath());
@@ -206,7 +207,7 @@ public class Properties_manager
 
         if (!Files.isWritable(the_properties_path))
         {
-            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", logger);
+            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", owner, logger);
             logger.log("ALERT: cannot write properties in:" + the_properties_path.toAbsolutePath());
             return;
         }
@@ -225,7 +226,7 @@ public class Properties_manager
         catch (Exception e)
         {
             //logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
-            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, logger);
+            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, owner,logger);
 
         }
     }

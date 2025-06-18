@@ -10,7 +10,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.properties.boolean_features.Booleans;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.experimental.fusk.Fusk_static_core;
@@ -25,7 +27,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 //**********************************************************
 public class Exif_stage
@@ -35,23 +36,23 @@ public class Exif_stage
     private static final double WIDTH = 1000;
 
     //**********************************************************
-    public static void show_exif_stage(Image image, Path path, Aborter aborter, Logger logger)
+    public static void show_exif_stage(Image image, Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if(Platform.isFxApplicationThread())
         {
-            show_exif_stage_(image,path,aborter,logger);
+            show_exif_stage_(image,path,owner,aborter,logger);
         }
         else
         {
-            Runnable r = () -> show_exif_stage_(image,path,aborter,logger);
+            Runnable r = () -> show_exif_stage_(image,path, owner, aborter,logger);
             Jfx_batch_injector.inject(r,logger);
         }
     }
 
 
     //**********************************************************
-    private static void show_exif_stage_(Image image, Path path, Aborter aborter, Logger logger)
+    private static void show_exif_stage_(Image image, Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( image == null)
@@ -65,44 +66,25 @@ public class Exif_stage
         if ( exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
 
         TextField tf = new TextField(path.toAbsolutePath().toString());
-        Look_and_feel_manager.set_TextField_look(tf,logger);
+        Look_and_feel_manager.set_TextField_look(tf,owner,logger);
         tf.setMinWidth(WIDTH);
         textFlow.getChildren().add(tf);
 
         textFlow.getChildren().add(new Text(System.lineSeparator()));
 
-        {
-            String file_size = Static_files_and_paths_utilities.get_1_line_string_with_size(path.toAbsolutePath(), logger);
-            new_line(file_size, textFlow,logger);
-        }
-        Exif_read_result res = load_exif(path, image, new Aborter("EXIF",logger),logger);
-        for (String s : res.exif_items())
-        {
-            if ( exif_dbg) logger.log(s);
-            new_line(s, textFlow,logger);
-        }
-        {
-            StringBuilder sb = get_GraphicsMagick_info(path,logger);
-            if (sb == null) return;
-            // break sb.toString() into lines
-            String[] lines = sb.toString().split("\n");
-            for (String line : lines) {
-                line = line.trim();
-                if (line.isEmpty()) continue;
-                new_line(line, textFlow,logger);
-            }
-        }
+
 
         if ( exif_dbg) logger.log("$$$$$$$$$$$$$$$$$$$$$$$$");
         ScrollPane sp = new ScrollPane();
-        Look_and_feel_manager.set_region_look(sp,logger);
-        Look_and_feel_manager.set_region_look(textFlow,logger);
+        Look_and_feel_manager.set_region_look(sp,owner,logger);
+        Look_and_feel_manager.set_region_look(textFlow,owner,logger);
         sp.setPrefSize(WIDTH, 600);
         sp.setContent(textFlow);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         Stage local_stage = new Stage();
+        local_stage.initOwner(owner);
         local_stage.setHeight(600);
         local_stage.setWidth(WIDTH);
 
@@ -134,19 +116,44 @@ public class Exif_stage
                         key_event.consume();
                     }
                 });
+
+        {
+            String file_size = Static_files_and_paths_utilities.get_1_line_string_with_size(path.toAbsolutePath(), owner,logger);
+            new_line(file_size, textFlow,owner,logger);
+        }
+        Exif_read_result res = load_exif(path, image, owner,new Aborter("EXIF",logger),logger);
+        for (String s : res.exif_items())
+        {
+            if ( exif_dbg) logger.log(s);
+            new_line(s, textFlow,owner,logger);
+        }
+        {
+            StringBuilder sb = get_graphicsmagick_info(path,local_stage,logger);
+            if (sb == null) return;
+            // break sb.toString() into lines
+            String[] lines = sb.toString().split("\n");
+            for (String line : lines) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                new_line(line, textFlow,owner,logger);
+            }
+        }
     }
 
-    private static void new_line(String file_size, TextFlow textFlow,Logger logger) {
+    //**********************************************************
+    private static void new_line(String file_size, TextFlow textFlow,Window owner,Logger logger)
+    //**********************************************************
+    {
         TextField text_field = new TextField(file_size);
         text_field.setEditable(false);
         text_field.setMinWidth(WIDTH);
-        Look_and_feel_manager.set_TextField_look(text_field,logger);
+        Look_and_feel_manager.set_TextField_look(text_field,owner,logger);
         textFlow.getChildren().add(text_field);
         textFlow.getChildren().add(new Text(System.lineSeparator()));
     }
 
     //**********************************************************
-    public static Exif_read_result load_exif(Path path, Image image, Aborter aborter, Logger logger)
+    public static Exif_read_result load_exif(Path path, Image image, Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
         List<String> exifs_tags_list = new ArrayList<>();
@@ -155,7 +162,7 @@ public class Exif_stage
         double rotation = 0;
         try
         {
-            Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,logger);
+            Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,owner, logger);
             double how_many_pixels = image.getWidth()*image.getHeight();
             exifs_tags_list = extractor.get_exif_metadata(how_many_pixels,true,aborter,true);
             rotation = extractor.get_rotation(true,aborter);
@@ -175,7 +182,7 @@ public class Exif_stage
     }
 
     //**********************************************************
-    public static StringBuilder get_GraphicsMagick_info(Path path, Logger logger)
+    public static StringBuilder get_graphicsmagick_info(Path path, Window owner, Logger logger)
     //**********************************************************
     {
         List<String> graphicsMagick_command_line = new ArrayList<>();
@@ -187,7 +194,7 @@ public class Exif_stage
         StringBuilder sb = new StringBuilder();
         if ( Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger) == null)
         {
-            logger.log(warning_GraphicsMagick);
+            Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
             return null;
         }
         logger.log(sb.toString());

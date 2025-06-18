@@ -159,18 +159,18 @@ public class Drag_and_drop
     {
         node.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
-            Look_and_feel_manager.set_background_for_setOnDragEntered(node,logger);
+            Look_and_feel_manager.set_background_for_setOnDragEntered(node,owner,logger);
             drag_event.consume();
         });
         node.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
-            Look_and_feel_manager.set_background_for_setOnDragExited(node,logger);
+            Look_and_feel_manager.set_background_for_setOnDragExited(node,owner,logger);
             drag_event.consume();
         });
         node.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
             drag_event.acceptTransferModes(TransferMode.MOVE);
-            Look_and_feel_manager.set_background_for_setOnDragOver(node,logger);
+            Look_and_feel_manager.set_background_for_setOnDragOver(node,owner,logger);
             drag_event.consume();
         });
         node.setOnDragDropped(drag_event -> {

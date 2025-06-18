@@ -36,7 +36,7 @@ public class Deduplication_console_window
     public static final String STATUS = "Status: ";
     Aborter private_aborter;
     //Browser browser;
-    Window window;
+    Window owner;
     public AtomicInteger count_directory_examined = new AtomicInteger(0);
     Label label_directory_examined;
     Label label_total_files_to_be_examined;
@@ -64,12 +64,12 @@ public class Deduplication_console_window
             String title,
             double w, double h,
             boolean just_count_,
-            Window window,
+            Window owner,
             Aborter aborter_,
             Logger logger)
     //**********************************************************
     {
-        this.window = window;
+        this.owner = owner;
         abortable = abortable_;
         private_aborter = aborter_;
         just_count = just_count_;
@@ -81,7 +81,7 @@ public class Deduplication_console_window
 
         stage.setTitle(title);
         VBox vbox = new VBox();
-        Look_and_feel_manager.set_region_look(vbox,logger);
+        Look_and_feel_manager.set_region_look(vbox,owner,logger);
         Scene scene = new Scene(vbox);//, w, h, Color.WHITE);
         stage.setScene(scene);
         stage.show();
@@ -95,7 +95,7 @@ public class Deduplication_console_window
             }
         });
         Button cancel = new Button("cancel");
-        Look_and_feel_manager.set_button_look(cancel,true,logger);
+        Look_and_feel_manager.set_button_look(cancel,true,owner,logger);
         {
             cancel.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -109,23 +109,23 @@ public class Deduplication_console_window
         vbox.getChildren().add(cancel);
         {
             label_status = new Label(STATUS);
-            Look_and_feel_manager.set_region_look(label_status,logger);
+            Look_and_feel_manager.set_region_look(label_status,owner,logger);
             vbox.getChildren().add(label_status);
         }
         {
             label_directory_examined = new Label();
-            Look_and_feel_manager.set_region_look(label_directory_examined,logger);
+            Look_and_feel_manager.set_region_look(label_directory_examined,owner,logger);
             vbox.getChildren().add(label_directory_examined);
             label_total_files_to_be_examined= new Label();
-            Look_and_feel_manager.set_region_look(label_total_files_to_be_examined,logger);
+            Look_and_feel_manager.set_region_look(label_total_files_to_be_examined,owner,logger);
             vbox.getChildren().add(label_total_files_to_be_examined);
             label_total_pairs_to_be_examined= new Label();
-            Look_and_feel_manager.set_region_look(label_total_pairs_to_be_examined,logger);
+            Look_and_feel_manager.set_region_look(label_total_pairs_to_be_examined,owner,logger);
             vbox.getChildren().add(label_total_pairs_to_be_examined);
         }
         {
             label_examined = new Label();
-            Look_and_feel_manager.set_region_look(label_examined,logger);
+            Look_and_feel_manager.set_region_look(label_examined,owner,logger);
 
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_examined);
@@ -135,7 +135,7 @@ public class Deduplication_console_window
         }
         if ( !just_count) {
             label_count_to_be_deleted = new Label();
-            Look_and_feel_manager.set_region_look(label_count_to_be_deleted,logger);
+            Look_and_feel_manager.set_region_look(label_count_to_be_deleted,owner,logger);
 
             //label_count_to_be_deleted.setWrapText(true);
             vbox.getChildren().add(label_count_to_be_deleted);
@@ -144,7 +144,7 @@ public class Deduplication_console_window
         if ( !just_count)
         {
             label_count_deleted = new Label();
-            Look_and_feel_manager.set_region_look(label_count_deleted,logger);
+            Look_and_feel_manager.set_region_look(label_count_deleted,owner,logger);
 
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_count_deleted);

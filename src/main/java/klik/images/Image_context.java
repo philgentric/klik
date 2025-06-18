@@ -60,18 +60,18 @@ public class Image_context
     final int port;
 
     //**********************************************************
-    public static Optional<Image_context> get_Image_context(Path path, int port,Aborter aborter,Logger logger_)
+    public static Optional<Image_context> get_Image_context(Path path, int port,Window owner, Aborter aborter,Logger logger_)
     //**********************************************************
     {
         if ( !Files.exists(path)) return Optional.empty();
-        Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, aborter,logger_);
+        Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, owner, aborter,logger_);
         if ( local_image == null)
         {
             return Optional.empty();
         }
         if ( local_image.isError())
         {
-            Image broken = Jar_utils.get_broken_icon(300,logger_);
+            Image broken = Jar_utils.get_broken_icon(300,owner,logger_);
             return Optional.of(new Image_context(path,path,broken,port,logger_));
         }
         Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image, port,logger_));
@@ -151,10 +151,10 @@ public class Image_context
 
 
     //**********************************************************
-    double get_animated_gif_delay()
+    double get_animated_gif_delay(Window owner)
     //**********************************************************
     {
-        StringBuilder sb = Exif_stage.get_GraphicsMagick_info(path,logger);
+        StringBuilder sb = Exif_stage.get_graphicsmagick_info(path,owner,logger);
         String s = sb.toString();
 
         String[] lines = s.split("\\R");
@@ -176,7 +176,7 @@ public class Image_context
 
 
     //**********************************************************
-    void edit()
+    void edit(Window owner)
     //**********************************************************
     {
         Desktop desktop = Desktop.getDesktop();
@@ -194,7 +194,7 @@ public class Image_context
                 Command_old_and_new_Path cmd = Command_old_and_new_Path.command_edit;
                 Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
                 oanps.add(oan);
-                Change_gang.report_changes(oanps);
+                Change_gang.report_changes(oanps, owner);
             };
             Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
@@ -209,7 +209,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void edit2(Stage the_stage, Aborter aborter)
+    void edit2(Stage the_stage, Window owner, Aborter aborter)
     //**********************************************************
     {
         System_open_actor.open_special(the_stage,path,aborter,logger);
@@ -223,7 +223,7 @@ public class Image_context
                 Command_old_and_new_Path cmd = Command_old_and_new_Path.command_edit;
                 Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
                 oanps.add(oan);
-                Change_gang.report_changes(oanps);
+                Change_gang.report_changes(oanps,owner);
             };
             Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
@@ -379,7 +379,7 @@ public class Image_context
             StringBuilder ttt = new StringBuilder();
             for (String ss : keywords) ttt.append(ss).append(" ");
             TextInputDialog dialog = new TextInputDialog(ttt.toString());
-            Look_and_feel_manager.set_dialog_look(dialog,logger);
+            Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
             dialog.initOwner(owner);
             dialog.setTitle("Keywords");
             dialog.setHeaderText("Enter your keywords, separated by space");
@@ -438,7 +438,8 @@ public class Image_context
     boolean copy(
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            Runnable after)
+            Runnable after,
+            Window owner)
     //**********************************************************
     {
         //if (Popups.popup_ask_for_confirmation(My_I18n.get_I18n_string("Warning", logger),
@@ -498,13 +499,15 @@ public class Image_context
                 new_path,
                 Command_old_and_new_Path.command_copy,
                 Status_old_and_new_Path.copy_done,false));
-        Change_gang.report_changes(l);
+        Change_gang.report_changes(l,owner);
 
         Item_file_with_icon.open_an_image(true,
                 port,
                 path_list_provider,
                 path_comparator_source,
-                new_path,logger);
+                new_path,
+                owner,
+                logger);
         //Image_window orphan = Image_window.get_Image_window(b,new_path, logger);
         return true;
     }

@@ -1,8 +1,8 @@
-package klik.properties.features;
+package klik.properties.boolean_features;
 
+import javafx.stage.Window;
 import klik.Launcher;
 import klik.actor.Actor_engine;
-import klik.properties.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
@@ -30,7 +30,7 @@ public class Feature_cache
             Feature.Reload_last_folder_on_startup,
             Feature.Monitor_folders,
             Feature.Use_escape_to_close_windows,
-            Feature.Show_GraphicsMagick_install_warning,
+            Feature.Show_graphicsmagick_install_warning,
             Feature.Show_ffmpeg_install_warning);
 
     static {
@@ -38,11 +38,11 @@ public class Feature_cache
         {
             if ( default_to_true.contains(f))
             {
-                boolean_feature_cache.put(f,Booleans.get_boolean_defaults_to_true(f.name()));
+                boolean_feature_cache.put(f,Booleans.get_boolean_defaults_to_true(f.name(),null));
             }
             else
             {
-                boolean_feature_cache.put(f, Booleans.get_boolean(f.name()));
+                boolean_feature_cache.put(f, Booleans.get_boolean(f.name(),null));
             }
         }
     }
@@ -117,10 +117,10 @@ public class Feature_cache
     }
 
     //**********************************************************
-    public static void update_cached_boolean(Feature feature, boolean new_val)
+    public static void update_cached_boolean(Feature feature, boolean new_val, Window owner)
     //**********************************************************
     {
-        Booleans.set_boolean(feature.name(),new_val);
+        Booleans.set_boolean(feature.name(),new_val,owner);
         boolean_feature_cache.put(feature,new_val);
         for( Feature_change_target fct : registered_for_any_boolean_change) fct.update(feature,new_val);
 
@@ -130,19 +130,19 @@ public class Feature_cache
     }
 
     //**********************************************************
-    public static void update_string(String key, String new_value, int port, Logger logger)
+    public static void update_string(String key, String new_value, int port, Window owner,Logger logger)
     //**********************************************************
     {
         if ( key.equals(Non_booleans.LANGUAGE_KEY))
         {
             System.out.println("Feature_cache Non_booleans.set_language_key("+new_value+")");
-            Non_booleans.set_language_key(new_value);
+            Non_booleans.set_language_key(new_value,owner);
             send_language_changed(Launcher.UI_CHANGED,new_value,port, logger);
         }
         else if ( key.equals(Non_booleans.STYLE_KEY))
         {
             System.out.println("Feature_cache Non_booleans.set_style_key("+new_value+")");
-            Non_booleans.get_main_properties_manager().set(Non_booleans.STYLE_KEY, new_value);
+            Non_booleans.get_main_properties_manager(owner).set(Non_booleans.STYLE_KEY, new_value);
             send_language_changed(Launcher.UI_CHANGED,new_value,port, logger);
         }
         List<String_change_target> l = string_registered_for.get(key);

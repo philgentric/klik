@@ -1,5 +1,6 @@
 package klik.change.history;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
@@ -13,18 +14,18 @@ public class History_engine
 {
     private final Properties_for_history ph;
     //**********************************************************
-    private History_engine(Aborter aborter, Logger logger)
+    private History_engine(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties ip = new File_based_IProperties("history",aborter,logger);
+        IProperties ip = new File_based_IProperties("history",owner,aborter,logger);
         ph = new Properties_for_history(ip,  300, logger);
     }
 
     //**********************************************************
-    public static History_engine get(Aborter aborter, Logger logger)
+    public static History_engine get(Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return new History_engine(aborter,logger);
+        return new History_engine(owner,aborter,logger);
     }
 
     //**********************************************************

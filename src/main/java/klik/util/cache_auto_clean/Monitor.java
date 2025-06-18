@@ -23,7 +23,7 @@ public class Monitor
     {
         this.logger = logger;
         disk_usage_monitor = new Disk_usage_monitor(window_provider.get_owner(), logger);
-        cache_auto_clean = new Cache_auto_clean( logger);
+        cache_auto_clean = new Cache_auto_clean(window_provider.get_owner(), logger);
         //history_auto_clean = new History_auto_clean(logger);
     }
 

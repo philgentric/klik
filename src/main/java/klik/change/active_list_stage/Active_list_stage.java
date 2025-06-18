@@ -29,6 +29,7 @@ public class Active_list_stage
     Datetime_to_signature_source source;
     public final Active_list_stage_action on_action;
     public final Logger logger;
+    private final Stage stage;
 
     //**********************************************************
     public static Active_list_stage show_active_list_stage(String title, Datetime_to_signature_source source_, Active_list_stage_action on_action, Logger logger_)
@@ -53,24 +54,24 @@ public class Active_list_stage
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-        Stage local_stage = new Stage();
-        local_stage.setHeight(600);
-        local_stage.setWidth(1000);
+        stage = new Stage();
+        stage.setHeight(600);
+        stage.setWidth(1000);
 
         Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
-        local_stage.setTitle(title);
-        local_stage.setScene(scene);
-        local_stage.show();
+        stage.setTitle(title);
+        stage.setScene(scene);
+        stage.show();
 
 
         define();
 
-        local_stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+        stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             for ( Node x : vbox.getChildren())
             {
                 if ( x instanceof Button) {
                     Button b = (Button) x;
-                    b.setPrefWidth(local_stage.getWidth()-10);
+                    b.setPrefWidth(stage.getWidth()-10);
                 }
             }
         });
@@ -100,7 +101,7 @@ public class Active_list_stage
             b.setTextAlignment(TextAlignment.LEFT);
             b.setPrefWidth(WIDTH);
             //Font_size.apply_font_size(b,logger);
-            Look_and_feel_manager.set_button_look(b, true,logger);
+            Look_and_feel_manager.set_button_look(b, true, stage,logger);
 
             if (on_action != null)
             {

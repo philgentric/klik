@@ -3,6 +3,7 @@
 //SOURCES ./Directory_backup_job_request.java
 package klik.experimental.backup;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
@@ -34,25 +35,28 @@ public class Backup_actor_for_one_folder implements Actor
     public final boolean deep_byte_check;
     public final boolean check_for_same_file_different_name;
     private Actor_engine_based_on_workers actor_engine_based_on_workers;
+    private Window owner;
 
 
     //**********************************************************
     public Backup_actor_for_one_folder(Backup_stats stats_,
                                        boolean check_for_same_file_different_name,
                                        boolean deep_byte_check,
-                                       ConcurrentLinkedQueue<String> reports_,
-                                       Aborter aborter_,
-                                       Actor_engine_based_on_workers actor_engine_based_on_workers_,
-                                       Logger logger_)
+                                       ConcurrentLinkedQueue<String> reports,
+                                       Actor_engine_based_on_workers actor_engine_based_on_workers,
+                                        Window owner,
+                                       Aborter aborter,
+                                       Logger logger)
     //**********************************************************
     {
         this.check_for_same_file_different_name = check_for_same_file_different_name;
         this.deep_byte_check = deep_byte_check;
         stats = stats_;
-        reports = reports_;
-        logger = logger_;
-        aborter = aborter_;
-        actor_engine_based_on_workers = actor_engine_based_on_workers_;
+        this.reports = reports;
+        this.logger = logger;
+        this.aborter = aborter;
+        this.actor_engine_based_on_workers = actor_engine_based_on_workers;
+        this.owner = owner;
 
         // allocate a dedicated actor per folder since a folder maybe in its own thread and file comparator is not re-entrant
         file_actor = new Backup_actor_for_one_file(stats, logger);
@@ -173,12 +177,12 @@ public class Backup_actor_for_one_folder implements Actor
             }
             if ( launch_in_thread)
             {
-                actor_engine_based_on_workers.run(new Backup_actor_for_one_folder(stats, check_for_same_file_different_name,deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger), directory_backup_job_request, null, logger);
+                actor_engine_based_on_workers.run(new Backup_actor_for_one_folder(stats, check_for_same_file_different_name,deep_byte_check,reports, actor_engine_based_on_workers,owner,aborter, logger), directory_backup_job_request, null, logger);
                 threads_launched++;
             }
             else
             {
-                if ( folder_actor == null) folder_actor = new Backup_actor_for_one_folder(stats, check_for_same_file_different_name,deep_byte_check,reports, aborter, actor_engine_based_on_workers, logger);
+                if ( folder_actor == null) folder_actor = new Backup_actor_for_one_folder(stats, check_for_same_file_different_name,deep_byte_check,reports, actor_engine_based_on_workers,owner,aborter, logger);
                 folder_actor.do_one_folder(directory_backup_job_request);
             }
             if (mini_console != null) mini_console.show_progress();
@@ -202,7 +206,7 @@ public class Backup_actor_for_one_folder implements Actor
             List<Old_and_new_Path> l = new ArrayList<>();
             Old_and_new_Path oanp = new Old_and_new_Path(request.source_dir.toPath(), request.destination_dir.toPath(), Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done,false);
             l.add(oanp);
-            Change_gang.report_changes(l);
+            Change_gang.report_changes(l,owner);
         }
 
         request.finished = true;

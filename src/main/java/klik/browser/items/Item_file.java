@@ -23,7 +23,6 @@ public abstract class Item_file extends Item
 
     //**********************************************************
     public Item_file(
-            Window owner,
             Scene scene,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
@@ -31,14 +30,15 @@ public abstract class Item_file extends Item
             Path path_,
             Path_list_provider path_list_provider,
             int port,
+            Window owner,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
-        super(port, owner, scene, selection_handler, icon_factory_actor, color, path_list_provider, aborter, logger);
+        super(port, scene, selection_handler, icon_factory_actor, color, path_list_provider, owner, aborter, logger);
         this.path = path_;
         item_type = Iconifiable_item_type.from_extension(get_item_path());
-        icon_size = Non_booleans.get_icon_size();
+        icon_size = Non_booleans.get_icon_size(owner);
     }
 
     //**********************************************************

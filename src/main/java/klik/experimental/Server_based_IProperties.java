@@ -1,5 +1,6 @@
 package klik.experimental;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.IProperties;
 import klik.properties.Non_booleans;
@@ -18,7 +19,7 @@ public class Server_based_IProperties implements IProperties
     private final Logger logger;
     private static Properties_server server = null;
 
-    public Server_based_IProperties(Aborter aborter, Logger logger)
+    public Server_based_IProperties(Window owner, Aborter aborter, Logger logger)
     {
         this.logger = logger;
         if (server == null)
@@ -27,7 +28,7 @@ public class Server_based_IProperties implements IProperties
             String home = System.getProperty(Non_booleans.USER_HOME);
             System.out.println("home="+home);
             Path p = Paths.get(home, Non_booleans.CONF_DIR, Non_booleans.PROPERTIES_FILENAME);
-            server = new Properties_server(p, "Preferences DB", aborter,logger);
+            server = new Properties_server(p, "Preferences DB", owner, aborter,logger);
         }
     }
 

@@ -53,7 +53,7 @@ public class Simple_image_window
         the_Stage.setMinWidth(1000);
         the_Stage.setMinHeight(1000);
         the_image_Pane = new StackPane();
-        Look_and_feel_manager.set_region_look(the_image_Pane,logger);
+        Look_and_feel_manager.set_region_look(the_image_Pane,the_Stage,logger);
 
         the_Scene = new Scene(the_image_Pane);
 
@@ -73,7 +73,7 @@ public class Simple_image_window
         iv.fitHeightProperty().bind(the_image_Pane.heightProperty());
 
         the_image_Pane.getChildren().add(iv);
-        Color background = Look_and_feel_manager.get_instance(logger).get_background_color();
+        Color background = Look_and_feel_manager.get_instance(the_Stage,logger).get_background_color();
         the_Scene.setFill(background);
         the_Stage.setScene(the_Scene);
         the_Stage.show();

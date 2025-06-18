@@ -154,7 +154,7 @@ public class Name_cleaner
     public static void main(String[] args)
     //**********************************************************
     {
-        Sys_init.init("Name_cleaner test app");
+        Sys_init.init("Name_cleaner test app",null);
         Logger logger = Shared_services.shared_services_logger;
 
 

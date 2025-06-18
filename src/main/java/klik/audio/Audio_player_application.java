@@ -38,7 +38,7 @@ public class Audio_player_application extends Application
     //**********************************************************
     {
         this.stage = stage_;
-        Sys_init.init("Audio_player_application");
+        Sys_init.init("Audio_player_application",stage_);
         logger = Shared_services.shared_services_logger;
         Start_context context = Start_context.get_context_and_args(this);
 
@@ -61,9 +61,9 @@ public class Audio_player_application extends Application
     {
         logger.log("Audio_player_application starts");
 
-        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, logger);
+        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, stage,logger);
 
-        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC,logger);
+        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC,stage,logger);
 
         String f = null;
         if ( context != null)
@@ -96,10 +96,10 @@ public class Audio_player_application extends Application
                     String received = TCP_util.read_string(dis);
                     if (received.startsWith(Launcher.UI_CHANGED))
                     {
-                        Non_booleans.force_reload_from_disk();
+                        Non_booleans.force_reload_from_disk(stage);
                         String new_lang = received.split(" ")[1];
                         logger.log("Audio player: LANGUAGE_CHANGED RECEIVED new lang is "+new_lang);
-                        logger.log("Audio player: checking the language value is updated on disk: "+Non_booleans.get_language_key());
+                        logger.log("Audio player: checking the language value is updated on disk: "+Non_booleans.get_language_key(stage));
                         My_I18n.reset();
                         Look_and_feel_manager.reset();
                         Runnable r = () -> Platform.runLater(() -> Audio_player.define_ui());

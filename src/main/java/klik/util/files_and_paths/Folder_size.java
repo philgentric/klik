@@ -58,11 +58,11 @@ public class Folder_size
         local_stage.setHeight(size_stage_height);
         local_stage.setWidth(size_stage_width);
         VBox vbox = new VBox();
-        Look_and_feel_manager.set_region_look(vbox,logger);
+        Look_and_feel_manager.set_region_look(vbox,owner,logger);
 
         vbox.setAlignment(javafx.geometry.Pos.CENTER);
         ImageView iv;
-        iv = new ImageView(Look_and_feel_manager.get_running_film_icon(logger));
+        iv = new ImageView(Look_and_feel_manager.get_running_film_icon(owner,logger));
         iv.setFitHeight(icon_height);
         iv.setPreserveRatio(true);
         vbox.getChildren().add(iv);
@@ -99,19 +99,19 @@ public class Folder_size
             Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path,local_aborter, logger);
 
             Jfx_batch_injector.inject(() -> {
-                String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),logger);
+                String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger);
 
-                iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(logger));
+                iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(owner,logger));
 
                 if (sizes.bytes() < 0)
                 {
                     textarea2.setText(path+ "\nAn error occurred, probably Access Denied, check the logs");
                 }
 
-                String folders_s = My_I18n.get_I18n_string("Folders", logger);
-                String files_s = My_I18n.get_I18n_string("Files", logger);
-                String image_s = My_I18n.get_I18n_string("Images", logger);
-                String bytes_s = My_I18n.get_I18n_string("Bytes", logger);
+                String folders_s = My_I18n.get_I18n_string("Folders", owner,logger);
+                String files_s = My_I18n.get_I18n_string("Files", owner,logger);
+                String image_s = My_I18n.get_I18n_string("Images", owner,logger);
+                String bytes_s = My_I18n.get_I18n_string("Bytes", owner,logger);
 
                 textarea2.setText(folders_s+":\t\t\t"+ sizes.folders() + "\n"+
                         files_s+":\t\t\t" + sizes.files() + "\n" +

@@ -73,9 +73,9 @@ public class Stage_with_2_images
 		aborter = private_aborter_;
 
 		// there was an obscure bug with random order?
-		if ( File_sort_by.get_sort_files_by(path_list_provider.get_folder_path()) == File_sort_by.RANDOM_ASPECT_RATIO)
+		if ( File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(),owner) == File_sort_by.RANDOM_ASPECT_RATIO)
 		{
-			File_sort_by.set_sort_files_by(path_list_provider.get_folder_path(),File_sort_by.NAME,logger);
+			File_sort_by.set_sort_files_by(path_list_provider.get_folder_path(),File_sort_by.NAME,owner,logger);
 		}
 
 		logger.log("Stage_with_2_images !");
@@ -86,7 +86,7 @@ public class Stage_with_2_images
 		Jfx_batch_injector.inject(() ->{
 				stage = new Stage();
 				the_big_vbox = new VBox();
-				Look_and_feel_manager.set_region_look(the_big_vbox,logger);
+				Look_and_feel_manager.set_region_look(the_big_vbox,stage,logger);
 				Scene scene = new Scene(the_big_vbox);
 				stage.setScene(scene);//, W, H));
 				stage.setOnCloseRequest((e) -> aborter.abort("Stage_with_2_images closing"));
@@ -116,7 +116,7 @@ public class Stage_with_2_images
 		the_big_vbox.getChildren().clear();
 
 		Button skip = new Button("Skip this pair");
-		Look_and_feel_manager.set_button_look(skip,true,logger);
+		Look_and_feel_manager.set_button_look(skip,true,stage,logger);
 		the_big_vbox.getChildren().add(skip);
 		skip.setOnAction(_ -> {
             againor.again();
@@ -175,14 +175,14 @@ public class Stage_with_2_images
 		double height = 0;
 
 		Button view = new Button("View this one");
-		Look_and_feel_manager.set_button_look(view,true,logger);
+		Look_and_feel_manager.set_button_look(view,true,stage,logger);
 		view.setOnAction(event -> {
 			boolean is_image = true;
 			if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
 			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
             if (is_image)
 			{
-				Runnable r = () -> Item_file_with_icon.open_an_image(false,-1,path_list_provider, path_comparator_source,file.toPath(),logger);
+				Runnable r = () -> Item_file_with_icon.open_an_image(false,-1,path_list_provider, path_comparator_source,file.toPath(),owner,logger);
 				Actor_engine.execute(r,logger);
                 //Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
             }
@@ -201,11 +201,11 @@ public class Stage_with_2_images
 		the_vbox.getChildren().add(view);
 
 		Button delete_button = new Button("Delete this one");
-		Look_and_feel_manager.set_button_look(delete_button,true,logger);
+		Look_and_feel_manager.set_button_look(delete_button,true,stage,logger);
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
 			Path p = file.toPath();
-			Path trash_dir = Non_booleans.get_trash_dir(p,logger);
+			Path trash_dir = Non_booleans.get_trash_dir(p,owner,logger);
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
 			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
@@ -223,7 +223,7 @@ public class Stage_with_2_images
 			HBox hbox2 = new HBox();
 			{
 				Label label = new Label("Folder:"+file.getParentFile().getAbsolutePath());
-				Look_and_feel_manager.set_region_look(label,logger);
+				Look_and_feel_manager.set_region_look(label,stage,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				label.setTextOverrun(OverrunStyle.LEADING_WORD_ELLIPSIS);
@@ -238,7 +238,7 @@ public class Stage_with_2_images
 			HBox hbox2 = new HBox();
 			{
 				Label label = new Label("File:"+file.getName());
-				Look_and_feel_manager.set_region_look(label,logger);
+				Look_and_feel_manager.set_region_look(label,stage,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				hbox2.getChildren().add(label);
@@ -254,7 +254,7 @@ public class Stage_with_2_images
 			{
 				String size_in_kB = file.length()/1000+"kB";
 				Label label = new Label("File size: "+size_in_kB);
-				Look_and_feel_manager.set_region_look(label,logger);
+				Look_and_feel_manager.set_region_look(label,stage,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				hbox2.getChildren().add(label);
@@ -270,7 +270,7 @@ public class Stage_with_2_images
 		if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
 		if ( is_image)
 		{
-			Image image = From_disk.load_native_resolution_image_from_disk(file.toPath(), true, aborter, logger);
+			Image image = From_disk.load_native_resolution_image_from_disk(file.toPath(), true, owner,aborter, logger);
 			HBox hbox2 = new HBox();
 			{
 				width = image.getWidth();
@@ -284,7 +284,7 @@ public class Stage_with_2_images
 					lab += " ========  SAME SIZE";
 				}
 				Label label = new Label(lab);
-				Look_and_feel_manager.set_region_look(label,logger);
+				Look_and_feel_manager.set_region_look(label,stage,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
 				hbox2.getChildren().add(label);

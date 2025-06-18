@@ -59,7 +59,7 @@ public class Multiple_image_window
     //**********************************************************
     {
         Aborter aborter = new Aborter("Multiple_image_window",logger_);
-        Optional<Image_context> option = Image_context.get_Image_context(path, -1,aborter, logger_);
+        Optional<Image_context> option = Image_context.get_Image_context(path, -1,null, aborter, logger_);
         if (option.isEmpty()) {
             logger_.log(Stack_trace_getter.get_stack_trace("Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
@@ -131,7 +131,7 @@ public class Multiple_image_window
         {
             //Image image = Look_and_feel_manager.get_default_icon(300);
             //if (image != null) the_stage.getIcons().add(image);
-            Look_and_feel_manager.set_icon_for_main_window(the_stage,"multi", Look_and_feel_manager.Icon_type.KLIK,logger);
+            Look_and_feel_manager.set_icon_for_main_window(the_stage,"multi", Look_and_feel_manager.Icon_type.KLIK,the_stage,logger);
         }
         the_stage.setWidth(w);
         the_stage.setHeight(h);
@@ -225,7 +225,7 @@ public class Multiple_image_window
         {
             image_indexer = Image_indexer.get_Image_indexer(path_list_provider, ic.path.getParent(),new Alphabetical_file_name_comparator(),aborter,logger);
         }
-        return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, aborter, logger);
+        return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, null, aborter, logger);
 
     }
 

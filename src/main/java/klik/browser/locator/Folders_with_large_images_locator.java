@@ -389,6 +389,7 @@ public class Folders_with_large_images_locator
                 String final_S = s;
                 Jfx_batch_injector.inject(()-> New_window_context.additional_no_past(
                         port, key_to_path(final_S),
+                        owner,
                         logger),logger);
                 count++;
             }

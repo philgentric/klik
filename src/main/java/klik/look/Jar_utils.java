@@ -1,6 +1,7 @@
 package klik.look;
 
 import javafx.scene.image.Image;
+import javafx.stage.Window;
 import klik.Klik_application;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -16,7 +17,7 @@ public class Jar_utils
     public static Image broken_icon = null;
 
     //**********************************************************
-    public static Image load_jfx_image_from_jar(String image_file_path, double icon_size, Logger logger)
+    public static Image load_jfx_image_from_jar(String image_file_path, double icon_size, Window owner,Logger logger)
     //**********************************************************
     {
         InputStream s = get_jar_InputStream_by_name(image_file_path);
@@ -30,21 +31,21 @@ public class Jar_utils
         if (image.isError())
         {
             logger.log("WARNING: an error occurred when reading: " + image_file_path);
-            return get_broken_icon(icon_size, logger);
+            return get_broken_icon(icon_size, owner,logger);
         }
         return image;
     }
 
 
     //**********************************************************
-    public static Image get_broken_icon(double icon_size, Logger logger)
+    public static Image get_broken_icon(double icon_size, Window owner, Logger logger)
     //**********************************************************
     {
         if (broken_icon != null)
         {
             if ( broken_icon.getHeight() == icon_size) return broken_icon;
         }
-        Look_and_feel local_instance = Look_and_feel_manager.get_instance(logger);
+        Look_and_feel local_instance = Look_and_feel_manager.get_instance(owner,logger);
         if (local_instance == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
@@ -56,7 +57,7 @@ public class Jar_utils
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get broken icon path"));
             return null;
         }
-        broken_icon = load_jfx_image_from_jar(path, icon_size,logger);
+        broken_icon = load_jfx_image_from_jar(path, icon_size,owner,logger);
         return broken_icon;
     }
 

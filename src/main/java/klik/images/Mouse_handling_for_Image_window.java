@@ -394,7 +394,7 @@ public class Mouse_handling_for_Image_window
                 logger.log("bad image size");
             }
             logger.log("setting image view as broken icon");
-            local.the_image_view.setImage(Jar_utils.get_broken_icon(300, logger));
+            local.the_image_view.setImage(Jar_utils.get_broken_icon(300, image_window.the_Stage, logger));
             return true;
         }
         return false;
@@ -470,7 +470,7 @@ public class Mouse_handling_for_Image_window
                 if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
 
                 image_window.show_wait_cursor();
-                Optional<Image_context> option = Image_context.get_Image_context(file.toPath(), image_window.port, image_window.aborter, logger);
+                Optional<Image_context> option = Image_context.get_Image_context(file.toPath(), image_window.port, image_window.the_Stage, image_window.aborter, logger);
                 //image_file_source =  Image_indexer.get_Image_file_source(fff.getParentFile().toPath(), logger);
                 if ( option.isPresent())
                 {
@@ -497,14 +497,14 @@ public class Mouse_handling_for_Image_window
         });
         image_window.the_image_Pane.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragEntered");
-            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane,logger);
+            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane, image_window.the_Stage, logger);
             drag_event.consume();
         });
         image_window.the_image_Pane.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragExited");
             if (image_window.image_display_handler.get_image_context().isPresent())
             {
-                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString());
+                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString(), image_window.the_Stage);
             }
             drag_event.consume();
         });

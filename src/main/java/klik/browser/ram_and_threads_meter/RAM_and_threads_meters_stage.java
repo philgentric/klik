@@ -4,9 +4,14 @@
 package klik.browser.ram_and_threads_meter;
 
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -23,18 +28,20 @@ public class RAM_and_threads_meters_stage
     private static Stage instance;
 
     //**********************************************************
-    public static void show_stage(Logger logger)
+    public static void show_stage(Window originator, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = create_stage(logger);
+        if ( instance == null) instance = create_stage(originator,logger);
         else instance.show();
     }
 
     //**********************************************************
-    private static Stage create_stage(Logger logger)
+    private static Stage create_stage(Window originator,Logger logger)
     //**********************************************************
     {
         Stage stage = new Stage();
+        stage.initOwner(originator);
+
         HBox hbox = new HBox();
         int width = 0;
         int x_offset = 5;
@@ -52,7 +59,7 @@ public class RAM_and_threads_meters_stage
                     return  0.8*DISPLAY_PIXEL_HEIGHT*val/max_val;
                 }
             };
-            Graph_for_meters graph = new Graph_for_meters("Threads",the_scale_max, value_getter, real_to_pixel, x_offset,Color.RED, logger);
+            Graph_for_meters graph = new Graph_for_meters("Threads",the_scale_max, value_getter, real_to_pixel, x_offset,Color.RED, stage,logger);
             hbox.getChildren().add(graph.vbox);
             width+= graph.get_width();
             Scheduled_thread_pool.execute(graph.runnable, HEARTH_BEAT, TimeUnit.MILLISECONDS);
@@ -73,18 +80,35 @@ public class RAM_and_threads_meters_stage
                 }
             };
             x_offset += width;
-            Graph_for_meters graph = new Graph_for_meters("MB RAM", the_scale_max, value_getter, real_to_pixel, x_offset,Color.BLUE, logger);
+            Graph_for_meters graph = new Graph_for_meters("MB RAM", the_scale_max, value_getter, real_to_pixel, x_offset,Color.BLUE, stage,logger);
 
             hbox.getChildren().add(graph.vbox);
             Scheduled_thread_pool.execute(graph.runnable, HEARTH_BEAT, TimeUnit.MILLISECONDS);
         }
-        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(logger).get_background_color());
+
+
+        Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(stage,logger).get_background_color());
         stage.setScene(scene);
         double context_length = Math.round((double)HEARTH_BEAT*(double)(Graph_for_meters.how_many_rectangles)/100.0)/10.0;
         stage.setTitle("Last "+context_length+" seconds");
         stage.setMinWidth(width);
         stage.setMinHeight(DISPLAY_PIXEL_HEIGHT+100);
         stage.show();
+
+        {
+            ContextMenu context_menu = new ContextMenu();
+            Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
+            MenuItem menu_item = new MenuItem("Call GC");
+            context_menu.getItems().add(menu_item);
+            menu_item.setOnAction(event -> {
+                System.gc();
+                logger.log("Garbage collector was called");
+            });
+            scene.setOnMouseClicked(event -> {
+                context_menu.show(stage, event.getScreenX(), event.getScreenY());
+            });
+        }
+
         return stage;
     }
 

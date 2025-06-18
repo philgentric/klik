@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
@@ -16,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -26,10 +26,10 @@ import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.Feature;
+import klik.properties.boolean_features.Feature;
 import klik.properties.File_sort_by;
 import klik.properties.Non_booleans;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.*;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.fusk.Fusk_strings;
@@ -58,13 +58,18 @@ public class Image_window
     public final Scene the_Scene;
     public final Stage the_Stage;
     public final Pane the_image_Pane;
-    public final Label the_info_label;
+    public Label the_info_label; // maybe null
     //public final Button info_button;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
     public final Aborter aborter;
     public String title_optional_addendum;
+
+    // this is used to manage the closing using ESC
+    // of multiple small Image_windows that have been poped up
+    // by looking for similar images
+    public final static List<Image_window> stage_group = new ArrayList<>();
 
     private Slide_show slide_show; // not null if a Slide_show is ongoing
     boolean ultim_mode = false;
@@ -79,26 +84,26 @@ public class Image_window
     public final int port;
 
     //**********************************************************
-    public static Image_window get_Image_window(int port, Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
+    public static Image_window get_Image_window(int port, Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_window returned = on_same_screen(port, path, path_list_provider,image_comparator,aborter,logger_);
+        Image_window returned = on_same_screen(port, path, path_list_provider,image_comparator,owner,aborter,logger_);
 
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(int port,Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Aborter aborter, Logger logger_)
+    private static Image_window on_same_screen(int port,Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Window owner,Aborter aborter, Logger logger_)
     //**********************************************************
     {
 
-        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW);
+        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW,owner);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(port, path, x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
+        Image_window returned = new Image_window(port, path, null,x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -109,6 +114,7 @@ public class Image_window
     public Image_window(
             int port,
             Path first_image_path,
+            Window owner, // is null for 'big girl' windows
             double x, double y,
             double w, double h,
             String title_optional_addendum, // this is used to display image similarity
@@ -127,28 +133,34 @@ public class Image_window
         logger = logger_;
         dir = first_image_path.getParent();
         the_Stage = new Stage();
+        if (owner != null)
+        {
+            the_Stage.initOwner(owner);
+        }
         the_image_Pane = new StackPane();
-        Look_and_feel_manager.set_region_look(the_image_Pane,logger);
+        Look_and_feel_manager.set_region_look(the_image_Pane,owner,logger);
 
 
-        String text = My_I18n.get_I18n_string("Image_window_info", logger);
-        text = text.replaceAll(",","\n");
-        the_info_label = new Label(text);
-        the_info_label.setMaxWidth(400);
-        the_info_label.setWrapText(true);
-        StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
+        if ( owner == null) {
+            String text = My_I18n.get_I18n_string("Image_window_info", owner,logger);
+            text = text.replaceAll(",", "\n");
+            the_info_label = new Label(text);
+            the_info_label.setMaxWidth(400);
+            the_info_label.setWrapText(true);
+            StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
 /*        info_button = new Button("Info");
         Look_and_feel_manager.set_button_look(info_button,true,logger);
         info_button.setOnAction(event -> {
             the_image_Pane.getChildren().add(the_info_label);
         });
         StackPane.setAlignment(info_button, Pos.BOTTOM_LEFT);
-*/
+*/        }
+
 
         Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if ( tmp == null)
         {
-            tmp =Image_properties_RAM_cache.get(new Folder_path_list_provider(first_image_path.getParent()),aborter,logger);
+            tmp =Image_properties_RAM_cache.get(new Folder_path_list_provider(first_image_path.getParent()),owner,aborter,logger);
             Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),tmp);
         }
         image_properties_cache = tmp;
@@ -158,16 +170,17 @@ public class Image_window
         {
             if ( fv_cache == null)
             {
-                Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,  x,  y,  aborter,  logger);
+                Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors =
+                        Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,  the_Stage, x,  y,  aborter,  logger);
                 fv_cache= images_and_feature_vectors.fv_cache();
             }
             return fv_cache;
         };
 
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
-        set_background(the_image_Pane,extension);
+        set_background(the_image_Pane,extension, owner);
         the_Scene = new Scene(the_image_Pane);
-        Color background = Look_and_feel_manager.get_instance(logger).get_background_color();
+        Color background = Look_and_feel_manager.get_instance(owner,logger).get_background_color();
         the_Scene.setFill(background);
         the_Stage.setScene(the_Scene);
         the_Stage.setX(x);
@@ -193,11 +206,11 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
             long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, x + 100, y + 100, port,aborter, logger);
+            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, the_Stage,x + 100, y + 100, port,aborter, logger);
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, port,aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, port,the_Stage,aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -352,15 +365,15 @@ public class Image_window
 
 
     //**********************************************************
-    void set_background(Region target, String extension)
+    void set_background(Region target, String extension,Window owner)
     //**********************************************************
     {
-        BackgroundFill background_fill = get_Background_fill(extension);
+        BackgroundFill background_fill = get_Background_fill(extension,owner);
         target.setBackground(new Background(background_fill));
     }
 
     //**********************************************************
-    BackgroundFill get_Background_fill(String extension)
+    BackgroundFill get_Background_fill(String extension,Window owner)
     //**********************************************************
     {
         BackgroundFill background_fill = null;
@@ -375,7 +388,7 @@ public class Image_window
         }
         else
         {
-            Look_and_feel laf = Look_and_feel_manager.get_instance(logger);
+            Look_and_feel laf = Look_and_feel_manager.get_instance(owner,logger);
             background_fill = laf.get_background_fill();
         }
         return background_fill;
@@ -628,11 +641,11 @@ public class Image_window
                     local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
                 }
             }
-            set_background(the_image_Pane,Static_files_and_paths_utilities.get_extension(local_image_context.get_image_name()));
+            set_background(the_image_Pane,Static_files_and_paths_utilities.get_extension(local_image_context.get_image_name()),the_Stage);
 
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
-            the_image_Pane.getChildren().add(the_info_label);
+            if ( the_info_label!=null) the_image_Pane.getChildren().add(the_info_label);
             set_stage_title(local_image_context);
         },logger);
     }
@@ -647,7 +660,7 @@ public class Image_window
         if (new_path.toFile().exists())
         {
             logger.log("name change aborted: there is already a file with that name!");
-            Popups.popup_warning(the_Stage,"Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false,logger);
+            Popups.popup_warning("Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false,the_Stage,logger);
             return Optional.empty();
         }
 

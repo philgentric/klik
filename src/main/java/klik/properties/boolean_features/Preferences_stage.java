@@ -1,4 +1,4 @@
-package klik.properties;
+package klik.properties.boolean_features;
 
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -6,9 +6,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.*;
 import klik.util.log.Logger;
 
 //**********************************************************
@@ -22,7 +22,7 @@ public class Preferences_stage
     public final VBox vbox_debug;
     public final Logger logger;
     private static Preferences_stage instance;
-    private final Stage local_stage;
+    private final Stage stage;
 
     public static final Feature[] advanced_features ={
             Feature.Monitor_folders,
@@ -33,6 +33,7 @@ public class Preferences_stage
             Feature.Enable_auto_purge_disk_caches,
             Feature.Display_image_distances,
             Feature.Play_ding_after_long_processes,
+            Feature.max_RAM_is_defined_by_user,
             Feature.Shift_d_is_sure_delete};
 
     public static final Feature[] basic_features ={
@@ -41,6 +42,7 @@ public class Preferences_stage
             Feature.Show_hidden_files,
             Feature.Show_hidden_folders,
             Feature.Show_single_column,
+            Feature.Show_file_names_as_tooltips,
             Feature.Reload_last_folder_on_startup,
             Feature.Dont_zoom_small_images,
             Feature.Use_escape_to_close_windows
@@ -51,7 +53,8 @@ public class Preferences_stage
             Feature.Enable_detailed_cache_cleaning_options,
             Feature.Fusk_is_active,
             Feature.Show_ffmpeg_install_warning,
-            Feature.Show_GraphicsMagick_install_warning
+            Feature.Show_graphicsmagick_install_warning,
+            Feature.Show_can_use_ESC_to_close_windows,
     };
 
     public static final Feature[] experimental_features ={
@@ -64,7 +67,7 @@ public class Preferences_stage
             //Feature.Enable_different_image_scaling
     };
     //**********************************************************
-    public static void show_Preferences_stage(String title, Logger logger)
+    public static void show_Preferences_stage(String title, Window owner, Logger logger)
     //**********************************************************
     {
         if ( instance != null)
@@ -72,18 +75,18 @@ public class Preferences_stage
             instance.show();
             return;
         }
-        instance = new Preferences_stage(title,logger);
+        instance = new Preferences_stage(title,owner,logger);
     }
 
     //**********************************************************
     private void show()
     //**********************************************************
     {
-        local_stage.show();
+        stage.show();
     }
 
     //**********************************************************
-    private Preferences_stage(String title, Logger logger)
+    private Preferences_stage(String title, Window owner, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
@@ -112,14 +115,15 @@ public class Preferences_stage
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        local_stage = new Stage();
-        local_stage.setHeight(1000);
-        local_stage.setWidth(1000);
+        stage = new Stage();
+        stage.setHeight(1000);
+        stage.setWidth(1000);
+        stage.initOwner(owner);
 
         Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
-        local_stage.setTitle(title);
-        local_stage.setScene(scene);
-        local_stage.show();
+        stage.setTitle(title);
+        stage.setScene(scene);
+        stage.show();
 
         define();
     }
@@ -137,7 +141,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Basic features");
-            Look_and_feel_manager.set_region_look(lab,logger);
+            Look_and_feel_manager.set_region_look(lab,stage,logger);
             vbox_basic.getChildren().add(lab);
         }
         for(Feature f : basic_features)
@@ -148,7 +152,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Advanced features");
-            Look_and_feel_manager.set_region_look(lab,logger);
+            Look_and_feel_manager.set_region_look(lab,stage,logger);
             vbox_advanced.getChildren().add(lab);
         }
         for(Feature f : advanced_features)
@@ -162,7 +166,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Experimental features");
-            Look_and_feel_manager.set_region_look(lab,logger);
+            Look_and_feel_manager.set_region_look(lab,stage,logger);
             vbox_experimental.getChildren().add(lab);
         }
         for(Feature f : experimental_features)
@@ -173,7 +177,7 @@ public class Preferences_stage
 
         {
             Label lab = new Label("Debug");
-            Look_and_feel_manager.set_region_look(lab,logger);
+            Look_and_feel_manager.set_region_look(lab,stage,logger);
             vbox_debug.getChildren().add(lab);
         }
         for(Feature f : debugging_features)
@@ -187,28 +191,28 @@ public class Preferences_stage
     private void add_one_line(Feature bf, VBox vbox)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(bf.name(),logger);
+        String text = My_I18n.get_I18n_string(bf.name(),stage,logger);
         CheckBox cb = new CheckBox(text);
         cb.setMnemonicParsing(false);
-        Boolean value0 = Booleans.get_boolean(bf.name());
+        Boolean value0 = Booleans.get_boolean(bf.name(), stage);
 
         if ( value0 == null)
         {
             logger.log("warning, no Boolean found for: "+ bf.name());
             value0= (Boolean) false;
-            Booleans.set_boolean(bf.name(),value0);
-            Feature_cache.update_cached_boolean(bf,value0);
+            Booleans.set_boolean(bf.name(),value0, stage);
+            Feature_cache.update_cached_boolean(bf,value0, stage);
 
         }
         cb.setSelected(value0);
-        Look_and_feel_manager.set_CheckBox_look(cb,logger);
+        Look_and_feel_manager.set_CheckBox_look(cb, stage,logger);
 
         cb.setOnAction(_ ->
         {
             Boolean value = (Boolean) cb.isSelected();
             logger.log("Preference changing for: "+ bf.name()+ "new value:"+value);
-            Booleans.set_boolean(bf.name(),value); // this will trigger a file save
-            Feature_cache.update_cached_boolean(bf,value);
+            Booleans.set_boolean(bf.name(),value, stage); // this will trigger a file save
+            Feature_cache.update_cached_boolean(bf,value, stage);
         });
         vbox.getChildren().add(cb);
     }

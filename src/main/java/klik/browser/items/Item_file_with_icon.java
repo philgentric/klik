@@ -29,7 +29,6 @@ import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.experimental.work_in_progress.Multiple_image_window;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
@@ -38,8 +37,8 @@ import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -72,7 +71,6 @@ public class Item_file_with_icon extends Item_file
 
     //**********************************************************
     public Item_file_with_icon(
-            Window owner,
             Scene scene,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
@@ -84,13 +82,13 @@ public class Item_file_with_icon extends Item_file
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             int port,
+            Window owner,
             Aborter aborter,
             Logger logger)
 
     //**********************************************************
     {
         super(
-                owner,
                 scene,
                 selection_handler,
                 icon_factory_actor,
@@ -98,6 +96,7 @@ public class Item_file_with_icon extends Item_file
                 path_,
                 path_list_provider,
                 port,
+                owner,
                 aborter,
                 logger);
         this.aspect_ratio = aspect_ratio;
@@ -105,11 +104,14 @@ public class Item_file_with_icon extends Item_file
         this.fv_cache_supplier = fv_cache_supplier;
         this.path_comparator_source = path_comparator_source;
         double actual_icon_size = icon_size / 3.0;
-        if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size,logger);
+        if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size,owner,logger);
 
         // first time
         image_view = new ImageView();
-        Tooltip.install(image_view,new Tooltip(path.getFileName().toString()));
+        if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
+        {
+            Tooltip.install(image_view, new Tooltip(path.getFileName().toString()));
+        }
         image_pane = new StackPane(image_view);
 
         if ( dbg)
@@ -135,7 +137,7 @@ public class Item_file_with_icon extends Item_file
                     Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",owner, path, false, path_list_provider, logger);
                     if (option.isEmpty()) {
                         // let us a bit of checking about why this failed
-                        Change_gang.report_anomaly(path);
+                        Change_gang.report_anomaly(path,owner);
                     }
                     return;
                 }
@@ -168,7 +170,7 @@ public class Item_file_with_icon extends Item_file
 
         if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
-            open_an_image(true,port,path_list_provider,path_comparator_source,get_item_path(),logger);
+            open_an_image(true,port,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
         }
         else
         {
@@ -197,7 +199,9 @@ public class Item_file_with_icon extends Item_file
                                      int port,
                                      Path_list_provider path_list_provider,
                                      Path_comparator_source path_comparator_source,
-                                     Path path, Logger logger)
+                                     Path path,
+                                     Window owner,
+                                     Logger logger)
     //**********************************************************
     {
         if ( same_process)
@@ -209,7 +213,7 @@ public class Item_file_with_icon extends Item_file
                 return;
             }
             Optional<Comparator<Path>> image_comparator = Optional.of(x);
-            Image_window.get_Image_window(port,path, path_list_provider,image_comparator, new Aborter("Image_viewer",logger),logger);
+            Image_window.get_Image_window(port,path, path_list_provider,image_comparator, owner,new Aborter("Image_viewer",logger),logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
         else
@@ -260,7 +264,7 @@ public class Item_file_with_icon extends Item_file
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu,logger);
+        Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
 
         double x = owner.getX()+100;
         double y = owner.getY()+100;
@@ -273,9 +277,9 @@ public class Item_file_with_icon extends Item_file
                     get_item_path(),
                     image_properties_RAM_cache,
                     fv_cache_supplier,
-                    owner,
                     path_comparator_source,
                     port,
+                    owner,
                     aborter,
                     logger);
             context_menu.getItems().add(menu_item);
@@ -286,7 +290,7 @@ public class Item_file_with_icon extends Item_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", owner,logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+get_item_path());
 
@@ -296,7 +300,7 @@ public class Item_file_with_icon extends Item_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", owner,logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Editing "+get_item_path());
                 System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
@@ -304,7 +308,7 @@ public class Item_file_with_icon extends Item_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", owner,logger));
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening with registered app: "+get_item_path());
                 System_open_actor.open_special(owner,get_item_path(), aborter,logger);
@@ -312,20 +316,20 @@ public class Item_file_with_icon extends Item_file
             context_menu.getItems().add(menu_item);
         }
         {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", logger));
+            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", owner,logger));
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+get_item_path());
-                Item_file_with_icon.open_an_image(false,port,path_list_provider,path_comparator_source,get_item_path(),logger);
+                Item_file_with_icon.open_an_image(false,port,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
             });
             context_menu.getItems().add(menu_item);
         }
         
         {
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, logger));
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, owner,logger));
             if (Feature_cache.get(Feature.Enable_tags))
             {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, aborter,logger));
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner,aborter,logger));
             }
         }
 
@@ -339,7 +343,7 @@ public class Item_file_with_icon extends Item_file
 
     public static MenuItem get_rename_MenuItem(Path path, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
     {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger)+ " "+path.getFileName());
+        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger)+ " "+path.getFileName());
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Item_image: Renaming "+path);
@@ -355,19 +359,19 @@ public class Item_file_with_icon extends Item_file
         return menu_item;
     }
 
-    static final int N = 5;
+    //static final int N = 5;
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
                                                          Image_properties_RAM_cache image_properties_cache,
                                                          Supplier<Image_feature_vector_cache> fv_cache_supplier,
-                                                         Window owner,
                                                          Path_comparator_source path_comparator_source,
                                                          int port,
+                                                         Window owner,
                                                          Aborter browser_aborter,
                                                          Logger logger)
     //**********************************************************
     {
-        String txt = "Show "+N+" similar images in this folder";//My_I18n.get_I18n_string("Info_about", logger);
+        String txt = My_I18n.get_I18n_string("Show_5_similar_images", owner,logger);
         MenuItem menu_item = new MenuItem(txt);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
@@ -378,17 +382,19 @@ public class Item_file_with_icon extends Item_file
                 Image_similarity image_similarity = new Image_similarity(
                         new Folder_path_list_provider(image_path.getParent()),
                         path_comparator_source,
-                        x,y,port,browser_aborter,logger);
+                        x,y,port,
+                        owner,
+                        browser_aborter,logger);
                 image_similarity.find_similars(
                         false,
                         image_path,
                         null,
-                        N,
+                        5,
                         true,
                         Double.MAX_VALUE,
                         image_properties_cache,
                         fv_cache_supplier,
-                        false,x,y,null,browser_aborter);
+                        false,owner, x,y,null,browser_aborter);
             };
             Actor_engine.execute(r,logger);
         });
@@ -425,7 +431,7 @@ public class Item_file_with_icon extends Item_file
             MenuItem menu_item = new MenuItem("Generate gif animations from a video, interactively");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
-                Ffmpeg_utils.interactive(path,logger);
+                Ffmpeg_utils.interactive(path,owner,logger);
             });
             context_menu.getItems().add(menu_item);
         }

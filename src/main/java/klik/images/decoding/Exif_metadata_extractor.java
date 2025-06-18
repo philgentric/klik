@@ -5,12 +5,12 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -37,13 +37,15 @@ public class Exif_metadata_extractor
     List<String> exif_metadata = null;
     private double rotation = 0;
     Logger logger;
+    Window owner;
 
     //**********************************************************
-    public Exif_metadata_extractor(Path f_, Logger logger_)
+    public Exif_metadata_extractor(Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        path = f_;
-        logger = logger_;
+        this.owner = owner;
+        this.path = path;
+        this.logger = logger;
     }
 
     //**********************************************************
@@ -106,7 +108,7 @@ public class Exif_metadata_extractor
         Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger);
         exif_metadata.add("EXIF width="+image_properties.get_image_width());
         exif_metadata.add("EXIF height="+image_properties.get_image_height());
-        exif_metadata.add("==> EXIF aspect_ratio="+image_properties.get_aspect_ratio());
+        exif_metadata.add("EXIF aspect_ratio="+image_properties.get_aspect_ratio());
         double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger);
         exif_metadata.add("Alternative aspect_ratio="+aspect_ratio);
 
@@ -121,7 +123,7 @@ public class Exif_metadata_extractor
                 logger.log("extract_exif_metadata() Managed exception (2)->"+e+"<- for:"+ path.toAbsolutePath());
             }
             double bits_per_pixel = (double)l*8.0/how_many_pixels;
-            String s_bits_per_pixel = My_I18n.get_I18n_string("Bits_per_pixel",logger);
+            String s_bits_per_pixel = My_I18n.get_I18n_string("Bits_per_pixel",owner,logger);
             exif_metadata.add(s_bits_per_pixel+": "+bits_per_pixel);
         }
 

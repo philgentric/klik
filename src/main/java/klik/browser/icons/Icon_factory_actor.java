@@ -16,7 +16,7 @@ import klik.browser.Image_and_properties;
 import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Booleans;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.From_disk;
@@ -30,7 +30,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 // an actor-style asynchronous icon factory
 //**********************************************************
@@ -43,7 +42,6 @@ public class Icon_factory_actor implements Actor
     private static final boolean aborting_dbg = false;
 
     Logger logger;
-    private final Window owner;
     Icon_writer_actor writer;
     public Path icon_cache_dir;
     public static final String gif_extension = "gif";
@@ -54,16 +52,15 @@ public class Icon_factory_actor implements Actor
 
     //**********************************************************
     public Icon_factory_actor(Image_properties_RAM_cache image_properties_RAM_cache,
-                              Window owner_,
+                              Window originator,
                               Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.aborter = aborter;
-        owner = owner_;
         logger = logger_;
         if (dbg) logger.log("Icon_factory created");
-        icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.klik_icon_cache,logger);
+        icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.klik_icon_cache,originator,logger);
         writer = new Icon_writer_actor(icon_cache_dir, logger);
     }
 
@@ -208,7 +205,7 @@ public class Icon_factory_actor implements Actor
 
         //long start = System.currentTimeMillis();
         {
-            Image image_from_cache = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false, logger);
+            Image image_from_cache = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false, icon_factory_request.originator,logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg)
                     logger.log("Icon_factory thread: aborting2 " + icon_factory_request.aborter.name + " reason: " + icon_factory_request.aborter.reason);
@@ -237,7 +234,7 @@ public class Icon_factory_actor implements Actor
             //if (dbg)
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
 
-            image_from_disk = Jar_utils.get_broken_icon(300,logger);
+            image_from_disk = Jar_utils.get_broken_icon(300,icon_factory_request.originator,logger);
         }
         if (image_from_disk.getWidth() < 1.0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
@@ -331,7 +328,7 @@ public class Icon_factory_actor implements Actor
         // ... unless it is already in the icon cache
         String tag = ""; // empty since we do not resize the frames to icon size
         {
-            Image image_from_cache = From_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, gif_extension, dbg, logger);
+            Image image_from_cache = From_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, gif_extension, dbg, icon_factory_request.originator,logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting4");
                 return null;
@@ -347,7 +344,7 @@ public class Icon_factory_actor implements Actor
 
             if (dbg)
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            double length = Non_booleans.get_animated_gif_duration_for_a_video();
+            double length = Non_booleans.get_animated_gif_duration_for_a_video(icon_factory_request.originator);
 
             File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
@@ -360,7 +357,7 @@ public class Icon_factory_actor implements Actor
 
             double skip = 0;
             {
-                Double duration_in_seconds = Ffmpeg_utils.get_media_duration(owner, destination.get_item_path(), logger);
+                Double duration_in_seconds = Ffmpeg_utils.get_media_duration(icon_factory_request.originator, destination.get_item_path(), logger);
                 if (duration_in_seconds != null) {
                     if (duration_in_seconds > 3 * 3600) {
                         logger.log("WARNING: ffprobe reports duration that looks wrong");
@@ -381,7 +378,7 @@ public class Icon_factory_actor implements Actor
             }
 
 
-            Ffmpeg_utils.video_to_gif(owner, destination.get_item_path(), destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), logger);
+            Ffmpeg_utils.video_to_gif(icon_factory_request.originator, destination.get_item_path(), destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting6");
                 return null;
@@ -395,7 +392,7 @@ public class Icon_factory_actor implements Actor
                 logger.log("Icon_factory Animated gif icon MADE for " + destination.get_item_path().getFileName() + " as " + destination_gif_full_path.toAbsolutePath());
         }
         {
-            Image image_from_cache = From_disk.load_icon_from_disk_cache(destination.get_path_for_display_icon_destination(), icon_cache_dir, icon_factory_request.icon_size, tag, gif_extension, dbg, logger);
+            Image image_from_cache = From_disk.load_icon_from_disk_cache(destination.get_path_for_display_icon_destination(), icon_cache_dir, icon_factory_request.icon_size, tag, gif_extension, dbg, icon_factory_request.originator,logger);
 
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting7");
@@ -428,7 +425,7 @@ public class Icon_factory_actor implements Actor
         // we are going to create the PNG using pdfbox!
 
         String tag = "";//+icon_factory_request.icon_size;
-        Image image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, false,logger);
+        Image image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_cache_dir, icon_factory_request.icon_size,tag, png_extension, false,icon_factory_request.originator,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting8");
@@ -472,9 +469,7 @@ public class Icon_factory_actor implements Actor
             File wd = file_in.getParentFile();
             if ( Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger) == null)
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
-
-                logger.log(warning_GraphicsMagick);
+                Booleans.manage_show_graphicsmagick_install_warning(icon_factory_request.originator,logger);
                 return null;
             }
             if ( pdf_dbg) logger.log(sb.toString());
@@ -579,7 +574,7 @@ public class Icon_factory_actor implements Actor
         }*/
 
         if (pdf_dbg) logger.log("image of PDF write done (2)" + resulting_png_name);
-        image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg, logger);
+        image_from_cache = From_disk.load_icon_from_disk_cache(icon_destination.get_item_path(), icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, dbg, icon_factory_request.originator,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting14");

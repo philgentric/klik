@@ -1,5 +1,6 @@
 package klik;
 
+import com.sun.management.OperatingSystemMXBean;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -12,6 +13,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player_application;
@@ -21,7 +23,10 @@ import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.File_based_IProperties;
 import klik.properties.Non_booleans;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
@@ -35,8 +40,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,18 +71,18 @@ public class Launcher extends Application
     //**********************************************************
     {
         stage = stage_;
-        Sys_init.init("Launcher app");
+        Sys_init.init("Launcher app",stage);
         logger = Shared_services.shared_services_logger;
 
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
-        Look_and_feel_manager.set_region_look(vbox,logger);
-        double font_size = Non_booleans.get_font_size(logger);
+        Look_and_feel_manager.set_region_look(vbox,stage,logger);
+        double font_size = Non_booleans.get_font_size(stage,logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
-        String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,logger);
+        String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
 
-        Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,logger);
+        Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,stage,logger);
 
 
 
@@ -88,41 +95,82 @@ public class Launcher extends Application
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
         stage.show();
+
+        OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        System.out.println("\nPhysical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
+
+
+        long current = Non_booleans.get_java_VM_max_RAM(stage,logger);
+
+        if ( current > b.getTotalPhysicalMemorySize()/1_000_000_000 )
+        {
+            // not realistic
+            use_default_max_RAM(stage,logger);
+            return;
+
+        }
+        if ( current == 1 )
+        {
+            // stupid default
+            use_default_max_RAM(stage,logger);
+            return;
+        }
+        if (Booleans.get_boolean(Feature.max_RAM_is_defined_by_user.name(), stage))
+        {
+            logger.log("Using the max RAM defined by the user: "+current+" GBytes");
+        }
+        else
+        {
+            use_default_max_RAM(stage,logger);
+        }
+
+
+    }
+
+    //**********************************************************
+    private void use_default_max_RAM(Stage stage, Logger logger)
+    //**********************************************************
+    {
+        OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long current = b.getTotalPhysicalMemorySize() * 80 / 100;
+        current = current / 1_000_000_000;
+        Non_booleans.save_java_VM_max_RAM((int)current, stage, logger);
+        logger.log("Setting the max RAM to 80% of the physical RAM on this machine: "+current+" GBytes");
     }
 
     //**********************************************************
     private void define_UI()
     //**********************************************************
     {
-        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(logger);
+        Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(stage,logger);
 
         vbox.getChildren().clear();
         {
-            Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", logger));
+            Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage,logger));
 
-            set_look(b, vbox, look_and_feel,Icon_type.IMAGE, logger);
+            set_look(b, vbox, look_and_feel,Icon_type.IMAGE, stage,logger);
 
             b.setOnAction(event -> {
                 start_app_and_listen(this,"klik", klik_port.getAndIncrement(), stage, logger);
             });
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", logger));
-            set_look(b, vbox, look_and_feel,Icon_type.MUSIC, logger);
+            Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
+            set_look(b, vbox, look_and_feel,Icon_type.MUSIC, stage,logger);
             b.setOnAction(event -> {
                 start_app_and_listen(this,"audio_player", audio_player_port.getAndIncrement(), stage, logger);
             });
         }
         {
             Button b = new Button("Show version");
-            set_look(b, vbox, look_and_feel,null, logger);
+            set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(event -> {
                 show_version(stage, logger);
             });
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", logger));
-            set_look(b, vbox, look_and_feel,null, logger);
+            Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(event -> {
                 get_most_recent_version(stage, logger);
             });
@@ -130,15 +178,15 @@ public class Launcher extends Application
     }
 
     //**********************************************************
-    private void show_version(Stage stage, Logger logger)
+    private void show_version(Window owner, Logger logger)
     //**********************************************************
     {
-        Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
+        Hourglass hourglass = Show_running_film_frame.show_running_film(owner,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
 
         String version_string = get_version_string(logger);
         logger.log("version: "+version_string);
 
-        Popups.simple_alert("version is "+version_string);
+        Popups.simple_alert("version is "+version_string,owner,logger);
 
         hourglass.close();
     }
@@ -207,7 +255,7 @@ public class Launcher extends Application
     {
         Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
 
-        if (Popups.popup_ask_for_confirmation(stage,"Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best",logger))
+        if (Popups.popup_ask_for_confirmation("Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best",stage,logger))
         {
             logger.log("version before:"+get_version_string(logger));
             {
@@ -263,17 +311,17 @@ public class Launcher extends Application
             {
                 // this does not work because execute_command_list_no_wait does not write anything into the sb
                 logger.log("\n\n\n\n\n\nBUILD FAILED\n\n\n\n\n\n");
-                Platform.runLater(() -> Popups.simple_alert("BUILD FAILED"));
+                Platform.runLater(() -> Popups.simple_alert("BUILD FAILED",stage,logger));
                 failed.set(true);
                 Start_context.send_started_raw(port,logger); // this is to unblock the hourglass
             }
         };
         Actor_engine.execute(r, logger);
-        start_server_and_wait_for_reply(app_name,port,hourglass, launcher,logger);
+        start_server_and_wait_for_reply(app_name,port,hourglass, launcher,stage,logger);
     }
 
     //**********************************************************
-    private static boolean start_server_and_wait_for_reply(String app_name, int port, Hourglass hourglass, Launcher launcher, Logger logger)
+    private static boolean start_server_and_wait_for_reply(String app_name, int port, Hourglass hourglass, Launcher launcher, Window owner, Logger logger)
     //**********************************************************
     {
         // start the server to receive the "started" error_message and stop the hourglass
@@ -295,10 +343,10 @@ public class Launcher extends Application
                     }
                     if (msg.startsWith(UI_CHANGED))
                     {
-                        Non_booleans.force_reload_from_disk();
+                        Non_booleans.force_reload_from_disk(owner);
                         String new_lang = msg.split(" ")[1];
                         logger.log("Launcher: LANGUAGE_CHANGED RECEIVED for: "+app_name+ " new lang is "+new_lang);
-                        logger.log("Launcher: checking the language value is updated on disk: "+Non_booleans.get_language_key());
+                        logger.log("Launcher: checking the language value is updated on disk: "+Non_booleans.get_language_key(owner));
                         My_I18n.reset();
                         Look_and_feel_manager.reset();
                         Platform.runLater(() -> launcher.define_UI());
@@ -326,10 +374,10 @@ public class Launcher extends Application
     }
 
     //**********************************************************
-    private static void set_look(Button b, VBox vbox, Look_and_feel look_and_feel, Icon_type icon_type, Logger logger)
+    private static void set_look(Button b, VBox vbox, Look_and_feel look_and_feel, Icon_type icon_type, Window owner,Logger logger)
     //**********************************************************
     {
-        Look_and_feel_manager.set_button_look(b, true,logger);
+        Look_and_feel_manager.set_button_look(b, true,owner,logger);
         b.setPrefWidth(WIDTH);
         b.setAlignment(Pos.CENTER);
         b.setTextAlignment(TextAlignment.CENTER);
@@ -350,7 +398,7 @@ public class Launcher extends Application
 
 
             String icon_path = Look_and_feel_manager.get_main_window_icon_path(look_and_feel, icon_type);
-            Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, icon_size, logger);
+            Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, icon_size, owner,logger);
 
             the_image_view.setImage(icon);
             the_image_view.setPreserveRatio(true);

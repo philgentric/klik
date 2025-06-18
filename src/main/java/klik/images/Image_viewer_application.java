@@ -27,7 +27,7 @@ public class Image_viewer_application extends Application
     //**********************************************************
     {
 
-        Sys_init.init("Image_viewer app");
+        Sys_init.init("Image_viewer app",stage);
         Logger logger = Shared_services.shared_services_logger;
         Aborter aborter = Shared_services.shared_services_aborter;
 
@@ -51,7 +51,7 @@ public class Image_viewer_application extends Application
 
         //Browser browser = New_window_context.first(path.getParent().toString(),logger);
         //browser.my_Stage.the_Stage.hide();
-        Image_window image_stage = Image_window.get_Image_window(-1,path, new Folder_path_list_provider(path.getParent()), Optional.empty(),aborter,logger);
+        Image_window image_stage = Image_window.get_Image_window(-1,path, new Folder_path_list_provider(path.getParent()), Optional.empty(),stage,aborter,logger);
     }
 }
 

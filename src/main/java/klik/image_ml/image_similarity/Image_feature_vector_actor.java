@@ -36,7 +36,7 @@ public class Image_feature_vector_actor implements Actor
             return "aborted";
         }
 
-        Feature_vector fv = fvs.get_feature_vector_from_server(image_feature_vector_message.path, image_feature_vector_message.logger);
+        Feature_vector fv = fvs.get_feature_vector_from_server(image_feature_vector_message.path, image_feature_vector_message.owner, image_feature_vector_message.logger);
 
         if ( fv == null)
         {

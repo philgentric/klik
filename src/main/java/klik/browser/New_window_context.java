@@ -21,18 +21,22 @@ public class New_window_context
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
     public final int port;
+    public final Window originator;
+
     //**********************************************************
     private New_window_context(
             int port,
             Path target,
             Rectangle2D rectangle,
-            Shutdown_target shutdown_target)
+            Shutdown_target shutdown_target,
+            Window originator)
     //**********************************************************
     {
         this.port = port;
         this.rectangle = rectangle;
         this.shutdown_target = shutdown_target;
         this.target_path = target;
+        this.originator = originator;
     }
 
     //**********************************************************
@@ -45,14 +49,15 @@ public class New_window_context
 
 
     //**********************************************************
-    public static Window_provider additional_no_past(int port, Path new_path, Logger logger)
+    public static Window_provider additional_no_past(int port, Path new_path, Window originator, Logger logger)
     //**********************************************************
     {
         New_window_context context = new New_window_context(
                 port,
                 new_path,
                 null,
-                null);
+                null,
+                originator);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
         return new Browser(context, logger);
     }
@@ -61,21 +66,22 @@ public class New_window_context
     public static void additional_same_folder(
             int port,
             Path new_and_old_path,
-            Window owner,
             Path top_left,
+            Window originator,
             Logger logger)
     //**********************************************************
     {
         // make sure the new window is scrolled at the same position
         Browsing_caches.scroll_position_cache_write(new_and_old_path,top_left);
 
-        Rectangle2D rectangle = new Rectangle2D(owner.getX()+100,owner.getY()+100,owner.getWidth()-100,owner.getHeight()-100);
+        Rectangle2D rectangle = new Rectangle2D(originator.getX()+100,originator.getY()+100,originator.getWidth()-100,originator.getHeight()-100);
 
         New_window_context context =  new New_window_context(
                 port,
                 new_and_old_path,
                 rectangle,
-                null);
+                null,
+                originator);
         if ( dbg) logger.log(("\nadditional_same_folder\n"+ context.to_string() ));
         new Browser(context, logger);
     }
@@ -85,51 +91,51 @@ public class New_window_context
     public static void additional_same_folder_fat_tall(
             int port,
             Path new_and_old_path,
-            Window parent_window,
             Path top_left,
+            Window originator,
             Logger logger)
     //**********************************************************
     {
-        additional_same_folder_ratio(port,new_and_old_path,parent_window ,5,top_left,logger);
+        additional_same_folder_ratio(port,new_and_old_path,5,top_left,originator ,logger);
 
     }
     //**********************************************************
     public static void additional_same_folder_twin(
             int port,
             Path new_and_old_path,
-            Window parent_window,
             Path top_left,
+            Window originator,
             Logger logger)
     //**********************************************************
     {
-        additional_same_folder_ratio(port,new_and_old_path,parent_window,2,top_left,logger);
+        additional_same_folder_ratio(port,new_and_old_path,2,top_left,originator,logger);
     }
     //**********************************************************
     public static void additional_same_folder_ratio(
             int port,
             Path new_and_old_path,
-            Window parent_window,
             int ratio,
             Path top_left,
+            Window originator,
             Logger logger)
     //**********************************************************
     {
         Browsing_caches.scroll_position_cache_write(new_and_old_path,top_left);
 
-        ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(parent_window.getX(), parent_window.getY(), parent_window.getWidth(), parent_window.getHeight());
+        ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(originator.getX(), originator.getY(), originator.getWidth(), originator.getHeight());
 
         Screen s = intersecting_screens.get(0);
         logger.log("    getBounds" + s.getBounds());
         Rectangle2D rectangle = s.getBounds();
-        parent_window.setX(rectangle.getMinX());
-        parent_window.setY(rectangle.getMinY());
+        originator.setX(rectangle.getMinX());
+        originator.setY(rectangle.getMinY());
         double h = s.getBounds().getHeight();
 
         // adjust existing window to "fat"
         double ratio_fat = ((double) ratio - 1.0)/ (double) ratio;
         double w_fat = s.getBounds().getWidth() * ratio_fat;
-        parent_window.setWidth(w_fat);
-        parent_window.setHeight(h);
+        originator.setWidth(w_fat);
+        originator.setHeight(h);
 
         // create new "tall" window
         double ratio_tall = 1.0 / (double) ratio;
@@ -140,7 +146,8 @@ public class New_window_context
                 port,
                 new_and_old_path,
                 rectangle,
-                null);
+                null,
+                originator);
         if (dbg) logger.log(("\nadditional_same_folder\n" + context.to_string()));
         new Browser(context, logger);
     }
@@ -174,19 +181,20 @@ public class New_window_context
             int port,
             Shutdown_target shutdown_target,
             Path old_and_new_path,
-            Window parent_window,
             Path top_left,
+            Window originator,
             Logger logger)
     //**********************************************************
     {
         Browsing_caches.scroll_position_cache_write(old_and_new_path,top_left);
 
-        Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
+        Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
                 port,
                 old_and_new_path,
                 rectangle,
-                shutdown_target);
+                shutdown_target,
+                originator);
         if ( dbg) logger.log(("\nreplace_same_folder\n"+ context.to_string() ));
         new Browser(context, logger);
     }
@@ -196,18 +204,18 @@ public class New_window_context
             int port,
             Shutdown_target shutdown_target,
             Path new_path,
-            Window parent_window,
-            //Path old_path,
+            Window originator,
             Logger logger)
     //**********************************************************
     {
         logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
-        Rectangle2D rectangle = new Rectangle2D(parent_window.getX(),parent_window.getY(),parent_window.getWidth(),parent_window.getHeight());
+        Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
                 port,
                 new_path,
                 rectangle,
-                shutdown_target);
+                shutdown_target,
+                originator);
         if ( dbg) logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
         new Browser(context, logger);
 

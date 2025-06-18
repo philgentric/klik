@@ -1,9 +1,9 @@
 package klik.look.my_i18n;
 
+import javafx.stage.Window;
 import klik.look.Jar_utils;
 import klik.properties.Non_booleans;
-import klik.properties.features.Feature_cache;
-import klik.properties.features.String_change_target;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -24,12 +24,12 @@ public class My_I18n
 
 
     //**********************************************************
-    public static String get_I18n_string(String key, Logger logger)
+    public static String get_I18n_string(String key, Window owner, Logger logger)
     //**********************************************************
     {
         if (instance == null)
         {
-            String language_key = Non_booleans.get_language_key();
+            String language_key = Non_booleans.get_language_key(owner);
             //logger.log(Stack_trace_getter.get_stack_trace("My_I18n instance is null, rebuilding for "+language_key));
             Language language = Language.valueOf(language_key);
             Locale locale = language.get_locale();
@@ -125,12 +125,12 @@ public class My_I18n
 
 
     //**********************************************************
-    public static void set_new_language(Language language, int port, Logger logger)
+    public static void set_new_language(Language language, int port, Window owner,Logger logger)
     //**********************************************************
     {
-        Non_booleans.set_language_key(language.name());
+        Non_booleans.set_language_key(language.name(),owner);
         instance = null;
-        Feature_cache.update_string(Non_booleans.LANGUAGE_KEY,language.name(),port,logger);
+        Feature_cache.update_string(Non_booleans.LANGUAGE_KEY,language.name(),port,owner,logger);
     }
 
     //**********************************************************

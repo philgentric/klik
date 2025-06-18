@@ -1,5 +1,6 @@
 package klik.change;
 
+import javafx.stage.Window;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public interface Change_receiver
 //**********************************************************
 {
-	void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger2);
+	void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Window owner, Logger logger2);
 
 	String get_Change_receiver_string();
 

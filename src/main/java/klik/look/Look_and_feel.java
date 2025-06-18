@@ -11,6 +11,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
 import klik.look.styles.Look_and_feel_light;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -49,21 +50,21 @@ public abstract class Look_and_feel
     private final BackgroundFill image_playlist_fill;
 
     //**********************************************************
-    public Look_and_feel(String name_, Logger logger_)
+    public Look_and_feel(String name, Logger logger)
     //**********************************************************
     {
-        logger = logger_;
+        this.logger = logger;
+        this.name = name;
         URL style_sheet_url2 = get_CSS_URL();
         //System.out.println("style:"+name_+" CSS URL="+style_sheet_url2);
         if (style_sheet_url2 == null) {
-            logger.log("style:" + name_ + "Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
+            logger.log("style:" + name + "Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
             style_sheet_url_string = null;
         } else {
             style_sheet_url_string = style_sheet_url2.toExternalForm();
             //logger.log("loaded style sheet=" + style_sheet_url_string);
         }
 
-        name = name_;
         Look_and_feel_manager.reset();
 
         background_fill = getBackgroundFill(LOOK_AND_FEEL_GENERAL);
@@ -179,11 +180,11 @@ public abstract class Look_and_feel
     }
 
     //**********************************************************
-    public void set_hovered_directory_style(Node node)
+    public void set_hovered_directory_style(Node node, Window owner)
     //**********************************************************
     {
         //System.out.println("Look_and_feel::set_hovered_directory_style");
-        Font_size.apply_font_size(node,logger);
+        Font_size.apply_font_size(node,owner,logger);
         set_text_color(node, get_selected_text_color());//"-fx-text-fill: #704040;");
     }
 
@@ -205,19 +206,19 @@ public abstract class Look_and_feel
     }
 
     //**********************************************************
-    protected void set_directory_style(Node node)
+    protected void set_directory_style(Node node, Window owner)
     //**********************************************************
     {
-        Font_size.apply_font_size(node,logger);
+        Font_size.apply_font_size(node,owner,logger);
     }
 
     //**********************************************************
-    protected void set_file_style(Node node)
+    protected void set_file_style(Node node, Window owner)
     //**********************************************************
     {
         //logger.log("set_file_style");
         //Font_size.set_preferred_font_size(node,logger);
-        Font_size.apply_font_size(node,logger);
+        Font_size.apply_font_size(node,owner,logger);
 /*
         if (node instanceof Button button)
         {
@@ -234,11 +235,11 @@ public abstract class Look_and_feel
     }
 
     //**********************************************************
-    protected void set_selected_file_style(Node button)
+    protected void set_selected_file_style(Node button, Window owner)
     //**********************************************************
     {
         //logger.log("set_selected_file_style");
-        set_hovered_directory_style(button);
+        set_hovered_directory_style(button, owner);
     }
 
 

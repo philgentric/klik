@@ -1,5 +1,6 @@
 package klik.image_ml.image_similarity;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -32,6 +33,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	private final boolean quasi_same;
 	private final Image_properties_RAM_cache image_properties_cache;
 	private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
+	private final Window owner;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
 			Image_properties_RAM_cache image_properties_cache,
@@ -42,10 +44,12 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 			List<File_with_a_few_bytes> all_files_,
 			BlockingQueue<Similarity_file_pair> output_queue,
 			int port,
+			Window owner,
 			Aborter private_aborter_,
 			Logger logger_)
 	//**********************************************************
 	{
+		this.owner = owner;
 		this.image_properties_cache = image_properties_cache;
 		this.fv_cache_supplier = fv_cache_supplier;
 		this.quasi_same = quasi_same;
@@ -59,8 +63,11 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		image_similarity = new Image_similarity(
 				new Folder_path_list_provider(deduplication_by_similarity_engine.target_dir.toPath()),
 				path_comparator_source,
-				x,y, port,
-				deduplication_by_similarity_engine.private_aborter,logger);
+				x,y,
+				port,
+				owner,
+				deduplication_by_similarity_engine.private_aborter,
+				logger);
 
 	}
 
@@ -97,6 +104,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 					image_properties_cache,
 					()->fv_cache,
 					false,
+					owner,
 					x,
 					y,
 					deduplication_by_similarity_engine.console_window.count_pairs_examined,

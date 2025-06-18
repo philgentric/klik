@@ -24,7 +24,7 @@ public class File_logger implements Logger
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd:HHmmss");
 		String tag = tag_+"_"+now.format(dtf);
-		Path folder = Non_booleans.get_trash_dir(Path.of("."), new Simple_logger());
+		Path folder = Non_booleans.get_trash_dir(Path.of("."), null,new Simple_logger());
 		Path file = folder.resolve(tag+".txt");
 
 

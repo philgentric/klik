@@ -2,9 +2,8 @@ package klik.image_indexer;
 
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 

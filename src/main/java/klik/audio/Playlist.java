@@ -58,7 +58,7 @@ public class Playlist
         this.the_music_ui = the_music_ui;
         this.owner = owner;
         this.logger = logger;
-        this.undo_core = new Undo_core("undos_for_music_playlist.properties", logger);
+        this.undo_core = new Undo_core("undos_for_music_playlist.properties", owner,logger);
     }
 
 
@@ -94,10 +94,10 @@ public class Playlist
         File f = new File(file_path);
         Button local_button = new Button(f.getParentFile().getName() + "    /    " + f.getName());
         local_button.setMnemonicParsing(false);
-        Look_and_feel_manager.set_button_look(local_button, false,logger);
+        Look_and_feel_manager.set_button_look(local_button, false,owner,logger);
         {
             ContextMenu the_context_menu = new ContextMenu();
-            Look_and_feel_manager.set_context_menu_look(the_context_menu,logger);
+            Look_and_feel_manager.set_context_menu_look(the_context_menu,owner,logger);
             {
                 MenuItem the_menu_item = new MenuItem("Browse folder");
                 the_menu_item.setOnAction(_ -> Audio_player.start_new_process_to_browse(f.toPath().getParent(),
@@ -105,7 +105,7 @@ public class Playlist
                 the_context_menu.getItems().add(the_menu_item);
             }
             {
-                MenuItem the_menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", logger));
+                MenuItem the_menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger));
                 the_menu_item.setOnAction(_ -> {
 
                     Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,Path.of(file_path),logger);
@@ -131,7 +131,7 @@ public class Playlist
 
         }
         local_button.setPrefWidth(2000);
-        Look_and_feel_manager.set_button_look(local_button, false,logger);
+        Look_and_feel_manager.set_button_look(local_button, false,owner,logger);
         file_to_button.put(file_path, local_button);
         local_button.setOnAction(_ -> change_song(file_path));
         return local_button;
@@ -312,7 +312,7 @@ public class Playlist
         selected = future;
 
         the_music_ui.scroll_to(the_song_path);
-        Non_booleans.save_current_song(the_song_path);
+        Non_booleans.save_current_song(the_song_path,owner);
 
 
     }
@@ -348,7 +348,7 @@ public class Playlist
         Integer current_time_s;
         if (new_song == null)
         {
-            String path = Non_booleans.get_current_song();
+            String path = Non_booleans.get_current_song(owner);
             if (path == null)
             {
                 current_time_s = null;
@@ -359,7 +359,7 @@ public class Playlist
             else
             {
                 new_song = path;
-                current_time_s = Non_booleans.get_current_time_in_song(logger);
+                current_time_s = Non_booleans.get_current_time_in_song(owner,logger);
             }
             if (new_song == null)
             {
@@ -521,7 +521,7 @@ public class Playlist
     {
         if (playlist_file == null)
         {
-            playlist_file = get_playlist_file();
+            playlist_file = get_playlist_file(owner);
         }
         load_playlist(playlist_file);
         change_song(null);
@@ -529,10 +529,10 @@ public class Playlist
 
 
     //**********************************************************
-    public static File get_playlist_file()
+    public static File get_playlist_file(Window owner)
     //**********************************************************
     {
-        String playlist_file_name = Non_booleans.get_main_properties_manager().get(PLAYLIST_FILE_NAME);
+        String playlist_file_name = Non_booleans.get_main_properties_manager(owner).get(PLAYLIST_FILE_NAME);
         if (playlist_file_name != null)
         {
             Path p = Path.of(playlist_file_name);
@@ -547,7 +547,7 @@ public class Playlist
 
         // new empty playlist with default name
         playlist_file_name = "playlist." + Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION;
-        Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file_name);
+        Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file_name);
         String home = System.getProperty(Non_booleans.USER_HOME);
         Path p = Paths.get(home, Non_booleans.CONF_DIR, playlist_file_name);
         return p.toFile();
@@ -558,7 +558,7 @@ public class Playlist
     public String get_playlist_name()
     //**********************************************************
     {
-        playlist_file = get_playlist_file();
+        playlist_file = get_playlist_file(owner);
         if ( dbg) logger.log("playlist_file="+playlist_file.getAbsolutePath());
         String playlist_name_s = extract_playlist_name();
         if ( dbg) logger.log("playlist_name=" + playlist_name_s);
@@ -677,7 +677,7 @@ public class Playlist
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog("playlistname");
-        Look_and_feel_manager.set_dialog_look(dialog,logger);
+        Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
         dialog.initOwner(owner);
         dialog.setTitle("Choose a name for the playlist");
         dialog.setContentText("playlistname");
@@ -689,7 +689,7 @@ public class Playlist
         if (result.isEmpty())
         {
             logger.log("playlist not saved");
-            Popups.popup_warning(owner, "Not saved ", "plylist not saved", true, logger);
+            Popups.popup_warning("Not saved ", "plylist not saved", true, owner,logger);
             return;
         }
 
@@ -707,7 +707,7 @@ public class Playlist
     public void change_play_list_name(String new_playlist_name)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, new_playlist_name);
+        Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, new_playlist_name);
         playlist_file = new File(saving_dir, new_playlist_name);
         save_playlist();
         the_music_ui.set_playlist_name_display(extract_playlist_name());
@@ -755,7 +755,7 @@ public class Playlist
                 }
             }
             playlist_file = playlist_file_;
-            Non_booleans.get_main_properties_manager().set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
+            Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
 
             logger.log("\n\nloaded " + the_playlist.size() + " songs from file:" + playlist_file.getAbsolutePath() + "\n\n");
             update_playlist_size_info();

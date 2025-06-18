@@ -87,7 +87,7 @@ public class Text_frame
         
         stage = new Stage();
 
-        Rectangle2D r = Non_booleans.get_window_bounds(TEXT_FRAME);
+        Rectangle2D r = Non_booleans.get_window_bounds(TEXT_FRAME,stage);
         if ( r == null)
         {
             stage.setX(100);
@@ -223,7 +223,7 @@ public class Text_frame
         {
             logger.log("process_key_event in Text_frame: marked is empty");
             TextInputDialog dialog = new TextInputDialog("Enter text");
-            Look_and_feel_manager.set_dialog_look(dialog,logger);
+            Look_and_feel_manager.set_dialog_look(dialog,stage,logger);
             dialog.initOwner(stage);
             dialog.setTitle("Enter text to search");
             dialog.setHeaderText("Enter text to search, then use 'd' or 'n' to jump down and 'u' or 'p' to jump up");

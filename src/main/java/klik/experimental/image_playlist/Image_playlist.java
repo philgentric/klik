@@ -1,6 +1,7 @@
 package klik.experimental.image_playlist;
 
 import javafx.scene.layout.Background;
+import javafx.stage.Window;
 import klik.browser.Abstract_browser;
 import klik.browser.New_window_context;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -38,7 +39,7 @@ public class Image_playlist extends Abstract_browser
     private void set_pink_background(Logger logger)
     //**********************************************************
     {
-        Look_and_feel i = Look_and_feel_manager.get_instance(logger);
+        Look_and_feel i = Look_and_feel_manager.get_instance(get_owner(),logger);
         virtual_landscape.the_Pane.setBackground(new Background(i.get_image_playlist_fill()));
     }
 
@@ -108,7 +109,7 @@ public class Image_playlist extends Abstract_browser
 
     //**********************************************************
     @Override // Change_receiver
-    public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Logger logger2)
+    public void you_receive_this_because_a_file_event_occurred_somewhere(List<Old_and_new_Path> l, Window owner, Logger logger2)
     //**********************************************************
     {
         logger.log("Image_playlist.you_receive_this_because_a_file_event_occurred_somewhere() ID=" + ID);

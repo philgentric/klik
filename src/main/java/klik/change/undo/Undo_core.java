@@ -31,7 +31,7 @@ public class Undo_core implements Datetime_to_signature_source
 
     
     //**********************************************************
-    public Undo_core(String undo_filename, Logger logger_)
+    public Undo_core(String undo_filename, Window owner, Logger logger_)
     //**********************************************************
     {
         logger  = logger_;
@@ -39,7 +39,7 @@ public class Undo_core implements Datetime_to_signature_source
         Path p = Paths.get(home, Non_booleans.CONF_DIR, undo_filename);
         if( properties_manager == null)
         {
-            properties_manager = new Properties_manager(p, "Undo DB", Shared_services.shared_services_aborter, logger);
+            properties_manager = new Properties_manager(p, "Undo DB", owner, Shared_services.shared_services_aborter, logger);
         }
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded from "+undo_filename);
@@ -158,8 +158,8 @@ public class Undo_core implements Datetime_to_signature_source
     public void remove_all_undo_items_from_property_file(Window owner)
     //**********************************************************
     {
-        String s1 = My_I18n.get_I18n_string("Warning_delete_undo", logger);
-        if (!Popups.popup_ask_for_confirmation(owner, s1, "", logger)) return;
+        String s1 = My_I18n.get_I18n_string("Warning_delete_undo", owner,logger);
+        if (!Popups.popup_ask_for_confirmation( s1, "", owner,logger)) return;
 
         Set<String> set = properties_manager.get_all_keys();
         for ( String k : set)

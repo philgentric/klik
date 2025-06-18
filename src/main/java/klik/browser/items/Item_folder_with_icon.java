@@ -24,8 +24,8 @@ import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -83,7 +83,6 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     //**********************************************************
     {
         super(
-                owner,
                 scene,
                 selection_handler,
                 icon_factory_actor,
@@ -98,14 +97,15 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 path_comparator_source,
                 top_left_provider,
                 port,
+                owner,
                 aborter,
                 logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
-        folder_icon_size = Non_booleans.get_folder_icon_size();
+        folder_icon_size = Non_booleans.get_folder_icon_size(owner);
         // launch content icon fabrication:
         text = text_;
-        double font_size = Non_booleans.get_font_size(logger);
+        double font_size = Non_booleans.get_font_size(owner,logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         //button = new Button(text);
@@ -120,7 +120,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         button.setGraphic(the_image_pane);
         button.setContentDisplay(ContentDisplay.BOTTOM);
 
-        Look_and_feel_manager.set_button_look(button,true,logger);
+        Look_and_feel_manager.set_button_look(button,true,owner,logger);
 
         /*Look_and_feel_manager.set_button_look(button,true);
         button.setOnAction(actionEvent ->
@@ -308,7 +308,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
             if (Guess_file_type.is_this_path_a_gif(f.toPath()))
             {
-                if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), aborter, logger))
+                if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), owner, aborter, logger))
                 {
                     return f.toPath();
                 }
@@ -327,7 +327,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                         if (f2.isDirectory()) continue; // ignore folders
                         if (!Guess_file_type.is_file_an_image(f2)) continue; // ignore non images
                         if (Guess_file_type.is_this_path_a_gif(f2.toPath())) {
-                            if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), aborter, logger)) {
+                            if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), owner,aborter, logger)) {
                                 return f2.toPath();
                             }
                             continue; // ignore not animated gifs
@@ -368,7 +368,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     //**********************************************************
     {
         label_for_sizes = new Label(s);
-        Look_and_feel_manager.set_label_look(label_for_sizes,logger);
+        Look_and_feel_manager.set_label_look(label_for_sizes,owner,logger);
         Jfx_batch_injector.inject(() -> {
             the_image_pane.getChildren().clear();
             the_image_pane.getChildren().add(label_for_sizes);
@@ -379,7 +379,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     @Override // Item
     public void set_is_unselected_internal()
     {
-        Look_and_feel_manager.give_button_a_file_style(button,logger);
+        Look_and_feel_manager.give_button_a_file_style(button,owner,logger);
     }
 
     //**********************************************************
@@ -387,7 +387,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     public void set_is_selected_internal()
     //**********************************************************
     {
-        Look_and_feel_manager.give_button_a_selected_file_style(button,logger);
+        Look_and_feel_manager.give_button_a_selected_file_style(button,owner,logger);
     }
 
 
@@ -465,18 +465,18 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             label_for_sizes.setWrapText(true);
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),logger));
+        sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger));
         intercalaire(on_one_line, sb);
         sb.append(sizes.folders());
-        String folders = My_I18n.get_I18n_string("Folders",logger);
+        String folders = My_I18n.get_I18n_string("Folders",owner,logger);
         sb.append(folders);
         intercalaire(on_one_line, sb);
         sb.append(sizes.files());
-        String files = My_I18n.get_I18n_string("Files",logger);
+        String files = My_I18n.get_I18n_string("Files",owner,logger);
         sb.append(files);
         intercalaire(on_one_line, sb);
         sb.append(sizes.images());
-        String images = My_I18n.get_I18n_string("Images",logger);
+        String images = My_I18n.get_I18n_string("Images",owner,logger);
 
         sb.append(images);
         label_for_sizes.setText(sb.toString());

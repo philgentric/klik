@@ -31,7 +31,7 @@ public class Animated_gif_generation_actor implements Actor
         }
         Animated_gif_generation_message mm = (Animated_gif_generation_message) m;
         boolean ok = Ffmpeg_utils.video_to_gif(
-                mm.owner,
+                mm.originator,
                 mm.video_path,
                 mm.destination_gif_full_path,
                 mm.dur,
@@ -45,7 +45,7 @@ public class Animated_gif_generation_actor implements Actor
             if (! mm.abort_reported.get())
             {
                 mm.abort_reported.set(true);
-                Jfx_batch_injector.inject(() -> Popups.popup_warning(mm.owner, "Massive animated gif generation for "+mm.video_path+" was ABORTED!", "Did you change dir ?",false,mm.logger), mm.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( "Massive animated gif generation for "+mm.video_path+" was ABORTED!", "Did you change dir ?",false,mm.originator,mm.logger), mm.logger);
 
             }
         }

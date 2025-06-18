@@ -4,10 +4,11 @@ package klik.browser.comparators;
 
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.properties.features.Feature;
-import klik.properties.features.Feature_cache;
+import klik.image_ml.image_similarity.Path_pair;
+import klik.image_ml.image_similarity.Similarity_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 
 import java.io.File;

@@ -91,11 +91,11 @@ public class Audio_player_FX_UI implements Music_UI
         this.playlist = new Playlist(this, stage, logger);
 
 
-        pause_string = My_I18n.get_I18n_string(PAUSE, logger);
-        play_string = My_I18n.get_I18n_string(PLAY, logger);
+        pause_string = My_I18n.get_I18n_string(PAUSE, stage,logger);
+        play_string = My_I18n.get_I18n_string(PLAY, stage,logger);
         logger.log("play_string = " + play_string);
 
-        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER);
+        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER,stage);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
         stage.setWidth(r.getWidth());
@@ -103,7 +103,7 @@ public class Audio_player_FX_UI implements Music_UI
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             //if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-            Non_booleans.save_window_bounds(stage, AUDIO_PLAYER, logger);
+            Non_booleans.save_window_bounds(stage, AUDIO_PLAYER,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -125,7 +125,7 @@ public class Audio_player_FX_UI implements Music_UI
 
 
         VBox the_top_vbox = new VBox();
-        Look_and_feel_manager.set_region_look(the_top_vbox,logger);
+        Look_and_feel_manager.set_region_look(the_top_vbox,stage,logger);
 
         VBox duration_vbox = define_duration_vbox();
         the_top_vbox.getChildren().add(duration_vbox);
@@ -167,10 +167,10 @@ public class Audio_player_FX_UI implements Music_UI
         the_status_label = new Label("Status: OK");
         the_status_label.prefWidth(1000);
         the_status_label.setWrapText(true);
-        Look_and_feel_manager.set_region_look(the_status_label,logger);
+        Look_and_feel_manager.set_region_look(the_status_label,stage,logger);
         the_status_bar.getChildren().add(the_status_label);
         returned.setBottom(the_status_bar);
-        Look_and_feel_manager.set_region_look(returned,logger);
+        Look_and_feel_manager.set_region_look(returned,stage,logger);
         return returned;
     }
 
@@ -179,14 +179,14 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         VBox returned = new VBox();
-        Look_and_feel_manager.set_region_look(returned,logger);
+        Look_and_feel_manager.set_region_look(returned,stage,logger);
         HBox h1 = define_duration_hbox();
         returned.getChildren().add(h1);
 
         define_timeline_slider();
         returned.getChildren().add(the_timeline_slider);
 
-        Look_and_feel_manager.set_button_look(returned,true,logger);
+        Look_and_feel_manager.set_button_look(returned,true,stage,logger);
         return returned;
     }
 
@@ -195,55 +195,55 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         HBox returned = new HBox();
-        Look_and_feel_manager.set_region_look(returned,logger);
+        Look_and_feel_manager.set_region_look(returned,stage,logger);
 
 
         {
 
-            Button remove_from_playlist = new Button(My_I18n.get_I18n_string("Remove_playing_song_from_playlist",logger));
-            Look_and_feel_manager.set_button_look(remove_from_playlist, true,logger);
+            Button remove_from_playlist = new Button(My_I18n.get_I18n_string("Remove_playing_song_from_playlist",stage,logger));
+            Look_and_feel_manager.set_button_look(remove_from_playlist, true,stage,logger);
             remove_from_playlist.setOnAction(actionEvent -> playlist.remove_from_playlist_and_jump_to_next());
             returned.getChildren().add(remove_from_playlist);
         }
 
         {
 
-            Button undo_remove_button = new Button(My_I18n.get_I18n_string("Undo_Remove",logger));
-            Look_and_feel_manager.set_button_look(undo_remove_button, true,logger);
+            Button undo_remove_button = new Button(My_I18n.get_I18n_string("Undo_Remove",stage,logger));
+            Look_and_feel_manager.set_button_look(undo_remove_button, true,stage,logger);
             undo_remove_button.setOnAction(actionEvent -> playlist.undo_remove());
             returned.getChildren().add(undo_remove_button);
         }
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
 
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
 
-        playlist_name_label = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",logger)+" : "+playlist.get_playlist_name());
+        playlist_name_label = new Label(My_I18n.get_I18n_string("Name_Of_Playlist",stage,logger)+" : "+playlist.get_playlist_name());
         playlist_name_label.setMinWidth(200);
-        Look_and_feel_manager.set_region_look(playlist_name_label,logger);
+        Look_and_feel_manager.set_region_look(playlist_name_label,stage,logger);
         returned.getChildren().add(playlist_name_label);
 
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
 
-        save_playlist_under_a_new_name = new Button(My_I18n.get_I18n_string("Save_Playlist_Under_A_New_Name",logger));
+        save_playlist_under_a_new_name = new Button(My_I18n.get_I18n_string("Save_Playlist_Under_A_New_Name",stage,logger));
         {
             save_playlist_under_a_new_name.setOnAction(actionEvent -> save_new_playlist());
         }
-        Look_and_feel_manager.set_button_look(save_playlist_under_a_new_name,true,logger);
+        Look_and_feel_manager.set_button_look(save_playlist_under_a_new_name,true,stage,logger);
         returned.getChildren().add(save_playlist_under_a_new_name);
 
         return returned;
@@ -255,25 +255,25 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         Button landing_zone = new Button("Drop music files or folders here\nOr paste youtube URLs");
-        Look_and_feel_manager.set_button_look(landing_zone, true,logger);
+        Look_and_feel_manager.set_button_look(landing_zone, true,stage,logger);
         landing_zone.setMinHeight(100);
         BackgroundFill background_fill = new BackgroundFill(Color.LIGHTCORAL, CornerRadii.EMPTY, Insets.EMPTY);
         landing_zone.setBackground(new Background(background_fill));
 
         landing_zone.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragEntered RECEIVER SIDE" );
-            Look_and_feel_manager.set_background_for_setOnDragEntered(landing_zone,logger);
+            Look_and_feel_manager.set_background_for_setOnDragEntered(landing_zone,stage,logger);
             drag_event.consume();
         });
         landing_zone.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragExited RECEIVER SIDE");
-            Look_and_feel_manager.set_background_for_setOnDragExited(landing_zone,logger);
+            Look_and_feel_manager.set_background_for_setOnDragExited(landing_zone,stage,logger);
             drag_event.consume();
         });
         landing_zone.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
             drag_event.acceptTransferModes(TransferMode.MOVE);
-            Look_and_feel_manager.set_background_for_setOnDragOver(landing_zone,logger);
+            Look_and_feel_manager.set_background_for_setOnDragOver(landing_zone,stage,logger);
             drag_event.consume();
         });
         landing_zone.setOnDragDropped(drag_event -> {
@@ -367,7 +367,7 @@ public class Audio_player_FX_UI implements Music_UI
 
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             VBox.setVgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
@@ -389,7 +389,7 @@ public class Audio_player_FX_UI implements Music_UI
         Button b = define_reset_balance_button();
         balance_vbox.getChildren().add(b);
 
-        Look_and_feel_manager.set_button_look(balance_vbox,true,logger);
+        Look_and_feel_manager.set_button_look(balance_vbox,true,stage,logger);
         return balance_vbox;
 
     }
@@ -419,8 +419,8 @@ public class Audio_player_FX_UI implements Music_UI
     private Button define_reset_balance_button()
     //**********************************************************
     {
-        Button reset_balance = new Button(My_I18n.get_I18n_string("Reset_Balance",logger));
-        Look_and_feel_manager.set_button_look(reset_balance,true,logger);
+        Button reset_balance = new Button(My_I18n.get_I18n_string("Reset_Balance",stage,logger));
+        Look_and_feel_manager.set_button_look(reset_balance,true,stage,logger);
         reset_balance.setOnAction(_ -> {
             balance_slider.setValue(0);
             the_media_player_option.get().setBalance(0);
@@ -436,9 +436,9 @@ public class Audio_player_FX_UI implements Music_UI
         HBox hbox = define_volume_hbox();
         returned.getChildren().add(hbox);
 
-        String mute_string = My_I18n.get_I18n_string("Mute",logger);
+        String mute_string = My_I18n.get_I18n_string("Mute",stage,logger);
         Button mute = new Button(mute_string);
-        Look_and_feel_manager.set_button_look(mute,true,logger);
+        Look_and_feel_manager.set_button_look(mute,true,stage,logger);
         mute.setOnAction(_ -> {
             MediaPlayer mp = the_media_player_option.get();
             if ( mp.isMute())
@@ -449,11 +449,11 @@ public class Audio_player_FX_UI implements Music_UI
             else
             {
                 mp.setMute(true);
-                mute.setText(My_I18n.get_I18n_string("Unmute",logger)); //"Unmute");
+                mute.setText(My_I18n.get_I18n_string("Unmute",stage,logger)); //"Unmute");
             }
         });
         returned.getChildren().add(mute);
-        Look_and_feel_manager.set_button_look(returned,true,logger);
+        Look_and_feel_manager.set_button_look(returned,true,stage,logger);
 
         return returned;
     }
@@ -464,12 +464,12 @@ public class Audio_player_FX_UI implements Music_UI
     {
         HBox volume_hbox = new HBox();
 
-        ImageView iv = new ImageView(Look_and_feel_manager.get_speaker_icon(logger));
+        ImageView iv = new ImageView(Look_and_feel_manager.get_speaker_icon(stage,logger));
         iv.setFitHeight(20);
         iv.setFitWidth(20);
         volume_hbox.getChildren().add(iv);
 
-        volume = Non_booleans.get_audio_volume(logger);
+        volume = Non_booleans.get_audio_volume(stage,logger);
         Slider volume_slider = new Slider(0, 1, volume);
         volume_slider.setMinWidth(30);
         volume_hbox.getChildren().add(volume_slider);
@@ -477,7 +477,7 @@ public class Audio_player_FX_UI implements Music_UI
             if (the_media_player_option.isEmpty()) return;
             volume = volume_slider.getValue();
             the_media_player_option.get().setVolume(volume);
-            Non_booleans.save_audio_volume(volume);
+            Non_booleans.save_audio_volume(volume,stage);
         });
         return volume_hbox;
     }
@@ -487,22 +487,22 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         VBox returned = new VBox();
-        Look_and_feel_manager.set_region_look(returned,logger);
+        Look_and_feel_manager.set_region_look(returned,stage,logger);
 
-        previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song",logger));
-        Look_and_feel_manager.set_button_look(previous, true,logger);
+        previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song",stage,logger));
+        Look_and_feel_manager.set_button_look(previous, true,stage,logger);
         previous.setOnAction(_ -> playlist.jump_to_previous());
         returned.getChildren().add(previous);
 
 
-        next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",logger));
-        Look_and_feel_manager.set_button_look(next, true,logger);
+        next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",stage,logger));
+        Look_and_feel_manager.set_button_look(next, true,stage,logger);
         next.setOnAction(_ -> playlist.jump_to_next());
         returned.getChildren().add(next);
 
 
-        Button shuffle = new Button(My_I18n.get_I18n_string("Shuffle",logger));
-        Look_and_feel_manager.set_button_look(shuffle, true,logger);
+        Button shuffle = new Button(My_I18n.get_I18n_string("Shuffle",stage,logger));
+        Look_and_feel_manager.set_button_look(shuffle, true,stage,logger);
         shuffle.setOnAction(_->playlist.shuffle());
         returned.getChildren().add(shuffle);
 
@@ -518,7 +518,7 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         scroll_pane = new ScrollPane();
-        Look_and_feel_manager.set_region_look(scroll_pane,logger);
+        Look_and_feel_manager.set_region_look(scroll_pane,stage,logger);
         scroll_pane.addEventFilter(KeyEvent.KEY_PRESSED, key_event -> {
             logger.log("trapping event "+key_event);
             switch (key_event.getCode())
@@ -536,7 +536,7 @@ public class Audio_player_FX_UI implements Music_UI
             }
         });
 
-        Look_and_feel_manager.set_region_look(scroll_pane,logger);
+        Look_and_feel_manager.set_region_look(scroll_pane,stage,logger);
         scroll_pane.setPrefSize(WIDTH, 600);
         the_vertical_box = new VBox();
         scroll_pane.setContent(the_vertical_box);
@@ -575,23 +575,23 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         HBox hbox = new HBox();
-        Look_and_feel_manager.set_region_look(hbox,logger);
-        Label duration_text = new Label(My_I18n.get_I18n_string("Duration",logger)+" : ");
-        Look_and_feel_manager.set_region_look(duration_text,logger);
+        Look_and_feel_manager.set_region_look(hbox,stage,logger);
+        Label duration_text = new Label(My_I18n.get_I18n_string("Duration",stage,logger)+" : ");
+        Look_and_feel_manager.set_region_look(duration_text,stage,logger);
         hbox.getChildren().add(duration_text);
         duration_value_label = new Label("0.0s");
-        Look_and_feel_manager.set_region_look(duration_value_label,logger);
+        Look_and_feel_manager.set_region_look(duration_value_label,stage,logger);
         hbox.getChildren().add(duration_value_label);
 
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             hbox.getChildren().add(spacer);
         }
 
-        Button rewind = new Button(My_I18n.get_I18n_string("Rewind",logger));
-        Look_and_feel_manager.set_button_look(rewind, true,logger);
+        Button rewind = new Button(My_I18n.get_I18n_string("Rewind",stage,logger));
+        Look_and_feel_manager.set_button_look(rewind, true,stage,logger);
         rewind.setOnAction(_ -> {
             rewind();
         });
@@ -600,28 +600,28 @@ public class Audio_player_FX_UI implements Music_UI
 
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             hbox.getChildren().add(spacer);
         }
 
         play_pause_button = new Button(pause_string);
-        Look_and_feel_manager.set_button_look(play_pause_button, true,logger);
+        Look_and_feel_manager.set_button_look(play_pause_button, true,stage,logger);
         play_pause_button.setOnAction(_ -> toggle_play_stop());
         hbox.getChildren().add(play_pause_button);
 
         {
             Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,logger);
+            Look_and_feel_manager.set_region_look(spacer,stage,logger);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             hbox.getChildren().add(spacer);
         }
 
-        Label now_text = new Label(My_I18n.get_I18n_string("Now",logger)+" : ");
-        Look_and_feel_manager.set_region_look(now_text,logger);
+        Label now_text = new Label(My_I18n.get_I18n_string("Now",stage,logger)+" : ");
+        Look_and_feel_manager.set_region_look(now_text,stage,logger);
         hbox.getChildren().add(now_text);
         now_value_label = new Label("0.0s");
-        Look_and_feel_manager.set_region_look(now_value_label,logger);
+        Look_and_feel_manager.set_region_look(now_value_label,stage,logger);
 
         hbox.getChildren().add(now_value_label);
         return hbox;
@@ -651,7 +651,7 @@ public class Audio_player_FX_UI implements Music_UI
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value_label.setText((int)seconds+" seconds");
-            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds);
+            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds,stage);
         });
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
@@ -716,7 +716,7 @@ public class Audio_player_FX_UI implements Music_UI
                 listener = (ov, old_val_, new_val_) -> {
                     double slider_value = new_val_.doubleValue();
                     equalizer_bands.get(finalI).setGain(slider_value);
-                    Non_booleans.save_equalizer_value_for_band(finalI, slider_value);
+                    Non_booleans.save_equalizer_value_for_band(finalI, slider_value,stage);
                 };
                 s.valueProperty().addListener(listener);
                 listeners.add(listener);
@@ -730,7 +730,7 @@ public class Audio_player_FX_UI implements Music_UI
             int how_many_rectangles = equalizer_bands.size();
             for (int i = 0; i < how_many_rectangles; i++)
             {
-                double value = Non_booleans.get_equalizer_value_for_band(i,logger);
+                double value = Non_booleans.get_equalizer_value_for_band(i,stage,logger);
                 Slider s = new Slider(MIN, MAX, value);
                 s.setMinHeight(100);
                 s.setMinWidth(30);
@@ -749,7 +749,7 @@ public class Audio_player_FX_UI implements Music_UI
             the_equalizer_vbox.getChildren().add(the_equalizer_hbox);
             Button reset_equalizer_button = make_reset_equalizer_button();
             the_equalizer_vbox.getChildren().add(reset_equalizer_button);
-            Look_and_feel_manager.set_button_look(the_equalizer_vbox,true,logger);
+            Look_and_feel_manager.set_button_look(the_equalizer_vbox,true,stage,logger);
         }
     }
 
@@ -757,13 +757,13 @@ public class Audio_player_FX_UI implements Music_UI
     private Button make_reset_equalizer_button()
     //**********************************************************
     {
-        Button reset_button = new Button(My_I18n.get_I18n_string("Reset_Equalizer",logger));
-        Look_and_feel_manager.set_button_look(reset_button,true,logger);
+        Button reset_button = new Button(My_I18n.get_I18n_string("Reset_Equalizer",stage,logger));
+        Look_and_feel_manager.set_button_look(reset_button,true,stage,logger);
         reset_button.setOnAction(actionEvent -> {
             for (int i = 0; i < equalizer_bands.size(); i++) {
                 equalizer_bands.get(i).setGain(0.0);
                 sliders.get(i).setValue(0.0);
-                Non_booleans.save_equalizer_value_for_band(i, 0.0);
+                Non_booleans.save_equalizer_value_for_band(i, 0.0,stage);
             }
         });
         return reset_button;

@@ -52,13 +52,13 @@ public class Importer
         AtomicInteger counter = new AtomicInteger(0);
         Path new_dir = null;
 
-        TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", logger));
-        Look_and_feel_manager.set_dialog_look(dialog,logger);
+        TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", owner,logger));
+        Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
         dialog.initOwner(owner);
         dialog.setWidth(800);
-        dialog.setTitle(My_I18n.get_I18n_string("New_directory", logger));
-        dialog.setHeaderText(My_I18n.get_I18n_string("Enter_name_of_new_directory", logger));
-        dialog.setContentText(My_I18n.get_I18n_string("New_directory_name", logger));
+        dialog.setTitle(My_I18n.get_I18n_string("New_directory", owner,logger));
+        dialog.setHeaderText(My_I18n.get_I18n_string("Enter_name_of_new_directory", owner,logger));
+        dialog.setContentText(My_I18n.get_I18n_string("New_directory_name", owner,logger));
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {

@@ -1,21 +1,20 @@
 package klik.browser.icons.animated_gifs;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.properties.Booleans;
+import klik.properties.boolean_features.Booleans;
 import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Moving_files;
 import klik.images.Image_context;
 import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.util.ui.Popups;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klik.browser.icons.animated_gifs.Animated_gif_from_folder.warning_GraphicsMagick;
 
 /*
 animated-GIF repairing utility: recover the frames and re-assemble them in a "more standard" format
@@ -32,15 +31,15 @@ public class Gif_repair
     private static final boolean cleanup = false;
 
     //**********************************************************
-    public static Path extract_all_frames_in_animated_gif(Stage owner, Image_context image_context,
+    public static Path extract_all_frames_in_animated_gif(Image_context image_context,
                                                           String uuid,
-                                                          Aborter aborter, Logger logger)
+                                                          Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path target = image_context.path;
         Path this_dir = target.getParent();
 
-        Path tmp_dir = Non_booleans.get_trash_dir(this_dir,logger);
+        Path tmp_dir = Non_booleans.get_trash_dir(this_dir,owner,logger);
         if ( tmp_dir == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Weird! could not use tmp directory:"));
@@ -67,10 +66,7 @@ public class Gif_repair
         if ( dbg) sb = new StringBuilder();
         if ( Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger) ==null)
         {
-
-            Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
-
-            Popups.popup_warning(owner, "Repair part1 command failed:", warning_GraphicsMagick,false,logger);
+            Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
             // and restore the file
             Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(owner, 0,0,old_path_for_restore,new_path.toFile(), aborter, logger);
             return null;
@@ -99,8 +95,7 @@ public class Gif_repair
             if ( dbg) sb = new StringBuilder();
             if ( Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger) == null)
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
-                logger.log(warning_GraphicsMagick);
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
                 return null;
             }
             if ( dbg) logger.log(sb.toString());
@@ -114,9 +109,7 @@ public class Gif_repair
             l.add(image_context.path.getFileName().toString());
             if ( Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger) == null)
             {
-                Booleans.manage_show_GraphicsMagick_install_warning(owner,logger);
-
-                logger.log(warning_GraphicsMagick);
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
                 return null;
             }
 

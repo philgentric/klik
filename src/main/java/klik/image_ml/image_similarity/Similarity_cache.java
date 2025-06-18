@@ -1,10 +1,10 @@
-package klik.browser.comparators;
+package klik.image_ml.image_similarity;
 
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans;
 import klik.util.log.Logger;
@@ -31,7 +31,7 @@ public class Similarity_cache
     private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
 
     //**********************************************************
-    public Similarity_cache(Path_list_provider path_list_provider,double x, double y, Aborter browser_aborter, Logger logger)
+    public Similarity_cache(Path_list_provider path_list_provider, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
@@ -39,7 +39,7 @@ public class Similarity_cache
         String cache_name = "similarity";
         String local = cache_name + path_list_provider.get_folder_path();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, logger);
+        Path dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, owner,logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());
@@ -51,21 +51,21 @@ public class Similarity_cache
             // no cache on disk, have to recalculate and save
             // in a thread!
 
-            Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, x, y, browser_aborter, logger);
+            Image_feature_vector_cache.Images_and_feature_vectors result = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, owner, x, y, browser_aborter, logger);
             if (result == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("ERROR: cannot preload all feature vectors"));
                 return;
             }
             Image_feature_vector_cache fv_cache = result.fv_cache();
-            fill_cache_and_save_to_disk(result.images(),fv_cache, x,y,browser_aborter, logger);
+            fill_cache_and_save_to_disk(result.images(),fv_cache, owner, x,y,browser_aborter, logger);
 
             //logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
         }
     }
 
     //**********************************************************
-    private void fill_cache_and_save_to_disk(List<Path> images, Image_feature_vector_cache fv_cache, double x, double y, Aborter browser_aborter, Logger logger)
+    private void fill_cache_and_save_to_disk(List<Path> images, Image_feature_vector_cache fv_cache, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(images.size());
@@ -80,7 +80,7 @@ public class Similarity_cache
                 logger.log("aborting Similarity_cache "+ browser_aborter.reason);
                 break;
             }
-            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(browser_aborter, p1);
+            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(owner,browser_aborter, p1);
             Job_termination_reporter tr = (message, job) -> {
                 cdl.countDown();
                 in_flight.decrementAndGet();

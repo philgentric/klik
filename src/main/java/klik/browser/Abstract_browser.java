@@ -17,7 +17,7 @@ import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans;
-import klik.properties.features.Feature_cache;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
 
@@ -96,7 +96,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         if (count == 1)
         {
-            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW);
+            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, null);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -120,10 +120,10 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         my_Stage.the_Stage.setHeight(height);
         my_Stage.the_Stage.show();
 
-        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK,logger);
+        Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK, my_Stage.the_Stage, logger);
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         //History_engine.get_instance(logger).add(get_name());
-        History_engine.get(aborter,logger).add(get_name());
+        History_engine.get(get_owner(),aborter,logger).add(get_name());
 
 
         Change_gang.register(change_receiver, aborter, logger);

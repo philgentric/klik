@@ -5,6 +5,7 @@ package klik.images.caching;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.images.Image_context;
@@ -64,7 +65,7 @@ public class Image_cache_cafeine implements Cache_interface
 
     //**********************************************************
     @Override
-    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward)//, boolean high_quality)//, int target_width)
+    public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, Window owner)
     //**********************************************************
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
@@ -82,7 +83,7 @@ public class Image_cache_cafeine implements Cache_interface
 
         for (Path path: kk)
         {
-            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, port, aborter);
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, port, owner,aborter);
             if (ultra_dbg)
                 logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
@@ -121,10 +122,10 @@ public class Image_cache_cafeine implements Cache_interface
 
     //**********************************************************
     @Override // Image_cache_interface
-    public void evict(Path path)
+    public void evict(Path path, Window owner)
     //**********************************************************
     {
-        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,null, port,aborter);
+        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,null, port,owner, aborter);
         String key = request.make_key();
         cache.invalidate(key);
         if (ultra_dbg) logger.log("       Evicted:" + key );
