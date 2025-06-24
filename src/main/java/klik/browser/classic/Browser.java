@@ -46,6 +46,7 @@
 package klik.browser.classic;
 
 import javafx.stage.Window;
+import klik.New_window_context;
 import klik.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.virtual_landscape.Browsing_caches;

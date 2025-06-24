@@ -9,7 +9,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_file_with_icon;
@@ -123,7 +123,7 @@ public class Menus_for_image_window
         }
 
         image_display_handler.logger.log("GIF repair2 OK");
-        Optional<Image_context> option = Image_context.get_Image_context(local_path, image_window.port, image_window.the_Stage, image_window.aborter, image_window.logger);
+        Optional<Image_context> option = Image_context.get_Image_context(local_path,  image_window.the_Stage, image_window.aborter, image_window.logger);
         if (option.isEmpty()) {
             image_display_handler.logger.log("getting a new image context failed after gif repair");
         } else {
@@ -158,7 +158,7 @@ public class Menus_for_image_window
                     image_window.path_list_provider,
                     image_window.path_comparator_source,
                     false,
-                    image_window.port,
+                    
                     image_window.aborter);
         });
         return search_y;
@@ -174,7 +174,7 @@ public class Menus_for_image_window
             image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                     image_window.path_list_provider,
                     image_window.path_comparator_source,
-                    image_window.port,
+                    
                     image_window.aborter);
         });
         return search_k;
@@ -261,7 +261,7 @@ public class Menus_for_image_window
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
              New_window_context.additional_no_past(
-                     image_window.port, image_window.image_display_handler.get_image_context().get().path.getParent(),
+                      image_window.image_display_handler.get_image_context().get().path.getParent(),
                      image_window.the_Stage,
                      image_window.logger);
         });
@@ -294,7 +294,7 @@ public class Menus_for_image_window
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.port,image_window.the_Stage, image_window.logger);
+            Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.logger);
             if ( recognition_services == null) return;
 
             AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -316,7 +316,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.port,image_window.the_Stage, image_window.logger);
+        Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.the_Stage, image_window.logger);
         if (recognition_services == null) return;
 
         Face_recognition_actor actor = new Face_recognition_actor(recognition_services);
@@ -345,7 +345,7 @@ public class Menus_for_image_window
             if (new_high_quality != image_window.image_display_handler.alternate_rescaler)
             {
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                Optional<Image_context> option = build_Image_context(new_high_quality, image_window.image_display_handler.get_image_context().get().path, image_window.port, image_window.aborter, image_window.logger);
+                Optional<Image_context> option = build_Image_context(new_high_quality, image_window.image_display_handler.get_image_context().get().path,  image_window.aborter, image_window.logger);
                 option.ifPresent(image_window::set_image);
             }
 
@@ -531,7 +531,7 @@ public class Menus_for_image_window
                     image_properties_cache,
                     fv_cache_supplier,
                     image_window.path_comparator_source,
-                    image_window.port,
+                    
                     image_window.the_Stage,
                     image_window.aborter,
                     image_window.logger));

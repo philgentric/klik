@@ -81,7 +81,6 @@ public class Item_file_with_icon extends Item_file
             Path path_,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            int port,
             Window owner,
             Aborter aborter,
             Logger logger)
@@ -95,7 +94,6 @@ public class Item_file_with_icon extends Item_file
                 color,
                 path_,
                 path_list_provider,
-                port,
                 owner,
                 aborter,
                 logger);
@@ -170,7 +168,7 @@ public class Item_file_with_icon extends Item_file
 
         if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
-            open_an_image(true,port,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
+            open_an_image(true,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
         }
         else
         {
@@ -196,7 +194,6 @@ public class Item_file_with_icon extends Item_file
 
     //**********************************************************
     public static void open_an_image(boolean same_process,
-                                     int port,
                                      Path_list_provider path_list_provider,
                                      Path_comparator_source path_comparator_source,
                                      Path path,
@@ -213,7 +210,7 @@ public class Item_file_with_icon extends Item_file
                 return;
             }
             Optional<Comparator<Path>> image_comparator = Optional.of(x);
-            Image_window.get_Image_window(port,path, path_list_provider,image_comparator, owner,new Aborter("Image_viewer",logger),logger);
+            Image_window.get_Image_window(path, path_list_provider,image_comparator, owner,new Aborter("Image_viewer",logger),logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
         else
@@ -278,7 +275,6 @@ public class Item_file_with_icon extends Item_file
                     image_properties_RAM_cache,
                     fv_cache_supplier,
                     path_comparator_source,
-                    port,
                     owner,
                     aborter,
                     logger);
@@ -320,7 +316,7 @@ public class Item_file_with_icon extends Item_file
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+get_item_path());
-                Item_file_with_icon.open_an_image(false,port,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
+                Item_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -365,7 +361,6 @@ public class Item_file_with_icon extends Item_file
                                                          Image_properties_RAM_cache image_properties_cache,
                                                          Supplier<Image_feature_vector_cache> fv_cache_supplier,
                                                          Path_comparator_source path_comparator_source,
-                                                         int port,
                                                          Window owner,
                                                          Aborter browser_aborter,
                                                          Logger logger)
@@ -382,7 +377,7 @@ public class Item_file_with_icon extends Item_file
                 Image_similarity image_similarity = new Image_similarity(
                         new Folder_path_list_provider(image_path.getParent()),
                         path_comparator_source,
-                        x,y,port,
+                        x,y,
                         owner,
                         browser_aborter,logger);
                 image_similarity.find_similars(

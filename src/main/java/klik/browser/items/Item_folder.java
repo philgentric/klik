@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
+import klik.New_window_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
@@ -71,14 +72,12 @@ public class Item_folder extends Item implements Icon_destination
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
-            int port,
             Window owner,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
         super(
-                port,
                 scene,
                 selection_handler,
                 icon_factory_actor,
@@ -397,7 +396,6 @@ public class Item_folder extends Item implements Icon_destination
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
             New_window_context.replace_different_folder(
-                    port,
                     shutdown_target,
                     get_item_path(),
                     owner,

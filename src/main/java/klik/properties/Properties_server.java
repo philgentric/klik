@@ -68,7 +68,7 @@ public class Properties_server
 
         Session_factory session_factory = () -> new Session() {
             @Override
-            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try {
                     String request = TCP_util.read_string(dis);
@@ -77,10 +77,12 @@ public class Properties_server
                     TCP_util.write_string(value, dos);
                     dos.flush();
                     if ( dbg) logger.log("Properties server GET done for " + request);
+                    return true;
                 }
                 catch (IOException e)
                 {
                     logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                    return false;
                 }
 
             }
@@ -91,7 +93,7 @@ public class Properties_server
             }
         };
         TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties GET TCP server", logger), logger);
-        return tcp_server.start(PROPERTY_PORT_for_get,false);
+        return tcp_server.start(PROPERTY_PORT_for_get,"Properties server listening for 'get' requests",false);
     }
 
     //**********************************************************
@@ -102,7 +104,7 @@ public class Properties_server
 
         Session_factory session_factory = () -> new Session() {
             @Override
-            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try
                 {
@@ -120,10 +122,12 @@ public class Properties_server
                     TCP_util.write_string("ok", dos);
                     dos.flush();
                     if ( dbg) logger.log("Properties server SET done for " + key+" "+value);
+                    return true;
                 }
                 catch (IOException e)
                 {
                     logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                    return false;
                 }
             }
             @Override
@@ -132,7 +136,7 @@ public class Properties_server
             }
         };
         TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties SET TCP server", logger), logger);
-        return tcp_server.start(PROPERTY_PORT_for_set,false);
+        return tcp_server.start(PROPERTY_PORT_for_set,"Properties server listening for 'set' requests",false);
     }
 
 
@@ -144,7 +148,7 @@ public class Properties_server
 
         Session_factory session_factory = () -> new Session() {
             @Override
-            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try {
                     Enumeration<Object> e = the_Properties.keys();
@@ -164,6 +168,7 @@ public class Properties_server
                 {
                     logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 }
+                return false;
             }
             @Override
             public String name() {
@@ -171,7 +176,7 @@ public class Properties_server
             }
         };
         TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Properties ALL KEYS TCP server", logger), logger);
-        return tcp_server.start(PROPERTY_PORT_for_all,false);
+        return tcp_server.start(PROPERTY_PORT_for_all,"Properties server listening for 'get_all_keys' requests",false);
     }
 
 

@@ -12,6 +12,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player;
+import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.classic.Folder_path_list_provider;
@@ -76,13 +77,12 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Path_list_provider path_list_provider,
             Top_left_provider top_left_provider,
             Path_comparator_source path_comparator_source,
-            int port,
             Window owner,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
-        super(scene,selection_handler,icon_factory_actor,color, path, path_list_provider,port,owner,aborter, logger);
+        super(scene,selection_handler,icon_factory_actor,color, path, path_list_provider,owner,aborter, logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
@@ -354,7 +354,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             {
                 logger.log("opening audio playlist: " + get_item_path().toAbsolutePath());
                 //Audio_player.play_playlist(get_item_path().toFile(),logger);
-                Audio_player.play_play_list_in_separate_process(get_item_path().toFile(),logger);
+                Audio_player_access.play_play_list_in_separate_process(get_item_path().toFile(),logger);
                 return;
             }
             if (Feature_cache.get(Feature.Enable_image_playlists))
@@ -370,7 +370,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 if ( !Guess_file_type.is_this_a_video_or_audio_file(owner,get_item_path(),logger))
                 {
                     logger.log("Item_button, opening audio file: " + get_item_path().toAbsolutePath());
-                    Audio_player.play_song_in_separate_process(get_item_path().toFile(),logger);
+                    Audio_player_access.play_song_in_separate_process(get_item_path().toFile(),logger);
                     return;
                 }
             }

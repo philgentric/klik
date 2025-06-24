@@ -3,7 +3,7 @@ package klik.experimental.image_playlist;
 import javafx.scene.layout.Background;
 import javafx.stage.Window;
 import klik.browser.Abstract_browser;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;

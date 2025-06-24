@@ -1,15 +1,13 @@
 package klik.audio;
 
-import javafx.scene.control.Button;
-
 import java.util.List;
 
 public interface Music_UI
 {
-    void add_song(Button song);
-    void add_songs(List<Button> songs);
+    void add_song(Song song);
+    void add_songs(List<Song> songs);
 
-    void remove_song(Button b);
+    void remove_song(Song b);
     void remove_all_songs();
     void scroll_to(String f);
     void set_status(String s);

@@ -117,12 +117,12 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static void set_look_and_feel(Look_and_feel_style style, int port, Window owner, Logger logger)
+    public static void set_look_and_feel(Look_and_feel_style style,  Window owner, Logger logger)
     //**********************************************************
     {
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         logger.log(("setting style = " + style.name()));
-        Feature_cache.update_string(Non_booleans.STYLE_KEY,style.name(),port,owner,logger);
+        Feature_cache.update_string(Non_booleans.STYLE_KEY,style.name(),owner,logger);
         reset();
     }
 
@@ -1003,7 +1003,7 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static Image get_sleeping_man_icon(Window owner, Logger logger)
+    public static Image get_the_end_icon(Window owner, Logger logger)
     //**********************************************************
     {
         Look_and_feel i = get_instance(owner,logger);

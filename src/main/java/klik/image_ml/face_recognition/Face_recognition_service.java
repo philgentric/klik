@@ -30,7 +30,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.image_ml.Feature_vector;
 import klik.util.files_and_paths.Guess_file_type;
@@ -69,19 +69,17 @@ public class Face_recognition_service
     long last_report;
     private static final int MAX_THREADS = 50;
     Window owner;
-    int port;
 
     //**********************************************************
-    private Face_recognition_service(String name, int port, Window owner,Logger logger)
+    private Face_recognition_service(String name, Window owner,Logger logger)
     //**********************************************************
     {
-        this.port = port;
         face_recognizer_name = name;
         this.owner = owner;
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(owner,logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
-        New_window_context.additional_no_past(port, face_recognizer_path,owner,logger);
+        New_window_context.additional_no_past( face_recognizer_path,owner,logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -91,22 +89,22 @@ public class Face_recognition_service
 
 
     //**********************************************************
-    public static Face_recognition_service get_instance(int port,Window owner,Logger logger)
+    public static Face_recognition_service get_instance(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( instance == null) start_new(port,owner,logger);
+        if ( instance == null) start_new(owner,logger);
         return instance;
     }
 
     //**********************************************************
-    public static void start_new(int port,Window owner, Logger logger)
+    public static void start_new(Window owner, Logger logger)
     //**********************************************************
     {
         Optional<String> localo = get_Face_recognition_model_name(owner,logger);
 
         if ( localo.isEmpty()) return;
 
-        instance = new Face_recognition_service(localo.get(), port,owner,logger);
+        instance = new Face_recognition_service(localo.get(), owner,logger);
         instance.load_internal();
     }
 
@@ -118,11 +116,11 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void load(int port,Window owner, Logger logger)
+    public static void load(Window owner, Logger logger)
     //**********************************************************
     {
         if ( instance != null) instance.load_internal();
-        else start_new(port,owner,logger);
+        else start_new(owner,logger);
     }
 
 
@@ -158,19 +156,19 @@ public class Face_recognition_service
     }
 
     //**********************************************************
-    public static void auto(Path displayed_folder_path, int port,Window owner,Logger logger)
+    public static void auto(Path displayed_folder_path, Window owner,Logger logger)
     //**********************************************************
     {
-        Face_recognition_service fr = Face_recognition_service.get_instance(port,owner,logger);
+        Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
         Actor_engine.execute(() -> fr.auto_internal(displayed_folder_path, logger), fr.logger);
     }
 
 
     //**********************************************************
-    public static void self(int port,Window owner, Logger logger)
+    public static void self(Window owner, Logger logger)
     //**********************************************************
     {
-        Face_recognition_service fr = Face_recognition_service.get_instance(port,owner,logger);
+        Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
         Actor_engine.execute(fr::self_internal, logger);
     }
 
@@ -475,7 +473,7 @@ public class Face_recognition_service
                 ComboBox<String> comboBox = new ComboBox<>();
                 if (eval_result != null) comboBox.setDisable(!eval_result.adding());
 
-                comboBox.getItems().addAll(Face_recognition_service.get_instance(port,stage,logger).get_prototype_labels());
+                comboBox.getItems().addAll(Face_recognition_service.get_instance(stage,logger).get_prototype_labels());
                 if (eval_result != null) {
                     if (eval_result.label() != null) {
                         comboBox.setValue(eval_result.label());

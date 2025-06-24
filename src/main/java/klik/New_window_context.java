@@ -1,10 +1,9 @@
-package klik.browser;
+package klik;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import klik.Window_provider;
 import klik.browser.classic.Browser;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Shutdown_target;
@@ -20,19 +19,17 @@ public class New_window_context
     public final Path target_path; // this can be an absolute folder path or a image play list FILE  path
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
-    public final int port;
     public final Window originator;
 
     //**********************************************************
     private New_window_context(
-            int port,
             Path target,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target,
             Window originator)
     //**********************************************************
     {
-        this.port = port;
+        //this.wtf_port = port;
         this.rectangle = rectangle;
         this.shutdown_target = shutdown_target;
         this.target_path = target;
@@ -49,11 +46,10 @@ public class New_window_context
 
 
     //**********************************************************
-    public static Window_provider additional_no_past(int port, Path new_path, Window originator, Logger logger)
+    public static Window_provider additional_no_past(Path new_path, Window originator, Logger logger)
     //**********************************************************
     {
         New_window_context context = new New_window_context(
-                port,
                 new_path,
                 null,
                 null,
@@ -64,7 +60,7 @@ public class New_window_context
 
     //**********************************************************
     public static void additional_same_folder(
-            int port,
+            //int port,
             Path new_and_old_path,
             Path top_left,
             Window originator,
@@ -77,7 +73,7 @@ public class New_window_context
         Rectangle2D rectangle = new Rectangle2D(originator.getX()+100,originator.getY()+100,originator.getWidth()-100,originator.getHeight()-100);
 
         New_window_context context =  new New_window_context(
-                port,
+                //port,
                 new_and_old_path,
                 rectangle,
                 null,
@@ -89,30 +85,34 @@ public class New_window_context
 
     //**********************************************************
     public static void additional_same_folder_fat_tall(
-            int port,
+            //int port,
             Path new_and_old_path,
             Path top_left,
             Window originator,
             Logger logger)
     //**********************************************************
     {
-        additional_same_folder_ratio(port,new_and_old_path,5,top_left,originator ,logger);
+        additional_same_folder_ratio(
+                //port,
+                new_and_old_path,5,top_left,originator ,logger);
 
     }
     //**********************************************************
     public static void additional_same_folder_twin(
-            int port,
+            //int port,
             Path new_and_old_path,
             Path top_left,
             Window originator,
             Logger logger)
     //**********************************************************
     {
-        additional_same_folder_ratio(port,new_and_old_path,2,top_left,originator,logger);
+        additional_same_folder_ratio(
+                //port,
+                new_and_old_path,2,top_left,originator,logger);
     }
     //**********************************************************
     public static void additional_same_folder_ratio(
-            int port,
+            //int port,
             Path new_and_old_path,
             int ratio,
             Path top_left,
@@ -143,7 +143,7 @@ public class New_window_context
         rectangle = new Rectangle2D(rectangle.getMinX()+w_fat, rectangle.getMinY(), w2, h);
 
         New_window_context context = new New_window_context(
-                port,
+                //port,
                 new_and_old_path,
                 rectangle,
                 null,
@@ -178,7 +178,7 @@ public class New_window_context
 
     //**********************************************************
     public static void replace_same_folder(
-            int port,
+            //int port,
             Shutdown_target shutdown_target,
             Path old_and_new_path,
             Path top_left,
@@ -190,7 +190,7 @@ public class New_window_context
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
-                port,
+                //port,
                 old_and_new_path,
                 rectangle,
                 shutdown_target,
@@ -201,7 +201,6 @@ public class New_window_context
 
     //**********************************************************
     public static void replace_different_folder(
-            int port,
             Shutdown_target shutdown_target,
             Path new_path,
             Window originator,
@@ -211,7 +210,7 @@ public class New_window_context
         logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
-                port,
+                //port,
                 new_path,
                 rectangle,
                 shutdown_target,

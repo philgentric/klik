@@ -77,7 +77,6 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             Top_left_provider top_left_provider,
-            int port,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -96,7 +95,6 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 path_list_provider,
                 path_comparator_source,
                 top_left_provider,
-                port,
                 owner,
                 aborter,
                 logger);

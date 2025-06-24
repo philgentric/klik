@@ -4,13 +4,15 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -30,8 +32,11 @@ import klik.util.ui.Hourglass;
 import klik.util.ui.Show_running_film_frame;
 
 import javax.swing.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -70,8 +75,6 @@ public class Audio_player_FX_UI implements Music_UI
 
     double volume = 0.5;
     double balance = 0.0;
-
-    //Browser browser = null;
 
     String pause_string;
     String play_string;
@@ -219,7 +222,13 @@ public class Audio_player_FX_UI implements Music_UI
             HBox.setHgrow(spacer, Priority.ALWAYS);
             returned.getChildren().add(spacer);
         }
+        {
 
+            Button search = new Button(My_I18n.get_I18n_string("Search",stage,logger));
+            Look_and_feel_manager.set_button_look(search,true,stage,logger);
+            returned.getChildren().add(search);
+            search.setOnAction(actionEvent -> playlist.search());
+        }
         {
             Region spacer = new Region();
             Look_and_feel_manager.set_region_look(spacer,stage,logger);
@@ -511,8 +520,6 @@ public class Audio_player_FX_UI implements Music_UI
     }
 
 
-
-
     //**********************************************************
     private ScrollPane define_scrollpane_with_songs()
     //**********************************************************
@@ -545,7 +552,36 @@ public class Audio_player_FX_UI implements Music_UI
         scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll_pane.setPrefHeight(3000);
 
+        scroll_pane.setOnScroll((ScrollEvent scrollEvent) -> process_scroll());
+
         return scroll_pane;
+    }
+
+    //**********************************************************
+    private void process_scroll()
+    //**********************************************************
+    {
+        Bounds scrollPaneBounds = scroll_pane.localToScene(scroll_pane.getBoundsInLocal());
+
+        for ( Song s : playlist.path_to_Song.values())
+        {
+            Bounds node_Bounds = s.node().localToScene(s.node().getBoundsInLocal());
+
+            boolean isVisible =
+                    node_Bounds.getMaxY() >= scrollPaneBounds.getMinY() &&
+                            node_Bounds.getMinY() <= scrollPaneBounds.getMaxY() &&
+                            node_Bounds.getMaxX() >= scrollPaneBounds.getMinX() &&
+                            node_Bounds.getMinX() <= scrollPaneBounds.getMaxX();
+            if ( isVisible)
+            {
+
+                s.process_visible(playlist,stage,logger);
+            }
+            else
+            {
+                s.process_invisible(logger);
+            }
+        }
     }
 
     //**********************************************************
@@ -866,29 +902,35 @@ public class Audio_player_FX_UI implements Music_UI
 
     //**********************************************************
     @Override
-    public void add_song(Button song)
+    public void add_song(Song song)
     //**********************************************************
     {
-        Runnable r = () -> the_vertical_box.getChildren().add(song);
+        Runnable r = () -> the_vertical_box.getChildren().add(song.node());
         Platform.runLater(r);
     }
 
 
     //**********************************************************
     @Override
-    public void add_songs(List<Button> songs)
+    public void add_songs(List<Song> songs)
     //**********************************************************
     {
-        Runnable r = () -> the_vertical_box.getChildren().addAll(songs);
+        Runnable r = () ->
+        {
+            for ( Song s : songs)
+            {
+                the_vertical_box.getChildren().add(s.node());
+            }
+        };
         Platform.runLater(r);
     }
 
     //**********************************************************
     @Override
-    public void remove_song(Button b)
+    public void remove_song(Song song)
     //**********************************************************
     {
-        Runnable r = () -> the_vertical_box.getChildren().remove(b);
+        Runnable r = () -> the_vertical_box.getChildren().remove(song.node());
         Platform.runLater(r);
     }
 
@@ -1143,6 +1185,7 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         playlist.init();
+        Platform.runLater(()->process_scroll());
     }
 
     //**********************************************************

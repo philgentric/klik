@@ -1,7 +1,9 @@
 //SOURCES ../audio/Audio_player_FX_UI.java
 package klik.properties;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
@@ -112,7 +114,77 @@ public class Non_booleans
         if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
 
-        return new Rectangle2D(x, y, w, h);
+        Rectangle2D target = new Rectangle2D(x, y, w, h);
+        // before returning this rectangle, let us check if there is a screen that contains this rectangle
+
+        ObservableList<Screen> all_screens = Screen.getScreens();
+        for ( Screen s : all_screens)
+        {
+            Rectangle2D screen_bounds = s.getVisualBounds();
+            if ( screen_bounds.getMinX() > target.getMinX())
+            {
+                System.out.println("from file minX not ok: "+screen_bounds.getMinX() +">"+ target.getMinX());
+                continue;
+            }
+            else
+            {
+                System.out.println("from file minX ok: "+screen_bounds.getMinX() +"<="+ target.getMinX());
+            }
+            if ( screen_bounds.getMaxX() < target.getMaxX())
+            {
+                System.out.println("from file maxX not ok: "+screen_bounds.getMaxX() +"<"+ target.getMaxX());
+                continue;
+            }
+            else
+            {
+                System.out.println("from file maxX ok: "+screen_bounds.getMaxX() +">="+ target.getMaxX());
+            }
+
+            if ( screen_bounds.getMinY() > target.getMinY())
+            {
+                System.out.println("from file minY not ok: "+screen_bounds.getMinY() +">"+ target.getMinY());
+                continue;
+            }
+            else
+            {
+                System.out.println("from file minY ok: "+screen_bounds.getMinY() +"<="+ target.getMinY());
+            }
+            if ( screen_bounds.getMaxY() < target.getMaxY())
+            {
+                System.out.println("from file maxY not ok: "+screen_bounds.getMaxY() +"<"+ target.getMaxY());
+                continue;
+            }
+            else
+            {
+                System.out.println("from file maxY ok: "+screen_bounds.getMaxY() +">="+ target.getMaxY());
+            }
+
+
+
+            System.out.println(" from file  bounds " + target + " are within screen bounds " + screen_bounds);
+            return target; // the stage bounds are inside this screen, so we can return the target rectangle
+
+        }
+
+
+
+
+        // if we arrive here, the bounds are not valid, so we need to compute the bounds based on the current stage
+
+
+
+        System.out.println("WARNING: from file  bounds " + target  + " do not fit with any screen, changing the target");
+
+        // use the first screen available (e.g. the main screen, the laptop screen, etc.)
+        for ( Screen s : all_screens)
+        {
+            System.out.println("forcing screen bounds to: " + s.getVisualBounds());
+            return s.getVisualBounds();
+        }
+        // normally never happens?
+        System.out.println("SHOULD NOT HAPPEN: no screen found, using default rectangle");
+        return new Rectangle2D(0,0,800,600); // default rectangle
+
     }
 
     //**********************************************************
@@ -310,13 +382,6 @@ public class Non_booleans
         return s;
     }
 
-    //**********************************************************
-    public static void set_language_key(String s, Window owner)
-    //**********************************************************
-    {
-        get_main_properties_manager(owner).set(LANGUAGE_KEY, s);
-
-    }
 
 
     public static void force_reload_from_disk(Window owner) {

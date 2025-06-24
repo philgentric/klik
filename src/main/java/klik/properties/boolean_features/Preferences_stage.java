@@ -45,7 +45,8 @@ public class Preferences_stage
             Feature.Show_file_names_as_tooltips,
             Feature.Reload_last_folder_on_startup,
             Feature.Dont_zoom_small_images,
-            Feature.Use_escape_to_close_windows
+            Feature.Use_escape_to_close_windows,
+            Feature.Hide_beginners_text_on_images
     };
 
     public static final Feature[] debugging_features ={
@@ -76,6 +77,13 @@ public class Preferences_stage
             return;
         }
         instance = new Preferences_stage(title,owner,logger);
+    }
+
+    //**********************************************************
+    public static void reset()
+    //**********************************************************
+    {
+        instance = null;
     }
 
     //**********************************************************

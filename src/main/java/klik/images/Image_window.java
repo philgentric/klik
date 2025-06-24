@@ -81,19 +81,18 @@ public class Image_window
     Path_list_provider path_list_provider;
     public Path_comparator_source path_comparator_source;
 
-    public final int port;
 
     //**********************************************************
-    public static Image_window get_Image_window(int port, Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
+    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_window returned = on_same_screen(port, path, path_list_provider,image_comparator,owner,aborter,logger_);
+        Image_window returned = on_same_screen(path, path_list_provider,image_comparator,owner,aborter,logger_);
 
         return returned;
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(int port,Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Window owner,Aborter aborter, Logger logger_)
+    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Window owner,Aborter aborter, Logger logger_)
     //**********************************************************
     {
 
@@ -103,7 +102,8 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Image_window returned = new Image_window(port, path, null,x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
+
+        Image_window returned = new Image_window(path, null,x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
         returned.the_Stage.setX(x);
         returned.the_Stage.setY(y);
         return returned;
@@ -112,7 +112,6 @@ public class Image_window
 
     //**********************************************************
     public Image_window(
-            int port,
             Path first_image_path,
             Window owner, // is null for 'big girl' windows
             double x, double y,
@@ -125,7 +124,6 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
-        this.port = port;
         this.aborter = aborter;
         this. path_list_provider = path_list_provider;
         this.title_optional_addendum = title_optional_addendum;
@@ -142,20 +140,22 @@ public class Image_window
 
 
         if ( owner == null) {
-            String text = My_I18n.get_I18n_string("Image_window_info", owner,logger);
-            text = text.replaceAll(",", "\n");
-            the_info_label = new Label(text);
-            the_info_label.setMaxWidth(400);
-            the_info_label.setWrapText(true);
-            StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
+            if (!Feature_cache.get(Feature.Hide_beginners_text_on_images)) {
+                String text = My_I18n.get_I18n_string("Image_window_info", owner, logger);
+                text = text.replaceAll(",", "\n");
+                the_info_label = new Label(text);
+                the_info_label.setMaxWidth(400);
+                the_info_label.setWrapText(true);
+                StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
 /*        info_button = new Button("Info");
         Look_and_feel_manager.set_button_look(info_button,true,logger);
         info_button.setOnAction(event -> {
             the_image_Pane.getChildren().add(the_info_label);
         });
         StackPane.setAlignment(info_button, Pos.BOTTOM_LEFT);
-*/        }
-
+*/
+            }
+        }
 
         Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if ( tmp == null)
@@ -206,11 +206,11 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
             long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, the_Stage,x + 100, y + 100, port,aborter, logger);
+            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, the_Stage,x + 100, y + 100, aborter, logger);
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, port,the_Stage,aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, the_Stage,aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -669,7 +669,7 @@ public class Image_window
 
         // set the new context: keep the previous path so that multiple renames can be performed
         // and the indexer will find the right "unchanged" index
-        Image_context local_new_image_context = new Image_context(new_path, old_path, image_display_handler.get_image_context().get().image, port, logger);
+        Image_context local_new_image_context = new Image_context(new_path, old_path, image_display_handler.get_image_context().get().image, logger);
         logger.log("change_name_of_file local_new_image_context\n      previous="+local_new_image_context.previous_path+"\n      path="+local_new_image_context.previous_path);
         image_display_handler.set_image_context(local_new_image_context);
 

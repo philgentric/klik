@@ -51,7 +51,7 @@ public class Image_viewer_application extends Application
 
         //Browser browser = New_window_context.first(path.getParent().toString(),logger);
         //browser.my_Stage.the_Stage.hide();
-        Image_window image_stage = Image_window.get_Image_window(-1,path, new Folder_path_list_provider(path.getParent()), Optional.empty(),stage,aborter,logger);
+        Image_window image_stage = Image_window.get_Image_window(path, new Folder_path_list_provider(path.getParent()), Optional.empty(),stage,aborter,logger);
     }
 }
 

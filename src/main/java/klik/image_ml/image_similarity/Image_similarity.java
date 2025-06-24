@@ -46,19 +46,16 @@ public class Image_similarity implements Clearable_RAM_cache
     public final Aborter aborter;
 
     private boolean show_vector_differences;
-    int port;
 
     //**********************************************************
     public Image_similarity(
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             double x, double y,
-            int port,
             Window owner,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
-        this.port = port;
         this.path_list_provider = path_list_provider;
         this.path_comparator_source = path_comparator_source;
         this.logger = logger;
@@ -168,7 +165,7 @@ public class Image_similarity implements Clearable_RAM_cache
     //**********************************************************
     {
         String s = String.format("%.4f",ms.similarity());
-        Image_window returned = new Image_window(port,
+        Image_window returned = new Image_window(
                 ms.path(), owner, x, y, W, H, s, false,path_list_provider,
                 Optional.of(path_comparator_source.get_path_comparator()),
                 new Aborter("dummy34",logger),logger);

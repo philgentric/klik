@@ -43,7 +43,6 @@ public class Deduplication_engine implements Againor, Abortable
     private final Window owner;
     Logger logger;
     BlockingQueue<File_pair_deduplication> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
-    //int n_threads;
     AtomicInteger threads_in_flight = new AtomicInteger(0);
     AtomicInteger duplicates_found = new AtomicInteger(0);
     File target_dir;

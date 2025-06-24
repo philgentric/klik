@@ -1,6 +1,7 @@
 package klik.properties.boolean_features;
 
 import javafx.stage.Window;
+import klik.Klik_application;
 import klik.Launcher;
 import klik.actor.Actor_engine;
 import klik.properties.Non_booleans;
@@ -130,21 +131,13 @@ public class Feature_cache
     }
 
     //**********************************************************
-    public static void update_string(String key, String new_value, int port, Window owner,Logger logger)
+    public static void update_string(String key, String new_value, Window owner,Logger logger)
     //**********************************************************
     {
-        if ( key.equals(Non_booleans.LANGUAGE_KEY))
-        {
-            System.out.println("Feature_cache Non_booleans.set_language_key("+new_value+")");
-            Non_booleans.set_language_key(new_value,owner);
-            send_language_changed(Launcher.UI_CHANGED,new_value,port, logger);
-        }
-        else if ( key.equals(Non_booleans.STYLE_KEY))
-        {
-            System.out.println("Feature_cache Non_booleans.set_style_key("+new_value+")");
-            Non_booleans.get_main_properties_manager(owner).set(Non_booleans.STYLE_KEY, new_value);
-            send_language_changed(Launcher.UI_CHANGED,new_value,port, logger);
-        }
+        Preferences_stage.reset();
+        System.out.println("Feature_cache: "+key+"=>"+new_value);
+        Non_booleans.get_main_properties_manager(owner).set(key, new_value);
+        send_UI_changed(Launcher.UI_CHANGED,new_value, logger);
         List<String_change_target> l = string_registered_for.get(key);
         if ( l == null) return;
         List<String_change_target> tmp_copy = new ArrayList<>(l); // avoid problems when update_config_string triggers the creation of new Virtaul_landscape, which registers...
@@ -153,13 +146,11 @@ public class Feature_cache
 
 
     //**********************************************************
-    public static void send_language_changed(String msg, String new_lang,int port_number, Logger logger)
+    public static void send_UI_changed(String msg, String new_lang, Logger logger)
     //**********************************************************
     {
-        if(port_number<0) return;
-        logger.log("sending "+msg+" on port: "+port_number);
-        Runnable r = () -> TCP_client.request("localhost", port_number, msg+" "+new_lang, logger);
-        Actor_engine.execute(r, logger);
+        logger.log("\n\nFeature_cache::sending "+msg+" on port 'ui_change_report_port_at_launcher': "+ Klik_application.ui_change_report_port_at_launcher);
+        TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, msg+" "+new_lang, logger);
     }
 
 }

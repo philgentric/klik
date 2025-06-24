@@ -1,25 +1,37 @@
 package klik;
 
 import javafx.application.Application;
-import klik.actor.Actor_engine;
-import klik.properties.Non_booleans;
-import klik.util.log.Logger;
-import klik.util.tcp.TCP_client;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //**********************************************************
-public record Start_context(List<String> args, int port, Path path)
+public record Start_context(List<String> args, String bet_full)
 //**********************************************************
 {
-    private static boolean dbg = false;
-    // 3 cases
-    // no args
-    // args[0] is String (typically a path designating the content) ... and more strings could follow
-    // args[0] is Integer (typically the port on which to reply "started" ... and more strings could follow
+    private static boolean dbg = true;
+
+    //**********************************************************
+    private Map<String, String> parse_arguments(String args)
+    //**********************************************************
+    {
+        Map<String, String> parsed = new HashMap<>();
+        if (args == null || args.trim().isEmpty()) return parsed;
+
+        String[] pairs = args.trim().split("\\s+");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=", 2);
+            if (keyValue.length == 2) {
+                parsed.put(keyValue[0], keyValue[1]);
+            }
+        }
+        return parsed;
+    }
+
     //**********************************************************
     public static Start_context get_context_and_args(Application application)
     //**********************************************************
@@ -27,24 +39,32 @@ public record Start_context(List<String> args, int port, Path path)
         Application.Parameters params = application.getParameters();
         List<String> raw_args = params.getRaw();
         List<String> args = new ArrayList<>();
-        int port = -1;
-        Path path = null;
-        if (raw_args.isEmpty())
+        String bet_full = null;
+        for(String s : raw_args)
         {
-            path = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
-        }
-        else {
-
-            try {
-                port = Integer.parseInt(raw_args.get(0));
-            } catch (NumberFormatException e) {
-                // first arg is not a int, must be a path
-                path = Path.of(raw_args.get(0));
+            if (s.contains(" "))
+            {
+                bet_full = s;
+                if (dbg) System.out.println("Warning: argument contains spaces ->" + s+"<-");
+                String pieces[] = s.split("\\s+");
+                for ( String piece : pieces )
+                {
+                    if ( !piece.isBlank() )
+                    {
+                        if (dbg) System.out.println("argument ->" + piece+"<-");
+                        args.add(piece);
+                    }
+                }
             }
-            for (int i = 1; i < raw_args.size(); i++) args.add(raw_args.get(i));
+            else
+            {
+                if (dbg) System.out.println("argument  ->" + s+"<-");
+                args.add(s);
+            }
         }
 
-        Start_context returned = new Start_context(args, port, path);
+
+        Start_context returned = new Start_context(args,bet_full);
 
         if ( dbg ) returned.print();
         return returned;
@@ -54,28 +74,77 @@ public record Start_context(List<String> args, int port, Path path)
     private void print()
     //**********************************************************
     {
-        System.out.println("==== Start_context ====\n   path = "+path());
-        System.out.println("   port = " + port());
-        System.out.println("   other args = " + args().size());
+        System.out.println("======================= ");
+        System.out.println(" NB args = " + args().size());
         for ( String s : args() ) System.out.println("        "+s);
         System.out.println("======================= ");
     }
 
     //**********************************************************
-    public static void send_started(Start_context context, Logger logger)
+    public Path extract_path()
     //**********************************************************
     {
-        if(context.port()<0) return;
-        Runnable r = () -> send_started_raw(context.port(), logger);
-        Actor_engine.execute(r, logger);
+        // the chalenge is to support
+        //Warning: argument contains spaces ->/Users/philippegentric/Desktop/help/misc/not_dangerous/valuable/Music/PG_music_oldies/Queen Greatests Hits<-
+        if ( args().isEmpty() ) return null;
+
+        // the name may contain spaces AND integers...
+        ///  the only reliable way is to check if the file/folder exists
+
+        File f = new File(bet_full);
+        if (f.exists() && f.isDirectory()) {
+            // first arg is a path
+            return f.toPath();
+        }
+        // or try the last arg
+        String lastArg = args().get(args().size() - 1);
+        f = new File(lastArg);
+        if (f.exists() && f.isDirectory()) {
+            // last arg is a path
+            return f.toPath();
+        }
+        return null;
     }
 
     //**********************************************************
-    public static void send_started_raw(int port_number, Logger logger)
+    public Integer extract_reply_port()
     //**********************************************************
     {
-        if(port_number<0) return;
-        TCP_client.request("localhost", port_number, Launcher.STARTED, logger);
+        if ( args().size() < 1)
+        {
+            System.out.println("no reply port looking at ->" + args()+"<-");
+            return null;
+        }
+        String arg = args().get(0);
+        try {
+            return Integer.parseInt(arg);
+        }
+        catch (NumberFormatException e)
+        {
+
+        }
+        System.out.println("no reply port found in ->" + args()+"<-");
+        return null;
     }
+
+    public Integer extract_ui_change_report_port()
+    {
+        if ( args().size() < 2)
+        {
+            System.out.println("no change port looking at ->" + args()+"<-");
+            return null;
+        }
+        String arg = args().get(1);
+        try {
+            return Integer.parseInt(arg);
+        }
+        catch (NumberFormatException e)
+        {
+
+        }
+        System.out.println("no reply port found in ->" + args()+"<-");
+        return null;
+    }
+
 
 }

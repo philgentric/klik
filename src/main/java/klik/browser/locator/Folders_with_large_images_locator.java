@@ -4,7 +4,7 @@ package klik.browser.locator;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.util.files_and_paths.*;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
@@ -40,27 +40,25 @@ public class Folders_with_large_images_locator
 
     private final Aborter private_aborter;
     private Monitor monitor = null;
-    final int port;
 
     //**********************************************************
     public static void locate(Path top, int minimum_count, int min_bytes, 
-                              Window owner, int port,
+                              Window owner,
                               Aborter aborter,
                               Logger logger)
     //**********************************************************
     {
-        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, owner,port,aborter,logger);
+        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, owner,aborter,logger);
         instance.search();
     }
 
 
     //**********************************************************
     private Folders_with_large_images_locator(Path top, int minimum_count, int min_bytes, 
-                                              Window owner, int port, Aborter aborter,
+                                              Window owner, Aborter aborter,
                                               Logger logger)
     //**********************************************************
     {
-        this.port = port;
         this.top = top;
         this.minimum_count = minimum_count;
         this.min_bytes = min_bytes;
@@ -388,7 +386,7 @@ public class Folders_with_large_images_locator
             {
                 String final_S = s;
                 Jfx_batch_injector.inject(()-> New_window_context.additional_no_past(
-                        port, key_to_path(final_S),
+                        key_to_path(final_S),
                         owner,
                         logger),logger);
                 count++;

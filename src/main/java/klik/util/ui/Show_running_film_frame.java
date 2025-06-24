@@ -140,7 +140,7 @@ public class Show_running_film_frame implements Hourglass
 		if ( sleep_time > 1000) sleep_time = 1000;
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(message);//My_I18n.get_I18n_string("Search_Results_Ended", logger));
-			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(owner,logger));
+			iv.setImage(Look_and_feel_manager.get_the_end_icon(owner,logger));
 		},logger);
 
 		if ( sleep) {
