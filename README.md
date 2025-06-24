@@ -50,16 +50,19 @@ and enables you to move files from folder to folder.
 
 # Safety
 
-Klik never deletes a file without asking you for confirmation.
-In Klik, "delete" actually means moving the file into the (klik) "trash" folder (down in .klik)
-There are 3 ways to recover a deleted file or folder: (1) use the undo menu item (2) visit the "trash" folder using klik (3) using the trash folder in .klik using your favorite file manager.
+Klik features a crash-resistant undo capability: actions are stored in a file allowing to undo any action, even after a crash, even for multiple files or folder.
+
+Klik never deletes a file without asking you for confirmation. In Klik, "delete" actually means moving the file into the (klik) "trash" folder (down in .klik)
+
+There are 3 ways to recover a deleted or accidentally moved (moved,but you did not know where) file or folder: (1) use the undo menu item (2) visit the "trash" folder using klik (3) visit the trash folder using your favorite file manager.
 Only clearing the "trash" folder is final, and you will be asked for confirmation.
 If you move a file into a folder where there is already a file with the same name, it is renamed with a postfix.
 When you have duplicates and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the trash folder.
 
+
 # Numerous formats supported
 
-Klik supports all major image & video file formats, as well a PDF (for icons).
+Klik supports all major image & video file formats, as well a PDF (for icons). (also broad format support for the music player)
 
 Klik browser window display icons for still images, animated gifs are displayed animated, PDF documents are displayed as a icon-size image of the first page, movies are displayed as a few second of animated gif (this feature requires to have ffmpeg installed).
 
@@ -74,11 +77,12 @@ Klik relies on your default system applications for:
 
 # Windows
 
-Klik has 2 types of windows: "Browser" and "Image".
+The Launcher can start either the music player (only one music player can exist at a time) or a "Browser" window.
+
+Klik/browser has 2 types of windows: "Browser" and "Image".
 
 You can open as many windows as you want, the limit is your machine's RAM.
 
-(Klik also includes a music player, single instance/window.)
 
 ## Browser Windows = displays the content of a folder
 
@@ -155,9 +159,9 @@ You can easily rename things (folders and files). In Image mode type "r".
 
 Klik remembers all settings (in a human-readable file called klik_properties.txt).
 
-Klik tells you how many files, folders and pictures a folder contains.
+Klik tells you how many files, folders and pictures a folder contains, as well as the size on disk.
 
-Klik displays file name and pixel sizes in the title of "Image" windows.
+Klik displays file names and pixel sizes in the title of "Image" windows.
 
 You can sort folders in many different ways:
 - by name (alphabetically)
@@ -170,17 +174,13 @@ You can sort folders in many different ways:
 - mix of aspect ratio & random
 - image similarity (this option requires a computer with a GPU)
 
-You can visualise how much room a folder takes on disk (folder size = everything including all sub-folder's content).
-
-Klik history remembers the folders you visited.
-
-Klik history can be cleared (and it effectively erases forever the history).
+Klik history remembers the folders you visited in its 'history', that you can clear at any time (and it effectively erases forever the history).
 
 Klik uses system defaults to open files: you can play music, open sheets etc.
 
 Klik uses system defaults to edit files: you can start the system-configured default editor for anything, from Klik, or an application of your choice
 
-You can see the FULL metadata of the pictures; including EXIF, etc
+You can see the full metadata of the pictures; including EXIF, etc
 
 Search: You can find files/images by keywords (it looks for your keywords in file names).
 

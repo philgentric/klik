@@ -25,7 +25,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.audio.Audio_info_frame;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -91,11 +91,9 @@ public abstract class Item implements Icon_destination
     // not final because renaming a folder requires to change the path_list_provider
     // this is ok as long as there is no other browser open on that folder: the change_gang manages this
 
-    protected final int port;
 
     //**********************************************************
     public Item(
-            int port,
             Scene scene,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
@@ -106,7 +104,6 @@ public abstract class Item implements Icon_destination
             Logger logger)
     //**********************************************************
     {
-        this.port = port;
         this.path_list_provider = path_list_provider;
         this.aborter = aborter;
         this.scene = scene;
@@ -324,7 +321,7 @@ public abstract class Item implements Icon_destination
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
 
-            New_window_context.additional_no_past(port, get_item_path().getParent(),owner,logger);
+            New_window_context.additional_no_past(get_item_path().getParent(),owner,logger);
         });
         return browse;
     }
@@ -362,6 +359,7 @@ public abstract class Item implements Icon_destination
             if (dbg) logger.log("copying!");
 
             Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,get_item_path(),logger);
+            if ( new_path == null) return;
             try
             {
                 Files.copy(get_item_path(), new_path);

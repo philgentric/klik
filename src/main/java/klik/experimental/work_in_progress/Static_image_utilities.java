@@ -37,12 +37,12 @@ public class Static_image_utilities
         {
             javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300,owner,logger_);
 
-            return Optional.of(new Image_context(path_,path_, broken,-1,logger_));
+            return Optional.of(new Image_context(path_,path_, broken,logger_));
         }
         logger_.log("using alternate rescaling");
 
         WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,(int)width,true,logger_);
-        return Optional.of(new Image_context(path_,path_,resized_image,-1,logger_));
+        return Optional.of(new Image_context(path_,path_,resized_image,logger_));
     }
     //**********************************************************
     public static WritableImage transform_with_alternate_rescaler(

@@ -18,8 +18,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.audio.Audio_player;
+import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -102,7 +103,6 @@ public class Results_frame
 
 	//**********************************************************
 	private void make_one_button(
-			int port,
 			Window owner,
 			String key, boolean is_max, Path path)
 	//**********************************************************
@@ -127,13 +127,12 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				New_window_context.additional_no_past(port, path,owner,logger);
+				New_window_context.additional_no_past(path,owner,logger);
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
 				Item_file_with_icon.open_an_image(
 						true,
-						port,
 						path_list_provider,
 						path_comparator_source,
 						path,
@@ -142,7 +141,7 @@ public class Results_frame
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
-				Audio_player.play_song_in_separate_process(path.toFile(), logger);
+				Audio_player_access.play_song_in_separate_process(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
 				Text_frame.show(path, path_comparator_source);
@@ -161,7 +160,7 @@ public class Results_frame
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			New_window_context.additional_no_past(port, local,owner,logger);
+			New_window_context.additional_no_past(local,owner,logger);
 		});
 		context_menu.getItems().add(browse);
 
@@ -216,7 +215,7 @@ public class Results_frame
 
 
 	//**********************************************************
-	public void inject_search_results(Search_result sr, String keys, boolean is_max, Window window, int port)
+	public void inject_search_results(Search_result sr, String keys, boolean is_max, Window window)
 	//**********************************************************
 	{
 		if ( search_results == null) search_results = new HashMap<>();
@@ -224,7 +223,7 @@ public class Results_frame
 
         path_set.add(sr.path());
 
-		Jfx_batch_injector.inject(() -> make_one_button(port, window, keys, is_max, sr.path()),logger);
+		Jfx_batch_injector.inject(() -> make_one_button(window, keys, is_max, sr.path()),logger);
 
 	}
 
@@ -236,7 +235,7 @@ public class Results_frame
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", stage,logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
-			iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(stage,logger));
+			iv.setImage(Look_and_feel_manager.get_the_end_icon(stage,logger));
 
 			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
 			all_results.sort((o1, o2) -> {

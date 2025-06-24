@@ -1,11 +1,9 @@
 package klik.images;
 
-import javafx.animation.PauseTransition;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import javafx.util.Duration;
-import klik.browser.New_window_context;
+import klik.New_window_context;
 import klik.experimental.metadata.Tag_stage;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
@@ -119,7 +117,7 @@ public class Keyboard_handling_for_Image_window
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
                 New_window_context.additional_no_past(
-                        image_window.port, image_window.image_display_handler.get_image_context().get().path.getParent(),
+                         image_window.image_display_handler.get_image_context().get().path.getParent(),
                         owner,logger);
                 key_event.consume();
                 return;
@@ -180,7 +178,6 @@ public class Keyboard_handling_for_Image_window
                 image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                         image_window.path_list_provider,
                         image_window.path_comparator_source,
-                        image_window.port,
                         image_window.aborter);
                 key_event.consume();
                 return;

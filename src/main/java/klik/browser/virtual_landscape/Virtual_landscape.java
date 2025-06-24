@@ -24,6 +24,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.New_window_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -153,11 +154,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     public final Browsing_caches browsing_caches;
     private Image_feature_vector_cache fv_cache;
-    final int port;
 
     //**********************************************************
     public Virtual_landscape(
-            int port,
             Path_list_provider path_list_provider,
             Window owner,
             Shutdown_target shutdown_target,
@@ -168,7 +167,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Logger logger)
     //**********************************************************
     {
-        this.port = port;
         this.full_screen_handler = full_screen_handler;
         this.title_target = title_target;
         this.shutdown_target = shutdown_target;
@@ -228,11 +226,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         logger.log("virtual_landscape receiving update_config_string key="+key+" val="+new_value);
         if ( key.equals(Non_booleans.LANGUAGE_KEY))
         {
-            New_window_context.replace_same_folder(port,shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
+            New_window_context.replace_same_folder(shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
         }
         else if ( key.equals(Non_booleans.STYLE_KEY))
         {
-            New_window_context.replace_same_folder(port,shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
+            New_window_context.replace_same_folder(shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
         }
     }
 
@@ -752,7 +750,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                             path_list_provider,
                             this,
                             this,
-                            port,
                             owner,
                             aborter,
                             logger);
@@ -806,7 +803,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     path,
                     path_list_provider,
                     this,
-                    port,
+                    
                     owner,
                     aborter,
                     logger);
@@ -873,7 +870,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         path_list_provider,
                         this,
                         this,
-                        port,
+                        
                         owner,
                         aborter,
                         logger);
@@ -1007,7 +1004,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     new Folder_path_list_provider(folder_path),
                     this,
                     this,
-                    port,
                     aborter,
                     logger);
             all_items_map.put(folder_path, folder_item);
@@ -1080,7 +1076,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     new Folder_path_list_provider(folder_path),
                     this,
                     this,
-                    port,
+                    
                     owner,
                     aborter,
                     logger);
@@ -1855,9 +1851,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Look_and_feel_manager.set_context_menu_look(view_menu,owner,logger);
 
         Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(port,path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(port,path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(port,path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
+        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
 
 
         {
@@ -2023,7 +2019,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         Path top = path_list_provider.get_folder_path();
-        Folders_with_large_images_locator.locate(top, 10, 200_000, owner,port,aborter, logger);
+        Folders_with_large_images_locator.locate(top, 10, 200_000, owner, aborter, logger);
     }
 
 
@@ -2213,7 +2209,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 given,
                 false,
                 owner,
-                port,
                 aborter,
                 logger
         );
@@ -2366,7 +2361,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     path_list_provider.get_folder_path().toFile(),
                     browsing_caches.image_properties_RAM_cache,
                     get_fv_cache,
-                    port,
                     logger)).do_your_job();
         });
         return item0;
@@ -2390,7 +2384,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     path_list_provider.get_folder_path().toFile(),
                     browsing_caches.image_properties_RAM_cache,
                     get_fv_cache,
-                    port,
+                    
                     logger)).do_your_job();
         });
         return item0;
@@ -2797,7 +2791,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         other_file_comparator = File_sort_by.get_non_image_comparator(path_list_provider, owner,logger);
 
         image_file_comparator = File_sort_by.get_image_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
-                owner,x,y,port,aborter,logger);;
+                owner,x,y, aborter,logger);;
 
         // these MUST be mutually exclusive:
         paths_manager.folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);

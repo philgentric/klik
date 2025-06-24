@@ -2,6 +2,7 @@ package klik.util.tcp;
 
 //SOURCES ./TCP_server.java
 
+import klik.actor.Actor_engine;
 import klik.properties.Properties_server;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -21,8 +21,47 @@ import java.util.List;
 public class TCP_client
 //**********************************************************
 {
-    private final static boolean dbg = false;
+    private final static boolean dbg = true;
 
+    //**********************************************************
+    public static void send_in_a_thread(String host, int port_number, String msg, Logger logger)
+    //**********************************************************
+    {
+        if ( port_number < 0)
+        {
+            logger.log("TCP_client.send_in_a_thread called with negative port number "+port_number+" for host "+host+" message: "+msg);
+            return;
+        }
+        Actor_engine.execute(() -> send(host, port_number, msg, logger), logger);
+    }
+    //**********************************************************
+    public static void send(String host, int port_number, String msg, Logger logger)
+    //**********************************************************
+    {
+        try( Socket client_socket = new Socket(host,port_number);
+             DataInputStream dis = new DataInputStream(client_socket.getInputStream());
+             DataOutputStream dos = new DataOutputStream(client_socket.getOutputStream())
+        )
+        {
+            //client_socket.setKeepAlive(false);
+            if ( dbg) logger.log("TCP client connected on "+host+" "+port_number+" sending ->"+msg+"<-");
+            TCP_util.write_string(msg,dos);
+            dos.flush();
+        }
+        catch (UnknownHostException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+        catch (ConnectException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(e+" Cannot connect is a server at "+host+":"+port_number+" started?"));
+        }
+        catch (IOException e)
+        {
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+
+    }
 
     //**********************************************************
     public static TCP_client_out request(String host, int port_number, String request, Logger logger)

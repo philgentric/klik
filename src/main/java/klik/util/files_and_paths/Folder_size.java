@@ -101,7 +101,7 @@ public class Folder_size
             Jfx_batch_injector.inject(() -> {
                 String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger);
 
-                iv.setImage(Look_and_feel_manager.get_sleeping_man_icon(owner,logger));
+                iv.setImage(Look_and_feel_manager.get_the_end_icon(owner,logger));
 
                 if (sizes.bytes() < 0)
                 {

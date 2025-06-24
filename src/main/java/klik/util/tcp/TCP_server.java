@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class TCP_server
@@ -29,6 +31,7 @@ public class TCP_server
     private final Aborter aborter;
     private final Logger logger;
     private int port_number;
+    AtomicBoolean stopped_clean = new AtomicBoolean(false);
 
 
     //**********************************************************
@@ -41,7 +44,7 @@ public class TCP_server
     }
 
     //**********************************************************
-    public boolean start(int port_number_, boolean stack_trace_bind_exception)
+    public boolean start(int port_number_, String purpose, boolean log_stack_trace_on_bind_exception)
     //**********************************************************
     {
         AtomicBoolean is_started_ok = new AtomicBoolean(false);
@@ -51,7 +54,7 @@ public class TCP_server
         Runnable r = () ->
         {
             try(ServerSocket welcome_socket = new ServerSocket(port_number)) {
-                logger.log("TCP server starting on port: " + port_number);
+                logger.log("TCP server starting on port: " + port_number+ " purpose: "+purpose);
                 is_started_ok.set(true);
                 cdl.countDown();
                 for (;;) {
@@ -64,10 +67,20 @@ public class TCP_server
             }
             catch (BindException e)
             {
-                if ( stack_trace_bind_exception)logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+                if ( log_stack_trace_on_bind_exception)logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
                 cdl.countDown();
                 is_started_ok.set(false);
             }
+            catch (SocketException e)
+            {
+                if ( !stopped_clean.get())
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+                    cdl.countDown();
+                    is_started_ok.set(false);
+                }
+            }
+
             catch (IOException e)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
@@ -92,10 +105,71 @@ public class TCP_server
         }
         else
         {
-            if ( stack_trace_bind_exception) logger.log(Stack_trace_getter.get_stack_trace("server error "));
+            if ( log_stack_trace_on_bind_exception) logger.log(Stack_trace_getter.get_stack_trace("server error "));
         }
         return is_started_ok.get();
     }
+
+
+
+    // start a server on a random (free) port, return the port number
+    //**********************************************************
+    public int start_zero(String purpose,  boolean log_stack_trace_on_bind_exception)
+    //**********************************************************
+    {
+        AtomicInteger is_started_on = new AtomicInteger(-1);
+        // wait until server is started
+        CountDownLatch cdl = new CountDownLatch(1);
+        Runnable r = () ->
+        {
+            try(ServerSocket welcome_socket = new ServerSocket(0))
+            {
+                port_number = welcome_socket.getLocalPort();
+                logger.log("TCP server starting on port : " + port_number+ " purpose: "+purpose);
+                is_started_on.set(port_number);
+                cdl.countDown();
+                for (;;) {
+                    if (!wait_and_serve(welcome_socket))
+                    {
+                        if ( dbg) logger.log("server closing down");
+                        return;
+                    }
+                }
+            }
+            catch (BindException e)
+            {
+                if ( log_stack_trace_on_bind_exception)logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+                cdl.countDown();
+            }
+            catch (IOException e)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+                cdl.countDown();
+            }
+        };
+        Actor_engine.execute(r,logger);
+
+        try
+        {
+            cdl.await();
+        }
+        catch (InterruptedException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+        }
+        if ( is_started_on.get() >0)
+        {
+            if (dbg) logger.log(Stack_trace_getter.get_stack_trace("server started OK "));
+            else logger.log(("server started OK "));
+        }
+        else
+        {
+            if ( log_stack_trace_on_bind_exception) logger.log(Stack_trace_getter.get_stack_trace("server error "));
+        }
+        return is_started_on.get();
+    }
+
+
 
 
     //**********************************************************
@@ -105,26 +179,36 @@ public class TCP_server
         // blocks until a client connects
         try
         {
+             if ( dbg) logger.log("server accepting connection");
+
+            Socket socket = welcome_socket.accept();
             if ( aborter.should_abort() )
             {
                 if ( dbg) logger.log("server closing down on abort");
                 return false;
             }
-            if ( dbg) logger.log("server accepting connection");
-
-            Socket socket = welcome_socket.accept();
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
             Runnable r = () -> {
                 Session session = session_factory.make_session();
-                session.on_client_connection(dis,dos);
+                boolean status = session.on_client_connection(dis,dos);
+                if ( !status)
+                {
+                    aborter.abort("on_client_connection returns false, closing server");
+                    stopped_clean.set(true);
+                    try {
+                        welcome_socket.close();
+                    } catch (IOException e) {
+                        logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+                    }
+                }
             };
             Actor_engine.execute(r,logger);
         }
         catch (IOException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
+            if (! stopped_clean.get()) logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
             return false;
         }
         return true;
@@ -141,7 +225,7 @@ public class TCP_server
         {
 
             @Override
-            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 logger.log("on client connection");
                 int size = 0;
@@ -168,6 +252,7 @@ public class TCP_server
                 {
                     logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 }
+                return false;
             }
 
             @Override
@@ -178,7 +263,7 @@ public class TCP_server
 
         TCP_server tcp_server = new TCP_server(the_session_factory,new Aborter("test",logger),logger);
 
-        tcp_server.start(TEST_PORT, true);
+        tcp_server.start(TEST_PORT, "test",true);
 
         try {
             cdl.await();

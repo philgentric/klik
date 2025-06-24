@@ -11,6 +11,7 @@ public enum Feature
     Reload_last_folder_on_startup,
     Dont_zoom_small_images,
     Use_escape_to_close_windows,
+    Hide_beginners_text_on_images,
 
     Monitor_folders,
     Enable_face_recognition,

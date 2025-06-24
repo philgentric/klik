@@ -101,11 +101,11 @@ package klik;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import klik.browser.*;
-import klik.look.Look_and_feel_manager;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
+import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
 
@@ -113,6 +113,7 @@ import java.nio.file.Path;
 public class Klik_application extends Application
 //**********************************************************
 {
+    public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
     public static Stage primary_stage;
     //**********************************************************
     public static void main(String[] args)
@@ -132,6 +133,8 @@ public class Klik_application extends Application
         primary_stage = primary_stage_;
         Start_context context = Start_context.get_context_and_args(this);
 
+        logger.log("Klik_application Start_context= " + context.args());
+
         primary_stage.setOnCloseRequest(event -> {
             System.out.println("Klik_application primary_stage setOnCloseRequest exit");
             System.exit(0);
@@ -141,15 +144,27 @@ public class Klik_application extends Application
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 
-        Path path = null;
-        if ( context.path() != null)
+        ui_change_report_port_at_launcher = context.extract_ui_change_report_port();
+        if ( ui_change_report_port_at_launcher == null)
         {
-            path = context.path();
+            logger.log("Klik_application: ui_change_report_port_at_launcher=null ");
         }
-        Window_provider window_provider = New_window_context.additional_no_past(context.port(),path,primary_stage_,logger);
+        else
+        {
+            logger.log("Klik_application ui_change_report_port_at_launcher= " + ui_change_report_port_at_launcher);
+        }
+        Path path = context.extract_path();
+        if ( path != null)
+        {
+            logger.log("Starting browser on path ->" + path+"<-");
+        }
+        Window_provider window_provider = New_window_context.additional_no_past(path,primary_stage_,logger);
         new Monitor(window_provider, logger).start();
 
-        Start_context.send_started(context,logger);
+        if ( context.extract_reply_port() != null) // is null when launched from the audio player
+        {
+            TCP_client.send_in_a_thread("localhost", context.extract_reply_port(), Launcher.STARTED, logger);
+        }
     }
 
 

@@ -5,8 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Klik_application;
-import klik.Window_provider;
+import klik.*;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Full_screen_handler;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -20,11 +19,13 @@ import klik.properties.Non_booleans;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
+import klik.util.tcp.TCP_client;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider
+public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider, UI_change
 //**********************************************************
 {
 
@@ -83,6 +84,15 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         my_Stage = new My_Stage(new Stage(), logger);
 
+
+        int ui_change_receiver_port = UI_change.start_UI_change_server(
+                null, this, "Klik-browser",my_Stage.the_Stage, logger);
+
+        if ( Klik_application.ui_change_report_port_at_launcher !=null) // is null when launched from ther audio player
+        {
+            TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, UI_change.THIS_IS_THE_PORT_I_LISTEN_TO_FOR_UI_CHANGES + " " + ui_change_receiver_port, logger);
+        }
+
         my_Stage.the_Stage.setOnCloseRequest(event -> {
             System.out.println("Klik browser window exit");
             System.exit(0);
@@ -96,7 +106,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         if (count == 1)
         {
-            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, null);
+            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, my_Stage.the_Stage);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -140,7 +150,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         logger.log("Browser init");
         monitor();
-        virtual_landscape = new Virtual_landscape(context.port,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
+        virtual_landscape = new Virtual_landscape(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -154,6 +164,14 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         });
 
 
+    }
+
+    //**********************************************************
+    @Override // UI_change signaled by launcher
+    public void define_UI()
+    //**********************************************************
+    {
+        virtual_landscape.redraw_fx("UI changed TCP signal received");
     }
 
     //**********************************************************

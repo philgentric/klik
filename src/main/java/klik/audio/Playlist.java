@@ -1,15 +1,23 @@
 package klik.audio;
 
 import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.workers.Actor_engine_based_on_workers;
+import klik.browser.Drag_and_drop;
+import klik.New_window_context;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.change.undo.Undo_core;
 import klik.change.undo.Undo_item;
@@ -40,8 +48,8 @@ public class Playlist
     static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
 
     List<String> the_playlist = new ArrayList<>();
-    Map<String, Button> file_to_button = new HashMap<>();
-    Button selected = null;
+    Map<String, Song> path_to_Song = new HashMap<>();
+    Song selected = null;
 
     private static File playlist_file = null;
     String the_song_path;
@@ -63,12 +71,12 @@ public class Playlist
 
 
     //**********************************************************
-    private Button add_to_playlist(String file_path)
+    Node add_to_playlist(String file_path)
     //**********************************************************
     {
         the_playlist.add(file_path);
-        Button local_button = define_button_for_a_song(file_path);
-        the_music_ui.add_song(local_button);
+        Node local_button = define_node_for_a_song(file_path);
+        the_music_ui.add_song(new Song(file_path,local_button));
         return local_button;
     }
 
@@ -77,74 +85,41 @@ public class Playlist
     //**********************************************************
     {
         the_playlist.addAll(file_paths);
-        List<Button> local_buttons = new ArrayList<>();
+        List<Song> local_buttons = new ArrayList<>();
         for ( String file_path : file_paths)
         {
-            Button local_button = define_button_for_a_song(file_path);
-            local_buttons.add(local_button);
+            Node local_button = define_node_for_a_song(file_path);
+            local_buttons.add(new Song(file_path,local_button));
         }
         the_music_ui.add_songs(local_buttons);
     }
 
 
     //**********************************************************
-    private Button define_button_for_a_song(String file_path)
+    private Node define_node_for_a_song(String file_path)
     //**********************************************************
     {
         File f = new File(file_path);
-        Button local_button = new Button(f.getParentFile().getName() + "    /    " + f.getName());
-        local_button.setMnemonicParsing(false);
-        Look_and_feel_manager.set_button_look(local_button, false,owner,logger);
-        {
-            ContextMenu the_context_menu = new ContextMenu();
-            Look_and_feel_manager.set_context_menu_look(the_context_menu,owner,logger);
-            {
-                MenuItem the_menu_item = new MenuItem("Browse folder");
-                the_menu_item.setOnAction(_ -> Audio_player.start_new_process_to_browse(f.toPath().getParent(),
-                                                                                        logger));
-                the_context_menu.getItems().add(the_menu_item);
-            }
-            {
-                MenuItem the_menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger));
-                the_menu_item.setOnAction(_ -> {
+        //Label node = new Label(f.getParentFile().getName() + "    /    " + f.getName());
+        //Look_and_feel_manager.set_label_look(node,owner,logger);
 
-                    Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,Path.of(file_path),logger);
-                    if ( new_path == null) return;
-
-                    List<Old_and_new_Path> l = new ArrayList<>();
-                    Old_and_new_Path oandn = new Old_and_new_Path(Path.of(file_path), new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
-                    l.add(oandn);
-                    Moving_files.perform_safe_moves_in_a_thread(owner, owner.getX()+100, owner.getY()+100,l, true, new Aborter("rename in playlist",logger), logger);
-
-                    remove_from_playlist(file_path);
-                    add_to_playlist(new_path.toAbsolutePath().toString());
-                    if ( the_song_path.equals(file_path)) the_song_path = new_path.toAbsolutePath().toString();
-                });
-                the_context_menu.getItems().add(the_menu_item);
-            }
-            {
-                MenuItem the_menu_item = new MenuItem("Remove from list");
-                the_menu_item.setOnAction(_ -> remove_from_playlist(file_path));
-                the_context_menu.getItems().add(the_menu_item);
-            }
-            local_button.setOnContextMenuRequested((ContextMenuEvent event) -> the_context_menu.show(local_button, event.getScreenX(), event.getScreenY()));
-
-        }
-        local_button.setPrefWidth(2000);
-        Look_and_feel_manager.set_button_look(local_button, false,owner,logger);
-        file_to_button.put(file_path, local_button);
-        local_button.setOnAction(_ -> change_song(file_path));
-        return local_button;
+        Button node = new Button(f.getParentFile().getName() + "    /    " + f.getName());
+        node.setMnemonicParsing(false);
+        Look_and_feel_manager.set_button_look(node,false,owner,logger);
+        node.setPrefWidth(2000);
+        path_to_Song.put(file_path, new Song(file_path, node));
+        return node;
     }
 
 
+
     //**********************************************************
-    private void remove_from_playlist(String to_be_removed)
+    void remove_from_playlist(String to_be_removed)
     //**********************************************************
     {
         the_playlist.remove(to_be_removed);
-        the_music_ui.remove_song(file_to_button.get(to_be_removed));
-        file_to_button.remove(to_be_removed);
+        the_music_ui.remove_song(path_to_Song.get(to_be_removed));
+        path_to_Song.remove(to_be_removed);
 
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(Path.of(to_be_removed),
@@ -292,7 +267,7 @@ public class Playlist
             the_song_path = the_playlist.get(0);
         }
 
-        Button future = file_to_button.get(the_song_path);
+        Song future = path_to_Song.get(the_song_path);
         if ( future == null)
         {
             if ( dbg) logger.log("WARNING: this file is not mapped: " + the_song_path);
@@ -300,7 +275,7 @@ public class Playlist
         }
         if ( selected != null)
         {
-            if (selected == future)
+            if (selected.path().equals(future.path()))
             {
                 // already selected
                 if (dbg) logger.log("already selected " + the_song_path);
@@ -318,26 +293,26 @@ public class Playlist
     }
 
     //**********************************************************
-    private void reset_background_to_default(Button button)
+    private void reset_background_to_default(Song song)
     //**********************************************************
     {
-        //if (dbg) logger.log("resetting background for previously selected");
-        String s = button.getStyle();
-        //if (dbg) logger.log("style before = " + s);
+        if (dbg) logger.log("resetting background for previously selected");
+        String s = song.node().getStyle();
+        if (dbg) logger.log("style before = " + s);
         s = change_background_color(s, "#ffffff");
-        //if (dbg) logger.log("style after = " + s);
-        button.setStyle(s);
+        if (dbg) logger.log("style after = " + s);
+        song.node().setStyle(s);
     }
 
     //**********************************************************
-    private void set_background_to(Button future, String color)
+    private void set_background_to(Song future, String color)
     //**********************************************************
     {
-        String s = future.getStyle();
-        //if (dbg) logger.log("style before = " + s);
+        String s = future.node().getStyle();
+        if (dbg) logger.log("style before = " + s);
         s = change_background_color(s, color);
-        //if (dbg) logger.log("style after = " + s);
-        future.setStyle(s);
+        if (dbg) logger.log("style after = " + s);
+        future.node().setStyle(s);
     }
 
 
@@ -784,6 +759,7 @@ public class Playlist
             playlist_file = null;
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
+
     }
 
     //**********************************************************
@@ -888,15 +864,15 @@ public class Playlist
     {
         the_music_ui.remove_all_songs();
         Collections.shuffle(the_playlist);
-        List<Button> local_buttons = new ArrayList<>();
+        List<Song> local_songs = new ArrayList<>();
         String selected_path = null;
         for ( String path : the_playlist)
         {
-            Button local_button = file_to_button.get(path);
-            local_buttons.add(local_button);
-            if ( local_button == selected) selected_path = path;
+            Song local_song = path_to_Song.get(path);
+            local_songs.add(local_song);
+            if ( local_song.path().equals(selected.path())) selected_path = path;
         }
-        the_music_ui.add_songs(local_buttons);
+        the_music_ui.add_songs(local_songs);
         the_music_ui.scroll_to(selected_path);
 
 
@@ -908,5 +884,213 @@ public class Playlist
     //**********************************************************
     {
         remove_from_playlist(s);
+    }
+
+    //**********************************************************
+    public void search()
+    //**********************************************************
+    {
+        Stage search_stage = new Stage();
+        search_stage.initOwner(owner);
+        VBox vbox = new VBox();
+        Look_and_feel_manager.set_region_look(vbox,search_stage,logger);
+        vbox.setAlignment(javafx.geometry.Pos.CENTER);
+
+
+        VBox the_result_vbox = new VBox();
+
+        TextField search_field = new TextField();
+        vbox.getChildren().add(search_field);
+        search_field.setPromptText("Search for a song...");
+        search_field.setOnAction(event -> {
+
+            perform_search(search_field, search_stage, vbox, the_result_vbox);
+
+        });
+
+        ScrollPane scroll_pane = new ScrollPane(the_result_vbox);
+        vbox.getChildren().add(scroll_pane);
+
+
+
+        search_stage.addEventHandler(KeyEvent.KEY_PRESSED,
+                key_event -> {
+                    if (key_event.getCode() == KeyCode.ESCAPE) {
+                        search_stage.close();
+                        key_event.consume();
+                    }
+                });
+
+        scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scroll_pane.setFitToWidth(true);
+        scroll_pane.setFitToHeight(true);
+        the_result_vbox.getChildren().clear();
+
+        Scene scene = new Scene(vbox, 600, 400);
+        search_stage.setScene(scene);
+        search_stage.setTitle(My_I18n.get_I18n_string("Search_Results", search_stage,logger));
+
+        search_stage.show();
+    }
+
+    //**********************************************************
+    private void perform_search(TextField search_field, Stage search_stage, VBox vbox, VBox the_result_vbox)
+    //**********************************************************
+    {
+        String search_text = search_field.getText().toLowerCase();
+        if (search_text.trim().isEmpty()) return;
+        String[] keys = search_text.split("\\s");
+        ImageView iv = new ImageView(Look_and_feel_manager.get_running_film_icon(search_stage,logger));
+        iv.setFitHeight(100);
+        iv.setPreserveRatio(true);
+        vbox.getChildren().add(iv);
+
+        Map<String,List<String>> matched_keywords_in_full_path = new HashMap<>();
+        Map<String,List<String>> matched_keywords_in_name = new HashMap<>();
+        for (Song song : path_to_Song.values())
+        {
+            String full_path = song.path().toLowerCase();
+            String name = Path.of(song.path()).getFileName().toString().toLowerCase();
+            for(String key : keys)
+            {
+                if (full_path.contains(key))
+                {
+                    List<String> l = matched_keywords_in_full_path.get(song.path());
+                    if ( l == null)
+                    {
+                        l = new ArrayList<>();
+                        matched_keywords_in_full_path.put(song.path(), l);
+                    }
+                    l.add(key);
+                }
+                if (name.contains(key))
+                {
+                    List<String> l = matched_keywords_in_name.get(song.path());
+                    if ( l == null)
+                    {
+                        l = new ArrayList<>();
+                        matched_keywords_in_name.put(name, l);
+                    }
+                    l.add(key);
+                }
+            }
+        }
+        for (String path : path_to_Song.keySet())
+        {
+            Song song = path_to_Song.get(path);
+            boolean found = false;
+            boolean show_full_path = true;
+            boolean is_max = false;
+            if ( matched_keywords_in_full_path.get(path) != null)
+            {
+                if (matched_keywords_in_full_path.get(path).size() > 0)
+                {
+                    found = true;
+                }
+                if (matched_keywords_in_full_path.get(path).size() == keys.length)
+                {
+                    is_max = true; // all keywords matched
+                }
+            }
+            if ( matched_keywords_in_name.get(path) != null)
+            {
+                if (matched_keywords_in_name.get(path).size() > 0)
+                {
+                    found = true;
+                }
+                if (matched_keywords_in_name.get(path).size() == keys.length)
+                {
+                    is_max = true; // all keywords matched
+                    show_full_path = false;
+                }
+            }
+            List<String> matched = new ArrayList<>();
+            if( show_full_path)
+            {
+                if ( matched_keywords_in_full_path.get(path) != null)
+                {
+                    for (String key : matched_keywords_in_full_path.get(path))
+                    {
+                        if ( !matched.contains(key)) matched.add(key);
+                    }
+                }
+            }
+            else
+            {
+                if ( matched_keywords_in_name.get(path) != null)
+                {
+                    for (String key : matched_keywords_in_name.get(path))
+                    {
+                        if ( !matched.contains(key)) matched.add(key);
+                    }
+                }
+            }
+
+            String display = "";
+            for ( String m : matched) display += m + " ";
+            if ( found) the_result_vbox.getChildren().add(make_button(song, display, search_stage,is_max));
+
+        }
+
+        iv.setImage(Look_and_feel_manager.get_the_end_icon(search_stage,logger));
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    logger.log(""+e);
+                }
+                Platform.runLater(() -> {
+                    iv.setImage(null);
+                    vbox.getChildren().remove(iv);
+                });
+            }
+        };
+        Actor_engine.execute(r,logger);
+    }
+
+    //**********************************************************
+    private Node make_button(Song song, String search_text, Stage search_stage, boolean is_max)
+    //**********************************************************
+    {
+        Path p = Path.of(song.path());
+        Button b = new Button(search_text +" => "+ p.getFileName());
+
+        if(is_max)
+        {
+            b.setGraphic(new Circle(10, Color.RED));
+        }
+        b.setMnemonicParsing(false); // avoid removal of first underscore
+        Look_and_feel_manager.set_button_look(b, true,owner,logger);
+
+        b.setOnAction(_ -> {
+            change_song(song.path());
+        });
+
+        // add a menu to the button!
+        ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu,search_stage,logger);
+
+
+        MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",search_stage,logger));
+        browse.setOnAction(_ -> {
+            logger.log("Browse in new window");
+            Path local = Path.of(song.path());
+            if (! local.toFile().isDirectory()) local = local.getParent();
+            New_window_context.additional_no_past(local,owner,logger);
+        });
+        context_menu.getItems().add(browse);
+
+        b.setOnContextMenuRequested((ContextMenuEvent event) -> {
+            logger.log("show context menu of button:"+ song.path());
+            context_menu.show(b, event.getScreenX(), event.getScreenY());
+        });
+
+
+        Drag_and_drop.init_drag_and_drop_sender_side(b, null,Path.of(song.path()),logger);
+
+        return b;
     }
 }

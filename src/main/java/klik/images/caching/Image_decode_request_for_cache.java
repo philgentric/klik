@@ -15,18 +15,16 @@ public class Image_decode_request_for_cache implements Message
     //public final boolean high_quality;
     public final Cache_interface cache;
     public final Aborter aborter;
-    public final int port;
     public Window owner;
 
     //**********************************************************
     public Image_decode_request_for_cache(Path path_,
-                                          Cache_interface preloaded_, int port, Window owner,Aborter aborter)
+                                          Cache_interface preloaded_, Window owner,Aborter aborter)
     //**********************************************************
     {
         path = Objects.requireNonNull(path_);
         cache = preloaded_;
         this.aborter = aborter;
-        this.port = port;
         this.owner = owner;
     }
 

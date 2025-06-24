@@ -4,6 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 public interface Session {
-    void on_client_connection(DataInputStream dis, DataOutputStream dos);
+    boolean on_client_connection(DataInputStream dis, DataOutputStream dos);
     String name();
 }

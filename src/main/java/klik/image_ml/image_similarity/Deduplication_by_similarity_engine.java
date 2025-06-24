@@ -50,7 +50,6 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     boolean quasi_same;
     private final Path_list_provider path_list_provider;
     private final Path_comparator_source path_comparator_source;
-    int port;
 
     //**********************************************************
     public Deduplication_by_similarity_engine(
@@ -61,11 +60,9 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             File target_dir_,
             Image_properties_RAM_cache image_properties_RAM_cache,
             Supplier<Image_feature_vector_cache> fv_cache_supplier,
-            int port,
             Logger logger_)
     //**********************************************************
     {
-        this.port = port;
         this.path_list_provider = path_list_provider;
         this.path_comparator_source = path_comparator_source;
         this.quasi_same = quasi_same;
@@ -144,7 +141,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 new Runnable_for_finding_duplicate_file_pairs_similarity(
                         image_properties_RAM_cache,
                         fv_cache_supplier,
-                        path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue, port,owner, private_aborter, logger);
+                        path_comparator_source,quasi_same,this, files,  same_file_pairs_input_queue,owner, private_aborter, logger);
         Actor_engine.execute(duplicate_finder,logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");

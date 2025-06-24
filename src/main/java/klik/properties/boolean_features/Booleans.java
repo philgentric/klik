@@ -64,10 +64,11 @@ public class Booleans
                     "\nIt is easy and free to install (https://ffmpeg.org/)"+
             "\nOn Mac: 'brew install ffmpeg'";
 
+            Platform.runLater(()->{
             if ( Popups.info_popup(msg,owner,logger))
             {
                 set_boolean(Feature.Show_ffmpeg_install_warning.name(), false,owner);
-            }
+            }});
         }
     }
     //**********************************************************

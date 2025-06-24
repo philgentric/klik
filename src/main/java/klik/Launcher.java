@@ -16,19 +16,19 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.audio.Audio_player_application;
-import klik.browser.Shared_services;
+import klik.audio.Audio_player;
+import klik.audio.Audio_player_access;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.File_based_IProperties;
 import klik.properties.Non_booleans;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -43,27 +43,46 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
+// the launcher can start applications (the image browser klik, the audio player)
+// they are started in new VMs i.e. in new processes using a call to gradle
+// this means that the application may be recompiled before launching, if the code has changed
+//
+// the launcher passes a reply port number to the application which has 2 uses:
+// 1. at start time, the application can send a message to the launcher to say it has started, or not started
+// 2. at any time, the application can send a message to the launcher to say that the UI has changed
+//
+// to enforce the fact that there is only 1 instance of the music player, the launcher has to rely on
+// trying to start a new music player instance: if there is already a music player running,
+// the music player will fail when it tries to attach a server on the audio player port (port 34539),
+// (which the audio player listen to for requests to play songs or playlists),
+// then it sends a NOT_STARTED message to the launcher, and the launcher pops up a warning..
+//
+// launching a new klik instance is not supposed to fail (it may not be a good idea in the sense that
+// klik can have as many windows as one wants, but launching a new instance of klik has advantages;
+// for example it is immune to the agressive use of ESC by the user)
+//
+// UI changes are originating from one klik browser instance, they are sent to the launcher,
+// which then propagates them to the audio player, on the audio player port (345639)
 
 //**********************************************************
-public class Launcher extends Application
+public class Launcher extends Application implements UI_change
 //**********************************************************
 {
 
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
-    public static final String UI_CHANGED = "UI_CHANGED";
+    public static final String NOT_STARTED = "NOT_STARTED";
     public static double estimated_text_label_height;
+    public static int ui_change_listening_port; // this is the port on which the launcher listens for UI changes
 
     private Stage stage;
     private Logger logger;
     private VBox vbox;
-    private AtomicInteger klik_port;
-    private AtomicInteger audio_player_port;
+    private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
 
     //**********************************************************
     @Override
@@ -72,7 +91,7 @@ public class Launcher extends Application
     {
         stage = stage_;
         Sys_init.init("Launcher app",stage);
-        logger = Shared_services.shared_services_logger;
+        logger = new File_logger("../launcher.txt");// Shared_services.shared_services_logger;
 
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
@@ -85,10 +104,10 @@ public class Launcher extends Application
         Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,stage,logger);
 
 
-
-        klik_port = new AtomicInteger(12345);
-        audio_player_port = new AtomicInteger(23456);
         define_UI( );
+
+
+        ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",stage,logger);
 
 
         Scene scene = new Scene(vbox);
@@ -139,7 +158,8 @@ public class Launcher extends Application
     }
 
     //**********************************************************
-    private void define_UI()
+    @Override // UI_change
+    public void define_UI()
     //**********************************************************
     {
         Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(stage,logger);
@@ -147,18 +167,17 @@ public class Launcher extends Application
         vbox.getChildren().clear();
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage,logger));
-
             set_look(b, vbox, look_and_feel,Icon_type.IMAGE, stage,logger);
-
             b.setOnAction(event -> {
-                start_app_and_listen(this,"klik", klik_port.getAndIncrement(), stage, logger);
+                start_app_in_new_VM_and_listen("klik", stage, logger);
             });
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
             set_look(b, vbox, look_and_feel,Icon_type.MUSIC, stage,logger);
             b.setOnAction(event -> {
-                start_app_and_listen(this,"audio_player", audio_player_port.getAndIncrement(), stage, logger);
+                start_app_in_new_VM_and_listen("audio_player", stage, logger);
+                propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
             });
         }
         {
@@ -181,14 +200,14 @@ public class Launcher extends Application
     private void show_version(Window owner, Logger logger)
     //**********************************************************
     {
-        Hourglass hourglass = Show_running_film_frame.show_running_film(owner,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
+        Hourglass local_hourglass = Show_running_film_frame.show_running_film(owner,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
 
         String version_string = get_version_string(logger);
         logger.log("version: "+version_string);
 
         Popups.simple_alert("version is "+version_string,owner,logger);
 
-        hourglass.close();
+        local_hourglass.close();
     }
 
     //**********************************************************
@@ -253,7 +272,7 @@ public class Launcher extends Application
     private void get_most_recent_version(Stage stage, Logger logger)
     //**********************************************************
     {
-        Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
+        Hourglass local_hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... getting version",20 * 1000,new Aborter("dummy", logger), logger);
 
         if (Popups.popup_ask_for_confirmation("Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best",stage,logger))
         {
@@ -287,19 +306,23 @@ public class Launcher extends Application
             }
             logger.log("version after:"+get_version_string(logger));
         }
-        hourglass.close();
+        local_hourglass.close();
     }
 
     //**********************************************************
-    private static void start_app_and_listen(Launcher launcher, String app_name, int port, Stage stage, Logger logger)
+    private static void start_app_in_new_VM_and_listen(
+            String app_name,
+            Stage stage, Logger logger)
     //**********************************************************
     {
-        Hourglass hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
+        Hourglass local_hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting "+app_name,20 * 1000,new Aborter("launcher", logger), logger);
+
+        int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
 
         List<String> cmds = new ArrayList<>();
         cmds.add("gradle");
         cmds.add(app_name);
-        String arg =  "--args=\""+port+"\"";
+        String arg =  "--args=\""+port_to_reply_about_start+" "+ ui_change_listening_port  +"\"";
         cmds.add(arg);
 
         AtomicBoolean failed = new AtomicBoolean(false);
@@ -313,45 +336,46 @@ public class Launcher extends Application
                 logger.log("\n\n\n\n\n\nBUILD FAILED\n\n\n\n\n\n");
                 Platform.runLater(() -> Popups.simple_alert("BUILD FAILED",stage,logger));
                 failed.set(true);
-                Start_context.send_started_raw(port,logger); // this is to unblock the hourglass
+                TCP_client.send("localhost",port_to_reply_about_start,Launcher.NOT_STARTED,logger); // this is to unblock the hourglass
             }
         };
         Actor_engine.execute(r, logger);
-        start_server_and_wait_for_reply(app_name,port,hourglass, launcher,stage,logger);
+
     }
 
     //**********************************************************
-    private static boolean start_server_and_wait_for_reply(String app_name, int port, Hourglass hourglass, Launcher launcher, Window owner, Logger logger)
+    private static int start_launch_status_server(String app_name, Hourglass local_hourglass, Window owner, Logger logger)
     //**********************************************************
     {
-        // start the server to receive the "started" error_message and stop the hourglass
-        // note the audio player, if already started, will send the "started" error_message
-        // this is because in the launcher, after a audio_player
-        // was started, it might have been killed ...
+        // start the server to receive the "started" or "not_started" error_message and stop the hourglass
 
-        logger.log("start_server_and_wait_for_reply for: "+app_name);
+        logger.log("Launcher: start_server_and_wait_for_reply for: "+app_name);
         Session_factory session_factory = () -> new Session() {
             @Override
-            public void on_client_connection(DataInputStream dis, DataOutputStream dos)
+            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
             {
                 try {
+                    close_hourglass(local_hourglass);
                     String msg = TCP_util.read_string(dis);
                     if ( msg.equals(STARTED))
                     {
-                        logger.log("Launcher: STARTED RECEIVED for: "+app_name);
-                        if ( hourglass != null) hourglass.close();
+                        logger.log("Launcher: STARTED RECEIVED from: "+app_name);
+                        return false; // and stop the server
                     }
-                    if (msg.startsWith(UI_CHANGED))
+                    if ( msg.equals(NOT_STARTED))
                     {
-                        Non_booleans.force_reload_from_disk(owner);
-                        String new_lang = msg.split(" ")[1];
-                        logger.log("Launcher: LANGUAGE_CHANGED RECEIVED for: "+app_name+ " new lang is "+new_lang);
-                        logger.log("Launcher: checking the language value is updated on disk: "+Non_booleans.get_language_key(owner));
-                        My_I18n.reset();
-                        Look_and_feel_manager.reset();
-                        Platform.runLater(() -> launcher.define_UI());
-                        // broken in the audio player:
-                        TCP_client.request("localhost", Audio_player_application.AUDIO_PLAYER_PORT,msg,logger);
+                        logger.log("Launcher: NOT_STARTED RECEIVED from: "+app_name);
+                        if ( app_name.equals("audio_player"))
+                        {
+                            Platform.runLater(()->Popups.popup_warning("Warning",app_name+" could not be started.\n" +
+                                    "Since there is already another instance playing", false,owner, logger));
+
+                        }
+                        else
+                        {
+                            logger.log("Launcher: NOT_STARTED received for "+app_name+", this should not happen");
+                        }
+                        return false; // and stop the server
                     }
                 }
                 catch (IOException e)
@@ -359,6 +383,7 @@ public class Launcher extends Application
                     logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 }
 
+                return false; // and stop the server
             }
 
             @Override
@@ -367,10 +392,25 @@ public class Launcher extends Application
             }
         };
         TCP_server tcp_server = new TCP_server(session_factory,new Aborter(app_name, logger), logger);
-        Runnable r = () -> tcp_server.start(port,false);
-        Actor_engine.execute(r, logger);
+        int local_port = tcp_server.start_zero("(ephemeral) listening for 'started' or 'not started' application reply upon launch",false);
+        if (local_port < 1)
+        {
+            logger.log("Launcher: ERROR starting TCP server for "+app_name);
+            close_hourglass(local_hourglass);
+        }
 
-        return true;
+        return local_port;
+    }
+
+    //**********************************************************
+    private static void close_hourglass(Hourglass local_hourglass)
+    //**********************************************************
+    {
+        if ( local_hourglass != null)
+        {
+            local_hourglass.close();
+            local_hourglass = null;
+        }
     }
 
     //**********************************************************

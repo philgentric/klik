@@ -65,13 +65,13 @@ public final static boolean dbg = false;
           Path_comparator_source path_comparator_source,
           Image_properties_RAM_cache image_properties_cache,
           Window owner,
-          double x, double y, int port,Aborter aborter, Logger logger)
+          double x, double y, Aborter aborter, Logger logger)
   //**********************************************************
   {
     switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
     {
       case SIMILARITY_BY_PURSUIT:
-        return get_similarity_comparator_by_pursuit(path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, port, aborter, logger);
+        return get_similarity_comparator_by_pursuit(path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, aborter, logger);
       case SIMILARITY_BY_PAIRS:
         return get_similarity_comparator_pairs_of_closests(path_list_provider, owner, x, y, aborter, logger);
       case NAME:
@@ -115,7 +115,7 @@ public final static boolean dbg = false;
 
   //**********************************************************
   private static Similarity_comparator_by_pursuit get_similarity_comparator_by_pursuit(
-          Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Image_properties_RAM_cache image_properties_cache, Window owner, double x, double y, int port, Aborter aborter, Logger logger)
+          Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Image_properties_RAM_cache image_properties_cache, Window owner, double x, double y,  Aborter aborter, Logger logger)
   //**********************************************************
   {
     Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, owner, x, y, logger);
@@ -127,7 +127,7 @@ public final static boolean dbg = false;
             path_comparator_source,
             image_properties_cache,
             owner,
-            x, y, port,
+            x, y,
             aborter, logger);
   }
 

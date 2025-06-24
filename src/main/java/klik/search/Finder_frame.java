@@ -63,7 +63,6 @@ public class Finder_frame implements Search_receiver
 	private boolean new_keyword_textfield_is_red = false;
 	private final Path_list_provider path_list_provider;
 	private final Path_comparator_source path_comparator_source;
-	final int port;
 
 	//**********************************************************
 	public Finder_frame(
@@ -71,12 +70,10 @@ public class Finder_frame implements Search_receiver
 			boolean look_only_for_images,
 			Path_list_provider path_list_provider,
 			Path_comparator_source path_comparator_source,
-			int port,
 			Aborter aborter,
 			Logger logger)
 	//**********************************************************
 	{
-		this.port =port;
 		this.aborter = aborter;
 		this.path_list_provider = path_list_provider;
 		this.path_comparator_source = path_comparator_source;
@@ -480,7 +477,7 @@ public class Finder_frame implements Search_receiver
 				path_list_provider,
 				path_comparator_source,
 				search_config,
-				this,stage,port,logger);
+				this,stage,logger);
 		session.start_search();
 		stop.setDisable(false);
 		start.setDisable(true);
