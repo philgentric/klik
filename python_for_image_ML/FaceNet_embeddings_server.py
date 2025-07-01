@@ -17,7 +17,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         image_raw_url = self.path[1:]
-        print("FaceNet Embeddings server, going to open image_raw_url:    "+image_raw_url)
+        #print("FaceNet Embeddings server, going to open image_raw_url:    "+image_raw_url)
         decoded_url = urllib.parse.unquote_plus(image_raw_url)
 
         img = keras.utils.load_img(decoded_url, target_size=(160, 160))  # FaceNet uses 160x160 input size
@@ -41,7 +41,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
         #print("FaceNet feature vector: " + str(feature_vector))
 
-        print("FaceNet EMBEDDINGS feature vector size: "+str(feature_vector.size()))
+        #print("FaceNet EMBEDDINGS feature vector size: "+str(feature_vector.size()))
 
 
     # Convert the tensor to a NumPy array and flatten it

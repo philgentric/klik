@@ -168,7 +168,7 @@ public class Item_file_with_icon extends Item_file
 
         if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
-            open_an_image(true,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
+            open_an_image(path_list_provider,path_comparator_source,get_item_path(),owner,logger);
         }
         else
         {
@@ -193,15 +193,16 @@ public class Item_file_with_icon extends Item_file
     }
 
     //**********************************************************
-    public static void open_an_image(boolean same_process,
-                                     Path_list_provider path_list_provider,
-                                     Path_comparator_source path_comparator_source,
-                                     Path path,
-                                     Window owner,
-                                     Logger logger)
+    public static void open_an_image(
+            //boolean same_process,
+            Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
+            Path path,
+            Window owner,
+            Logger logger)
     //**********************************************************
     {
-        if ( same_process)
+        //if ( same_process)
         {
             Comparator<Path> x = path_comparator_source.get_path_comparator();
             if ( x == null)
@@ -213,6 +214,7 @@ public class Item_file_with_icon extends Item_file
             Image_window.get_Image_window(path, path_list_provider,image_comparator, owner,new Aborter("Image_viewer",logger),logger);
             if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
         }
+        /*
         else
         {
             List<String> cmds = new ArrayList<>();
@@ -227,7 +229,7 @@ public class Item_file_with_icon extends Item_file
             Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
             logger.log(sb.toString());
             if ( dbg) logger.log("\n\nImage_stage opening (different process) for path:" + path);
-        }
+        }*/
     }
 
     @Override // Item
@@ -310,7 +312,7 @@ public class Item_file_with_icon extends Item_file
                 System_open_actor.open_special(owner,get_item_path(), aborter,logger);
             });
             context_menu.getItems().add(menu_item);
-        }
+        }/*
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", owner,logger));
             menu_item.setMnemonicParsing(false);
@@ -319,7 +321,7 @@ public class Item_file_with_icon extends Item_file
                 Item_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
             });
             context_menu.getItems().add(menu_item);
-        }
+        }*/
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, owner,logger));

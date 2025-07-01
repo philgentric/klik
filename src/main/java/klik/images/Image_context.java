@@ -496,7 +496,7 @@ public class Image_context
                 Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l,owner);
 
-        Item_file_with_icon.open_an_image(true,
+        Item_file_with_icon.open_an_image(
                 path_list_provider,
                 path_comparator_source,
                 new_path,

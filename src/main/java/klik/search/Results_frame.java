@@ -132,7 +132,6 @@ public class Results_frame
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
 				Item_file_with_icon.open_an_image(
-						true,
 						path_list_provider,
 						path_comparator_source,
 						path,

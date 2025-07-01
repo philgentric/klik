@@ -44,7 +44,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #print("feature_vector: "+str(feature_vector))
         # size is 62720 for MobileNetV2 "full" and reduced to 1280 with 'pooling=avg'
         # and 960 with MobileNetV3Large
-        print("MobileNet EMBEDDINGS feature vector size: "+str(feature_vector.size))
+        #print("MobileNet EMBEDDINGS feature vector size: "+str(feature_vector.size))
 
         data = {'features': feature_vector.tolist()[0]}  # Convert numpy array to list for JSON
 
