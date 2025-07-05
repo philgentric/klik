@@ -85,7 +85,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 {
 
 
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
+    public static final boolean ultra_dbg = true;
     public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
     public static final boolean scroll_dbg = false;
@@ -103,7 +104,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public final Logger logger;
     private Landscape_height_listener landscape_height_listener;
     private Scroll_to_listener scroll_to_listener;
-    private final Paths_holder paths_manager;
+    private final Paths_holder paths_holder;
 
 
     // otherwise there are 2 sorted lists
@@ -185,7 +186,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         browsing_caches = new Browsing_caches(path_list_provider,owner,aborter,logger);
         icon_factory_actor = new Icon_factory_actor(browsing_caches.image_properties_RAM_cache, owner, aborter, logger);
-        paths_manager = new Paths_holder(icon_factory_actor, browsing_caches.image_properties_RAM_cache, aborter, logger);
+        paths_holder = new Paths_holder(icon_factory_actor, browsing_caches.image_properties_RAM_cache, aborter, logger);
         selection_handler = new Selection_handler(the_Pane, this, this, logger);
 
         browser_menus = new Virtual_landscape_menus(this, change_receiver, owner);
@@ -567,7 +568,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     synchronized private void sort_iconized_items(String from)
     //**********************************************************
     {
-        List<Path> local_iconized_sorted = new ArrayList<>(paths_manager.iconized_paths);
+        List<Path> local_iconized_sorted = new ArrayList<>(paths_holder.iconized_paths);
         for(int tentative =0; tentative<3; tentative++)
         {
             try
@@ -594,7 +595,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     public void remove_empty_folders(boolean recursively) {
-        paths_manager.remove_empty_folders(recursively);
+        paths_holder.remove_empty_folders(recursively);
     }
 
     public void clear_scroll_position_cache() {
@@ -699,11 +700,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         max_y_in_row[0] = 0;
         List<Item> current_row = new ArrayList<>();
 
+
+        // first compute how many images are in flight
         int image_properties_in_flight = 0;
-        for (Path path : paths_manager.iconized_paths )
+        boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
+        for (Path path : paths_holder.iconized_paths )
         {
             Item item;
-            if (Feature_cache.get(Feature.Show_icons_for_files))
+            if (show_icons_for_files)
             {
                 item = all_items_map.get(path);
                 if (item == null)
@@ -713,15 +717,21 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
         }
 
+        // block until:
+        //  1. all image properties REQUESTS are made
+        // the cache will use actors on threads to fetch the properties
+        //  2. the cache will call the termination reporter when each is finished
+        // so this will effectively block until all image properties are fetched
+
+        if ( dbg) logger.log("process_iconized_items is on javafx thread?"+Platform.isFxApplicationThread());
         CountDownLatch wait_for_end = new CountDownLatch(image_properties_in_flight);
-        Job_termination_reporter tr = (message, job) -> {
-             wait_for_end.countDown();
-        };
-        for (Path path : paths_manager.iconized_paths )
+        Job_termination_reporter tr = (message, job) -> wait_for_end.countDown();
+        long start = System.currentTimeMillis();
+        for (Path path : paths_holder.iconized_paths )
         {
-            if (dbg) logger.log("Virtual_landscape process_iconified_items " + path);
+            if (ultra_dbg) logger.log("Virtual_landscape process_iconified_items " + path);
             Item item;
-            if (Feature_cache.get(Feature.Show_icons_for_files))
+            if (show_icons_for_files)
             {
                 item = all_items_map.get(path);
                 if (item == null)
@@ -733,7 +743,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
             else
             {
-                // this is an item that could have an image but the user prefers
+                // this is an item that could have an image but the user prefers not
                 String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(), owner,logger);
                 item = all_items_map.get(path);
                 if (item == null) {
@@ -769,18 +779,30 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
             //logger.log("wait terminated");
         }
-        for ( Path path : paths_manager.iconized_paths)
+        if ( dbg) logger.log("getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");
+
+
+
+
+
+
+        start = System.currentTimeMillis();
+        long getting_image_properties_from_cache = 0;
+        for ( Path path : paths_holder.iconized_paths)
         {
             Double cache_aspect_ratio = Double.valueOf(1.0);
+            long local_incr = System.currentTimeMillis();
+            // this i a BLOCKING call
             Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
-            if ( ip == null) {
-                logger.log(Stack_trace_getter.get_stack_trace("warning: CACHE MISS !!"));
+            if ( ip == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: image property cache miss"));
             }
             else
             {
                 cache_aspect_ratio = (Double) ip.get_aspect_ratio();
             }
-
+            getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
             Supplier<Image_feature_vector_cache> fv_cache_supplier = () ->
             {
                 if ( fv_cache != null) return fv_cache;
@@ -810,10 +832,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             all_items_map.put(path,item);
             //logger.log("item created: "+path);
         }
+        if ( dbg)
+        {
+            logger.log("making iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
+            logger.log("     ,of which getting_image_properties_from_cache= " +getting_image_properties_from_cache+ " milliseconds");
+        }
 
 
         /// at this stage we MUST have get_iconized_sorted() in the proper order
         // that will define the x,y layout
+        start = System.currentTimeMillis();
         List<Path> ll = get_iconized_sorted("process_iconified_items");
         for (Path path : ll )
         {
@@ -825,19 +853,24 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
             if (dbg)  logger.log("Virtual_landscape process_iconified_items " + path+" ar:"+((Item_file_with_icon)item).aspect_ratio);
 
-            if (Feature_cache.get(Feature.Show_icons_for_files)) {
+            if (show_icons_for_files)
+            {
                 //logger.log("recomputing position for "+item.get_item_path());
                 //logger.log(path+" point ="+point.getX()+"-"+point.getY());
                 point = compute_next_Point2D_for_icons(point, item,
                         icon_size, icon_size,
                         scene_width, single_column, max_y_in_row, current_row);
-            } else {
+            }
+            else
+            {
                 point = new_Point_for_files_and_dirs(point, item,
                         column_increment,
                         file_button_height, scene_width, single_column);
                 how_many_rows++;
             }
         }
+        if ( dbg) logger.log("mapping iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
+
     }
 
     //**********************************************************
@@ -847,9 +880,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         // manage the non-iconifed-files section
         double row_increment_for_files = 2 * Non_booleans.get_font_size(owner,logger);
 
-        for (Path path : paths_manager.non_iconized.keySet())
+        for (Path path : paths_holder.non_iconized.keySet())
         {
-            if (dbg) logger.log("Virtual_landscape process_non_iconized_files "+path.toAbsolutePath());
+            if (ultra_dbg) logger.log("Virtual_landscape process_non_iconized_files "+path.toAbsolutePath());
             String text = path.getFileName().toString();
             long size = path.toFile().length() / 1000_000L;
             if (Guess_file_type.is_this_path_a_video(path)) text = size + "MB VIDEO: " + text;
@@ -897,7 +930,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 ini.get_button().setMinWidth(column_increment);
             }
         }
-        if ( ! paths_manager.non_iconized.isEmpty())
+        if ( ! paths_holder.non_iconized.isEmpty())
         {
             if (p.getX() != 0)
             {
@@ -921,7 +954,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             actual_row_increment = row_increment_for_dirs_with_picture;
 
-            for (Path folder_path : paths_manager.folders.keySet())
+            for (Path folder_path : paths_holder.folders.keySet())
             {
                 if (dbg) logger.log("Virtual_landscape process_folders (1) "+folder_path);
                 long start = System.currentTimeMillis();
@@ -933,7 +966,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         else
         {
             actual_row_increment = row_increment_for_dirs;
-            List<Path> paths = new ArrayList<>(paths_manager.folders.keySet());
+            List<Path> paths = new ArrayList<>(paths_holder.folders.keySet());
             if ( show_total_size_deep_in_each_folder_done)
             {
                 Comparator<Path> comp = (p1, p2) -> {
@@ -1538,7 +1571,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 y_min = item.get_javafx_y();
             }
             double h = item.get_Height();
-            if ( dbg) logger.log("compute_bounding_rectangle, h="+h+" for "+item.get_string());
+            if ( scroll_dbg) logger.log("compute_bounding_rectangle, h="+h+" for "+item.get_string());
 
             if (item.get_javafx_y() + h > virtual_landscape_height) virtual_landscape_height = item.get_javafx_y() + h;
         }
@@ -1571,14 +1604,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public List<File> get_file_list()
     //**********************************************************
     {
-        return paths_manager.get_file_list();
+        return paths_holder.get_file_list();
     }
 
     //**********************************************************
     public List<File> get_folder_list()
     //**********************************************************
     {
-        return paths_manager.get_folder_list();
+        return paths_holder.get_folder_list();
     }
 
 
@@ -2766,9 +2799,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         //the_max_dir_text_length = 0;
         all_items_map.clear();
-        paths_manager.iconized_paths.clear();
-        paths_manager.non_iconized.clear();
-        paths_manager.folders.clear();
+        paths_holder.iconized_paths.clear();
+        paths_holder.non_iconized.clear();
+        paths_holder.folders.clear();
         iconized_sorted_queue.clear();
 
         browsing_caches.image_properties_RAM_cache.reload_cache_from_disk();
@@ -2794,8 +2827,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 owner,x,y, aborter,logger);;
 
         // these MUST be mutually exclusive:
-        paths_manager.folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
-        paths_manager.non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
+        paths_holder.folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
+        paths_holder.non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
     }
 
 
@@ -2803,10 +2836,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void scan_list()
     //**********************************************************
     {
-        //logger.log("Virtual_landscape: scan_list");
 
 
-        if ( dbg) if (Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        if ( dbg)
+        {
+            logger.log("Virtual_landscape: scan_list");
+            if (Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: scanning disk on javafx thread"));
+        }
 
         try
         {
@@ -2824,7 +2860,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     return;
                 }
 
-                paths_manager.do_folder(path);
+                paths_holder.do_folder(path);
             }
             for ( Path path : path_list_provider.only_file_paths(Feature_cache.get(Feature.Show_hidden_files)))
             {
@@ -2835,7 +2871,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     aborter.on_abort();
                     return;
                 }
-                paths_manager.do_file( path, Feature_cache.get(Feature.Show_icons_for_files), owner);
+                paths_holder.do_file( path, Feature_cache.get(Feature.Show_icons_for_files), owner);
                 // this will start one virtual thread per image to prefill the image property cache
             }
         }
@@ -2854,6 +2890,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             logger.log("Browsing error: "+e);
             receive_error(Error_type.ERROR);
         }
+
+        logger.log("Virtual_landscape: scan_list ends");
+
     }
 
 
@@ -2861,7 +2900,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void all_image_properties_acquired_4(long start, Hourglass running_film)
     //**********************************************************
     {
-        //logger.log("Virtual_landscale::all_image_properties_acquired() ");
+        logger.log("Virtual_landscape::all_image_properties_acquired_4() ");
         Runnable r = () -> browsing_caches.image_properties_RAM_cache.save_whole_cache_to_disk();
         Actor_engine.execute(r,logger);
 
@@ -2873,6 +2912,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         get_path_comparator();
         //logger.log("all_image_properties_acquired, going to refresh");
         refresh_UI("all_image_properties_acquired", running_film);
+
+        logger.log("Virtual_landscape::all_image_properties_acquired_4() done");
 
     }
 
@@ -2896,11 +2937,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        if ( dbg) logger.log("refresh_UI_on_fx_thread from: " + from);
+        //if ( dbg)
+            logger.log("refresh_UI_on_fx_thread from: " + from);
 
         compute_geometry("scene_geometry_changed from: " + from, running_film);
 
-        if (dbg) logger.log("adapt_slider_to_scene");
+        //if (dbg)
+            logger.log("adapt_slider_to_scene");
 
         {
             vertical_slider.adapt_slider_to_scene(owner);
@@ -2930,7 +2973,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        if ( dbg) logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
+        //if ( dbg)
+            logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
         if (scroll_dbg) logger.log(("geometry_changed single_column="+ Feature_cache.get(Feature.Show_single_column)));
 
         if ( dbg) logger.log("Virtual_landscape map_buttons_and_icons");
@@ -2982,49 +3026,63 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
         the_Pane.getChildren().clear();
-        items_are_ready.set(false);
-        future_pane_content.clear();
-        how_many_rows = 0;
+        // now we can be in a thread
 
-        Point2D p = new Point2D(0, 0);
         int final_column_increment_for_folders = column_increment_for_folders;
         int final_column_increment_for_icons = column_increment_for_icons;
-        p = process_folders(Feature_cache.get(Feature.Show_single_column), row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
-        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
-        p = process_non_iconized_files(Feature_cache.get(Feature.Show_single_column), final_column_increment_for_folders, scene_width, p);
-        p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
-        process_iconized_items(Feature_cache.get(Feature.Show_single_column), icon_size, final_column_increment_for_icons, scene_width, p);
+        Runnable r = () -> {
+            items_are_ready.set(false);
+            future_pane_content.clear();
+            how_many_rows = 0;
 
-        compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
+            if ( dbg) logger.log("on javafx thread?  "+Platform.isFxApplicationThread());
 
-        if ( dbg) logger.log("Going to remap all items");
-        long start2 = System.currentTimeMillis();
-        future_pane_content.addAll(all_items_map.values());
+            Point2D p = new Point2D(0, 0);
 
-        items_are_ready.set(true);
-        the_guard.set(false);
+            long start = System.currentTimeMillis();
+            p = process_folders(Feature_cache.get(Feature.Show_single_column), row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
+            if ( dbg) logger.log("process_folders took "+(System.currentTimeMillis()-start)+" ms");
+            p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
+            p = process_non_iconized_files(Feature_cache.get(Feature.Show_single_column), final_column_increment_for_folders, scene_width, p);
+            p = new Point2D(p.getX(),p.getY()+MARGIN_Y);
+            start = System.currentTimeMillis();
+            process_iconized_items(Feature_cache.get(Feature.Show_single_column), icon_size, final_column_increment_for_icons, scene_width, p);
+            if ( dbg) logger.log("process_iconized_items took "+(System.currentTimeMillis()-start)+" ms");
 
-        if ( dbg) logger.log("END, the_guard => "+the_guard.get()+" for "+path_list_provider.get_name());
+            start = System.currentTimeMillis();
+            compute_bounding_rectangle("map_buttons_and_icons() OK "+p.getX()+" "+p.getY());
+            if ( dbg) logger.log("compute_bounding_rectangle took "+(System.currentTimeMillis()-start)+" ms");
 
-        Jfx_batch_injector.inject(()->
-        {
-            if ( running_film != null) running_film.close();
+            if ( dbg) logger.log("Going to remap all items");
+            future_pane_content.addAll(all_items_map.values());
 
-            for (Item item : future_pane_content)
+            items_are_ready.set(true);
+            the_guard.set(false);
+            if ( dbg) logger.log("END, the_guard => "+the_guard.get()+" for "+path_list_provider.get_name());
+
+            Jfx_batch_injector.inject(()->
             {
-                if (item.visible_in_scene.get())
+                if ( running_film != null) running_film.close();
+
+                for (Item item : future_pane_content)
                 {
-                    if (!the_Pane.getChildren().contains(item.get_Node()))
+                    if (item.visible_in_scene.get())
                     {
-                        the_Pane.getChildren().add(item.get_Node());
+                        if (!the_Pane.getChildren().contains(item.get_Node()))
+                        {
+                            the_Pane.getChildren().add(item.get_Node());
+                        }
                     }
                 }
-            }
-            scroll_to();
+                scroll_to();
 
-            set_visibility_on_fx_thread(reason+" map_buttons_and_icons ");
+                set_visibility_on_fx_thread(reason+" map_buttons_and_icons ");
 
-        },logger);
+            },logger);
+        };
+        Actor_engine.execute(r,logger);
+
+
     }
 
 

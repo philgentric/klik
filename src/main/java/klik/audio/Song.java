@@ -2,6 +2,7 @@ package klik.audio;
 
 
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
@@ -26,11 +27,27 @@ public record Song(String path, Node node)
     //**********************************************************
     {
         //logger.log("is visible: "+ path);
-        node.setOnMouseClicked(event ->
+        if ( node instanceof Button button)
+        {
+            button.setOnAction(event ->
+            {
+                logger.log("changing song: "+ path);
+                playlist.change_song(path);
+            });
+        }
+        else {
+            node.setOnMouseClicked(event ->
+            {
+                if ( event.getButton() != MouseButton.PRIMARY)
                 {
-                    if ( event.getButton() != MouseButton.PRIMARY) return;
-                    playlist.change_song(path);
-                });
+                    logger.log("not primary");
+                    return;
+                }
+                logger.log("changing song: "+ path);
+                playlist.change_song(path);
+            });
+
+        }
         add_context_menu_to_node(playlist,owner,logger);
     }
 

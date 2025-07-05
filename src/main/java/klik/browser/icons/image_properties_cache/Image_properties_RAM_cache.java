@@ -80,8 +80,6 @@ public class Image_properties_RAM_cache
     // if tr is null then this routine will BLOCK until the Image_properties is in the cache
     // if tr is not null then this routine will return null and start the cache filling
     // in a separate thread, which will call tr.has_ended when finished
-
-
     public Image_properties get_from_cache(Path p, Job_termination_reporter tr)
     //**********************************************************
     {

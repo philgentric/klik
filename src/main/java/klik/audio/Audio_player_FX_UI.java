@@ -34,16 +34,16 @@ import klik.util.ui.Show_running_film_frame;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 //**********************************************************
-public class Audio_player_FX_UI implements Music_UI
+public class Audio_player_FX_UI
 //**********************************************************
 {
     private static final boolean dbg =  false;
+    private static final boolean scroll_dbg =  false;
+
     public static final int WIDTH = 500;
     public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
     private static final String PAUSE = "Pause";
@@ -544,44 +544,117 @@ public class Audio_player_FX_UI implements Music_UI
         });
 
         Look_and_feel_manager.set_region_look(scroll_pane,stage,logger);
-        scroll_pane.setPrefSize(WIDTH, 600);
-        the_vertical_box = new VBox();
+        scroll_pane.setPrefHeight(3000);
+        //scroll_pane.setPrefWidth(1000);
+        the_vertical_box = new VBox(0);
+        the_vertical_box.setSpacing(0);
+        the_vertical_box.setPadding(new Insets(0)); // Remove padding
+        the_vertical_box.setFillWidth(true);
+        VBox.setVgrow(the_vertical_box, Priority.ALWAYS);
+
+
+
+
+        // Force layout pass
+        Platform.runLater(() -> {
+            the_vertical_box.requestLayout();
+            the_vertical_box.layout();
+            for (javafx.scene.Node node : the_vertical_box.getChildren()) {
+                logger.log("Node position after layout: " + node.getLayoutY());
+            }
+        });
         scroll_pane.setContent(the_vertical_box);
 
         scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll_pane.setPrefHeight(3000);
 
-        scroll_pane.setOnScroll((ScrollEvent scrollEvent) -> process_scroll());
+        scroll_pane.setOnScroll( e -> {
+            logger.log("setOnScroll: " + e);
+            process_scroll(e);
+        });
 
+        /*
+        scroll_pane.addEventFilter(ScrollEvent.ANY, event -> {
+            logger.log("ScrollEvent.ANY: " + event);
+            process_scroll(event);
+        });
+        */
+
+        scroll_pane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
+            logger.log("scroll pane vvalue changed: " + newValue);
+            process_scroll(null);
+        });
         return scroll_pane;
     }
 
     //**********************************************************
-    private void process_scroll()
+    private void process_scroll(ScrollEvent e)
     //**********************************************************
     {
-        Bounds scrollPaneBounds = scroll_pane.localToScene(scroll_pane.getBoundsInLocal());
+        Platform.runLater(()-> process_scroll_internal(e));
+    }
+    //**********************************************************
+    private void process_scroll_internal(ScrollEvent e)
+    //**********************************************************
+    {
+        Bounds scrollPaneBounds = scroll_pane.getContent().getLayoutBounds();
+        //logger.log("scrollPane minY " + scrollPaneBounds.getMinY()); // typically 0
+        //logger.log("scrollPane maxY " + scrollPaneBounds.getMaxY());
 
-        for ( Song s : playlist.path_to_Song.values())
+        double scroll = scroll_pane.vvalueProperty().get();
+        if ( scroll_dbg) logger.log("scroll = " + scroll);
+        double viewportHeight = scroll_pane.getViewportBounds().getHeight();
+        if ( scroll_dbg) logger.log("viewportHeight = " + viewportHeight);
+        if ( scroll_dbg) logger.log("scrollPaneBounds.getMinY() = " + scrollPaneBounds.getMinY());
+        if ( scroll_dbg) logger.log("scrollPaneBounds.getMaxY() = " + scrollPaneBounds.getMaxY());
+
+
+        Bounds contentBounds = the_vertical_box.getLayoutBounds();
+        if ( scroll_dbg) logger.log("Content bounds: " + contentBounds);
+
+        double contentViewStartY = scrollPaneBounds.getMinY() + scroll * (scrollPaneBounds.getMaxY() - viewportHeight);
+        if ( scroll_dbg) logger.log("contentViewStartY = " + contentViewStartY);
+
+
+        double contentViewEndY = contentViewStartY + viewportHeight;
+        if ( scroll_dbg) logger.log("contentViewEndY = " + contentViewEndY);
+        int count_visible = 0;
+        //StringBuilder sb =null;
+        //if ( scroll_dbg ) sb = new StringBuilder();
+
+        List<Song> local = playlist.get_a_copy_of_all_songs();
+        Comparator<? super Song> compa = (Comparator<Song>) (o1, o2) -> {
+            Double d1 = Double.valueOf(o1.node().getBoundsInParent().getMinY());
+            Double d2 = Double.valueOf(o2.node().getBoundsInParent().getMinY());
+            return d1.compareTo(d2);
+        };
+        Collections.sort(local,compa);
+        for ( Song s : local)
         {
-            Bounds node_Bounds = s.node().localToScene(s.node().getBoundsInLocal());
+            Bounds node_Bounds = s.node().getBoundsInParent();
+            if ( scroll_dbg) logger.log("node minY " + node_Bounds.getMinY()+" for "+s.path());
+            if ( scroll_dbg) logger.log("node maxY " + node_Bounds.getMaxY());
 
-            boolean isVisible =
-                    node_Bounds.getMaxY() >= scrollPaneBounds.getMinY() &&
-                            node_Bounds.getMinY() <= scrollPaneBounds.getMaxY() &&
-                            node_Bounds.getMaxX() >= scrollPaneBounds.getMinX() &&
-                            node_Bounds.getMinX() <= scrollPaneBounds.getMaxX();
-            if ( isVisible)
+            if(node_Bounds.getMinY() > contentViewEndY )
             {
-
-                s.process_visible(playlist,stage,logger);
-            }
-            else
-            {
+                //if ( sb !=null) sb.append("not ok1 is invisible : ").append(node_Bounds.getMinY()).append(">").append(contentViewEndY).append("\n");
                 s.process_invisible(logger);
+                continue;
             }
+            //if ( sb !=null) sb.append("ok1 : " + node_Bounds.getMinY() +"<="+ contentViewEndY).append("\n");
+            if(node_Bounds.getMaxY() < contentViewStartY )
+            {
+                //if ( sb !=null) sb.append("not ok2 is invisible : ").append(node_Bounds.getMaxY()).append("<").append( contentViewStartY).append("\n");
+                s.process_invisible(logger);
+                continue;
+            }
+            //if ( sb !=null) sb.append("ok2 is visible : " + node_Bounds.getMaxY() +">="+ contentViewStartY).append("\n");
+            s.process_visible(playlist,stage,logger);
+            count_visible++;
         }
+        //if ( sb !=null) logger.log(sb.toString());
+        if ( scroll_dbg) logger.log("visible songs: " + count_visible + " out of " + local.size());
+        if ( e !=null) e.consume();
     }
 
     //**********************************************************
@@ -806,7 +879,6 @@ public class Audio_player_FX_UI implements Music_UI
     }
 
     //**********************************************************
-    @Override
     public void stop_current_media()
     //**********************************************************
     {
@@ -819,7 +891,6 @@ public class Audio_player_FX_UI implements Music_UI
     }
 
     //**********************************************************
-    @Override
     public void set_title(String s)
     //**********************************************************
     {
@@ -828,7 +899,6 @@ public class Audio_player_FX_UI implements Music_UI
     }
 
     //**********************************************************
-    @Override
     public void set_total_duration(String s)
     //**********************************************************
     {
@@ -839,7 +909,6 @@ public class Audio_player_FX_UI implements Music_UI
 
 
     //**********************************************************
-    @Override
     public void play_song_with_new_media_player(String new_song, Integer current_time_s)
     //**********************************************************
     {
@@ -892,7 +961,6 @@ public class Audio_player_FX_UI implements Music_UI
     }
 
     //**********************************************************
-    @Override
     public void set_playlist_name_display(String new_play_list_name)
     //**********************************************************
     {
@@ -900,33 +968,28 @@ public class Audio_player_FX_UI implements Music_UI
         Platform.runLater(r);
     }
 
-    //**********************************************************
-    @Override
-    public void add_song(Song song)
-    //**********************************************************
-    {
-        Runnable r = () -> the_vertical_box.getChildren().add(song.node());
-        Platform.runLater(r);
-    }
+
 
 
     //**********************************************************
-    @Override
-    public void add_songs(List<Song> songs)
+    public void add_all_songs(List<Song> songs)
     //**********************************************************
     {
         Runnable r = () ->
         {
+            the_vertical_box.getChildren().clear();
             for ( Song s : songs)
             {
                 the_vertical_box.getChildren().add(s.node());
             }
+            the_vertical_box.requestLayout();
+            the_vertical_box.layout();
+            process_scroll(null); // Calculate visibility after layout
         };
         Platform.runLater(r);
     }
 
     //**********************************************************
-    @Override
     public void remove_song(Song song)
     //**********************************************************
     {
@@ -936,7 +999,6 @@ public class Audio_player_FX_UI implements Music_UI
 
 
     //**********************************************************
-    @Override
     public void remove_all_songs()
     //**********************************************************
     {
@@ -946,16 +1008,21 @@ public class Audio_player_FX_UI implements Music_UI
 
 
     //**********************************************************
-    @Override
     public void scroll_to(String target)
     //**********************************************************
     {
-        Runnable r = () -> scroll_pane.setVvalue(playlist.get_scroll_for(target));
-        Platform.runLater(r);
+        double x = playlist.get_scroll_for(target);
+
+        double h = scroll_pane.getViewportBounds().getHeight();
+
+        double max = scroll_pane.getContent().getLayoutBounds().getMaxY();
+        double y = x* (max+h)/max;
+        logger.log("scroll_to: target="+target+" x="+x+" y="+y+" with max="+max+" h="+h);
+
+        Platform.runLater(() -> scroll_pane.setVvalue(y));
     }
 
     //**********************************************************
-    @Override
     public void set_status(String s)
     //**********************************************************
     {
@@ -1185,7 +1252,7 @@ public class Audio_player_FX_UI implements Music_UI
     //**********************************************************
     {
         playlist.init();
-        Platform.runLater(()->process_scroll());
+        Platform.runLater(()->process_scroll(null));
     }
 
     //**********************************************************

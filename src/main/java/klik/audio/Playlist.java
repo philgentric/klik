@@ -44,23 +44,25 @@ public class Playlist
 //**********************************************************
 {
     private final static boolean dbg = false;
+    public static final String DEFAULT_BACKGROUND_COLOR = "#ffffff";
+    public static final String COLOR_OF_SELECTION = "#90D5FF";
     private final Logger logger;
     static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
 
-    List<String> the_playlist = new ArrayList<>();
-    Map<String, Song> path_to_Song = new HashMap<>();
+    private List<String> the_playlist = new ArrayList<>();
+    private Map<String, Song> path_to_Song = new HashMap<>();
     Song selected = null;
 
     private static File playlist_file = null;
     String the_song_path;
-    private final Music_UI the_music_ui;
+    private final Audio_player_FX_UI the_music_ui;
     File saving_dir = null;
     private final Undo_core undo_core;
     private final Window owner;
 
 
     //**********************************************************
-    public Playlist(Music_UI the_music_ui, Window owner, Logger logger)
+    public Playlist(Audio_player_FX_UI the_music_ui, Window owner, Logger logger)
     //**********************************************************
     {
         this.the_music_ui = the_music_ui;
@@ -71,27 +73,30 @@ public class Playlist
 
 
     //**********************************************************
-    Node add_to_playlist(String file_path)
+    void add_to_playlist(String file_path)
     //**********************************************************
     {
         the_playlist.add(file_path);
-        Node local_button = define_node_for_a_song(file_path);
-        the_music_ui.add_song(new Song(file_path,local_button));
-        return local_button;
+        Node node = define_node_for_a_song(file_path);
+        Song local = new Song(file_path,node);
+        path_to_Song.put(file_path, local);
+        update_display();
     }
 
     //**********************************************************
     private void add_all_to_playlist(List<String> file_paths)
     //**********************************************************
     {
+        the_playlist.clear();
         the_playlist.addAll(file_paths);
-        List<Song> local_buttons = new ArrayList<>();
-        for ( String file_path : file_paths)
+        path_to_Song.clear();
+        for (String file_path : file_paths)
         {
-            Node local_button = define_node_for_a_song(file_path);
-            local_buttons.add(new Song(file_path,local_button));
+            Node node = define_node_for_a_song(file_path);
+            Song local = new Song(file_path, node);
+            path_to_Song.put(file_path, local);
         }
-        the_music_ui.add_songs(local_buttons);
+        update_display();
     }
 
 
@@ -107,6 +112,7 @@ public class Playlist
         node.setMnemonicParsing(false);
         Look_and_feel_manager.set_button_look(node,false,owner,logger);
         node.setPrefWidth(2000);
+        // the node active part is set when is becomes visible
         path_to_Song.put(file_path, new Song(file_path, node));
         return node;
     }
@@ -281,10 +287,10 @@ public class Playlist
                 if (dbg) logger.log("already selected " + the_song_path);
                 return;
             }
-            set_background_to(future, "#90D5FF");
             reset_background_to_default(selected);
         }
         selected = future;
+        set_background_to(selected, COLOR_OF_SELECTION);
 
         the_music_ui.scroll_to(the_song_path);
         Non_booleans.save_current_song(the_song_path,owner);
@@ -299,7 +305,7 @@ public class Playlist
         if (dbg) logger.log("resetting background for previously selected");
         String s = song.node().getStyle();
         if (dbg) logger.log("style before = " + s);
-        s = change_background_color(s, "#ffffff");
+        s = change_background_color(s, DEFAULT_BACKGROUND_COLOR);
         if (dbg) logger.log("style after = " + s);
         song.node().setStyle(s);
     }
@@ -550,7 +556,7 @@ public class Playlist
 
 
     //**********************************************************
-    void jump_to_next()
+    synchronized void jump_to_next()
     //**********************************************************
     {
         if ( dbg) logger.log("jumping to next song");
@@ -581,7 +587,7 @@ public class Playlist
     }
 
     //**********************************************************
-    void jump_to_previous()
+    synchronized void jump_to_previous()
     //**********************************************************
     {
         if (the_playlist.isEmpty()) return;
@@ -720,15 +726,17 @@ public class Playlist
             BufferedReader br = new BufferedReader(new FileReader(playlist_file_));
             the_playlist.clear();
             the_music_ui.remove_all_songs();
+            List<String> to_be_loaded = new ArrayList<>();
             for (;;)
             {
                 String song_path = br.readLine();
                 if (song_path == null) break;
                 if ( (new File(song_path)).exists())
                 {
-                    add_to_playlist(song_path);
+                    to_be_loaded.add(song_path);
                 }
             }
+            add_all_to_playlist(to_be_loaded);
             playlist_file = playlist_file_;
             Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
 
@@ -862,20 +870,30 @@ public class Playlist
     public void shuffle()
     //**********************************************************
     {
-        the_music_ui.remove_all_songs();
         Collections.shuffle(the_playlist);
+        update_display();
+    }
+
+    //**********************************************************
+    public void update_display()
+    //**********************************************************
+    {
+        the_music_ui.remove_all_songs();
         List<Song> local_songs = new ArrayList<>();
         String selected_path = null;
         for ( String path : the_playlist)
         {
             Song local_song = path_to_Song.get(path);
+            if ( local_songs.contains(local_song))
+            {
+                logger.log("wtf? already in the list: " + local_song.path());
+                continue;
+            }
             local_songs.add(local_song);
-            if ( local_song.path().equals(selected.path())) selected_path = path;
+            if ( selected !=null) if ( local_song.path().equals(selected.path())) selected_path = path;
         }
-        the_music_ui.add_songs(local_songs);
+        the_music_ui.add_all_songs(local_songs);
         the_music_ui.scroll_to(selected_path);
-
-
 
     }
 
@@ -1029,7 +1047,7 @@ public class Playlist
 
             String display = "";
             for ( String m : matched) display += m + " ";
-            if ( found) the_result_vbox.getChildren().add(make_button(song, display, search_stage,is_max));
+            if ( found) the_result_vbox.getChildren().add(make_button_for_found_song(song, display, search_stage,is_max));
 
         }
 
@@ -1052,7 +1070,7 @@ public class Playlist
     }
 
     //**********************************************************
-    private Node make_button(Song song, String search_text, Stage search_stage, boolean is_max)
+    private Node make_button_for_found_song(Song song, String search_text, Stage search_stage, boolean is_max)
     //**********************************************************
     {
         Path p = Path.of(song.path());
@@ -1092,5 +1110,13 @@ public class Playlist
         Drag_and_drop.init_drag_and_drop_sender_side(b, null,Path.of(song.path()),logger);
 
         return b;
+    }
+
+    // warning the ORDER is wrong
+    //**********************************************************
+    public List<Song> get_a_copy_of_all_songs()
+    //**********************************************************
+    {
+        return new ArrayList<>(path_to_Song.values());
     }
 }

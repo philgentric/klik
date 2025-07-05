@@ -39,8 +39,6 @@ public class Paths_holder
     AtomicInteger ig_gen = new AtomicInteger(0);
     public final int ID;
     public final Aborter aborter;
-    //public final Path folder_path;
-    //Path_list_provider path_list_provider;
     private final Icon_factory_actor icon_factory_actor;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
 
@@ -152,7 +150,7 @@ public class Paths_holder
     //**********************************************************
     {
         folders.put(path,true);
-        Text t = new Text(path.getFileName().toString());
+        //Text t = new Text(path.getFileName().toString());
         //double l = t.getLayoutBounds().getWidth();
         //if (l > the_browser.max_dir_text_length) the_browser.max_dir_text_length = l;
     }

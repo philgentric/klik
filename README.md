@@ -244,6 +244,8 @@ A: To look for easter eggs.
 Q: How can I edit the configuration file?  
 A: The file name is klik_properties.txt, it is located in the .klik folder in your home folder.
 
+Q: When I start the audio player, all (or some of) my songs are gone?
+A: You moved your music to a different folder. Drop that folder on the audio player drop area, the songs will be reloaded and your playlists will be updated.
 
 ## Dependencies
 
@@ -302,19 +304,4 @@ b) then classification uses KNN with cosine similarity on feature vectors extrac
 
 Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by face detection false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
 
-
-
-## TODO list
-
-Try faster jpeg decoding like twelveMonkey
-
-Try supporting more formats via Java Advanced Imaging
-
-Try better down-scaling filters (not needed on mac screens, it is built-in) for example with imgscalr
-
-Native ? (you can install grallVM )
-
-## Abandoned TODO list
-
-Make an installer for Mac,Linux and windows: too much work to maintain, not competitive with the "from source" methods (gradle and jbang)
 
