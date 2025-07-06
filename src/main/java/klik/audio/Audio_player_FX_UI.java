@@ -527,16 +527,16 @@ public class Audio_player_FX_UI
         scroll_pane = new ScrollPane();
         Look_and_feel_manager.set_region_look(scroll_pane,stage,logger);
         scroll_pane.addEventFilter(KeyEvent.KEY_PRESSED, key_event -> {
-            logger.log("trapping event "+key_event);
+            if ( dbg)logger.log("trapping event "+key_event);
             switch (key_event.getCode())
             {
             case UP:
-                logger.log("handle event: UP");
+                if ( dbg)logger.log("handle event: UP");
                 playlist.jump_to_previous();
                 key_event.consume(); // prevent default key handling
                 break;
             case DOWN:
-                logger.log("handle event: DOWN");
+                if ( dbg)logger.log("handle event: DOWN");
                 playlist.jump_to_next();
                 key_event.consume(); // prevent default key handling
                 break;
@@ -555,21 +555,14 @@ public class Audio_player_FX_UI
 
 
 
-        // Force layout pass
-        Platform.runLater(() -> {
-            the_vertical_box.requestLayout();
-            the_vertical_box.layout();
-            for (javafx.scene.Node node : the_vertical_box.getChildren()) {
-                logger.log("Node position after layout: " + node.getLayoutY());
-            }
-        });
+
         scroll_pane.setContent(the_vertical_box);
 
         scroll_pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scroll_pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         scroll_pane.setOnScroll( e -> {
-            logger.log("setOnScroll: " + e);
+            if ( scroll_dbg) logger.log("setOnScroll: " + e);
             process_scroll(e);
         });
 
@@ -581,7 +574,7 @@ public class Audio_player_FX_UI
         */
 
         scroll_pane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
-            logger.log("scroll pane vvalue changed: " + newValue);
+            if ( scroll_dbg) logger.log("scroll pane vvalue changed: " + newValue);
             process_scroll(null);
         });
         return scroll_pane;
@@ -952,7 +945,7 @@ public class Audio_player_FX_UI
         local.setOnPlaying(() -> {
             if ( current_time_s != null)
             {
-                logger.log("seeking to "+current_time_s);
+                if ( dbg) logger.log("seeking to "+current_time_s);
                 Duration target = Duration.seconds(current_time_s);
                 if (the_media_player_option.isPresent()) the_media_player_option.get().seek(target);
             }
@@ -1017,7 +1010,7 @@ public class Audio_player_FX_UI
 
         double max = scroll_pane.getContent().getLayoutBounds().getMaxY();
         double y = x* (max+h)/max;
-        logger.log("scroll_to: target="+target+" x="+x+" y="+y+" with max="+max+" h="+h);
+        if( scroll_dbg) logger.log("scroll_to: target="+target+" x="+x+" y="+y+" with max="+max+" h="+h);
 
         Platform.runLater(() -> scroll_pane.setVvalue(y));
     }

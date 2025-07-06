@@ -91,7 +91,7 @@ public class Launcher extends Application implements UI_change
     {
         stage = stage_;
         Sys_init.init("Launcher app",stage);
-        logger = new File_logger("../launcher.txt");// Shared_services.shared_services_logger;
+        logger = new File_logger("launcher.txt");// Shared_services.shared_services_logger;
 
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);

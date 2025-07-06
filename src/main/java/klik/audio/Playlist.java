@@ -884,12 +884,7 @@ public class Playlist
         for ( String path : the_playlist)
         {
             Song local_song = path_to_Song.get(path);
-            if ( local_songs.contains(local_song))
-            {
-                logger.log("wtf? already in the list: " + local_song.path());
-                continue;
-            }
-            local_songs.add(local_song);
+            if ( !local_songs.contains(local_song)) local_songs.add(local_song);
             if ( selected !=null) if ( local_song.path().equals(selected.path())) selected_path = path;
         }
         the_music_ui.add_all_songs(local_songs);

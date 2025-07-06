@@ -123,45 +123,45 @@ public class Non_booleans
             Rectangle2D screen_bounds = s.getVisualBounds();
             if ( screen_bounds.getMinX() > target.getMinX())
             {
-                System.out.println("from file minX not ok: "+screen_bounds.getMinX() +">"+ target.getMinX());
+                //System.out.println("from file minX not ok: "+screen_bounds.getMinX() +">"+ target.getMinX());
                 continue;
             }
             else
             {
-                System.out.println("from file minX ok: "+screen_bounds.getMinX() +"<="+ target.getMinX());
+                //System.out.println("from file minX ok: "+screen_bounds.getMinX() +"<="+ target.getMinX());
             }
             if ( screen_bounds.getMaxX() < target.getMaxX())
             {
-                System.out.println("from file maxX not ok: "+screen_bounds.getMaxX() +"<"+ target.getMaxX());
+                //System.out.println("from file maxX not ok: "+screen_bounds.getMaxX() +"<"+ target.getMaxX());
                 continue;
             }
             else
             {
-                System.out.println("from file maxX ok: "+screen_bounds.getMaxX() +">="+ target.getMaxX());
+                //System.out.println("from file maxX ok: "+screen_bounds.getMaxX() +">="+ target.getMaxX());
             }
 
             if ( screen_bounds.getMinY() > target.getMinY())
             {
-                System.out.println("from file minY not ok: "+screen_bounds.getMinY() +">"+ target.getMinY());
+                //System.out.println("from file minY not ok: "+screen_bounds.getMinY() +">"+ target.getMinY());
                 continue;
             }
             else
             {
-                System.out.println("from file minY ok: "+screen_bounds.getMinY() +"<="+ target.getMinY());
+                //System.out.println("from file minY ok: "+screen_bounds.getMinY() +"<="+ target.getMinY());
             }
             if ( screen_bounds.getMaxY() < target.getMaxY())
             {
-                System.out.println("from file maxY not ok: "+screen_bounds.getMaxY() +"<"+ target.getMaxY());
+                //System.out.println("from file maxY not ok: "+screen_bounds.getMaxY() +"<"+ target.getMaxY());
                 continue;
             }
             else
             {
-                System.out.println("from file maxY ok: "+screen_bounds.getMaxY() +">="+ target.getMaxY());
+                //System.out.println("from file maxY ok: "+screen_bounds.getMaxY() +">="+ target.getMaxY());
             }
 
 
 
-            System.out.println(" from file  bounds " + target + " are within screen bounds " + screen_bounds);
+            //System.out.println(" from file  bounds " + target + " are within screen bounds " + screen_bounds);
             return target; // the stage bounds are inside this screen, so we can return the target rectangle
 
         }

@@ -34,6 +34,7 @@ public class Look_and_feel_manager
 //**********************************************************
 {
     // https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
+    private static final boolean dbg = false;
 
     public static final String MUSIC = "Music";
     public static final String LAUNCHER = "Launcher";
@@ -56,7 +57,6 @@ public class Look_and_feel_manager
     public static Image dummy_icon = null;
 
     private static Look_and_feel instance;
-    private static final boolean dbg = true;
 
     //**********************************************************
     public static Look_and_feel get_instance(Window owner, Logger logger)

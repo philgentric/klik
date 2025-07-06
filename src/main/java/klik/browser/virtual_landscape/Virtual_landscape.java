@@ -85,8 +85,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 {
 
 
-    public static final boolean dbg = true;
-    public static final boolean ultra_dbg = true;
+    public static final boolean dbg = false;
+    public static final boolean ultra_dbg = false;
     public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
     public static final boolean scroll_dbg = false;
