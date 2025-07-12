@@ -230,11 +230,13 @@ public class Icon_factory_actor implements Actor
                 logger.log("Icon_factory thread: aborting3");
             return null;
         }
+        boolean write_icon_to_cache = true;
         if (image_from_disk == null) {
             //if (dbg)
                 logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
 
             image_from_disk = Jar_utils.get_broken_icon(300,icon_factory_request.originator,logger);
+            write_icon_to_cache = false; // do not write the broken icon to the cache
         }
         if (image_from_disk.getWidth() < 1.0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
@@ -266,8 +268,11 @@ public class Icon_factory_actor implements Actor
                 if (dbg)
                         logger.log("Icon_factory thread: sending icon write to file in cache dir for " + path.getFileName());
 
-                Icon_write_message iwm = new Icon_write_message(image_from_disk, icon_factory_request.icon_size, png_extension, path.toAbsolutePath().toString(),aborter);
-                writer.push(iwm);
+                if ( write_icon_to_cache)
+                {
+                    Icon_write_message iwm = new Icon_write_message(image_from_disk, icon_factory_request.icon_size, png_extension, path.toAbsolutePath().toString(), aborter);
+                    writer.push(iwm);
+                }
                 break;
         }
 

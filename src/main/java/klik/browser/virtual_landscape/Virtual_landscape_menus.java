@@ -111,11 +111,14 @@ public class Virtual_landscape_menus
     public MenuItem make_start_Enable_face_recognition_menu_item()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Show_manual_about_face_reco",virtual_landscape.owner, virtual_landscape.logger);
+        String key = "Show_manual_about_face_reco";
+        String text = My_I18n.get_I18n_string(key,virtual_landscape.owner, virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             ML_servers_util.show_face_recognition_manual(virtual_landscape.owner, virtual_landscape.logger);
         });
+        Button explanation_button = Preferences_stage.make_explanation_button(key,virtual_landscape.owner, virtual_landscape.logger);
+        item.setGraphic(explanation_button);
         return item;
     }
 
@@ -124,11 +127,14 @@ public class Virtual_landscape_menus
     public MenuItem make_start_image_similarity_servers_menu_item()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Show_manual_about_image_similarity",virtual_landscape.owner, virtual_landscape.logger);
+        String key = "Show_manual_about_image_similarity";
+        String text = My_I18n.get_I18n_string(key,virtual_landscape.owner, virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             ML_servers_util.show_image_similarity_manual(virtual_landscape.owner, virtual_landscape.logger);
         });
+        Button explanation_button = Preferences_stage.make_explanation_button(key,virtual_landscape.owner, virtual_landscape.logger);
+        item.setGraphic(explanation_button);
         return item;
     }
 
@@ -271,7 +277,7 @@ public class Virtual_landscape_menus
             dialog.setWidth(800);
             dialog.setTitle("Java VM max RAM size");
             dialog.setHeaderText("This is the max RAM that the java VM will be allowed to allocated THE NEXT TIME you run klik.");
-            dialog.setContentText("If you do not know what this means, dont touch it");
+            dialog.setContentText("If you do not know what this means,\ndont change this value");
 
 
             Optional<String> result = dialog.showAndWait();
@@ -299,7 +305,8 @@ public class Virtual_landscape_menus
     public MenuItem make_fusk_check_menu_item()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("fusk",virtual_landscape.owner,virtual_landscape.logger);
+        String key = Feature.Fusk_is_on.name();
+        String text = My_I18n.get_I18n_string(key,virtual_landscape.owner,virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(Feature_cache.get(Feature.Fusk_is_on));
@@ -309,6 +316,8 @@ public class Virtual_landscape_menus
             Feature_cache.update_cached_boolean(Feature.Fusk_is_on,val,owner);
 
         });
+        Button explanation_button = Preferences_stage.make_explanation_button(key,virtual_landscape.owner, virtual_landscape.logger);
+        item.setGraphic(explanation_button);
         return item;
     }
 

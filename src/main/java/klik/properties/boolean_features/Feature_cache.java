@@ -150,7 +150,11 @@ public class Feature_cache
     //**********************************************************
     {
         logger.log("\n\nFeature_cache::sending "+msg+" on port 'ui_change_report_port_at_launcher': "+ Klik_application.ui_change_report_port_at_launcher);
-        TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, msg+" "+new_lang, logger);
+        if (Klik_application.ui_change_report_port_at_launcher != null)
+        {
+            // when klik is started "standalone" (not from the launcher), this port is null
+            TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, msg+" "+new_lang, logger);
+        }
     }
 
 }

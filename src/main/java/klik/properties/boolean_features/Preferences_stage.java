@@ -230,7 +230,7 @@ public class Preferences_stage
             });
             hbox.getChildren().add(cb);
 
-            Button button = make_explanation_button(bf, stage,logger);
+            Button button = make_explanation_button(bf.name(), stage,logger);
             if (button == null) return;
             hbox.getChildren().add(button);
 
@@ -239,19 +239,19 @@ public class Preferences_stage
     }
 
     //**********************************************************
-    public static Button make_explanation_button(Feature bf,Stage stage, Logger logger)
+    public static Button make_explanation_button(String key,Window stage, Logger logger)
     //**********************************************************
     {
         Button button = new Button("?");
-        String explanation = My_I18n.get_I18n_string(bf.name() + EXPLANATION, stage, logger);
+        String explanation = My_I18n.get_I18n_string(key + EXPLANATION, stage, logger);
         if (explanation == null || explanation.isBlank())
         {
-            logger.log("No explanation found for: " + bf.name());
+            logger.log("No explanation found for: " + key);
             return null;
         }
-        if ( explanation.equals(bf.name()+ EXPLANATION))
+        if ( explanation.equals(key+ EXPLANATION))
         {
-            explanation = My_I18n.get_I18n_string(bf.name(), stage, logger).replaceAll("_", " ");
+            explanation = My_I18n.get_I18n_string(key, stage, logger).replaceAll("_", " ");
         }
         button.setTooltip(new Tooltip(explanation));
         Look_and_feel_manager.set_button_look(button, true,stage, logger);
@@ -261,7 +261,7 @@ public class Preferences_stage
     }
 
     //**********************************************************
-    private static void show_explanation(String explanation, Stage owner, Logger logger)
+    private static void show_explanation(String explanation, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -280,6 +280,7 @@ public class Preferences_stage
         explanation_stage.setWidth(500);
         explanation_stage.setHeight(300);
         explanation_stage.show();
+        explanation_stage.setAlwaysOnTop(true);
     }
 
 
