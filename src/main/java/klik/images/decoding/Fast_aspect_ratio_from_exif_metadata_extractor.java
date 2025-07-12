@@ -33,7 +33,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
         {
             sb.add(path.toString());
         }
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             if ( sb != null)

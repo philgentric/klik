@@ -4,11 +4,18 @@ package klik.experimental.fusk;
 
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
@@ -16,7 +23,8 @@ public class Fusk_bytes implements Pin_code_client
 //**********************************************************
 {
     private static Fusk_bytes instance = null;
-    private static final String signature_text = "Don't_pay_the_FerryWoman_until_she_brings_you_to_the_other_side";
+    private static final String default_signature_text = "Don't_pay_the_FerryWoman_until_she_brings_you_to_the_other_side";
+    private static String actual_signature_text;
     private static byte[] signature_clear;
     static byte[] signature_fusk;
     private static AtomicBoolean initialized = new AtomicBoolean(false);
@@ -94,7 +102,7 @@ public class Fusk_bytes implements Pin_code_client
 
         if ( is_initialized())
         {
-            logger.log("already initialized");
+            logger.log("Fusk already initialized");
             return true;
         }
         if ( pin_code == null)
@@ -102,7 +110,7 @@ public class Fusk_bytes implements Pin_code_client
             if ( !pincode_popup.get())
             {
                 pincode_popup.set(true);
-                logger.log("getting pin code from user");
+                logger.log("Fusk: getting pin code from user");
 
                 Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage( logger);
                 pin_code_getter_stage.ask_pin_code_in_a_thread(this, logger);
@@ -110,8 +118,27 @@ public class Fusk_bytes implements Pin_code_client
             return false; // not ready yet
         }
 
+        // look in .klik for a .passphrase.txt file
+        actual_signature_text = default_signature_text;
+        String home = System.getProperty(Non_booleans.USER_HOME);
+        File passphrase_folder = new File (home, Non_booleans.CONF_DIR);
+        File passphrase_file = new File (passphrase_folder, ".passphrase.txt");
+        if ( passphrase_file.exists()) {
+            try {
+                List<String> lines = Files.readAllLines(passphrase_file.toPath());
+                if ( lines.size() > 0) {
+                    actual_signature_text = lines.get(0);
+                    logger.log("Fusk: acquired this passphrase from file: ->"+actual_signature_text+"<-");
+                } else {
+                    logger.log("Fusk: using default passphrase");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         //logger.log(Stack_trace_getter.get_stack_trace("fusk signature initialized as:->"+signature_text+"<-"));
-        String local = pin_code+signature_text;
+        String local = pin_code+actual_signature_text;
         signature_clear = local.getBytes(StandardCharsets.UTF_8);
         signature_fusk = fusk(signature_clear);
         initialized.set(true);

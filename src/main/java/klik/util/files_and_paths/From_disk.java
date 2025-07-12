@@ -1,11 +1,13 @@
 //SOURCES ../../images/decoding/Fast_aspect_ratio_from_exif_metadata_extractor.java
 //SOURCES ../../images/decoding/Fast_width_from_exif_metadata_extractor.java
-//SOURCES ../../unstable/fusk/Fusk_static_core.java
+//SOURCES ../../experimental/fusk/Fusk_static_core.java
 
 package klik.util.files_and_paths;
 
+import javafx.application.Platform;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_writer_actor;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
@@ -43,10 +45,17 @@ public class From_disk
     {
         if (try_fusked)
         {
+            long start = System.currentTimeMillis();
             byte[] buf= Fusk_static_core.defusk_file_to_bytes(original_image_file, aborter, logger);
             if ( buf == null)
             {
-                // error
+                logger.log("WARNING: defusk_file_to_bytes failed");
+
+                if ( System.currentTimeMillis()-start > 1000)
+                {
+                    Runnable r = ()-> Platform.runLater(()->Popups.popup_warning("Reading file "+original_image_file+ " was ridiculously slow.","Maybe this is a network drive and your network connection is slow?",false,null,logger));
+                    Actor_engine.execute(r,logger);
+                }
                 return null;
             }
             else if ( buf.length == 0)
@@ -152,7 +161,7 @@ public class From_disk
             logger.log("load_image_fx NOT DONE because running low on memory ! ");
             return null;
         }
-        InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
+        InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( input_stream == null) return null;
         Image image = null;
         try
@@ -209,7 +218,7 @@ public class From_disk
     {
         //long start = System.currentTimeMillis();
         Image image = null;
-        try(InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter,logger))
+        try(InputStream input_stream = get_image_InputStream(original_image_file, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter,logger))
         {
             if ( input_stream == null)
             {

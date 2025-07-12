@@ -1,9 +1,18 @@
-//SOURCES ../Landscape_height_listener.java
-//SOURCES ../Scroll_to_listener.java
-//SOURCES ./image_properties_cache/Image_properties.java
+//SOURCES ./Landscape_height_listener.java
+//SOURCES ./Scroll_to_listener.java
+//SOURCES ../icons/image_properties_cache/Image_properties.java
 //SOURCES ../../look/Look_and_feel.java
 //SOURCES ../items/Item_folder_with_icon.java
 //SOURCES ../items/My_colors.java
+//SOURCES ../classic/Folder_path_list_provider.java
+//SOURCES ../ram_and_threads_meter/RAM_and_threads_meters_stage.java
+//SOURCES ../../experimental/deduplicate/Deduplication_engine.java
+//SOURCES ../../image_ml/image_similarity/Deduplication_by_similarity_engine.java
+//SOURCES ../items/Top_left_provider.java
+//SOURCES ./Path_comparator_source.java
+//SOURCES ../../properties/boolean_features/String_change_target.java
+
+
 package klik.browser.virtual_landscape;
 
 import javafx.application.Platform;
@@ -85,10 +94,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 {
 
 
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public static final boolean ultra_dbg = false;
     public static final boolean invisible_dbg = false;
-    public static final boolean visible_dbg = false;
+    public static final boolean visible_dbg = true;
     public static final boolean scroll_dbg = false;
 
     public static final int MIN_PARENT_AND_TRASH_BUTTON_WIDTH = 200;
@@ -1019,7 +1028,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Item folder_item = all_items_map.get(folder_path);
         if (  folder_item == null)
         {
-            logger.log("Item_folder_with_icon NO path");
+            if (dbg) logger.log("WARNING:Item_folder_with_icon NO path for" + folder_path);
 
             folder_item = new Item_folder_with_icon(
                     owner, 
@@ -1943,11 +1952,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             String create_string = My_I18n.get_I18n_string("Create",owner,logger);
             Menu create = new Menu(create_string);
             create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
-            if (Feature_cache.get(Feature.Enable_image_playlists))
+            /*if (Feature_cache.get(Feature.Enable_image_playlists))
             {
                 logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
                 //create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
-            }
+            }*/
             create.getItems().add(browser_menus.make_menu_item("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet()));
             create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> sort_by_year()));
             create.getItems().add(browser_menus.make_import_menu());
@@ -2020,7 +2029,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         if (Feature_cache.get(Feature.Enable_fusk))
         {
-            if (Feature_cache.get(Feature.Fusk_is_active))
+            if (Feature_cache.get(Feature.Fusk_is_on))
             {
                 files_menu.getItems().add(browser_menus.make_fusk_menu());
             }

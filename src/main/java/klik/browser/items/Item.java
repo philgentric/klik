@@ -1,7 +1,7 @@
 //SOURCES ../../util/execute/System_open_actor.java
 //SOURCES ../icons/*.java
 //SOURCES ../../util/files_and_paths/Folder_size.java
-//SOURCES ../../unstable/metadata/Tag_stage.java
+//SOURCES ../../experimental/metadata/Tag_stage.java
 //SOURCES ./My_color.java
 /*
 //SOURCES ../icons/Icon_destination.java

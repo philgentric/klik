@@ -1,4 +1,7 @@
 package klik.change.history;
+//SOURCES ../../properties/IProperties.java
+//SOURCES ../../properties/File_based_IProperties.java
+//SOURCES ./Properties_for_history.java
 
 import javafx.stage.Window;
 import klik.actor.Aborter;

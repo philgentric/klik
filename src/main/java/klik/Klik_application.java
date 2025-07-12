@@ -60,8 +60,8 @@
 
 //SOURCES ./Print_system_info.java
 //SOURCES actor/Aborter.java
-//SOURCES browser/Browser.java
-//SOURCES browser/New_window_context.java
+//SOURCES browser/classic/Browser.java
+//SOURCES New_window_context.java
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
@@ -74,28 +74,31 @@
 //SOURCES util/info_stage/*.java
 //SOURCES util/tcp/TCP_client.java
 //SOURCES util/tcp/TCP_client_out.java
-//SOURCES properties/Booleans.java
+//SOURCES properties/boolean_features/Booleans.java
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
-//SOURCES browser/icons/Virtual_landscape.java
+//SOURCES browser/virtual_landscape/Virtual_landscape.java
 //SOURCES properties/File_sort_by.java
 //SOURCES properties/Properties_manager.java
 //SOURCES properties/Cache_folder.java
-//SOURCES browser/Vertical_slider.java
-//SOURCES browser/Virtual_landscape_menus.java
-//SOURCES browser/items/Item_button.java
+//SOURCES browser/virtual_landscape/Vertical_slider.java
+//SOURCES browser/virtual_landscape/Virtual_landscape_menus.java
+//SOURCES browser/items/Item_file_no_icon.java
 //SOURCES change/active_list_stage/Active_list_stage.java
 //SOURCES change/active_list_stage/Active_list_stage_action.java
 //SOURCES change/active_list_stage/Datetime_to_signature_source.java
 //SOURCES change/history/History_item.java
 //SOURCES change/undo/Undo_for_moves.java
 //SOURCES change/undo/Undo_item.java
-//SOURCES image_ml/Enable_face_recognition/Enable_face_recognition_service.java
+//SOURCES image_ml/face_recognition/Face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java
 //SOURCES change/bookmarks/Bookmarks.java
 //SOURCES actor/Message.java
 //SOURCES actor/Job.java
+//SOURCES util/Sys_init.java
+//SOURCES ./Start_context.java
+
 package klik;
 
 import javafx.application.Application;

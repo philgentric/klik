@@ -87,7 +87,7 @@ public class Exif_metadata_extractor
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
-            if (Feature_cache.get(Feature.Fusk_is_active)) {
+            if (Feature_cache.get(Feature.Fusk_is_on)) {
                 if (Fusk_static_core.is_fusk(path,logger)) {
                     String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
                     exif_metadata.add("... which is a fusk of: ->" + Fusk_strings.defusk_string(base, logger) + "<-");
@@ -147,7 +147,7 @@ public class Exif_metadata_extractor
 
         image_is_damaged = false;
 
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             image_is_damaged = true;

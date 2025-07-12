@@ -1,4 +1,4 @@
-//SOURCES ../audio/Audio_player_FX_UI.java
+//SOURCES ../../audio/Audio_player_FX_UI.java
 package klik.properties.boolean_features;
 
 import javafx.application.Platform;

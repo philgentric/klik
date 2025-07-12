@@ -1,4 +1,6 @@
 //SOURCES ../../util/ui/Text_frame_with_labels.java
+//SOURCES ../../util/ui/Text_frame.java
+
 package klik.browser.items;
 
 import javafx.scene.Node;
@@ -357,6 +359,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 Audio_player_access.play_play_list_in_separate_process(get_item_path().toFile(),logger);
                 return;
             }
+            /*
             if (Feature_cache.get(Feature.Enable_image_playlists))
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
@@ -364,7 +367,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                     //New_window_context.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
                     return;
                 }
-            }
+            }*/
             if ( Guess_file_type.is_this_path_a_music(get_item_path()))
             {
                 if ( !Guess_file_type.is_this_a_video_or_audio_file(owner,get_item_path(),logger))

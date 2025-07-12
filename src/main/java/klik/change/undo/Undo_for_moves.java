@@ -1,4 +1,3 @@
-//SOURCES ./java
 package klik.change.undo;
 
 import javafx.stage.Window;

@@ -1,4 +1,4 @@
-//SOURCES ../unstable/fusk/Fusk_strings.java
+//SOURCES ../experimental/fusk/Fusk_strings.java
 //SOURCES ../search/Finder.java
 //SOURCES ../search/Keyword_extractor.java
 package klik.images;

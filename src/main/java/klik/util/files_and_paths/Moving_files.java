@@ -1,4 +1,6 @@
-//SOURCES ../../unstable/metadata/Metadata_handler.java
+//SOURCES ../../experimental/metadata/Metadata_handler.java
+//SOURCES ../../change/Redo_same_move_engine.java
+
 package klik.util.files_and_paths;
 
 import javafx.stage.Window;

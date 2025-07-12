@@ -1,11 +1,16 @@
-//SOURCES ./About_klik_stage.java
-//SOURCES ./Icon_size.java
-//SOURCES ../image_ml/Enable_face_recognition/Enable_face_recognition_service.java
-//SOURCES ../image_ml/ML_servers_util.java
-//SOURCES ../image_ml/image_similarity/Image_feature_vector_cache.java
-//SOURCES ../util/files_and_paths/Name_cleaner.java
-//SOURCES ../unstable/metadata/Tag_items_management_stage.java
-//SOURCES ../properties/Preferences_stage.java
+//SOURCES ../About_klik_stage.java
+//SOURCES ../Icon_size.java
+//SOURCES ../../image_ml/face_recognition/Face_recognition_service.java
+//SOURCES ../../image_ml/ML_servers_util.java
+//SOURCES ../../image_ml/image_similarity/Similarity_cache.java
+//SOURCES ../../image_ml/image_similarity/Image_feature_vector_cache.java
+//SOURCES ../../util/files_and_paths/Name_cleaner.java
+//SOURCES ../../experimental/metadata/Tag_items_management_stage.java
+//SOURCES ../../properties/boolean_features/Preferences_stage.java
+//SOURCES ../items/Item_folder.java
+//SOURCES ../../look/Look_and_feel_style.java
+//SOURCES ../../look/my_i18n/Language.java
+
 
 
 package klik.browser.virtual_landscape;
@@ -27,7 +32,6 @@ import klik.change.bookmarks.Bookmarks;
 import klik.change.history.History_item;
 import klik.change.undo.Undo_for_moves;
 import klik.change.undo.Undo_item;
-import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.image_ml.ML_servers_util;
 import klik.image_ml.face_recognition.Face_recognition_service;
 import klik.images.decoding.Exif_metadata_extractor;
@@ -107,7 +111,7 @@ public class Virtual_landscape_menus
     public MenuItem make_start_Enable_face_recognition_menu_item()
     //**********************************************************
     {
-        String text = "Show manual about how to start face recognition servers";//My_I18n.get_I18n_string("Inverted_scroll",virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string("Show_manual_about_face_reco",virtual_landscape.owner, virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             ML_servers_util.show_face_recognition_manual(virtual_landscape.owner, virtual_landscape.logger);
@@ -120,7 +124,7 @@ public class Virtual_landscape_menus
     public MenuItem make_start_image_similarity_servers_menu_item()
     //**********************************************************
     {
-        String text = "Show manual about how to start image similarity servers";//My_I18n.get_I18n_string("Inverted_scroll",virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string("Show_manual_about_image_similarity",virtual_landscape.owner, virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
             ML_servers_util.show_image_similarity_manual(virtual_landscape.owner, virtual_landscape.logger);
@@ -298,11 +302,11 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("fusk",virtual_landscape.owner,virtual_landscape.logger);
 
         CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Feature_cache.get(Feature.Fusk_is_active));
+        item.setSelected(Feature_cache.get(Feature.Fusk_is_on));
         item.setOnAction(actionEvent ->
         {
             boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Feature_cache.update_cached_boolean(Feature.Fusk_is_active,val,owner);
+            Feature_cache.update_cached_boolean(Feature.Fusk_is_on,val,owner);
 
         });
         return item;
@@ -597,6 +601,7 @@ public class Virtual_landscape_menus
                 item.setOnAction(event ->
                 {
                     Path path = Path.of(hi.value);
+                    /*
                     if (Feature_cache.get(Feature.Enable_image_playlists))
                     {
                         if ( Guess_file_type.is_this_path_an_image_playlist(path))
@@ -607,6 +612,7 @@ public class Virtual_landscape_menus
                         }
 
                     }
+                    */
                     Path old_folder_path = virtual_landscape.path_list_provider.get_folder_path();
                     Browsing_caches.scroll_position_cache_write(old_folder_path,virtual_landscape.get_top_left());
 
@@ -1023,7 +1029,7 @@ public class Virtual_landscape_menus
                 {
                     File_sort_by.set_sort_files_by(virtual_landscape.path_list_provider.get_folder_path(),sort_by,owner,virtual_landscape.logger);
                     virtual_landscape.logger.log("new file/image sorting order= "+sort_by);
-                    if (Feature_cache.get(Feature.Enable_image_playlists))
+                    /*if (Feature_cache.get(Feature.Enable_image_playlists))
                     {
                         if (virtual_landscape.path_list_provider instanceof Playlist_path_list_provider)
                         {
@@ -1031,8 +1037,7 @@ public class Virtual_landscape_menus
                             //New_window_context.replace_image_playlist(virtual_landscape.shutdown_target, virtual_landscape.path_list_provider.get_folder_path(), owner, virtual_landscape.logger);
                             return;
                         }
-                    }
-                    //else
+                    }*/
                     New_window_context.replace_same_folder( virtual_landscape.shutdown_target, virtual_landscape.path_list_provider.get_folder_path(), virtual_landscape.get_top_left(), owner,virtual_landscape.logger);
                 }
             }

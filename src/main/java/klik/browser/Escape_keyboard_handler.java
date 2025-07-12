@@ -14,7 +14,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
     public Escape_keyboard_handler(Abstract_browser browser)
     //**********************************************************
     {
-        //browser.logger.log("creating External_close_event_handler for: "+browser.signature());
+        //browser.logger.log("creating Escape_keyboard_handler for: "+browser.signature());
         this.browser = browser;
     }
     //**********************************************************

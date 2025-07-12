@@ -2,6 +2,7 @@ package klik.image_ml.image_similarity;
 
 //SOURCES ./Image_feature_vector_actor.java
 //SOURCES ./Image_feature_vector_message.java
+//SOURCES ../../browser/Shared_services.java
 
 
 

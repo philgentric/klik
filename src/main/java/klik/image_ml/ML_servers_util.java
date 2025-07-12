@@ -265,6 +265,7 @@ public class ML_servers_util
     //**********************************************************
     {
         Stage stage = new Stage();
+        stage.initOwner(owner);
         VBox vb = new VBox();
         for ( String l : Enable_face_recognition_lines)
         {
@@ -295,8 +296,8 @@ public class ML_servers_util
     //**********************************************************
     {
         Stage stage = new Stage();
+        stage.initOwner(owner);
         VBox vb = new VBox();
-
         for ( String l : image_similarity_lines)
         {
             TextField tf = new TextField(l);

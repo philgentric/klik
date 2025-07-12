@@ -3,7 +3,7 @@ package klik.util.files_and_paths;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
-import klik.experimental.image_playlist.Playlist_path_list_provider;
+//import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
@@ -297,7 +297,7 @@ public class Guess_file_type
     public static boolean is_this_extension_an_image_playlist(String extension)
     //**********************************************************
     {
-        if (extension.equals(Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION))  return true;
+        //if (extension.equals(Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION))  return true;
         return false;
     }
 

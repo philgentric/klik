@@ -30,7 +30,7 @@ public class Fast_image_property_from_exif_metadata_extractor
     //**********************************************************
     {
         //logger.log("\n\n\nget_image_properties "+path);
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_active), report_if_not_found, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file "+path));

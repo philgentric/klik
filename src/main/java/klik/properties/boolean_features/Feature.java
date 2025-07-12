@@ -28,13 +28,13 @@ public enum Feature
     Enable_fusk,
     Enable_name_cleaning,
     Enable_corrupted_images_removal,
-    Enable_image_playlists,
+//    Enable_image_playlists,
 //    Enable_different_image_scaling,
 
 
     Log_to_file,
     Enable_detailed_cache_cleaning_options,
-    Fusk_is_active,
+    Fusk_is_on,
     Show_ffmpeg_install_warning,
     Show_can_use_ESC_to_close_windows,
     Show_graphicsmagick_install_warning,

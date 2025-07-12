@@ -1,4 +1,6 @@
 package klik.image_ml.image_similarity;
+//SOURCES ./Similarity_cache_warmer_actor.java
+//SOURCES ./Similarity_cache_warmer_message.java
 
 import javafx.stage.Window;
 import klik.actor.Aborter;

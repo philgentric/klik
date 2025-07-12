@@ -32,7 +32,7 @@ public class Fast_date_from_exif_metadata_extractor
     //**********************************************************
     {
 
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_active), true, aborter, logger);
+        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), true, aborter, logger);
         if ( is == null)
         {
             return LocalDateTime.now();

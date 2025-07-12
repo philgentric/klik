@@ -72,7 +72,7 @@ public class Fusk_static_core
             if (aborter.should_abort()) return null;
             if ( obfuscated == null)
             {
-                logger.log("WARNING: obfuscated == null");
+                logger.log("WARNING: readAllBytes failed for "+in.toAbsolutePath());
                 return null;
             }
             if ( !Fusk_bytes.check_signature(obfuscated,logger))
@@ -84,7 +84,7 @@ public class Fusk_static_core
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace("For Path: "+in+"\n"+e));
         }
-        return null; // error
+        return null;
     }
 
     //**********************************************************

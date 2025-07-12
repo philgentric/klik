@@ -1,6 +1,7 @@
 package klik.browser.comparators;
 
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
+//SOURCES ../../image_ml/image_similarity/Path_pair.java;
 
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;

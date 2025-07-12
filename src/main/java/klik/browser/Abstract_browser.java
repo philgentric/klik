@@ -1,5 +1,10 @@
 package klik.browser;
-
+//SOURCES ./virtual_landscape/Shutdown_target.java
+//SOURCES ./virtual_landscape/Full_screen_handler.java
+//SOURCES ./virtual_landscape/Path_list_provider.java
+//SOURCES ../Window_provider.java
+//SOURCES ./Title_target.java
+//SOURCES ../UI_change.java
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
@@ -21,7 +26,6 @@ import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************

@@ -11,11 +11,16 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.util.log.Logger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 //**********************************************************
 public class Preferences_stage
 //**********************************************************
 {
-    public static final int WIDTH = 1000;
+    public static final int WIDTH = 1200;
+    public static final String EXPLANATION = "_explanation";
+    public static final int HEIGHT = 1000;
     public final VBox vbox_basic;
     public final VBox vbox_advanced;
     public final VBox vbox_experimental;
@@ -52,7 +57,7 @@ public class Preferences_stage
     public static final Feature[] debugging_features ={
             Feature.Log_to_file,
             Feature.Enable_detailed_cache_cleaning_options,
-            Feature.Fusk_is_active,
+            Feature.Fusk_is_on,
             Feature.Show_ffmpeg_install_warning,
             Feature.Show_graphicsmagick_install_warning,
             Feature.Show_can_use_ESC_to_close_windows,
@@ -64,7 +69,7 @@ public class Preferences_stage
             Feature.Enable_fusk,
             Feature.Enable_name_cleaning,
             Feature.Enable_corrupted_images_removal,
-            Feature.Enable_image_playlists,
+            //Feature.Enable_image_playlists,
             //Feature.Enable_different_image_scaling
     };
     //**********************************************************
@@ -99,7 +104,7 @@ public class Preferences_stage
     {
         this.logger = logger;
         ScrollPane sp = new ScrollPane();
-        sp.setPrefSize(WIDTH, 1000);
+        sp.setPrefSize(WIDTH, HEIGHT);
         VBox vBox = new VBox();
         sp.setContent(vBox);
         HBox top = new HBox();
@@ -124,11 +129,11 @@ public class Preferences_stage
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         stage = new Stage();
-        stage.setHeight(1000);
-        stage.setWidth(1000);
+        stage.setHeight(HEIGHT);
+        stage.setWidth(WIDTH);
         stage.initOwner(owner);
 
-        Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
+        Scene scene = new Scene(sp,WIDTH , HEIGHT, Color.WHITE);
         stage.setTitle(title);
         stage.setScene(scene);
         stage.show();
@@ -200,29 +205,81 @@ public class Preferences_stage
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string(bf.name(),stage,logger);
-        CheckBox cb = new CheckBox(text);
-        cb.setMnemonicParsing(false);
-        Boolean value0 = Booleans.get_boolean(bf.name(), stage);
-
-        if ( value0 == null)
+        HBox hbox = new HBox();
         {
-            logger.log("warning, no Boolean found for: "+ bf.name());
-            value0= (Boolean) false;
-            Booleans.set_boolean(bf.name(),value0, stage);
-            Feature_cache.update_cached_boolean(bf,value0, stage);
+            CheckBox cb = new CheckBox(text);
+            cb.setMnemonicParsing(false);
+            Boolean value0 = Booleans.get_boolean(bf.name(), stage);
+
+            if (value0 == null) {
+                logger.log("warning, no Boolean found for: " + bf.name());
+                value0 = (Boolean) false;
+                Booleans.set_boolean(bf.name(), value0, stage);
+                Feature_cache.update_cached_boolean(bf, value0, stage);
+
+            }
+            cb.setSelected(value0);
+            Look_and_feel_manager.set_CheckBox_look(cb, stage, logger);
+
+            cb.setOnAction(_ ->
+            {
+                Boolean value = (Boolean) cb.isSelected();
+                logger.log("Preference changing for: " + bf.name() + "new value:" + value);
+                Booleans.set_boolean(bf.name(), value, stage); // this will trigger a file save
+                Feature_cache.update_cached_boolean(bf, value, stage);
+            });
+            hbox.getChildren().add(cb);
+
+            Button button = make_explanation_button(bf, stage,logger);
+            if (button == null) return;
+            hbox.getChildren().add(button);
 
         }
-        cb.setSelected(value0);
-        Look_and_feel_manager.set_CheckBox_look(cb, stage,logger);
+        vbox.getChildren().add(hbox);
+    }
 
-        cb.setOnAction(_ ->
+    //**********************************************************
+    public static Button make_explanation_button(Feature bf,Stage stage, Logger logger)
+    //**********************************************************
+    {
+        Button button = new Button("?");
+        String explanation = My_I18n.get_I18n_string(bf.name() + EXPLANATION, stage, logger);
+        if (explanation == null || explanation.isBlank())
         {
-            Boolean value = (Boolean) cb.isSelected();
-            logger.log("Preference changing for: "+ bf.name()+ "new value:"+value);
-            Booleans.set_boolean(bf.name(),value, stage); // this will trigger a file save
-            Feature_cache.update_cached_boolean(bf,value, stage);
-        });
-        vbox.getChildren().add(cb);
+            logger.log("No explanation found for: " + bf.name());
+            return null;
+        }
+        if ( explanation.equals(bf.name()+ EXPLANATION))
+        {
+            explanation = My_I18n.get_I18n_string(bf.name(), stage, logger).replaceAll("_", " ");
+        }
+        button.setTooltip(new Tooltip(explanation));
+        Look_and_feel_manager.set_button_look(button, true,stage, logger);
+        String finalExplanation = explanation;
+        button.setOnAction(event -> show_explanation(finalExplanation, stage, logger));
+        return button;
+    }
+
+    //**********************************************************
+    private static void show_explanation(String explanation, Stage owner, Logger logger)
+    //**********************************************************
+    {
+
+        Stage explanation_stage = new Stage();
+        explanation_stage.initOwner(owner);
+        VBox vb = new VBox();
+
+        TextArea tf = new TextArea(explanation);
+        Look_and_feel_manager.set_region_look(tf,owner,logger);
+        tf.setEditable(false);
+        tf.setWrapText(true);
+        vb.getChildren().add(tf);
+
+        Scene scene = new Scene(vb);
+        explanation_stage.setScene(scene);
+        explanation_stage.setWidth(500);
+        explanation_stage.setHeight(300);
+        explanation_stage.show();
     }
 
 
