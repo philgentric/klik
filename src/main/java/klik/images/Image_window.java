@@ -56,7 +56,7 @@ public class Image_window
     double progress;
     static boolean dbg = false;
     public final Scene the_Scene;
-    public final Stage the_Stage;
+    public final Stage stage;
     public final Pane the_image_Pane;
     public Label the_info_label; // maybe null
     //public final Button info_button;
@@ -104,8 +104,8 @@ public class Image_window
 
 
         Image_window returned = new Image_window(path, null,x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
-        returned.the_Stage.setX(x);
-        returned.the_Stage.setY(y);
+        returned.stage.setX(x);
+        returned.stage.setY(y);
         return returned;
     }
 
@@ -130,10 +130,10 @@ public class Image_window
         path_comparator_source = () -> image_comparator.orElse(null);
         logger = logger_;
         dir = first_image_path.getParent();
-        the_Stage = new Stage();
+        stage = new Stage();
         if (owner != null)
         {
-            the_Stage.initOwner(owner);
+            stage.initOwner(owner);
         }
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane,owner,logger);
@@ -171,7 +171,7 @@ public class Image_window
             if ( fv_cache == null)
             {
                 Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors =
-                        Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,  the_Stage, x,  y,  aborter,  logger);
+                        Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, stage, x,  y,  aborter,  logger);
                 fv_cache= images_and_feature_vectors.fv_cache();
             }
             return fv_cache;
@@ -182,15 +182,15 @@ public class Image_window
         the_Scene = new Scene(the_image_Pane);
         Color background = Look_and_feel_manager.get_instance(owner,logger).get_background_color();
         the_Scene.setFill(background);
-        the_Stage.setScene(the_Scene);
-        the_Stage.setX(x);
-        the_Stage.setY(y);
-        the_Stage.setWidth(w);
-        the_Stage.setHeight(h);
-        the_Stage.show();
+        stage.setScene(the_Scene);
+        stage.setX(x);
+        stage.setY(y);
+        stage.setWidth(w);
+        stage.setHeight(h);
+        stage.show();
         {
             Image_window local = this;
-            the_Stage.addEventHandler(KeyEvent.KEY_PRESSED,
+            stage.addEventHandler(KeyEvent.KEY_PRESSED,
                     keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
         }
 
@@ -206,11 +206,11 @@ public class Image_window
         {
             // this is going to take possibly a long time !!!
             long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, the_Stage,x + 100, y + 100, aborter, logger);
+            local_comp = File_sort_by.get_image_comparator(new Folder_path_list_provider(first_image_path.getParent()), path_comparator_source, image_properties_cache, stage,x + 100, y + 100, aborter, logger);
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, the_Stage,aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, stage,aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -229,19 +229,19 @@ public class Image_window
 
         Aborter finalAborter = aborter;
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+the_Stage.getWidth()+","+ the_Stage.getHeight());
-            if ( save_window_bounds) Non_booleans.save_window_bounds(the_Stage,IMAGE_WINDOW,logger);
+            if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+ stage.getWidth()+","+ stage.getHeight());
+            if ( save_window_bounds) Non_booleans.save_window_bounds(stage,IMAGE_WINDOW,logger);
         };
-        the_Stage.xProperty().addListener(change_listener);
-        the_Stage.yProperty().addListener(change_listener);
-        the_Stage.widthProperty().addListener(change_listener);
-        the_Stage.heightProperty().addListener(change_listener);
+        stage.xProperty().addListener(change_listener);
+        stage.yProperty().addListener(change_listener);
+        stage.widthProperty().addListener(change_listener);
+        stage.heightProperty().addListener(change_listener);
 
 
 
         // this event handler is NOT called when close() is called
         // from the keyboard handler but only upon an "OS" window close
-        the_Stage.setOnCloseRequest(we -> my_close());
+        stage.setOnCloseRequest(we -> my_close());
 
         the_Scene.setOnScroll(event -> {
             double dy = -event.getDeltaY();
@@ -261,7 +261,7 @@ public class Image_window
 
 
         // event handler if window is hidden (or closed, I hope?): stop animation
-        the_Stage.setOnHiding(event -> {
+        stage.setOnHiding(event -> {
             if (slide_show != null)
             {
                 stop_slide_show();
@@ -277,12 +277,12 @@ public class Image_window
                 image_display_handler.handle_mouse_clicked_secondary(
                         image_properties_cache,
                         fv_cache_supplier,
-                        the_Stage,
+                        stage,
                         mouseEvent,
                         logger);
             }
         };
-        the_Stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
+        stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
 
 
 
@@ -399,7 +399,7 @@ public class Image_window
     void show_wait_cursor()
     //**********************************************************
     {
-        the_Stage.getScene().getRoot().setCursor(Cursor.WAIT);
+        stage.getScene().getRoot().setCursor(Cursor.WAIT);
         if ( dbg) logger.log("cursor = wait");
     }
 
@@ -407,7 +407,7 @@ public class Image_window
     void restore_cursor()
     //**********************************************************
     {
-        the_Stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
+        stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
         if ( dbg) logger.log("cursor = default");
     }
 
@@ -547,7 +547,7 @@ public class Image_window
             local_title.append("*");
             for (; i < max_progress_bar; i++) local_title.append("_");
         }
-        the_Stage.setTitle(local_title.toString());
+        stage.setTitle(local_title.toString());
     }
 
 
@@ -563,8 +563,8 @@ public class Image_window
         Jfx_batch_injector.inject(() -> {
             //the_BorderPane.getChildren().clear();
             the_image_Pane.getChildren().clear();//setCenter(null);
-            if( dir_ != null) the_Stage.setTitle("No image to display in: " + dir_.toAbsolutePath());
-            else the_Stage.setTitle("No image to display");
+            if( dir_ != null) stage.setTitle("No image to display in: " + dir_.toAbsolutePath());
+            else stage.setTitle("No image to display");
             restore_cursor();
         },logger);
 
@@ -641,7 +641,7 @@ public class Image_window
                     local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
                 }
             }
-            set_background(the_image_Pane,Static_files_and_paths_utilities.get_extension(local_image_context.get_image_name()),the_Stage);
+            set_background(the_image_Pane,Static_files_and_paths_utilities.get_extension(local_image_context.get_image_name()), stage);
 
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
@@ -660,7 +660,7 @@ public class Image_window
         if (new_path.toFile().exists())
         {
             logger.log("name change aborted: there is already a file with that name!");
-            Popups.popup_warning("Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false,the_Stage,logger);
+            Popups.popup_warning("Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false, stage,logger);
             return Optional.empty();
         }
 
@@ -680,9 +680,9 @@ public class Image_window
             oandn.run_after = () -> Jfx_batch_injector.inject(() -> set_stage_title(local_new_image_context),logger);
             l.add(oandn);
 
-            double x = the_Stage.getX()+100;
-            double y = the_Stage.getY()+100;
-            Moving_files.perform_safe_moves_in_a_thread(the_Stage,x,y,l, true, aborter,logger);
+            double x = stage.getX()+100;
+            double y = stage.getY()+100;
+            Moving_files.perform_safe_moves_in_a_thread(stage,x,y,l, true, aborter,logger);
         }
         return Optional.of(local_new_image_context);
     }

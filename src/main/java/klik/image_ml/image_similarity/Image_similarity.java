@@ -3,7 +3,6 @@ package klik.image_ml.image_similarity;
 //SOURCES ../Feature_vector_mask.java
 //SOURCES ./Vector_window.java
 
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
@@ -169,8 +168,8 @@ public class Image_similarity implements Clearable_RAM_cache
                 ms.path(), owner, x, y, W, H, s, false,path_list_provider,
                 Optional.of(path_comparator_source.get_path_comparator()),
                 new Aborter("dummy34",logger),logger);
-        returned.the_Stage.setX(x);
-        returned.the_Stage.setY(y);
+        returned.stage.setX(x);
+        returned.stage.setY(y);
         //logger.log("show_one_at path"+ms.path()+" x="+returned.the_Stage.getX()+" y="+returned.the_Stage.getY());
 
         if (show_vector_differences)

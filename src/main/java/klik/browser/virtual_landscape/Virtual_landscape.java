@@ -805,7 +805,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
             if ( ip == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: image property cache miss"));
+                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: image property cache miss for: "+path));
             }
             else
             {

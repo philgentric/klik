@@ -513,7 +513,7 @@ public class Image_context
     public Optional<Image_context> rename_file_for_an_image_window(Image_window image_window)
     //**********************************************************
     {
-        Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(image_window.the_Stage, path,logger);
+        Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(image_window.stage, path,logger);
         if ( new_path == null) return Optional.empty();
         return image_window.change_name_of_file(new_path);
     }

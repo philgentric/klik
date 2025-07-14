@@ -29,9 +29,9 @@ public class Keyboard_handling_for_Image_window
     //**********************************************************
     {
 
-        boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Feature.Use_escape_to_close_windows.name(), image_window.the_Stage);
+        boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Feature.Use_escape_to_close_windows.name(), image_window.stage);
 
-        Window owner = image_window.the_Stage;
+        Window owner = image_window.stage;
         if (keyboard_dbg) logger.log("Image_stage KeyEvent="+key_event);
 
 
@@ -54,7 +54,7 @@ public class Keyboard_handling_for_Image_window
                 logger.log("image_window : closing image window by user request, with a delay of 200 ms");
                 //PauseTransition pause = new PauseTransition((Duration.millis(200)));
                 //pause.setOnFinished(e ->{
-                    image_window.the_Stage.close();
+                    image_window.stage.close();
                     image_window.my_close();
                 //});
                 //pause.play();
@@ -65,8 +65,8 @@ public class Keyboard_handling_for_Image_window
                     Image_window previous = image_window.stage_group.get(image_window.stage_group.size()-1);
                     if (previous != null)
                     {
-                        previous.the_Stage.requestFocus();
-                        previous.the_Stage.toFront();
+                        previous.stage.requestFocus();
+                        previous.stage.toFront();
                     }
 
                 }
@@ -82,7 +82,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Booleans.get_boolean(Feature.Shift_d_is_sure_delete.name(), image_window.the_Stage))
+            if (Booleans.get_boolean(Feature.Shift_d_is_sure_delete.name(), image_window.stage))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -169,7 +169,7 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 Image_context image_context = image_window.image_display_handler.get_image_context().get();
-                Exif_stage.show_exif_stage(image_context.image, image_context.path, image_window.the_Stage, image_window.aborter, image_context.logger);
+                Exif_stage.show_exif_stage(image_context.image, image_context.path, image_window.stage, image_window.aborter, image_context.logger);
                 key_event.consume();
                 return;
             }
@@ -215,10 +215,10 @@ public class Keyboard_handling_for_Image_window
             case "t","T" -> {
                 if (keyboard_dbg) logger.log("t like tag");
 
-                if( Booleans.get_boolean(Feature.Enable_tags.name(), image_window.the_Stage)) {
+                if( Booleans.get_boolean(Feature.Enable_tags.name(), image_window.stage)) {
 
                     if (image_window.image_display_handler.get_image_context().isEmpty()) return;
-                    Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, image_window.the_Stage, image_window.aborter,logger);
+                    Tag_stage.open_tag_stage(image_window.image_display_handler.get_image_context().get().path, true, image_window.stage, image_window.aborter,logger);
                 }
                 key_event.consume();
                 return;

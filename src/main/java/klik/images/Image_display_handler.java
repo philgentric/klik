@@ -145,7 +145,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Optional<Image_context> image_context;
         if (alternate_rescaler)
         {
-            image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_window.the_Stage.getWidth(), owner, image_window.aborter,logger);
+            image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_window.stage.getWidth(), owner, image_window.aborter,logger);
         }
         else
         {
@@ -230,9 +230,9 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                     Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path,owner);
-                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.the_Stage,logger);
+                        Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.stage,logger);
                         // reload the image
-                        Optional<Image_context> option = local_getImage_context(local.path,  image_window.the_Stage,aborter);
+                        Optional<Image_context> option = local_getImage_context(local.path,  image_window.stage,aborter);
                         if ( option.isPresent())
                         {
                             image_context = Optional.of(option.get());
@@ -275,10 +275,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Path to_be_deleted = image_context.get().path;
         change_image_relative(1, image_window.ultim_mode);
         Runnable r = () -> image_indexer.get().signal_deleted_file(to_be_deleted);
-        double x = image_window.the_Stage.getX()+100;
-        double y = image_window.the_Stage.getY()+100;
+        double x = image_window.stage.getX()+100;
+        double y = image_window.stage.getY()+100;
 
-        Static_files_and_paths_utilities.move_to_trash(to_be_deleted,image_window.the_Stage,x,y, r, aborter,logger);
+        Static_files_and_paths_utilities.move_to_trash(to_be_deleted,image_window.stage,x,y, r, aborter,logger);
     }
 
 
@@ -300,7 +300,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
             Path p = image_indexer.get().path_from_index(0);
             if ( p == null) return;
-            image_context = Image_context.get_Image_context(p,image_window.the_Stage,aborter,logger);
+            image_context = Image_context.get_Image_context(p,image_window.stage,aborter,logger);
         }
         if ( dbg) logger.log("change_image_relative delta=" + delta);
 

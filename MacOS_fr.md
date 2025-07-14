@@ -4,13 +4,13 @@
 
 1. Les commandes proposées dans cette recette d'installation sont des outils "standards" utilisés par des centaines de milliers de developpeurs dans le monde entier, le risque est très faible.
 2. Klik est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec klik on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klik a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
-3. Le fait que 100% du code source de klik soit visible est une garantie: un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
+3. Le fait que 100% du code source de klik soit visible est une garantie : un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
 
 ## Installation
 
 **Vous avez besoin de savoir comment ouvrir un terminal.**
 
-Sur MacOS c'est une Application... qui s'appelle "Terminal" !!!-)
+Sur MacOS c'est une Application... qui s'appelle "Terminal" !-)
 
 Dans le terminal, copier-coller les commandes en gras données dans les étapes suivantes:
 
@@ -49,13 +49,13 @@ cette opération va créer un dossier 'klik' avec tout le code source.
 
 ### Installez ffmpeg
 
-(klik utilise ffmepg pour fabriquer les icones animées des vidéos)
+(klik utilise ffmpeg pour fabriquer les icones animées des vidéos)
 
 **brew install ffmpeg**
 
 ### Installez graphicsmagick
 
-(klik utilise graphicsmagick pour fabriquer les icones des fichiers PDF, les icones animées des dossiers etc)
+(klik utilise graphicsmagick pour fabriquer les icônes des fichiers PDF, les icônes animées des dossiers etc)
 
 **brew install graphicsmagick**
 

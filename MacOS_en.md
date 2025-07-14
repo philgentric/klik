@@ -39,7 +39,7 @@ this will create a folder "klik"
 
 **gradle run**
 
-(this starts the launcher)
+(this starts the launcher, abd then you can start both klik and the music player)
 
 to start klik directly:
 
@@ -54,7 +54,7 @@ to start the music player directly:
 
 ### Install ffmpeg
 
-(klik uses ffmepg to make animated icons for videos)
+(klik uses ffmpeg to make animated icons for videos)
 
 **brew install ffmpeg**
 

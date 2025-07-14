@@ -345,7 +345,7 @@ public class Mouse_handling_for_Image_window
             case drag_and_drop -> {
                 if (old_mode == Mouse_mode.drag_and_drop) return;
                 if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_window.the_image_Pane);
-                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.the_Stage);
+                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.stage);
                 drag_and_drop(image_window);
                 // REFRESH i.e. especially when going out of pix-for-pix
                 if(!something_is_wrong_with_image_size())
@@ -361,13 +361,13 @@ public class Mouse_handling_for_Image_window
                 }
                 if (old_mode == Mouse_mode.click_to_zoom) disable_click_to_zoom(image_window.the_image_Pane);
                 if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_window.the_image_Pane);
-                pix_for_pix(image_window.the_Stage);
+                pix_for_pix(image_window.stage);
                 pix_for_pix();
             }
             case click_to_zoom -> {
                 if (old_mode == Mouse_mode.click_to_zoom) return;
                 if (old_mode == Mouse_mode.drag_and_drop) disable_drag_and_drop(image_window.the_image_Pane);
-                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.the_Stage);
+                if (old_mode == Mouse_mode.pix_for_pix) disable_pix_for_pix(image_window.stage);
                 click_to_zoom(image_window.the_image_Pane);
             }
         }
@@ -394,7 +394,7 @@ public class Mouse_handling_for_Image_window
                 logger.log("bad image size");
             }
             logger.log("setting image view as broken icon");
-            local.the_image_view.setImage(Jar_utils.get_broken_icon(300, image_window.the_Stage, logger));
+            local.the_image_view.setImage(Jar_utils.get_broken_icon(300, image_window.stage, logger));
             return true;
         }
         return false;
@@ -450,7 +450,7 @@ public class Mouse_handling_for_Image_window
                 //image is gone, replace it with the next one
 
                 image_window.image_display_handler.change_image_relative(1,false);
-                image_window.the_Stage.requestFocus();
+                image_window.stage.requestFocus();
             }
             drag_event.consume();
         });
@@ -470,7 +470,7 @@ public class Mouse_handling_for_Image_window
                 if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
 
                 image_window.show_wait_cursor();
-                Optional<Image_context> option = Image_context.get_Image_context(file.toPath(), image_window.the_Stage, image_window.aborter, logger);
+                Optional<Image_context> option = Image_context.get_Image_context(file.toPath(), image_window.stage, image_window.aborter, logger);
                 //image_file_source =  Image_indexer.get_Image_file_source(fff.getParentFile().toPath(), logger);
                 if ( option.isPresent())
                 {
@@ -493,18 +493,18 @@ public class Mouse_handling_for_Image_window
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragOver");
             drag_event.acceptTransferModes(TransferMode.MOVE);
             drag_event.consume();
-            image_window.the_Stage.requestFocus();
+            image_window.stage.requestFocus();
         });
         image_window.the_image_Pane.setOnDragEntered(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragEntered");
-            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane, image_window.the_Stage, logger);
+            Look_and_feel_manager.set_drag_look_for_pane(image_window.the_image_Pane, image_window.stage, logger);
             drag_event.consume();
         });
         image_window.the_image_Pane.setOnDragExited(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragExited");
             if (image_window.image_display_handler.get_image_context().isPresent())
             {
-                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString(), image_window.the_Stage);
+                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString(), image_window.stage);
             }
             drag_event.consume();
         });

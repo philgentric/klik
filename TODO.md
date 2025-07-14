@@ -1,6 +1,10 @@
 
 # To do list #
 
+# Check that the translation are ok #
+
+I cannot check, only  english and french : native speakers, please help!
+
 # bug fixes #
 
 - race condition in browser? 
@@ -10,7 +14,7 @@
 
 - there are difficulties with graadle+javafx+graalvm
   (that I managed to overcome once but I lost it when I performed a java upgrade...)
-- 
+
 # Installers #
 
 Yes, that would make it easier for the average granma user...
@@ -56,6 +60,47 @@ webm is the obvious target..
 Opus?
 
 
+# Allow more fonts especially super legible ones #
+
+klik already allows large fonts...
+
+# implement AI-based voice-over for menus... and images! #
+
+Use AI to produce explanation when the n-mouse is over ...
+
+- a menu item: super easy use AI Test-To-Speech
+- an image: use AI to produce a description of the image and then use AI Text-To-Speech
+
+
+# implement tree-based search on image similarity #
+
+Target : Vantage Point Tree (CTRBF that I published a long time ago ?-)
+
+Reason: when similarity search is faster, it can be used to look for similar images not only in the current folder but also in whole collections (recusrsively down the directiry tree) (like the binary-exact duplicate finder)
+
+
+# implement a tool for managing translations #
+
+today, if translations for an item are wrong (e.g. the reference item in English changed), one has to find-in-all-files and manually delete all entries in the ressource files...
+
+with this tool, one could erase all entries for a given key, and then call 'translator' to re-translate it.
+
+# debug live #
+
+In the code there are many debug booleans, they trigger additonal traces, possibly a lot of them.
+
+They are all declared as 'static final', which has a huge advantage: the compiler optimizes the code and removes all the debug code that is not used (i.e. when the flag is false).
+
+(probably, if all debug booleans were set to true, the code would be much slower, but I have not tested that)
+
+But it could be useful if, when someone has a problem, the UI coud be used to set dbg =true, with a few choices about the scope?
+And logging to file, then the --user just has to copy/paste the log file in a discord channel.
+
+Because the booleans are static final, this is only possible by editing the code, and recompiling it.
+(The recompiling part is now transparent with the launcher: it calls gradle, so the code, if changed, will be recompiled)
+
+But the editing part is a bit tricky: the java app would edit the source code?
+Is it safer to first create a git branch?
 
 
 

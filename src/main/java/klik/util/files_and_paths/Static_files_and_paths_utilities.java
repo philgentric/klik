@@ -211,7 +211,7 @@ public class Static_files_and_paths_utilities
         }
         Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explained",owner,logger), false, owner,logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explanation",owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -231,7 +231,7 @@ public class Static_files_and_paths_utilities
     {
         Path trash_dir = Non_booleans.get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explained", owner,logger), false, owner,logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explanation", owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -871,7 +871,7 @@ public class Static_files_and_paths_utilities
             dialog.setTitle(text);
         }
         {
-            String text = My_I18n.get_I18n_string("Rename_explained", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Rename_explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setHeaderText(text);
 
         }
@@ -932,12 +932,12 @@ public class Static_files_and_paths_utilities
             dialog.setTitle(text);
         }
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name_explained", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_copy_name_explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setHeaderText(text);
 
         }
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name_explained", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_copy_name_explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setContentText(text);
         }
         // The Java 8 way to get the response value (with lambda expression).
