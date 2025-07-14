@@ -51,7 +51,8 @@ public class Preferences_stage
             Feature.Reload_last_folder_on_startup,
             Feature.Dont_zoom_small_images,
             Feature.Use_escape_to_close_windows,
-            Feature.Hide_beginners_text_on_images
+            Feature.Hide_beginners_text_on_images,
+            Feature.Hide_question_mark_buttons_on_mysterious_menus
     };
 
     public static final Feature[] debugging_features ={

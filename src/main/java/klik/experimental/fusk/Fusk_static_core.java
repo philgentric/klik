@@ -170,8 +170,8 @@ public class Fusk_static_core
     {
 
         Sys_init.init("fusk test",null);
-        Logger logger = Shared_services.shared_services_logger;
-        Aborter aborter = Shared_services.shared_services_aborter;
+        Logger logger = Shared_services.logger;
+        Aborter aborter = Shared_services.aborter;
 
 
         Fusk_bytes.initialize( logger);

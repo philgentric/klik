@@ -2,14 +2,13 @@ package klik.image_ml;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
+import klik.util.log.Logger_factory;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
 
@@ -42,7 +41,7 @@ public abstract class Feature_vector_source
     static long tx_count = 0;
     static long SUM_dur = 0;
     static{
-        Logger l = System_logger.get_system_logger("embeddings");
+        Logger l = Logger_factory.get("embeddings");
         Runnable r = () ->
         {
             for(;;)

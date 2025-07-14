@@ -155,7 +155,7 @@ public class Name_cleaner
     //**********************************************************
     {
         Sys_init.init("Name_cleaner test app",null);
-        Logger logger = Shared_services.shared_services_logger;
+        Logger logger = Shared_services.logger;
 
 
         {

@@ -69,7 +69,7 @@
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
 //SOURCES util/log/File_logger.java
-//SOURCES util/log/System_logger.java
+//SOURCES util/log/Logger_factory.java
 //SOURCES util/log/Logger.java
 //SOURCES util/info_stage/*.java
 //SOURCES util/tcp/TCP_client.java
@@ -104,10 +104,14 @@ package klik;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import klik.browser.*;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
+import klik.util.log.Logger_factory;
 import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
@@ -116,6 +120,8 @@ import java.nio.file.Path;
 public class Klik_application extends Application
 //**********************************************************
 {
+    private final static String name = "Klik_application";
+
     public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
     public static Stage primary_stage;
     //**********************************************************
@@ -130,8 +136,8 @@ public class Klik_application extends Application
     public void start(Stage primary_stage_) throws Exception
     //**********************************************************
     {
-        Sys_init.init("Klik_application", primary_stage_);
-        Logger logger = Shared_services.shared_services_logger;
+        Sys_init.init(name, primary_stage_);
+        Logger logger = Logger_factory.get(name);
 
         primary_stage = primary_stage_;
         Start_context context = Start_context.get_context_and_args(this);

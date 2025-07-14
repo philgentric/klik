@@ -207,7 +207,7 @@ public class New_window_context
             Logger logger)
     //**********************************************************
     {
-        logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
+        if ( dbg) logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
                 //port,

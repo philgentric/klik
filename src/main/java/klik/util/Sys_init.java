@@ -3,13 +3,13 @@ package klik.util;
 import javafx.stage.Window;
 import klik.browser.Shared_services;
 import klik.properties.Non_booleans;
-import klik.util.log.System_logger;
+import klik.util.log.Logger_factory;
 
 public class Sys_init
 {
     public static void init(String name, Window owner)
     {
-        Shared_services.shared_services_aborter = Non_booleans.init_main_properties_manager(name,owner);
-        Shared_services.shared_services_logger = System_logger.get_system_logger(name);
+        Shared_services.aborter = Non_booleans.init_main_properties_manager(name,owner);
+        Shared_services.logger = Logger_factory.get(name);
     }
 }

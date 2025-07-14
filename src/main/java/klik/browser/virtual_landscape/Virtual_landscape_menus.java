@@ -106,6 +106,16 @@ public class Virtual_landscape_menus
         return item;
     }
 
+    //**********************************************************
+    private void add_question_mark_button(String key, MenuItem item)
+    //**********************************************************
+    {
+        if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
+        {
+            Button explanation_button = Preferences_stage.make_explanation_button(key, virtual_landscape.owner, virtual_landscape.logger);
+            item.setGraphic(explanation_button);
+        }
+    }
 
     //**********************************************************
     public MenuItem make_start_Enable_face_recognition_menu_item()
@@ -117,10 +127,10 @@ public class Virtual_landscape_menus
         item.setOnAction(event -> {
             ML_servers_util.show_face_recognition_manual(virtual_landscape.owner, virtual_landscape.logger);
         });
-        Button explanation_button = Preferences_stage.make_explanation_button(key,virtual_landscape.owner, virtual_landscape.logger);
-        item.setGraphic(explanation_button);
+        add_question_mark_button(key, item);
         return item;
     }
+
 
 
     //**********************************************************
@@ -133,59 +143,11 @@ public class Virtual_landscape_menus
         item.setOnAction(event -> {
             ML_servers_util.show_image_similarity_manual(virtual_landscape.owner, virtual_landscape.logger);
         });
-        Button explanation_button = Preferences_stage.make_explanation_button(key,virtual_landscape.owner, virtual_landscape.logger);
-        item.setGraphic(explanation_button);
-        return item;
-    }
-
-/*
-    //**********************************************************
-    public CheckMenuItem make_show_icons_for_images_and_videos_check_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_icons_for_images_and_videos",virtual_landscape.logger);
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Virtual_landscape.show_icons_instead_of_text);
-        item.setOnAction(actionEvent -> {
-            Booleans.set_boolean(Basic_feature.show_icons.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
-            virtual_landscape.redraw_fx("show icons="+((CheckMenuItem) actionEvent.getSource()).isSelected());
-        });
+        add_question_mark_button(key, item);
         return item;
     }
 
 
-
-    //**********************************************************
-    public CheckMenuItem make_show_icons_for_folders_check_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_icons_for_folders", virtual_landscape.logger);
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Virtual_landscape.icons_for_folders);
-        item.setOnAction(actionEvent -> {
-            boolean val =((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Virtual_landscape.icons_for_folders = val;
-            Booleans.set_boolean(Basic_feature.icons_for_folders.name(), val);
-            virtual_landscape.redraw_fx("show icons for folders="+((CheckMenuItem) actionEvent.getSource()).isSelected());
-        });
-        return item;
-    }
-    //**********************************************************
-    public CheckMenuItem make_show_single_column_check_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_single_column", virtual_landscape.logger);
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Virtual_landscape.single_column);
-        item.setOnAction(actionEvent -> {
-            boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Basic_feature.single_column.name(), val);
-            Virtual_landscape.single_column = val;
-            virtual_landscape.redraw_fx("single column="+((CheckMenuItem) actionEvent.getSource()).isSelected());
-        });
-        return item;
-    }
-*/
     //**********************************************************
     public Button make_button_that_behaves_like_a_folder(
             Path path,
@@ -316,48 +278,17 @@ public class Virtual_landscape_menus
             Feature_cache.update_cached_boolean(Feature.Fusk_is_on,val,owner);
 
         });
-        Button explanation_button = Preferences_stage.make_explanation_button(key,virtual_landscape.owner, virtual_landscape.logger);
-        item.setGraphic(explanation_button);
+        add_question_mark_button(key, item);
         return item;
     }
 
-/*
-    //**********************************************************
-    public MenuItem make_auto_purge_disk_caches_check_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Auto_purge_cache",virtual_landscape.logger);
 
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Booleans.get_boolean(Feature.auto_purge_disk_caches.name()));
-        item.setOnAction(actionEvent -> {
-            Booleans.set_boolean(Feature.auto_purge_disk_caches.name(), ((CheckMenuItem) actionEvent.getSource()).isSelected());
-        });
-        return item;
-    }
-
-    //**********************************************************
-    public MenuItem make_show_hidden_files_check_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Show_hidden_files",virtual_landscape.logger);
-
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.setSelected(Virtual_landscape.show_hidden_files);
-        item.setOnAction(actionEvent -> {
-            boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Booleans.set_boolean(Basic_feature.show_hidden_files.name(),val);
-            Virtual_landscape.show_hidden_files = val;
-            virtual_landscape.redraw_fx("show hidden file boolean changed");
-        });
-        return item;
-    }
-*/
     //**********************************************************
     public MenuItem make_add_to_Enable_face_recognition_training_set_menu_item()
     //**********************************************************
     {
-        String text = "Add all images to face recognition training set";
+        String key = "Add_all_images_to_face_recognition_training_set";
+        String text = My_I18n.get_I18n_string(key,virtual_landscape.owner,virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
         item.setOnAction(event -> {
 
@@ -365,6 +296,7 @@ public class Virtual_landscape_menus
             virtual_landscape.logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_name());
 
         });
+        add_question_mark_button(key, item);
         return item;
     }
 
@@ -494,7 +426,7 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Select_all_files_for_drag_and_drop",virtual_landscape.owner,virtual_landscape.logger);
 
-        select_all_files_menu_item= new CheckMenuItem(text+ " (Cmd-A)");
+        select_all_files_menu_item= new CheckMenuItem(text+ " (meta-A)");
         select_all_files_menu_item.setSelected(false);
         select_all_files_menu_item.setOnAction(event -> {
             if ( ((CheckMenuItem) event.getSource()).isSelected())

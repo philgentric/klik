@@ -12,6 +12,7 @@ public enum Feature
     Dont_zoom_small_images,
     Use_escape_to_close_windows,
     Hide_beginners_text_on_images,
+    Hide_question_mark_buttons_on_mysterious_menus,
 
     Monitor_folders,
     Enable_face_recognition,

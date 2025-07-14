@@ -39,7 +39,7 @@ public class Undo_core implements Datetime_to_signature_source
         Path p = Paths.get(home, Non_booleans.CONF_DIR, undo_filename);
         if( properties_manager == null)
         {
-            properties_manager = new Properties_manager(p, "Undo DB", owner, Shared_services.shared_services_aborter, logger);
+            properties_manager = new Properties_manager(p, "Undo DB", owner, Shared_services.aborter, logger);
         }
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded from "+undo_filename);

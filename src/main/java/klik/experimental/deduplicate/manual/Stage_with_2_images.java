@@ -3,6 +3,7 @@
 //SOURCES ../../../audio/Audio_player.java
 package klik.experimental.deduplicate.manual;
 
+import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -86,6 +87,7 @@ public class Stage_with_2_images
 
 		Jfx_batch_injector.inject(() ->{
 				stage = new Stage();
+				stage.setAlwaysOnTop(true);
 				the_big_vbox = new VBox();
 				Look_and_feel_manager.set_region_look(the_big_vbox,stage,logger);
 				Scene scene = new Scene(the_big_vbox);
@@ -183,9 +185,8 @@ public class Stage_with_2_images
 			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
             if (is_image)
 			{
-				Runnable r = () -> Item_file_with_icon.open_an_image(path_list_provider, path_comparator_source,file.toPath(),owner,logger);
+				Runnable r = () -> Platform.runLater(()->Item_file_with_icon.open_an_image(path_list_provider, path_comparator_source,file.toPath(),owner,logger));
 				Actor_engine.execute(r,logger);
-                //Image_window is = Image_window.get_Image_window(browser, file.toPath(), logger);
             }
 			else
 			{

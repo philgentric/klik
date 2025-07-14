@@ -94,7 +94,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 {
 
 
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public static final boolean ultra_dbg = false;
     public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
@@ -2003,7 +2003,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             if (Booleans.get_boolean(Feature.Enable_bit_level_deduplication.name(),owner) )
             {
-                Menu deduplicate = new Menu("File deduplication tool");
+                String txt = My_I18n.get_I18n_string("File_bit_exact_deduplication",owner,logger);
+                Menu deduplicate = new Menu(txt);
                 deduplicate.getItems().add(create_help_on_deduplication_menu_item());
                 deduplicate.getItems().add(create_deduplication_count_menu_item());
                 deduplicate.getItems().add(create_manual_deduplication_menu_item());
@@ -2013,11 +2014,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             if (Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner) )
             {
+                String txt = My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
+                Menu deduplicate2 = new Menu(txt);
+
                 MenuItem deduplicate_menu_item = create_manual_deduplication_by_similarity_menu_item2();
-                clean.getItems().add(deduplicate_menu_item);
+                deduplicate2.getItems().add(deduplicate_menu_item);
 
                 MenuItem deduplicate_menu_item2 = create_manual_deduplication_by_similarity_menu_item();
-                clean.getItems().add(deduplicate_menu_item2);
+                deduplicate2.getItems().add(deduplicate_menu_item2);
+                clean.getItems().add(deduplicate2);
             }
             files_menu.getItems().add(clean);
         }
@@ -2900,7 +2905,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             receive_error(Error_type.ERROR);
         }
 
-        logger.log("Virtual_landscape: scan_list ends");
+        if ( dbg) logger.log("Virtual_landscape: scan_list ends");
 
     }
 
@@ -2909,7 +2914,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void all_image_properties_acquired_4(long start, Hourglass running_film)
     //**********************************************************
     {
-        logger.log("Virtual_landscape::all_image_properties_acquired_4() ");
+        if ( dbg) logger.log("Virtual_landscape::all_image_properties_acquired_4() ");
         Runnable r = () -> browsing_caches.image_properties_RAM_cache.save_whole_cache_to_disk();
         Actor_engine.execute(r,logger);
 
@@ -2922,7 +2927,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         //logger.log("all_image_properties_acquired, going to refresh");
         refresh_UI("all_image_properties_acquired", running_film);
 
-        logger.log("Virtual_landscape::all_image_properties_acquired_4() done");
+        if ( dbg) logger.log("Virtual_landscape::all_image_properties_acquired_4() done");
 
     }
 
@@ -2946,13 +2951,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        //if ( dbg)
-            logger.log("refresh_UI_on_fx_thread from: " + from);
+        if ( dbg) logger.log("refresh_UI_on_fx_thread from: " + from);
 
         compute_geometry("scene_geometry_changed from: " + from, running_film);
 
-        //if (dbg)
-            logger.log("adapt_slider_to_scene");
+        if (dbg) logger.log("adapt_slider_to_scene");
 
         {
             vertical_slider.adapt_slider_to_scene(owner);
@@ -2982,8 +2985,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        //if ( dbg)
-            logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
+        if ( dbg) logger.log("\ncompute_geometry reason="+reason+" current_vertical_offset="+current_vertical_offset);
         if (scroll_dbg) logger.log(("geometry_changed single_column="+ Feature_cache.get(Feature.Show_single_column)));
 
         if ( dbg) logger.log("Virtual_landscape map_buttons_and_icons");

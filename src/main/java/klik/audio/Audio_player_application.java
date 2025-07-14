@@ -11,8 +11,12 @@ import klik.browser.Shared_services;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.Sys_init;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
+import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
 
@@ -25,6 +29,7 @@ import java.nio.file.Path;
 public class Audio_player_application extends Application
 //**********************************************************
 {
+    private final static String name = "Audio_player_application";
     private Stage stage;
     Logger logger;
     //**********************************************************
@@ -37,8 +42,8 @@ public class Audio_player_application extends Application
     //**********************************************************
     {
         this.stage = stage_;
-        Sys_init.init("Audio_player_application",stage_);
-        logger = Shared_services.shared_services_logger;
+        Sys_init.init(name,stage_);
+        logger = Logger_factory.get(name);
         Start_context context = Start_context.get_context_and_args(this);
 
         if (  start_server())
@@ -93,7 +98,7 @@ public class Audio_player_application extends Application
             }
 
         }
-        Audio_player.init_ui(Shared_services.shared_services_aborter, logger);
+        Audio_player.init_ui(Shared_services.aborter, logger);
         Audio_player.play_this(f, logger);
     }
 

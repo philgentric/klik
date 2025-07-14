@@ -8,8 +8,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
-import klik.util.log.Simple_logger;
+import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 
@@ -86,7 +87,7 @@ public class Non_booleans
     public static Aborter init_main_properties_manager(String aborter_name, Window owner)
     //**********************************************************
     {
-        Logger logger = new Simple_logger();
+        Logger logger = new File_logger("Non_booleans_properties_manager");
         Aborter aborter = new Aborter(aborter_name, logger);
 
         the_iproperties = new File_based_IProperties("klik", owner,aborter, logger);

@@ -139,7 +139,7 @@ public final static boolean dbg = false;
     Similarity_cache similarity_cache = Browsing_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
     if (similarity_cache == null)
     {
-      similarity_cache = new Similarity_cache(path_list_provider, owner, x, y, Shared_services.shared_services_aborter, logger);
+      similarity_cache = new Similarity_cache(path_list_provider, owner, x, y, Shared_services.aborter, logger);
       Browsing_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
     }
     return similarity_cache;

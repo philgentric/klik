@@ -89,9 +89,9 @@ public class Browser extends Abstract_browser implements Feature_change_target
             path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
             if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), context.originator))
             {
-                List<History_item> l = History_engine.get(context.originator, Shared_services.shared_services_aborter, logger).get_all_history_items();
+                List<History_item> l = History_engine.get(context.originator, Shared_services.aborter, logger).get_all_history_items();
                 if ( !l.isEmpty()) {
-                    History_item h = History_engine.get(context.originator, Shared_services.shared_services_aborter, logger).get_all_history_items().get(0);
+                    History_item h = History_engine.get(context.originator, Shared_services.aborter, logger).get_all_history_items().get(0);
                     if (h != null) {
                         path = Path.of(h.value);
                         logger.log("reloading last folder from history:" + path);
@@ -144,7 +144,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         if (monitor_this_folder)
         {
             Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, Shared_services.shared_services_aborter, logger);
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, Shared_services.aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
                     logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());

@@ -6,10 +6,10 @@ import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 
 //*******************************************************
-public class System_logger
+public class Logger_factory
 //*******************************************************
 {
-	public static Logger get_system_logger(String tag)
+	public static Logger get(String tag)
 	{
 		if ( Booleans.get_boolean(Feature.Log_to_file.name(),null))
 		{

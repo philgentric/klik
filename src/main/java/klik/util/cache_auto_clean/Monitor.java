@@ -5,7 +5,6 @@ package klik.util.cache_auto_clean;
 import klik.Window_provider;
 import klik.actor.Actor_engine;
 import klik.browser.Shared_services;
-import klik.change.history.History_auto_clean;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.util.log.Logger;
@@ -37,7 +36,7 @@ public class Monitor
         Runnable r = () -> {
             for(;;)
             {
-                if ( Shared_services.shared_services_aborter.should_abort())
+                if ( Shared_services.aborter.should_abort())
                 {
                     logger.log("All 3 Monitors aborted");
                     return;

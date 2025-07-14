@@ -78,9 +78,10 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();
-        logger.log("Browser constructor browsers_created(1)=" + count);
-        if (context.shutdown_target != null) {
-            logger.log("closing previous browser");
+        if ( dbg) logger.log("Browser constructor browsers_created(1)=" + count);
+        if (context.shutdown_target != null)
+        {
+            if ( dbg) logger.log("closing previous browser");
             context.shutdown_target.shutdown();
         }
 
@@ -197,31 +198,31 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     //**********************************************************
     {
         aborter.abort("Browser is closing for "+get_Path_list_provider().get_name());
-        //if (dbg)
-        logger.log("Browser close_window " + signature());
+        if (dbg) logger.log("Browser close_window " + signature());
 
         int count = number_of_windows.decrementAndGet();
-        logger.log("close_window: browsers_created(2) ="+count);
+        if ( dbg) logger.log("close_window: browsers_created(2) ="+count);
         if (count ==0)
         {
             if (Klik_application.primary_stage != null)
             {
-                logger.log("primary_stage closing = primary_stage.close()");
+                if (dbg) logger.log("primary_stage closing = primary_stage.close()");
                 Klik_application.primary_stage.close();
-                Shared_services.shared_services_aborter.abort("primary_stage closing");
+                Shared_services.aborter.abort("primary_stage closing");
             }
             else
             {
                 logger.log("SHOULD NOT HAPPEN Abstract_browser: primary_stage is null");
 
             }
-            logger.log("primary_stage closing = Platform.exit()");
+            if (dbg) logger.log("primary_stage closing GOING TO CALL Platform.exit()");
             Platform.exit();
-            logger.log("primary_stage closing = System.exit()");
+            if (dbg) logger.log("primary_stage closing GOING TO CALL System.exit()");
             System.exit(0);
         }
-        else {
-            logger.log("browsers_created > 0");
+        else
+        {
+            if ( dbg) logger.log("browsers_created > 0");
         }
 
         // when we change dir, we need to de-register the old browser
@@ -234,11 +235,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         Feature_cache.string_deregister_all(virtual_landscape);
 
         virtual_landscape.stop_scan();
-        //the_Pane.getChildren().clear();
-        //if (icon_manager != null) icon_manager.cancel_all();
-        //logger.log("close_window BEFORE close" + signature());
         my_Stage.close();
-
     }
 
 

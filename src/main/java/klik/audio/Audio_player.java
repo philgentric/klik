@@ -86,7 +86,7 @@ public class Audio_player
     {
         if ( ui == null)
         {
-            init_ui(Shared_services.shared_services_aborter,logger);
+            init_ui(Shared_services.aborter,logger);
         }
         ui.play_playlist_internal(file);
     }

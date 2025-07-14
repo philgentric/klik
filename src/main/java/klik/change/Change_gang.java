@@ -11,7 +11,7 @@ import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
+import klik.util.log.Logger_factory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -34,18 +34,17 @@ public class Change_gang
     private final ConcurrentLinkedQueue<Change_receiver> change_gang_receivers;
     public static Change_gang instance = null; // the first guy registering will cause the instance to be created
     //**********************************************************
-    private static void create_instance(Logger logger)
+    private static void create_instance()
     //**********************************************************
     {
-        instance = new Change_gang(logger);
+        instance = new Change_gang();
     }
 
     //**********************************************************
-    private Change_gang(Logger logger)
+    private Change_gang()
     //**********************************************************
     {
-        //dedicated_logger = new Disruptor_logger("Change_gang.txt");
-        dedicated_logger = System_logger.get_system_logger("change gang");
+        dedicated_logger = Logger_factory.get("change gang");
         change_gang_receivers = new ConcurrentLinkedQueue<>();
         house_keeping_actor = new House_keeping_actor(change_gang_receivers);
     }
@@ -179,11 +178,11 @@ public class Change_gang
      */
 
     //**********************************************************
-    public static void register(Change_receiver wtdam, Aborter aborter, Logger logger)
+    public static void register(Change_receiver change_receiver, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( instance ==  null) create_instance(logger);
-        instance.register_internal(wtdam, aborter);
+        if ( instance ==  null) create_instance();
+        instance.register_internal(change_receiver, aborter);
     }
     //**********************************************************
     private void register_internal(Change_receiver change_receiver, Aborter aborter)

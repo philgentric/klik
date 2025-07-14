@@ -20,6 +20,7 @@ import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Filesystem_modification_reporter;
 import klik.util.log.File_logger;
 import klik.util.log.Logger;
+import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class Text_frame_with_labels
     //**********************************************************
     {
         the_path = path_;
-        logger = new File_logger("Text_frame_with_labels");//logger_;
+        logger = Logger_factory.get("Text_frame_with_labels");
         Filesystem_item_modification_watcher watcher = new Filesystem_item_modification_watcher();
         Aborter aborter = new Aborter("Text_frame_with_labels",logger);
         Filesystem_modification_reporter reporter = () -> {

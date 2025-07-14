@@ -239,7 +239,7 @@ public class Image_feature_vector_cache
         if ( image_feature_vector_cache == null)
         {
             Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Wait, calling ML servers to get feature vectors",20000, x,y,logger);
-            image_feature_vector_cache = new Image_feature_vector_cache(path_list_provider.get_name(), "image_feature_vectors", Shared_services.shared_services_aborter, logger);
+            image_feature_vector_cache = new Image_feature_vector_cache(path_list_provider.get_name(), "image_feature_vectors", Shared_services.aborter, logger);
             Images_and_feature_vectors images_and_feature_vectors = image_feature_vector_cache.read_from_disk_and_update(path_list_provider,in_flight, owner, browser_aborter,logger);
             Browsing_caches.fv_cache_of_caches.put(path_list_provider.get_name(),image_feature_vector_cache);
             return images_and_feature_vectors;

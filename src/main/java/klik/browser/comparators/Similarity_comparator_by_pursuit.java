@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 public class Similarity_comparator_by_pursuit extends Similarity_comparator
 //**********************************************************
 {
-    public static final double SIMILARITY_THRESHOLD = 0.14;
 
     //**********************************************************
     public Similarity_comparator_by_pursuit(

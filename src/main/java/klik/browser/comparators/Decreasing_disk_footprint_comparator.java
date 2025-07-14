@@ -6,8 +6,6 @@ import klik.browser.Shared_services;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
-import klik.util.ui.Hourglass;
-import klik.util.ui.Show_running_film_frame_with_abort_button;
 
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -34,8 +32,8 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        long s1 = get_disk_footprint_in_bytes(p1, Shared_services.shared_services_aborter ,Shared_services.shared_services_logger);
-        long s2 = get_disk_footprint_in_bytes(p2, Shared_services.shared_services_aborter ,Shared_services.shared_services_logger);
+        long s1 = get_disk_footprint_in_bytes(p1, Shared_services.aborter,Shared_services.logger);
+        long s2 = get_disk_footprint_in_bytes(p2, Shared_services.aborter,Shared_services.logger);
 
         int diff = Long.compare(s2,s1);
         if ( diff != 0) return diff;

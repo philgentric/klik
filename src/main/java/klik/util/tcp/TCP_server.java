@@ -6,8 +6,8 @@ package klik.util.tcp;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.log.Logger;
+import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -218,7 +218,7 @@ public class TCP_server
     public static void main( String []args)
     //**********************************************************
     {
-        Logger logger = System_logger.get_system_logger("TCP server test");
+        Logger logger = Logger_factory.get("TCP server test");
 
         CountDownLatch cdl = new CountDownLatch(1);
         Session_factory the_session_factory = () -> new Session()

@@ -23,7 +23,8 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 //**********************************************************
 {
 	private static final boolean dbg = false;
-	private static final double SPECIAL_SIMILARITY_THRESHOLD = 0.024;
+	private static final double SPECIAL_SIMILARITY_THRESHOLD = 0.15;
+	//private static final double SPECIAL_SIMILARITY_THRESHOLD = 0.024;
 	Logger logger;
 	private final List<File_with_a_few_bytes> all_files;
 	BlockingQueue<Similarity_file_pair> output_queue_of_same_in_pairs;

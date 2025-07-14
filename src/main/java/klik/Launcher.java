@@ -18,8 +18,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.audio.Audio_player;
 import klik.audio.Audio_player_access;
+import klik.browser.Shared_services;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -28,10 +28,12 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.log.File_logger;
 import klik.util.log.Logger;
+import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
 import klik.util.ui.Hourglass;
@@ -74,6 +76,7 @@ public class Launcher extends Application implements UI_change
 //**********************************************************
 {
 
+    private final static String name = "Launcher";
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
@@ -91,9 +94,12 @@ public class Launcher extends Application implements UI_change
     public void start(Stage stage_) throws Exception
     //**********************************************************
     {
+
         stage = stage_;
-        Sys_init.init("Launcher app",stage);
-        logger = new File_logger("launcher.txt");// Shared_services.shared_services_logger;
+        Sys_init.init(name,stage);
+        logger = Logger_factory.get(name);
+
+        logger.log("Launcher starting");
 
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);

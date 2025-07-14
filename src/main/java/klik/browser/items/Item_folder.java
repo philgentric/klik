@@ -373,7 +373,7 @@ public class Item_folder extends Item implements Icon_destination
         }
 
         button.setOnAction(event -> {
-            logger.log("BUTTON PRESSED for folder:"+text);
+            if ( dbg) logger.log("Button pressed for folder:"+text);
 
             if (get_item_path() == null)
             {
@@ -390,7 +390,7 @@ public class Item_folder extends Item implements Icon_destination
             Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
             if ( is_parent_of()!=null)
             {
-                logger.log("is_up_button");
+                if ( dbg) logger.log("is_up_button");
                 old_folder_path = is_parent_of(); // this works when going "down", path is the new target path, therefore going back is the parent of that
             }
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());

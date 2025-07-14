@@ -7,9 +7,7 @@ import klik.actor.Actor_engine;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.System_logger;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -495,7 +493,7 @@ public class Properties_manager
     {
         String TOTO = "toto";
         File f_ = new File("debil.txt");
-        Logger logger = System_logger.get_system_logger("Properties test");
+        Logger logger = Logger_factory.get_system_logger("Properties test");
         Properties_manager pm = new Properties_manager(f_.toPath(), "unit test",new Aborter("dummy",logger),logger);
 
         for (int i = 0; i < 15; i++)

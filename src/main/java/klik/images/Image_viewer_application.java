@@ -6,7 +6,6 @@ import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.browser.Shared_services;
 import klik.browser.classic.Folder_path_list_provider;
-import klik.look.Look_and_feel_manager;
 import klik.util.Sys_init;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
@@ -28,8 +27,8 @@ public class Image_viewer_application extends Application
     {
 
         Sys_init.init("Image_viewer app",stage);
-        Logger logger = Shared_services.shared_services_logger;
-        Aborter aborter = Shared_services.shared_services_aborter;
+        Logger logger = Shared_services.logger;
+        Aborter aborter = Shared_services.aborter;
 
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);

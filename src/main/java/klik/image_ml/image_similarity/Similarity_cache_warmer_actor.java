@@ -17,6 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Similarity_cache_warmer_actor implements Actor
 //**********************************************************
 {
+    // image at distances larger than this value will not be stored in the cache
+    // i.e. they are not similar enough
+    public static final double SIMILARITY_THRESHOLD = 0.14;
+
     private final List<Path> images;
     private final ConcurrentHashMap<Path_pair, Double> similarities_hashtable;
     private final Image_feature_vector_cache cache;
@@ -82,7 +86,7 @@ public class Similarity_cache_warmer_actor implements Actor
             //if ( diff > max_similarity) max_similarity = diff;
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries
-            if ( diff < Similarity_comparator_by_pursuit.SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
+            if ( diff < SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
         }
 
         return "Done";
