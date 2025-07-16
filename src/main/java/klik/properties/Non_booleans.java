@@ -486,6 +486,10 @@ public class Non_booleans
     public static Path get_trash_dir(Path for_this, Window owner, Logger logger)
     //**********************************************************
     {
+        // the idea of having multiple trash dirs is that when you are moving file to trash,
+        // it is MUCH faster to move them to a trash dir on the same disk,
+        // than to move them to the user home trash dir,
+        // this is especially important on slow/network drives
 
         Path full_path = for_this.toAbsolutePath();
         if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes"))) {
@@ -495,7 +499,14 @@ public class Non_booleans
             if (volume == null) {
                 logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
             }
-            return from_top_folder(volume.toString(), TRASH_DIR, true, owner, logger);
+            Path candidate =from_top_folder(volume.toString(), TRASH_DIR, true, owner, logger);
+            if ( candidate != null) return candidate;
+            {
+                // happens for OneDrive, where the real path is
+                // /Volumes/Macintosh HD/Users/<name>/OneDrive -<companyname>/floder... etc
+                // and /Volumes/Macintosh HD is NOT writable, so cannot create a trash dir there
+                // better use the user home
+            }
         }
 
         Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
