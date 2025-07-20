@@ -980,9 +980,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 Comparator<Path> comp = (p1, p2) -> {
                     Long l1 = folder_total_sizes_cache.get(p1);
-                    if (l1==null) return 1;
                     Long l2 = folder_total_sizes_cache.get(p2);
-                    if (l2==null) return 1;
+                    if (l1 == null && l2 == null) return 0;
+                    if (l1 == null) return 1;
+                    if (l2 == null) return -1;
                     return l2.compareTo(l1);
                 };
                 Collections.sort(paths,comp);
@@ -991,9 +992,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 Comparator<Path> comp = (p1, p2) -> {
                     Long l1 = folder_file_count_cache.get(p1);
-                    if (l1==null) return 1;
                     Long l2 = folder_file_count_cache.get(p2);
-                    if (l2==null) return 1;
+                    if (l1 == null && l2 == null) return 0;
+                    if (l1 == null) return 1;
+                    if (l2 == null) return -1;
                     return l2.compareTo(l1);
                 };
                 Collections.sort(paths,comp);

@@ -66,6 +66,14 @@ dependencies {
     // for face recognition: gson is used to serialise the feature vectors between the python server and this app
     implementation 'com.google.code.gson:gson:2.11.0'
 
+
+    // https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core
+    //implementation("org.deeplearning4j:deeplearning4j-core:1.0.0-M2.1")
+    //implementation("org.deeplearning4j:deeplearning4j-zoo:1.0.0-M2.1")
+
+    //implementation 'com.fasterxml.jackson.core:jackson-core:2.18.2'
+    //implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+
 }
 
 /*
@@ -116,8 +124,17 @@ tasks.register('audio_player', JavaExec) {
     return
 }
 
-
 /*
+tasks.register('image_similarity_server', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.image_ml.image_similarity.Image_similarity_server'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+
 tasks.register('image_viewer', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.images.Image_viewer_application'
