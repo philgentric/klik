@@ -37,6 +37,7 @@ public class Face_detector
 {
     private static final boolean dbg = false;
 
+    // TODO: avoid the risk of having these ports ALSO hardcoded in the python server scripts
     // MTCNN face detector servers
     static int[] port_MTCNN = {8040, 8041, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049};
 

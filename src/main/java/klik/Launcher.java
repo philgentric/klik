@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -19,7 +20,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player_access;
-import klik.browser.Shared_services;
+import klik.image_ml.ML_servers_util;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -28,10 +29,9 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
-import klik.properties.boolean_features.Feature_cache;
 import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
-import klik.util.log.File_logger;
+import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
@@ -40,10 +40,7 @@ import klik.util.ui.Hourglass;
 import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +85,8 @@ public class Launcher extends Application implements UI_change
     private Logger logger;
     private VBox vbox;
     private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
+
+
 
     //**********************************************************
     @Override
@@ -189,7 +188,30 @@ public class Launcher extends Application implements UI_change
             });
         }
         {
-            Button b = new Button("Show version");
+            Button b = new Button(My_I18n.get_I18n_string("Start_Image_Similarity_Servers", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), stage, logger));
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Stop_Image_Similarity_Servers", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Start_Face_Recognition_Servers", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), stage, logger));
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Stop_Face_Recognition_Servers", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), stage, logger));
+        }
+        Separator separator = new Separator();
+        vbox.getChildren().add(separator);
+
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Show_Version", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(event -> {
                 show_version(stage, logger);

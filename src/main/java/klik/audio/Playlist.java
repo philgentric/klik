@@ -797,7 +797,8 @@ public class Playlist
             logger.log(e.toString());
         }
 
-        Runnable r = () -> the_music_ui.set_total_duration("Playlist: " + the_playlist.size() + " songs, " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.get()));
+        final String text = My_I18n.get_I18n_string("Songs",owner,logger);
+        Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.get(),owner,logger));
         Platform.runLater(r);
 
     }

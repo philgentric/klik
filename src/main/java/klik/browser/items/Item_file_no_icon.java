@@ -384,6 +384,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         give_a_menu_to_the_button(button,label);
     }
 
+    /*
 
     //**********************************************************
     public void button_for_a_directory(String text, double width, double height, Color color)
@@ -408,6 +409,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             // protect crash when going up: root has no parent
             logger.log("WARNING no action for folder:"+text);
 
+            // TODO: this work ONLY if the user-selected language is English
             if ( text.equals("Trash")) {
                 button.setOnAction(event -> {
                     Popups.popup_warning("WARNING","NO trash on this media: probably it is read only",true,owner,logger);
@@ -418,32 +420,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
         button.setOnAction(event -> {
             logger.log(Stack_trace_getter.get_stack_trace("BUTTON PRESSED for item file no icon :"+text));
-/*
-            if (get_item_path() == null)
-            {
-                // protect crash when going up: root has no parent
-                logger.log("WARNING no action for folder:"+text);
-                return;
-            }
 
-            // if the button represents a folder, clicking on it "opens" that folder
-            // = we create a NEW browser, as a replacement
-
-            if( dbg) logger.log("Item_file_no_icon button setOnAction calling replace_different_folder");
-
-            // the place we are going is the path of the button = get_item_path()
-            // to record the scroll_to i.e. the current position, we need the place we are coming from = the current path of the browser
-            // this is the parent EXCEPT when the button is the parent aka up button
-            Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
-            if ( is_up_button()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
-            Browsing_caches.scroll_position_cache.put(old_folder_path.toAbsolutePath().toString(),top_left_provider.get_top_left());
-
-            New_window_context.replace_different_folder(
-                    shutdown_target,
-                    get_item_path(),
-                    owner,
-                    logger);
-*/
         });
 
         Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,get_item_path(),is_trash(),logger);
@@ -453,7 +430,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         //if ( Non_booleans.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
 
     }
-
+*/
 
     //**********************************************************
     public void add_how_many_files_deep_folder(

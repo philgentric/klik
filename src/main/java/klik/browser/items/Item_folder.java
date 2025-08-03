@@ -364,6 +364,7 @@ public class Item_folder extends Item implements Icon_destination
             // protect crash when going up: root has no parent
             if ( !text.isEmpty()) logger.log("WARNING no action for folder ->"+text+"<-");
 
+            // TODO: this work ONLY if the user-selected language is English
             if ( text.equals("Trash")) {
                 button.setOnAction(event -> {
                     Popups.popup_warning("WARNING","NO trash on this media: probably it is read only",true,owner,logger);
@@ -387,11 +388,12 @@ public class Item_folder extends Item implements Icon_destination
 
             if( dbg) logger.log("Item_folder button setOnAction calling replace_different_folder");
 
-            Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
+            // this works when going "down", path is the new target path, therefore going back is the parent of that
+            Path old_folder_path = get_item_path().getParent();
             if ( is_parent_of()!=null)
             {
                 if ( dbg) logger.log("is_up_button");
-                old_folder_path = is_parent_of(); // this works when going "down", path is the new target path, therefore going back is the parent of that
+                old_folder_path = is_parent_of();
             }
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
@@ -406,9 +408,6 @@ public class Item_folder extends Item implements Icon_destination
         Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,get_item_path(),is_trash(),logger);
 
         give_a_menu_to_the_button(button,label);
-
-        //if ( Non_booleans.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
-
     }
 
 

@@ -13,6 +13,12 @@ from tensorflow.keras.models import Model
 from keras.applications import MobileNetV3Large
 from tensorflow.keras.applications.mobilenet_v3 import preprocess_input
 
+import socket
+import time
+import uuid
+
+SERVER_UUID = str(uuid.uuid4())  # Generate a unique ID for this server instance
+MONITOR_PORT = None
 
 #base_model = MobileNetV2(include_top=False, pooling='avg', input_shape=(224, 224, 3),weights='imagenet')
 base_model = MobileNetV3Large(include_top=False, pooling='avg', input_shape=(224, 224, 3),weights='imagenet')
@@ -20,7 +26,10 @@ base_model = MobileNetV3Large(include_top=False, pooling='avg', input_shape=(224
 model = Model(inputs=base_model.input, outputs=base_model.output)
 
 class EmbeddingGenerator(SimpleHTTPRequestHandler):
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
     def do_GET(self):
+        start_time = time.time()
         image_raw_url = self.path[1:]
         #print("going to open image_raw_url:    "+image_raw_url)
         decoded_url = urllib.parse.unquote_plus(image_raw_url)
@@ -57,14 +66,24 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         self.send_header('Content-type', 'application/json')
         self.end_headers()
         self.wfile.write(x.encode('utf-8'))
+        processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+        monitor_data = f"{SERVER_UUID},mobilenet,{image_raw_url},{processing_time:.3f}"
+        try:
+            bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('localhost', MONITOR_PORT))
+            print(f"UDP sent {bytes_sent} bytes to localhost:{MONITOR_PORT}: {monitor_data}")
+        except Exception as e:
+            print(f"UDP send error: {e}")
 
     def do_POST(self):
         pass
 
 
-def run_server(port):
-    print("Starting local MobileNet EMBEDDINGS server on port: "+str(port))
-    server_address = ('localhost', port)
+def run_server(tcp_port,udp_port):
+    global MONITOR_PORT  # Need to modify the global variable
+    MONITOR_PORT = udp_port
+
+    print("Starting local MobileNet EMBEDDINGS server on TCP port: "+str(tcp_port))
+    server_address = ('localhost', tcp_port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
     httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     httpd.socket.listen(1024)

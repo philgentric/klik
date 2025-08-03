@@ -1,21 +1,32 @@
 import cv2
+import numpy as np
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 import urllib.parse
-import numpy as np
+import time
+import socket
+import uuid
+from functools import partial
 
-
+SERVER_UUID = str(uuid.uuid4())
+MONITOR_PORT = None
 
 # Dictionary to map config number to face cascade classifier file
 class FaceDetectionHandler(SimpleHTTPRequestHandler):
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def do_POST(self):
+        pass
 
     def __init__(self, config_name, *args, **kwargs):
         print("HAARS: "+config_name)
+        self.config_name = config_name
         self.face_cascade = cv2.CascadeClassifier(config_name)
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
 
+        start_time = time.time()
         image_raw_url = self.path[1:]
         #print("going to open image_raw_url:    "+image_raw_url)
 
@@ -103,14 +114,22 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
             else:
                 # No faces detected in the image
                 pass
+        processing_time = (time.time() - start_time)*1000  # Convert to milliseconds
+        # Send monitoring data
+        monitor_data = f"{SERVER_UUID},haar_face_detection,{self.config_name},{processing_time:.3f}"
+        try:
+            bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('localhost', MONITOR_PORT))
+            print(f"UDP sent {bytes_sent} bytes to localhost:{MONITOR_PORT}: {monitor_data}")
+        except Exception as e:
+            print(f"UDP send error: {e}")
 
-
-    def do_POST(self):
-        pass
 
 from functools import partial
 
-def run_server(port, config_name):
+def run_server(port, config_name,monitor_udp_port):
+    global MONITOR_PORT
+    MONITOR_PORT = monitor_udp_port
+
     print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+config_name)
     server_address = ('localhost', port)
     handler = partial(FaceDetectionHandler, config_name)

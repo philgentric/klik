@@ -756,7 +756,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(), owner,logger);
                 item = all_items_map.get(path);
                 if (item == null) {
-                    logger.log("Item_file_no_icon (1) path="+path);
+                    if ( dbg) logger.log("Item_file_no_icon (1) path="+path);
                     item = new Item_file_no_icon(
                             the_Scene,
                             selection_handler,

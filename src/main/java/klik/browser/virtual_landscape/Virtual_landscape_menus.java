@@ -696,7 +696,13 @@ public class Virtual_landscape_menus
             double x = owner.getX()+100;
             double y = owner.getY()+100;
 
-            Undo_for_moves.perform_undo(item, owner, x, y, virtual_landscape.logger);
+            boolean ok = Popups.popup_ask_for_confirmation("Please confirm.",
+                    "Undoing this will move the file(s) back to their original location.\n" +
+                            item.to_string()+"\n"+
+                            item.to_string(),
+                    owner, virtual_landscape.logger);
+
+            if ( ok) Undo_for_moves.perform_undo(item, owner, x, y, virtual_landscape.logger);
         };
         String title = My_I18n.get_I18n_string("Whole_Undo_History",virtual_landscape.owner,virtual_landscape.logger);
         Undo_for_moves.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_for_moves.get_instance(virtual_landscape.owner,virtual_landscape.logger), action, virtual_landscape.logger));
@@ -1159,7 +1165,6 @@ public class Virtual_landscape_menus
         double y = owner.getY()+100;
 
         virtual_landscape.path_list_provider.delete_multiple(to_be_deleted,owner,x,y,virtual_landscape.aborter,virtual_landscape.logger);
-        //Static_files_and_paths_utilities.move_to_trash_multiple(to_be_deleted,owner,x,y, null, aborter, virtual_landscape.logger;
 
     }
 

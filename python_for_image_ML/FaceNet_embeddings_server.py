@@ -9,13 +9,20 @@ import keras
 import numpy as np
 from keras.models import Model
 from facenet_pytorch import InceptionResnetV1
+import socket
+import time
+import uuid
 
-class EmbeddingGenerator(SimpleHTTPRequestHandler):
+SERVER_UUID = str(uuid.uuid4())
+MONITOR_PORT = None
 
+class Facenet_Embeddings_Generator(SimpleHTTPRequestHandler):
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     model = InceptionResnetV1(pretrained='vggface2')  # Load FaceNet model only once
     print("FaceNet Embeddings server started: vggface2 model loaded")
 
     def do_GET(self):
+        start_time = time.time()
         image_raw_url = self.path[1:]
         #print("FaceNet Embeddings server, going to open image_raw_url:    "+image_raw_url)
         decoded_url = urllib.parse.unquote_plus(image_raw_url)
@@ -44,7 +51,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         #print("FaceNet EMBEDDINGS feature vector size: "+str(feature_vector.size()))
 
 
-    # Convert the tensor to a NumPy array and flatten it
+        # Convert the tensor to a NumPy array and flatten it
         double_values = feature_vector.detach().numpy().flatten().tolist()
         data = {'features': double_values}
         x = json.dumps(data)
@@ -53,11 +60,21 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(x.encode('utf-8'))
 
-    def do_POST(self):
+        processing_time = (time.time() - start_time)*1000  # Convert to milliseconds
+        monitor_data = f"{SERVER_UUID},facenet_embeddings,facenet,{processing_time:.3f}"
+        try:
+            bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('localhost', MONITOR_PORT))
+            print(f"UDP sent {bytes_sent} bytes to localhost:{MONITOR_PORT}: {monitor_data}")
+        except Exception as e:
+            print(f"UDP send error: {e}")
+
+def do_POST(self):
         pass
 
-def run_server(port):
-    print("Starting local FaceNet FACE EMBEDDINGS server on port: "+str(port))
-    server_address = ('localhost', port)
-    httpd = HTTPServer(server_address, EmbeddingGenerator)
+def run_server(tcp_port, udp_port):
+    global MONITOR_PORT
+    MONITOR_PORT = udp_port
+    print("Starting local FaceNet FACE EMBEDDINGS server on TCP port: "+str(tcp_port))
+    server_address = ('localhost', tcp_port)
+    httpd = HTTPServer(server_address, Facenet_Embeddings_Generator)
     httpd.serve_forever()

@@ -30,7 +30,7 @@ public class Graph_for_histograms
     private static final double ADJUST = 20;
     private final static double WIDTH = how_many_rectangles *(w+gap)+LEFT;
 
-    HashMap<Integer, Rectangle> rectangles_of_the_curve = new HashMap<>();
+    //HashMap<Integer, Rectangle> rectangles_of_the_curve = new HashMap<>();
     List<Rectangle> v_scale_bars = new ArrayList<>();
     List<Text> v_scale_texts = new ArrayList<>();
     Rectangle min_x = new Rectangle();
@@ -83,7 +83,7 @@ public class Graph_for_histograms
                 r.setManaged(false);
                 x += w + gap;
                 r.setFill(color);
-                rectangles_of_the_curve.put(Integer.valueOf(i), r);
+                //rectangles_of_the_curve.put(Integer.valueOf(i), r);
                 the_hbox.getChildren().add(r);
             }
             create_v_scale(largest_count,stage);

@@ -23,6 +23,7 @@ import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -267,7 +268,8 @@ public class Audio_player_FX_UI
     private Button define_landing_zone_button()
     //**********************************************************
     {
-        Button landing_zone = new Button("Drop music files or folders here\nOr paste youtube URLs");
+        String drop = My_I18n.get_I18n_string("Drop_Here",stage,logger);
+        Button landing_zone = new Button(drop);
         Look_and_feel_manager.set_button_look(landing_zone, true,stage,logger);
         landing_zone.setMinHeight(100);
         BackgroundFill background_fill = new BackgroundFill(Color.LIGHTCORAL, CornerRadii.EMPTY, Insets.EMPTY);
@@ -768,14 +770,14 @@ public class Audio_player_FX_UI
         the_media_player_option.get().setVolume(volume);
         the_media_player_option.get().setBalance(balance);
         the_media_player_option.get().play();
-        String s = get_nice_string_for_duration(seconds);
+        String s = get_nice_string_for_duration(seconds,stage,logger);
         duration_value_label.setText(s);
 
 
     }
 
     //**********************************************************
-    public static String get_nice_string_for_duration(double seconds_in)
+    public static String get_nice_string_for_duration(double seconds_in, Window owner, Logger logger)
     //**********************************************************
     {
         int d = 0;
@@ -795,10 +797,14 @@ public class Audio_player_FX_UI
             m = seconds /60;
             seconds = seconds - m*60;
         }
-        String returned = seconds+"s";
-        if( m>0) returned = m+"m "+returned;
-        if( h>0) returned = h+"h "+returned;
-        if( d>0) returned = d+"d "+returned;
+        String abbreviation_for_second =My_I18n.get_I18n_string("Abbreviation_For_Second",owner,logger);
+        String abbreviation_for_minute = My_I18n.get_I18n_string("Abbreviation_For_Minute",owner,logger);
+        String abbreviation_for_hour = My_I18n.get_I18n_string("Abbreviation_For_Hour",owner,logger);
+        String abbreviation_for_day = My_I18n.get_I18n_string("Abbreviation_For_Day",owner,logger);
+        String returned = seconds+abbreviation_for_second;
+        if( m>0) returned = m+abbreviation_for_minute+" "+returned;
+        if( h>0) returned = h+abbreviation_for_hour+" "+returned;
+        if( d>0) returned = d+abbreviation_for_day+" "+returned;
         return returned;
     }
 

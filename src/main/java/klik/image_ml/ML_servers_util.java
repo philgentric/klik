@@ -275,9 +275,9 @@ public class ML_servers_util
             vb.getChildren().add(tf);
         }
 
-        Path p = Paths.get("");
+        //Path p = Paths.get("");
         {
-            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers ";
+            String cmd = get_command_string_to_start_face_recognition_servers(logger);//"source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers ";
             TextField tf = new TextField(cmd);
             Look_and_feel_manager.set_region_look(tf,owner,logger);
             tf.setEditable(false);
@@ -305,15 +305,9 @@ public class ML_servers_util
             tf.setEditable(false);
             vb.getChildren().add(tf);
         }
-        Path p = Paths.get("");
 
         {
-            String list_of_ports = "";
-            for ( int port : Feature_vector_source_for_image_similarity.ports)
-            {
-                list_of_ports += port + " ";
-            }
-            String cmd = "source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_image_similarity_servers "+list_of_ports;
+            String cmd = get_command_string_to_start_image_similarity_servers(logger);
             TextArea tf = new TextArea(cmd);
             Look_and_feel_manager.set_region_look(tf,owner,logger);
             tf.setEditable(false);
@@ -329,5 +323,47 @@ public class ML_servers_util
         stage.setWidth(1000);
         stage.setHeight(1000);
         stage.show();
+    }
+
+    //**********************************************************
+    public static String get_command_string_to_start_image_similarity_servers(Logger logger)
+    //**********************************************************
+    {
+        // if not already started, start the servers monitor
+        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(logger);
+
+        String list_of_ports = "";
+        for ( int port : Feature_vector_source_for_image_similarity.ports)
+        {
+            list_of_ports += port + " ";
+        }
+        String cmd = "source ~/venv-metal/bin/activate; cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./launch_image_similarity_servers "+ udp_port +" "+ list_of_ports;
+        return cmd;
+    }
+    //**********************************************************
+    public static String get_command_string_to_stop_image_similarity_servers(Logger logger)
+    //**********************************************************
+    {
+
+        String cmd = "cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./kill_image_similarity_servers";
+        return cmd;
+    }
+    //**********************************************************
+    public static String get_command_string_to_start_face_recognition_servers(Logger logger)
+    //**********************************************************
+    {
+        // if not already started, start the servers monitor
+        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(logger);
+
+        String cmd = "source ~/venv-metal/bin/activate; cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers "+ udp_port;
+        return cmd;
+    }
+    //**********************************************************
+    public static String get_command_string_to_stop_face_recognition_servers(Logger logger)
+    //**********************************************************
+    {
+
+        String cmd = "cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./kill_face_recognition_servers";
+        return cmd;
     }
 }

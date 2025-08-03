@@ -1,14 +1,23 @@
 import cv2
+import numpy as np
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 import urllib.parse
-import numpy as np
 from mtcnn import MTCNN
+import time
+import socket
+import uuid
+from functools import partial
+
+
+SERVER_UUID = str(uuid.uuid4())  # Generate a unique ID for this server instance
+MONITOR_PORT = None
 
 #https://github.com/ipazc/mtcnn/blob/master/example.py
 
-class FaceDetectionHandler(SimpleHTTPRequestHandler):
+class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
 
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     detector = MTCNN()
 
     def __init__(self, config_name, *args, **kwargs):
@@ -17,10 +26,12 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
         else :
             print("FATAL: config  not supported "+config_name)
 
+        self.config_name = config_name
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
 
+        start_time = time.time()
         image_raw_url = self.path[1:]
         #print("going to open image_raw_url:    "+image_raw_url)
 
@@ -50,6 +61,15 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'image/png')
             self.end_headers()
             self.wfile.write(out.tobytes())
+
+            processing_time = (time.time() - start_time)*1000
+            monitor_data = f"{SERVER_UUID},mtcnn_detection,mtcnn,{processing_time:.3f}"
+            try:
+                bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('localhost', MONITOR_PORT))
+                print(f"UDP sent {bytes_sent} bytes to localhost:{MONITOR_PORT}: {monitor_data}")
+            except Exception as e:
+                print(f"UDP send error: {e}")
+
         else:
             print("No faces detected by MTCNN")
             pass
@@ -59,9 +79,12 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
 from functools import partial
 
-def run_server(port, config_number):
+def run_server(port, config_number, monitor_udp_port):
+    global MONITOR_PORT
+    MONITOR_PORT = monitor_udp_port
+
     print("Starting local MTCNN FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
     server_address = ('localhost', port)
-    handler = partial(FaceDetectionHandler, config_number)
+    handler = partial(MTCNN_FaceDetectionHandler, config_number)
     httpd = HTTPServer(server_address, handler)
     httpd.serve_forever()

@@ -27,7 +27,7 @@ import java.util.Optional;
 public class Mouse_handling_for_Image_window
 //**********************************************************
 {
-
+    private final static boolean dbg = false;
     private final Image_window image_window;
     private final Logger logger;
     private boolean previous_mouse_valid = false;
@@ -192,7 +192,7 @@ public class Mouse_handling_for_Image_window
     void mouse_dragged_click_to_zoom(MouseEvent mouse_event, Pane pane)
     //**********************************************************
     {
-        logger.log("mouse_dragged_local_zoom:");
+        if ( dbg) logger.log("mouse_dragged_local_zoom:");
         Point2D in_parent = translate_mouse_event_to_in_pane(mouse_event, pane);
 
         if (user_defined_zoom_area != null)
