@@ -1,6 +1,10 @@
 package klik;
 
 //SOURCES ./audio/Audio_player_access.java
+//SOURCES ./image_ml/ML_servers_util.java
+//SOURCES ./image_ml/Embeddings_servers_monitor.java
+//SOURCES ./image_ml/Embeddings_servers_monitoring_stage.java
+//SOURCES ./util/execute/Execute_via_script_in_tmp_file.java
 
 import com.sun.management.OperatingSystemMXBean;
 import javafx.application.Application;
@@ -26,7 +30,7 @@ import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.util.Sys_init;
@@ -103,7 +107,7 @@ public class Launcher extends Application implements UI_change
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         Look_and_feel_manager.set_region_look(vbox,stage,logger);
-        double font_size = Non_booleans.get_font_size(stage,logger);
+        double font_size = Non_booleans_properties.get_font_size(stage,logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
@@ -126,7 +130,7 @@ public class Launcher extends Application implements UI_change
         System.out.println("\nPhysical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
 
 
-        long current = Non_booleans.get_java_VM_max_RAM(stage,logger);
+        long current = Non_booleans_properties.get_java_VM_max_RAM(stage,logger);
 
         if ( current > b.getTotalPhysicalMemorySize()/1_000_000_000 )
         {
@@ -160,7 +164,7 @@ public class Launcher extends Application implements UI_change
         OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         long current = b.getTotalPhysicalMemorySize() * 80 / 100;
         current = current / 1_000_000_000;
-        Non_booleans.save_java_VM_max_RAM((int)current, stage, logger);
+        Non_booleans_properties.save_java_VM_max_RAM((int)current, stage, logger);
         logger.log("Setting the max RAM to 80% of the physical RAM on this machine: "+current+" GBytes");
     }
 
@@ -188,6 +192,10 @@ public class Launcher extends Application implements UI_change
             });
         }
         {
+            Separator separator = new Separator();
+            vbox.getChildren().add(separator);
+        }
+        {
             Button b = new Button(My_I18n.get_I18n_string("Start_Image_Similarity_Servers", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), stage, logger));
@@ -198,6 +206,11 @@ public class Launcher extends Application implements UI_change
             b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
         }
         {
+            Separator separator = new Separator();
+            vbox.getChildren().add(separator);
+        }
+
+        {
             Button b = new Button(My_I18n.get_I18n_string("Start_Face_Recognition_Servers", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), stage, logger));
@@ -207,9 +220,10 @@ public class Launcher extends Application implements UI_change
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), stage, logger));
         }
-        Separator separator = new Separator();
-        vbox.getChildren().add(separator);
-
+        {
+            Separator separator = new Separator();
+            vbox.getChildren().add(separator);
+        }
         {
             Button b = new Button(My_I18n.get_I18n_string("Show_Version", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);

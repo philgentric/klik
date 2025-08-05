@@ -17,7 +17,14 @@ package klik.browser.virtual_landscape;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.browser.Icon_size;
 import klik.New_window_context;
@@ -194,8 +201,8 @@ public class Virtual_landscape_menus
         MenuItem item = new MenuItem(text);
 
         item.setOnAction(actionEvent -> {
-            //Non_booleans.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),virtual_landscape.logger);
-            TextInputDialog dialog = new TextInputDialog(""+ Non_booleans.get_folder_warning_size(owner));
+            //Non_booleans_properties.set_cache_size_limit_warning(((CheckMenuItem) actionEvent.getSource()).isSelected(),virtual_landscape.logger);
+            TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_folder_warning_size(owner));
             Look_and_feel_manager.set_dialog_look(dialog, virtual_landscape.owner,virtual_landscape.logger);
             dialog.initOwner(owner);
             dialog.setWidth(800);
@@ -210,7 +217,7 @@ public class Virtual_landscape_menus
                 try
                 {
                     int val = Integer.parseInt(new_val);
-                    Non_booleans.set_cache_size_limit_warning_megabytes_fx(val,owner);
+                    Non_booleans_properties.set_cache_size_limit_warning_megabytes_fx(val,owner);
 
                 }
                 catch (NumberFormatException e)
@@ -233,7 +240,7 @@ public class Virtual_landscape_menus
         MenuItem item = new MenuItem(text);
 
         item.setOnAction(actionEvent -> {
-            TextInputDialog dialog = new TextInputDialog(""+ Non_booleans.get_java_VM_max_RAM(owner, virtual_landscape.logger));
+            TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_java_VM_max_RAM(owner, virtual_landscape.logger));
             Look_and_feel_manager.set_dialog_look(dialog, virtual_landscape.owner,virtual_landscape.logger);
             dialog.initOwner(owner);
             dialog.setWidth(800);
@@ -248,7 +255,7 @@ public class Virtual_landscape_menus
                 try
                 {
                     int val = Integer.parseInt(new_val);
-                    Non_booleans.save_java_VM_max_RAM(val,owner, virtual_landscape.logger);
+                    Non_booleans_properties.save_java_VM_max_RAM(val,owner, virtual_landscape.logger);
 
                 }
                 catch (NumberFormatException e)
@@ -721,7 +728,43 @@ public class Virtual_landscape_menus
         {
             create_check_menu_item_for_style(menu, s, all_check_menu_items);
         }
+        Look_and_feel_style current_style = Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).get_look_and_feel_style();
+        if ( current_style == Look_and_feel_style.custom_color)
+        {
+            MenuItem custom_color_item = new MenuItem(My_I18n.get_I18n_string("Choose_Custom_Color",virtual_landscape.owner,virtual_landscape.logger));
+            custom_color_item.setOnAction(_ -> invoke_color_picker());
+            menu.getItems().add(custom_color_item);
+        }
         return menu;
+    }
+
+    //**********************************************************
+    private void invoke_color_picker()
+    //**********************************************************
+    {
+        virtual_landscape.logger.log(("color picker !"));
+        ColorPicker color_picker = new ColorPicker(Color.BLUE);//Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).get_custom_color());
+        Look_and_feel_manager.set_region_look(color_picker, virtual_landscape.owner,virtual_landscape.logger);
+        color_picker.setOnAction(_ -> {
+            Color new_color = color_picker.getValue();
+            virtual_landscape.logger.log(("color picker new color = "+new_color));
+
+            Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).set_custom_color(virtual_landscape.the_Scene,new_color,new_color.darker());
+            virtual_landscape.redraw_fx("custom color changed");
+            //Feature_cache.update_cached_boolean(Feature.Custom_color_is_set,true,owner);
+        });
+        Stage color_picker_stage = new Stage();
+        color_picker_stage.setTitle("color picker");
+        color_picker_stage.initOwner(virtual_landscape.owner); // Set owner window
+        // Create layout container
+        VBox layout = new VBox(10); // 10 pixels spacing
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(10));
+        layout.getChildren().add(color_picker);
+        Scene color_picker_scene = new Scene(layout, 400, 200);
+        color_picker_stage.setScene(color_picker_scene);
+        color_picker_stage.show();
+        virtual_landscape.logger.log(("color picker shown"));
     }
 
     //**********************************************************
@@ -752,7 +795,7 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Language",virtual_landscape.owner,virtual_landscape.logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         Menu menu = new Menu(text);
-        String current = Non_booleans.get_language_key(owner);
+        String current = Non_booleans_properties.get_language_key(owner);
 
         for( Language language_key : Language.values())
         {
@@ -788,7 +831,7 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Length_of_video_sample",virtual_landscape.owner,virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length+" s");
-        int actual_size = Non_booleans.get_animated_gif_duration_for_a_video(owner);
+        int actual_size = Non_booleans_properties.get_animated_gif_duration_for_a_video(owner);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -797,7 +840,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_booleans.set_animated_gif_duration_for_a_video(length,owner);
+                Non_booleans_properties.set_animated_gif_duration_for_a_video(length,owner);
                 Popups.popup_warning( "Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,virtual_landscape.logger);
             }
         });
@@ -809,9 +852,9 @@ public class Virtual_landscape_menus
     public void create_menu_item_for_one_column_width(Menu menu, int length, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,virtual_landscape.owner,virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,virtual_landscape.owner,virtual_landscape.logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length);
-        int actual_size = Non_booleans.get_column_width(owner);
+        int actual_size = Non_booleans_properties.get_column_width(owner);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -820,7 +863,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_booleans.set_column_width(length,owner);
+                Non_booleans_properties.set_column_width(length,owner);
                 virtual_landscape.redraw_fx("column width changed");
             }
         });
@@ -843,7 +886,7 @@ public class Virtual_landscape_menus
             txt = My_I18n.get_I18n_string("Icon_Size",virtual_landscape.owner,virtual_landscape.logger) + " = " +target_size;
         }
         CheckMenuItem item = new CheckMenuItem(txt);
-        int actual_size = Non_booleans.get_icon_size(owner);
+        int actual_size = Non_booleans_properties.get_icon_size(owner);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -852,7 +895,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_booleans.set_icon_size(target_size,owner);
+                Non_booleans_properties.set_icon_size(target_size,owner);
                 virtual_landscape.logger.log("icon size changed to "+target_size);
                 virtual_landscape.redraw_fx("icon size changed");
             }
@@ -867,7 +910,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Folder_Icon_Size",virtual_landscape.owner,virtual_landscape.logger) + " = " +target_size);
-        int actual_size = Non_booleans.get_folder_icon_size(owner);
+        int actual_size = Non_booleans_properties.get_folder_icon_size(owner);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -876,7 +919,7 @@ public class Virtual_landscape_menus
                 {
                     if ( cmi != local) cmi.setSelected(false);
                 }
-                Non_booleans.set_folder_icon_size(target_size,owner);
+                Non_booleans_properties.set_folder_icon_size(target_size,owner);
                 virtual_landscape.redraw_fx("folder icon size changed");
             }
         });
@@ -889,7 +932,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Font_size",virtual_landscape.owner,virtual_landscape.logger) + " = " +target_size);
-        double actual_size = Non_booleans.get_font_size(owner,virtual_landscape.logger);
+        double actual_size = Non_booleans_properties.get_font_size(owner,virtual_landscape.logger);
         item.setSelected(actual_size == target_size);
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
@@ -899,7 +942,7 @@ public class Virtual_landscape_menus
                 {
                     if (cmi != local) cmi.setSelected(false);
                 }
-                Non_booleans.set_font_size(target_size, owner);
+                Non_booleans_properties.set_font_size(target_size, owner);
                 virtual_landscape.redraw_fx("font size changed");
             }
         });
@@ -915,7 +958,7 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Length_of_video_sample",virtual_landscape.owner,virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_lenghts ={Non_booleans.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
+        int[] possible_lenghts ={Non_booleans_properties.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
         for ( int l : possible_lenghts)
         {
             create_menu_item_for_one_video_length(menu, l, all_check_menu_items);
@@ -926,7 +969,7 @@ public class Virtual_landscape_menus
     public Menu make_column_width_menu()
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_booleans.COLUMN_WIDTH,virtual_landscape.owner,virtual_landscape.logger);
+        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,virtual_landscape.owner,virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
@@ -1025,7 +1068,7 @@ public class Virtual_landscape_menus
     {
         List<Icon_size> icon_sizes = new ArrayList<>();
         {
-            int[] possible_sizes = {32, 64, 128, Non_booleans.DEFAULT_ICON_SIZE, 512, 1024};
+            int[] possible_sizes = {32, 64, 128, Non_booleans_properties.DEFAULT_ICON_SIZE, 512, 1024};
             for (int size : possible_sizes)
             {
                 icon_sizes.add(new Icon_size(size, false, 0));
@@ -1041,7 +1084,7 @@ public class Virtual_landscape_menus
                 icon_sizes.add(new Icon_size(size, true, divider));
             }
         }
-        int current_icon_size = Non_booleans.get_icon_size(owner);
+        int current_icon_size = Non_booleans_properties.get_icon_size(owner);
         Icon_size cur = new Icon_size(current_icon_size,false,0);
         if ( !icon_sizes.contains(cur)) icon_sizes.add(cur);
         Comparator<? super Icon_size> comp = new Comparator<Icon_size>() {
@@ -1061,7 +1104,7 @@ public class Virtual_landscape_menus
         String text = My_I18n.get_I18n_string("Folder_Icon_Size",virtual_landscape.owner,virtual_landscape.logger);
         Menu menu = new Menu(text);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_sizes ={Non_booleans.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
+        int[] possible_sizes ={Non_booleans_properties.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
         for ( int size : possible_sizes)
         {
             create_menu_item_for_one_folder_icon_size(menu, size, all_check_menu_items);
@@ -1077,7 +1120,7 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         double[] candidate_sizes = {10,12,14,16,18,20,22,24,26};
         List<Double> possible_sizes = new ArrayList<>();
-        possible_sizes.add(Double.valueOf(Non_booleans.get_font_size(owner,virtual_landscape.logger)));
+        possible_sizes.add(Double.valueOf(Non_booleans_properties.get_font_size(owner,virtual_landscape.logger)));
         for (double candidateSize : candidate_sizes) {
             if (possible_sizes.contains((Double)candidateSize)) continue;
             possible_sizes.add((Double)candidateSize);

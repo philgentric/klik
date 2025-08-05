@@ -187,8 +187,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         this.logger = logger;
 
         Feature_cache.register_for_all(this);
-        Feature_cache.string_register_for(Non_booleans.LANGUAGE_KEY,this);
-        Feature_cache.string_register_for(Non_booleans.STYLE_KEY,this);
+        Feature_cache.string_register_for(Non_booleans_properties.LANGUAGE_KEY,this);
+        Feature_cache.string_register_for(Non_booleans_properties.STYLE_KEY,this);
 
         the_Pane = new Pane();
 
@@ -223,7 +223,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if ( dbg) logger.log("Virtual_landscape constructor");
 
 
-        double font_size = Non_booleans.get_font_size(owner,logger);
+        double font_size = Non_booleans_properties.get_font_size(owner,logger);
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
         start_redraw_engine(owner, aborter, logger);
     }
@@ -234,11 +234,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         logger.log("virtual_landscape receiving update_config_string key="+key+" val="+new_value);
-        if ( key.equals(Non_booleans.LANGUAGE_KEY))
+        if ( key.equals(Non_booleans_properties.LANGUAGE_KEY))
         {
             New_window_context.replace_same_folder(shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
         }
-        else if ( key.equals(Non_booleans.STYLE_KEY))
+        else if ( key.equals(Non_booleans_properties.STYLE_KEY))
         {
             New_window_context.replace_same_folder(shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
         }
@@ -511,10 +511,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void change_icon_size(double fac)
     //**********************************************************
     {
-        int new_icon_size = (int) (Non_booleans.get_icon_size(owner) * fac);
+        int new_icon_size = (int) (Non_booleans_properties.get_icon_size(owner) * fac);
         if (new_icon_size < 20) new_icon_size = 20;
         if ( Browser.keyboard_dbg) logger.log("new icon size = "+new_icon_size);
-        Non_booleans.set_icon_size(new_icon_size,owner);
+        Non_booleans_properties.set_icon_size(new_icon_size,owner);
         //icon_manager.modify_button_fonts(fac);
         redraw_fx("new icon size "+new_icon_size);
     }
@@ -703,7 +703,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        double file_button_height = 2 * Non_booleans.get_font_size(owner,logger);
+        double file_button_height = 2 * Non_booleans_properties.get_font_size(owner,logger);
 
         double max_y_in_row[] = new double[1];
         max_y_in_row[0] = 0;
@@ -887,7 +887,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         // manage the non-iconifed-files section
-        double row_increment_for_files = 2 * Non_booleans.get_font_size(owner,logger);
+        double row_increment_for_files = 2 * Non_booleans_properties.get_font_size(owner,logger);
 
         for (Path path : paths_holder.non_iconized.keySet())
         {
@@ -1177,7 +1177,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         //logger.log("check_visibility: "+ all_items_map.values().size()+" items are ready "+from);
         double pane_height = the_Pane.getHeight();
-        int icon_size = Non_booleans.get_icon_size(owner);
+        int icon_size = Non_booleans_properties.get_icon_size(owner);
         double min_y = Double.MAX_VALUE;
         for (Item item : all_items_map.values())
         {
@@ -1633,7 +1633,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        double font_size = Non_booleans.get_font_size(owner,logger);
+        double font_size = Non_booleans_properties.get_font_size(owner,logger);
         double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
         Button up_button;
@@ -1665,7 +1665,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             String trash_text = My_I18n.get_I18n_string("Trash",owner,logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
-                    Non_booleans.get_trash_dir(path_list_provider.get_folder_path(),owner,logger),
+                    Non_booleans_properties.get_trash_dir(path_list_provider.get_folder_path(),owner,logger),
                     trash_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -1700,7 +1700,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void apply_font()
     //**********************************************************
     {
-        if (dbg) logger.log("applying font size " + Non_booleans.get_font_size(owner,logger));
+        if (dbg) logger.log("applying font size " + Non_booleans_properties.get_font_size(owner,logger));
         for (Node x : top_buttons) {
             Font_size.apply_font_size(x, owner,logger);
         }
@@ -2992,12 +2992,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         if ( dbg) logger.log("Virtual_landscape map_buttons_and_icons");
 
-        double row_increment_for_dirs = 2 * Non_booleans.get_font_size(owner,logger);
-        int folder_icon_size = Non_booleans.get_folder_icon_size(owner);
-        int column_increment_for_folders = Non_booleans.get_column_width(owner);
+        double magic = 2.0;
+        double row_increment_for_dirs = magic * Non_booleans_properties.get_font_size(owner,logger);
+        int folder_icon_size = Non_booleans_properties.get_folder_icon_size(owner);
+        int column_increment_for_folders = Non_booleans_properties.get_column_width(owner);
         if ( column_increment_for_folders < folder_icon_size) column_increment_for_folders = folder_icon_size;
 
-        int icon_size = Non_booleans.get_icon_size(owner);
+        int icon_size = Non_booleans_properties.get_icon_size(owner);
         int column_increment_for_icons = icon_size;
 
         if (Feature_cache.get(Feature.Show_single_column))
@@ -3011,7 +3012,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         double scene_width = the_Scene.getWidth();
 
-        double top_delta_y = 2 * Non_booleans.get_font_size(owner,logger);
+        double top_delta_y = 2 * Non_booleans_properties.get_font_size(owner,logger);
         if (error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size,owner,logger));
             show_error_icon(iv_denied,top_delta_y);

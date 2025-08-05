@@ -11,7 +11,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
@@ -42,7 +42,7 @@ public class Importer
     public static void perform_import(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(Non_booleans_properties.USER_HOME))).toPath();
 
 
         Path target = home.resolve(Path.of("Pictures"));
@@ -140,7 +140,7 @@ public class Importer
     public static void estimate_size(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Non_booleans.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(Non_booleans_properties.USER_HOME))).toPath();
 
         Path target = home.resolve(Path.of("Pictures"));
 

@@ -57,7 +57,7 @@ public class Animated_gif_from_folder
         //    return null;
         //}
 
-        int icon_size = Non_booleans.get_icon_size(owner);
+        int icon_size = Non_booleans_properties.get_icon_size(owner);
 
         String output_animated_gif_name = Icon_writer_actor.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
         Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_folder_icon_cache,owner,logger);

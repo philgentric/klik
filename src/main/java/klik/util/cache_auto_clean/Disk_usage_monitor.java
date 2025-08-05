@@ -4,7 +4,7 @@ import javafx.stage.Window;
 import klik.browser.Shared_services;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -46,12 +46,12 @@ public class Disk_usage_monitor
             monitored_folders.add(tt);
         }
 
-        for ( Path t : Non_booleans.get_existing_trash_dirs(owner,logger))
+        for ( Path t : Non_booleans_properties.get_existing_trash_dirs(owner,logger))
         {
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
 
-        warning_limit_bytes = Non_booleans.get_folder_warning_size(owner);
+        warning_limit_bytes = Non_booleans_properties.get_folder_warning_size(owner);
 
 
     }

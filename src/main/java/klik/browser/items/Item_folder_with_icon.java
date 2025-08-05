@@ -23,7 +23,7 @@ import klik.browser.virtual_landscape.*;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
@@ -100,10 +100,10 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 logger);
         column_width = column_width_;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
-        folder_icon_size = Non_booleans.get_folder_icon_size(owner);
+        folder_icon_size = Non_booleans_properties.get_folder_icon_size(owner);
         // launch content icon fabrication:
         text = text_;
-        double font_size = Non_booleans.get_font_size(owner,logger);
+        double font_size = Non_booleans_properties.get_font_size(owner,logger);
         estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         //button = new Button(text);

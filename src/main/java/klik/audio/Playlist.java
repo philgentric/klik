@@ -24,7 +24,7 @@ import klik.change.undo.Undo_core;
 import klik.change.undo.Undo_item;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -294,7 +294,7 @@ public class Playlist
         set_background_to(selected, COLOR_OF_SELECTION);
 
         the_music_ui.scroll_to(the_song_path);
-        Non_booleans.save_current_song(the_song_path,owner);
+        Non_booleans_properties.save_current_song(the_song_path,owner);
 
 
     }
@@ -330,7 +330,7 @@ public class Playlist
         Integer current_time_s;
         if (new_song == null)
         {
-            String path = Non_booleans.get_current_song(owner);
+            String path = Non_booleans_properties.get_current_song(owner);
             if (path == null)
             {
                 current_time_s = null;
@@ -341,7 +341,7 @@ public class Playlist
             else
             {
                 new_song = path;
-                current_time_s = Non_booleans.get_current_time_in_song(owner,logger);
+                current_time_s = Non_booleans_properties.get_current_time_in_song(owner,logger);
             }
             if (new_song == null)
             {
@@ -514,7 +514,7 @@ public class Playlist
     public static File get_playlist_file(Window owner)
     //**********************************************************
     {
-        String playlist_file_name = Non_booleans.get_main_properties_manager(owner).get(PLAYLIST_FILE_NAME);
+        String playlist_file_name = Non_booleans_properties.get_main_properties_manager(owner).get(PLAYLIST_FILE_NAME);
         if (playlist_file_name != null)
         {
             Path p = Path.of(playlist_file_name);
@@ -529,9 +529,9 @@ public class Playlist
 
         // new empty playlist with default name
         playlist_file_name = "playlist." + Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION;
-        Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file_name);
-        String home = System.getProperty(Non_booleans.USER_HOME);
-        Path p = Paths.get(home, Non_booleans.CONF_DIR, playlist_file_name);
+        Non_booleans_properties.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file_name);
+        String home = System.getProperty(Non_booleans_properties.USER_HOME);
+        Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, playlist_file_name);
         return p.toFile();
     }
 
@@ -636,7 +636,7 @@ public class Playlist
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (saving_dir == null)
         {
-            String home = System.getProperty(Non_booleans.USER_HOME);
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
             saving_dir = new File(home, "playlists");
             if (!saving_dir.exists())
             {
@@ -689,7 +689,7 @@ public class Playlist
     public void change_play_list_name(String new_playlist_name)
     //**********************************************************
     {
-        Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, new_playlist_name);
+        Non_booleans_properties.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, new_playlist_name);
         playlist_file = new File(saving_dir, new_playlist_name);
         save_playlist();
         the_music_ui.set_playlist_name_display(extract_playlist_name());
@@ -739,7 +739,7 @@ public class Playlist
             }
             add_all_to_playlist(to_be_loaded);
             playlist_file = playlist_file_;
-            Non_booleans.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
+            Non_booleans_properties.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
 
             logger.log("\n\nloaded " + the_playlist.size() + " songs from file:" + playlist_file.getAbsolutePath() + "\n\n");
             update_playlist_size_info();

@@ -19,12 +19,11 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.audio.Audio_player;
 import klik.audio.Audio_player_access;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -207,7 +206,7 @@ public class Stage_with_2_images
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
 			Path p = file.toPath();
-			Path trash_dir = Non_booleans.get_trash_dir(p,owner,logger);
+			Path trash_dir = Non_booleans_properties.get_trash_dir(p,owner,logger);
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
 			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));

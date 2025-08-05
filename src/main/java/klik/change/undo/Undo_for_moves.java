@@ -217,7 +217,7 @@ public class Undo_for_moves implements Datetime_to_signature_source
     boolean add_internal(List<Old_and_new_Path> l)
     //**********************************************************
     {
-        //Path trash = Non_booleans.get_trash_dir(logger);
+        //Path trash = Non_booleans_properties.get_trash_dir(logger);
         for(Old_and_new_Path oan : l)
         {
             if ( oan.is_a_restore )

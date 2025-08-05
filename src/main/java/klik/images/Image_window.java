@@ -26,9 +26,9 @@ import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.File_sort_by;
-import klik.properties.Non_booleans;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.*;
 import klik.experimental.fusk.Fusk_static_core;
@@ -96,7 +96,7 @@ public class Image_window
     //**********************************************************
     {
 
-        Rectangle2D bounds = Non_booleans.get_window_bounds(IMAGE_WINDOW,owner);
+        Rectangle2D bounds = Non_booleans_properties.get_window_bounds(IMAGE_WINDOW,owner);
         double x = bounds.getMinX();
         double y = bounds.getMinY();
         double w = bounds.getWidth();
@@ -230,7 +230,7 @@ public class Image_window
         Aborter finalAborter = aborter;
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+ stage.getWidth()+","+ stage.getHeight());
-            if ( save_window_bounds) Non_booleans.save_window_bounds(stage,IMAGE_WINDOW,logger);
+            if ( save_window_bounds) Non_booleans_properties.save_window_bounds(stage,IMAGE_WINDOW,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -443,12 +443,12 @@ public class Image_window
             screen = Screen.getPrimary();
         }
 
-        Rectangle2D bounds = Non_booleans.get_bounds(logger);
+        Rectangle2D bounds = Non_booleans_properties.get_bounds(logger);
 
         if (bounds == null)
         {
             bounds = screen.getVisualBounds();
-            Non_booleans.save_bounds(bounds,logger);
+            Non_booleans_properties.save_bounds(bounds,logger);
         }
         Scene scene = stage.getScene();
         //logger.log("scene getX" + scene.getX());

@@ -18,7 +18,7 @@ import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.Cache_folder;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.execute.Execute_command;
@@ -349,7 +349,7 @@ public class Icon_factory_actor implements Actor
 
             if (dbg)
                 logger.log("Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            double length = Non_booleans.get_animated_gif_duration_for_a_video(icon_factory_request.originator);
+            double length = Non_booleans_properties.get_animated_gif_duration_for_a_video(icon_factory_request.originator);
 
             File gif_animated_icon_file = From_disk.file_for_icon_caching(icon_cache_dir, destination.get_path_for_display_icon_destination(), tag, gif_extension);
             //File gif_animated_icon_file = From_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
@@ -498,7 +498,7 @@ public class Icon_factory_actor implements Actor
                 renderer.setSubsamplingAllowed(true);
                 int i = 0;
                 {
-                    //int dpi = Non_booleans.get_icon_size(logger);
+                    //int dpi = Non_booleans_properties.get_icon_size(logger);
                     BufferedImage image = renderer.renderImage(i);
                     if (pdf_dbg)
                         logger.log("PDF = " + image.getWidth() + "x" + image.getHeight() + " aspect ratio = " + ((double) (image.getWidth()) / (double) (image.getHeight())));

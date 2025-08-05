@@ -158,10 +158,10 @@ public final static boolean dbg = false;
       return from_cache;
     }
 
-    String s = Non_booleans.get_main_properties_manager(owner).get(SORT_FILES_BY);
+    String s = Non_booleans_properties.get_main_properties_manager(owner).get(SORT_FILES_BY);
     if (s == null)
     {
-      Non_booleans.get_main_properties_manager(owner).set(SORT_FILES_BY, File_sort_by.NAME.name());
+      Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, File_sort_by.NAME.name());
       if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+File_sort_by.NAME));
       cached.put(folder_path, File_sort_by.NAME);
       return File_sort_by.NAME;
@@ -201,7 +201,7 @@ public final static boolean dbg = false;
       logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
       return;
     }
-    Non_booleans.get_main_properties_manager(owner).set(SORT_FILES_BY, b.name());
+    Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, b.name());
   }
 
 }

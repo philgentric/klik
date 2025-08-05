@@ -18,8 +18,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.browser.Drag_and_drop;
 import klik.browser.icons.JavaFX_to_Swing;
+import klik.look.styles.Look_and_feel_custom_color;
 import klik.look.styles.Look_and_feel_light;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -72,7 +73,7 @@ public class Look_and_feel_manager
     {
         //logger.log(Stack_trace_getter.get_stack_trace("\n\n\n\n\n\nLook_and_feel_manager.read_look_and_feel_from_properties_file()"));
         Look_and_feel_style look_and_feel_style = null;
-        String style_s = Non_booleans.get_main_properties_manager(owner).get(Non_booleans.STYLE_KEY);
+        String style_s = Non_booleans_properties.get_main_properties_manager(owner).get(Non_booleans_properties.STYLE_KEY);
         boolean and_save = false;
         if (style_s == null)
         {
@@ -96,13 +97,14 @@ public class Look_and_feel_manager
             }
         }
 
-        if ( and_save)Non_booleans.get_main_properties_manager(owner).set(Non_booleans.STYLE_KEY, look_and_feel_style.name());
+        if ( and_save) Non_booleans_properties.get_main_properties_manager(owner).set(Non_booleans_properties.STYLE_KEY, look_and_feel_style.name());
         if (dbg) logger.log("read_look_and_feel_from_properties_file: using style " + look_and_feel_style.name());
         return  switch (look_and_feel_style)
         {
             default -> new Look_and_feel_light(logger);
             case dark -> new klik.look.styles.Look_and_feel_dark(logger);
             case wood ->new klik.look.styles.Look_and_feel_wood(logger);
+            case custom_color -> new Look_and_feel_custom_color(logger);
         };
     }
 
@@ -122,7 +124,7 @@ public class Look_and_feel_manager
     {
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         logger.log(("setting style = " + style.name()));
-        Feature_cache.update_string(Non_booleans.STYLE_KEY,style.name(),owner,logger);
+        Feature_cache.update_string(Non_booleans_properties.STYLE_KEY,style.name(),owner,logger);
         reset();
     }
 
@@ -837,7 +839,7 @@ public class Look_and_feel_manager
             ImageView image_view = new ImageView(image);
             image_view.setPreserveRatio(true);
             {
-                //if (H < Non_booleans.get_font_size()) H = Non_booleans.get_font_size();
+                //if (H < Non_booleans_properties.get_font_size()) H = Non_booleans_properties.get_font_size();
                 image_view.setFitHeight(height);
             }
             if (color == null) {

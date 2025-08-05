@@ -8,7 +8,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Cache_folder;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
@@ -41,7 +41,7 @@ public class Similarity_cache
         String cache_name = "similarity";
         String local = cache_name + path_list_provider.get_folder_path();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, owner,logger);
+        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_similarity_cache.name(), false, owner,logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());

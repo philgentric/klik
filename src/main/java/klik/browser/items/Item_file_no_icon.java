@@ -13,7 +13,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.audio.Audio_player;
 import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
@@ -25,7 +24,7 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.System_open_actor;
@@ -35,7 +34,6 @@ import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Popups;
 import klik.util.ui.Text_frame;
 
 import java.io.File;
@@ -95,7 +93,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             return;
         }
 
-        double button_width = Non_booleans.get_column_width(owner);
+        double button_width = Non_booleans_properties.get_column_width(owner);
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         button_for_a_non_image_file( text,button_width);
@@ -427,7 +425,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
         give_a_menu_to_the_button(button,label);
 
-        //if ( Non_booleans.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
+        //if ( Non_booleans_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
 
     }
 */

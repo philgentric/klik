@@ -24,7 +24,7 @@
 //SOURCES ./../items/Item_file_with_icon.java
 //SOURCES ./../items/Item.java
 
-//SOURCES ../../properties/Non_booleans.java
+//SOURCES ../../properties/Non_booleans_properties.java
 //SOURCES ../../properties/boolean_features/Feature.java
 //SOURCES ../../properties/boolean_features/Feature_cache.java
 //SOURCES ../../properties/boolean_features/Feature_change_target.java
@@ -58,9 +58,9 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
-import klik.properties.Non_booleans;
 import klik.properties.boolean_features.Feature_cache;
 import klik.properties.boolean_features.Feature_change_target;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
@@ -86,7 +86,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         Path path;
         if ( context.target_path == null)
         {
-            path = Paths.get(System.getProperty(Non_booleans.USER_HOME));
+            path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
             if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), context.originator))
             {
                 List<History_item> l = History_engine.get(context.originator, Shared_services.aborter, logger).get_all_history_items();

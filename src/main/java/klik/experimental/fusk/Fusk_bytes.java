@@ -3,8 +3,7 @@
 package klik.experimental.fusk;
 
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Virtual_landscape;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -12,8 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -120,8 +117,8 @@ public class Fusk_bytes implements Pin_code_client
 
         // look in .klik for a .passphrase.txt file
         actual_signature_text = default_signature_text;
-        String home = System.getProperty(Non_booleans.USER_HOME);
-        File passphrase_folder = new File (home, Non_booleans.CONF_DIR);
+        String home = System.getProperty(Non_booleans_properties.USER_HOME);
+        File passphrase_folder = new File (home, Non_booleans_properties.CONF_DIR);
         File passphrase_file = new File (passphrase_folder, ".passphrase.txt");
         if ( passphrase_file.exists()) {
             try {

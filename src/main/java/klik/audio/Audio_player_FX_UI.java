@@ -30,7 +30,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Drag_and_drop;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
@@ -103,7 +103,7 @@ public class Audio_player_FX_UI
         play_string = My_I18n.get_I18n_string(PLAY, stage,logger);
         logger.log("play_string = " + play_string);
 
-        Rectangle2D r = Non_booleans.get_window_bounds(AUDIO_PLAYER,stage);
+        Rectangle2D r = Non_booleans_properties.get_window_bounds(AUDIO_PLAYER,stage);
         stage.setX(r.getMinX());
         stage.setY(r.getMinY());
         stage.setWidth(r.getWidth());
@@ -111,7 +111,7 @@ public class Audio_player_FX_UI
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             //if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
             Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-            Non_booleans.save_window_bounds(stage, AUDIO_PLAYER,logger);
+            Non_booleans_properties.save_window_bounds(stage, AUDIO_PLAYER,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
@@ -484,7 +484,7 @@ public class Audio_player_FX_UI
         iv.setFitWidth(20);
         volume_hbox.getChildren().add(iv);
 
-        volume = Non_booleans.get_audio_volume(stage,logger);
+        volume = Non_booleans_properties.get_audio_volume(stage,logger);
         Slider volume_slider = new Slider(0, 1, volume);
         volume_slider.setMinWidth(30);
         volume_hbox.getChildren().add(volume_slider);
@@ -492,7 +492,7 @@ public class Audio_player_FX_UI
             if (the_media_player_option.isEmpty()) return;
             volume = volume_slider.getValue();
             the_media_player_option.get().setVolume(volume);
-            Non_booleans.save_audio_volume(volume,stage);
+            Non_booleans_properties.save_audio_volume(volume,stage);
         });
         return volume_hbox;
     }
@@ -759,7 +759,7 @@ public class Audio_player_FX_UI
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value_label.setText((int)seconds+" seconds");
-            if ( seconds > 20) Non_booleans.save_curent_time_in_song((int)seconds,stage);
+            if ( seconds > 20) Non_booleans_properties.save_curent_time_in_song((int)seconds,stage);
         });
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
@@ -828,7 +828,7 @@ public class Audio_player_FX_UI
                 listener = (ov, old_val_, new_val_) -> {
                     double slider_value = new_val_.doubleValue();
                     equalizer_bands.get(finalI).setGain(slider_value);
-                    Non_booleans.save_equalizer_value_for_band(finalI, slider_value,stage);
+                    Non_booleans_properties.save_equalizer_value_for_band(finalI, slider_value,stage);
                 };
                 s.valueProperty().addListener(listener);
                 listeners.add(listener);
@@ -842,7 +842,7 @@ public class Audio_player_FX_UI
             int how_many_rectangles = equalizer_bands.size();
             for (int i = 0; i < how_many_rectangles; i++)
             {
-                double value = Non_booleans.get_equalizer_value_for_band(i,stage,logger);
+                double value = Non_booleans_properties.get_equalizer_value_for_band(i,stage,logger);
                 Slider s = new Slider(MIN, MAX, value);
                 s.setMinHeight(100);
                 s.setMinWidth(30);
@@ -875,7 +875,7 @@ public class Audio_player_FX_UI
             for (int i = 0; i < equalizer_bands.size(); i++) {
                 equalizer_bands.get(i).setGain(0.0);
                 sliders.get(i).setValue(0.0);
-                Non_booleans.save_equalizer_value_for_band(i, 0.0,stage);
+                Non_booleans_properties.save_equalizer_value_for_band(i, 0.0,stage);
             }
         });
         return reset_button;
@@ -1188,7 +1188,7 @@ public class Audio_player_FX_UI
         cmds.add(youtube_url);
 
         StringBuilder sb = new StringBuilder();
-        String home = System.getProperty(Non_booleans.USER_HOME);
+        String home = System.getProperty(Non_booleans_properties.USER_HOME);
         Execute_command.execute_command_list(cmds, new File(home), 20 * 1000, sb, logger);
         logger.log(sb.toString());
 

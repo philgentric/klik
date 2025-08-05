@@ -65,7 +65,7 @@
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
-//SOURCES properties/Non_booleans.java
+//SOURCES properties/Non_booleans_properties.java
 //SOURCES util/log/Exceptions_in_threads_catcher.java
 //SOURCES util/cache_auto_clean/Monitor.java
 //SOURCES util/log/File_logger.java

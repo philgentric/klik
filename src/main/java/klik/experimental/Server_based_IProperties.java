@@ -3,7 +3,7 @@ package klik.experimental;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.IProperties;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_server;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
@@ -25,9 +25,9 @@ public class Server_based_IProperties implements IProperties
         if (server == null)
         {
 
-            String home = System.getProperty(Non_booleans.USER_HOME);
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
             System.out.println("home="+home);
-            Path p = Paths.get(home, Non_booleans.CONF_DIR, Non_booleans.PROPERTIES_FILENAME);
+            Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, Non_booleans_properties.PROPERTIES_FILENAME);
             server = new Properties_server(p, "Preferences DB", owner, aborter,logger);
         }
     }

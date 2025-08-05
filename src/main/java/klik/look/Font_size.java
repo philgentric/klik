@@ -3,7 +3,7 @@ package klik.look;
 import javafx.scene.Node;
 import javafx.scene.control.PopupControl;
 import javafx.stage.Window;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 
 //**********************************************************
@@ -20,7 +20,7 @@ public class Font_size
     public static String get_font_size(Window owner, Logger logger)
     //**********************************************************
     {
-        return FX_FONT_SIZE + Non_booleans.get_font_size(owner,logger) + PX;
+        return FX_FONT_SIZE + Non_booleans_properties.get_font_size(owner,logger) + PX;
     }
 
 
@@ -29,7 +29,7 @@ public class Font_size
     public static void apply_font_size(Node node,  Window owner,Logger logger)
     //**********************************************************
     {
-        double size = Non_booleans.get_font_size(owner,logger);
+        double size = Non_booleans_properties.get_font_size(owner,logger);
         if (dbg) logger.log("applying font size " + size);
         apply_font_size(node, size, logger);
     }
@@ -76,7 +76,7 @@ public class Font_size
     public static void apply_font_size(Window owner, Logger logger)
     //**********************************************************
     {
-        double size = Non_booleans.get_font_size(owner,logger);
+        double size = Non_booleans_properties.get_font_size(owner,logger);
         if (dbg) logger.log("applying font size " + size);
         apply_font_size(size,owner,logger);
     }
@@ -85,7 +85,7 @@ public class Font_size
     public static void apply_font_size(PopupControl popup_control, Window owner, Logger logger)
     //**********************************************************
     {
-        double size = Non_booleans.get_font_size(owner,logger);
+        double size = Non_booleans_properties.get_font_size(owner,logger);
         String style = popup_control.getStyle();
         if ( style.isEmpty() || style.endsWith(";"))
         {

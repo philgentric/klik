@@ -8,8 +8,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.workers.Actor_engine_based_on_workers;
-import klik.properties.IProperties;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Sizes;
 import klik.util.ui.Jfx_batch_injector;
@@ -135,7 +134,7 @@ public class Backup_engine
     {
         logger.log("Backup ends, reason = "+reason);
         is_finished = true;
-        //Non_booleans.get_properties_manager(logger).store_properties();
+        //Non_booleans_properties.get_properties_manager(logger).store_properties();
 
         Jfx_batch_injector.inject(() -> {
             StringBuilder sbb = new StringBuilder();
@@ -184,18 +183,18 @@ public class Backup_engine
         {
             String key = LAST_SOURCE_DIR +i;
 
-            String s = (String) Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+            String s = (String) Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
             if ( s == null ) break;
             if ( s.equals(source) == true)
             {
                 key = LAST_DESTINATION_DIR +i;
-                s = (String) Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+                s = (String) Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
                 if ( s == null ) break;
                 if ( s.equals(destination) == true)
                 {
                     // FOUND
                     key = LAST_STATUS +i;
-                    Non_booleans.get_main_properties_manager(backup_console_window.stage).set(key,status);
+                    Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(key,status);
                 }
             }
         }
@@ -212,12 +211,12 @@ public class Backup_engine
         for(int j = 0 ; j < 12; j++)
         {
             key = LAST_SOURCE_DIR +j;
-            String s = (String) Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+            String s = (String) Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
             if ( s == null ) break;
             if ( s.equals(absolutePath_source) == true)
             {
                 key = LAST_DESTINATION_DIR +j;
-                String s2 = (String) Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+                String s2 = (String) Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
                 if ( s2 == null ) break;
                 if ( s2.equals(absolutePath_destination) == true)
                 {
@@ -227,7 +226,7 @@ public class Backup_engine
                     key = LAST_SAVE_DATE +j;
                     Date d = new Date();
                     s = d.toString();
-                    Non_booleans.get_main_properties_manager(backup_console_window.stage).set(key,s);
+                    Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(key,s);
                     return;
                 }
             }
@@ -238,13 +237,13 @@ public class Backup_engine
         for(int j = 11 ; j >= 0 ; j--)
         {
             key = LAST_SOURCE_DIR +j;
-            String s = Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+            String s = Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
             if ( s == null ) continue;
             key = LAST_SOURCE_DIR +(j+1);
-            Non_booleans.get_main_properties_manager(backup_console_window.stage).set(key,s);
+            Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(key,s);
 
             key = LAST_DESTINATION_DIR +j;
-            s = Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+            s = Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
             if ( s == null )
             {
                 // this is BAD !break;
@@ -252,10 +251,10 @@ public class Backup_engine
                 s = "Corrupted file record, do not use";
             }
             key = LAST_DESTINATION_DIR +(j+1);
-            Non_booleans.get_main_properties_manager(backup_console_window.stage).set(key,s);
+            Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(key,s);
 
             key = LAST_SAVE_DATE +j;
-            s = Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+            s = Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
             if ( s == null )
             {
                 // this is BAD !break;
@@ -263,10 +262,10 @@ public class Backup_engine
                 s = "unknown date";
             }
             key = LAST_SAVE_DATE +(j+1);
-            Non_booleans.get_main_properties_manager(backup_console_window.stage).set(key,s);
+            Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(key,s);
 
             key = LAST_STATUS +j;
-            s = Non_booleans.get_main_properties_manager(backup_console_window.stage).get(key);
+            s = Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).get(key);
             if ( s == null )
             {
                 // this is BAD !break;
@@ -274,16 +273,16 @@ public class Backup_engine
                 s = "status unknown";
             }
             key = LAST_STATUS +(j+1);
-            Non_booleans.get_main_properties_manager(backup_console_window.stage).set(key,s);
+            Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(key,s);
 
         }
 
         if (absolutePath_source == null ) return; // usefull for "clearing"
-        Non_booleans.get_main_properties_manager(backup_console_window.stage).set(LAST_DESTINATION_DIR+"0", absolutePath_destination);
-        Non_booleans.get_main_properties_manager(backup_console_window.stage).set(LAST_SOURCE_DIR+"0", absolutePath_source);
+        Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(LAST_DESTINATION_DIR+"0", absolutePath_destination);
+        Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(LAST_SOURCE_DIR+"0", absolutePath_source);
         Date d = new Date();
         String s = d.toString();
-        Non_booleans.get_main_properties_manager(backup_console_window.stage).set(LAST_SAVE_DATE+"0", s);
+        Non_booleans_properties.get_main_properties_manager(backup_console_window.stage).set(LAST_SAVE_DATE+"0", s);
 
         // NOTE: status is updated by dedicated routine
 
@@ -294,7 +293,7 @@ public class Backup_engine
     public static void remove_all_properties()
     //**********************************************************
     {
-        IProperties pm = Non_booleans.get_main_properties_manager();
+        IProperties pm = Non_booleans_properties.get_main_properties_manager();
         for(int j = 0; j <=12 ; j++)
         {
             {
@@ -327,56 +326,56 @@ public class Backup_engine
         for(int j = i; j <=12 ; j++)
         {
             String key = LAST_SOURCE_DIR +(j+1);
-            String s = (String) Non_booleans.get_main_properties_manager().get(key);
+            String s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
             if ( s == null )
             {
                 // last one is j
                 key = LAST_SOURCE_DIR +j;
-                s = (String) Non_booleans.get_main_properties_manager().get(key);
+                s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
                 if ( s != null )
                 {
-                    Non_booleans.get_main_properties_manager().remove(key);
+                    Non_booleans_properties.get_main_properties_manager().remove(key);
                 }
                 key = LAST_DESTINATION_DIR +j;
-                s = (String) Non_booleans.get_main_properties_manager().get(key);
+                s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
                 if ( s != null )
                 {
-                    Non_booleans.get_main_properties_manager().remove(key);
+                    Non_booleans_properties.get_main_properties_manager().remove(key);
                 }
                 key = LAST_SAVE_DATE +j;
-                s = (String) Non_booleans.get_main_properties_manager().get(key);
+                s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
                 if ( s != null )
                 {
-                    Non_booleans.get_main_properties_manager().remove(key);
+                    Non_booleans_properties.get_main_properties_manager().remove(key);
                 }
                 key = LAST_STATUS +j;
-                s = (String) Non_booleans.get_main_properties_manager().get(key);
+                s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
                 if ( s != null )
                 {
-                    Non_booleans.get_main_properties_manager().remove(key);
+                    Non_booleans_properties.get_main_properties_manager().remove(key);
                 }
                 break;
             }
             key = LAST_SOURCE_DIR +j;
-            Non_booleans.get_main_properties_manager().set(key,s);
+            Non_booleans_properties.get_main_properties_manager().set(key,s);
 
             key = LAST_DESTINATION_DIR +(j+1);
-            s = (String) Non_booleans.get_main_properties_manager().get(key);
+            s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
             if ( s == null ) break;
             key = LAST_DESTINATION_DIR +j;
-            Non_booleans.get_main_properties_manager().set(key,s);
+            Non_booleans_properties.get_main_properties_manager().set(key,s);
 
             key = LAST_SAVE_DATE +(j+1);
-            s = (String) Non_booleans.get_main_properties_manager().get(key);
+            s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
             if ( s == null ) break;
             key = LAST_SAVE_DATE +j;
-            Non_booleans.get_main_properties_manager().set(key,s);
+            Non_booleans_properties.get_main_properties_manager().set(key,s);
 
             key = LAST_STATUS +(j+1);
-            s = (String) Non_booleans.get_main_properties_manager().get(key);
+            s = (String) Non_booleans_properties.get_main_properties_manager().get(key);
             if ( s == null ) break;
             key = LAST_STATUS +j;
-            Non_booleans.get_main_properties_manager().set(key,s);
+            Non_booleans_properties.get_main_properties_manager().set(key,s);
         }
 
     }

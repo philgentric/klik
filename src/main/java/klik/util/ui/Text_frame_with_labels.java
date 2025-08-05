@@ -15,10 +15,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.Filesystem_modification_reporter;
-import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
@@ -74,7 +73,7 @@ public class Text_frame_with_labels
 
         stage = new Stage();
 
-        Rectangle2D r = Non_booleans.get_window_bounds(TEXT_FRAME, stage);
+        Rectangle2D r = Non_booleans_properties.get_window_bounds(TEXT_FRAME, stage);
         if ( r == null)
         {
             stage.setX(100);
@@ -104,7 +103,7 @@ public class Text_frame_with_labels
         });
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
-            Non_booleans.save_window_bounds(stage, TEXT_FRAME,logger);
+            Non_booleans_properties.save_window_bounds(stage, TEXT_FRAME,logger);
         };
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);

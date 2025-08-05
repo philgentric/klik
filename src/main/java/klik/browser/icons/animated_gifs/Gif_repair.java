@@ -3,8 +3,8 @@ package klik.browser.icons.animated_gifs;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
-import klik.properties.Non_booleans;
 import klik.util.files_and_paths.Moving_files;
 import klik.images.Image_context;
 import klik.util.log.Stack_trace_getter;
@@ -39,7 +39,7 @@ public class Gif_repair
         Path target = image_context.path;
         Path this_dir = target.getParent();
 
-        Path tmp_dir = Non_booleans.get_trash_dir(this_dir,owner,logger);
+        Path tmp_dir = Non_booleans_properties.get_trash_dir(this_dir,owner,logger);
         if ( tmp_dir == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Weird! could not use tmp directory:"));

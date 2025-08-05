@@ -4,7 +4,7 @@ package klik.properties.boolean_features;
 import javafx.application.Platform;
 import javafx.stage.Window;
 import klik.properties.IProperties;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -20,7 +20,7 @@ public class Booleans
     public static void set_boolean(String s, boolean b, Window owner)
     //**********************************************************
     {
-        IProperties pm = Non_booleans.get_main_properties_manager(owner);
+        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
         pm.set(s, String.valueOf(b));
 
     }
@@ -30,7 +30,7 @@ public class Booleans
     public static boolean get_boolean(String s,  Window owner)
     //**********************************************************
     {
-        IProperties pm = Non_booleans.get_main_properties_manager(owner);
+        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
         String bb = pm.get(s);
         Boolean b = Boolean.parseBoolean(bb);
         return b;
@@ -40,7 +40,7 @@ public class Booleans
     public static boolean get_boolean_defaults_to_true(String s, Window owner)
     //**********************************************************
     {
-        IProperties pm = Non_booleans.get_main_properties_manager(owner);
+        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
         String bb = pm.get(s);
         if ( bb == null)
         {

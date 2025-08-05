@@ -12,8 +12,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
-import klik.look.styles.Look_and_feel_light;
-import klik.properties.Non_booleans;
 import klik.util.log.Logger;
 
 import java.net.URL;
@@ -222,14 +220,14 @@ public abstract class Look_and_feel
 /*
         if (node instanceof Button button)
         {
-            button.setFont(Font.font("Monaco", FontPosture.ITALIC, Non_booleans.get_font_size( logger)));
+            button.setFont(Font.font("Monaco", FontPosture.ITALIC, Non_booleans_properties.get_font_size( logger)));
             set_text_color(node,"-fx-text-fill: #404040;");
         }
         else
         {
             Font_size.set_preferred_font_size(node,logger);
         }
-        //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Non_booleans.get_font_size( logger)));
+        //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Non_booleans_properties.get_font_size( logger)));
 
  */
     }
@@ -242,7 +240,7 @@ public abstract class Look_and_feel
         set_hovered_directory_style(button, owner);
     }
 
-
+/*
     //**********************************************************
     public Color get_stroke_color_of_folder_items()
     //**********************************************************
@@ -250,11 +248,11 @@ public abstract class Look_and_feel
         return Color.BLACK;
     }
 
-    /*
+
     public void set_dragged_over_directory_style(Button button) {
         button.setStyle(Virtual_landscape_UI.LOOK_AND_FEEL_MENU_BUTTONS_DRAG_OVER);
     }
-   */
+*/
 
 
     public BackgroundFill get_background_fill() {
@@ -295,6 +293,9 @@ public abstract class Look_and_feel
         return w;
     }
 
+
+    public Color get_custom_color() { return null; }
+    public void set_custom_color(Scene scene, Color background, Color hover){}
 
 }
 

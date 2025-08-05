@@ -13,9 +13,7 @@ import java.net.URL;
 public class Look_and_feel_light extends Look_and_feel
 //**********************************************************
 {
-
     public Look_and_feel_style get_look_and_feel_style(){return Look_and_feel_style.light;}
-
 
     public Look_and_feel_light(Logger logger_)
     {
@@ -48,17 +46,6 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
-    public Color get_background_color() {
-        return Color.WHITE;
-    }
-
-    @Override
-    public Color get_foreground_color() {
-        return Color.BLACK;
-    }
-
-
-    @Override
     public String get_broken_icon_path()
     {
         return "broken.png";
@@ -81,16 +68,10 @@ public class Look_and_feel_light extends Look_and_feel
     public String get_klik_icon_path() {return "klik.png";}
 
     @Override
-    public String get_default_icon_path()
-    {
-        return "light/image.png";
-    }
+    public String get_default_icon_path() {return "light/image.png";}
 
     @Override
-    public String get_music_icon_path()
-    {
-        return "music.png";
-    }
+    public String get_music_icon_path() {return "music.png";}
 
 
     @Override
@@ -111,4 +92,16 @@ public class Look_and_feel_light extends Look_and_feel
 
     @Override
     public Color get_selection_box_color() {return Color.RED;}
+
+
+    @Override
+    public Color get_background_color() {
+        return Color.WHITE;
+    }
+
+    @Override
+    public Color get_foreground_color() {
+        return Color.BLACK;
+    }
+
 }

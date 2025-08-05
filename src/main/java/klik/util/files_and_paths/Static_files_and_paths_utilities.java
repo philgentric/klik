@@ -15,7 +15,7 @@ import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
 import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.Cache_folder;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
@@ -209,7 +209,7 @@ public class Static_files_and_paths_utilities
             logger.log("nothing to delete");
             return;
         }
-        Path trash_dir = Non_booleans.get_trash_dir(paths.get(0),owner,logger);
+        Path trash_dir = Non_booleans_properties.get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explanation",owner,logger), false, owner,logger);
             return;
@@ -229,7 +229,7 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Non_booleans.get_trash_dir(path,owner,logger);
+        Path trash_dir = Non_booleans_properties.get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explanation", owner,logger), false, owner,logger);
             return;
@@ -300,7 +300,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
 
-        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
+        Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -314,7 +314,7 @@ public class Static_files_and_paths_utilities
     {
 
 
-        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_icon_cache.name(), false, logger);
+        Path tmp_dir = Non_booleans_properties.get_absolute_dir_on_user_home(Cache_folder.klik_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -325,7 +325,7 @@ public class Static_files_and_paths_utilities
     public static Path get_folders_icons_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Non_booleans.get_absolute_dir_on_user_home(Cache_folder.klik_folder_icon_cache.name(), false, logger);
+        Path tmp_dir = Non_booleans_properties.get_absolute_dir_on_user_home(Cache_folder.klik_folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("folder icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -348,7 +348,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Path icon_cache_dir = get_cache_dir( Cache_folder.klik_icon_cache,owner,logger);
-        int icon_size = Non_booleans.get_icon_size(owner);
+        int icon_size = Non_booleans_properties.get_icon_size(owner);
         String name = Icon_writer_actor.make_cache_name(path.toAbsolutePath().toString(), String.valueOf(icon_size), Icon_factory_actor.png_extension);
         Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
         try {
@@ -413,7 +413,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Runnable r = () -> {
-            List<Path> trashes = Non_booleans.get_existing_trash_dirs(owner,logger);
+            List<Path> trashes = Non_booleans_properties.get_existing_trash_dirs(owner,logger);
             String s1 = My_I18n.get_I18n_string("Warning_delete", owner,logger);
             double size = 0;
             for (Path trash : trashes) {
@@ -667,7 +667,7 @@ public class Static_files_and_paths_utilities
                 Runnable rr = new Runnable() {
                     @Override
                     public void run() {
-                        if ( s.contains("AccessDeniedException") && s.contains(Non_booleans.TRASH_DIR))
+                        if ( s.contains("AccessDeniedException") && s.contains(Non_booleans_properties.TRASH_DIR))
                         {
                             Popups.popup_warning("There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
                         }
@@ -686,6 +686,70 @@ public class Static_files_and_paths_utilities
 
     //**********************************************************
     private static String delete_for_ever_all_files_in_dir(Path dir, boolean also_folders, Window owner, Logger logger)
+    //**********************************************************
+    {
+        File files[] = dir.toFile().listFiles();
+        if ( files == null)
+        {
+            return "cannot list dir ->"+dir.toAbsolutePath()+"<-";
+        }
+        List<Old_and_new_Path> l = new ArrayList<>();
+        for ( File f : files)
+        {
+            if (f.isDirectory())
+            {
+                String s = delete_for_ever_all_files_in_dir(f.toPath(), also_folders, owner,logger);
+                if ( s != null) logger.log(s);
+                if (also_folders) f.delete();
+            }
+            else
+            {
+                String s = delete_for_ever_a_file(f.toPath(),l,logger);
+                if ( s != null) logger.log(s);
+            }
+
+        }
+        Change_gang.report_changes(l,owner);
+
+        /*
+        catch (IOException x)
+        {
+            // directory permission problems are caught here.
+            if ( x.toString().contains("AccessDeniedException"))
+            {
+                try {
+                    Set<PosixFilePermission> permissions = new TreeSet<>();
+                    permissions.add(PosixFilePermission.OWNER_WRITE);
+                    permissions.add(PosixFilePermission.OTHERS_WRITE);
+                    permissions.add(PosixFilePermission.GROUP_WRITE);
+                    Files.setPosixFilePermissions(dir, permissions);
+                }
+                catch (AccessDeniedException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                } catch (IOException e) {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                }
+                try
+                {
+                    Files.delete(dir);
+                }
+                catch (AccessDeniedException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                }
+                catch (IOException e) {
+                    logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+                }
+
+            }
+            logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
+        }*/
+        return null;
+    }
+
+    //**********************************************************
+    private static String delete_for_ever_all_files_in_dir2(Path dir, boolean also_folders, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -745,7 +809,7 @@ public class Static_files_and_paths_utilities
             }
             logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
         }
-        return null;
+        return null;// OK
     }
 
     //**********************************************************
@@ -755,9 +819,17 @@ public class Static_files_and_paths_utilities
         try
         {
             Files.delete(p);
-            logger.log("Deleted for ever: " + p);
+            //logger.log("Deleted for ever: " + p);
             l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done, false));
-        } catch (NoSuchFileException x) {
+        }
+        catch (NoSuchFileException x)
+        {
+            if ( p.getFileName().toString().startsWith("._"))
+            {
+                // this is a macOS file found on external drives, if the file was deleted, then this file was deleted too,
+                // so the original list is "wrong", it is not an error, just ignore it
+                return null;
+            }
             logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
             return x.toString();
         } catch (DirectoryNotEmptyException x) {
@@ -1098,12 +1170,12 @@ public class Static_files_and_paths_utilities
 
     public static Path get_cache_folder(Cache_folder cache_folder, Window owner,Logger logger)
     {
-        return Non_booleans.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
+        return Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
     }
 
     public static Path get_face_reco_folder(Window owner,Logger logger)
     {
-        return Non_booleans.get_absolute_hidden_dir_on_user_home(Non_booleans.FACE_RECO_DIR, false, owner,logger);
+        return Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Non_booleans_properties.FACE_RECO_DIR, false, owner,logger);
     }
 
 

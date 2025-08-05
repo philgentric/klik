@@ -15,7 +15,7 @@ import klik.browser.Shared_services;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.Feature_vector;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.Cache_folder;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
@@ -76,7 +76,7 @@ public class Image_feature_vector_cache
     //**********************************************************
     {
 
-        Path tmp_dir = Non_booleans.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_feature_vectors_cache.name(), false,owner,logger);
+        Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.klik_image_feature_vectors_cache.name(), false,owner,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Image feature vector cache folder=" + tmp_dir.toAbsolutePath());
         }

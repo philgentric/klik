@@ -12,7 +12,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.*;
@@ -219,7 +219,7 @@ public class Deduplication_engine implements Againor, Abortable
                     + "going to delete:\n\t" + to_be_deleted.getAbsolutePath());
 
 
-            Path trash_dir = Non_booleans.get_trash_dir(to_be_deleted.toPath(),owner,logger);
+            Path trash_dir = Non_booleans_properties.get_trash_dir(to_be_deleted.toPath(),owner,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), to_be_deleted.getName()));
             Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
             ll.add(oanp);

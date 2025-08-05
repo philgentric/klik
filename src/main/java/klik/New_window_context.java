@@ -29,7 +29,6 @@ public class New_window_context
             Window originator)
     //**********************************************************
     {
-        //this.wtf_port = port;
         this.rectangle = rectangle;
         this.shutdown_target = shutdown_target;
         this.target_path = target;
@@ -60,7 +59,6 @@ public class New_window_context
 
     //**********************************************************
     public static void additional_same_folder(
-            //int port,
             Path new_and_old_path,
             Path top_left,
             Window originator,
@@ -73,7 +71,6 @@ public class New_window_context
         Rectangle2D rectangle = new Rectangle2D(originator.getX()+100,originator.getY()+100,originator.getWidth()-100,originator.getHeight()-100);
 
         New_window_context context =  new New_window_context(
-                //port,
                 new_and_old_path,
                 rectangle,
                 null,
@@ -85,34 +82,27 @@ public class New_window_context
 
     //**********************************************************
     public static void additional_same_folder_fat_tall(
-            //int port,
             Path new_and_old_path,
             Path top_left,
             Window originator,
             Logger logger)
     //**********************************************************
     {
-        additional_same_folder_ratio(
-                //port,
-                new_and_old_path,5,top_left,originator ,logger);
+        additional_same_folder_ratio(new_and_old_path,5,top_left,originator ,logger);
 
     }
     //**********************************************************
     public static void additional_same_folder_twin(
-            //int port,
             Path new_and_old_path,
             Path top_left,
             Window originator,
             Logger logger)
     //**********************************************************
     {
-        additional_same_folder_ratio(
-                //port,
-                new_and_old_path,2,top_left,originator,logger);
+        additional_same_folder_ratio(new_and_old_path,2,top_left,originator,logger);
     }
     //**********************************************************
     public static void additional_same_folder_ratio(
-            //int port,
             Path new_and_old_path,
             int ratio,
             Path top_left,
@@ -143,7 +133,6 @@ public class New_window_context
         rectangle = new Rectangle2D(rectangle.getMinX()+w_fat, rectangle.getMinY(), w2, h);
 
         New_window_context context = new New_window_context(
-                //port,
                 new_and_old_path,
                 rectangle,
                 null,
@@ -152,33 +141,9 @@ public class New_window_context
         new Browser(context, logger);
     }
 
-/*
-    //**********************************************************
-    public static void additional_different_folder(
-            Path new_path,
-            Window parent_window,
-            Path old_path,
-            Path top_left,
-            Logger logger)
-    //**********************************************************
-    {
-        Virtual_landscape.scroll_position_cache.put(old_path.toAbsolutePath().toString(),top_left);
-
-
-        Rectangle2D rectangle = new Rectangle2D(parent_window.getX()+100,parent_window.getY()+100,parent_window.getWidth()-100,parent_window.getHeight()-100);
-        New_window_context context =  new New_window_context(
-                new_path,
-                rectangle,
-                null);
-        if ( dbg) logger.log(("\nadditional_different_folder\n"+ context.to_string() ));
-        new Browser(context, logger);
-    }
-    */
-
 
     //**********************************************************
     public static void replace_same_folder(
-            //int port,
             Shutdown_target shutdown_target,
             Path old_and_new_path,
             Path top_left,
@@ -190,7 +155,6 @@ public class New_window_context
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
-                //port,
                 old_and_new_path,
                 rectangle,
                 shutdown_target,
@@ -210,7 +174,6 @@ public class New_window_context
         if ( dbg) logger.log("replace_different_folder new path: " + new_path.toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         New_window_context context =  new New_window_context(
-                //port,
                 new_path,
                 rectangle,
                 shutdown_target,
@@ -285,10 +248,10 @@ public class New_window_context
                 try {
                     String local = new_name;
                     if ( !local.endsWith("." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION;
-                    String home = System.getProperty(Non_booleans.USER_HOME);
+                    String home = System.getProperty(Non_booleans_properties.USER_HOME);
                     Path new_playlist_file = Path.of( home, local);
                     Files.createFile(new_playlist_file); //Files.createDirectory(new_dir);
-                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_booleans.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
+                    Virtual_landscape.scroll_position_cache.put(Path.of( Non_booleans_properties.USER_HOME).toAbsolutePath().toString(), new_playlist_file);
                     return new_playlist_file;
                 } catch (IOException e) {
                     logger.log("new directory creation FAILED: " + e);

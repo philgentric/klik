@@ -84,6 +84,8 @@ public class Similarity_cache_warmer_actor implements Actor
             //logger.log("similarity = "+diff+" "+dnm.p1+" vs "+p2);
             //if ( diff < min_similarity) min_similarity = diff;
             //if ( diff > max_similarity) max_similarity = diff;
+
+
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries
             if ( diff < SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
@@ -91,9 +93,6 @@ public class Similarity_cache_warmer_actor implements Actor
 
         return "Done";
     }
-
-    //public static double min_similarity = Double.MAX_VALUE;
-    //public static double max_similarity = Double.MIN_VALUE;
 
     @Override
     public String name() {

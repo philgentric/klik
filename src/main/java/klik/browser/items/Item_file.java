@@ -7,7 +7,7 @@ import klik.actor.Aborter;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -37,7 +37,7 @@ public abstract class Item_file extends Item
         super(scene, selection_handler, icon_factory_actor, color, path_list_provider, owner, aborter, logger);
         this.path = path_;
         item_type = Iconifiable_item_type.from_extension(get_item_path());
-        icon_size = Non_booleans.get_icon_size(owner);
+        icon_size = Non_booleans_properties.get_icon_size(owner);
     }
 
     //**********************************************************

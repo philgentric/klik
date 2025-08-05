@@ -20,7 +20,7 @@ import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
@@ -111,7 +111,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         if (count == 1)
         {
-            Rectangle2D r = Non_booleans.get_window_bounds(BROWSER_WINDOW, my_Stage.the_Stage);
+            Rectangle2D r = Non_booleans_properties.get_window_bounds(BROWSER_WINDOW, my_Stage.the_Stage);
             width = r.getWidth();
             height = r.getHeight();
             x = r.getMinX();
@@ -188,7 +188,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             return;
         }
         if (dbg) logger.log("ChangeListener: image window position and/or size changed");
-        Non_booleans.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW,logger);
+        Non_booleans_properties.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW,logger);
     }
 
 

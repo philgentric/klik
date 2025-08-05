@@ -7,7 +7,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -40,7 +40,7 @@ public interface UI_change
                     String msg = TCP_util.read_string(dis);
                     if (msg.startsWith(UI_CHANGED))
                     {
-                        Non_booleans.force_reload_from_disk(owner);
+                        Non_booleans_properties.force_reload_from_disk(owner);
                         String new_ui_option = msg.split(" ")[1];
                         logger.log(app_name+": UI_CHANGED RECEIVED, msg is "+new_ui_option);
                         My_I18n.reset();

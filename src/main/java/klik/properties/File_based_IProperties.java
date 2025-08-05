@@ -27,8 +27,8 @@ public class File_based_IProperties implements IProperties
     {
         this.tag = tag;
         this.logger = logger;
-        String home = System.getProperty(Non_booleans.USER_HOME);
-        Path p = Paths.get(home, Non_booleans.CONF_DIR, tag+".properties");
+        String home = System.getProperty(Non_booleans_properties.USER_HOME);
+        Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, tag+".properties");
         pm = new Properties_manager(p, tag, owner, aborter,logger);
     }
 

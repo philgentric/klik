@@ -20,7 +20,7 @@ import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Look_and_feel_manager;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Guess_file_type;
@@ -104,7 +104,7 @@ public class Item_folder extends Item implements Icon_destination
             return;
         }*/
 
-        double button_width = Non_booleans.get_column_width(owner);
+        double button_width = Non_booleans_properties.get_column_width(owner);
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         Path local = get_item_path();

@@ -1,7 +1,7 @@
 package klik.util.execute;
 
 import javafx.stage.Window;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 
 import java.io.BufferedReader;
@@ -30,7 +30,7 @@ public class Execute_via_script_in_tmp_file
     //**********************************************************
     {
 
-        Path klik_trash = Non_booleans.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         String log_file_name = klik_trash.resolve("execute_via_script_in_tmp_file.log").toString();
         logger.log("Going to execute via script in tmp file ->" + the_command+"<-\nLogs in : "+log_file_name);
         String script_content = "#!/bin/bash\n"

@@ -10,11 +10,8 @@ import klik.actor.Actor_engine;
 import klik.browser.Shared_services;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
-import klik.properties.boolean_features.Feature;
-import klik.properties.boolean_features.Feature_cache;
+import klik.properties.Non_booleans_properties;
 import klik.util.Sys_init;
-import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
@@ -117,7 +114,7 @@ public class Audio_player_application extends Application
                     String received = TCP_util.read_string(dis);
                     if (received.startsWith(Launcher.UI_CHANGED))
                     {
-                        Non_booleans.force_reload_from_disk(stage);
+                        Non_booleans_properties.force_reload_from_disk(stage);
                         String change = received.split(" ")[1];
                         logger.log("Audio player: UI_CHANGED RECEIVED change is: "+change);
                         My_I18n.reset();

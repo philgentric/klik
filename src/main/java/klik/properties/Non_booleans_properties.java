@@ -10,7 +10,6 @@ import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.File_logger;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 
@@ -24,7 +23,7 @@ import java.util.List;
 
 
 //**********************************************************
-public class Non_booleans
+public class Non_booleans_properties
 //**********************************************************
 {
     private static final boolean dbg = false;
@@ -42,8 +41,6 @@ public class Non_booleans
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
 
 
-    private static final String MAX_EXCLUDED_KEYWORDS = "max_number_of_excluded_keywords";
-    public static final String EXCLUDED_KEYWORD_PREFIX = "excluded_keyword_";
     public static final String ICON_SIZE = "ICON_SIZE";
     public static final String FOLDER_ICON_SIZE = "FOLDER_ICON_SIZE";
     public static final String VIDEO_SAMPLE_LENGTH = "VIDEO_SAMPLE_LENGTH";
@@ -494,7 +491,7 @@ public class Non_booleans
         Path full_path = for_this.toAbsolutePath();
         if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes"))) {
             // this is MacOS...
-            logger.log("get_trash_dir " + for_this.toAbsolutePath());
+            //logger.log("what is trash_dir for :" + for_this.toAbsolutePath());
             Path volume = get_MacOS_volume(for_this, logger);
             if (volume == null) {
                 logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");

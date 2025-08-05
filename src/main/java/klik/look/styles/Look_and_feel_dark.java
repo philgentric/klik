@@ -70,27 +70,8 @@ public class Look_and_feel_dark extends Look_and_feel
     }
 
     @Override
-    public String get_selected_text_color() {return "-fx-text-fill: #FF4040;";}
-
-    @Override
-    public Color get_selection_box_color() {return Color.WHITE;}
-
-    @Override
-    public Color get_background_color() {return Color.BLACK;/*valueOf("#FF4040");*/}
-
-    @Override
-    public Color get_foreground_color() {
-        return Color.WHITE;
-    }
-
-    @Override
     public URL get_CSS_URL() {
         return Jar_utils.get_URL_by_name("dark/dark.css");
-    }
-
-    @Override
-    public Color get_stroke_color_of_folder_items() {
-        return Color.WHITE;
     }
 
     @Override
@@ -108,5 +89,27 @@ public class Look_and_feel_dark extends Look_and_feel
     public String get_preferences_icon_path() {
         return "dark/preferences.png";
     }
+
+    @Override
+    public String get_selected_text_color() {return "-fx-text-fill: #FF4040;";}
+
+    @Override
+    public Color get_selection_box_color() {return Color.WHITE;}
+
+    @Override
+    public Color get_background_color() {return Color.BLACK;/*valueOf("#FF4040");*/}
+
+    @Override
+    public Color get_foreground_color() {
+        return Color.WHITE;
+    }
+
+    /*
+    @Override
+    public Color get_stroke_color_of_folder_items() {
+        return Color.WHITE;
+    }
+    */
+
 
 }

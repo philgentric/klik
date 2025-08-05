@@ -4,7 +4,7 @@ import javafx.stage.Window;
 import klik.browser.Shared_services;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.Non_booleans;
+import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
 import klik.util.files_and_paths.Command_old_and_new_Path;
 import klik.util.files_and_paths.Old_and_new_Path;
@@ -35,8 +35,8 @@ public class Undo_core implements Datetime_to_signature_source
     //**********************************************************
     {
         logger  = logger_;
-        String home = System.getProperty(Non_booleans.USER_HOME);
-        Path p = Paths.get(home, Non_booleans.CONF_DIR, undo_filename);
+        String home = System.getProperty(Non_booleans_properties.USER_HOME);
+        Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, undo_filename);
         if( properties_manager == null)
         {
             properties_manager = new Properties_manager(p, "Undo DB", owner, Shared_services.aborter, logger);
@@ -218,7 +218,7 @@ public class Undo_core implements Datetime_to_signature_source
     public static void show_all_events(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties local = Non_booleans.get_main_properties_manager();
+        IProperties local = Non_booleans_properties.get_main_properties_manager();
 
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Items that can be undone:"));

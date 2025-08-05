@@ -21,10 +21,131 @@ import java.util.List;
 public class ML_servers_util
 //**********************************************************
 {
-    public static boolean venv_activated = false;
-    public static boolean face_reco_servers_started = false;
-    public static boolean image_similarity_servers_started = false;
 
+    //**********************************************************
+    static String[] image_similarity_lines =
+    //**********************************************************
+    {
+        "For image similarity to work",
+        "Feature vector servers must first be installed (once) see manual",
+        "Then, to start the image similarity servers copy paste this line in a terminal:",
+        "",
+
+    };
+
+    //**********************************************************
+    static String[] Enable_face_recognition_lines =
+    //**********************************************************
+    {
+            "",
+            "For face recognition to work",
+            "Face detection and specific feature vector servers must be first installed (once) see manual",
+            "Then to start the face recognition servers copy paste this line in a terminal:",
+            "",
+
+    };
+
+    //**********************************************************
+    public static void show_face_recognition_manual(Window owner, Logger logger)
+    //**********************************************************
+    {
+        Stage stage = new Stage();
+        stage.initOwner(owner);
+        VBox vb = new VBox();
+        for ( String l : Enable_face_recognition_lines)
+        {
+            TextField tf = new TextField(l);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+
+        //Path p = Paths.get("");
+        {
+            String cmd = get_command_string_to_start_face_recognition_servers(logger);//"source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers ";
+            TextField tf = new TextField(cmd);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+
+        Scene scene = new Scene(vb);
+        stage.setScene(scene);
+        stage.setWidth(1000);
+        stage.setHeight(1000);
+        stage.show();
+    }
+
+    //**********************************************************
+    public static void show_image_similarity_manual(Window owner,Logger logger)
+    //**********************************************************
+    {
+        Stage stage = new Stage();
+        stage.initOwner(owner);
+        VBox vb = new VBox();
+        for ( String l : image_similarity_lines)
+        {
+            TextField tf = new TextField(l);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
+            tf.setEditable(false);
+            vb.getChildren().add(tf);
+        }
+
+        {
+            String cmd = get_command_string_to_start_image_similarity_servers(logger);
+            TextArea tf = new TextArea(cmd);
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
+            tf.setEditable(false);
+            tf.setWrapText(true);
+            vb.getChildren().add(tf);
+        }
+
+        Scene scene = new Scene(vb);
+        stage.setScene(scene);
+        stage.setWidth(1000);
+        stage.setHeight(1000);
+        stage.show();
+    }
+
+    //**********************************************************
+    public static String get_command_string_to_start_image_similarity_servers(Logger logger)
+    //**********************************************************
+    {
+        // if not already started, start the servers monitor
+        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(logger);
+
+        String list_of_ports = "";
+        for ( int port : Feature_vector_source_for_image_similarity.ports)
+        {
+            list_of_ports += port + " ";
+        }
+        return "source ~/venv-metal/bin/activate; cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./launch_image_similarity_servers "+ udp_port +" "+ list_of_ports;
+    }
+    //**********************************************************
+    public static String get_command_string_to_stop_image_similarity_servers(Logger logger)
+    //**********************************************************
+    {
+        return "cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./kill_image_similarity_servers";
+    }
+    //**********************************************************
+    public static String get_command_string_to_start_face_recognition_servers(Logger logger)
+    //**********************************************************
+    {
+        // if not already started, start the servers monitor
+        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(logger);
+
+        return "source ~/venv-metal/bin/activate; cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers "+ udp_port;
+    }
+    //**********************************************************
+    public static String get_command_string_to_stop_face_recognition_servers(Logger logger)
+    //**********************************************************
+    {
+        return "cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./kill_face_recognition_servers";
+    }
+
+
+    /*
+    public static boolean venv_activated = false;
     //**********************************************************
     public static boolean init_face_reco(Logger logger)
     //**********************************************************
@@ -50,7 +171,6 @@ public class ML_servers_util
         }
         return true;
     }
-
 
     //**********************************************************
     public static boolean init_image_similarity(Logger logger)
@@ -81,6 +201,57 @@ public class ML_servers_util
 
         return true;
     }
+
+     //**********************************************************
+    private static boolean init_venv(Logger logger)
+    //**********************************************************
+    {
+        if ( venv_activated)
+        {
+            logger.log("venv already activated");
+            return true;
+        }
+        File venv_dir = new File("./python_for_face_reco/venv");
+        if ( !venv_dir.exists() ) create_venv(logger);
+
+        // special trick c.f. stackOverFlow
+        List<String> ll = new ArrayList<>();
+        ll.add("/bin/bash");
+        ll.add("-ch");
+        ll.add("source venv/bin/activate");
+        File wd = new File("./python_for_face_reco");
+        StringBuilder sb = new StringBuilder();
+        if( Execute_command.execute_command_list(ll,wd,20000,sb,logger) == null)
+        {
+            logger.log("failed to activate venv");
+            venv_activated = false;
+            return false;
+        }
+        logger.log(sb.toString());
+        venv_activated = true;
+        return true;
+    }
+
+    //**********************************************************
+    private static boolean install_requirements(Logger logger)
+    //**********************************************************
+    {
+        List<String> ll = new ArrayList<>();
+        ll.add("pip3");
+        ll.add("install");
+        ll.add("-r");
+        ll.add("requirements.txt");
+        File wd = new File("./python_for_face_reco");
+        StringBuilder sb = new StringBuilder();
+        if (Execute_command.execute_command_list(ll,wd,20000,sb,logger) ==null)
+        {
+            logger.log("failed to install requirements");
+            return false;
+        }
+        logger.log(sb.toString());
+        return true;
+    }
+
 
     //**********************************************************
     private static boolean start_face_detection_servers(Logger logger)
@@ -186,184 +357,6 @@ public class ML_servers_util
         return true;
     }
 
-    //**********************************************************
-    private static boolean init_venv(Logger logger)
-    //**********************************************************
-    {
-        if ( venv_activated)
-        {
-            logger.log("venv already activated");
-            return true;
-        }
-        File venv_dir = new File("./python_for_face_reco/venv");
-        if ( !venv_dir.exists() ) create_venv(logger);
+*/
 
-        // special trick c.f. stackOverFlow
-        List<String> ll = new ArrayList<>();
-        ll.add("/bin/bash");
-        ll.add("-ch");
-        ll.add("source venv/bin/activate");
-        File wd = new File("./python_for_face_reco");
-        StringBuilder sb = new StringBuilder();
-        if( Execute_command.execute_command_list(ll,wd,20000,sb,logger) == null)
-        {
-            logger.log("failed to activate venv");
-            venv_activated = false;
-            return false;
-        }
-        logger.log(sb.toString());
-        venv_activated = true;
-        return true;
-    }
-
-    //**********************************************************
-    private static boolean install_requirements(Logger logger)
-    //**********************************************************
-    {
-        List<String> ll = new ArrayList<>();
-        ll.add("pip3");
-        ll.add("install");
-        ll.add("-r");
-        ll.add("requirements.txt");
-        File wd = new File("./python_for_face_reco");
-        StringBuilder sb = new StringBuilder();
-        if (Execute_command.execute_command_list(ll,wd,20000,sb,logger) ==null)
-        {
-            logger.log("failed to install requirements");
-            return false;
-        }
-        logger.log(sb.toString());
-        return true;
-    }
-
-
-    //**********************************************************
-    static String[] image_similarity_lines =
-    //**********************************************************
-    {
-        "For image similarity to work",
-        "Feature vector servers must first be installed (once) see manual",
-        "Then, to start the image similarity servers copy paste this line in a terminal:",
-        "",
-
-    };
-
-    //**********************************************************
-    static String[] Enable_face_recognition_lines =
-    //**********************************************************
-    {
-            "",
-            "For face recognition to work",
-            "Face detection and specific feature vector servers must be first installed (once) see manual",
-            "Then to start the face recognition servers copy paste this line in a terminal:",
-            "",
-
-    };
-
-    //**********************************************************
-    public static void show_face_recognition_manual(Window owner, Logger logger)
-    //**********************************************************
-    {
-        Stage stage = new Stage();
-        stage.initOwner(owner);
-        VBox vb = new VBox();
-        for ( String l : Enable_face_recognition_lines)
-        {
-            TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf,owner,logger);
-            tf.setEditable(false);
-            vb.getChildren().add(tf);
-        }
-
-        //Path p = Paths.get("");
-        {
-            String cmd = get_command_string_to_start_face_recognition_servers(logger);//"source ~/venv-metal/bin/activate; cd "+p.toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers ";
-            TextField tf = new TextField(cmd);
-            Look_and_feel_manager.set_region_look(tf,owner,logger);
-            tf.setEditable(false);
-            vb.getChildren().add(tf);
-        }
-
-        Scene scene = new Scene(vb);
-        stage.setScene(scene);
-        stage.setWidth(1000);
-        stage.setHeight(1000);
-        stage.show();
-    }
-
-    //**********************************************************
-    public static void show_image_similarity_manual(Window owner,Logger logger)
-    //**********************************************************
-    {
-        Stage stage = new Stage();
-        stage.initOwner(owner);
-        VBox vb = new VBox();
-        for ( String l : image_similarity_lines)
-        {
-            TextField tf = new TextField(l);
-            Look_and_feel_manager.set_region_look(tf,owner,logger);
-            tf.setEditable(false);
-            vb.getChildren().add(tf);
-        }
-
-        {
-            String cmd = get_command_string_to_start_image_similarity_servers(logger);
-            TextArea tf = new TextArea(cmd);
-            Look_and_feel_manager.set_region_look(tf,owner,logger);
-            tf.setEditable(false);
-            tf.setWrapText(true);
-            vb.getChildren().add(tf);
-        }
-
-
-
-
-        Scene scene = new Scene(vb);
-        stage.setScene(scene);
-        stage.setWidth(1000);
-        stage.setHeight(1000);
-        stage.show();
-    }
-
-    //**********************************************************
-    public static String get_command_string_to_start_image_similarity_servers(Logger logger)
-    //**********************************************************
-    {
-        // if not already started, start the servers monitor
-        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(logger);
-
-        String list_of_ports = "";
-        for ( int port : Feature_vector_source_for_image_similarity.ports)
-        {
-            list_of_ports += port + " ";
-        }
-        String cmd = "source ~/venv-metal/bin/activate; cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./launch_image_similarity_servers "+ udp_port +" "+ list_of_ports;
-        return cmd;
-    }
-    //**********************************************************
-    public static String get_command_string_to_stop_image_similarity_servers(Logger logger)
-    //**********************************************************
-    {
-
-        String cmd = "cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./kill_image_similarity_servers";
-        return cmd;
-    }
-    //**********************************************************
-    public static String get_command_string_to_start_face_recognition_servers(Logger logger)
-    //**********************************************************
-    {
-        // if not already started, start the servers monitor
-        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(logger);
-
-        String cmd = "source ~/venv-metal/bin/activate; cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./launch_face_recognition_servers "+ udp_port;
-        return cmd;
-    }
-    //**********************************************************
-    public static String get_command_string_to_stop_face_recognition_servers(Logger logger)
-    //**********************************************************
-    {
-
-        String cmd = "cd "+Paths.get("").toAbsolutePath()+"/python_for_image_ML; ./kill_face_recognition_servers";
-        return cmd;
-    }
 }
