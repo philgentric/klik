@@ -15,8 +15,8 @@ public class Look_and_feel_dark extends Look_and_feel
 {
     public Look_and_feel_style get_look_and_feel_style(){return Look_and_feel_style.dark;}
 
-    public Look_and_feel_dark(Logger logger_) {
-        super("Dark",logger_);
+    public Look_and_feel_dark(Window owner, Logger logger_) {
+        super("Dark",owner,logger_);
     }
 
 
@@ -70,7 +70,7 @@ public class Look_and_feel_dark extends Look_and_feel
     }
 
     @Override
-    public URL get_CSS_URL() {
+    public URL get_CSS_URL(Window owner) {
         return Jar_utils.get_URL_by_name("dark/dark.css");
     }
 

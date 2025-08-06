@@ -3,6 +3,7 @@ package klik.properties;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -48,6 +49,7 @@ public class Non_booleans_properties
     public static final String FONT_SIZE = "FONT_SIZE";
     public static final String COLUMN_WIDTH = "Column_width"; //this must match the resource bundles
     public static final String STYLE_KEY = "STYLE";
+    public static final String CUSTOM_COLOR = "Custom_color";
 
     public static final String USER_HOME = "user.home";
     public static final String CONF_DIR = ".klik";
@@ -59,7 +61,7 @@ public class Non_booleans_properties
     private static final String AUDIO_PLAYER_EQUALIZER_BAND_ = "AUDIO_PLAYER_EQUALIZER_BAND_";
     private static final String AUDIO_PLAYER_VOLUME = "AUDIO_PLAYER_VOLUME";
     public static final String JAVA_VM_MAX_RAM = "max_RAM_in_GBytes"; // this is the maximum RAM that the Java VM can use, in GBytes
-
+    public static final String DEFAULT_CUSTOM_COLOR = "#b8d4fe";
 
     // cached values
 
@@ -69,6 +71,7 @@ public class Non_booleans_properties
     private static int folder_icon_size = -1;
     private static int video_length = -1;
     private static int column_width = -1;
+    private static Color custom_color = null;
 
     //**********************************************************
     public static IProperties get_main_properties_manager(Window owner)
@@ -164,12 +167,7 @@ public class Non_booleans_properties
 
         }
 
-
-
-
         // if we arrive here, the bounds are not valid, so we need to compute the bounds based on the current stage
-
-
 
         System.out.println("WARNING: from file  bounds " + target  + " do not fit with any screen, changing the target");
 
@@ -182,7 +180,6 @@ public class Non_booleans_properties
         // normally never happens?
         System.out.println("SHOULD NOT HAPPEN: no screen found, using default rectangle");
         return new Rectangle2D(0,0,800,600); // default rectangle
-
     }
 
     //**********************************************************
@@ -259,6 +256,33 @@ public class Non_booleans_properties
     }
 
 
+    //**********************************************************
+    public static Color get_custom_color(Window owner)
+    //**********************************************************
+    {
+        if (custom_color != null) return custom_color;
+        // first time, we look it up on disk
+        String custom_color_s = get_main_properties_manager(owner).get(CUSTOM_COLOR);
+        if (custom_color_s == null)
+        {
+            custom_color = Color.valueOf(DEFAULT_CUSTOM_COLOR);
+        }
+        else
+        {
+            custom_color = Color.valueOf(custom_color_s);
+        }
+        get_main_properties_manager(owner).set(CUSTOM_COLOR, custom_color.toString());
+        return custom_color;
+    }
+
+    //**********************************************************
+    public static void set_custom_color(Color c, Window owner)
+    //**********************************************************
+    {
+        custom_color = c;
+        get_main_properties_manager(owner).set(CUSTOM_COLOR, custom_color.toString());
+    }
+    
     //**********************************************************
     public static int get_icon_size(Window owner)
     //**********************************************************

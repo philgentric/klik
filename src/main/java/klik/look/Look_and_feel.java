@@ -48,12 +48,12 @@ public abstract class Look_and_feel
     private final BackgroundFill image_playlist_fill;
 
     //**********************************************************
-    public Look_and_feel(String name, Logger logger)
+    public Look_and_feel(String name, Window owner, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         this.name = name;
-        URL style_sheet_url2 = get_CSS_URL();
+        URL style_sheet_url2 = get_CSS_URL(owner);
         //System.out.println("style:"+name_+" CSS URL="+style_sheet_url2);
         if (style_sheet_url2 == null) {
             logger.log("style:" + name + "Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
@@ -98,7 +98,7 @@ public abstract class Look_and_feel
 
     public abstract Look_and_feel_style get_look_and_feel_style();
 
-    abstract public URL get_CSS_URL();
+    abstract public URL get_CSS_URL(Window owner);
 
 
     abstract public String get_sleeping_man_icon_path();
@@ -182,7 +182,7 @@ public abstract class Look_and_feel
     //**********************************************************
     {
         //System.out.println("Look_and_feel::set_hovered_directory_style");
-        Font_size.apply_font_size(node,owner,logger);
+        Font_size.apply_font_size(node, owner, logger);
         set_text_color(node, get_selected_text_color());//"-fx-text-fill: #704040;");
     }
 
@@ -207,7 +207,7 @@ public abstract class Look_and_feel
     protected void set_directory_style(Node node, Window owner)
     //**********************************************************
     {
-        Font_size.apply_font_size(node,owner,logger);
+        Font_size.apply_font_size(node, owner, logger);
     }
 
     //**********************************************************
@@ -216,7 +216,7 @@ public abstract class Look_and_feel
     {
         //logger.log("set_file_style");
         //Font_size.set_preferred_font_size(node,logger);
-        Font_size.apply_font_size(node,owner,logger);
+        Font_size.apply_font_size(node, owner, logger);
 /*
         if (node instanceof Button button)
         {
@@ -292,10 +292,4 @@ public abstract class Look_and_feel
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
     }
-
-
-    public Color get_custom_color() { return null; }
-    public void set_custom_color(Scene scene, Color background, Color hover){}
-
 }
-

@@ -743,18 +743,17 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         virtual_landscape.logger.log(("color picker !"));
-        ColorPicker color_picker = new ColorPicker(Color.BLUE);//Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).get_custom_color());
+        Color default_color = Non_booleans_properties.get_custom_color(virtual_landscape.owner);
+        ColorPicker color_picker = new ColorPicker(default_color);
         Look_and_feel_manager.set_region_look(color_picker, virtual_landscape.owner,virtual_landscape.logger);
         color_picker.setOnAction(_ -> {
             Color new_color = color_picker.getValue();
             virtual_landscape.logger.log(("color picker new color = "+new_color));
-
-            Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).set_custom_color(virtual_landscape.the_Scene,new_color,new_color.darker());
+            Non_booleans_properties.set_custom_color(new_color, virtual_landscape.owner);
             virtual_landscape.redraw_fx("custom color changed");
-            //Feature_cache.update_cached_boolean(Feature.Custom_color_is_set,true,owner);
         });
         Stage color_picker_stage = new Stage();
-        color_picker_stage.setTitle("color picker");
+        color_picker_stage.setTitle("Custom color picker (requires restart!)");
         color_picker_stage.initOwner(virtual_landscape.owner); // Set owner window
         // Create layout container
         VBox layout = new VBox(10); // 10 pixels spacing

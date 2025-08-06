@@ -101,10 +101,10 @@ public class Look_and_feel_manager
         if (dbg) logger.log("read_look_and_feel_from_properties_file: using style " + look_and_feel_style.name());
         return  switch (look_and_feel_style)
         {
-            default -> new Look_and_feel_light(logger);
-            case dark -> new klik.look.styles.Look_and_feel_dark(logger);
-            case wood ->new klik.look.styles.Look_and_feel_wood(logger);
-            case custom_color -> new Look_and_feel_custom_color(logger);
+            default -> new Look_and_feel_light(owner,logger);
+            case dark -> new klik.look.styles.Look_and_feel_dark(owner,logger);
+            case wood ->new klik.look.styles.Look_and_feel_wood(owner,logger);
+            case custom_color -> new Look_and_feel_custom_color(owner,logger);
         };
     }
 
@@ -740,7 +740,6 @@ public class Look_and_feel_manager
             region.getStyleClass().clear();
             region.getStyleClass().add("image-window");
         }
-        //Font_size.set_preferred_font_size(region,logger);
         Font_size.apply_font_size(region,owner,logger);
     }
 
@@ -894,7 +893,6 @@ public class Look_and_feel_manager
                     g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
                 }
             }
-
         }
     }
     //**********************************************************

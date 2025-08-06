@@ -15,9 +15,9 @@ public class Look_and_feel_light extends Look_and_feel
 {
     public Look_and_feel_style get_look_and_feel_style(){return Look_and_feel_style.light;}
 
-    public Look_and_feel_light(Logger logger_)
+    public Look_and_feel_light(Window owner, Logger logger_)
     {
-        super("Light",logger_);
+        super("Light",owner,logger_);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
-    public URL get_CSS_URL() {
+    public URL get_CSS_URL(Window owner) {
         return Jar_utils.get_URL_by_name("light/light.css");
     }
 
