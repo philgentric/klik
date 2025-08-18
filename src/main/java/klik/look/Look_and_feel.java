@@ -55,12 +55,15 @@ public abstract class Look_and_feel
         this.name = name;
         URL style_sheet_url2 = get_CSS_URL(owner);
         //System.out.println("style:"+name_+" CSS URL="+style_sheet_url2);
-        if (style_sheet_url2 == null) {
-            logger.log("style:" + name + "Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
+        if (style_sheet_url2 == null)
+        {
+            logger.log("style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
             style_sheet_url_string = null;
-        } else {
+        }
+        else
+        {
             style_sheet_url_string = style_sheet_url2.toExternalForm();
-            //logger.log("loaded style sheet=" + style_sheet_url_string);
+            logger.log("style:'" + name + "' loaded style sheet=" + style_sheet_url_string);
         }
 
         Look_and_feel_manager.reset();

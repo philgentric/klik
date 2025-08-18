@@ -282,7 +282,7 @@ public class Non_booleans_properties
         custom_color = c;
         get_main_properties_manager(owner).set(CUSTOM_COLOR, custom_color.toString());
     }
-    
+
     //**********************************************************
     public static int get_icon_size(Window owner)
     //**********************************************************

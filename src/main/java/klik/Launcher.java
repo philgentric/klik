@@ -9,6 +9,7 @@ package klik;
 import com.sun.management.OperatingSystemMXBean;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -70,7 +71,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 // for example it is immune to the agressive use of ESC by the user)
 //
 // UI changes are originating from one klik browser instance, they are sent to the launcher,
-// which then propagates them to the audio player, on the audio player port (345639)
+// which then propagates them to the audio player, on the audio player port
 
 //**********************************************************
 public class Launcher extends Application implements UI_change
@@ -91,6 +92,10 @@ public class Launcher extends Application implements UI_change
     private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
 
 
+    public static void main(String[] args)
+    {
+        launch(args);
+    }
 
     //**********************************************************
     @Override
@@ -198,12 +203,12 @@ public class Launcher extends Application implements UI_change
         {
             Button b = new Button(My_I18n.get_I18n_string("Start_Image_Similarity_Servers", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), stage, logger));
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Stop_Image_Similarity_Servers", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
         }
         {
             Separator separator = new Separator();
@@ -213,12 +218,12 @@ public class Launcher extends Application implements UI_change
         {
             Button b = new Button(My_I18n.get_I18n_string("Start_Face_Recognition_Servers", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), stage, logger));
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Stop_Face_Recognition_Servers", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(_ -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), stage, logger));
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), stage, logger));
         }
         {
             Separator separator = new Separator();
@@ -227,16 +232,12 @@ public class Launcher extends Application implements UI_change
         {
             Button b = new Button(My_I18n.get_I18n_string("Show_Version", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(event -> {
-                show_version(stage, logger);
-            });
+            b.setOnAction(e -> show_version(stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(event -> {
-                get_most_recent_version(stage, logger);
-            });
+            b.setOnAction(e -> get_most_recent_version(stage, logger));
         }
     }
 
@@ -287,7 +288,7 @@ public class Launcher extends Application implements UI_change
         List<String> cmds = new ArrayList<>();
         cmds.add("grep");
         cmds.add("version");
-        cmds.add("build.gradle");
+        cmds.add("build.gradle.works");
 
         StringBuilder sb = null;//new StringBuilder();
         String commit_count = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, sb, logger);

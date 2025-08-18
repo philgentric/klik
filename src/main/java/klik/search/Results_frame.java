@@ -1,5 +1,6 @@
 package klik.search;
 
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -122,7 +123,7 @@ public class Results_frame
 			b.setBorder(border);
 		}
 		the_result_vbox.getChildren().add(b);
-		b.setOnAction(_ -> {
+		b.setOnAction((ActionEvent e) -> {
 			//logger.log("going to open on menu select: " + key);
 
 			if (Files.isDirectory(path))
@@ -155,7 +156,7 @@ public class Results_frame
 
 
 		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",stage,logger));
-		browse.setOnAction(_ -> {
+		browse.setOnAction((ActionEvent e) -> {
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
@@ -168,7 +169,7 @@ public class Results_frame
 			{
 				String text = My_I18n.get_I18n_string("Open_With_Registered_Application",stage,logger);
 				MenuItem open_special = new MenuItem(text);
-				open_special.setOnAction(_ -> {
+				open_special.setOnAction((ActionEvent e) -> {
 					logger.log("Open_With_Registered_Application");
 					System_open_actor.open_special(owner,path,aborter,logger);
 				});
@@ -177,7 +178,7 @@ public class Results_frame
 			{
 				String text = My_I18n.get_I18n_string("Delete",stage,logger);
 				MenuItem delete = new MenuItem(text);
-				delete.setOnAction(_ -> {
+				delete.setOnAction((ActionEvent e) -> {
 					logger.log("Delete");
 					double x = stage.getX()+100;
 					double y = stage.getY()+100;
@@ -218,7 +219,7 @@ public class Results_frame
 	//**********************************************************
 	{
 		if ( search_results == null) search_results = new HashMap<>();
-        List<Path> path_set = search_results.computeIfAbsent(keys, _ -> new ArrayList<>());
+        List<Path> path_set = search_results.computeIfAbsent(keys, (s) -> new ArrayList<>());
 
         path_set.add(sr.path());
 

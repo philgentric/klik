@@ -3145,15 +3145,30 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Comparator<Path> local_file_comparator = null;
         switch (File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(),owner))
         {
-            case File_sort_by.ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator(browsing_caches.image_properties_RAM_cache);
-            case File_sort_by.RANDOM_ASPECT_RATIO -> local_file_comparator = new Aspect_ratio_comparator_random(browsing_caches.image_properties_RAM_cache);
-            case File_sort_by.IMAGE_WIDTH -> local_file_comparator = new Image_width_comparator(browsing_caches.image_properties_RAM_cache);
-            case File_sort_by.IMAGE_HEIGHT -> local_file_comparator = new Image_height_comparator(browsing_caches.image_properties_RAM_cache,logger);
-            case File_sort_by.RANDOM -> local_file_comparator = new Random_comparator();
-            case File_sort_by.DATE -> local_file_comparator = new Date_comparator(logger);
-            case File_sort_by.SIZE -> local_file_comparator = new Decreasing_disk_footprint_comparator();
+            case ASPECT_RATIO :
+                local_file_comparator = new Aspect_ratio_comparator(browsing_caches.image_properties_RAM_cache);
+                break;
+            case RANDOM_ASPECT_RATIO :
+                local_file_comparator =  new Aspect_ratio_comparator_random(browsing_caches.image_properties_RAM_cache);
+                break;
+            case IMAGE_WIDTH :
+                local_file_comparator = new Image_width_comparator(browsing_caches.image_properties_RAM_cache);
+                break;
+            case IMAGE_HEIGHT :
+                local_file_comparator = new Image_height_comparator(browsing_caches.image_properties_RAM_cache,logger);
+                break;
+            case RANDOM :
+                local_file_comparator = new Random_comparator();
+                break;
+            case DATE :
+                local_file_comparator = new Date_comparator(logger);
+                break;
+            case SIZE :
+                local_file_comparator = new Decreasing_disk_footprint_comparator();
+                break;
 
-            default -> local_file_comparator = new Alphabetical_file_name_comparator();
+            default : local_file_comparator = new Alphabetical_file_name_comparator();
+                break;
         }
         return local_file_comparator;
     }

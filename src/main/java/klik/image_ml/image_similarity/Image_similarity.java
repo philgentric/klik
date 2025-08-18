@@ -273,8 +273,8 @@ public class Image_similarity implements Clearable_RAM_cache
     {
         local.add(ms);
         local.sort(comp);
-        if ( local.size() > N) local.removeLast();
-        return local.getFirst().similarity();
+        if ( local.size() > N) local.remove(local.size()-1);
+        return local.get(0).similarity();
     }
 
 

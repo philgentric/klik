@@ -357,7 +357,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         else
         {
             if (dbg) logger.log("picking first image");
-            return images_in_folder.getFirst().toPath();
+            return images_in_folder.get(0).toPath();
         }
     }
 

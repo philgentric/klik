@@ -21,7 +21,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -106,7 +105,7 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Clear_All_Caches",virtual_landscape.owner,virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
-        item.setOnAction(event -> {
+        item.setOnAction(Yevent -> {
             virtual_landscape.clear_all_RAM_caches();
             Static_files_and_paths_utilities.clear_all_DISK_caches(owner,virtual_landscape.aborter,virtual_landscape.logger);
         });
@@ -732,7 +731,7 @@ public class Virtual_landscape_menus
         if ( current_style == Look_and_feel_style.custom_color)
         {
             MenuItem custom_color_item = new MenuItem(My_I18n.get_I18n_string("Choose_Custom_Color",virtual_landscape.owner,virtual_landscape.logger));
-            custom_color_item.setOnAction(_ -> invoke_color_picker());
+            custom_color_item.setOnAction((ActionEvent e) -> invoke_color_picker());
             menu.getItems().add(custom_color_item);
         }
         return menu;
@@ -746,7 +745,7 @@ public class Virtual_landscape_menus
         Color default_color = Non_booleans_properties.get_custom_color(virtual_landscape.owner);
         ColorPicker color_picker = new ColorPicker(default_color);
         Look_and_feel_manager.set_region_look(color_picker, virtual_landscape.owner,virtual_landscape.logger);
-        color_picker.setOnAction(_ -> {
+        color_picker.setOnAction((ActionEvent e) -> {
             Color new_color = color_picker.getValue();
             virtual_landscape.logger.log(("color picker new color = "+new_color));
             Non_booleans_properties.set_custom_color(new_color, virtual_landscape.owner);

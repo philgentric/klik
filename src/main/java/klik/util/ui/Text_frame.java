@@ -2,6 +2,7 @@ package klik.util.ui;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -72,15 +73,20 @@ public class Text_frame
         web_view.setFontScale(2.0);
 
 
-        web_view.getEngine().getLoadWorker().stateProperty().addListener((_, _, newState) ->
-        {
-            // is executed once the page is re-loaded
-            if (newState == Worker.State.SUCCEEDED)
-            {
-                web_view.getEngine().executeScript("window.scroll(0," + scroll + ");");
-            }
 
-        });
+
+        ChangeListener<? super Worker.State> cl = new ChangeListener<Worker.State>() {
+            @Override
+            public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State state, Worker.State newState) {
+                // is executed once the page is re-loaded
+                if (newState == Worker.State.SUCCEEDED)
+                {
+                    web_view.getEngine().executeScript("window.scroll(0," + scroll + ");");
+                }
+            }
+        };
+
+        web_view.getEngine().getLoadWorker().stateProperty().addListener(cl);
 
 
         Scene scene = new Scene(web_view);

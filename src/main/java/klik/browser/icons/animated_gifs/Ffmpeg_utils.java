@@ -48,7 +48,7 @@ public class Ffmpeg_utils
 {
     private static final boolean dbg = false;
     private static final int HUNDRED =100;
-    private static final Locale us_locale = Locale.of("en","US");//new Locale("en");
+    private static final Locale us_locale = new Locale("en","US");//Locale.of("en","US");
 
     //**********************************************************
     public static void generate_many_gifs(Window owner, Path video_path, int clip_lenght, int skip_to_next, Aborter aborter, Logger logger)

@@ -104,6 +104,7 @@
 package klik;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import klik.browser.*;
 import klik.properties.boolean_features.Feature;
@@ -118,65 +119,14 @@ import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
 
+// this is a hack to try to fix a mysterious fatal runtime issue
+// with native compilation using either graalvm or gluon
 //**********************************************************
-public class Klik_application extends Application
+public class Klik_trick
 //**********************************************************
 {
-    private final static String name = "Klik_application";
-
-    public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
-    public static Stage primary_stage;
-
     public static void main(String[] args)
     {
-        launch(args);
+        Klik_application.launch(Klik_application.class);
     }
-
-    //**********************************************************
-    @Override
-    public void start(Stage primary_stage_) throws Exception
-    //**********************************************************
-    {
-        Sys_init.init(name, primary_stage_);
-        Logger logger = Logger_factory.get(name);
-
-        primary_stage = primary_stage_;
-        Start_context context = Start_context.get_context_and_args(this);
-
-        logger.log("Klik_application Start_context= " + context.args());
-
-        primary_stage.setOnCloseRequest(event -> {
-            System.out.println("Klik_application primary_stage setOnCloseRequest exit");
-            System.exit(0);
-        });
-
-        Print_system_info.print();
-
-        Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
-
-        ui_change_report_port_at_launcher = context.extract_ui_change_report_port();
-        if ( ui_change_report_port_at_launcher == null)
-        {
-            logger.log("Klik_application: ui_change_report_port_at_launcher=null ");
-        }
-        else
-        {
-            logger.log("Klik_application ui_change_report_port_at_launcher= " + ui_change_report_port_at_launcher);
-        }
-        Path path = context.extract_path();
-        if ( path != null)
-        {
-            logger.log("Starting browser on path ->" + path+"<-");
-        }
-        Window_provider window_provider = New_window_context.additional_no_past(path,primary_stage_,logger);
-        new Monitor(window_provider, logger).start();
-
-        if ( context.extract_reply_port() != null) // is null when launched from the audio player
-        {
-            TCP_client.send_in_a_thread("localhost", context.extract_reply_port(), Launcher.STARTED, logger);
-        }
-    }
-
-
-
 }

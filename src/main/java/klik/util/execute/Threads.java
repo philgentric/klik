@@ -45,6 +45,8 @@ public class Threads
         {
             logger.log("Using virtual threads");
             executor = Executors.newVirtualThreadPerTaskExecutor();
+            //logger.log("FATAL: cannot use virtual threads");
+
         }
         else
         {

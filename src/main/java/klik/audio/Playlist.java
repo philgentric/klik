@@ -2,6 +2,7 @@ package klik.audio;
 //SOURCES ../change/undo/Undo_core.java
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -1080,7 +1081,7 @@ public class Playlist
         b.setMnemonicParsing(false); // avoid removal of first underscore
         Look_and_feel_manager.set_button_look(b, true,owner,logger);
 
-        b.setOnAction(_ -> {
+        b.setOnAction((ActionEvent e) -> {
             change_song(song.path());
         });
 
@@ -1090,7 +1091,7 @@ public class Playlist
 
 
         MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",search_stage,logger));
-        browse.setOnAction(_ -> {
+        browse.setOnAction((ActionEvent e) -> {
             logger.log("Browse in new window");
             Path local = Path.of(song.path());
             if (! local.toFile().isDirectory()) local = local.getParent();

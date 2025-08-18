@@ -1,6 +1,7 @@
 package klik.audio;
 
 
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
@@ -71,12 +72,12 @@ public record Song(String path, Node node)
         Look_and_feel_manager.set_context_menu_look(the_context_menu, owner, logger);
         {
             MenuItem the_menu_item = new MenuItem("Browse folder");
-            the_menu_item.setOnAction(_ -> Audio_player.start_new_process_to_browse(Path.of(path()).getParent(), logger));
+            the_menu_item.setOnAction((s) -> Audio_player.start_new_process_to_browse(Path.of(path()).getParent(), logger));
             the_context_menu.getItems().add(the_menu_item);
         }
         {
             MenuItem the_menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner, logger));
-            the_menu_item.setOnAction(_ -> {
+            the_menu_item.setOnAction((ActionEvent s) -> {
 
                 Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner, Path.of(path()), logger);
                 if ( new_path == null) return;
@@ -94,7 +95,7 @@ public record Song(String path, Node node)
         }
         {
             MenuItem the_menu_item = new MenuItem("Remove from list");
-            the_menu_item.setOnAction(_ -> playlist.remove_from_playlist(path()));
+            the_menu_item.setOnAction((ActionEvent s) -> playlist.remove_from_playlist(path()));
             the_context_menu.getItems().add(the_menu_item);
         }
         node().setOnContextMenuRequested((ContextMenuEvent event) -> the_context_menu.show(node(), event.getScreenX(), event.getScreenY()));

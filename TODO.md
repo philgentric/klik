@@ -43,7 +43,13 @@ could become weird like if you dont remember the last choice...
 
 # Support for more image formats #
 
-right ! which ones ? webp?
+right ! which ones ? 
+
+webp?
+
+FITS? 
+https://en.wikipedia.org/wiki/FITS
+https://imagej.net/libs/scifio
 
 Try supporting more formats via Java Advanced Imaging
 

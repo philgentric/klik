@@ -4,6 +4,7 @@
 package klik.experimental.deduplicate.manual;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -120,7 +121,7 @@ public class Stage_with_2_images
 		Button skip = new Button("Skip this pair");
 		Look_and_feel_manager.set_button_look(skip,true,stage,logger);
 		the_big_vbox.getChildren().add(skip);
-		skip.setOnAction(_ -> {
+		skip.setOnAction((ActionEvent e) -> {
             againor.again();
             if ( stage != null) stage.hide();
         });

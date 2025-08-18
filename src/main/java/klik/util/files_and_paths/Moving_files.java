@@ -243,7 +243,7 @@ public class Moving_files
 
         if ( the_list.size() > 2 ) show_running_film = true;
         else {
-            Old_and_new_Path oand = the_list.getFirst();
+            Old_and_new_Path oand = the_list.get(0);
 
             if ( oand.old_Path.toFile().isDirectory())
             {

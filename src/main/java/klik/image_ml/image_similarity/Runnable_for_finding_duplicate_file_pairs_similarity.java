@@ -112,7 +112,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 			already_done.add(f.file.toPath());
 			if ( similars.isEmpty()) continue;
 			deduplication_by_similarity_engine.duplicates_found.incrementAndGet();
-			Image_similarity.Most_similar most_similar = similars.getFirst();
+			Image_similarity.Most_similar most_similar = similars.get(0);
 			if (dbg) logger.log("similars fond:\n     " + f.file.getAbsolutePath() + "\n    " + most_similar.path());
 
 			File_pair pair= new File_pair(f.file, most_similar.path().toFile());

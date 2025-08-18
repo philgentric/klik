@@ -23,26 +23,27 @@ public enum Language
     {
         switch (this) {
             case Breton:
-                return Locale.of("br","FR");
+                //return Locale.of("br","FR");
+                return new Locale("br","FR");
             case Chinese:
-                return Locale.of("zh","CN");
+                return new Locale("zh","CN");
             default:
             case English:
-                return Locale.of("en","US");
+                return new Locale("en","US");
             case French:
-                return Locale.of("fr","FR");
+                return new Locale("fr","FR");
             case German:
-                return Locale.of("de","DE");
+                return new Locale("de","DE");
             case Italian:
-                return Locale.of("it","IT");
+                return new Locale("it","IT");
             case Japanese:
-                return Locale.of("ja","JP");
+                return new Locale("ja","JP");
             case Korean:
-                return Locale.of("ko","KR");
+                return new Locale("ko","KR");
             case Portuguese:
-                return Locale.of("pt","PT");
+                return new Locale("pt","PT");
             case Spanish:
-                return Locale.of("es","ES");
+                return new Locale("es","ES");
         }
 
     }

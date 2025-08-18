@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -436,7 +437,7 @@ public class Audio_player_FX_UI
     {
         Button reset_balance = new Button(My_I18n.get_I18n_string("Reset_Balance",stage,logger));
         Look_and_feel_manager.set_button_look(reset_balance,true,stage,logger);
-        reset_balance.setOnAction(_ -> {
+        reset_balance.setOnAction((ActionEvent e) -> {
             balance_slider.setValue(0);
             the_media_player_option.get().setBalance(0);
         });
@@ -454,7 +455,7 @@ public class Audio_player_FX_UI
         String mute_string = My_I18n.get_I18n_string("Mute",stage,logger);
         Button mute = new Button(mute_string);
         Look_and_feel_manager.set_button_look(mute,true,stage,logger);
-        mute.setOnAction(_ -> {
+        mute.setOnAction((ActionEvent e) -> {
             MediaPlayer mp = the_media_player_option.get();
             if ( mp.isMute())
             {
@@ -506,19 +507,19 @@ public class Audio_player_FX_UI
 
         previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song",stage,logger));
         Look_and_feel_manager.set_button_look(previous, true,stage,logger);
-        previous.setOnAction(_ -> playlist.jump_to_previous());
+        previous.setOnAction((ActionEvent e) -> playlist.jump_to_previous());
         returned.getChildren().add(previous);
 
 
         next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song",stage,logger));
         Look_and_feel_manager.set_button_look(next, true,stage,logger);
-        next.setOnAction(_ -> playlist.jump_to_next());
+        next.setOnAction((ActionEvent e) -> playlist.jump_to_next());
         returned.getChildren().add(next);
 
 
         Button shuffle = new Button(My_I18n.get_I18n_string("Shuffle",stage,logger));
         Look_and_feel_manager.set_button_look(shuffle, true,stage,logger);
-        shuffle.setOnAction(_->playlist.shuffle());
+        shuffle.setOnAction((ActionEvent e)->playlist.shuffle());
         returned.getChildren().add(shuffle);
 
 
@@ -700,7 +701,7 @@ public class Audio_player_FX_UI
 
         Button rewind = new Button(My_I18n.get_I18n_string("Rewind",stage,logger));
         Look_and_feel_manager.set_button_look(rewind, true,stage,logger);
-        rewind.setOnAction(_ -> {
+        rewind.setOnAction((ActionEvent e) -> {
             rewind();
         });
         hbox.getChildren().add(rewind);
@@ -715,7 +716,7 @@ public class Audio_player_FX_UI
 
         play_pause_button = new Button(pause_string);
         Look_and_feel_manager.set_button_look(play_pause_button, true,stage,logger);
-        play_pause_button.setOnAction(_ -> toggle_play_stop());
+        play_pause_button.setOnAction((ActionEvent e) -> toggle_play_stop());
         hbox.getChildren().add(play_pause_button);
 
         {

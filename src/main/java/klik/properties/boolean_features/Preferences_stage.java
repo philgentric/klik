@@ -1,5 +1,6 @@
 package klik.properties.boolean_features;
 
+import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -222,7 +223,7 @@ public class Preferences_stage
             cb.setSelected(value0);
             Look_and_feel_manager.set_CheckBox_look(cb, stage, logger);
 
-            cb.setOnAction(_ ->
+            cb.setOnAction((ActionEvent e) ->
             {
                 Boolean value = (Boolean) cb.isSelected();
                 logger.log("Preference changing for: " + bf.name() + "new value:" + value);
