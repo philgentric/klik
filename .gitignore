@@ -14,3 +14,5 @@ nohup.out
 /python_for_image_ML/__pycache__
 test.txt
 script.txt
+script.txt
+META-INF/native-image/reachability-metadata.json
