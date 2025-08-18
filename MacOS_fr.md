@@ -25,7 +25,7 @@ Dans le terminal, copier-coller les commandes en gras données dans les étapes 
 
 ### installez gradle
 
-**sdk install gradle 8.14**
+**sdk install gradle 9.0.0**
 
 ### installez java 24 (avec javaFX) 
 

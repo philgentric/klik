@@ -12,7 +12,7 @@ Install WSL2:
 
 ### Install gradle
 
-**sdk install gradle 8.14**
+**sdk install gradle 9.0.0**
 
 ### Install java24
 
@@ -66,7 +66,7 @@ A: Go to the Preferences menu and erase the caches. Visit the trash to check tha
 
 Q: When klik runs, other applications are missing RAM.
 
-A: Go to the Preferences menu and erase the caches. For experts: Edit build.gradle to reduce the maximum memory size of the JVM. 
+A: Go to the Preferences menu and (1) erase the caches (2) reduce the maximum memory size of the JVM. 
 
 Q: I want to uninstall klik.
 

@@ -39,7 +39,7 @@ ensuite:
 
 (gradle est un outil de compilation)
 
-**sdk install gradle 8.14**
+**sdk install gradle 9.0.0**
 
 ### installez java 24 (avec javaFX) 
 
@@ -107,8 +107,8 @@ R: Allez dans le menu Préférences et effacez les caches. Visitez la poubelle p
 
 Q: Quand klik tourne, les autres applications manquent de RAM.
 
-R: Allez dans le menu Préférences et effacez les caches. Pour les experts: Editez build.gradle pour réduire la taille mémoire max de la JVM. 
+R: Allez dans le menu Préférences et (1) effacez les caches (2) réduisez la taille mémoire max de la JVM. 
 
 Q: Je veux desinstaller klik.
 
-R: (1) Effacez le dossier du code source (2) Effacez le dossier '.klik' à la racine de votre espace disque utilisateur, il contient des caches et la poubelle, presque toujours cela donne beaucoup plus de place que le code.
+R: (1) Effacez le dossier du code source (2) Effacez le dossier '.klik' à la racine de votre espace disque utilisateur, il contient les paramètres, des caches et la poubelle, presque toujours cela donne beaucoup plus de place que le code.

@@ -9,7 +9,6 @@ package klik;
 import com.sun.management.OperatingSystemMXBean;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -196,6 +195,9 @@ public class Launcher extends Application implements UI_change
                 propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
             });
         }
+
+
+
         {
             Separator separator = new Separator();
             vbox.getChildren().add(separator);
@@ -210,6 +212,10 @@ public class Launcher extends Application implements UI_change
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
         }
+
+
+
+
         {
             Separator separator = new Separator();
             vbox.getChildren().add(separator);
@@ -225,6 +231,25 @@ public class Launcher extends Application implements UI_change
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), stage, logger));
         }
+
+
+        {
+            Separator separator = new Separator();
+            vbox.getChildren().add(separator);
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Install_Ffmpeg", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_ffmpeg(logger), stage, logger));
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Install_Graphicsmagick", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_graphicsmagick(logger), stage, logger));
+        }
+
+
+
         {
             Separator separator = new Separator();
             vbox.getChildren().add(separator);
@@ -239,6 +264,30 @@ public class Launcher extends Application implements UI_change
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(e -> get_most_recent_version(stage, logger));
         }
+    }
+
+    //**********************************************************
+    private String get_command_string_to_install_ffmpeg(Logger logger)
+    //**********************************************************
+    {
+        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
+            return "brew install ffmpeg";
+        }
+        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
+                false, stage, logger);
+        return null;
+    }
+
+    //**********************************************************
+    private String get_command_string_to_install_graphicsmagick(Logger logger)
+    //**********************************************************
+    {
+        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
+            return "brew install graphicsmagick";
+        }
+        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
+                false, stage, logger);
+        return null;
     }
 
     //**********************************************************

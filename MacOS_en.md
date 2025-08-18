@@ -13,7 +13,7 @@ or follow instructions at:
 
 ### install gradle
 
-**sdk install gradle 8.14**
+**sdk install gradle 9.0.0**
 
 ### install java24 (with fx)
 

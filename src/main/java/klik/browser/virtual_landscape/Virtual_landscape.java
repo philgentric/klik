@@ -33,6 +33,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Klik_application;
 import klik.New_window_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -2980,6 +2981,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
             }
         }
+
+        logger.log("Klik start time = "+ (System.currentTimeMillis() - Klik_application.start_time) + " ms");
     }
 
     //**********************************************************

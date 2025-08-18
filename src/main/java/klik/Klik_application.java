@@ -122,13 +122,18 @@ import java.nio.file.Path;
 public class Klik_application extends Application
 //**********************************************************
 {
+    public static long start_time; // used to compute the time since the application started
     private final static String name = "Klik_application";
 
     public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
     public static Stage primary_stage;
 
+    //**********************************************************
     public static void main(String[] args)
+    //**********************************************************
     {
+
+        start_time = System.currentTimeMillis();
         launch(args);
     }
 

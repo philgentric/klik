@@ -5,7 +5,7 @@
 
 ###  install gradle
 
-**sdk install gradle 8.14**
+**sdk install gradle 9.0.0**
 
 ###  install java (with fx)
 

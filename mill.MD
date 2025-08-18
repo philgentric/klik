@@ -1,6 +1,6 @@
 # This documents using 'the mill build tool' a.k.a. 'mill' to build klik
 
-dowload the mill tool from 
+dowload the mill build tool from 
 
 https://mill-build.org
 
