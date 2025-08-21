@@ -31,7 +31,8 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.New_window_context;
-import klik.browser.icons.JavaFX_to_Swing;
+//import klik.browser.icons.JavaFX_to_Swing;
+import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.image_ml.Feature_vector;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -40,8 +41,6 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -789,13 +788,15 @@ public class Face_recognition_service
     }
 
 
-
     //**********************************************************
     public static Path write_tmp_image(Image face, Path folder_path, String tag, Logger logger)
     //**********************************************************
     {
         Path path =  Embeddings_prototype.make_image_path(folder_path,tag,logger);
         logger.log("writing tmp image to: "+path+" face="+face.getWidth()+"x"+face.getHeight());
+
+        Static_image_utilities.write_png_to_disk(face, path.toFile(), "facereco", logger);
+        /*
         try {
             BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);
             logger.log("BufferedImage="+bi.getWidth()+"x"+bi.getHeight());
@@ -811,7 +812,7 @@ public class Face_recognition_service
         {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return null;
-        }
+        }*/
         return path;
     }
 

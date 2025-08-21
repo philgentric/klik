@@ -2,7 +2,9 @@
 //SOURCES ./Registered_applications.java
 package klik.util.execute;
 
+import javafx.application.Application;
 import javafx.stage.Window;
+import klik.Klik_application;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
@@ -13,7 +15,7 @@ import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
 
-import java.awt.*;
+//import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class System_open_actor implements Actor
     {
     Actor_engine.run(
             System_open_actor.get(),
-            new System_open_message(false,window, path, aborter,logger),null,logger);
+            new System_open_message(false, Klik_application.application,window, path, aborter,logger),null,logger);
     }
 
     private static System_open_actor instance;
@@ -47,13 +49,14 @@ public class System_open_actor implements Actor
 
 
     //**********************************************************
-    public static void open_special(Window owner, Path path, Aborter aborter, Logger logger)
+    public static void open_special(
+            Window owner, Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("open_special " + path);
         Actor_engine.run(
                 System_open_actor.get(),
-                new System_open_message(true,owner, path, aborter,logger),null,logger);
+                new System_open_message(true,Klik_application.application, owner, path, aborter,logger),null,logger);
     }
 
 
@@ -66,7 +69,8 @@ public class System_open_actor implements Actor
         if (som.special) return special(som);
         try
         {
-            Desktop.getDesktop().open(som.path.toAbsolutePath().toFile());
+            som.application.getHostServices().showDocument(som.path.toUri().toString());
+            //Desktop.getDesktop().open(som.path.toAbsolutePath().toFile());
         }
         catch (Exception e)
         {

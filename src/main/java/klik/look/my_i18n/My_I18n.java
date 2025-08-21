@@ -7,7 +7,9 @@ import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 
@@ -74,6 +76,21 @@ public class My_I18n
     private My_I18n(Language language, Locale locale, Logger logger)
     //**********************************************************
     {
+        {
+            // Print all resources in the 'klik' directory
+            String dirs[] = {"klik/","resources/klik/"};
+            for (String dir : dirs) {
+                try {
+                    System.out.println("directory: " + dir);
+                    Enumeration<URL> urls = getClass().getClassLoader().getResources(dir);
+                    while (urls.hasMoreElements()) {
+                        System.out.println("Resource found: " + urls.nextElement());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         this.language = language;
         this.locale = locale;
         Locale.setDefault(locale);

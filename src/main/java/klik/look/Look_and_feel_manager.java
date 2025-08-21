@@ -30,12 +30,18 @@ import java.awt.image.BufferedImage;
 
 import static java.awt.Taskbar.Feature.ICON_IMAGE;
 
+//import klik.browser.icons.JavaFX_to_Swing;
+//import java.awt.*;
+//import java.awt.image.BufferedImage;
+//import static java.awt.Taskbar.Feature.ICON_IMAGE;
+
 //**********************************************************
 public class Look_and_feel_manager
 //**********************************************************
 {
     // https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
     private static final boolean dbg = false;
+    private static boolean use_awt_taskbar = false;
 
     public static final String MUSIC = "Music";
     public static final String LAUNCHER = "Launcher";
@@ -1047,9 +1053,15 @@ public class Look_and_feel_manager
     //**********************************************************
     {
         Look_and_feel look_and_feel = get_instance(owner,logger);
-        if (look_and_feel == null) {
+        if (look_and_feel == null)
+        {
             logger.log("BAD WARNING: cannot get look and feel instance");
         }
+        else
+        {
+            logger.log("OK: look and feel instance made");
+        }
+
 
         stage.getIcons().clear();
         Image taskbar_icon = null;
@@ -1058,23 +1070,37 @@ public class Look_and_feel_manager
         for (int s : icon_sizes)
         {
             Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, s, owner,logger);
-            if (icon != null) {
+            if (icon != null)
+            {
                 stage.getIcons().add(icon);
                 taskbar_icon = icon;
-                stage.getIcons().add(icon);
+            }
+            else
+            {
+                logger.log("WARNING: cannot load icon for size " + s + " from path: " + icon_path);
             }
         }
-        if (taskbar_icon != null) {
-            if (Taskbar.isTaskbarSupported()) {
-                Taskbar task_bar = Taskbar.getTaskbar();
-                if (task_bar.isSupported(ICON_IMAGE)) {
-                    BufferedImage bim = JavaFX_to_Swing.fromFXImage(taskbar_icon, null, logger);
-                    task_bar.setIconImage(bim);
-                }
-                if (task_bar.isSupported(Taskbar.Feature.ICON_BADGE_TEXT)) {
-                    task_bar.setIconBadge(badge_text);
+
+        if (use_awt_taskbar) {
+            if (taskbar_icon != null) {
+                if (Taskbar.isTaskbarSupported()) {
+                    Taskbar task_bar = Taskbar.getTaskbar();
+                    if (task_bar.isSupported(ICON_IMAGE)) {
+                        BufferedImage bim = JavaFX_to_Swing.fromFXImage(taskbar_icon, null, logger);
+                        task_bar.setIconImage(bim);
+                    }
+                    if (task_bar.isSupported(Taskbar.Feature.ICON_BADGE_TEXT)) {
+                        task_bar.setIconBadge(badge_text);
+                    }
                 }
             }
+        }
+        else
+        {
+            logger.log("loading icon bytes for Mac dock");
+            byte[] icon_bytes = Jar_utils.load_image_bytes_from_jar(icon_path, logger);
+            logger.log(" icon bytes =" +icon_bytes.length);
+            Macdock.setup_ext(badge_text,icon_bytes, logger);
         }
     }
 

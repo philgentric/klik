@@ -1,25 +1,45 @@
 package klik.images.caching;
 
 import javafx.stage.Window;
+import klik.actor.Aborter;
+import klik.actor.Actor_engine;
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
+import java.util.*;
 
 //**********************************************************
-public class Image_cache_dummy implements Cache_interface
+public class Image_cache_linkedhashmap implements Cache_interface
 //**********************************************************
 {
+    private final Image_decoding_actor_for_cache image_decoding_actor;
     Logger logger;
-    private String key;
-    private Image_context image_context;
+    private final int forward_size;
+    private final Aborter aborter;
+    private final LinkedHashMap<String, Image_context> cache;
 
     //**********************************************************
-    public Image_cache_dummy( Logger logger_)
+    public Image_cache_linkedhashmap(int forward_size, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger = logger_;
+        this.logger = logger;
+        this.forward_size = forward_size;
+        this.aborter = aborter;
+        image_decoding_actor = new Image_decoding_actor_for_cache(logger);// need a single instance
+
+
+        cache = new LinkedHashMap<>(2*forward_size+1, 0.75f, true) {;
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, Image_context> eldest) {
+                if (size() > 2 * forward_size + 1) {
+                    logger.log("Image_cache_linkedhashmap removing eldest entry: " + eldest.getKey());
+                    return true;
+                }
+                return false;
+            }
+        };
     }
 
 
@@ -28,9 +48,7 @@ public class Image_cache_dummy implements Cache_interface
     public Image_context get(String key_)
     //**********************************************************
     {
-        logger.log("Image_cache_dummy: key = "+key_);
-        if ( image_context == null) logger.log("image context is null");
-        return image_context;
+        return cache.get(key_);
     }
 
     //**********************************************************
@@ -38,9 +56,7 @@ public class Image_cache_dummy implements Cache_interface
     public void put(String key_, Image_context value)
     //**********************************************************
     {
-        logger.log("writing in dummy image cache:" + value.path.getFileName());
-        key = key_;
-        image_context = value;
+        cache.put(key_, value);
     }
 
 
@@ -49,6 +65,20 @@ public class Image_cache_dummy implements Cache_interface
     public void preload(Image_display_handler image_display_handler, boolean ultimate, boolean forward, Window owner)
     //**********************************************************
     {
+
+        if (image_display_handler.image_indexer.isEmpty())
+        {
+            // may happen when opening a folder in aspect ratio (slow) mode
+            return;
+        }
+        final List<Path> kk = image_display_handler.image_indexer.get().get_paths(image_display_handler.get_image_context().get().path, forward_size, forward, ultimate);
+
+        for (Path path: kk)
+        {
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, owner,aborter);
+            Actor_engine.run(image_decoding_actor,idr,null,logger);
+        }
+
     }
 
     //**********************************************************
@@ -62,6 +92,9 @@ public class Image_cache_dummy implements Cache_interface
     public void evict(Path path, Window owner)
     //**********************************************************
     {
+        Image_decode_request_for_cache request = new Image_decode_request_for_cache(path,null,owner, aborter);
+        String key = request.make_key();
+        cache.remove(key);
     }
 
     @Override
@@ -69,7 +102,7 @@ public class Image_cache_dummy implements Cache_interface
     public void clear_all()
     //**********************************************************
     {
-       image_context = null;
+        cache.clear();
     }
 
     //**********************************************************
@@ -77,9 +110,6 @@ public class Image_cache_dummy implements Cache_interface
     public void print()
     //**********************************************************
     {
-        logger.log("   cache entry: "+image_context.path);
-        long total_pixel = (long) (image_context.image.getHeight()*image_context.image.getWidth());
-        logger.log("cache size: "+total_pixel/1_000_000+" Mpixels");
     }
 
 }

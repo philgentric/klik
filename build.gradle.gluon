@@ -1,16 +1,66 @@
-// failed attempt at using gluon to build a native image
+// Using gluon to build a native image
+/*
+prerequisites:
+
+1. make a few tiny changes in the source
+
+a. edit Image_display_handler.java and set:
+
+public static final boolean use_caffeine = false;
+
+(instead of true: reason, otherwise you will get a crash at run time
+when trying to display images)
+
+b. edit Look_and_feel_manager.java and set
+
+private static boolean use_taskbar = false;
+
+(instead of true: reason, otherwise you will get a crash at run time
+because the TaskBar class is based on AWT, and gluonfx does not support that,
+but only pure javafx, sadly)
+
+2. compile the icon taskbar lib:
+
+clang -dynamiclib -fobjc-arc -framework Cocoa -I "$JAVA_HOME/include" -I "$JAVA_HOME/include/darwin" -o libmacdock.dylib src/main/native/macos/macdock.m
+
+check the name:
+nm -gU libmacdock.dylib
+and it should contain the following symbols:
+0000000000000710 T _Java_klik_look_Macdock_setup
+
+3. download & install the gluon package (which is based on graalvm)
+for this: download the gluon package
+unzip it and on MAC, dont forget to remove the quarantine attribute:
+sudo xattr -r -d com.apple.quarantine /Users/philippegentric/Library/Java/JavaVirtualMachines/graalvm-java23-darwin-aarch64-gluon-23+25.1-dev
+
+set GRAALVM_HOME to the path of the graalvm from the gluon package:
+
+export GRAALVM_HOME=/Users/philippegentric/Library/Java/JavaVirtualMachines/graalvm-java23-darwin-aarch64-gluon-23+25.1-dev/Contents/Home
+echo $GRAALVM_HOME
+export PATH=$GRAALVM_HOME/bin:$PATH
+echo $PATH
+gradle clean nativeBuild
+gradle nativeRun
+
+*/
+
 plugins {
        id 'java'
        id 'application'
        id 'org.openjfx.javafxplugin' version '0.1.0'
        id 'com.gradleup.shadow' version '9.0.1'
-       //id 'org.graalvm.buildtools.native' version '0.11.0'
        id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.27'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+}
+
  javafx {
-     version = "17.0.2"
-     modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.fxml', 'javafx.swing','javafx.media','javafx.web' ]
+     version = "23.0.2"
+     modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.fxml', 'javafx.media','javafx.web' ]
  }
 
  repositories {
@@ -18,7 +68,7 @@ plugins {
  }
 
  application {
-     mainClass = "klik.Klik_trick"
+     mainClass = "klik.Klik_application"
  }
 
 compileJava {
@@ -40,14 +90,15 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
     // for face recognition: gson is used to serialise the feature vectors between the python server and this app
     implementation 'com.google.code.gson:gson:2.13.1'
+    // for writing png files without AWT
+    implementation 'ar.com.hjg:pngj:2.1.0'
 
-    implementation("org.openjfx:javafx-fxml:17.0.2")
-    implementation("org.openjfx:javafx-base:17.0.2")
-    implementation("org.openjfx:javafx-graphics:17.0.2")
-    implementation("org.openjfx:javafx-controls:17.0.2")
-    implementation("org.openjfx:javafx-swing:17.0.2")
-    implementation("org.openjfx:javafx-media:17.0.2")
-    implementation("org.openjfx:javafx-web:17.0.2")
+    implementation("org.openjfx:javafx-fxml:23.0.2")
+    implementation("org.openjfx:javafx-base:23.0.2")
+    implementation("org.openjfx:javafx-graphics:23.0.2")
+    implementation("org.openjfx:javafx-controls:23.0.2")
+    implementation("org.openjfx:javafx-media:23.0.2")
+    implementation("org.openjfx:javafx-web:23.0.2")
 }
 
 
@@ -55,8 +106,8 @@ shadowJar {
     archiveFileName.set("klik.jar")
     manifest {
         attributes(
-                'Main-Class': 'klik.Klik_trick',
-                'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml','javafx.swing','javafx.media', 'javafx.web']
+                'Main-Class': 'klik.Klik_application',
+                'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
         )
     }
     mergeServiceFiles()
@@ -69,28 +120,13 @@ run{
     jvmArgs = ['--enable-preview']
 }
 
-//goes with: id 'org.graalvm.buildtools.native' version '0.11.0'
+gluonfx {
+ target = "$target"
+ bundlesList =  ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml','javafx.media', 'javafx.web']
+ resourcesList = ['.*\\\\.properties$']
 
-/*
-graalvmNative {
-    binaries.all {
-        resources.autodetect()
-    }
-    agent {
-        enabled = true
-    }
-    binaries {
-        main {
-            mainClass = 'klik.Klik_trick'
-            buildArgs.add('--link-at-build-time')
-            useFatJar = true
-            buildArgs.addAll([
-                    '--module-path', '/Users/philippegentric/Kode/java/javafx-sdk-17.0.2/lib',
-                    '--add-modules', 'javafx.base,javafx.graphics,javafx.controls,javafx.fxml'
-            ])
-        }
-    }
 }
-*/
+
+
 
 

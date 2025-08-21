@@ -122,6 +122,7 @@ import java.nio.file.Path;
 public class Klik_application extends Application
 //**********************************************************
 {
+    public static Application application;
     public static long start_time; // used to compute the time since the application started
     private final static String name = "Klik_application";
 
@@ -142,6 +143,7 @@ public class Klik_application extends Application
     public void start(Stage primary_stage_) throws Exception
     //**********************************************************
     {
+        application = this;
         Sys_init.init(name, primary_stage_);
         Logger logger = Logger_factory.get(name);
 

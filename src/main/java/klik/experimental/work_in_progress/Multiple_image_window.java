@@ -207,7 +207,7 @@ public class Multiple_image_window
 
     private void method_2(double size)
     {
-        Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) size);
+        Optional<Image_context> option = Optional.empty();//get_Image_context_with_alternate_rescaler((int) size);
         if (option.isEmpty()) return;
         option.get().the_image_view.fitWidthProperty().bind(scene.widthProperty().divide(2));
         option.get().the_image_view.fitHeightProperty().bind(scene.heightProperty());
@@ -216,7 +216,7 @@ public class Multiple_image_window
         logger.log("added:" + option.get().path.getFileName());
     }
 
-
+/*
     //**********************************************************
     private Optional<Image_context> get_Image_context_with_alternate_rescaler(int width)
     //**********************************************************
@@ -228,7 +228,7 @@ public class Multiple_image_window
         return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, null, aborter, logger);
 
     }
-
+*/
 
     //**********************************************************
     void set_background()

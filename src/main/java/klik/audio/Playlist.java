@@ -31,7 +31,6 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 
-import javax.swing.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -632,10 +631,7 @@ public class Playlist
     void choose_playlist_file_name()
     //**********************************************************
     {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileHidingEnabled(false); // reason to use SWING !!!
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if (saving_dir == null)
+         if (saving_dir == null)
         {
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             saving_dir = new File(home, "playlists");
@@ -647,11 +643,8 @@ public class Playlist
                 }
             }
         }
-        chooser.setCurrentDirectory(saving_dir.getParentFile());
-        chooser.setSelectedFile(saving_dir);
-        int status = chooser.showOpenDialog(null);
-        if (status != JFileChooser.APPROVE_OPTION) return;
-        saving_dir = chooser.getSelectedFile();
+
+        saving_dir = File_chooser.show_dialog_for_folder_selection("Choose folder for playlist",saving_dir.toPath(), owner, logger).toFile();
         Platform.runLater(() -> choose_playlist_name());
     }
 

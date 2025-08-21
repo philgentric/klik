@@ -130,13 +130,16 @@ public class Launcher extends Application implements UI_change
         stage.setScene(scene);
         stage.show();
 
-        OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        System.out.println("\nPhysical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
+        // gluon issue with:
+        //OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        //System.out.println("\nPhysical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
 
 
         long current = Non_booleans_properties.get_java_VM_max_RAM(stage,logger);
 
-        if ( current > b.getTotalPhysicalMemorySize()/1_000_000_000 )
+        // GLUON TODO
+        //if ( current > b.getTotalPhysicalMemorySize()/1_000_000_000 )
+        if ( current > 55 )
         {
             // not realistic
             use_default_max_RAM(stage,logger);
@@ -165,9 +168,10 @@ public class Launcher extends Application implements UI_change
     private void use_default_max_RAM(Stage stage, Logger logger)
     //**********************************************************
     {
-        OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        long current = b.getTotalPhysicalMemorySize() * 80 / 100;
-        current = current / 1_000_000_000;
+        //OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        //long current = b.getTotalPhysicalMemorySize() * 80 / 100;
+        //current = current / 1_000_000_000;
+        long current = 50;
         Non_booleans_properties.save_java_VM_max_RAM((int)current, stage, logger);
         logger.log("Setting the max RAM to 80% of the physical RAM on this machine: "+current+" GBytes");
     }

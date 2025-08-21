@@ -37,7 +37,7 @@ import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Show_running_film_frame;
 
-import javax.swing.*;
+//import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -1043,7 +1043,8 @@ public class Audio_player_FX_UI
         // need to do it on swing event thread
         // as we use fileChooser to be able to display hidden folders
         Runnable r = () -> playlist.choose_playlist_file_name();
-        SwingUtilities.invokeLater(r);
+        //SwingUtilities.invokeLater(r);
+        Platform.runLater(r);
     }
 
     //**********************************************************

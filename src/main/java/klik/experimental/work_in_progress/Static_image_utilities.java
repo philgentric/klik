@@ -2,21 +2,20 @@ package klik.experimental.work_in_progress;
 
 //import javafx.embed.swing.SwingFXUtils;
 
-import javafx.scene.image.WritableImage;
-import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.browser.icons.JavaFX_to_Swing;
+import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLineByte;
+import ar.com.hjg.pngj.PngWriter;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+//import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.Image_context;
-import klik.look.Jar_utils;
-import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 
 //**********************************************************
@@ -26,6 +25,51 @@ public class Static_image_utilities
 
     private static final boolean dbg = false;
 
+    //**********************************************************
+    public static void write_png_to_disk(Image image, File out_file, String tag, Logger logger)
+    //**********************************************************
+    {
+
+        int w = (int) image.getWidth();
+        int h = (int) image.getHeight();
+        PixelReader pr = image.getPixelReader();
+        if (pr == null) throw new IllegalArgumentException("Image has no pixels");
+
+        ImageInfo image_info = new ImageInfo(w, h, 8, true); // 8-bit RGBA
+
+        Path out_path = out_file.toPath();
+        try
+        {
+            OutputStream os = Files.newOutputStream(out_path);
+            PngWriter png = new PngWriter(os, image_info);
+
+            ImageLineByte line = new ImageLineByte(image_info);
+            byte[] scan = line.getScanlineByte();
+
+            for (int y = 0; y < h; y++)
+            {
+                int idx = 0;
+                for (int x = 0; x < w; x++)
+                {
+                    int argb = pr.getArgb(x, y);
+                    // PNG expects RGBA
+                    scan[idx++] = (byte) ((argb >> 16) & 0xFF); // R
+                    scan[idx++] = (byte) ((argb >> 8)  & 0xFF); // G
+                    scan[idx++] = (byte) ( argb        & 0xFF); // B
+                    scan[idx++] = (byte) ((argb >> 24) & 0xFF); // A
+                }
+                png.writeRow(line, y);
+            }
+            png.end();
+        }
+        catch (IOException e)
+        {
+            logger.log("Icon_writer_actor: Error writing icon to cache: " + e.getMessage() + " for tag: " + tag);
+        }
+        if ( dbg) logger.log("Icon_writer_actor: Icon written to cache: ");
+    }
+
+/*
     //**********************************************************
     public static Optional<Image_context> get_Image_context_with_alternate_rescaler(Path path_, double width, Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
@@ -44,6 +88,7 @@ public class Static_image_utilities
         WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,(int)width,true,logger_);
         return Optional.of(new Image_context(path_,path_,resized_image,logger_));
     }
+
     //**********************************************************
     public static WritableImage transform_with_alternate_rescaler(
             javafx.scene.image.Image in,
@@ -140,31 +185,6 @@ public class Static_image_utilities
 
 
 
-        /*
-         * The RENDERING hint is a general hint that provides a high level recommendation
-         * as to whether to bias algorithm choices more for speed or quality when
-         * evaluating tradeoffs. This hint could be consulted for any rendering
-         * or image manipulation operation, but decisions will usually honor other,
-         * more specific hints in preference to this hint.
-         */
-
-        /*
-         * The INTERPOLATION hint controls how image pixels are filtered or resampled
-         * during an image rendering operation.
-         * Implicitly images are defined to provide color samples at integer coordinate
-         * locations. When images are rendered upright with no scaling onto a destination,
-         * the choice of which image pixels map to which device pixels is obvious and the
-         * samples at the integer coordinate locations in the image are transfered to the
-         * pixels at the corresponding integer locations on the device pixel grid one for
-         * one. When images are rendered in a scaled, rotated, or otherwise transformed
-         * coordinate system, then the mapping of device pixel coordinates back to the
-         * image can raise the question of what color sample to use for the continuous
-         * coordinates that lie between the integer locations of the provided image
-         * samples. Interpolation algorithms define functions which provide a color
-         * sample for any continuous coordinate in an image based on the color samples
-         * at the surrounding integer coordinates.
-         */
-
         String quality = null;
         if (quality_bool) {
             quality = "Quality ";
@@ -194,11 +214,11 @@ public class Static_image_utilities
 			Image_cache.clear_all(true);
 			return false;
 		}
-		*/
+
         return true;
     }
 
-    /*
+
     // reads the exif data and DRAWS a properly rotated and scaled
     // copy of the image
     // uses the rotation extracted from EXIF
@@ -350,7 +370,7 @@ public class Static_image_utilities
         ic.set_quality(quality);
         return true;
     }
-*/
+
     //**********************************************************
     public static double compute_scale(
             int display_area_width,
@@ -370,7 +390,7 @@ public class Static_image_utilities
 
         return s;
     }
-
+*/
 
 
 }

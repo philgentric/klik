@@ -25,7 +25,7 @@ public class Guess_file_type
     private static final String GIF = "GIF";
     private static final String PNG = "PNG";
     public static final String PDF = "PDF";
-    private static final String[] supported_image_formats = ImageIO.getReaderFormatNames();
+    private static final String[] supported_image_formats = {"BMP","GIF","JPEG","JPG","PNG"};//ImageIO.getReaderFormatNames();
     private static final String[] supported_text_formats = {"TXT","NFO","RTF","MD","PY","C","C++","CPP","JAVA","JS","HTML"};
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"WAV","AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};

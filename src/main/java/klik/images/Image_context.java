@@ -29,7 +29,7 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
 
-import java.awt.Desktop;
+//import java.awt.Desktop;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -176,11 +176,14 @@ public class Image_context
     void edit(Window owner)
     //**********************************************************
     {
-        Desktop desktop = Desktop.getDesktop();
-        logger.log("asking desktop to EDIT: " + path.getFileName());
-        try
+        //logger.log("asking desktop to EDIT: " + path.getFileName());
+        logger.log("asking desktop to open: " + path.getFileName());
+        //try
         {
-            desktop.edit(path.toFile());
+            System_open_actor.open_with_system(owner,path, new Aborter("edit",logger), logger);
+
+            //Desktop desktop = Desktop.getDesktop();
+            //desktop.edit(path.toFile());
 
             // we want the UI to refresh if the file is modified
             // we do not know when the edition will end so we need to start a watcher
@@ -199,10 +202,11 @@ public class Image_context
             {
                 logger.log("Warning: cannot start monitoring: "+path);
             }
-        } catch (IOException e)
+        }
+        /*catch (IOException e)
         {
             logger.log_stack_trace(e.toString());
-        }
+        }*/
     }
 
     //**********************************************************
@@ -414,9 +418,11 @@ public class Image_context
 
 
     //**********************************************************
-    void open()
+    void open(Image_window image_window)
     //**********************************************************
     {
+        System_open_actor.open_with_system(image_window.stage,path, new Aborter("open",logger), logger);
+        /*
         Desktop d = Desktop.getDesktop();
         logger.log("asking desktop to OPEN: " + path.getFileName());
         try
@@ -425,7 +431,7 @@ public class Image_context
         } catch (IOException e)
         {
             logger.log("open error:" + e);
-        }
+        }*/
     }
 
 

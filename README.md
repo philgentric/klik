@@ -163,7 +163,7 @@ Klik comes with a few look-and-feels, and they are customisable using CSS (Casca
 
 You can easily rename things (folders and files). In Image mode type "r".
 
-Klik remembers all settings (in a human-readable file called klik_properties.txt).
+Klik remembers all settings (in a human-readable file called klik.properties).
 
 Klik tells you how many files, folders and pictures a folder contains, as well as the size on disk.
 
@@ -208,7 +208,7 @@ Q: It says **java** not found?
 A: klik requires java, you need to install it, look for the minimum version in the installation instructions: Klik requires a super recent version at least 23.
 
 Q: It says **gradle** not found?  
-A: klik requires gradle (for expert users: klik also supports jbang)
+A: klik requires gradle (for expert users: klik also supports jbang and the mill)
 
 Q: Why don't you use gradlew?
 A: Failures have been reported
@@ -250,7 +250,7 @@ Q: Why should I edit the configuration file?
 A: To look for easter eggs (there used to be quite a few).
 
 Q: How can I edit the configuration file?  
-A: The file name is klik_properties.txt, it is located in the .klik folder in your home folder.
+A: The file name is klik.properties, it is located in the .klik folder in your home folder.
 
 Q: When I start the audio player, all (or some of) my songs are gone?
 A: Typically, this happens because you moved your music to a different folder. Drop that folder on the audio player drop area, the songs will be reloaded and your playlists will be updated.

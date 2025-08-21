@@ -1,6 +1,6 @@
 //SOURCES ./caching/Cache_interface.java
 //SOURCES ./caching/Image_cache_cafeine.java
-//SOURCES ./caching/Image_cache_dummy.java
+//SOURCES ./caching/Image_cache_linkedhashmap.java
 //SOURCES ../experimental/work_in_progress/Static_image_utilities.java
 
 package klik.images;
@@ -17,11 +17,10 @@ import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.images.caching.Image_cache_linkedhashmap;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Cache_interface;
 import klik.images.caching.Image_cache_cafeine;
-import klik.images.caching.Image_cache_dummy;
-import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
 import klik.util.files_and_paths.From_disk;
@@ -41,7 +40,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public static final boolean use_image_caching = true;
+    public static final boolean use_caffeine = false;
 
     public final Image_window image_window;
     public final Logger logger;
@@ -52,7 +51,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     private Optional<Image_context> image_context;
 
     // alternate rescaler:
-    boolean alternate_rescaler = false;
+    //boolean alternate_rescaler = false;
     public final Aborter aborter;
 
 
@@ -78,8 +77,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Optional<Image_context> image_context_;
         if (use_alternate_rescaler)
         {
-            System.out.println("high quality is ON");
-            image_context_ = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, 800, owner, aborter, logger_);
+            logger_.log("Alternate rescaler not implemented");
+            return Optional.empty();
+            //System.out.println("high quality is ON");
+            //image_context_ = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, 800, owner, aborter, logger_);
         }
         else
         {
@@ -104,28 +105,19 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Change_gang.register(this,aborter,logger); // image_context must be valid!
 
 
-        if ( use_image_caching)
+        long remaining_RAM = From_disk.get_remaining_memory();
+        int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
+        int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
+        int forward_size = cache_slots/2;
+        if ( forward_size > 10) forward_size = 10;
+        //logger.log("cache_slots="+cache_slots);
+        if ( use_caffeine)
         {
-            long remaining_RAM = From_disk.get_remaining_memory();
-            int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
-            int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
-            //logger.log("cache_slots="+cache_slots);
-            if( cache_slots < 3)
-            {
-                image_cache = new Image_cache_dummy(logger);
-            }
-            else
-            {
-                int forward_size = cache_slots/2;
-                if ( forward_size > 10) forward_size = 10;//Image_decoding_actor_for_cache.CACHE_SIZE;
-                //logger.log("forward_size="+forward_size);
-
-                image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
-            }
+            image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
         }
         else
         {
-            image_cache = new Image_cache_dummy(logger);
+            image_cache = new Image_cache_linkedhashmap(forward_size,aborter,logger);
         }
 
 
@@ -143,11 +135,11 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     {
         Optional<Image_context> image_context;
-        if (alternate_rescaler)
+        /*if (alternate_rescaler)
         {
             image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_window.stage.getWidth(), owner, image_window.aborter,logger);
         }
-        else
+        else*/
         {
             image_context = Image_context.get_Image_context(path,owner,aborter, logger);
         }

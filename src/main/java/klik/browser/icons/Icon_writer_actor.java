@@ -1,15 +1,28 @@
 package klik.browser.icons;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
+import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.util.log.Logger;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+//import javax.imageio.ImageIO;
+//import java.awt.*;
+//import java.awt.image.BufferedImage;
+//import java.io.File;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+
+import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLineByte;
+import ar.com.hjg.pngj.PngWriter;
+
 
 /*
  * this actor accepts icons and writes them to the disk cache
@@ -40,37 +53,6 @@ public class Icon_writer_actor implements Actor
 	//**********************************************************
 	{
 		Actor_engine.run(this, ii, null,logger);
-	}
-
-	//**********************************************************
-	public void write_icon_to_cache_on_disk(Icon_write_message iwm)
-	//**********************************************************
-	{
-		try
-		{
-			//	BufferedImage bim = SwingFXUtils.fromFXImage(iwm.image, null);
-			BufferedImage bim = JavaFX_to_Swing.fromFXImage(iwm.image, null, logger);
-			if ( bim == null)
-			{
-				logger.log("write_icon_to_cache_on_disk JavaFX_to_Swing.fromFXImage failed for "+iwm.tag);
-				return;
-			}
-			if (iwm.get_aborter().should_abort()) return;
-			boolean status = ImageIO.write(bim, "png", new File(
-					cache_dir.toFile(),
-					make_cache_name(iwm.tag,String.valueOf(iwm.icon_size), iwm.extension))
-			);
-
-			if ( !status )
-			{
-				logger.log("Icon_writer: ImageIO.write returns false for: "+iwm.tag);
-			}
-		}
-		catch(Exception e)
-		{
-			logger.log("Icon_writer exception (1) ="+e+" path="+iwm.tag);
-		}
-		//logger.log("Icon_writer OK for path="+iwm.original_path+" png done");
 	}
 
 
@@ -132,5 +114,45 @@ public class Icon_writer_actor implements Actor
 		return "icon written";
 	}
 
+    //**********************************************************
+    public void write_icon_to_cache_on_disk(Icon_write_message iwm)
+    //**********************************************************
+    {
+        File out_file = new File(cache_dir.toFile(),
+                make_cache_name(iwm.tag,String.valueOf(iwm.icon_size), iwm.extension));
+        Static_image_utilities.write_png_to_disk(iwm.image, out_file, iwm.tag, logger);
+    }
 
+
+    /*
+    //**********************************************************
+    public void write_icon_to_cache_on_disk(Icon_write_message iwm)
+    //**********************************************************
+    {
+		try
+		{
+			BufferedImage bim = JavaFX_to_Swing.fromFXImage(iwm.image, null, logger);
+			if ( bim == null)
+			{
+				logger.log("write_icon_to_cache_on_disk JavaFX_to_Swing.fromFXImage failed for "+iwm.tag);
+				return;
+			}
+			if (iwm.get_aborter().should_abort()) return;
+			boolean status = ImageIO.write(bim, "png", new File(
+					cache_dir.toFile(),
+					make_cache_name(iwm.tag,String.valueOf(iwm.icon_size), iwm.extension))
+			);
+
+			if ( !status )
+			{
+				logger.log("Icon_writer: ImageIO.write returns false for: "+iwm.tag);
+			}
+		}
+		catch(Exception e)
+		{
+			logger.log("Icon_writer exception (1) ="+e+" path="+iwm.tag);
+		}
+		//logger.log("Icon_writer OK for path="+iwm.original_path+" png done");
+	}
+*/
 }

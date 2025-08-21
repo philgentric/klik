@@ -280,7 +280,7 @@ public class Menus_for_image_window
         open.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().open();
+            image_window.image_display_handler.get_image_context().get().open(image_window);
         });
         return open;
     }

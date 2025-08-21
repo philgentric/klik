@@ -28,6 +28,11 @@ public class Keyboard_handling_for_Image_window
             Logger logger)
     //**********************************************************
     {
+        if ( image_window.image_display_handler == null)
+        {
+            logger.log("Image_window.image_display_handler is null, cannot handle keyboard event");
+            return;
+        }
 
         boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Feature.Use_escape_to_close_windows.name(), image_window.stage);
 
@@ -194,7 +199,7 @@ public class Keyboard_handling_for_Image_window
                 if (keyboard_dbg) logger.log("o like open ");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().open();
+                image_window.image_display_handler.get_image_context().get().open(image_window);
                 key_event.consume();
                 return;
             }

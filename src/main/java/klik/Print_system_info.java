@@ -31,10 +31,11 @@ public class Print_system_info
     private static void show_runtime_properties()
     //**********************************************************
     {
+        // gluon issues with:
+        //OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        //System.out.println("Physical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
 
-        OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         System.out.println("\n\nNumber of cores: "+Runtime.getRuntime().availableProcessors());
-        System.out.println("Physical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
         System.out.println("Java VM max RAM for klik: "+(int)(Runtime.getRuntime().maxMemory()/1_000_000_000.0)+" GBytes (reported by Runtime.maxMemory()");
         //System.out.println("Java VM current RAM for klik: "+(int)(Runtime.getRuntime().totalMemory()/1_000_000_000.0)+" GBytes");
         //System.out.println("Java VM currently free RAM for klik: "+(int)(Runtime.getRuntime().freeMemory()/1_000_000_000.0)+" GBytes");

@@ -1,13 +1,16 @@
 package klik.util.execute;
 
+import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
+import klik.util.files_and_paths.File_chooser;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
 import javax.swing.*;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -43,6 +46,22 @@ public class Registered_applications
         // JFileChooser will work "only once" if it is not called on the Swing thread
         String finalExtension = extension;
         SwingUtilities.invokeLater(() -> {
+            FileChooser file_chooser = new FileChooser();
+            file_chooser.setTitle("Please select the application to open files with the extension " + finalExtension);
+            Path home = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
+            file_chooser.setInitialDirectory(home.toFile());
+            File selected = file_chooser.showOpenDialog(owner);
+            if (selected == null) {
+                queue.add(USER_CANCELLED);
+                return;
+            }
+            map.put(finalExtension, selected.getAbsolutePath());
+            save_map(logger);
+            queue.add(selected.getAbsolutePath());
+
+
+
+            /*
                     JFileChooser app_chooser = new JFileChooser();
                     app_chooser.setDialogTitle("Please select the application to open files with the extension " + finalExtension);
                     app_chooser.setFileHidingEnabled(false);
@@ -56,6 +75,8 @@ public class Registered_applications
                         queue.add(app_chooser.getSelectedFile().getAbsolutePath());
                     }
                     queue.add(USER_CANCELLED);
+
+             */
         });
 
         // wait max 10 minutes

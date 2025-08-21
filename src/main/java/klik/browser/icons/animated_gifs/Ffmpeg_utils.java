@@ -33,7 +33,7 @@ import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame_with_abort_button;
 
-import javax.swing.*;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -402,25 +402,12 @@ public class Ffmpeg_utils
             save_same.setDisable(true);
             vb.getChildren().add(save_same);
 
-            // reason to use SWING is because JFileChooser allows hidden folders
-            save.setOnAction(actionEvent -> SwingUtilities.invokeLater(() -> {
-                JFileChooser  dir_chooser = new JFileChooser();
-                dir_chooser.setDialogTitle("Choose folder");
-                dir_chooser.setFileHidingEnabled(false);
-                dir_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                if ( gif_saving_dir != null)
-                {
-                    dir_chooser.setCurrentDirectory(gif_saving_dir.getParentFile());
-                    dir_chooser.setSelectedFile(gif_saving_dir);
-                }
-                int status = dir_chooser.showOpenDialog(null);
-                if (status == JFileChooser.APPROVE_OPTION)
-                {
-                    gif_saving_dir = dir_chooser.getSelectedFile();
-                    save_same.setDisable(false);
-                    save_now(owner,new Aborter("interactive",logger),logger);
-                }
-            }));
+            save.setOnAction(actionEvent ->
+            {
+                gif_saving_dir = File_chooser.show_dialog_for_folder_selection("Choose folder to save animated gifs", gif_saving_dir.toPath(), the_stage, logger).toFile();
+                save_now(the_stage,new Aborter("interactive",logger),logger);
+            });
+
             save_same.setOnAction(actionEvent -> {
                 if (gif_saving_dir== null) return;
                 save_now(owner,new Aborter("interactive",logger),logger);
@@ -627,4 +614,7 @@ public class Ffmpeg_utils
         if ( image == null) logger.log("image==null");
         else the_imageview.setImage(image);
     }
+
+
+
 }

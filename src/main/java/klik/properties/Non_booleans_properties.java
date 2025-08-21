@@ -53,7 +53,7 @@ public class Non_booleans_properties
 
     public static final String USER_HOME = "user.home";
     public static final String CONF_DIR = ".klik";
-    public static final String PROPERTIES_FILENAME = "klik_properties.txt";
+    public static final String PROPERTIES_FILENAME = "klik.properties";
     public static final String TRASH_DIR = "klik_trash";
     public static final String FACE_RECO_DIR = "face_reco";
     private static final String AUDIO_PLAYER_CURRENT_SONG = "AUDIO_PLAYER_CURRENT_SONG";

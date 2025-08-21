@@ -6,6 +6,8 @@ import klik.Klik_application;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
+import javax.imageio.IIOException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -35,6 +37,33 @@ public class Jar_utils
         }
         return image;
     }
+
+
+    //**********************************************************
+    public static byte[] load_image_bytes_from_jar(String image_file_path,Logger logger)
+    //**********************************************************
+    {
+        InputStream s = get_jar_InputStream_by_name(image_file_path);
+        if ( s == null)
+        {
+            logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
+            return null;
+        }
+
+        try
+        {
+            // Read the stream into a byte array
+            byte[] icon_bytes = new byte[s.available()];
+            s.read(icon_bytes);
+            return icon_bytes;
+        }
+        catch (IOException e)
+        {
+            logger.log("WARNING: an error occurred when reading: " + image_file_path + " " + e.getMessage());
+            return null;
+        }
+    }
+
 
 
     //**********************************************************

@@ -9,7 +9,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Icon_writer_actor;
-import klik.browser.icons.JavaFX_to_Swing;
+//import klik.browser.icons.JavaFX_to_Swing;
 import klik.images.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klik.images.decoding.Fast_width_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
@@ -22,10 +22,10 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
+//import javax.imageio.ImageIO;
+//import java.awt.*;
+//import java.awt.geom.AffineTransform;
+//import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -208,7 +208,7 @@ public class From_disk
 
     }
 
-    private static boolean use_ImageIO = false;
+    //private static boolean use_ImageIO = false;
     // this call RESIZES to the target icon size
 
     //private static long elapsed_read_original_image_from_disk_and_return_icon =0;
@@ -230,6 +230,7 @@ public class From_disk
                 if ( dbg) logger.log("read_original_image_from_disk_and_return_icon aborted");
                 return null;
             }
+            /*
             if ( use_ImageIO)
             {
                 //logger.log("using ImageIO");
@@ -267,7 +268,7 @@ public class From_disk
                 g_for_returned_image.drawRenderedImage(ii, trans);
                 image = JavaFX_to_Swing.toFXImage(sink_bi,null);
             }
-            else
+            else*/
             {
                 //logger.log("using javafx Image");
                 image = new Image(input_stream, icon_size, icon_size, true, true);
