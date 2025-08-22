@@ -1,6 +1,7 @@
 package klik.look;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelFormat;
 import javafx.stage.Window;
 import klik.Klik_application;
 import klik.util.log.Logger;
@@ -40,7 +41,42 @@ public class Jar_utils
 
 
     //**********************************************************
-    public static byte[] load_image_bytes_from_jar(String image_file_path,Logger logger)
+    public static byte[] load_image_bytes_from_jar0(String image_file_path,Window owner, Logger logger)
+    //**********************************************************
+    {
+        InputStream s = get_jar_InputStream_by_name(image_file_path);
+        if ( s == null)
+        {
+            logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
+            return null;
+        }
+
+        int icon_size = 128;
+        Image image = new Image(s, icon_size, icon_size, true, true);
+        if (image.isError())
+        {
+            logger.log("WARNING: an error occurred when reading: " + image_file_path);
+            image = get_broken_icon(icon_size, owner,logger);
+        }
+        // convert Image to byte[]
+        // take the pixel reader
+
+        int w = (int)image.getWidth();
+        int h = (int)image.getHeight();
+
+// Create a new Byte Buffer, but we'll use BGRA (1 byte for each channel) //
+
+        byte[] buf = new byte[w * h * 4];
+
+/* Since you can get the output in whatever format with a WritablePixelFormat,
+   we'll use an already created one for ease-of-use. */
+
+        image.getPixelReader().getPixels(0, 0, w, h, PixelFormat.getByteBgraInstance(), buf, 0, w * 4);
+        return buf;
+    }
+
+    //**********************************************************
+    public static byte[] load_image_bytes_from_jar(String image_file_path, Window owner, Logger logger)
     //**********************************************************
     {
         InputStream s = get_jar_InputStream_by_name(image_file_path);

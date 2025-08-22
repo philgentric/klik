@@ -131,7 +131,8 @@ public class Launcher extends Application implements UI_change
         stage.setScene(scene);
         stage.show();
 
-        if ( no_gluon) {
+        if ( no_gluon)
+        {
             OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
             System.out.println("\nPhysical RAM on this machine: " + b.getTotalPhysicalMemorySize() / 1_000_000_000.0 + " GBytes");
         }

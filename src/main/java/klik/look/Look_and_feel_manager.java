@@ -36,6 +36,11 @@ import static java.awt.Taskbar.Feature.ICON_IMAGE;
 //import java.awt.image.BufferedImage;
 //import static java.awt.Taskbar.Feature.ICON_IMAGE;
 
+//import klik.browser.icons.JavaFX_to_Swing;
+//import java.awt.*;
+//import java.awt.image.BufferedImage;
+//import static java.awt.Taskbar.Feature.ICON_IMAGE;
+
 //**********************************************************
 public class Look_and_feel_manager
 //**********************************************************
@@ -1083,7 +1088,9 @@ public class Look_and_feel_manager
 
         if (Launcher.no_gluon)
         {
-            if (taskbar_icon != null) {
+            if (taskbar_icon != null)
+            {
+
                 if (Taskbar.isTaskbarSupported()) {
                     Taskbar task_bar = Taskbar.getTaskbar();
                     if (task_bar.isSupported(ICON_IMAGE)) {
@@ -1094,6 +1101,8 @@ public class Look_and_feel_manager
                         task_bar.setIconBadge(badge_text);
                     }
                 }
+
+
             }
         }
         else
@@ -1101,7 +1110,7 @@ public class Look_and_feel_manager
             // WARNING: trick for native builds on Mac
             // use JNI to set the Mac dock icon and badge
             logger.log("loading icon bytes for Mac dock");
-            byte[] icon_bytes = Jar_utils.load_image_bytes_from_jar(icon_path, logger);
+            byte[] icon_bytes = Jar_utils.load_image_bytes_from_jar(icon_path, owner, logger);
             logger.log(" icon bytes =" +icon_bytes.length);
             Macdock.setup_ext(badge_text,icon_bytes, logger);
         }
