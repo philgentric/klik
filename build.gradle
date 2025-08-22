@@ -1,6 +1,27 @@
 // Using gluon to build a native image
 /*
-prerequisites: download & install the gluon package (which is based on graalvm)
+prerequisites:
+
+1. make one tiny changes in the source, edit Launcher.java and set:
+
+public static final boolean no_gluon = false;
+
+2. compile the icon taskbar lib:
+
+clang -dynamiclib -fobjc-arc -framework Cocoa -I "$JAVA_HOME/include" -I "$JAVA_HOME/include/darwin" -o libmacdock.dylib src/main/native/macos/macdock.m
+
+check the name:
+nm -gU libmacdock.dylib
+and it should contain the following symbols:
+0000000000000710 T _Java_klik_look_Macdock_setup
+
+note that this trick does not fully solve the issue of the icon in the dock;
+it works when you launch from the top default repo folder,
+which is stupid if you want to distribute the binary standalone
+TODO: tweaking this file some more it should be possible to set the icon
+into the executable itself....
+
+3. download & install the gluon package (which is based on graalvm)
 for this: download the gluon package
 unzip it and on MAC, dont forget to remove the quarantine attribute:
 sudo xattr -r -d com.apple.quarantine /Users/philippegentric/Library/Java/JavaVirtualMachines/graalvm-java23-darwin-aarch64-gluon-23+25.1-dev
@@ -96,9 +117,22 @@ gluonfx {
  target = "$target"
  bundlesList =  ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml','javafx.media', 'javafx.web']
  resourcesList = ['.*\\\\.properties$']
-
+ //reflectionList = (reflectionList ?: []) + ['native-image/dragdrop/reflection-config.json']
 }
 
+task copyDyLib(type: Copy) {
+         from file("${projectDir}/libmacdock.dylib")
+         into "${buildDir}/libs"
+     }
+
+build.dependsOn(copyDyLib)
 
 
-
+jar {
+   manifest {
+      attributes('Main-Class': 'your.package.MainClass')
+   }
+   from("${buildDir}/libs") {
+         include 'macdock.dylib'
+   }
+}

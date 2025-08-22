@@ -76,7 +76,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Launcher extends Application implements UI_change
 //**********************************************************
 {
-
+    // set no_gluon to false to compile native with gluon
+    public static final boolean no_gluon = false;
     private final static String name = "Launcher";
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
@@ -130,10 +131,10 @@ public class Launcher extends Application implements UI_change
         stage.setScene(scene);
         stage.show();
 
-        // gluon issue with:
-        //OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        //System.out.println("\nPhysical RAM on this machine: "+b.getTotalPhysicalMemorySize()/1_000_000_000.0+" GBytes");
-
+        if ( no_gluon) {
+            OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            System.out.println("\nPhysical RAM on this machine: " + b.getTotalPhysicalMemorySize() / 1_000_000_000.0 + " GBytes");
+        }
 
         long current = Non_booleans_properties.get_java_VM_max_RAM(stage,logger);
 

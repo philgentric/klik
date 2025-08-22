@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Launcher;
 import klik.browser.Drag_and_drop;
 import klik.browser.icons.JavaFX_to_Swing;
 import klik.look.styles.Look_and_feel_custom_color;
@@ -41,7 +42,6 @@ public class Look_and_feel_manager
 {
     // https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
     private static final boolean dbg = false;
-    private static boolean use_awt_taskbar = false;
 
     public static final String MUSIC = "Music";
     public static final String LAUNCHER = "Launcher";
@@ -1081,7 +1081,8 @@ public class Look_and_feel_manager
             }
         }
 
-        if (use_awt_taskbar) {
+        if (Launcher.no_gluon)
+        {
             if (taskbar_icon != null) {
                 if (Taskbar.isTaskbarSupported()) {
                     Taskbar task_bar = Taskbar.getTaskbar();
@@ -1097,6 +1098,8 @@ public class Look_and_feel_manager
         }
         else
         {
+            // WARNING: trick for native builds on Mac
+            // use JNI to set the Mac dock icon and badge
             logger.log("loading icon bytes for Mac dock");
             byte[] icon_bytes = Jar_utils.load_image_bytes_from_jar(icon_path, logger);
             logger.log(" icon bytes =" +icon_bytes.length);

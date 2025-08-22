@@ -33,7 +33,8 @@ public class Image_cache_linkedhashmap implements Cache_interface
         cache = new LinkedHashMap<>(2*forward_size+1, 0.75f, true) {;
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, Image_context> eldest) {
-                if (size() > 2 * forward_size + 1) {
+                if (size() > 2 * forward_size + 1)
+                {
                     logger.log("Image_cache_linkedhashmap removing eldest entry: " + eldest.getKey());
                     return true;
                 }

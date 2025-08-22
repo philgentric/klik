@@ -428,6 +428,7 @@ public class Mouse_handling_for_Image_window
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
 
             Dragboard db = image_window.the_image_Pane.startDragAndDrop(TransferMode.MOVE);
+            //GLUON Dragboard db = image_window.the_image_Pane.startDragAndDrop(TransferMode.COPY);
 
             ClipboardContent content = new ClipboardContent();
             List<File> possibly_moved = new ArrayList<>();

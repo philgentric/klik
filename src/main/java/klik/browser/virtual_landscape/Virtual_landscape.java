@@ -371,6 +371,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
         });
 
+        {
+            // force pin classes so native image does not strip them
+            Class<?> a = javafx.scene.input.Dragboard.class;
+            Class<?> b = javafx.scene.input.ClipboardContent.class;
+            Class<?> c = javafx.scene.input.DataFormat.class;
+        }
         the_Scene.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_ultra_dbg) logger.log("Browser: OnDragOver handler called");
             selection_handler.on_drag_over();

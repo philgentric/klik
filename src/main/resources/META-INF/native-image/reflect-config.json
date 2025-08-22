@@ -1,2 +1,16 @@
 [
+  { "name": "javafx.scene.input.Dragboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "javafx.scene.input.Clipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "javafx.scene.input.ClipboardContent", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "com.sun.javafx.tk.TKClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.javafx.tk.quantum.QuantumClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.javafx.tk.quantum.QuantumClipboard$MimeType", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "com.sun.glass.ui.Clipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.glass.ui.ClipboardAssistance", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.glass.ui.SystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "com.sun.glass.ui.mac.MacClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.glass.ui.mac.MacSystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true }
 ]

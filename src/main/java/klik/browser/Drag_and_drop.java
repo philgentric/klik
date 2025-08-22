@@ -169,7 +169,9 @@ public class Drag_and_drop
         });
         node.setOnDragOver(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragOver RECEIVER SIDE");
+
             drag_event.acceptTransferModes(TransferMode.MOVE);
+            //GLUON drag_event.acceptTransferModes(TransferMode.COPY);
             Look_and_feel_manager.set_background_for_setOnDragOver(node,owner,logger);
             drag_event.consume();
         });
@@ -202,6 +204,7 @@ public class Drag_and_drop
         node.setOnDragDetected(drag_event -> {
             if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() drag detected SENDER SIDE");
             Dragboard db = node.startDragAndDrop(TransferMode.MOVE);
+            //GLUON Dragboard db = node.startDragAndDrop(TransferMode.COPY);
             ClipboardContent content = new ClipboardContent();
 
             List<File> ll = new ArrayList<>();
@@ -231,6 +234,7 @@ public class Drag_and_drop
 
         node.setOnDragDone(drag_event -> {
             if (drag_event.getTransferMode() == TransferMode.MOVE)
+            // GLUON if (drag_event.getTransferMode() == TransferMode.COPY)
             {
                 if (drag_and_drop_dbg) logger.log("Item.init_drag_and_drop() SENDER SIDE: setOnDragDone for " + path.toAbsolutePath());
                 /*

@@ -1,0 +1,13 @@
+[
+  {
+    "name": "com.sun.javafx.scene.input.DragboardHelper",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+    {
+        "name": "javafx.scene.input.Dragboard",
+        "allDeclaredConstructors": true,
+        "allDeclaredMethods": true
+    }
+]

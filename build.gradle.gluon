@@ -2,22 +2,9 @@
 /*
 prerequisites:
 
-1. make a few tiny changes in the source
+1. make one tiny changes in the source, edit Launcher.java and set:
 
-a. edit Image_display_handler.java and set:
-
-public static final boolean use_caffeine = false;
-
-(instead of true: reason, otherwise you will get a crash at run time
-when trying to display images)
-
-b. edit Look_and_feel_manager.java and set
-
-private static boolean use_taskbar = false;
-
-(instead of true: reason, otherwise you will get a crash at run time
-because the TaskBar class is based on AWT, and gluonfx does not support that,
-but only pure javafx, sadly)
+public static final boolean no_gluon = false;
 
 2. compile the icon taskbar lib:
 
@@ -27,6 +14,37 @@ check the name:
 nm -gU libmacdock.dylib
 and it should contain the following symbols:
 0000000000000710 T _Java_klik_look_Macdock_setup
+
+note that this trick does not fully solve the issue of the icon in the dock;
+it works when you launch from the top default repo folder,
+which is stupid if you want to distribute the binary standalone
+TODO: tweaking this file some more it should be possible to set the icon
+into the executable itself....
+
+3. for drag and drop to work edit the file:
+
+src/main/resources/META-INF/native-image/reflect-config.json
+
+add this:
+
+[
+  { "name": "javafx.scene.input.Dragboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "javafx.scene.input.Clipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "javafx.scene.input.ClipboardContent", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "com.sun.javafx.tk.TKClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.javafx.tk.quantum.QuantumClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.javafx.tk.quantum.QuantumClipboard$MimeType", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "com.sun.glass.ui.Clipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.glass.ui.ClipboardAssistance", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.glass.ui.SystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "com.sun.glass.ui.mac.MacClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.sun.glass.ui.mac.MacSystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true }
+]
+
+
 
 3. download & install the gluon package (which is based on graalvm)
 for this: download the gluon package
@@ -124,9 +142,23 @@ gluonfx {
  target = "$target"
  bundlesList =  ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml','javafx.media', 'javafx.web']
  resourcesList = ['.*\\\\.properties$']
-
+ //reflectionList = (reflectionList ?: []) + ['native-image/dragdrop/reflection-config.json']
 }
 
+task copyDyLib(type: Copy) {
+         from file("${projectDir}/libmacdock.dylib")
+         into "${buildDir}/libs"
+     }
+
+build.dependsOn(copyDyLib)
 
 
-
+// TODO: make this work
+jar {
+   manifest {
+      attributes('Main-Class': 'your.package.MainClass')
+   }
+   from("${buildDir}/libs") {
+         include 'macdock.dylib'
+   }
+}

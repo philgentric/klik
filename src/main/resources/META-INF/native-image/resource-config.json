@@ -1,0 +1,13 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\QMETA-INF\/services\/java.lang.System$LoggerFinder\\E"
+  },{
+    "pattern":"\\QMETA-INF\/services\/jdk.vm.ci.services.JVMCIServiceLocator\\E"
+  },{
+    "pattern":"java.base:\\Qsun\/launcher\/resources\/launcher_en.properties\\E"
+  },{
+    "pattern":"java.base:\\Qsun\/launcher\/resources\/launcher_en_US.properties\\E"
+  }]},
+  "bundles":[]
+}

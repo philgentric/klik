@@ -8,6 +8,7 @@ package klik.images;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
+import klik.Launcher;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -40,7 +41,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public static final boolean use_caffeine = false;
 
     public final Image_window image_window;
     public final Logger logger;
@@ -111,7 +111,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         int forward_size = cache_slots/2;
         if ( forward_size > 10) forward_size = 10;
         //logger.log("cache_slots="+cache_slots);
-        if ( use_caffeine)
+        if (Launcher.no_gluon)
         {
             image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
         }
