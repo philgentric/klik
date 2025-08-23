@@ -60,7 +60,7 @@
 //DEPS info.picocli:picocli:4.6.3
 //DEPS info.picocli:picocli-codegen:4.6.3
 
-//SOURCES ./Print_system_info.java
+//SOURCES ./System_info.java
 //SOURCES actor/Aborter.java
 //SOURCES browser/classic/Browser.java
 //SOURCES New_window_context.java
@@ -105,13 +105,9 @@ package klik;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import klik.browser.*;
-import klik.properties.boolean_features.Feature;
-import klik.properties.boolean_features.Feature_cache;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
-import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 import klik.util.tcp.TCP_client;
@@ -157,7 +153,7 @@ public class Klik_application extends Application
             System.exit(0);
         });
 
-        Print_system_info.print();
+        System_info.print();
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 

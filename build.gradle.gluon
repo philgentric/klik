@@ -85,18 +85,12 @@ java {
      mavenCentral()
  }
 
- application {
-     mainClass = "klik.Klik_application"
- }
+
 
 compileJava {
     options.compilerArgs.add('--enable-preview')
 }
 
-
-repositories {
-    mavenCentral()
-}
 
 
 dependencies {
@@ -119,7 +113,7 @@ dependencies {
     implementation("org.openjfx:javafx-web:23.0.2")
 }
 
-
+/*
 shadowJar {
     archiveFileName.set("klik.jar")
     manifest {
@@ -130,7 +124,7 @@ shadowJar {
     }
     mergeServiceFiles()
 }
-
+*/
 
 run{
     standardInput = System.in
@@ -162,3 +156,22 @@ jar {
          include 'macdock.dylib'
    }
 }
+
+application {
+  mainClass = "klik.Klik_application"
+}
+
+ tasks.register('launcher', JavaExec) {
+     dependsOn 'classes'
+     mainClass = 'klik.Launcher'
+     classpath(sourceSets.main.runtimeClasspath)
+     group = 'applications'
+ }
+
+ tasks.register('audio_player', JavaExec) {
+     dependsOn 'classes'
+     mainClass = 'klik.audio.Audio_player_application'
+     classpath = sourceSets.main.runtimeClasspath
+     group = 'applications'
+     return
+ }

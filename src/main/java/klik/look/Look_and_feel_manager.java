@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Launcher;
 import klik.browser.Drag_and_drop;
-import klik.browser.icons.JavaFX_to_Swing;
 import klik.look.styles.Look_and_feel_custom_color;
 import klik.look.styles.Look_and_feel_light;
 import klik.properties.Non_booleans_properties;
@@ -26,20 +25,6 @@ import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
-import static java.awt.Taskbar.Feature.ICON_IMAGE;
-
-//import klik.browser.icons.JavaFX_to_Swing;
-//import java.awt.*;
-//import java.awt.image.BufferedImage;
-//import static java.awt.Taskbar.Feature.ICON_IMAGE;
-
-//import klik.browser.icons.JavaFX_to_Swing;
-//import java.awt.*;
-//import java.awt.image.BufferedImage;
-//import static java.awt.Taskbar.Feature.ICON_IMAGE;
 
 //**********************************************************
 public class Look_and_feel_manager
@@ -1086,33 +1071,18 @@ public class Look_and_feel_manager
             }
         }
 
-        if (Launcher.no_gluon)
-        {
-            if (taskbar_icon != null)
-            {
-
-                if (Taskbar.isTaskbarSupported()) {
-                    Taskbar task_bar = Taskbar.getTaskbar();
-                    if (task_bar.isSupported(ICON_IMAGE)) {
-                        BufferedImage bim = JavaFX_to_Swing.fromFXImage(taskbar_icon, null, logger);
-                        task_bar.setIconImage(bim);
-                    }
-                    if (task_bar.isSupported(Taskbar.Feature.ICON_BADGE_TEXT)) {
-                        task_bar.setIconBadge(badge_text);
-                    }
-                }
-
-
-            }
-        }
-        else
+        if (Launcher.gluon)
         {
             // WARNING: trick for native builds on Mac
-            // use JNI to set the Mac dock icon and badge
+            // uses JNI to set the Mac dock icon and badge
             logger.log("loading icon bytes for Mac dock");
             byte[] icon_bytes = Jar_utils.load_image_bytes_from_jar(icon_path, owner, logger);
             logger.log(" icon bytes =" +icon_bytes.length);
             Macdock.setup_ext(badge_text,icon_bytes, logger);
+        }
+        else
+        {
+            My_taskbar_icon.set(taskbar_icon,badge_text,logger);
         }
     }
 

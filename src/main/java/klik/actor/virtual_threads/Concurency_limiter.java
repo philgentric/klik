@@ -1,5 +1,6 @@
 package klik.actor.virtual_threads;
 
+import klik.System_info;
 import klik.util.log.Logger;
 
 import java.util.concurrent.Semaphore;
@@ -28,7 +29,7 @@ public class Concurency_limiter
 
     public Concurency_limiter(String origin, double max_number_of_threads_per_core, Logger logger)
     {
-        int permits = (int)(max_number_of_threads_per_core*(double)(Runtime.getRuntime().availableProcessors()));
+        int permits = (int)(max_number_of_threads_per_core*(double)(System_info.how_many_cores()));
         if ( permits < 2) permits = 2;
         //logger.log(Stack_trace_getter.get_stack_trace("CREATING NEW Concurency_limiter for:"+origin+" has "+permits+" permits"));
         concurrency_limiter = new Semaphore(permits);

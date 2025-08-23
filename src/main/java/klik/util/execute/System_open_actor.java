@@ -15,7 +15,6 @@ import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
 
-//import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;

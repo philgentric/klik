@@ -111,13 +111,13 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         int forward_size = cache_slots/2;
         if ( forward_size > 10) forward_size = 10;
         //logger.log("cache_slots="+cache_slots);
-        if (Launcher.no_gluon)
+        if (Launcher.gluon)
         {
-            image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
+            image_cache = new Image_cache_linkedhashmap(forward_size,aborter,logger);
         }
         else
         {
-            image_cache = new Image_cache_linkedhashmap(forward_size,aborter,logger);
+            image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
         }
 
 

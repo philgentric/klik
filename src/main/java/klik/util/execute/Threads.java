@@ -1,6 +1,7 @@
 //SOURCES ./My_action.java
 package klik.util.execute;
 
+import klik.System_info;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 
@@ -46,11 +47,10 @@ public class Threads
             logger.log("Using virtual threads");
             executor = Executors.newVirtualThreadPerTaskExecutor();
             //logger.log("FATAL: cannot use virtual threads");
-
         }
         else
         {
-            int n_threads = 10 * Runtime.getRuntime().availableProcessors();
+            int n_threads = 10 * System_info.how_many_cores();
             logger.log("using a pool of "+n_threads+" 'classic' threads, with a max of "+pool_max);
             lbq = new LinkedBlockingQueue<>();
             executor = new ThreadPoolExecutor(n_threads, pool_max, 100, TimeUnit.SECONDS, lbq);

@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import klik.Launcher;
 import klik.Start_context;
+import klik.System_info;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Shared_services;
@@ -71,6 +72,7 @@ public class Audio_player_application extends Application
     //**********************************************************
     {
         logger.log("Audio_player_application starts");
+        System_info.print();
 
         String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, stage,logger);
 

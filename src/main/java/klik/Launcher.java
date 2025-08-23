@@ -6,7 +6,6 @@ package klik;
 //SOURCES ./image_ml/Embeddings_servers_monitoring_stage.java
 //SOURCES ./util/execute/Execute_via_script_in_tmp_file.java
 
-import com.sun.management.OperatingSystemMXBean;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -45,7 +44,6 @@ import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame;
 
 import java.io.*;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -77,7 +75,7 @@ public class Launcher extends Application implements UI_change
 //**********************************************************
 {
     // set no_gluon to false to compile native with gluon
-    public static final boolean no_gluon = false;
+    public static final boolean gluon = false;
     private final static String name = "Launcher";
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
@@ -108,6 +106,7 @@ public class Launcher extends Application implements UI_change
         logger = Logger_factory.get(name);
 
         logger.log("Launcher starting");
+        System_info.print();
 
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
@@ -131,11 +130,8 @@ public class Launcher extends Application implements UI_change
         stage.setScene(scene);
         stage.show();
 
-        if ( no_gluon)
-        {
-            OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-            System.out.println("\nPhysical RAM on this machine: " + b.getTotalPhysicalMemorySize() / 1_000_000_000.0 + " GBytes");
-        }
+
+
 
         long current = Non_booleans_properties.get_java_VM_max_RAM(stage,logger);
 
@@ -170,10 +166,9 @@ public class Launcher extends Application implements UI_change
     private void use_default_max_RAM(Stage stage, Logger logger)
     //**********************************************************
     {
-        //OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        //long current = b.getTotalPhysicalMemorySize() * 80 / 100;
-        //current = current / 1_000_000_000;
-        long current = 50;
+        long current = System_info.get_total_machine_RAM_in_GBytes();
+        current = (current * 8) / 10; // use 80% of the physical RAM
+        if ( current < 1) current = 1; // minimum
         Non_booleans_properties.save_java_VM_max_RAM((int)current, stage, logger);
         logger.log("Setting the max RAM to 80% of the physical RAM on this machine: "+current+" GBytes");
     }
@@ -190,14 +185,21 @@ public class Launcher extends Application implements UI_change
             Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage,logger));
             set_look(b, vbox, look_and_feel,Icon_type.IMAGE, stage,logger);
             b.setOnAction(event -> {
-                start_app_in_new_VM_and_listen("klik", stage, logger);
+                if ( Launcher.gluon)
+                {
+                    start_app_in_new_VM_and_listen("nativeRun", "-PrunArgs=",stage, logger);
+                }
+                else
+                {
+                    start_app_in_new_VM_and_listen("klik", null,stage, logger);
+                }
             });
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
             set_look(b, vbox, look_and_feel,Icon_type.MUSIC, stage,logger);
             b.setOnAction(event -> {
-                start_app_in_new_VM_and_listen("audio_player", stage, logger);
+                start_app_in_new_VM_and_listen("audio_player", null,stage, logger);
                 propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
             });
         }
@@ -412,9 +414,11 @@ public class Launcher extends Application implements UI_change
     //**********************************************************
     private static void start_app_in_new_VM_and_listen(
             String app_name,
+            String args_syntax,
             Stage stage, Logger logger)
     //**********************************************************
     {
+        if ( args_syntax == null) args_syntax = "--args=";
         Hourglass local_hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting "+app_name,20 * 1000,new Aborter("launcher", logger), logger);
 
         int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
@@ -422,7 +426,7 @@ public class Launcher extends Application implements UI_change
         List<String> cmds = new ArrayList<>();
         cmds.add("gradle");
         cmds.add(app_name);
-        String arg =  "--args=\""+port_to_reply_about_start+" "+ ui_change_listening_port  +"\"";
+        String arg =  args_syntax+"\""+port_to_reply_about_start+" "+ ui_change_listening_port  +"\"";
         cmds.add(arg);
 
         AtomicBoolean failed = new AtomicBoolean(false);

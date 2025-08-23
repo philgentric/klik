@@ -24,7 +24,6 @@ public class Backup_actor_for_one_folder implements Actor
 {
     //File_comparator file_comparator;
     private static final boolean dbg = false;
-    public static final int ONGOING_FILES = 2*Runtime.getRuntime().availableProcessors();// 2000;
     public final Logger logger;
     private Per_folder_mini_console mini_console;
     public final Backup_stats stats;

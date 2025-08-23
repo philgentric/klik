@@ -725,7 +725,7 @@ public class Non_booleans_properties
         String s = f.get(JAVA_VM_MAX_RAM);
         if (s == null)
         {
-            logger.log("warning, no java VM max RAM found, defaulting to 2 GBytes");
+            logger.log("warning, no java VM max RAM found, defaulting to 1 GBytes");
             return 1; // default to 1 GBytes
         }
 

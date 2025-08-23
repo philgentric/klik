@@ -1,6 +1,7 @@
 //SOURCES ./Worker.java
 package klik.actor.workers;
 
+import klik.System_info;
 import klik.actor.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -31,7 +32,8 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     //**********************************************************
     {
         logger = logger_;
-        int number_of_runners = Runtime.getRuntime().availableProcessors()-1;
+        int number_of_runners = System_info.how_many_cores() -1;
+        if ( number_of_runners < 1) number_of_runners = 1;
         logger.log("Actor_engine_based_on_workers starting with "+number_of_runners+" workers");
 
         for (int i = 0; i < number_of_runners; i++)

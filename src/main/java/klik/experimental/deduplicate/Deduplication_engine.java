@@ -8,6 +8,7 @@
 package klik.experimental.deduplicate;
 
 import javafx.stage.Window;
+import klik.System_info;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.virtual_landscape.Path_comparator_source;
@@ -135,7 +136,7 @@ public class Deduplication_engine implements Againor, Abortable
 
         // launch N threads
 
-        int number_of_threads = Runtime.getRuntime().availableProcessors()-1;
+        int number_of_threads = System_info.how_many_cores() -1;
         if (number_of_threads < 1) number_of_threads = 1;
         int inc = files.size()/number_of_threads;
         if ( inc == 0) inc = 1;

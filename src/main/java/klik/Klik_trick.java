@@ -60,7 +60,7 @@
 //DEPS info.picocli:picocli:4.6.3
 //DEPS info.picocli:picocli-codegen:4.6.3
 
-//SOURCES ./Print_system_info.java
+//SOURCES ./System_info.java
 //SOURCES actor/Aborter.java
 //SOURCES browser/classic/Browser.java
 //SOURCES New_window_context.java
