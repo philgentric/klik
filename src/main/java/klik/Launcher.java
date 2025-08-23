@@ -75,7 +75,7 @@ public class Launcher extends Application implements UI_change
 //**********************************************************
 {
     // set no_gluon to false to compile native with gluon
-    public static final boolean gluon = false;
+    public static final boolean gluon = true;
     private final static String name = "Launcher";
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
@@ -106,7 +106,7 @@ public class Launcher extends Application implements UI_change
         logger = Logger_factory.get(name);
 
         logger.log("Launcher starting");
-        System_info.print();
+        System_info.print(Launcher.class);
 
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);

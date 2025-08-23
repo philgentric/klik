@@ -153,7 +153,7 @@ public class Klik_application extends Application
             System.exit(0);
         });
 
-        System_info.print();
+        System_info.print(Klik_application.class);
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 

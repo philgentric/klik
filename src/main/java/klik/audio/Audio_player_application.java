@@ -72,7 +72,7 @@ public class Audio_player_application extends Application
     //**********************************************************
     {
         logger.log("Audio_player_application starts");
-        System_info.print();
+        System_info.print(Audio_player_application.class);
 
         String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, stage,logger);
 

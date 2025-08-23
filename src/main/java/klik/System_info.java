@@ -17,10 +17,10 @@ public class System_info
     }
 
     //**********************************************************
-    public static void print()
+    public static void print(Class<?> x)
     //**********************************************************
     {
-        System.out.println("Is NATIVE?   "+is_native());
+        System.out.println("Is NATIVE?   "+is_native(x));
         print_machine_properties();
 
         print_java_system_properties();
@@ -31,10 +31,10 @@ public class System_info
     }
 
     //**********************************************************
-    public static boolean is_native()
+    public static boolean is_native(Class<?> x)
     //**********************************************************
     {
-        int modifiers =  System_info.class.getModifiers();
+        int modifiers =  x.getModifiers();
         return Modifier.isNative(modifiers);
     }
     //**********************************************************
