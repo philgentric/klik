@@ -12,5 +12,13 @@
   { "name": "com.sun.glass.ui.SystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
 
   { "name": "com.sun.glass.ui.mac.MacClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
-  { "name": "com.sun.glass.ui.mac.MacSystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true }
+  { "name": "com.sun.glass.ui.mac.MacSystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
+
+  { "name": "jdk.internal.misc.Unsafe", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "sun.misc.Unsafe", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.github.benmanes.caffeine.cache.MBeans", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.github.benmanes.caffeine.cache.SSMS", "allDeclaredConstructors": true, "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.github.benmanes.caffeine.cache.PSMS", "allDeclaredConstructors": true, "allDeclaredMethods": true, "allDeclaredFields": true }
+
+
 ]

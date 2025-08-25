@@ -231,6 +231,7 @@ public class From_disk
                 return null;
             }
             /*
+            this code uses AWT, which is not supported by gluon
             if ( use_ImageIO)
             {
                 //logger.log("using ImageIO");

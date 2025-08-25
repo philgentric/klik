@@ -91,11 +91,13 @@ public class Embeddings_servers_monitoring_stage
         VBox vbox = uuid_to_vbox.get(server_uuid);
         if ( vbox == null )
         {
-            logger.log("First recors for server UUID: " + server_uuid);
+            logger.log("First record for server UUID: " + server_uuid);
             vbox = new VBox();
             hits_hbox.getChildren().add(vbox);
             uuid_to_vbox.put(server_uuid, vbox);
-        } else {
+        }
+        else
+        {
             logger.log("Adding record for server UUID: " + server_uuid+ vbox.getChildren().size());
         }
 

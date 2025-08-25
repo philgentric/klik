@@ -1,11 +1,41 @@
-// this build.gradle REQUIRES a JDK with javafx bundled, for example:
-// sdk install java 24.0.2.fx-zulu
+/*
+ JVM "classic" build for klik
+
+0. cp build.gradle.jvm build.gradle
+
+1. make sure you have a JDK with javafx bundled:
+
+sdk install java 24.0.2.fx-zulu
+
+2. Enjoy!
+
+start klik 'standalone' with:
+
+gradle klik
+
+start audio_player 'standalone' with:
+
+gradle audio_player
+
+start the launcher with:
+
+gradle run
+
+COSMETIC: to get 'live' transmission
+of UI properties (style, font, etc) to work,
+you need to start the launcher first as it acts
+as a dispatcher for these properties.
+
+
+*/
 
 
 plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gradleup.shadow' version '9.0.1'
+
 }
 
 
@@ -26,14 +56,12 @@ repositories {
 dependencies {
     // EXIF reader
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
-      // Cache
+
+    // Cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
 
     // moving folders across different drives
     implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
-
-    // for face recognition: gson is used to serialise the feature vectors between the python server and this app
-    implementation 'com.google.code.gson:gson:2.13.1'
 
     // for writing png files without AWT
     implementation 'ar.com.hjg:pngj:2.1.0'
@@ -81,5 +109,17 @@ application {
 run{
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
+}
+
+
+shadowJar {
+    archiveFileName.set("klik.jar")
+    manifest {
+        attributes(
+                'Main-Class': 'klik.Klik_application',
+                'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
+        )
+    }
+    mergeServiceFiles()
 }
 

@@ -41,6 +41,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 //**********************************************************
 {
     private static final boolean dbg = false;
+    private static final boolean use_linkedhashmap = false;
 
     public final Image_window image_window;
     public final Logger logger;
@@ -111,7 +112,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         int forward_size = cache_slots/2;
         if ( forward_size > 10) forward_size = 10;
         //logger.log("cache_slots="+cache_slots);
-        if (Launcher.gluon)
+        if (use_linkedhashmap)
         {
             image_cache = new Image_cache_linkedhashmap(forward_size,aborter,logger);
         }

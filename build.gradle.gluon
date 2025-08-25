@@ -1,23 +1,48 @@
-// Using gluon to build a native image
 /*
-prerequisites:
+Using gluon to build a native image for klik
+
+command summary:
+
+gradle nativeRun
+ -> will start klik directly in NATIVE
+
+gradle launcher
+ -> will run the launcher
+ (the launcher is JVM based, not native)
+
+gradle audio_player
+ -> will run the audio player
+ (the audio player is JVM based, not native)
+
+end summary
+
+
+BEFORE doing "gradle nativeRun",
+you need to AOT-COMPILE klik with gluonfx,
+with quite a few prerequisites:
+
+0. make the active gradle this file:
+
+cp build.gradle.gluon build.gradle
 
 1. make one tiny changes in the source, edit Launcher.java and set:
 
-public static final boolean no_gluon = false;
+public static final boolean gluon = true;
 
 2. compile the icon taskbar lib:
 
 clang -dynamiclib -fobjc-arc -framework Cocoa -I "$JAVA_HOME/include" -I "$JAVA_HOME/include/darwin" -o libmacdock.dylib src/main/native/macos/macdock.m
 
-check the name:
+optionally, check the name:
+
 nm -gU libmacdock.dylib
-and it should contain the following symbols:
+
+it should contain the following symbols:
 0000000000000710 T _Java_klik_look_Macdock_setup
 
 note that this trick does not fully solve the issue of the icon in the dock;
 it works when you launch from the top default repo folder,
-which is stupid if you want to distribute the binary standalone
+which is not so useful if you want to distribute the binary standalone
 TODO: tweaking this file some more it should be possible to set the icon
 into the executable itself....
 
@@ -31,34 +56,65 @@ add this:
   { "name": "javafx.scene.input.Dragboard", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "javafx.scene.input.Clipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "javafx.scene.input.ClipboardContent", "allDeclaredMethods": true, "allDeclaredFields": true },
-
   { "name": "com.sun.javafx.tk.TKClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "com.sun.javafx.tk.quantum.QuantumClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "com.sun.javafx.tk.quantum.QuantumClipboard$MimeType", "allDeclaredMethods": true, "allDeclaredFields": true },
-
   { "name": "com.sun.glass.ui.Clipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "com.sun.glass.ui.ClipboardAssistance", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "com.sun.glass.ui.SystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
-
   { "name": "com.sun.glass.ui.mac.MacClipboard", "allDeclaredMethods": true, "allDeclaredFields": true },
   { "name": "com.sun.glass.ui.mac.MacSystemClipboard", "allDeclaredMethods": true, "allDeclaredFields": true }
+
+  { "name": "jdk.internal.misc.Unsafe", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "sun.misc.Unsafe", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.github.benmanes.caffeine.cache.MBeans", "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.github.benmanes.caffeine.cache.SSMS", "allDeclaredConstructors": true, "allDeclaredMethods": true, "allDeclaredFields": true },
+  { "name": "com.github.benmanes.caffeine.cache.PSMS", "allDeclaredConstructors": true, "allDeclaredMethods": true, "allDeclaredFields": true }
+
 ]
 
+explanation:
+
+the fist block is to enable drag and drop, there is no other way around it
+
+the second block is to enable caffeine cache, there is another way
+which is to use a LinkedHashMmap instead of caffeine:
+Edit Image_display_handler.java and set:
+private static final boolean use_linkedhashmap = true;
 
 
 3. download & install the gluon package (which is based on graalvm)
 for this: download the gluon package
+this file is rigged to use java 23 + javafx 23 (see below)
 unzip it and on MAC, dont forget to remove the quarantine attribute:
 sudo xattr -r -d com.apple.quarantine /Users/philippegentric/Library/Java/JavaVirtualMachines/graalvm-java23-darwin-aarch64-gluon-23+25.1-dev
 
-set GRAALVM_HOME to the path of the graalvm from the gluon package:
+set GRAALVM_HOME to the path of the graalvm folder, unzipped from the gluon package:
 
 export GRAALVM_HOME=/Users/philippegentric/Library/Java/JavaVirtualMachines/graalvm-java23-darwin-aarch64-gluon-23+25.1-dev/Contents/Home
 echo $GRAALVM_HOME
 export PATH=$GRAALVM_HOME/bin:$PATH
 echo $PATH
+
+start the compilation (this takes a while, several minutes):
+
 gradle clean nativeBuild
+
+then:
+
 gradle nativeRun
+
+this will start klik in native mode.
+
+(one can also invoke the executable directly,
+on mac it is:
+./build/gluonfx/aarch64-darwin/klik)
+
+
+COSMETIC: to get 'live' transmission
+of UI properties (style, font, etc) to work,
+you need to start the launcher first as it acts
+as a dispatcher for these properties.
 
 */
 
@@ -85,23 +141,17 @@ java {
      mavenCentral()
  }
 
-
-
 compileJava {
     options.compilerArgs.add('--enable-preview')
 }
 
-
-
 dependencies {
     // EXIF reader
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
-    // Cache
+    // Caffeine cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
     // moving folders across different drives
     implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
-    // for face recognition: gson is used to serialise the feature vectors between the python server and this app
-    implementation 'com.google.code.gson:gson:2.13.1'
     // for writing png files without AWT
     implementation 'ar.com.hjg:pngj:2.1.0'
 
@@ -113,23 +163,10 @@ dependencies {
     implementation("org.openjfx:javafx-web:23.0.2")
 }
 
-/*
-shadowJar {
-    archiveFileName.set("klik.jar")
-    manifest {
-        attributes(
-                'Main-Class': 'klik.Klik_application',
-                'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
-        )
-    }
-    mergeServiceFiles()
-}
-*/
-
 run{
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
-    jvmArgs = ['--enable-preview']
+    jvmArgs = ['--enable-preview','--initialize-at-run-time=com.sun.management,sun.management']
 }
 
 gluonfx {
@@ -137,6 +174,7 @@ gluonfx {
  bundlesList =  ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml','javafx.media', 'javafx.web']
  resourcesList = ['.*\\\\.properties$']
  //reflectionList = (reflectionList ?: []) + ['native-image/dragdrop/reflection-config.json']
+ //runtimeArgs = ['--enable-preview','--initialize-at-run-time=com.sun.management,sun.management']
 }
 
 task copyDyLib(type: Copy) {
@@ -148,6 +186,8 @@ build.dependsOn(copyDyLib)
 
 
 // TODO: make this work
+// e.g. be able to set the icon in the dock on mac
+// even after moving/copying the executable
 jar {
    manifest {
       attributes('Main-Class': 'your.package.MainClass')

@@ -4,14 +4,23 @@ package klik.image_ml;
 public class Feature_vector
 //**********************************************************
 {
-
+    private final static boolean dbg = true;
 
     public double[] features;
 
-    public Feature_vector(double[] values) {
+    public Feature_vector(double[] values)
+    {
+        if ( dbg)
+        {
+            if (values == null)
+            {
+                System.out.println("PANIC Feature_vector constructor called with null values");
+            }
+        }
         features = values;
     }
 
+    /*
     //**********************************************************
     public static Feature_vector from_string(String in) throws NumberFormatException
     //**********************************************************
@@ -24,6 +33,7 @@ public class Feature_vector
         }
         return new Feature_vector(returned);
     }
+    */
 
     //**********************************************************
     public String to_string()

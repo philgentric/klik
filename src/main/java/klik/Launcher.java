@@ -50,8 +50,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // the launcher can start applications (the image browser klik, the audio player)
-// they are started in new VMs i.e. in new processes using a call to gradle
-// this means that the application may be recompiled before launching, if the code has changed
+// they are started as new processes
+// (using a call to gradle to start a new JVM
+// or a native application if compiled with gluon
+// this may mean that the application may be recompiled
+// before launching, if the code has changed)
 //
 // the launcher passes a reply port number to the application which has 2 uses:
 // 1. at start time, the application can send a message to the launcher to say it has started, or not started
@@ -74,7 +77,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Launcher extends Application implements UI_change
 //**********************************************************
 {
-    // set no_gluon to false to compile native with gluon
+    // set gluon to true to compile native with gluon
     public static final boolean gluon = true;
     private final static String name = "Launcher";
     public static final int WIDTH = 600;
@@ -135,9 +138,7 @@ public class Launcher extends Application implements UI_change
 
         long current = Non_booleans_properties.get_java_VM_max_RAM(stage,logger);
 
-        // GLUON TODO
-        //if ( current > b.getTotalPhysicalMemorySize()/1_000_000_000 )
-        if ( current > 55 )
+        if ( current > 0.8*System_info.get_total_machine_RAM_in_GBytes() )
         {
             // not realistic
             use_default_max_RAM(stage,logger);
@@ -168,7 +169,7 @@ public class Launcher extends Application implements UI_change
     {
         long current = System_info.get_total_machine_RAM_in_GBytes();
         current = (current * 8) / 10; // use 80% of the physical RAM
-        if ( current < 1) current = 1; // minimum
+        if ( current < 1) current = 1; // minimum 1GB
         Non_booleans_properties.save_java_VM_max_RAM((int)current, stage, logger);
         logger.log("Setting the max RAM to 80% of the physical RAM on this machine: "+current+" GBytes");
     }

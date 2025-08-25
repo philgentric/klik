@@ -1,27 +1,14 @@
 package klik.browser.icons;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
 import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.util.log.Logger;
 
-//import javax.imageio.ImageIO;
-//import java.awt.*;
-//import java.awt.image.BufferedImage;
-//import java.io.File;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
-
-import ar.com.hjg.pngj.ImageInfo;
-import ar.com.hjg.pngj.ImageLineByte;
-import ar.com.hjg.pngj.PngWriter;
 
 
 /*

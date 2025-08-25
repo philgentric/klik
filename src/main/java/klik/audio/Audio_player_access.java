@@ -15,6 +15,10 @@ public class Audio_player_access
 //**********************************************************
 {
     public static final String PLAY_REQUEST_ACCEPTED = "PLAY_REQUEST_ACCEPTED";
+
+    // this is the system wide port where audoi play requests are sent
+    // the audio player listens to this port
+    // a new instance will fail to start if this port is already taken
     public static final int AUDIO_PLAYER_PORT = 34539;
 
     // these static calls can be used by any app, typically the klik browser,

@@ -1,7 +1,5 @@
 package klik.image_ml;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -108,17 +106,89 @@ public abstract class Feature_vector_source
     static Feature_vector parse_json(String response, Logger logger)
     //**********************************************************
     {
-        Gson gson = new GsonBuilder().create();
-        try
+        logger.log("going to parse a feature vector from ->" + response + "<-");
+
+        /* Gson is overkill and harder to make work with gluon
         {
-            Feature_vector fv = gson.fromJson(response, Feature_vector.class);
-            //logger.log("parsed a feature vector, length: " + fv.features.length);
-            return fv;
+
+            Gson gson = new GsonBuilder().create();
+            try {
+                Feature_vector fv = gson.fromJson(response, Feature_vector.class);
+                if (fv == null) {
+                    logger.log("json parsing failed: feature vector is null");
+                    return null;
+                }
+                if (fv.features == null) {
+                    logger.log("json parsing failed: feature vector features is null");
+                    return null;
+                }
+                if (fv.features.length == 0) {
+                    logger.log("json parsing failed: feature vector features length is 0");
+                    return null;
+                }
+                logger.log("parsed a feature vector, length: " + fv.features.length);
+                return fv;
+            } catch (com.google.gson.JsonSyntaxException e) {
+                logger.log(Stack_trace_getter.get_stack_trace("parse_json: " + e));
+                return null;
+            }
         }
-        catch (com.google.gson.JsonSyntaxException e)
+        else*/
         {
-            logger.log(Stack_trace_getter.get_stack_trace("parse_json: "+e));
-            return null;
+            // simple parser, expecting {"features":[0.1,0.2,0.3,...]}
+            response = response.trim();
+            if ( !response.startsWith("{") || !response.endsWith("}"))
+            {
+                logger.log("json parsing failed: does not start with { or end with }");
+                return null;
+            }
+            int features_index = response.indexOf("\"features\"");
+            if ( features_index == -1)
+            {
+                logger.log("json parsing failed: no \"features\" key found");
+                return null;
+            }
+            int colon_index = response.indexOf(":", features_index);
+            if ( colon_index == -1)
+            {
+                logger.log("json parsing failed: no : after \"features\" key");
+                return null;
+            }
+            int open_bracket_index = response.indexOf("[", colon_index);
+            if ( open_bracket_index == -1)
+            {
+                logger.log("json parsing failed: no [ after \"features\":");
+                return null;
+            }
+            int close_bracket_index = response.indexOf("]", open_bracket_index);
+            if ( close_bracket_index == -1)
+            {
+                logger.log("json parsing failed: no ] after \"features\":[");
+                return null;
+            }
+            String array_string = response.substring(open_bracket_index + 1, close_bracket_index).trim();
+            if ( array_string.isEmpty())
+            {
+                logger.log("json parsing failed: empty features array");
+                return null;
+            }
+            String[] parts = array_string.split(",");
+            double[] features = new double[parts.length];
+            for ( int i = 0; i < parts.length; i++)
+            {
+                try
+                {
+                    features[i] = Double.parseDouble(parts[i].trim());
+                }
+                catch ( NumberFormatException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("parse_json: NumberFormatException for part="+parts[i]+" "+e));
+                    return null;
+                }
+            }
+            Feature_vector fv = new Feature_vector(features);
+            logger.log("parsed a feature vector, length: " + fv.features.length);
+            return fv;
         }
     }
 

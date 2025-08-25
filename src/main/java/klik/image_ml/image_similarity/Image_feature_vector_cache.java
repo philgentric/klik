@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Image_feature_vector_cache
 //**********************************************************
 {
-    public final static boolean dbg = false;
+    public final static boolean dbg = true;
     protected final Logger logger;
     private final Aborter shared_services_aborter;
     protected final String cache_type;
@@ -113,7 +113,7 @@ public class Image_feature_vector_cache
         {
             image_feature_vector_actor.run(imp); // blocking call
             Feature_vector x = path_to_feature_vector_cache.get(key_from_path(p));
-            //if ( x == null) logger.log("PANIC null Feature_vector in cache after blocking call ");
+            if ( x == null) logger.log("PANIC null Feature_vector in cache after blocking call ");
             return x;
         }
         local_actor_engine.run(image_feature_vector_actor,imp,tr,logger);
@@ -130,7 +130,7 @@ public class Image_feature_vector_cache
     public void inject(Path path, Feature_vector fv)
     //**********************************************************
     {
-        if(dbg) logger.log(cache_type +" inject "+path+" value="+fv );
+        if(dbg) logger.log(cache_type +" inject "+path+" value="+fv.features.length+" components");
         path_to_feature_vector_cache.put(key_from_path(path), fv);
     }
 
@@ -205,9 +205,19 @@ public class Image_feature_vector_cache
             dos.writeInt(path_to_feature_vector_cache.size());
             for(Map.Entry<String, Feature_vector> e : path_to_feature_vector_cache.entrySet())
             {
+                Feature_vector fv = e.getValue();
+                if ( fv == null)
+                {
+                    logger.log("PANIC null feature vector for key="+e.getKey());
+                    continue;
+                }
+                if ( fv.features == null)
+                {
+                    logger.log("PANIC null features for key="+e.getKey());
+                    continue;
+                }
                 saved++;
                 dos.writeUTF(e.getKey());
-                Feature_vector fv = e.getValue();
                 dos.writeInt(fv.features.length);
                 for ( int i = 0 ; i < fv.features.length; i++)
                 {

@@ -16,3 +16,4 @@ test.txt
 script.txt
 script.txt
 META-INF/native-image/reachability-metadata.json
+*.hprof

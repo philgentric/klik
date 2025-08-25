@@ -5,6 +5,9 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Properties;
 
+//import java.lang.management.ManagementFactory;
+//import com.sun.management.OperatingSystemMXBean;
+
 //**********************************************************
 public class System_info
 //**********************************************************
@@ -15,6 +18,15 @@ public class System_info
     {
         return Runtime.getRuntime().availableProcessors();
     }
+
+    // in order to recover from git the code previously here, erqsed recently,
+    // thqt was using a JMX MANAGEMENT BEAN TO FIND THE PHYSICAL MACHINE raM size,
+    // but unfortunately the term 'physical, is not in the commit messages,
+    // open q shell qnd type this git commqnd:
+    // git log -S 'physical' --source --all --pretty=format:'%h %ad %s' --date=short
+    // it will give you the name of the commit, then
+    // to just have a peek at eh old code, type:
+
 
     //**********************************************************
     public static void print(Class<?> x)
@@ -37,79 +49,75 @@ public class System_info
         int modifiers =  x.getModifiers();
         return Modifier.isNative(modifiers);
     }
+    private static final boolean use_JMX_for_RAM = false;
     //**********************************************************
     public static long get_total_machine_RAM_in_GBytes()
     //**********************************************************
     {
-        String os_name = System.getProperty("os.name").toLowerCase();
-        if (os_name.contains("mac"))
+        //if ( use_JMX_for_RAM) {
+        //    OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        //    return b.getTotalPhysicalMemorySize() / (1024L * 1024L * 1024L);
+        //}
+        //else
         {
-            String cmd = "sysctl hw.memsize";
-            // the reply is something like: hw.memsize: 68719476736
-            // these are bytes
-            try
-            {
-                Process p = Runtime.getRuntime().exec(cmd);
-                p.waitFor();
-                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
-                String line = reader.readLine();
-                if ( line != null && line.startsWith("hw.memsize: "))
-                {
-                    String s = line.substring(12).trim();
-                    long bytes = Long.parseLong(s);
-                    return bytes/(1024L * 1024L * 1024L);
+            String os_name = System.getProperty("os.name").toLowerCase();
+            if (os_name.contains("mac")) {
+                String cmd = "sysctl hw.memsize";
+                // the reply is something like: hw.memsize: 68719476736
+                // these are bytes
+                try {
+                    Process p = Runtime.getRuntime().exec(cmd);
+                    p.waitFor();
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
+                    String line = reader.readLine();
+                    if (line != null && line.startsWith("hw.memsize: ")) {
+                        String s = line.substring(12).trim();
+                        long bytes = Long.parseLong(s);
+                        return bytes / (1024L * 1024L * 1024L);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error when executing command: " + cmd);
+                    e.printStackTrace();
+                }
+
+            } else if (os_name.contains("win")) {
+                try {
+                    Process process = Runtime.getRuntime().exec("wmic ComputerChip get TotalPhysicalMemory");
+                    java.util.Scanner s = new java.util.Scanner(process.getInputStream());
+                    while (s.hasNext()) {
+                        String line = s.next();
+                        if (!line.isEmpty() && line.matches("\\d+")) {
+                            long totalMemoryBytes = Long.parseLong(line);
+                            long totalMemoryGB = totalMemoryBytes / (1024L * 1024L * 1024L);
+                            System.out.println("Total Physical Memory: " + totalMemoryGB + " GB");
+                            return totalMemoryGB;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (os_name.contains("nux") || os_name.contains("nix")) {
+                String cmd = "grep MemTotal /proc/meminfo";
+                // the reply is something like: MemTotal:       16367484 kB
+                try {
+                    Process p = Runtime.getRuntime().exec(cmd);
+                    p.waitFor();
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
+                    String line = reader.readLine();
+                    if (line != null && line.startsWith("MemTotal:")) {
+                        String s = line.substring(9).trim();
+                        s = s.substring(0, s.length() - 3).trim(); // remove kB
+                        long kbytes = Long.parseLong(s);
+                        return (int) (kbytes / (1024L * 1024L));
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error when executing command: " + cmd);
+                    e.printStackTrace();
                 }
             }
-            catch (Exception e)
-            {
-                System.out.println("Error when executing command: "+cmd);
-                e.printStackTrace();
-            }
+            return -1;
 
         }
-        else if ( os_name.contains("win"))
-        {
-            try {
-                Process process = Runtime.getRuntime().exec("wmic ComputerChip get TotalPhysicalMemory");
-                java.util.Scanner s = new java.util.Scanner(process.getInputStream());
-                while (s.hasNext()) {
-                    String line = s.next();
-                    if (!line.isEmpty() && line.matches("\\d+")) {
-                        long totalMemoryBytes = Long.parseLong(line);
-                        long totalMemoryGB = totalMemoryBytes / (1024L * 1024L * 1024L);
-                        System.out.println("Total Physical Memory: " + totalMemoryGB + " GB");
-                        return totalMemoryGB;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        else if ( os_name.contains("nux") || os_name.contains("nix"))
-        {
-            String cmd = "grep MemTotal /proc/meminfo";
-            // the reply is something like: MemTotal:       16367484 kB
-            try
-            {
-                Process p = Runtime.getRuntime().exec(cmd);
-                p.waitFor();
-                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
-                String line = reader.readLine();
-                if ( line != null && line.startsWith("MemTotal:"))
-                {
-                    String s = line.substring(9).trim();
-                    s = s.substring(0,s.length()-3).trim(); // remove kB
-                    long kbytes = Long.parseLong(s);
-                    return (int)(kbytes/(1024L * 1024L));
-                }
-            }
-            catch (Exception e)
-            {
-                System.out.println("Error when executing command: "+cmd);
-                e.printStackTrace();
-            }
-        }
-        return -1;
     }
 
     //**********************************************************

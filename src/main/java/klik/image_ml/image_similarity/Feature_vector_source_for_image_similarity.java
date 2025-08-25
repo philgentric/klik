@@ -10,7 +10,6 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
 //**********************************************************
 {
     // server's port to get embeddings for image similarity:
-    // TODO: this is a not-shared config with the shell script "launch_servers"
     public static int[] ports = {
     //        8200};
             8200 , 8201 , 8202 , 8203 , 8204 , 8205 , 8206 , 8207 , 8208 , 8209
