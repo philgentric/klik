@@ -1,7 +1,7 @@
 package klik.change.undo;
 
 import javafx.stage.Window;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;

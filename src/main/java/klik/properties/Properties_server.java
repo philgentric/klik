@@ -3,7 +3,7 @@ package klik.properties;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.util.Sys_init;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;

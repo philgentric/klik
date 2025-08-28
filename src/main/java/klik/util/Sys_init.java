@@ -1,7 +1,7 @@
 package klik.util;
 
 import javafx.stage.Window;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger_factory;
 

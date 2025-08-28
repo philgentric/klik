@@ -22,7 +22,7 @@ import java.util.List;
 public class TCP_client
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
 
     //**********************************************************
     public static void send_in_a_thread(String host, int port_number, String msg, Logger logger)

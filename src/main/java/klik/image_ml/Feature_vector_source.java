@@ -106,7 +106,7 @@ public abstract class Feature_vector_source
     static Feature_vector parse_json(String response, Logger logger)
     //**********************************************************
     {
-        logger.log("going to parse a feature vector from ->" + response + "<-");
+        //logger.log("going to parse a feature vector from ->" + response + "<-");
 
         /* Gson is overkill and harder to make work with gluon
         {
@@ -187,7 +187,7 @@ public abstract class Feature_vector_source
                 }
             }
             Feature_vector fv = new Feature_vector(features);
-            logger.log("parsed a feature vector, length: " + fv.features.length);
+            //logger.log("parsed a feature vector, length: " + fv.features.length);
             return fv;
         }
     }

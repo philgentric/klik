@@ -4,7 +4,7 @@ import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.util.Sys_init;
 import klik.util.log.Exceptions_in_threads_catcher;

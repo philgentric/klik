@@ -1,7 +1,7 @@
 package klik.experimental.fusk;
 
 import klik.actor.Aborter;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.util.Sys_init;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;

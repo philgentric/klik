@@ -1,7 +1,7 @@
 package klik.properties;
 
 import javafx.stage.Window;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;

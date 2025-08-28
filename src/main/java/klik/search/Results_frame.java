@@ -22,6 +22,7 @@ import klik.audio.Audio_player;
 import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
 import klik.New_window_context;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -132,8 +133,9 @@ public class Results_frame
 			}
 			else if (Guess_file_type.is_file_an_image(path.toFile()))
 			{
+                Path_list_provider new_path_list_provider = new Folder_path_list_provider(path.getParent());
 				Item_file_with_icon.open_an_image(
-						path_list_provider,
+						new_path_list_provider,
 						path_comparator_source,
 						path,
 						owner,

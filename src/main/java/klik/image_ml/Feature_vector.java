@@ -4,7 +4,7 @@ package klik.image_ml;
 public class Feature_vector
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
 
     public double[] features;
 

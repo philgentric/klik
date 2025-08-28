@@ -105,6 +105,7 @@ package klik;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import klik.properties.Non_booleans_properties;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
@@ -113,6 +114,7 @@ import klik.util.log.Logger_factory;
 import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
+import java.util.List;
 
 //**********************************************************
 public class Klik_application extends Application
@@ -157,9 +159,10 @@ public class Klik_application extends Application
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 
-        ui_change_report_port_at_launcher = context.extract_ui_change_report_port();
+        ui_change_report_port_at_launcher = extract_ui_change_report_port(logger);
         if ( ui_change_report_port_at_launcher == null)
         {
+            // probably launcher was not started
             logger.log("Klik_application: ui_change_report_port_at_launcher=null ");
         }
         else
@@ -174,12 +177,55 @@ public class Klik_application extends Application
         Window_provider window_provider = New_window_context.additional_no_past(path,primary_stage_,logger);
         new Monitor(window_provider, logger).start();
 
-        if ( context.extract_reply_port() != null) // is null when launched from the audio player
+        Integer reply_port = extract_started_reply_port(logger);
+        if ( reply_port != null) // is null when launched from the audio player
         {
-            TCP_client.send_in_a_thread("localhost", context.extract_reply_port(), Launcher.STARTED, logger);
+            TCP_client.send_in_a_thread("localhost", reply_port, Launcher.STARTED, logger);
         }
     }
 
+    //**********************************************************
+    private Integer extract_started_reply_port(Logger logger)
+    //**********************************************************
+    {
+        // going to read a file in the conf dir i.e. '.klik' folder
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
+        try {
+            if (java.nio.file.Files.exists(p)) {
+                List<String> lines = java.nio.file.Files.readAllLines(p);
+                if (lines.size() > 0) {
+                    String s = lines.get(0).trim();
+                    return Integer.parseInt(s);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.log("Klik_application: cannot read reply_port from " + p + " exception: " + e);
+        }
+        return null;
+    }
+
+    //**********************************************************
+    private Integer extract_ui_change_report_port(Logger logger)
+    //**********************************************************
+    {
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
+        try {
+            if (java.nio.file.Files.exists(p)) {
+                List<String> lines = java.nio.file.Files.readAllLines(p);
+                if (lines.size() > 0) {
+                    String s = lines.get(0).trim();
+                    return Integer.parseInt(s);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.log("Klik_application: cannot read ui_change_report_port_at_launcher from " + p + " exception: " + e);
+        }
+        return null;
+    }
 
 
 }

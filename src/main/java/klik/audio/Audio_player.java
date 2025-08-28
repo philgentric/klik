@@ -2,7 +2,7 @@ package klik.audio;
 
 import javafx.application.Platform;
 import klik.actor.Aborter;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;

@@ -1,4 +1,4 @@
-package klik.browser;
+package klik;
 
 import klik.actor.Aborter;
 import klik.util.log.Logger;

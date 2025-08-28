@@ -90,9 +90,12 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         my_Stage = new My_Stage(new Stage(), logger);
 
 
+        // when starting each browser instance will REGISTER a port
+        // on which it will LISTEN for UI_CHANGE messages
+        // it will report this port to the launcher (if any)
+        // so that the launcher can forward UI_CHANGE messages to all browsers
         int ui_change_receiver_port = UI_change.start_UI_change_server(
                 null, this, "Klik-browser",my_Stage.the_Stage, logger);
-
         if ( Klik_application.ui_change_report_port_at_launcher !=null) // is null when launched from ther audio player
         {
             TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, UI_change.THIS_IS_THE_PORT_I_LISTEN_TO_FOR_UI_CHANGES + " " + ui_change_receiver_port, logger);

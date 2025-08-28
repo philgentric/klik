@@ -1,7 +1,7 @@
 package klik.util.cache_auto_clean;
 
 import javafx.stage.Window;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.Non_booleans_properties;

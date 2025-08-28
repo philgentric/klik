@@ -2,7 +2,7 @@ package klik.browser.comparators;
 
 import klik.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;

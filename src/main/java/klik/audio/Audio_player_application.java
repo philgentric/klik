@@ -8,7 +8,7 @@ import klik.Start_context;
 import klik.System_info;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
@@ -55,7 +55,7 @@ public class Audio_player_application extends Application
                     "This is normal if the audio player is already running\n" +
                     "Since in general having 2 player playing is just cacophonie :-)");
             // send not_started to unblock the launcher server
-            int reply_port = context.extract_reply_port();
+            int reply_port = extract_reply_port();
             // blocking call otherwise exit will prevent the reply from flying out
             TCP_client.send("localhost", reply_port, Launcher.NOT_STARTED, logger);
 
@@ -65,6 +65,27 @@ public class Audio_player_application extends Application
             System.exit(0);
 
         }
+    }
+
+    //**********************************************************
+    private Integer extract_reply_port()
+    //**********************************************************
+    {
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
+        try {
+            if (java.nio.file.Files.exists(p)) {
+                java.util.List<String> lines = java.nio.file.Files.readAllLines(p);
+                if (lines.size() > 0) {
+                    String s = lines.get(0);
+                    int port = Integer.parseInt(s);
+                    logger.log("Audio_player_application: extracted reply_port= " + port);
+                    return port;
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            logger.log("WARNING: could not read reply_port "+p);
+        }
+        return null;
     }
 
     //**********************************************************
@@ -78,7 +99,7 @@ public class Audio_player_application extends Application
 
         Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC,stage,logger);
 
-        Integer reply_port = context.extract_reply_port();
+        Integer reply_port = extract_reply_port();
         if ( reply_port == null)
         {
             logger.log("Audio_player_application, cannot send reply?");

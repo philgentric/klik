@@ -44,6 +44,7 @@ import klik.util.ui.Popups;
 import klik.util.ui.Show_running_film_frame;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -78,14 +79,13 @@ public class Launcher extends Application implements UI_change
 //**********************************************************
 {
     // set gluon to true to compile native with gluon
-    public static final boolean gluon = true;
+    public static final boolean gluon = false;
     private final static String name = "Launcher";
     public static final int WIDTH = 600;
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
     public static final String NOT_STARTED = "NOT_STARTED";
     public static double estimated_text_label_height;
-    public static int ui_change_listening_port; // this is the port on which the launcher listens for UI changes
 
     private Stage stage;
     private Logger logger;
@@ -125,9 +125,10 @@ public class Launcher extends Application implements UI_change
         define_UI( );
 
 
-        ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",stage,logger);
+        int ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",stage,logger);
 
 
+        write_UI_change_listening_port_to_file(ui_change_listening_port,logger);
         Scene scene = new Scene(vbox);
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
@@ -188,11 +189,11 @@ public class Launcher extends Application implements UI_change
             b.setOnAction(event -> {
                 if ( Launcher.gluon)
                 {
-                    start_app_in_new_VM_and_listen("nativeRun", "-PrunArgs=",stage, logger);
+                    start_app_with_gradle_and_listen("nativeRun",stage, logger);
                 }
                 else
                 {
-                    start_app_in_new_VM_and_listen("klik", null,stage, logger);
+                    start_app_with_gradle_and_listen("klik",stage, logger);
                 }
             });
         }
@@ -200,7 +201,7 @@ public class Launcher extends Application implements UI_change
             Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
             set_look(b, vbox, look_and_feel,Icon_type.MUSIC, stage,logger);
             b.setOnAction(event -> {
-                start_app_in_new_VM_and_listen("audio_player", null,stage, logger);
+                start_app_with_gradle_and_listen("audio_player",stage, logger);
                 propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
             });
         }
@@ -413,22 +414,19 @@ public class Launcher extends Application implements UI_change
     }
 
     //**********************************************************
-    private static void start_app_in_new_VM_and_listen(
+    private static void start_app_with_gradle_and_listen(
             String app_name,
-            String args_syntax,
             Stage stage, Logger logger)
     //**********************************************************
     {
-        if ( args_syntax == null) args_syntax = "--args=";
         Hourglass local_hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting "+app_name,20 * 1000,new Aborter("launcher", logger), logger);
 
         int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
-
+        write_port_to_reply_about_start(port_to_reply_about_start,logger);
         List<String> cmds = new ArrayList<>();
         cmds.add("gradle");
         cmds.add(app_name);
-        String arg =  args_syntax+"\""+port_to_reply_about_start+" "+ ui_change_listening_port  +"\"";
-        cmds.add(arg);
+
 
         AtomicBoolean failed = new AtomicBoolean(false);
         Runnable r = () -> {
@@ -448,11 +446,14 @@ public class Launcher extends Application implements UI_change
 
     }
 
+
+
     //**********************************************************
     private static int start_launch_status_server(String app_name, Hourglass local_hourglass, Window owner, Logger logger)
     //**********************************************************
     {
-        // start the server to receive the "started" or "not_started" error_message and stop the hourglass
+        // start the server to receive the "started" or "not_started" error_message
+        // and in any case, stop the hourglass
 
         logger.log("Launcher: start_server_and_wait_for_reply for: "+app_name);
         Session_factory session_factory = () -> new Session() {
@@ -555,4 +556,42 @@ public class Launcher extends Application implements UI_change
         }
     }
 
+    //**********************************************************
+    private void write_UI_change_listening_port_to_file(int ui_change_listening_port, Logger logger)
+    //**********************************************************
+    {
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR,Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
+        try
+        {
+            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p))
+            {
+                writer.write(""+ui_change_listening_port);
+                writer.newLine();
+            }
+        }
+        catch (IOException e)
+        {
+            logger.log("WARNING: Launcher::write_UI_change_listening_port_to_file: cannot write to file "+p);
+        }
+    }
+
+
+    //**********************************************************
+    private static void write_port_to_reply_about_start(int port_to_reply_about_start, Logger logger)
+    //**********************************************************
+    {
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR,Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
+        try
+        {
+            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p))
+            {
+                writer.write(""+port_to_reply_about_start);
+                writer.newLine();
+            }
+        }
+        catch (IOException e)
+        {
+            logger.log("WARNING: Launcher::port_to_reply_about_start: cannot write to file "+p);
+        }
+    }
 }

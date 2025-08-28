@@ -1,7 +1,7 @@
 package klik.change.undo;
 
 import javafx.stage.Window;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.change.active_list_stage.Active_list_stage;
 import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.util.files_and_paths.Moving_files;

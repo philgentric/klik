@@ -53,6 +53,29 @@ public class Non_booleans_properties
 
     public static final String USER_HOME = "user.home";
     public static final String CONF_DIR = ".klik";
+
+
+    // when launcher starts, it creates a server to listen to UI_CHANGED messages
+    // this is the port on which the launcher listens
+    // the launcher will then broadcast UI_CHANGED messages to all running
+    // applications (klik browsers and audio player)
+    // the port on which apps listen for UI_CHANGED messages is NOT stored in a file
+    // it is sent back to the Launcher for registration
+    public static final String FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER = "ui_change_report_port_at_launcher.txt";
+
+
+    // When the launcher starts an application,
+    // it creates a server to listen to a message from the application
+    // to know that the application has started
+    // this is the port on which the launcher listens
+    // it is written in a file by the launcher
+    // it means that there could be race conditions
+    // if multiple applications are started simultaneously
+    // the other implementation is to pass the port as a command line argument
+    // but this is complicated to support for jvm/native with multiple OS
+    public static final String FILENAME_FOR_PORT_TO_REPLY_ABOUT_START = "port_to_reply_about_start.txt";
+
+
     public static final String PROPERTIES_FILENAME = "klik.properties";
     public static final String TRASH_DIR = "klik_trash";
     public static final String FACE_RECO_DIR = "face_reco";

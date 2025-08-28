@@ -11,7 +11,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Job_termination_reporter;
 import klik.actor.workers.Actor_engine_based_on_workers;
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.image_ml.Feature_vector;
@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Image_feature_vector_cache
 //**********************************************************
 {
-    public final static boolean dbg = true;
+    public final static boolean dbg = false;
     protected final Logger logger;
     private final Aborter shared_services_aborter;
     protected final String cache_type;

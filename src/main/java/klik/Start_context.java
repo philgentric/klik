@@ -13,7 +13,7 @@ import java.util.Map;
 public record Start_context(List<String> args, String bet_full)
 //**********************************************************
 {
-    private static boolean dbg = true;
+    private static boolean dbg = false;
 
     //**********************************************************
     private Map<String, String> parse_arguments(String args)
@@ -105,7 +105,7 @@ public record Start_context(List<String> args, String bet_full)
         }
         return null;
     }
-
+/*
     //**********************************************************
     public Integer extract_reply_port()
     //**********************************************************
@@ -127,6 +127,7 @@ public record Start_context(List<String> args, String bet_full)
         return null;
     }
 
+
     public Integer extract_ui_change_report_port()
     {
         if ( args().size() < 2)
@@ -146,5 +147,5 @@ public record Start_context(List<String> args, String bet_full)
         return null;
     }
 
-
+*/
 }

@@ -1,6 +1,6 @@
 package klik.util.files_and_paths;
 
-import klik.browser.Shared_services;
+import klik.Shared_services;
 import klik.util.Sys_init;
 import klik.util.log.Logger;
 
