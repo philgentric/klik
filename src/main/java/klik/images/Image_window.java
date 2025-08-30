@@ -59,7 +59,6 @@ public class Image_window
     public final Stage stage;
     public final Pane the_image_Pane;
     public Label the_info_label; // maybe null
-    //public final Button info_button;
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
@@ -81,6 +80,7 @@ public class Image_window
     Path_list_provider path_list_provider;
     public Path_comparator_source path_comparator_source;
 
+    public boolean alternate_rescaler;
 
     //**********************************************************
     public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
@@ -194,9 +194,6 @@ public class Image_window
                     keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
         }
 
-        boolean high_quality = false;
-
-
         Comparator<Path> local_comp = null;
         if ( image_comparator.isPresent())
         {
@@ -210,7 +207,7 @@ public class Image_window
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider,high_quality, first_image_path, this, local_comp, stage,aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp, alternate_rescaler,stage,aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;

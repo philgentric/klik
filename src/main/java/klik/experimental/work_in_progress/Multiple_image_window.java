@@ -2,17 +2,21 @@
 package klik.experimental.work_in_progress;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.TilePane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -27,6 +31,8 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -59,7 +65,10 @@ public class Multiple_image_window
     //**********************************************************
     {
         Aborter aborter = new Aborter("Multiple_image_window",logger_);
-        Optional<Image_context> option = Image_context.get_Image_context(path,from_stage, aborter, logger_);
+        Optional<Image_context> option = Image_context.build_Image_context(
+                path,
+                false,
+                from_stage, aborter, logger_);
         if (option.isEmpty()) {
             logger_.log(Stack_trace_getter.get_stack_trace("Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
@@ -139,7 +148,19 @@ public class Multiple_image_window
         tile_pane = new TilePane();
 
         set_background();
-        scene = new Scene(tile_pane);
+        VBox vbox = new VBox();
+        vbox.getChildren().add(tile_pane);
+        {
+            Button b = new Button("Swap");
+            vbox.getChildren().add(b);
+            b.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    swap();
+                }
+            });
+        }
+        scene = new Scene(vbox);
         the_stage.setScene(scene);
         the_stage.show();
         if (!smaller) set_stage_size_to_fullscreen(the_stage);
@@ -160,7 +181,39 @@ public class Multiple_image_window
 
     }
 
-    private static int method = 0;
+    //**********************************************************
+    record My_ImageView(ImageView iv, String label)
+    //**********************************************************
+    {
+        //**********************************************************
+        VBox get()
+        //**********************************************************
+        {
+            VBox vb = new VBox();
+            vb.getChildren().add(new TextField(label));
+            vb.getChildren().add(iv);
+            return vb;
+        }
+    }
+
+    List<My_ImageView> my_image_views = new ArrayList<>();
+    //**********************************************************
+    private void swap()
+    //**********************************************************
+    {
+        tile_pane.getChildren().clear();
+        tile_pane.getChildren().add(my_image_views.get(1).get());
+        tile_pane.getChildren().add(my_image_views.get(0).get());
+        My_ImageView tmp0 = my_image_views.get(0);
+        My_ImageView tmp1 = my_image_views.get(1);
+
+        my_image_views.clear();
+        my_image_views.add(tmp1);
+        my_image_views.add(tmp0);
+
+    }
+
+    private static int method = 1;
     //**********************************************************
     private void set_ImageView_compare_1000()
     //**********************************************************
@@ -177,46 +230,52 @@ public class Multiple_image_window
                 if ( method%2 == 0 )
                 {
                     System.out.println("method="+method+" left side is method1");
-                    method_1(size);
+                    method_1();
                     method_2(size);
                 }
                 else
                 {
                     System.out.println("method="+method+" left side is method2");
                     method_2(size);
-                    method_1(size);
+                    method_1();
                 }
                 method++;
             },logger);
     }
 
-    private void method_1(double size)
+    //**********************************************************
+    private void method_1()
+    //**********************************************************
     {
-        {
-            //if ((ic.image.getWidth() > 200) && (ic.image.getHeight() > 200))
-            {
-                ic.the_image_view.fitWidthProperty().bind(scene.widthProperty().divide(2));
-                ic.the_image_view.fitHeightProperty().bind(scene.heightProperty());
-            }
-        }
-        //ic.imageView.setFitWidth(size);
-        //ic.imageView.fitHeightProperty().unbind();
-        ic.the_image_view.setPreserveRatio(true);
-        tile_pane.getChildren().add(ic.the_image_view);
+        add(ic.the_image_view,"javafx");
+        logger.log("javafx rescaled used for:" + ic.path.getFileName());
     }
 
+
+    //**********************************************************
     private void method_2(double size)
+    //**********************************************************
     {
-        Optional<Image_context> option = Optional.empty();//get_Image_context_with_alternate_rescaler((int) size);
+        Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) size);
         if (option.isEmpty()) return;
-        option.get().the_image_view.fitWidthProperty().bind(scene.widthProperty().divide(2));
-        option.get().the_image_view.fitHeightProperty().bind(scene.heightProperty());
-        option.get().the_image_view.setPreserveRatio(true);
-        tile_pane.getChildren().add(option.get().the_image_view);
-        logger.log("added:" + option.get().path.getFileName());
+        ImageView local = option.get().the_image_view;
+        add(local,"bicubic");
+        logger.log("bicubic rescaled used for:" + option.get().path.getFileName());
     }
 
-/*
+    //**********************************************************
+    private void add(ImageView local, String txt)
+    //**********************************************************
+    {
+        local.fitWidthProperty().bind(scene.widthProperty().divide(2));
+        local.fitHeightProperty().bind(scene.heightProperty());
+        local.setPreserveRatio(true);
+        My_ImageView miv = new My_ImageView(local,txt);
+        my_image_views.add(miv);
+        tile_pane.getChildren().add(miv.get());
+    }
+
+
     //**********************************************************
     private Optional<Image_context> get_Image_context_with_alternate_rescaler(int width)
     //**********************************************************
@@ -228,7 +287,7 @@ public class Multiple_image_window
         return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, null, aborter, logger);
 
     }
-*/
+
 
     //**********************************************************
     void set_background()

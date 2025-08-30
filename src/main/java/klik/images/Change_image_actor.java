@@ -132,13 +132,18 @@ public class Change_image_actor implements Actor
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
             Jfx_batch_injector.inject(() -> change_image_message.image_window.set_image(change_image_message.output_image_context[0]), change_image_message.logger);
             //cim.image_stage.restore_cursor();
-            change_image_message.image_window.image_display_handler.preload( change_image_message.ultimate, forward,change_image_message.image_window.stage);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
+            change_image_message.image_window.image_display_handler.preload( change_image_message.ultimate, forward,change_image_message.image_window.stage, change_image_message.image_window.alternate_rescaler);
             return "found in cache";
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
 
         if ( dbg) change_image_message.logger.log("\n image NOT found in cache: " + full_path);
-        Optional<Image_context> option = change_image_message.image_window.image_display_handler.local_getImage_context(target_image_path, change_image_message.image_window.stage,change_image_message.aborter);
+        Optional<Image_context> option = Image_context.build_Image_context(
+                target_image_path,
+                change_image_message.image_window.alternate_rescaler,
+                change_image_message.image_window.stage,
+                change_image_message.aborter,
+                change_image_message.logger);
         if (option.isEmpty())
         {
             if ( dbg) change_image_message.logger.log("Change_image_actor null image (1) in change_image_relative");
@@ -170,7 +175,7 @@ public class Change_image_actor implements Actor
 
         //cim.image_stage.restore_cursor();
 
-        change_image_message.image_window.image_display_handler.preload(change_image_message.ultimate, forward, change_image_message.image_window.stage);//, change_image_message.image_window.image_display_handler.alternate_rescaler);
+        change_image_message.image_window.image_display_handler.preload(change_image_message.ultimate, forward, change_image_message.image_window.stage, change_image_message.image_window.alternate_rescaler);
         return "OK";
     }
 

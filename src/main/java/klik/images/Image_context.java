@@ -16,6 +16,7 @@ import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
+import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.*;
 import klik.images.decoding.Fast_date_from_OS;
@@ -25,6 +26,7 @@ import klik.look.Look_and_feel_manager;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
 import klik.util.files_and_paths.From_disk;
+import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
@@ -59,7 +61,27 @@ public class Image_context
     public final FileTime creation_time;
 
     //**********************************************************
-    public static Optional<Image_context> get_Image_context(Path path, Window owner, Aborter aborter,Logger logger_)
+    public static Optional<Image_context> build_Image_context(Path path, boolean alternate_rescaler, Window owner, Aborter aborter, Logger logger_)
+    //**********************************************************
+    {
+        //logger_.log(Stack_trace_getter.get_stack_trace("\n\nWTF"));
+        Optional<Image_context> returned;
+        if (alternate_rescaler)
+        {
+            logger_.log("high quality (bicubic) rescaler is ON for :"+path);
+            returned = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, 800, owner, aborter, logger_);
+        }
+        else
+        {
+            logger_.log("javafx ImageView rescaler is ON for :"+path);
+            returned = Image_context.get_Image_context(path, owner,aborter, logger_);
+        }
+        return returned;
+    }
+
+
+    //**********************************************************
+    private static Optional<Image_context> get_Image_context(Path path, Window owner, Aborter aborter,Logger logger_)
     //**********************************************************
     {
         if ( !Files.exists(path)) return Optional.empty();

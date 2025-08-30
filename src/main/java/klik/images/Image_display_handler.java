@@ -17,6 +17,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
+import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.images.caching.Image_cache_linkedhashmap;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -51,16 +52,20 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public Optional<Image_indexer> image_indexer;
     private Optional<Image_context> image_context;
 
-    // alternate rescaler:
-    //boolean alternate_rescaler = false;
     public final Aborter aborter;
 
 
     //**********************************************************
-    public static Optional<Image_display_handler> get_Image_display_handler_instance(Path_list_provider path_list_provider, boolean use_alternate_rescaler, Path path, Image_window v_, Comparator<? super Path> file_comparator, Window owner, Aborter aborter, Logger logger_)
+    public static Optional<Image_display_handler> get_Image_display_handler_instance(
+            Path_list_provider path_list_provider,
+            Path path,
+            Image_window v_,
+            Comparator<? super Path> file_comparator,
+            boolean alternate_rescaler,
+            Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Optional<Image_context> image_context_ = build_Image_context(use_alternate_rescaler,path,owner,aborter, logger_);
+        Optional<Image_context> image_context_ = Image_context.build_Image_context(path,alternate_rescaler,owner,aborter, logger_);
         if (image_context_.isEmpty())
         {
             logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
@@ -71,24 +76,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         return returned;
     }
 
-    //**********************************************************
-    static Optional<Image_context> build_Image_context(boolean use_alternate_rescaler, Path path, Window owner, Aborter aborter, Logger logger_)
-    //**********************************************************
-    {
-        Optional<Image_context> image_context_;
-        if (use_alternate_rescaler)
-        {
-            logger_.log("Alternate rescaler not implemented");
-            return Optional.empty();
-            //System.out.println("high quality is ON");
-            //image_context_ = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, 800, owner, aborter, logger_);
-        }
-        else
-        {
-            image_context_ = Image_context.get_Image_context(path, owner,aborter, logger_);
-        }
-        return image_context_;
-    }
 
     //**********************************************************
     private Image_display_handler(Path_list_provider path_list_provider, Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
@@ -131,21 +118,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     }
     //**********************************************************
 
-    //**********************************************************
-    Optional<Image_context> local_getImage_context(Path path, Window owner, Aborter aborter)
-    //**********************************************************
-    {
-        Optional<Image_context> image_context;
-        /*if (alternate_rescaler)
-        {
-            image_context = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, (int) image_window.stage.getWidth(), owner, image_window.aborter,logger);
-        }
-        else*/
-        {
-            image_context = Image_context.get_Image_context(path,owner,aborter, logger);
-        }
-        return image_context;
-    }
 
 
 
@@ -215,7 +187,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 // the case when the image has been dragged away is handled directly
                 // by the setOnDragDone event handler
 
-                // the case we care for HERE is when another type of event occurred
+                // the case we care for here is when another type of event occurred
                 // for example the image was renamed
                 if (image_indexer.get().is_known(oanf.new_Path))
                 {
@@ -225,7 +197,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         image_cache.evict(local.path,owner);
                         Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.stage,logger);
                         // reload the image
-                        Optional<Image_context> option = local_getImage_context(local.path,  image_window.stage,aborter);
+                        Optional<Image_context> option = Image_context.build_Image_context(local.path, false, image_window.stage,aborter,logger);
                         if ( option.isPresent())
                         {
                             image_context = Optional.of(option.get());
@@ -293,7 +265,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
             Path p = image_indexer.get().path_from_index(0);
             if ( p == null) return;
-            image_context = Image_context.get_Image_context(p,image_window.stage,aborter,logger);
+            image_context = Image_context.build_Image_context(p,image_window.alternate_rescaler,image_window.stage,aborter,logger);
         }
         if ( dbg) logger.log("change_image_relative delta=" + delta);
 
@@ -357,9 +329,9 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         return image_cache.get(skey);
     }
 
-    public void preload(boolean ultimate, boolean forward, Window owner)//, boolean high_quality)
+    public void preload(boolean ultimate, boolean forward, Window owner, boolean alternate_rescaler)
     {
-        image_cache.preload(this,ultimate,forward, owner);//,high_quality);
+        image_cache.preload(this,ultimate,forward, owner);
 
     }
 

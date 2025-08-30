@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.CheckMenuItem;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.New_window_context;
@@ -125,7 +126,7 @@ public class Menus_for_image_window
         }
 
         image_display_handler.logger.log("GIF repair2 OK");
-        Optional<Image_context> option = Image_context.get_Image_context(local_path,  image_window.stage, image_window.aborter, image_window.logger);
+        Optional<Image_context> option = Image_context.build_Image_context(local_path, image_window.alternate_rescaler, image_window.stage, image_window.aborter, image_window.logger);
         if (option.isEmpty()) {
             image_display_handler.logger.log("getting a new image context failed after gif repair");
         } else {
@@ -335,28 +336,29 @@ public class Menus_for_image_window
         Actor_engine.run(actor,msg,null, image_window.logger);
     }
 
-/*
+
     //**********************************************************
-    private static CheckMenuItem get_quality_check_menu_item(Image_window image_window)
+    private static CheckMenuItem get_alternate_rescaler_check_menu_item(Image_window image_window)
     //**********************************************************
     {
-        CheckMenuItem quality = new CheckMenuItem(My_I18n.get_I18n_string("Image_quality_high", image_window.logger));
+        CheckMenuItem quality = new CheckMenuItem(My_I18n.get_I18n_string("Alternate_rescaler", image_window.stage,image_window.logger));
 
-        quality.setSelected(image_window.image_display_handler.alternate_rescaler);
+        quality.setSelected(image_window.alternate_rescaler);
         quality.setOnAction(actionEvent -> {
 
-            boolean new_high_quality = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            if (new_high_quality != image_window.image_display_handler.alternate_rescaler)
+            boolean new_alternate_rescaler = ((CheckMenuItem) actionEvent.getSource()).isSelected();
+            if (new_alternate_rescaler != image_window.alternate_rescaler)
             {
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                Optional<Image_context> option = build_Image_context(new_high_quality, image_window.image_display_handler.get_image_context().get().path,  image_window.aborter, image_window.logger);
+                Optional<Image_context> option = Image_context.build_Image_context(image_window.image_display_handler.get_image_context().get().path,image_window.alternate_rescaler, image_window.stage, image_window.aborter, image_window.logger);
                 option.ifPresent(image_window::set_image);
+                image_window.logger.log("image has been re-displayed with alternate rescaling");
             }
 
         });
         return quality;
     }
-    */
+
 
 
     //**********************************************************
@@ -523,10 +525,10 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
 
-        /*if (Booleans.get_boolean(Feature.Enable_different_image_scaling.name()))
+        if (Booleans.get_boolean(Feature.Enable_alternate_image_scaling.name(),image_window.stage))
         {
-            context_menu.getItems().add(get_quality_check_menu_item(image_window));
-        }*/
+            context_menu.getItems().add(get_alternate_rescaler_check_menu_item(image_window));
+        }
 
         if ( Booleans.get_boolean(Feature.Enable_image_similarity.name(), image_window.stage))
         {

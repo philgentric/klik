@@ -112,6 +112,12 @@ public class Icon_writer_actor implements Actor
 
 
     /*
+    old way to do it: involved using AWT/SWING components
+    which does nt work with gluonfx native,
+    replaced with pure java png : ar.com.hjg.pngj
+
+
+
     //**********************************************************
     public void write_icon_to_cache_on_disk(Icon_write_message iwm)
     //**********************************************************

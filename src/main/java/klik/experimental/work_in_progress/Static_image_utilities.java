@@ -1,14 +1,17 @@
 package klik.experimental.work_in_progress;
 
-//import javafx.embed.swing.SwingFXUtils;
 
 import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-//import klik.browser.icons.JavaFX_to_Swing;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.*;
+import javafx.scene.transform.Scale;
+import javafx.stage.Window;
+import klik.actor.Aborter;
 import klik.images.Image_context;
+import klik.look.Jar_utils;
+import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -16,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -69,7 +73,7 @@ public class Static_image_utilities
         if ( dbg) logger.log("Icon_writer_actor: Icon written to cache: ");
     }
 
-/*
+
     //**********************************************************
     public static Optional<Image_context> get_Image_context_with_alternate_rescaler(Path path_, double width, Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
@@ -85,9 +89,125 @@ public class Static_image_utilities
         }
         logger_.log("using alternate rescaling");
 
-        WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,(int)width,true,logger_);
+        WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,(int)width,logger_);
         return Optional.of(new Image_context(path_,path_,resized_image,logger_));
     }
+
+    //**********************************************************
+    public static WritableImage transform_with_alternate_rescaler(
+            Image input,
+            int target_width,
+            Logger logger)
+    //**********************************************************
+    {
+        int source_image_width = (int)input.getWidth();
+        int source_image_height = (int)input.getHeight();
+        logger.log("source_image_width="+source_image_width);
+        logger.log("source_image_height="+source_image_height);
+        logger.log("target_width="+target_width);
+
+
+        double scaleX = (double)target_width / (double)source_image_width;
+        int target_height = (int) ((double)source_image_height * scaleX);
+        logger.log("target_height="+target_height);
+
+        double scaleY =  (double)target_height/ (double)source_image_height ;
+        logger.log("scaleX="+scaleX);
+        logger.log("scaleY="+scaleY);
+
+        double ratioX = (double) source_image_width / target_width;
+        double ratioY = (double) source_image_height / target_height;
+        logger.log("ratioX=" + ratioX);
+        logger.log("ratioY=" + ratioY);
+
+        WritableImage output = new WritableImage(target_width, target_height);
+
+        PixelReader reader = input.getPixelReader();
+        if ( reader == null)
+        {
+            logger.log("FATAL: cannot get a PixelReader, wrong image format?");
+            return null;
+        }
+        PixelWriter writer = output.getPixelWriter();
+
+        for (int j = 0; j < target_height; j++)
+        {
+            double y = j * ratioY;
+            int yInt = (int) y;
+            double yFrac = y - yInt;
+            for (int i = 0; i < target_width; i++)
+            {
+                double x = i * ratioX;
+                int xInt = (int)x;
+                double xFrac = x - xInt;
+                double aAcc = 0, rAcc = 0, gAcc = 0, bAcc = 0;
+                double weightSum = 0;
+
+                // Loop through the 4x4 neighborhood
+                for (int m = -1; m <= 2; m++)
+                {
+                    int sampleY = clamp(yInt + m, 0, source_image_height - 1);
+                    double wy = cubic(m - yFrac);
+                    for (int n = -1; n <= 2; n++)
+                    {
+                        int sampleX = clamp(xInt + n, 0, source_image_width - 1);
+                        double wx = cubic(n - xFrac);
+                        double w = wx * wy;
+                        int argb = reader.getArgb(sampleX, sampleY);
+                        aAcc += ((argb >> 24) & 0xFF) * w;
+                        rAcc += ((argb >> 16) & 0xFF) * w;
+                        gAcc += ((argb >> 8)  & 0xFF) * w;
+                        bAcc += (argb & 0xFF) * w;
+                        weightSum += w;
+                    }
+                }
+                int a = clamp((int) Math.round(aAcc / weightSum), 0, 255);
+                int r = clamp((int) Math.round(rAcc / weightSum), 0, 255);
+                int g = clamp((int) Math.round(gAcc / weightSum), 0, 255);
+                int b = clamp((int) Math.round(bAcc / weightSum), 0, 255);
+                int argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(i, j, argb);
+            }
+
+            
+        }
+        
+        return output;
+    }
+
+    //**********************************************************
+    private static int clamp(int val, int min, int max)
+    //**********************************************************
+    {
+        return Math.max(min, Math.min(val, max));
+    }
+
+    // Cubic interpolation kernel function with a = -0.5
+    //**********************************************************
+    private static double cubic(double x)
+    //**********************************************************
+    {
+        double a = -0.5;
+        x = Math.abs(x);
+        if (x <= 1.0) 
+        {
+            return (a + 2) * Math.pow(x, 3) - (a + 3) * Math.pow(x, 2) + 1;
+        } 
+        else if (x < 2.0) 
+        {
+            return a * Math.pow(x, 3) - 5 * a * Math.pow(x, 2) + 8 * a * x - 4 * a;
+        } 
+        else 
+        {
+            return 0.0;
+        }
+    }
+/*
+    TODO restore the alternate rescaler option, this code used AWT Graphics2D
+    there is an alternative using pure javafx
+
+
+
 
     //**********************************************************
     public static WritableImage transform_with_alternate_rescaler(

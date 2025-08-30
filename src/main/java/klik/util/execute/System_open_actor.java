@@ -68,6 +68,7 @@ public class System_open_actor implements Actor
         if (som.special) return special(som);
         try
         {
+            ((System_open_message) m).logger.log("going to call showDocument for "+som.path);
             som.application.getHostServices().showDocument(som.path.toUri().toString());
             //Desktop.getDesktop().open(som.path.toAbsolutePath().toFile());
         }
@@ -98,7 +99,7 @@ public class System_open_actor implements Actor
 
         if ( app == null)
         {
-            som.logger.log("open special aborted");
+            som.logger.log("open special aborted, no registered operation for this extension ");
             return null;
         }
         som.logger.log("special open for " + som.path + " with " + app);

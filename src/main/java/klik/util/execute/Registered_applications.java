@@ -1,5 +1,6 @@
 package klik.util.execute;
 
+import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import klik.actor.Aborter;
@@ -9,7 +10,6 @@ import klik.util.files_and_paths.File_chooser;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
-import javax.swing.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,11 +41,12 @@ public class Registered_applications
             logger.log("Registered_applications.get_registered_application: found "+extension+" ==> "+returned);
             return returned;
         }
+        logger.log("NO registered application found for extension ->"+extension+"<-");
+
         // ask the user
         LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
-        // JFileChooser will work "only once" if it is not called on the Swing thread
         String finalExtension = extension;
-        SwingUtilities.invokeLater(() -> {
+        Platform.runLater(() -> {
             FileChooser file_chooser = new FileChooser();
             file_chooser.setTitle("Please select the application to open files with the extension " + finalExtension);
             Path home = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
@@ -59,24 +60,6 @@ public class Registered_applications
             save_map(logger);
             queue.add(selected.getAbsolutePath());
 
-
-
-            /*
-                    JFileChooser app_chooser = new JFileChooser();
-                    app_chooser.setDialogTitle("Please select the application to open files with the extension " + finalExtension);
-                    app_chooser.setFileHidingEnabled(false);
-                    app_chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                    Path home = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
-                    app_chooser.setCurrentDirectory(home.toFile());
-                    int status = app_chooser.showOpenDialog(null);
-                    if (status == JFileChooser.APPROVE_OPTION) {
-                        map.put(finalExtension, app_chooser.getSelectedFile().getAbsolutePath());
-                        save_map(logger);
-                        queue.add(app_chooser.getSelectedFile().getAbsolutePath());
-                    }
-                    queue.add(USER_CANCELLED);
-
-             */
         });
 
         // wait max 10 minutes

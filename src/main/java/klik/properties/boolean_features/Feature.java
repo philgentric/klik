@@ -29,8 +29,8 @@ public enum Feature
     Enable_fusk,
     Enable_name_cleaning,
     Enable_corrupted_images_removal,
+    Enable_alternate_image_scaling,
 //    Enable_image_playlists,
-//    Enable_different_image_scaling,
 
 
     Log_to_file,

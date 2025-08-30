@@ -12,18 +12,21 @@ public class Image_decode_request_for_cache implements Message
 //**********************************************************
 {
     public final Path path;
-    //public final boolean high_quality;
+    public final boolean alternate_rescaler;
     public final Cache_interface cache;
     public final Aborter aborter;
     public Window owner;
 
     //**********************************************************
     public Image_decode_request_for_cache(Path path_,
-                                          Cache_interface preloaded_, Window owner,Aborter aborter)
+                                          Cache_interface preloaded_,
+                                          boolean alternate_rescaler,
+                                          Window owner,Aborter aborter)
     //**********************************************************
     {
         path = Objects.requireNonNull(path_);
         cache = preloaded_;
+        this.alternate_rescaler = alternate_rescaler;
         this.aborter = aborter;
         this.owner = owner;
     }
