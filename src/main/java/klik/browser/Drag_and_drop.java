@@ -134,7 +134,7 @@ public class Drag_and_drop
                 destination_dir,
                 destination_is_trash,
                 the_list,
-                new Aborter("safe_move_files_or_dirs",logger),
+                new Aborter("dummy",logger),
                 logger);
 
 

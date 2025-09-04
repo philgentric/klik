@@ -32,6 +32,6 @@ public class Redo_same_move_engine
         ll.add(oanp);
         double x = the_stage.getX()+100;
         double y = the_stage.getY()+100;
-        Moving_files.perform_safe_moves_in_a_thread(the_stage,x,y,ll, true,new Aborter("same move",logger), logger);
+        Moving_files.perform_safe_moves_in_a_thread(ll, true,x,y,the_stage,new Aborter("dummy",logger), logger);
     }
 }

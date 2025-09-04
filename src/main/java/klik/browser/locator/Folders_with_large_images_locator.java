@@ -6,9 +6,8 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.New_window_context;
 import klik.util.files_and_paths.*;
-import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Show_running_film_frame;
+import klik.util.ui.Progress_window;
 import klik.util.log.Logger;
 import klik.util.execute.Threads;
 
@@ -30,7 +29,6 @@ public class Folders_with_large_images_locator
     private final int minimum_count;
     private final int min_bytes;
     //private final Browser browser;
-    private final Aborter aborter;
     private final Window owner;
     private final Logger logger;
     private final  ConcurrentHashMap<String,Integer> contanimated_directories = new ConcurrentHashMap<>();
@@ -38,24 +36,23 @@ public class Folders_with_large_images_locator
     private final  List<String> final_choice = new ArrayList<>();
     private static final int MAX_WINDOWS = 10;
 
-    private final Aborter private_aborter;
     private Monitor monitor = null;
+    private Aborter private_aborter = null;
 
     //**********************************************************
     public static void locate(Path top, int minimum_count, int min_bytes, 
                               Window owner,
-                              Aborter aborter,
                               Logger logger)
     //**********************************************************
     {
-        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, owner,aborter,logger);
+        instance = new Folders_with_large_images_locator(top,minimum_count,min_bytes, owner,logger);
         instance.search();
     }
 
 
     //**********************************************************
     private Folders_with_large_images_locator(Path top, int minimum_count, int min_bytes, 
-                                              Window owner, Aborter aborter,
+                                              Window owner,
                                               Logger logger)
     //**********************************************************
     {
@@ -63,10 +60,7 @@ public class Folders_with_large_images_locator
         this.minimum_count = minimum_count;
         this.min_bytes = min_bytes;
         this.owner  = owner;
-        this.aborter = aborter;
         this.logger = logger;
-        this.private_aborter = aborter;
-
     }
 
     //**********************************************************
@@ -77,11 +71,21 @@ public class Folders_with_large_images_locator
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                explore(top.toFile());
 
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                Hourglass show_running_film = Show_running_film_frame.show_running_film(owner,x,y,"Looking for folders with large images", 10 * 60, private_aborter, logger);
+                Progress_window rf = Progress_window.show(
+                        true,
+                        "Looking for folders with large images",
+                        20000,
+                        x,
+                        y,
+                        owner,
+                        logger);
+                private_aborter = rf.aborter;
+                explore(top.toFile());
+
+
                 // wait for exploration to end
                 long start = System.currentTimeMillis();
                 for(;;)
@@ -97,12 +101,7 @@ public class Folders_with_large_images_locator
                     } catch (InterruptedException e) {
                         logger.log(""+e);
                     }
-                    if ( (aborter.should_abort())||(private_aborter.should_abort()))
-                    {
-                        logger.log("Folders_with_large_images_locator thread aborting");
-                        if ( monitor!=null) monitor.close();
-                        return;
-                    }
+
                     long now = System.currentTimeMillis();
                     if ( now-start > 3000)
                     {
@@ -110,7 +109,7 @@ public class Folders_with_large_images_locator
                         logger.log(msg);
                         if ( monitor == null)
                         {
-                            monitor = new Monitor(top,locator,private_aborter,logger);
+                            monitor = new Monitor(top,locator,rf.aborter,logger);
                             Jfx_batch_injector.inject(()->monitor.realize(),logger);
                         }
                         else
@@ -121,7 +120,7 @@ public class Folders_with_large_images_locator
                     }
 
                 }
-                show_running_film.close();
+                rf.close();
 
                 if ( dbg) print_all_contaminated();
 
@@ -161,7 +160,7 @@ public class Folders_with_large_images_locator
         int count_images = 0;
         for (File f : all_files)
         {
-            if ((aborter.should_abort())||(private_aborter.should_abort()))
+            if (private_aborter.should_abort())
             {
                 if ( dbg) logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
@@ -189,7 +188,7 @@ public class Folders_with_large_images_locator
             return;
         }
 
-        if ((aborter.should_abort())||(private_aborter.should_abort()))
+        if (private_aborter.should_abort())
         {
             logger.log("Folders_with_large_images_locator thread aborting");
             if ( monitor!=null) monitor.close();
@@ -222,7 +221,7 @@ public class Folders_with_large_images_locator
                     r.run();
                 }
             }
-            if ((aborter.should_abort())||(private_aborter.should_abort()))
+            if (private_aborter.should_abort())
             {
                 logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
@@ -275,7 +274,7 @@ public class Folders_with_large_images_locator
             {
                 contanimated_directories.put(file_to_key(parent.toFile()), minimum_count);
             }
-            if ( (aborter.should_abort())||(private_aborter.should_abort()))
+            if ( private_aborter.should_abort())
             {
                 logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
@@ -317,7 +316,7 @@ public class Folders_with_large_images_locator
                     }
                 }
             }
-            if ( (aborter.should_abort())||(private_aborter.should_abort()))
+            if ( private_aborter.should_abort())
             {
                 logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
@@ -364,7 +363,7 @@ public class Folders_with_large_images_locator
             else {
                 if ( dbg) logger.log("parent IS contaminated, we DONT keep "+folder);
             }
-            if ( (aborter.should_abort())||(private_aborter.should_abort()))
+            if ( private_aborter.should_abort())
             {
                 logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
@@ -397,7 +396,7 @@ public class Folders_with_large_images_locator
                 if ( monitor!=null) monitor.show(x);
             }
 
-             if ( (aborter.should_abort())||(private_aborter.should_abort()))
+             if ( private_aborter.should_abort())
             {
                 logger.log("Folders_with_large_images_locator thread aborting");
                 if ( monitor!=null) monitor.close();
@@ -407,6 +406,6 @@ public class Folders_with_large_images_locator
     }
 
     public void cancel() {
-        private_aborter.abort("locator cancel");
+        if ( private_aborter!=null) private_aborter.abort("locator cancel");
     }
 }

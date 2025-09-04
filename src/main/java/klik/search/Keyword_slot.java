@@ -74,7 +74,7 @@ public class Keyword_slot
                 }
             });
 
-            hbox1.getChildren().add(Finder_frame.horizontal_spacer());
+            hbox1.getChildren().add(Finder_frame.horizontal_spacer(finder_frame.stage,logger));
 
             Button t4 = new Button(My_I18n.get_I18n_string("Remove_This_Keyword", finder_frame.stage,logger));
             Look_and_feel_manager.set_button_look(t4, true,finder_frame.stage,logger);
@@ -96,17 +96,17 @@ public class Keyword_slot
 
 
             hbox2.getChildren().add(result_keyword_label);
-            hbox2.getChildren().add(Finder_frame.horizontal_spacer());
+            hbox2.getChildren().add(Finder_frame.horizontal_spacer(finder_frame.stage,logger));
 
             Label t2 = new Label(My_I18n.get_I18n_string("Was_Found_In", finder_frame.stage,logger));
             Look_and_feel_manager.set_region_look(t2,finder_frame.stage,logger);
             hbox2.getChildren().add(t2);
-            hbox2.getChildren().add(Finder_frame.horizontal_spacer());
+            hbox2.getChildren().add(Finder_frame.horizontal_spacer(finder_frame.stage,logger));
 
             result_count_label= new Label(""); // this is the label that will be updated during search with the match count
             Look_and_feel_manager.set_region_look(result_count_label,finder_frame.stage,logger);
             hbox2.getChildren().add(result_count_label);
-            hbox2.getChildren().add(Finder_frame.horizontal_spacer());
+            hbox2.getChildren().add(Finder_frame.horizontal_spacer(finder_frame.stage,logger));
 
             Label t4 = new Label( My_I18n.get_I18n_string("File_Names",finder_frame.stage,logger));
             Look_and_feel_manager.set_region_look(t4,finder_frame.stage,logger);

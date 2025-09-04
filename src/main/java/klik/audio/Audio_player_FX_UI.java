@@ -34,8 +34,7 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.util.ui.Hourglass;
-import klik.util.ui.Show_running_film_frame;
+import klik.util.ui.Progress_window;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +45,8 @@ import java.util.*;
 public class Audio_player_FX_UI
 //**********************************************************
 {
-    private static final boolean dbg =  false;
+    private static final boolean dbg =  true;
+    private static final boolean ultra_dbg =  false;
     private static final boolean scroll_dbg =  false;
 
     public static final int WIDTH = 500;
@@ -118,6 +118,7 @@ public class Audio_player_FX_UI
         stage.widthProperty().addListener(change_listener);
         stage.heightProperty().addListener(change_listener);
         stage.setMinWidth(WIDTH);
+        stage.sizeToScene();
 
     }
 
@@ -755,7 +756,7 @@ public class Audio_player_FX_UI
 
         // the player pilots how the slider moves during playback
         the_media_player_option.get().currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
-            if (dbg) logger.log("player changing current time:"+newValue.toSeconds());
+            if (ultra_dbg) logger.log("player changing current time:"+newValue.toSeconds());
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value_label.setText((int)seconds+" seconds");
@@ -1083,14 +1084,15 @@ public class Audio_player_FX_UI
                     String content = clipboard.getString();
                     System.out.println("Clipboard Content: " + content);
                     Runnable r = () -> {
-                        Hourglass x = Show_running_film_frame.show_running_film(
-                                stage,
-                                stage.getX()+100,
-                                stage.getY()+100,
+                        Progress_window x = Progress_window.show(
+                                true,
                                 "Importing audio tracks",
                                 30*60,
-                                aborter,
+                                stage.getX()+100,
+                                stage.getY()+100,
+                                stage,
                                 logger);
+
                         List<String> file_names = import_from_youtube(content);
                         x.close();
                         if ( !file_names.isEmpty())

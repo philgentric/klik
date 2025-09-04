@@ -232,7 +232,7 @@ public class Deduplication_engine implements Againor, Abortable
         }
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Moving_files.safe_delete_files(owner, x,y,ll, private_aborter,logger);
+        Moving_files.safe_delete_files(ll, x,y,owner, private_aborter,logger);
 
         //Popups.popup_warning("End of automatic de-duplication for :" + target_dir.getAbsolutePath(), erased + " pairs de-duplicated", false, logger);
 

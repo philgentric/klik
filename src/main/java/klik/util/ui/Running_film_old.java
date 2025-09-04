@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -17,14 +18,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 //**********************************************************
-public class Show_running_film_frame implements Hourglass
+public class Running_film_old implements Hourglass
 //**********************************************************
 {
 	public final Aborter aborter;
 	private final int timeout_s;
 	Logger logger;
 	Stage stage;
+    private boolean running_film = false;
 	ImageView iv;
+    Progress_spinner spinner;
 	long start;
 	private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -32,17 +35,17 @@ public class Show_running_film_frame implements Hourglass
 	public static Hourglass show_running_film(Window owner, double x, double y, String wait_message, int timeout_s, Aborter aborter, Logger logger)
 	//**********************************************************
 	{
-		Show_running_film_frame local = new Show_running_film_frame(aborter, timeout_s,logger);
+		Running_film_old local = new Running_film_old(aborter, timeout_s,logger);
 		launch(local, wait_message, owner, x, y);
 		return local;
 	}
 
 
 	//**********************************************************
-	private static Hourglass launch(Show_running_film_frame local, String wait_message, Window owner, double x, double y)
+	private static Hourglass launch(Running_film_old local, String wait_message, Window owner, double x, double y)
 	//**********************************************************
 	{
-		//logger.log("Show_running_film_frame: wait_message= "+wait_message);
+		//logger.log("Progress_window: wait_message= "+wait_message);
 		if ( Platform.isFxApplicationThread())
 		{
 			local.define_fx(wait_message, owner,x,y);
@@ -55,7 +58,7 @@ public class Show_running_film_frame implements Hourglass
 	}
 
 	//**********************************************************
-	private Show_running_film_frame(Aborter aborter_, int timeout_s_, Logger logger_)
+	private Running_film_old(Aborter aborter_, int timeout_s_, Logger logger_)
 	//**********************************************************
 	{
 		aborter = aborter_;
@@ -68,17 +71,27 @@ public class Show_running_film_frame implements Hourglass
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
-		//logger.log("Show_running_film_frame: "+wait_message);
+		//logger.log("Progress_window: "+wait_message);
 		stage = new Stage();
-		VBox vbox = new VBox();
+        stage.setMinWidth(300);
+        VBox vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox,owner,logger);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(owner,logger));
-		iv.setFitHeight(100);
-		stage.setMinWidth(300);
-		iv.setPreserveRatio(true);
-		vbox.getChildren().add(iv);
+
+        if ( running_film)
+        {
+            iv = new ImageView(Look_and_feel_manager.get_running_film_icon(owner,logger));
+            iv.setFitHeight(100);
+            iv.setPreserveRatio(true);
+            vbox.getChildren().add(iv);
+        }
+        else
+        {
+            spinner = new Progress_spinner();
+            Pane pane = spinner.start();
+            vbox.getChildren().add(pane);
+        }
 
 
 		Scene scene = new Scene(vbox);
@@ -140,7 +153,15 @@ public class Show_running_film_frame implements Hourglass
 		if ( sleep_time > 1000) sleep_time = 1000;
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(message);//My_I18n.get_I18n_string("Search_Results_Ended", logger));
-			iv.setImage(Look_and_feel_manager.get_the_end_icon(owner,logger));
+
+            if ( running_film)
+            {
+                iv.setImage(Look_and_feel_manager.get_the_end_icon(owner,logger));
+            }
+            else
+            {
+                spinner.stop();
+            }
 		},logger);
 
 		if ( sleep) {

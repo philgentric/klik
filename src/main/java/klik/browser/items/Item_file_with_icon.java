@@ -24,6 +24,7 @@ import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_factory_actor;
+import klik.browser.icons.animated_gifs.Animated_gifs_from_video;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
@@ -40,14 +41,12 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -353,7 +352,7 @@ public class Item_file_with_icon extends Item_file
             List<Old_and_new_Path> l = new ArrayList<>();
             Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
             l.add(oandn);
-            Moving_files.perform_safe_moves_in_a_thread(owner, x, y,l, true, browser_aborter, logger);
+            Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,owner,browser_aborter, logger);
         });
         return menu_item;
     }
@@ -404,7 +403,6 @@ public class Item_file_with_icon extends Item_file
     public static void make_menu_items_for_videos(
             Path path, 
             Window owner,
-            //Browser browser, 
             ContextMenu context_menu, boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************
     {
@@ -421,7 +419,7 @@ public class Item_file_with_icon extends Item_file
             MenuItem menu_item = new MenuItem("Generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
-                Ffmpeg_utils.generate_many_gifs(owner,path,5,5,aborter,logger);
+                Animated_gifs_from_video.generate_many_gifs(owner,path,5,5,logger);
             });
             context_menu.getItems().add(menu_item);
         }
@@ -429,7 +427,7 @@ public class Item_file_with_icon extends Item_file
             MenuItem menu_item = new MenuItem("Generate gif animations from a video, interactively");
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
-                Ffmpeg_utils.interactive(path,owner,logger);
+                Animated_gifs_from_video.interactive(path,owner,logger);
             });
             context_menu.getItems().add(menu_item);
         }

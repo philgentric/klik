@@ -1,6 +1,6 @@
 //SOURCES ../../actor/Actor_engine.java
 //SOURCES ../../actor/Aborter.java
-//SOURCES ../../util/ui/Show_running_film_frame.java
+//SOURCES ../../util/ui/Progress_window.java
 //SOURCES ../../util/ui/Popups.java
 //SOURCES ../../util/log/Stack_trace_getter.java
 //SOURCES ../../util/files_and_paths/Old_and_new_Path.java

@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Launcher;
 import klik.browser.Drag_and_drop;
-import klik.look.styles.Look_and_feel_custom_color;
+import klik.look.styles.Look_and_feel_material;
 import klik.look.styles.Look_and_feel_light;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
@@ -100,7 +100,7 @@ public class Look_and_feel_manager
             default -> new Look_and_feel_light(owner,logger);
             case dark -> new klik.look.styles.Look_and_feel_dark(owner,logger);
             case wood ->new klik.look.styles.Look_and_feel_wood(owner,logger);
-            case custom_color -> new Look_and_feel_custom_color(owner,logger);
+            case material -> new Look_and_feel_material(owner,logger);
         };
     }
 
@@ -773,15 +773,22 @@ public class Look_and_feel_manager
         set_button_and_image_look(button, folder_icon, icon_height, color,true,owner,logger);
     }
 
+
+    //**********************************************************
+    public static void set_menu_item_look(MenuItem item, Window owner, Logger logger)
+    //**********************************************************
+    {
+        item.getStyleClass().add("context-menu");
+        Font_size.apply_font_size(item,24,logger);
+    }
+
     //**********************************************************
     public static void set_context_menu_look(ContextMenu context_menu, Window owner, Logger logger)
     //**********************************************************
     {
         context_menu.getStyleClass().add("context-menu");
-        //Font_size.set_preferred_font_size(context_menu,logger);
         Font_size.apply_font_size(context_menu,owner,logger);
     }
-
 
     //**********************************************************
     public static void set_CheckBox_look(CheckBox check_box, Window owner, Logger logger)
@@ -848,6 +855,22 @@ public class Look_and_feel_manager
                 hbox.getChildren().add(dot);
                 hbox.getChildren().add(image_view);
                 button.setGraphic(hbox);
+
+                /*StackPane stack = new StackPane();
+                stack.setMaxWidth(height);
+                stack.setMaxHeight(height);
+
+                ImageView imageView = new ImageView(image);
+                imageView.setFitHeight(height);
+                imageView.setPreserveRatio(true);
+
+                Circle dot = new Circle(height / 3, color); // smaller badge
+                StackPane.setAlignment(dot, Pos.BOTTOM_RIGHT);
+                stack.getChildren().addAll(imageView, dot);
+
+                button.setGraphic(stack);
+                */
+
             }
         }
 

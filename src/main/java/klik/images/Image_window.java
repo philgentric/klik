@@ -281,11 +281,8 @@ public class Image_window
         };
         stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
 
-
-
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
-        Virtual_landscape.show_running_film = false;
-
+        Virtual_landscape.show_progress_window_on_redraw = false;
     }
 
 
@@ -308,7 +305,7 @@ public class Image_window
         if ( slide_show == null)
         {
             start_slide_show();
-            Virtual_landscape.show_running_film = false;
+            Virtual_landscape.show_progress_window_on_redraw = false;
             return true;
         }
         else
@@ -574,7 +571,7 @@ public class Image_window
     {
         //logger.log("Image_window is closing");
         aborter.abort("Image_window is closing");
-        Virtual_landscape.show_running_film = true;
+        Virtual_landscape.show_progress_window_on_redraw = true;
         Change_gang.deregister(image_display_handler, aborter);
     }
 
@@ -679,7 +676,7 @@ public class Image_window
 
             double x = stage.getX()+100;
             double y = stage.getY()+100;
-            Moving_files.perform_safe_moves_in_a_thread(stage,x,y,l, true, aborter,logger);
+            Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,stage,aborter,logger);
         }
         return Optional.of(local_new_image_context);
     }

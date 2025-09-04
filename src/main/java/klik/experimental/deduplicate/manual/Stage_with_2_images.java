@@ -213,7 +213,7 @@ public class Stage_with_2_images
 			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
             double x = stage.getX()+100;
 			double y = stage.getY()+100;
-			Moving_files.safe_delete_files(stage,x,y,l, aborter,logger);
+			Moving_files.safe_delete_files(l, x,y,stage,aborter,logger);
 			count_deleted.incrementAndGet();
 
 			againor.again();
@@ -232,6 +232,7 @@ public class Stage_with_2_images
 				hbox2.getChildren().add(label);
 			}
 			Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer,owner,logger);
 			HBox.setHgrow(spacer, Priority.ALWAYS);
 			hbox2.getChildren().add(spacer);
 			the_vbox.getChildren().add(hbox2);
@@ -247,7 +248,8 @@ public class Stage_with_2_images
 
 			}
 			Region spacer = new Region();
-			HBox.setHgrow(spacer, Priority.ALWAYS);
+            Look_and_feel_manager.set_region_look(spacer,owner,logger);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 			hbox2.getChildren().add(spacer);
 			the_vbox.getChildren().add(hbox2);
 		}
@@ -263,7 +265,8 @@ public class Stage_with_2_images
 
 			}
 			Region spacer = new Region();
-			HBox.setHgrow(spacer, Priority.ALWAYS);
+            Look_and_feel_manager.set_region_look(spacer,owner,logger);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 			hbox2.getChildren().add(spacer);
 			the_vbox.getChildren().add(hbox2);
 		}
@@ -293,7 +296,8 @@ public class Stage_with_2_images
 
 			}
 			Region spacer = new Region();
-			HBox.setHgrow(spacer, Priority.ALWAYS);
+            Look_and_feel_manager.set_region_look(spacer,owner,logger);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 			hbox2.getChildren().add(spacer);
 			the_vbox.getChildren().add(hbox2);
 

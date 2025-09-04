@@ -20,7 +20,7 @@ import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Show_running_film_frame;
+import klik.util.ui.Progress_window;
 
 import java.io.File;
 import java.io.IOException;
@@ -187,7 +187,14 @@ public class Importer
 
         double x = local_stage.getX()+100;
         double y = local_stage.getY()+100;
-        Hourglass hourglass = Show_running_film_frame.show_running_film(local_stage,x,y,"wait, counting Apple Photo images",20*3600,aborter, logger);
+        Hourglass hourglass = Progress_window.show(
+                true,
+                "Wait, counting Apple Photo images",
+                20000,
+                x,
+                y,
+                owner,
+                logger);
 
         Runnable r = new Runnable() {
             @Override

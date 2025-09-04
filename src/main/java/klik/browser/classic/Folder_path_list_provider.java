@@ -198,7 +198,7 @@ public class Folder_path_list_provider implements Path_list_provider
                 destination_dir,
                 destination_is_trash,
                 the_list,
-                new Aborter("safe_move_files_or_dirs",logger),
+                new Aborter("dummy",logger),
                 logger);
     }
 

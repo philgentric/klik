@@ -26,7 +26,7 @@ public class Aborter
     public final String name;
     private AtomicBoolean abort = new AtomicBoolean(false);
     private final Logger logger;
-    public String reason;
+    private String reason;
     private Runnable on_abort;
 
     //**********************************************************
@@ -67,5 +67,12 @@ public class Aborter
     //**********************************************************
     {
         on_abort.run();
+    }
+
+    //**********************************************************
+    public String reason()
+    //**********************************************************
+    {
+        return reason;
     }
 }

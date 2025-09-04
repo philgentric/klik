@@ -6,13 +6,14 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
+import klik.actor.Or_aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Hourglass;
-import klik.util.ui.Show_running_film_frame_with_abort_button;
+import klik.util.ui.Progress_window;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -71,18 +72,25 @@ public class Similarity_cache
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(images.size());
-        Hourglass hourglass = Show_running_film_frame_with_abort_button.show_running_film(in_flight,
-                "Wait: computing image similarities",30*60,x,y,logger);
+        Progress_window progress_window = Progress_window.show(
+                in_flight,
+                "Wait: computing image similarities",
+                3600*60,
+                x,
+                y,
+                owner,
+                logger);
+        Aborter local = new Or_aborter(progress_window.aborter,browser_aborter,logger);
         Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(images, fv_cache, similarities, logger);
         CountDownLatch cdl = new CountDownLatch(images.size());
         for (Path p1 : images)
         {
-            if ( browser_aborter.should_abort())
+            if ( local.should_abort())
             {
-                logger.log("aborting Similarity_cache "+ browser_aborter.reason);
+                logger.log("aborting Similarity_cache "+ local.reason());
                 break;
             }
-            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(owner,browser_aborter, p1);
+            Similarity_cache_warmer_message m = new Similarity_cache_warmer_message(owner,local, p1);
             Job_termination_reporter tr = (message, job) -> {
                 cdl.countDown();
                 in_flight.decrementAndGet();
@@ -95,15 +103,15 @@ public class Similarity_cache
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            hourglass.close();
+            progress_window.close();
             logger.log("similarity cache interrupted" + e);
         }
         save_similarity_cache_to_disk();
-        hourglass.close();
+        progress_window.close();
     }
 
     //**********************************************************
-    public boolean reload_similarity_cache_from_disk(Aborter browser_aborter)
+    public boolean reload_similarity_cache_from_disk(Aborter local)
     //**********************************************************
     {
         logger.log("reloading similarities from disk");
@@ -114,9 +122,9 @@ public class Similarity_cache
             int number_of_items = dis.readInt();
             for ( int k = 0; k < number_of_items; k++)
             {
-                if ( browser_aborter.should_abort())
+                if ( local.should_abort())
                 {
-                    logger.log("aborting : Similarity_cache::reload_similarity_cache_from_disk "+browser_aborter.reason);
+                    logger.log("aborting : Similarity_cache::reload_similarity_cache_from_disk "+local.reason());
                     return false;
                 }
                 String path1_string = dis.readUTF();

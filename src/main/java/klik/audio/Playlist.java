@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Playlist
 //**********************************************************
 {
-    private final static boolean dbg = false;
+    private final static boolean dbg = true;
     public static final String DEFAULT_BACKGROUND_COLOR = "#ffffff";
     public static final String COLOR_OF_SELECTION = "#90D5FF";
     private final Logger logger;
@@ -125,8 +125,14 @@ public class Playlist
     //**********************************************************
     {
         the_playlist.remove(to_be_removed);
-        the_music_ui.remove_song(path_to_Song.get(to_be_removed));
-        path_to_Song.remove(to_be_removed);
+        {
+            Song local = path_to_Song.get(to_be_removed);
+            if ( local != null)
+            {
+                the_music_ui.remove_song(local);
+                path_to_Song.remove(to_be_removed);
+            }
+        }
 
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(Path.of(to_be_removed),
@@ -197,7 +203,7 @@ public class Playlist
                     sanitize(path,  oks,to_be_renamed_first,logger);
                 }
             }
-            Moving_files.actual_safe_moves(owner, owner.getX()+100, owner.getY()+ 100, to_be_renamed_first, true, new Aborter("actual_safe_moves",logger), logger);
+            Moving_files.actual_safe_moves(to_be_renamed_first, true,  owner.getX()+100, owner.getY()+ 100, owner, new Aborter("dummy",logger), logger);
             logger.log(to_be_renamed_first.size()+ " files RENAMED to be accepted as possible songs");
 
             String last = null;
@@ -644,7 +650,7 @@ public class Playlist
             }
         }
 
-        saving_dir = File_chooser.show_dialog_for_folder_selection("Choose folder for playlist",saving_dir.toPath(), owner, logger).toFile();
+        saving_dir = Folder_chooser.show_dialog_for_folder_selection("Choose folder for playlist",saving_dir.toPath(), owner, logger).toFile();
         Platform.runLater(() -> choose_playlist_name());
     }
 
@@ -912,9 +918,7 @@ public class Playlist
         vbox.getChildren().add(search_field);
         search_field.setPromptText("Search for a song...");
         search_field.setOnAction(event -> {
-
             perform_search(search_field, search_stage, vbox, the_result_vbox);
-
         });
 
         ScrollPane scroll_pane = new ScrollPane(the_result_vbox);
@@ -941,12 +945,14 @@ public class Playlist
         search_stage.setTitle(My_I18n.get_I18n_string("Search_Results", search_stage,logger));
 
         search_stage.show();
+        search_stage.sizeToScene();
     }
 
     //**********************************************************
     private void perform_search(TextField search_field, Stage search_stage, VBox vbox, VBox the_result_vbox)
     //**********************************************************
     {
+        the_result_vbox.getChildren().clear();
         String search_text = search_field.getText().toLowerCase();
         if (search_text.trim().isEmpty()) return;
         String[] keys = search_text.split("\\s");

@@ -31,7 +31,7 @@ public class Date_comparator implements Comparator<Path>, Clearable_RAM_cache
     {
         FileTime ldt1 = Fast_date_from_OS.get_date(p1,logger);
         FileTime ldt2 = Fast_date_from_OS.get_date(p2,logger);
-        int diff= ldt2.compareTo(ldt1); // most recent first
+        int diff= ldt1.compareTo(ldt2); // oldest first
         if ( diff != 0) return diff;
         return (p1.toString().compareTo(p2.toString()));
     }

@@ -36,7 +36,7 @@ import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.image_ml.Feature_vector;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
-import klik.util.ui.Show_running_film_frame_with_abort_button;
+import klik.util.ui.Progress_window;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -178,8 +178,15 @@ public class Face_recognition_service
         AtomicInteger files_in_flight = new AtomicInteger(0);
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for auto train to complete",20*3600,x,y,logger);
-        Aborter aborter_for_auto_train = running_film.aborter;
+        Progress_window progress_window = Progress_window.show(
+                files_in_flight,
+                "Wait for auto train to complete",
+                3600*60,
+                x,
+                y,
+                owner,
+                logger);
+        Aborter aborter_for_auto_train = progress_window.aborter;
 
         Face_recognition_actor Face_recognition_actor = new Face_recognition_actor(this);
 
@@ -213,7 +220,7 @@ public class Face_recognition_service
             String label = f.getName();
             double percent = 100.0*(double)i/(double)folders.size();
             String done =  String.format("%.1f",percent);
-            running_film.set_title(label+", "+done+"% of total");
+            progress_window.set_text(label+", "+done+"% of total");
             i++;
             Integer N = label_to_prototype_count.get(label);
             if ( N == null)
@@ -603,7 +610,14 @@ public class Face_recognition_service
         AtomicInteger in_flight = new AtomicInteger(0);
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Show_running_film_frame_with_abort_button show_running_film_frame_with_abort_button = Show_running_film_frame_with_abort_button.show_running_film(in_flight,"Loading face recognition prototypes", 20_100, x,y,logger);
+        Progress_window progress_window = Progress_window.show(
+                in_flight,
+                "Loading face recognition prototypes",
+                3600*60,
+                x,
+                y,
+                owner,
+                logger);
         Load_one_prototype_actor actor = new Load_one_prototype_actor();
         Runnable r = () -> {
             Path p = Path.of(face_recognizer_path.toAbsolutePath().toString());
@@ -615,7 +629,7 @@ public class Face_recognition_service
                 Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
 
                 Actor_engine.run(actor,
-                        new Load_one_prototype_message(f,this,show_running_film_frame_with_abort_button.aborter),
+                        new Load_one_prototype_message(f,this,progress_window.aborter),
                         tr,
                         logger);
             }
@@ -826,8 +840,14 @@ public class Face_recognition_service
         AtomicInteger files_in_flight = new AtomicInteger(0);
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Show_running_film_frame_with_abort_button running_film = Show_running_film_frame_with_abort_button.show_running_film(files_in_flight,"Wait for SELF face recognition to complete",20*60,x,y,logger);
-        Aborter aborter_for_self = running_film.aborter;
+        Progress_window progress_window = Progress_window.show(
+                files_in_flight,
+                "Wait for SELF face recognition to complete",
+                3600*60,
+                x,
+                y,
+                owner,
+                logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -842,7 +862,7 @@ public class Face_recognition_service
                 logger.log("self_internal skipping2 "+f.getAbsolutePath());
                 continue;
             }
-            if ( aborter_for_self.should_abort()) return;
+            if ( progress_window.aborter.should_abort()) return;
             if ( ! Static_files_and_paths_utilities.get_extension(f.getName()).equals(EXTENSION_FOR_EP)) continue;
             int N = Actor_engine.how_many_threads_are_in_flight(logger);
             if ( N > MAX_THREADS)
@@ -856,7 +876,7 @@ public class Face_recognition_service
 
             }
 
-            self_file(f,files,aborter_for_self);
+            self_file(f,files,progress_window.aborter);
         }
 
         //running_film.report_progress_and_close_when_finished(files_in_flight);

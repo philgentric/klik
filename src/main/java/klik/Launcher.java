@@ -41,7 +41,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Popups;
-import klik.util.ui.Show_running_film_frame;
+import klik.util.ui.Progress_window;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -304,7 +304,14 @@ public class Launcher extends Application implements UI_change
     private void show_version(Window owner, Logger logger)
     //**********************************************************
     {
-        Hourglass local_hourglass = Show_running_film_frame.show_running_film(owner,100,100,"Please wait ... starting",20 * 1000,new Aborter("dummy", logger), logger);
+        Hourglass local_hourglass = Progress_window.show(
+                false,
+                "Please wait ... getting version",
+                30*60,
+                owner.getX()+100,
+                owner.getY()+100,
+                owner,
+                logger);
 
         String version_string = get_version_string(logger);
         logger.log("version: "+version_string);
@@ -376,7 +383,15 @@ public class Launcher extends Application implements UI_change
     private void get_most_recent_version(Stage stage, Logger logger)
     //**********************************************************
     {
-        Hourglass local_hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... getting version",20 * 1000,new Aborter("dummy", logger), logger);
+        Hourglass local_hourglass = Progress_window.show(
+                false,
+                "Please wait ... getting version",
+                30*60,
+                stage.getX()+100,
+                stage.getY()+100,
+                stage,
+                logger);
+
 
         if (Popups.popup_ask_for_confirmation("Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best",stage,logger))
         {
@@ -419,7 +434,14 @@ public class Launcher extends Application implements UI_change
             Stage stage, Logger logger)
     //**********************************************************
     {
-        Hourglass local_hourglass = Show_running_film_frame.show_running_film(stage,100,100,"Please wait ... starting "+app_name,20 * 1000,new Aborter("launcher", logger), logger);
+        Hourglass local_hourglass = Progress_window.show(
+                false,
+                "Please wait ... starting "+app_name,
+                30*60,
+                stage.getX()+100,
+                stage.getY()+100,
+                stage,
+                logger);
 
         int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
         write_port_to_reply_about_start(port_to_reply_about_start,logger);

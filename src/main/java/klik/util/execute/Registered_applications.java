@@ -6,7 +6,6 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
-import klik.util.files_and_paths.File_chooser;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 

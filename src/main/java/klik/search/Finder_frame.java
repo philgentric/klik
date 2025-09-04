@@ -18,6 +18,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
@@ -128,7 +129,7 @@ public class Finder_frame implements Search_receiver
 			hbox.getChildren().add(static_visited_folders);
 			Look_and_feel_manager.set_region_look(static_visited_folders,stage,logger);
 
-			hbox.getChildren().add(horizontal_spacer());
+			hbox.getChildren().add(horizontal_spacer(stage,logger));
 
 			visited_folders = new Label();
 			hbox.getChildren().add(visited_folders);
@@ -144,7 +145,7 @@ public class Finder_frame implements Search_receiver
 			hbox.getChildren().add(static_visited_files);
 			Look_and_feel_manager.set_region_look(static_visited_files,stage,logger);
 
-			hbox.getChildren().add(horizontal_spacer());
+			hbox.getChildren().add(horizontal_spacer(stage,logger));
 
 			visited_files = new Label();
 			hbox.getChildren().add(visited_files);
@@ -270,8 +271,7 @@ public class Finder_frame implements Search_receiver
 
 			Look_and_feel_manager.set_TextField_look(extension_tf,stage,logger);
 			hb.getChildren().add(extension_tf);
-			hb.getChildren().add(horizontal_spacer());
-			hb.getChildren().add(horizontal_spacer());
+			hb.getChildren().add(horizontal_spacer(stage,logger));
 			settings_vbox.getChildren().add(hb);
 		}
 		settings_vbox.getChildren().add(vertical_spacer());
@@ -302,7 +302,7 @@ public class Finder_frame implements Search_receiver
 			new_keyword_textfield.setStyle("-fx-text-inner-color: darkgrey;");
 			new_keyword_textfield.setOnAction((ActionEvent e) ->new_keyword_action(new_keyword_textfield));
 			hbox.getChildren().add(new_keyword_textfield);
-			hbox.getChildren().add(horizontal_spacer());
+			hbox.getChildren().add(horizontal_spacer(stage,logger));
 
 			Button add_keyword = new Button(My_I18n.get_I18n_string("Add_Keyword", stage,logger));
 			Look_and_feel_manager.set_button_look(add_keyword,true,stage,logger);
@@ -371,11 +371,12 @@ public class Finder_frame implements Search_receiver
 	}
 
 	//**********************************************************
-	public static Node horizontal_spacer()
+	public static Node horizontal_spacer(Window owner, Logger logger)
 	//**********************************************************
 	{
 		final Region spacer = new Region();
-		HBox.setHgrow(spacer, Priority.ALWAYS);
+        Look_and_feel_manager.set_region_look(spacer,owner,logger);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 		return spacer;
 	}
 
@@ -388,6 +389,7 @@ public class Finder_frame implements Search_receiver
 		spacer.setPrefHeight(8);
 		spacer.setMaxHeight(8);
 		VBox.setVgrow(spacer, Priority.ALWAYS);
+        Look_and_feel_manager.set_region_look(spacer,stage,logger);
 		return spacer;
 	}
 

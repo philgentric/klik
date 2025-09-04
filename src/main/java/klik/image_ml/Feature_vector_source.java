@@ -62,7 +62,7 @@ public abstract class Feature_vector_source
     {
         if ( aborter.should_abort())
         {
-            logger.log("aborting Feature_vector_source::get_feature_vector_from_server, reason: "+aborter.reason);
+            logger.log("aborting Feature_vector_source::get_feature_vector_from_server, reason: "+aborter.reason());
             return null;
         }
         long local_start = System.currentTimeMillis();
@@ -198,7 +198,7 @@ public abstract class Feature_vector_source
     {
         if ( aborter.should_abort())
         {
-            logger.log("aborting(1) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason);
+            logger.log("aborting(1) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason());
             return null;
         }
         if (!server_started.get())
@@ -257,7 +257,7 @@ public abstract class Feature_vector_source
         }
         if (aborter.should_abort())
         {
-            logger.log("aborting(2) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason);
+            logger.log("aborting(2) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason());
             return null;
         }
         try {

@@ -18,10 +18,7 @@ import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Hourglass;
-import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Popups;
-import klik.util.ui.Show_running_film_frame_with_abort_button;
+import klik.util.ui.*;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -89,7 +86,14 @@ public class Image_similarity implements Clearable_RAM_cache
     //**********************************************************
     {
         Hourglass hourglass = null;
-        if ( and_show) hourglass = Show_running_film_frame_with_abort_button.show_running_film("wait",20000, x,y, logger);
+        if ( and_show) hourglass = Progress_window.show(
+                false,
+                "wait",
+                20000,
+                x,
+                y,
+                owner,
+                logger);
 
         if (images.isEmpty())
         {

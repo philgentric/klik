@@ -26,6 +26,7 @@ import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
+import klik.look.Look_and_feel_style;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Jfx_batch_injector;
@@ -33,6 +34,7 @@ import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
+import klik.util.ui.Progress_spinner;
 import klik.util.ui.Text_frame;
 
 import java.nio.file.Files;
@@ -48,6 +50,7 @@ public class Results_frame
 	HashMap<String, List<Path>> search_results;
 	Stage stage = new Stage();
 	ImageView iv;
+    Progress_spinner spinner;
 	VBox vbox;
 	//final Browser browser;
 	final Aborter aborter;
@@ -71,10 +74,19 @@ public class Results_frame
 		Look_and_feel_manager.set_region_look(vbox,stage,logger);
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-		iv = new ImageView(Look_and_feel_manager.get_running_film_icon(stage,logger));
-		iv.setFitHeight(100);
-		iv.setPreserveRatio(true);
-		vbox.getChildren().add(iv);
+
+        if ( Look_and_feel_manager.get_instance(stage,logger).get_look_and_feel_style() == Look_and_feel_style.material)
+        {
+            spinner = new Progress_spinner();
+            vbox.getChildren().add(spinner.start());
+        }
+        else
+        {
+            iv = new ImageView(Look_and_feel_manager.get_running_film_icon(stage, logger));
+            iv.setFitHeight(100);
+            iv.setPreserveRatio(true);
+            vbox.getChildren().add(iv);
+        }
 
 		ScrollPane scroll_pane = new ScrollPane(the_result_vbox);
 		vbox.getChildren().add(scroll_pane);
@@ -237,8 +249,9 @@ public class Results_frame
 		Jfx_batch_injector.inject(() -> {
 			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", stage,logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
-			iv.setImage(Look_and_feel_manager.get_the_end_icon(stage,logger));
 
+			if ( iv != null) iv.setImage(Look_and_feel_manager.get_the_end_icon(stage,logger));
+            if ( spinner != null) spinner.stop();
 			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
 			all_results.sort((o1, o2) -> {
 				Button b1 = (Button) o1;
@@ -250,9 +263,15 @@ public class Results_frame
 			the_result_vbox.getChildren().clear();
 			the_result_vbox.getChildren().addAll(all_results);
 
-			iv.setImage(null);
-			vbox.getChildren().remove(iv);
-
+			if ( iv != null)
+            {
+                iv.setImage(null);
+                vbox.getChildren().remove(iv);
+            }
+            if ( spinner != null)
+            {
+                vbox.getChildren().remove(spinner.node());
+            }
 
 		},logger);
 

@@ -8,7 +8,6 @@ package klik.images;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
-import klik.Launcher;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
@@ -17,7 +16,6 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.experimental.work_in_progress.Static_image_utilities;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.images.caching.Image_cache_linkedhashmap;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -260,7 +258,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return;
         }
         block.set(true);
-        Virtual_landscape.show_running_film = false;
+        Virtual_landscape.show_progress_window_on_redraw = false;
         if ( image_context.isEmpty())
         {
             Path p = image_indexer.get().path_from_index(0);

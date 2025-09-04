@@ -17,13 +17,7 @@ package klik.browser.virtual_landscape;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.browser.Icon_size;
 import klik.New_window_context;
@@ -92,6 +86,7 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string(key, virtual_landscape.owner, virtual_landscape.logger);
         MenuItem item = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(item,owner, virtual_landscape.logger);
         item.setOnAction(ev);
         return item;
     }
@@ -727,16 +722,17 @@ public class Virtual_landscape_menus
         {
             create_check_menu_item_for_style(menu, s, all_check_menu_items);
         }
-        Look_and_feel_style current_style = Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).get_look_and_feel_style();
-        if ( current_style == Look_and_feel_style.custom_color)
+        /*Look_and_feel_style current_style = Look_and_feel_manager.get_instance(virtual_landscape.owner,virtual_landscape.logger).get_look_and_feel_style();
+        if ( current_style == Look_and_feel_style.material)
         {
             MenuItem custom_color_item = new MenuItem(My_I18n.get_I18n_string("Choose_Custom_Color",virtual_landscape.owner,virtual_landscape.logger));
             custom_color_item.setOnAction((ActionEvent e) -> invoke_color_picker());
             menu.getItems().add(custom_color_item);
-        }
+        }*/
         return menu;
     }
 
+    /*
     //**********************************************************
     private void invoke_color_picker()
     //**********************************************************
@@ -764,7 +760,7 @@ public class Virtual_landscape_menus
         color_picker_stage.show();
         virtual_landscape.logger.log(("color picker shown"));
     }
-
+*/
     //**********************************************************
     public void create_check_menu_item_for_style(Menu menu, Look_and_feel_style style, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
@@ -1165,7 +1161,7 @@ public class Virtual_landscape_menus
         double x = owner.getX()+100;
         double y = owner.getY()+100;
 
-        Moving_files.perform_safe_moves_in_a_thread(owner,x,y,l, true, virtual_landscape.aborter, virtual_landscape.logger);
+        Moving_files.perform_safe_moves_in_a_thread(l, true, x,y, owner,virtual_landscape.aborter, virtual_landscape.logger);
 
     }
 

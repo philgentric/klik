@@ -85,7 +85,7 @@ public record Song(String path, Node node)
                 List<Old_and_new_Path> l = new ArrayList<>();
                 Old_and_new_Path oandn = new Old_and_new_Path(Path.of(path()), new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
                 l.add(oandn);
-                Moving_files.perform_safe_moves_in_a_thread(owner, owner.getX()+100, owner.getY()+100, l, true, new Aborter("rename in playlist", logger), logger);
+                Moving_files.perform_safe_moves_in_a_thread( l, true, owner.getX()+100, owner.getY()+100,owner, new Aborter("dummy", logger), logger);
 
                 playlist.remove_from_playlist(path());
                 playlist.add_to_playlist(new_path.toAbsolutePath().toString());

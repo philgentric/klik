@@ -179,7 +179,8 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         if ( dbg) logger.log(("request_icon_to_factory for:"+get_item_path()));
-        Icon_factory_request icon_factory_request = new Icon_factory_request(this, target_icon_size,owner,
+        Icon_factory_request icon_factory_request = new Icon_factory_request(
+                this, target_icon_size,owner,// aborter);
                 new Aborter("Icon creation for "+get_item_path(),logger));
 
         if (dbg) logger.log("icon request : queued! ");

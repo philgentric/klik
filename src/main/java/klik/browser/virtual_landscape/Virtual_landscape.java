@@ -161,7 +161,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private final Title_target title_target;
     private final Full_screen_handler full_screen_handler;
 
-    public static boolean show_running_film = true;
+    public static boolean show_progress_window_on_redraw = true;
 
     public final Browsing_caches browsing_caches;
     private Image_feature_vector_cache fv_cache;
@@ -1281,7 +1281,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         AtomicInteger count = new AtomicInteger(0);
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, x,y,logger);
+        Progress_window progress_window = Progress_window.show(
+                true,
+                "Computing file count",
+                20*60,
+                x,
+                y,
+                owner,
+                logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_folder ini)
@@ -1312,7 +1319,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
                 if (count.get() == 0)
                 {
-                    Jfx_batch_injector.inject(()-> compute_geometry("sort by number of files", show_running_film_frame),logger);
+                    Jfx_batch_injector.inject(()-> compute_geometry("sort by number of files", progress_window),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display how many files in each folder", logger);
                     }
@@ -1340,7 +1347,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         AtomicInteger count = new AtomicInteger(0);
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Show_running_film_frame_with_abort_button show_running_film_frame = Show_running_film_frame_with_abort_button.show_running_film(count,"Computing folder sizes", 300, x,y,logger);
+        Progress_window progress_window = Progress_window.show(
+                true,
+                "Computing folder sizes",
+                20*60,
+                x,
+                y,
+                owner,
+                logger);
         for ( Item i : all_items_map.values())
         {
             if (i instanceof Item_folder item2_folder)
@@ -1349,7 +1363,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 {
                     item2_folder.add_total_size_deep_folder(count, item2_folder.get_button(), item2_folder.text, item2_folder.get_true_path(),
                             folder_total_sizes_cache,
-                            show_running_film_frame.aborter, logger);
+                            progress_window.aborter, logger);
                 }
             }
         }
@@ -1365,7 +1379,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
                 if (count.get() == 0)
                 {
-                    Jfx_batch_injector.inject(()-> compute_geometry("sort by folder size on disk", show_running_film_frame),logger);
+                    Jfx_batch_injector.inject(()-> compute_geometry(
+                            "sort by folder size on disk", progress_window),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display all folder sizes", logger);
                     }
@@ -1768,10 +1783,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             top_pane2.getChildren().add(go_up);
             define_top_bar_using_buttons_deep(top_pane2, height);
             Region spacer = new Region();
+            Look_and_feel_manager.set_region_look(spacer,owner,logger);
             top_pane2.getChildren().add(spacer);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             top_pane2.getChildren().add(trash);
             Region spacer2 = new Region();
+            Look_and_feel_manager.set_region_look(spacer2,owner,logger);
             top_pane2.getChildren().add(spacer2);
             HBox.setHgrow(spacer2, Priority.SOMETIMES);
             Look_and_feel_manager.set_region_look(top_pane2,owner,logger);
@@ -1967,7 +1984,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 //create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
             }*/
             create.getItems().add(browser_menus.make_menu_item("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet()));
-            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> sort_by_year()));
+            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> sort_by_time(Sort_by_time.year)));
+            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Month",event -> sort_by_time(Sort_by_time.month)));
+            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Day",event -> sort_by_time(Sort_by_time.day)));
             create.getItems().add(browser_menus.make_import_menu());
             files_menu.getItems().add(create);
         }
@@ -2075,20 +2094,30 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         Path top = path_list_provider.get_folder_path();
-        Folders_with_large_images_locator.locate(top, 10, 200_000, owner, aborter, logger);
+        Folders_with_large_images_locator.locate(top, 10, 200_000, owner, logger);
     }
 
 
     //**********************************************************
-    public void sort_by_year()
+    enum Sort_by_time
     //**********************************************************
     {
-        Runnable r = () -> sort_by_year_internal();
+        year,
+        month,
+        day
+    }
+
+    //**********************************************************
+    public void sort_by_time(Sort_by_time sort_by_time)
+    //**********************************************************
+    {
+        Runnable r = () -> sort_by(sort_by_time);
         Actor_engine.execute(r, logger);
     }
 
+
     //**********************************************************
-    public void sort_by_year_internal()
+    public void sort_by(Sort_by_time sort_by)
     //**********************************************************
     {
         List<File> files = path_list_provider.only_files(Feature_cache.get(Feature.Show_hidden_files));
@@ -2098,24 +2127,34 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (files.size() == 0) {
             logger.log("WARNING: no file in " + path_list_provider.get_name());
         }
-        Map<Integer, Path> folders = new HashMap<>();
+        Map<String, Path> folders = new HashMap<>();
         List<Old_and_new_Path> moves = new ArrayList<>();
-        for (File f : files) {
-            BasicFileAttributes x = null;
-            try {
-                x = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
-            } catch (IOException e) {
+        for (File f : files)
+        {
+            BasicFileAttributes bfa;
+            try
+            {
+                bfa = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
+            }
+            catch (IOException e)
+            {
                 logger.log("" + e);
                 continue;
             }
 
-            FileTime ft = x.creationTime();
+            FileTime ft = bfa.creationTime();
             LocalDateTime ldt = ft.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            Integer year = (Integer) ldt.getYear();
-            Path folder = folders.get(year);
+            String sorter = null;
+            switch ( sort_by)
+            {
+                case year -> sorter = ""+ldt.getYear();
+                case month -> sorter = ldt.getMonth().toString();
+                case day -> sorter = ""+ldt.getDayOfYear();
+            }
+            Path folder = folders.get(sorter);
             if (folder == null)
             {
-                folder = path_list_provider.resolve( String.valueOf(year));
+                folder = path_list_provider.resolve( sorter);
                 try {
                     Files.createDirectory(folder);
                 } catch (IOException e) {
@@ -2123,12 +2162,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     continue;
                 }
             }
-            folders.put(year, folder);
-            List<Old_and_new_Path> l = new ArrayList<>();
-            Path displayed_folder_path = path_list_provider.get_folder_path();
-            l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done, false));
-            Change_gang.report_changes(l,owner);
-
+            folders.put(sorter, folder);
+            {
+                // TODO: check if this is useful
+                // since perform_safe_moves_in_a_thread will trigger the Chang_gang?
+                List<Old_and_new_Path> l = new ArrayList<>();
+                Path displayed_folder_path = path_list_provider.get_folder_path();
+                l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done, false));
+                Change_gang.report_changes(l, owner);
+            }
             Old_and_new_Path oanp = new Old_and_new_Path(
                     f.toPath(),
                     Path.of(folder.toAbsolutePath().toString(), f.getName()),
@@ -2140,9 +2182,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         double x = this.owner.getX()+100;
         double y = this.owner.getY()+100;
-        Moving_files.perform_safe_moves_in_a_thread(this.owner, x,y, moves, true, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(moves, true, x,y, this.owner, aborter, logger);
 
+        // display will be updated because of the Change_gang
     }
+
+
+
+
 
 
 
@@ -2161,8 +2208,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double x = this.owner.getX()+100;
         double y = this.owner.getY()+100;
 
-        Hourglass hourglass = Show_running_film_frame.show_running_film(owner,x,y,"Making PDF contact sheet",
-                20_000,new Aborter("contact sheet",logger),logger);
+        Hourglass hourglass = Progress_window.show(
+                false,
+                "Making PDF contact sheet",
+                20_000,
+                x,
+                y,
+                owner,
+                logger);
         List<String> graphicsMagick_command_line = new ArrayList<>();
 
         boolean formula1 = false;
@@ -2812,10 +2865,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         long start = System.currentTimeMillis();
 
-        Hourglass running_film = null;
+        Hourglass progress_window = null;
 
-        if ( show_running_film) {
-            running_film = Show_running_film_frame.show_running_film(owner, x, y, "Scanning folder", 20 * 60, aborter, logger);
+        if (show_progress_window_on_redraw) {
+            progress_window = Progress_window.show(
+                    false,
+                    "Scanning folder",
+                    20*60,
+                    x,
+                    y,
+                    owner,
+                    logger);
         }
 
         set_comparators(x+100,y+200);
@@ -2830,7 +2890,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         browsing_caches.image_properties_RAM_cache.reload_cache_from_disk();
         scan_list();
 
-        all_image_properties_acquired_4(start, running_film);
+        all_image_properties_acquired_4(start, progress_window);
 
     }
 
@@ -2920,7 +2980,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     //**********************************************************
-    private void all_image_properties_acquired_4(long start, Hourglass running_film)
+    private void all_image_properties_acquired_4(long start, Hourglass progress_window)
     //**********************************************************
     {
         if ( dbg) logger.log("Virtual_landscape::all_image_properties_acquired_4() ");
@@ -2934,21 +2994,21 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         get_path_comparator();
         //logger.log("all_image_properties_acquired, going to refresh");
-        refresh_UI("all_image_properties_acquired", running_film);
+        refresh_UI("all_image_properties_acquired", progress_window);
 
         if ( dbg) logger.log("Virtual_landscape::all_image_properties_acquired_4() done");
 
     }
 
     //**********************************************************
-    private void refresh_UI(String from, Hourglass running_film)
+    private void refresh_UI(String from, Hourglass progress_window)
     //**********************************************************
     {
         sort_iconized_items(from);
 
         Runnable r = () -> {
             //logger.log("refresh_UI_after_scan_dir " + from);
-            refresh_UI_on_fx_thread( from,running_film);
+            refresh_UI_on_fx_thread( from,progress_window);
         };
         Jfx_batch_injector.inject(r, logger);
 
@@ -2956,13 +3016,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     //**********************************************************
-    private void refresh_UI_on_fx_thread(String from, Hourglass running_film)
+    private void refresh_UI_on_fx_thread(String from, Hourglass progress_window)
     //**********************************************************
     {
 
         if ( dbg) logger.log("refresh_UI_on_fx_thread from: " + from);
 
-        compute_geometry("scene_geometry_changed from: " + from, running_film);
+        compute_geometry("scene_geometry_changed from: " + from, progress_window);
 
         if (dbg) logger.log("adapt_slider_to_scene");
 
@@ -2992,7 +3052,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    public void compute_geometry(String reason, Hourglass running_film)
+    public void compute_geometry(String reason, Hourglass progress_window)
     //**********************************************************
     {
 
@@ -3025,7 +3085,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (error_type == Error_type.DENIED) {
             ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size,owner,logger));
             show_error_icon(iv_denied,top_delta_y);
-            if ( running_film != null) running_film.close();
+            if ( progress_window != null) progress_window.close();
             the_guard.set(false);
             logger.log("on DENIED the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
@@ -3033,7 +3093,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (error_type == Error_type.NOT_FOUND) {
             ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size,owner,logger));
             show_error_icon(not_found,top_delta_y);
-            if ( running_film != null) running_film.close();
+            if ( progress_window != null) progress_window.close();
             the_guard.set(false);
             logger.log("on NOT_FOUND the_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
@@ -3041,7 +3101,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (error_type == Error_type.ERROR) {
             ImageView unknown_error = new ImageView(Look_and_feel_manager.get_unknown_error_icon(icon_size,owner,logger));
             show_error_icon(unknown_error,top_delta_y);
-            if ( running_film != null) running_film.close();
+            if ( progress_window != null) progress_window.close();
             the_guard.set(false);
             logger.log("ON ERROR map_buttons_and_icons_guard =>"+the_guard.get()+" for "+path_list_provider.get_name());
             return;
@@ -3085,7 +3145,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             Jfx_batch_injector.inject(()->
             {
-                if ( running_film != null) running_film.close();
+                if ( progress_window != null) progress_window.close();
 
                 for (Item item : future_pane_content)
                 {

@@ -13,6 +13,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
+import klik.look.Look_and_feel_manager;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.Strings;
@@ -167,6 +168,7 @@ public class Backup_console_window
         hbox.getChildren().add(label);
         label.setAlignment(Pos.BASELINE_LEFT);
         Region spacer = new Region();
+        Look_and_feel_manager.set_region_look(spacer,stage,logger);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         hbox.getChildren().add(spacer);
 

@@ -198,7 +198,7 @@ public class Icon_factory_actor implements Actor
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg)
-                logger.log("Icon_factory thread: aborting0 "+icon_factory_request.aborter.reason);
+                logger.log("Icon_factory thread: aborting0 "+icon_factory_request.aborter.reason());
             return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
         }
         String tag = String.valueOf(icon_factory_request.icon_size);
@@ -208,7 +208,7 @@ public class Icon_factory_actor implements Actor
             Image image_from_cache = From_disk.load_icon_from_disk_cache(path, icon_cache_dir, icon_factory_request.icon_size, tag, png_extension, false, icon_factory_request.originator,logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg)
-                    logger.log("Icon_factory thread: aborting2 " + icon_factory_request.aborter.name + " reason: " + icon_factory_request.aborter.reason);
+                    logger.log("Icon_factory thread: aborting2 " + icon_factory_request.aborter.name + " reason: " + icon_factory_request.aborter.reason());
                 return null;//new Image_result(null,true,icon_factory_request.aborter.reason);
             }
             if (image_from_cache != null) {
@@ -383,7 +383,7 @@ public class Icon_factory_actor implements Actor
             }
 
 
-            Ffmpeg_utils.video_to_gif(icon_factory_request.originator, destination.get_item_path(), destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), logger);
+            Ffmpeg_utils.video_to_gif(icon_factory_request.originator, destination.get_item_path(), icon_factory_request.icon_size, destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting6");
                 return null;

@@ -5,14 +5,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -23,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 //**********************************************************
-public class File_chooser
+public class Folder_chooser
 //**********************************************************
 {
 
@@ -40,15 +44,42 @@ public class File_chooser
         pane.setPadding(new Insets(8));
         Look_and_feel_manager.set_region_look(pane,owner,logger);
 
-        TextField path_textfield = new TextField();
-        path_textfield.setPromptText("Path");
-        path_textfield.setMinWidth(500);
+
         Button up_button = new Button("Up");
-        Look_and_feel_manager.set_button_look(up_button, true,owner, logger);
-        CheckBox show_hidden_checkbox = new CheckBox("Show hidden");
-        HBox top = new HBox(8, up_button, path_textfield, show_hidden_checkbox);
+        double font_size = Non_booleans_properties.get_font_size(owner,logger);
+        double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+        Image icon = Look_and_feel_manager.get_up_icon(height,owner,logger);
+        if (icon == null)
+        {
+            logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance(owner,logger).get_up_icon_path());
+            Look_and_feel_manager.set_button_look(up_button, true,owner, logger);
+        }
+        else
+        {
+            Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, null, true, owner, logger);
+        }
+        CheckBox show_hidden_checkbox = new CheckBox("Show hidden folders");
+        Look_and_feel_manager.set_CheckBox_look(show_hidden_checkbox,dialog,logger);
+        {
+            Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(dialog, logger);
+            double w = look_and_feel.estimate_text_width("Show hidden folders");
+            show_hidden_checkbox.setMinWidth(2*w);
+            show_hidden_checkbox.setPrefWidth(2*w);
+            show_hidden_checkbox.setMaxWidth(2*w);
+        }
+
+        VBox top = new VBox();
+        HBox top1 = new HBox(8, up_button, show_hidden_checkbox);
         HBox.setMargin(up_button, new Insets(0, 4, 0, 0));
-        top.setAlignment(Pos.CENTER_LEFT);
+        top1.setAlignment(Pos.CENTER_LEFT);
+        top.getChildren().add(top1);
+
+        TextField path_textfield = new TextField();
+        Look_and_feel_manager.set_TextField_look(path_textfield,dialog,logger);
+        path_textfield.setPromptText("Path");
+        path_textfield.setMinWidth(1000);
+        top.getChildren().add(path_textfield);
+
         pane.setTop(top);
 
         ListView<Path> list = new ListView<>();
@@ -75,12 +106,13 @@ public class File_chooser
         choose_that.setDefaultButton(true);
         cancel_button.setCancelButton(true);
         HBox bottom = new HBox(8, choose_that, cancel_button);
-        bottom.setAlignment(Pos.CENTER_RIGHT);
+        bottom.setAlignment(Pos.CENTER_LEFT);
         bottom.setPadding(new Insets(8, 0, 0, 0));
         pane.setBottom(bottom);
 
-        Scene scene = new Scene(pane, 600, 400);
+        Scene scene = new Scene(pane);
         dialog.setScene(scene);
+        dialog.sizeToScene();
 
         // State
         Path[] answer = new Path[1];

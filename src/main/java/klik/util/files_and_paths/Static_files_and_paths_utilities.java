@@ -221,7 +221,7 @@ public class Static_files_and_paths_utilities
             oanf2.run_after = after_the_move;
             l2.add(oanf2);
         }
-        Moving_files.perform_safe_moves_in_a_thread(owner, x,y,l2, true, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(l2, true, x,y,owner, aborter, logger);
 
     }
 
@@ -239,7 +239,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
-        Moving_files.perform_safe_moves_in_a_thread(owner, x,y,l2, true, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(l2, true, x,y,owner, aborter, logger);
 
     }
 
@@ -897,7 +897,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
-        List<Old_and_new_Path> done = Moving_files.actual_safe_moves(owner, x, y, l, true, aborter, logger);
+        List<Old_and_new_Path> done = Moving_files.actual_safe_moves(l, true, x, y, owner, aborter, logger);
         if ( done.isEmpty()) return null;
 
         return new_path;
