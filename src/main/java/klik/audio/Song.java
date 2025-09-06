@@ -72,11 +72,14 @@ public record Song(String path, Node node)
         Look_and_feel_manager.set_context_menu_look(the_context_menu, owner, logger);
         {
             MenuItem the_menu_item = new MenuItem("Browse folder");
+            Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
+
             the_menu_item.setOnAction((s) -> Audio_player.start_new_process_to_browse(Path.of(path()).getParent(), logger));
             the_context_menu.getItems().add(the_menu_item);
         }
         {
             MenuItem the_menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner, logger));
+            Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
             the_menu_item.setOnAction((ActionEvent s) -> {
 
                 Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner, Path.of(path()), logger);
@@ -95,6 +98,7 @@ public record Song(String path, Node node)
         }
         {
             MenuItem the_menu_item = new MenuItem("Remove from list");
+            Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
             the_menu_item.setOnAction((ActionEvent s) -> playlist.remove_from_playlist(path()));
             the_context_menu.getItems().add(the_menu_item);
         }

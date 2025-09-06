@@ -289,6 +289,8 @@ public abstract class Item implements Icon_destination
     {
         String txt = My_I18n.get_I18n_string("Info_about", owner,logger);
         MenuItem menu_item = new MenuItem(txt);
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
+
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("info");
             Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, owner, aborter,logger);
@@ -304,6 +306,8 @@ public abstract class Item implements Icon_destination
     {
         String txt = My_I18n.get_I18n_string("Info_about", owner,logger);
         MenuItem menu_item = new MenuItem(txt);
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
+
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("info");
             Audio_info_frame.show(path,owner,logger);
@@ -319,6 +323,8 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem browse = new MenuItem("Browse in new window");
+        Look_and_feel_manager.set_menu_item_look(browse,owner,logger);
+
         browse.setOnAction(event -> {
             if (dbg) logger.log("Browse in new window!");
 
@@ -332,6 +338,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem size = new MenuItem(My_I18n.get_I18n_string("Get_folder_size",owner,logger));
+        Look_and_feel_manager.set_menu_item_look(size,owner,logger);
         size.setOnAction(event -> Folder_size.get_folder_size(get_item_path(),owner, logger));
         return size;
     }
@@ -342,6 +349,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Clear_Trash_Folder",owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("clearing trash!");
             Static_files_and_paths_utilities.clear_trash(true,owner, aborter,logger);
@@ -356,6 +364,7 @@ public abstract class Item implements Icon_destination
     {
 
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Copy", owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("copying!");
 
@@ -377,6 +386,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Deleting!");
             double x = owner.getX()+100;
@@ -395,6 +405,7 @@ public abstract class Item implements Icon_destination
         final Button local_button = local_button_;
         final Label local_label = local_label_;
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Item2_button: Renaming");
             String original_name = get_item_path().getFileName().toString();
@@ -449,7 +460,7 @@ public abstract class Item implements Icon_destination
                         local_button.setText(size);
                         local_label.setText(new_dir_name);
                         //Font_size.set_preferred_font_size(label,logger);
-                        Font_size.apply_font_size(local_label,owner,logger);
+                        Font_size.apply_global_font_size_to_Node(local_label,owner,logger);
                         local_button.setGraphic(local_label);
                     }
                     path_list_provider.reload();
@@ -468,6 +479,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Copy", owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Copying the directory");
             Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
@@ -510,11 +522,11 @@ public abstract class Item implements Icon_destination
     static double yyy = 200;
     //**********************************************************
     public static MenuItem create_show_file_size_menu_item(
-            //Browser b_,
             Path path, boolean dbg, Window owner,Logger logger)
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Show_file_size", owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("File size");
             String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(path,owner,logger);
@@ -533,7 +545,7 @@ public abstract class Item implements Icon_destination
                 if ( xxx > 1000) xxx = 200;
             }
             TextArea textarea1 = new TextArea(message+"\n"+size_in_bytes);
-            Font_size.apply_font_size(textarea1,24,logger);
+            Font_size.apply_this_font_size_to_Node(textarea1,24,logger);
             VBox vbox = new VBox(textarea1);
             Scene scene = new Scene(vbox, Color.WHITE);
             local_stage.setTitle(path.toAbsolutePath().toString());
@@ -551,6 +563,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Show_tag", owner,logger));
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("File tag");
             Tag_stage.open_tag_stage(path,true,owner,aborter,logger);
@@ -565,6 +578,7 @@ public abstract class Item implements Icon_destination
     {
         String text = My_I18n.get_I18n_string("Color_Tag",owner,logger);
         Menu menu = new Menu(text);
+        Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         List<My_color> possible_colors = new ArrayList<>();
         for (My_color candidate_color : My_colors.get_all_colors(owner,logger))
         {
@@ -644,6 +658,7 @@ public abstract class Item implements Icon_destination
     {
         String text = My_I18n.get_I18n_string("Open_with_system",owner,logger);
         MenuItem menu_item = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: System Open");
             System_open_actor.open_with_system(owner,path, aborter,logger);
@@ -661,6 +676,7 @@ public abstract class Item implements Icon_destination
     {
         String text = My_I18n.get_I18n_string("Open_With_Registered_Application",owner,logger);
         MenuItem menu_item = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("button in item: Open_With_Registered_Application");
             System_open_actor.open_special(owner,path, aborter,logger);

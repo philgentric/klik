@@ -99,6 +99,7 @@ public class RAM_and_threads_meters_stage
             ContextMenu context_menu = new ContextMenu();
             Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
             MenuItem menu_item = new MenuItem("Call GC");
+            Look_and_feel_manager.set_menu_item_look(menu_item,stage,logger);
             context_menu.getItems().add(menu_item);
             menu_item.setOnAction(event -> {
                 System.gc();

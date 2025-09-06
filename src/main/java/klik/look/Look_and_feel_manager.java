@@ -4,6 +4,7 @@ package klik.look;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
@@ -20,6 +21,7 @@ import klik.Launcher;
 import klik.browser.Drag_and_drop;
 import klik.look.styles.Look_and_feel_material;
 import klik.look.styles.Look_and_feel_light;
+import klik.look.styles.Look_and_feel_modena;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
@@ -101,6 +103,7 @@ public class Look_and_feel_manager
             case dark -> new klik.look.styles.Look_and_feel_dark(owner,logger);
             case wood ->new klik.look.styles.Look_and_feel_wood(owner,logger);
             case material -> new Look_and_feel_material(owner,logger);
+            case modena -> new Look_and_feel_modena(owner, logger);
         };
     }
 
@@ -659,12 +662,22 @@ public class Look_and_feel_manager
         if (laf.style_sheet_url_string != null) {
             dialog_pane.getStylesheets().clear();
             dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
+            dialog_pane.getStyleClass().clear();
             dialog_pane.getStyleClass().add("my_dialog");
         }
         //Font_size.set_preferred_font_size(dialog_pane,logger);
-        Font_size.apply_font_size(dialog_pane,owner,logger);
+        Font_size.apply_global_font_size_to_Node(dialog_pane,owner,logger);
     }
-
+    //**********************************************************
+    public static void set_scene_look(Scene scene, Window owner, Logger logger) // Dialog is NOT a node, it is completely appart
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance(owner,logger);
+        if (laf.style_sheet_url_string != null) {
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(laf.style_sheet_url_string);
+        }
+    }
     /*
 
                     NODE
@@ -736,7 +749,7 @@ public class Look_and_feel_manager
             region.getStyleClass().clear();
             region.getStyleClass().add("image-window");
         }
-        Font_size.apply_font_size(region,owner,logger);
+        Font_size.apply_global_font_size_to_Node(region,owner,logger);
     }
 
 
@@ -749,9 +762,10 @@ public class Look_and_feel_manager
         {
             label.getStylesheets().clear();
             label.getStylesheets().add(laf.style_sheet_url_string);
+            label.getStyleClass().clear();
             label.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
         }
-        Font_size.apply_font_size(label,owner,logger);
+        Font_size.apply_global_font_size_to_Node(label,owner,logger);
     }
 
 
@@ -778,8 +792,9 @@ public class Look_and_feel_manager
     public static void set_menu_item_look(MenuItem item, Window owner, Logger logger)
     //**********************************************************
     {
+        logger.log("menu item "+item.getText());
         item.getStyleClass().add("context-menu");
-        Font_size.apply_font_size(item,24,logger);
+        Font_size.apply_global_font_size_to_MenuItem(item,owner,logger);
     }
 
     //**********************************************************
@@ -787,7 +802,7 @@ public class Look_and_feel_manager
     //**********************************************************
     {
         context_menu.getStyleClass().add("context-menu");
-        Font_size.apply_font_size(context_menu,owner,logger);
+        Font_size.apply_global_font_size_to_PopupControl(context_menu,owner,logger);
     }
 
     //**********************************************************
@@ -802,7 +817,7 @@ public class Look_and_feel_manager
             check_box.getStyleClass().clear();
             check_box.getStyleClass().add("check-box");
         }
-        Font_size.apply_font_size(check_box,owner,logger);
+        Font_size.apply_global_font_size_to_Node(check_box,owner,logger);
     }
 
 
@@ -810,7 +825,8 @@ public class Look_and_feel_manager
     public static void set_TextField_look(TextField text_field, Window owner, Logger logger)
     //**********************************************************
     {
-        Font_size.apply_font_size(text_field,owner,logger);
+
+        Font_size.apply_global_font_size_to_Node(text_field,owner,logger);
         Look_and_feel laf = get_instance(owner,logger);
         if (laf.style_sheet_url_string != null)
         {
@@ -834,6 +850,7 @@ public class Look_and_feel_manager
         {
             button.getStylesheets().clear();
             button.getStylesheets().add(laf.style_sheet_url_string);
+            button.getStyleClass().clear();
             button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
         }
 
@@ -894,6 +911,7 @@ public class Look_and_feel_manager
         {
             region.getStylesheets().clear();
             region.getStylesheets().add(laf.style_sheet_url_string);
+            region.getStyleClass().clear();
             region.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
             if ( with_border)
             {
@@ -901,7 +919,7 @@ public class Look_and_feel_manager
                 region.setStyle("-fx-padding: 0 2 0 2;");
             }
             //Font_size.set_preferred_font_size(button,logger);
-            Font_size.apply_font_size(region,owner,logger);
+            Font_size.apply_global_font_size_to_Node(region,owner,logger);
 
             if ( region instanceof Button button)
             {

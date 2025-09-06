@@ -62,6 +62,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem undo_move = new MenuItem(My_I18n.get_I18n_string("Undo_LAST_move_or_delete", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(undo_move,image_window.stage,image_window.logger);
         undo_move.setOnAction(e -> {
             image_window.logger.log("undoing last move");
             double x = image_window.stage.getX()+100;
@@ -78,6 +79,8 @@ public class Menus_for_image_window
         String tag = " slower";
         if ( faster) tag = " faster";
         MenuItem repair = new MenuItem(My_I18n.get_I18n_string("Repair_animated_gif", image_window.stage,image_window.logger)+ tag);
+        Look_and_feel_manager.set_menu_item_look(repair,image_window.stage,image_window.logger);
+
         repair.setOnAction(e -> repair(faster, image_window, image_display_handler, aborter));
         return repair;
     }
@@ -141,6 +144,8 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem pix_for_pix = new MenuItem(My_I18n.get_I18n_string(text, image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(pix_for_pix,image_window.stage,image_window.logger);
+
         pix_for_pix.setOnAction(ev);
         Button explanation = Preferences_stage.make_explanation_button(text,image_window.stage, image_window.logger);
         pix_for_pix.setGraphic(explanation);
@@ -154,6 +159,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem search_y = new MenuItem(My_I18n.get_I18n_string("Choose_keywords", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(search_y,image_window.stage,image_window.logger);
 
         search_y.setOnAction(event -> {
 
@@ -174,6 +180,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem search_k = new MenuItem(My_I18n.get_I18n_string("Search_by_keywords_from_this_ones_name", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(search_k,image_window.stage,image_window.logger);
         search_k.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
@@ -190,6 +197,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem copy = new MenuItem(My_I18n.get_I18n_string("Copy", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(copy,image_window.stage,image_window.logger);
         copy.setOnAction(event -> {
 
             Runnable r = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
@@ -202,6 +210,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem print = new MenuItem(My_I18n.get_I18n_string("Print", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(print,image_window.stage,image_window.logger);
         print.setOnAction(event -> {
             image_window.logger.log("Printing");
 
@@ -234,6 +243,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem rename = new MenuItem(My_I18n.get_I18n_string("Rename_with_shortcut", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(rename,image_window.stage,image_window.logger);
         rename.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
@@ -248,12 +258,13 @@ public class Menus_for_image_window
     private static MenuItem get_delete_menu_item(Image_window image_window)
     //**********************************************************
     {
-        MenuItem rename = new MenuItem(My_I18n.get_I18n_string("Delete_with_shortcut", image_window.stage,image_window.logger));
-        rename.setOnAction(event -> {
+        MenuItem delete = new MenuItem(My_I18n.get_I18n_string("Delete_with_shortcut", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(delete,image_window.stage,image_window.logger);
+        delete.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
         });
-        return rename;
+        return delete;
     }
 
 
@@ -262,6 +273,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem browse = new MenuItem(My_I18n.get_I18n_string("Browse", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(browse,image_window.stage,image_window.logger);
         browse.setOnAction(event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
@@ -278,6 +290,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem open = new MenuItem(My_I18n.get_I18n_string("Open", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(open,image_window.stage,image_window.logger);
         open.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -296,6 +309,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem mi = new MenuItem("Perform_face_recognition_service_DIRECTLY (debug)");//My_I18n.get_I18n_string("Open", image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(mi,image_window.stage,image_window.logger);
         mi.setOnAction(event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -342,7 +356,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         CheckMenuItem quality = new CheckMenuItem(My_I18n.get_I18n_string("Alternate_rescaler", image_window.stage,image_window.logger));
-
+        Look_and_feel_manager.set_menu_item_look(quality, image_window.stage, image_window.logger);
         quality.setSelected(image_window.alternate_rescaler);
         quality.setOnAction(actionEvent -> {
 
@@ -366,6 +380,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem edit = new MenuItem(My_I18n.get_I18n_string("Edit", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(edit,image_window.stage,image_window.logger);
         edit.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -379,6 +394,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         MenuItem edit = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(edit,image_window.stage,image_window.logger);
         edit.setOnAction(event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty())
@@ -401,6 +417,7 @@ public class Menus_for_image_window
 
         MenuItem info = new MenuItem(txt
                 + image_window.image_display_handler.get_image_context().get().path.getFileName() + My_I18n.get_I18n_string("Info_about_file_shortcut", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(info,image_window.stage,image_window.logger);
         info.setOnAction(event ->
                 {
 
@@ -408,6 +425,7 @@ public class Menus_for_image_window
                     Image_context image_context = image_window.image_display_handler.get_image_context().get();
                     Exif_stage.show_exif_stage(image_context.image, image_context.path, image_window.stage,image_window.aborter, image_context.logger);
                 });
+        Look_and_feel_manager.set_menu_item_look(info,image_window.stage,image_window.logger);
         return info;
     }
 
@@ -422,15 +440,19 @@ public class Menus_for_image_window
         boolean slide_show_is_running = image_window.is_slide_show_running();
 
         MenuItem slide_show = new MenuItem(My_I18n.get_I18n_string("Start_slide_show", image_window.stage,image_window.logger)+" (s)");
+        Look_and_feel_manager.set_menu_item_look(slide_show,image_window.stage,image_window.logger);
         returned.add(slide_show);
-        //MenuItem slide_show_stop = new MenuItem(My_I18n.get_I18n_string("Stop_slide_show", image_window.logger)+" (s)");
-        //returned.add(slide_show_stop);
+
         MenuItem faster = new MenuItem("Slide show: faster (x)");
+        Look_and_feel_manager.set_menu_item_look(faster,image_window.stage,image_window.logger);
+
         returned.add(faster);
         faster.setOnAction(actionEvent -> {
             if (slide_show_is_running) image_window.hurry_up();
         });
         MenuItem slower = new MenuItem("Slide show: slower (w)");
+        Look_and_feel_manager.set_menu_item_look(slower,image_window.stage,image_window.logger);
+
         returned.add(slower);
         slower.setOnAction(actionEvent -> {
             if (slide_show_is_running) image_window.slow_down();
@@ -475,6 +497,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         fullscreen = new MenuItem(My_I18n.get_I18n_string("Go_full_screen", image_window.stage,image_window.logger));
+        Look_and_feel_manager.set_menu_item_look(fullscreen,image_window.stage,image_window.logger);
         if (image_window.is_full_screen )
         {
             fullscreen.setText(My_I18n.get_I18n_string("Stop_full_screen",image_window.stage,image_window.logger));
@@ -547,6 +570,8 @@ public class Menus_for_image_window
         {
             String s = My_I18n.get_I18n_string("Face_recognition_service", image_window.stage,logger);
             Menu fr_context_menu = new Menu(s);
+            Look_and_feel_manager.set_menu_item_look(fr_context_menu, image_window.stage, logger);
+
             context_menu.getItems().add(fr_context_menu);
             fr_context_menu.getItems().add(make_menu_item(
                     image_window,

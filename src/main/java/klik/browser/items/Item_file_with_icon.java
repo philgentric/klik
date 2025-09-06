@@ -269,6 +269,7 @@ public class Item_file_with_icon extends Item_file
         double y = owner.getY()+100;
         {
             MenuItem menu_item = create_open_exif_frame_menu_item(get_item_path(),logger);
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             context_menu.getItems().add(menu_item);
         }
         {
@@ -289,6 +290,7 @@ public class Item_file_with_icon extends Item_file
         }
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", owner,logger));
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Deleting "+get_item_path());
 
@@ -299,6 +301,7 @@ public class Item_file_with_icon extends Item_file
         }
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", owner,logger));
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Editing "+get_item_path());
                 System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
@@ -307,6 +310,7 @@ public class Item_file_with_icon extends Item_file
         }
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", owner,logger));
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening with registered app: "+get_item_path());
                 System_open_actor.open_special(owner,get_item_path(), aborter,logger);
@@ -315,6 +319,7 @@ public class Item_file_with_icon extends Item_file
         }/*
         {
             MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", owner,logger));
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setMnemonicParsing(false);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Opening as separate process: "+get_item_path());
@@ -342,6 +347,7 @@ public class Item_file_with_icon extends Item_file
     public static MenuItem get_rename_MenuItem(Path path, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger)+ " "+path.getFileName());
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(event -> {
             if (dbg) logger.log("Item_image: Renaming "+path);
@@ -370,6 +376,7 @@ public class Item_file_with_icon extends Item_file
     {
         String txt = My_I18n.get_I18n_string("Show_5_similar_images", owner,logger);
         MenuItem menu_item = new MenuItem(txt);
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("show similar");
             Runnable r = () ->
@@ -408,6 +415,7 @@ public class Item_file_with_icon extends Item_file
     {
         {
             MenuItem menu_item = new MenuItem("Convert to mp4");
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("convert to mp4");
                 AtomicBoolean abort_reported = new AtomicBoolean(false);
@@ -417,6 +425,7 @@ public class Item_file_with_icon extends Item_file
         }
         {
             MenuItem menu_item = new MenuItem("Generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Animated_gifs_from_video.generate_many_gifs(owner,path,5,5,logger);
@@ -425,6 +434,7 @@ public class Item_file_with_icon extends Item_file
         }
         {
             MenuItem menu_item = new MenuItem("Generate gif animations from a video, interactively");
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setOnAction(event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Animated_gifs_from_video.interactive(path,owner,logger);

@@ -1724,7 +1724,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         if (dbg) logger.log("applying font size " + Non_booleans_properties.get_font_size(owner,logger));
         for (Node x : top_buttons) {
-            Font_size.apply_font_size(x, owner,logger);
+            Font_size.apply_global_font_size_to_Node(x, owner,logger);
         }
     }
 
@@ -1937,6 +1937,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             String text = My_I18n.get_I18n_string("Scan_show",owner,logger);
             Menu scan = new Menu(text);
+            Look_and_feel_manager.set_menu_item_look(scan,owner,logger);
+
             scan.getItems().add(browser_menus.make_menu_item("Start_stop_slow_scan",event -> handle_scan_switch()));
             scan.getItems().add(browser_menus.make_menu_item("Slow_down_scan",event -> slow_down_scan()));
             scan.getItems().add(browser_menus.make_menu_item("Speed_up_scan",event -> speed_up_scan()));
@@ -1977,6 +1979,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             String create_string = My_I18n.get_I18n_string("Create",owner,logger);
             Menu create = new Menu(create_string);
+            Look_and_feel_manager.set_menu_item_look(create,owner,logger);
+
             create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
             /*if (Feature_cache.get(Feature.Enable_image_playlists))
             {
@@ -1993,6 +1997,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             String search_string = My_I18n.get_I18n_string("Search",owner,logger);
             Menu search = new Menu(search_string);
+            Look_and_feel_manager.set_menu_item_look(search,owner,logger);
+
             search.getItems().add(browser_menus.make_menu_item("Search_by_keywords",event -> search_files_by_keyworks_fx()));
             search.getItems().add(browser_menus.make_menu_item("Show_Where_Are_Images",event -> show_where_are_images()));
             search.getItems().add(browser_menus.make_add_to_Enable_face_recognition_training_set_menu_item());
@@ -2003,6 +2009,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (Booleans.get_boolean(Feature.Enable_face_recognition.name(),owner))
         {
             Menu face_recognition = new Menu("Face recognition");
+            Look_and_feel_manager.set_menu_item_look(face_recognition,owner,logger);
+
             face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());
             face_recognition.getItems().add(browser_menus.make_save_face_recog_menu_item());
             face_recognition.getItems().add(browser_menus.make_reset_face_recog_menu_item());
@@ -2014,6 +2022,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             String cleanup = My_I18n.get_I18n_string("Clean_Up",owner,logger);
             Menu clean = new Menu(cleanup);
+            Look_and_feel_manager.set_menu_item_look(clean,owner,logger);
+
             clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
             if (Booleans.get_boolean(Feature.Enable_recursive_empty_folders_removal.name(),owner))
             {
@@ -2033,6 +2043,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 String txt = My_I18n.get_I18n_string("File_bit_exact_deduplication",owner,logger);
                 Menu deduplicate = new Menu(txt);
+                Look_and_feel_manager.set_menu_item_look(deduplicate,owner,logger);
+
                 deduplicate.getItems().add(create_help_on_deduplication_menu_item());
                 deduplicate.getItems().add(create_deduplication_count_menu_item());
                 deduplicate.getItems().add(create_manual_deduplication_menu_item());
@@ -2044,6 +2056,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 String txt = My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
                 Menu deduplicate2 = new Menu(txt);
+                Look_and_feel_manager.set_menu_item_look(deduplicate2,owner,logger);
+
 
                 MenuItem deduplicate_menu_item = create_manual_deduplication_by_similarity_menu_item2();
                 deduplicate2.getItems().add(deduplicate_menu_item);
@@ -2375,9 +2389,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
 
             Menu cleanup = new Menu(My_I18n.get_I18n_string("Cache_cleaning",owner,logger));
+            Look_and_feel_manager.set_menu_item_look(cleanup,owner,logger);
             pref.getItems().add(cleanup);
             {
                 Menu ram = new Menu(My_I18n.get_I18n_string("RAM_Caches_Cleaming",owner,logger));
+                Look_and_feel_manager.set_menu_item_look(ram,owner,logger);
                 cleanup.getItems().add(ram);
                 ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
                         event -> clear_all_RAM_caches()));
@@ -2391,6 +2407,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
             {
                 Menu disk = new Menu(My_I18n.get_I18n_string("DISK_Caches_Cleaning",owner,logger));
+                Look_and_feel_manager.set_menu_item_look(disk,owner,logger);
                 cleanup.getItems().add(disk);
 
                 disk.getItems().add(browser_menus.make_menu_item(
@@ -2430,6 +2447,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         String text = My_I18n.get_I18n_string("Deduplicate_auto",owner,logger);
         MenuItem menu_item = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(event -> {
             //logger.log("Deduplicate auto");
 
@@ -2460,6 +2478,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         String text = My_I18n.get_I18n_string("Deduplicate_with_confirmation_images_looking_a_bit_the_same",owner,logger);
 
         MenuItem item0 = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
             (new Deduplication_by_similarity_engine(
@@ -2483,6 +2502,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         String text = My_I18n.get_I18n_string("Deduplicate_with_confirmation_quasi_similar_images",owner,logger);
 
         MenuItem item0 = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
+
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
             (new Deduplication_by_similarity_engine(
@@ -2506,6 +2527,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         String text = My_I18n.get_I18n_string("Deduplicate_manual",owner,logger);
 
         MenuItem item0 = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
+
         item0.setOnAction(event -> {
             //logger.log("Deduplicate manually");
             (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,this,logger)).do_your_job(false);
@@ -2519,6 +2542,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         String text = My_I18n.get_I18n_string("Deduplicate_count",owner,logger);
         MenuItem item0 = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
+
         item0.setOnAction(event -> {
             //logger.log("count duplicates!");
             (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,this,logger)).count(false);
@@ -2533,6 +2558,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         String text = My_I18n.get_I18n_string("Deduplicate_help",owner,logger);
         MenuItem itemhelp = new MenuItem(text);
+        Look_and_feel_manager.set_menu_item_look(itemhelp,owner,logger);
+
         itemhelp.setOnAction(event -> Popups.popup_warning(
                 "Help on deduplication",
                 "The deduplication tool will look recursively down the path starting at:" + path_list_provider.get_name() +

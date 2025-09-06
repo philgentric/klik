@@ -354,7 +354,7 @@ public class Launcher extends Application implements UI_change
         List<String> cmds = new ArrayList<>();
         cmds.add("grep");
         cmds.add("version");
-        cmds.add("build.gradle.works");
+        cmds.add("build.gradle");
 
         StringBuilder sb = null;//new StringBuilder();
         String commit_count = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, sb, logger);

@@ -252,7 +252,7 @@ public class Finder_frame implements Search_receiver
 			extension_tf.setMaxWidth(100);
 			extension_tf.setOnAction((ActionEvent e) -> {
 				extension_textfield_is_red = false;
-				extension_tf.setStyle("-fx-text-inner-color: blue;");
+				extension_tf.setStyle(extension_tf.getStyle()+"-fx-text-inner-color: blue;");
 				use_extension = true;
 				use_extension_cb.setSelected(true);
 				session.stop_search();
@@ -263,7 +263,7 @@ public class Finder_frame implements Search_receiver
 			extension_tf.textProperty().addListener((observable, old_val, new_val) -> {
 				if ( !extension_textfield_is_red)
 				{
-					extension_tf.setStyle("-fx-text-inner-color: red;");
+					extension_tf.setStyle(extension_tf.getStyle()+"-fx-text-inner-color: red;");
 					extension_textfield_is_red = true;
 				}
 				logger.log("extension_tf  old_val:"+old_val+" new_val:"+new_val);
@@ -287,11 +287,11 @@ public class Finder_frame implements Search_receiver
 		{
 			HBox hbox = new HBox();
 			TextField new_keyword_textfield = new TextField(BASE_);
-			new_keyword_textfield.setStyle("-fx-text-inner-color: blue;");
+			new_keyword_textfield.setStyle(new_keyword_textfield.getStyle()+"-fx-text-inner-color: blue;");
 			new_keyword_textfield.textProperty().addListener((observable, old_val, new_val) -> {
 				if ( !new_keyword_textfield_is_red)
 				{
-					new_keyword_textfield.setStyle("-fx-text-inner-color: red;");
+					new_keyword_textfield.setStyle(new_keyword_textfield.getStyle()+"-fx-text-inner-color: red;");
 					new_keyword_textfield_is_red = true;
 				}
 				logger.log("new_keyword_textfield  old_val:"+old_val+" new_val:"+new_val);
@@ -299,7 +299,7 @@ public class Finder_frame implements Search_receiver
 
 			new_keyword_textfield.setMinWidth(300);
 			Look_and_feel_manager.set_TextField_look(new_keyword_textfield,stage,logger);
-			new_keyword_textfield.setStyle("-fx-text-inner-color: darkgrey;");
+			new_keyword_textfield.setStyle(new_keyword_textfield.getStyle()+"-fx-text-inner-color: darkgrey;");
 			new_keyword_textfield.setOnAction((ActionEvent e) ->new_keyword_action(new_keyword_textfield));
 			hbox.getChildren().add(new_keyword_textfield);
 			hbox.getChildren().add(horizontal_spacer(stage,logger));
@@ -345,7 +345,7 @@ public class Finder_frame implements Search_receiver
 	{
 		introduce_new_keyword(new_keyword_textfield.getText().trim());
 		new_keyword_textfield.setText(BASE_);
-		new_keyword_textfield.setStyle("-fx-text-inner-color: blue;");
+		new_keyword_textfield.setStyle(new_keyword_textfield.getStyle()+"-fx-text-inner-color: blue;");
 		new_keyword_textfield_is_red = false;
 	}
 

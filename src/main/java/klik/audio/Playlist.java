@@ -1090,6 +1090,7 @@ public class Playlist
 
 
         MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",search_stage,logger));
+        Look_and_feel_manager.set_menu_item_look(browse,search_stage,logger);
         browse.setOnAction((ActionEvent e) -> {
             logger.log("Browse in new window");
             Path local = Path.of(song.path());

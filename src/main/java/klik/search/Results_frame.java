@@ -170,7 +170,8 @@ public class Results_frame
 
 
 		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",stage,logger));
-		browse.setOnAction((ActionEvent e) -> {
+        Look_and_feel_manager.set_menu_item_look(browse,owner,logger);
+        browse.setOnAction((ActionEvent e) -> {
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
@@ -183,7 +184,9 @@ public class Results_frame
 			{
 				String text = My_I18n.get_I18n_string("Open_With_Registered_Application",stage,logger);
 				MenuItem open_special = new MenuItem(text);
-				open_special.setOnAction((ActionEvent e) -> {
+                Look_and_feel_manager.set_menu_item_look(open_special,owner,logger);
+
+                open_special.setOnAction((ActionEvent e) -> {
 					logger.log("Open_With_Registered_Application");
 					System_open_actor.open_special(owner,path,aborter,logger);
 				});
@@ -192,7 +195,9 @@ public class Results_frame
 			{
 				String text = My_I18n.get_I18n_string("Delete",stage,logger);
 				MenuItem delete = new MenuItem(text);
-				delete.setOnAction((ActionEvent e) -> {
+                Look_and_feel_manager.set_menu_item_look(delete,owner,logger);
+
+                delete.setOnAction((ActionEvent e) -> {
 					logger.log("Delete");
 					double x = stage.getX()+100;
 					double y = stage.getY()+100;

@@ -10,11 +10,20 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
+import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 //**********************************************************
 public abstract class Look_and_feel
@@ -53,16 +62,15 @@ public abstract class Look_and_feel
     {
         this.logger = logger;
         this.name = name;
-        URL style_sheet_url2 = get_CSS_URL(owner);
-        //System.out.println("style:"+name_+" CSS URL="+style_sheet_url2);
-        if (style_sheet_url2 == null)
+        URL style_sheet_url = get_CSS_URL(owner);
+        if (style_sheet_url == null)
         {
-            logger.log("style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url2 is null");
+            logger.log("style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url is null");
             style_sheet_url_string = null;
         }
         else
         {
-            style_sheet_url_string = style_sheet_url2.toExternalForm();
+            style_sheet_url_string = style_sheet_url.toExternalForm();
             logger.log("style:'" + name + "' loaded style sheet=" + style_sheet_url_string);
         }
 
@@ -85,6 +93,7 @@ public abstract class Look_and_feel
         Pane tmp_pane = new Pane();
         tmp_pane.getStyleClass().add(laf);
         Scene tmp_scene = new Scene(tmp_pane);
+        tmp_scene.getStylesheets().clear();
         tmp_scene.getStylesheets().add(style_sheet_url_string);
         try {
             tmp_pane.applyCss();
@@ -185,7 +194,7 @@ public abstract class Look_and_feel
     //**********************************************************
     {
         //System.out.println("Look_and_feel::set_hovered_directory_style");
-        Font_size.apply_font_size(node, owner, logger);
+        Font_size.apply_global_font_size_to_Node(node, owner, logger);
         set_text_color(node, get_selected_text_color());//"-fx-text-fill: #704040;");
     }
 
@@ -210,7 +219,7 @@ public abstract class Look_and_feel
     protected void set_directory_style(Node node, Window owner)
     //**********************************************************
     {
-        Font_size.apply_font_size(node, owner, logger);
+        Font_size.apply_global_font_size_to_Node(node, owner, logger);
     }
 
     //**********************************************************
@@ -219,7 +228,7 @@ public abstract class Look_and_feel
     {
         //logger.log("set_file_style");
         //Font_size.set_preferred_font_size(node,logger);
-        Font_size.apply_font_size(node, owner, logger);
+        Font_size.apply_global_font_size_to_Node(node, owner, logger);
 /*
         if (node instanceof Button button)
         {
@@ -295,4 +304,47 @@ public abstract class Look_and_feel
         //System.out.println("\n\n\nWIDTH = "+ w);
         return w;
     }
+
+
+    //**********************************************************
+    protected boolean load_font(String file_name)
+    //**********************************************************
+    {
+        //InputStream in = Jar_utils.get_jar_InputStream_by_name("/fonts/"+file_name);
+        //Font font = Font.loadFont(in, 24);
+        Font font = Font.loadFont("file:src/main/resources/fonts/"+file_name, 24);
+        // the size is a convenience if we would use the font object
+        // here, we just load the font in the javafx cache
+        if ( font != null)
+        {
+            logger.log("fonfont "+file_name+" loaded");
+            return true;
+        }
+        else
+        {
+            logger.log("ERROR: fonfont "+file_name+" not loaded");
+            return false;
+        }
+    }
+    //**********************************************************
+    protected URL get_CSS_URL2(String css, Window owner)
+    //**********************************************************
+    {
+        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        try {
+            Path script_path = klik_trash.resolve("tmp.css");
+            Files.write(script_path, css.getBytes());
+            Files.setPosixFilePermissions(script_path, PosixFilePermissions.fromString("rwxr-xr-x"));
+            return script_path.toUri().toURL();
+        }
+        catch (MalformedURLException e) {
+            logger.log(Stack_trace_getter.get_stack_trace("" + e));
+            return null;
+        }
+        catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace("Error with script file: " + e));
+            return null;
+        }
+    }
+
 }

@@ -324,7 +324,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             String size_string = sb.toString();
             label = new Label(size_string);
             //Font_size.set_preferred_font_size(label,logger);
-            Font_size.apply_font_size(label,owner,logger);
+            Font_size.apply_global_font_size_to_Node(label,owner,logger);
             button = new Button(text,label);
         }
         else
@@ -335,7 +335,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         button.setMinWidth(width);
         button.setPrefWidth(width);
         //Font_size.set_preferred_font_size(button,logger);
-        Font_size.apply_font_size(button,owner,logger);
+        Font_size.apply_global_font_size_to_Node(button,owner,logger);
 
         Look_and_feel_manager.give_button_a_file_style(button,owner,logger);
         button.setTextAlignment(TextAlignment.RIGHT);

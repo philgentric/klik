@@ -27,144 +27,126 @@ public class Font_size
 
     // edit the style to change the font size, without affecting the rest of the style
     //**********************************************************
-    public static void apply_font_size(Node node,  Window owner,Logger logger)
+    public static void apply_global_font_size_to_Node(Node node, Window owner, Logger logger)
     //**********************************************************
     {
         double size = Non_booleans_properties.get_font_size(owner,logger);
         if (dbg) logger.log("applying font size " + size);
-        apply_font_size(node, size, logger);
+        apply_this_font_size_to_Node(node, size, logger);
     }
+
     //**********************************************************
-    public static void apply_font_size(Node node, double size, Logger logger)
+    public static void apply_this_font_size_to_Node(Node node, double size, Logger logger)
     //**********************************************************
     {
+        init(logger);
         String style = node.getStyle();
-        if ( style.isEmpty()|| style.endsWith(";"))
+        if ( style.isEmpty())
         {
-            // shortcut!
-            StringBuilder sb = new StringBuilder();
-            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
-            node.setStyle(sb.toString());
-            //node.setStyle(style + FX_FONT_SIZE + size + PX);
-            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            node.setStyle(get_new_style(style,size,font_name,logger));
             return;
         }
-        if ( dbg) logger.log("Node style->" + style + "<-");
-        int index = style.indexOf(FX_FONT_SIZE);
+        //if ( dbg)
+            logger.log("\nfound node style->" + style + "<-");
 
-        if (index < 0) {
-            // font not in stlye yet, so we add it
-            StringBuilder sb = new StringBuilder();
-            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
-            node.setStyle(sb.toString());
-            //node.setStyle(style + FX_FONT_SIZE + size + PX);
-            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+        if ( style.contains(FX_FONT_SIZE))
+        {
+            logger.log("NOP: style has font size already:"+style);
             return;
         }
-        index += (FX_FONT_SIZE).length();
-        int index2 = style.indexOf(PX, index);
-        index2 += PX_LENGTH;
 
-        String new_style = style.substring(0, index);
-        StringBuilder sb = new StringBuilder();
-        sb.append(new_style).append(size).append(PX).append(style.substring(index2));
-        node.setStyle(sb.toString());
+        node.setStyle(get_new_style(style,size,font_name,logger));
+    }
 
-        if( dbg) logger.log("new_style2->" + new_style + "<-");
+    private static boolean font_loaded = false;
+    private static String font_name;
+
+    //**********************************************************
+    private static void init(Logger logger)
+    //**********************************************************
+    {
+        if ( !font_loaded)
+        {
+            //font_name = "Papyrus";
+            font_name = "Roboto-Bold";
+            //font_name = "AtkinsonHyperlegible-BoldItalic";
+            //font_name = "TRON";
+            //String font_name = "AtkinsonHyperlegible-Regular";
+
+            //String font_filename = "TRON.ttf";
+            //String font_filename = "AtkinsonHyperlegible-Regular.ttf";
+            //String font_filename = "AtkinsonHyperlegible-BoldItalic.ttf";
+            String font_filename = "Roboto-Bold.ttf";
+            font_loaded = Look_and_feel_manager.get_instance(null, logger).load_font(font_filename);
+        }
     }
 
     //**********************************************************
-    public static void apply_font_size(MenuItem mi, double size, Logger logger)
+    private static String get_new_style(String old_style, double size,String font_name, Logger logger)
     //**********************************************************
     {
+        StringBuilder sb = new StringBuilder();
+        sb.append(old_style).append(FX_FONT_SIZE).append(size).append(PX);
+        sb.append("-fx-font-family: "+font_name+";");
+        logger.log("font get_new_style->" + sb + "<-");
+
+        return sb.toString();
+    }
+    //**********************************************************
+    public static void apply_global_font_size_to_MenuItem(MenuItem mi, Window owner, Logger logger)
+    //**********************************************************
+    {
+        double size = Non_booleans_properties.get_font_size(owner,logger);
+
+        init(logger);
         String style = mi.getStyle();
-        // style is null
-        /*
-        if ( style.isEmpty()|| style.endsWith(";"))
+        if ( style == null)
         {
-            // shortcut!
-            StringBuilder sb = new StringBuilder();
-            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
-            mi.setStyle(sb.toString());
-            //node.setStyle(style + FX_FONT_SIZE + size + PX);
-            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            logger.log("WEIRD style is null for MenuItem ?"+mi.getText());
+
+            mi.setStyle(get_new_style("",size,font_name,logger));
             return;
         }
-        if ( dbg) logger.log("Node style->" + style + "<-");
-        int index = style.indexOf(FX_FONT_SIZE);
-
-        if (index < 0) {
-            // font not in stlye yet, so we add it
-            StringBuilder sb = new StringBuilder();
-            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
-            mi.setStyle(sb.toString());
-            //node.setStyle(style + FX_FONT_SIZE + size + PX);
-            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+        if ( style.isEmpty())
+        {
+            mi.setStyle(get_new_style(style,size,font_name,logger));
             return;
         }
-        index += (FX_FONT_SIZE).length();
-        int index2 = style.indexOf(PX, index);
-        index2 += PX_LENGTH;
+        //if ( dbg)
+        logger.log("\nfound node style->" + style + "<-");
 
-        String new_style = style.substring(0, index);
-        StringBuilder sb = new StringBuilder();
-        sb.append(new_style).append(size).append(PX).append(style.substring(index2));
-        mi.setStyle(sb.toString());
+        if ( style.contains(FX_FONT_SIZE))
+        {
+            logger.log("NOP: style has font size already:"+style);
+            return;
+        }
 
-        if( dbg) logger.log("new_style2->" + new_style + "<-");
-
-         */
+        mi.setStyle(get_new_style(style,size,font_name,logger));
     }
 
 
-    /*
     //**********************************************************
-    public static void apply_font_size(Window owner, Logger logger)
-    //**********************************************************
-    {
-        double size = Non_booleans_properties.get_font_size(owner,logger);
-        if (dbg) logger.log("applying font size " + size);
-        apply_font_size(size,owner,logger);
-    }
-*/
-    //**********************************************************
-    public static void apply_font_size(PopupControl popup_control, Window owner, Logger logger)
+    public static void apply_global_font_size_to_PopupControl(PopupControl popup_control, Window owner, Logger logger)
     //**********************************************************
     {
         double size = Non_booleans_properties.get_font_size(owner,logger);
+
+        init(logger);
         String style = popup_control.getStyle();
-        if ( style.isEmpty() || style.endsWith(";"))
+        if ( style.isEmpty())
         {
-            // shortcut!
-            StringBuilder sb = new StringBuilder();
-            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
-            popup_control.setStyle(sb.toString());
-            //node.setStyle(style + FX_FONT_SIZE + size + PX);
-            if ( dbg)  logger.log("new_style1->" + style + FX_FONT_SIZE + size + PX + "<-");
+            popup_control.setStyle(get_new_style(style,size,font_name,logger));
             return;
         }
-        if ( dbg) logger.log("PopupControl style->" + style + "<-");
-        int index = style.indexOf(FX_FONT_SIZE);
+        //if ( dbg)
+        logger.log("\nfound node style->" + style + "<-");
 
-        if (index < 0)
+        if ( style.contains(FX_FONT_SIZE))
         {
-            // font not in style yet, so we add it
-            StringBuilder sb = new StringBuilder();
-            sb.append(style).append(FX_FONT_SIZE).append(size).append(PX);
-            popup_control.setStyle(sb.toString());
-            if ( dbg)  logger.log("new_style1->" + sb.toString() + "<-");
+            logger.log("NOP: style has font size already:"+style);
             return;
         }
-        index += (FX_FONT_SIZE).length();
 
-        int index2 = style.indexOf(PX, index);
-        index2 += PX_LENGTH;
-
-        String new_style = style.substring(0, index);
-        StringBuilder sb = new StringBuilder();
-        sb.append(new_style).append(size).append(PX).append(style.substring(index2));
-        popup_control.setStyle(sb.toString());
-
-        if( dbg) logger.log("new_style2->" + sb.toString() + "<-");
+        popup_control.setStyle(get_new_style(style,size,font_name,logger));
     }
 }

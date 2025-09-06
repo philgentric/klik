@@ -69,7 +69,7 @@ public class Folder_size
         TextArea textarea2 = new TextArea();
         vbox.getChildren().add(textarea2);
         textarea2.setMinHeight(icon_height);
-        Font_size.apply_font_size(textarea2,20,logger);
+        Font_size.apply_this_font_size_to_Node(textarea2,20,logger);
 
         Scene scene = new Scene(vbox, Color.WHITE);
         local_stage.setTitle(path.toAbsolutePath().toString());

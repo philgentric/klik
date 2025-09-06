@@ -128,6 +128,7 @@ public class Progress_window implements Hourglass
                 iv.setPreserveRatio(true);
                 vbox.getChildren().add(iv);
                 break;
+            case modena:
             case material:
             default:
                 spinner = new Progress_spinner();

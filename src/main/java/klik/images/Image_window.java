@@ -180,6 +180,7 @@ public class Image_window
         String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension, owner);
         the_Scene = new Scene(the_image_Pane);
+        //Look_and_feel_manager.set_scene_look(the_Scene,owner,logger);
         Color background = Look_and_feel_manager.get_instance(owner,logger).get_background_color();
         the_Scene.setFill(background);
         stage.setScene(the_Scene);

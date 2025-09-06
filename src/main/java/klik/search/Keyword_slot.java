@@ -35,7 +35,7 @@ public class Keyword_slot
         result_keyword_label = new Label(keyword_holder[0]);
         Look_and_feel_manager.set_region_look(result_keyword_label,finder_frame.stage,logger);
         //result_keyword_label.setTextFill(Color.BLUE);
-        result_keyword_label.setStyle("-fx-text-fill: blue;");
+        result_keyword_label.setStyle(result_keyword_label.getStyle()+"-fx-text-fill: blue;");
 
         if (!is_extension)
         {

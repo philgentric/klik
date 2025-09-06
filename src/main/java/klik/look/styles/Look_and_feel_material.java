@@ -3,6 +3,7 @@ package klik.look.styles;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Window;
+import klik.System_info;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_style;
 import klik.properties.Non_booleans_properties;
@@ -24,7 +25,7 @@ public class Look_and_feel_material extends Look_and_feel
 
     public Look_and_feel_material(Window owner, Logger logger)
     {
-        super("Custom color",owner,logger);
+        super("Material",owner,logger);
     }
 
     @Override
@@ -37,24 +38,42 @@ public class Look_and_feel_material extends Look_and_feel
     public URL get_CSS_URL(Window owner)
     //**********************************************************
     {
+        logger.log("get_CSS_URL");
+
         int font_size = (int)Non_booleans_properties.get_font_size(owner,logger);
-        // Load Roboto font at size 16
-        Font roboto = Font.loadFont(
-                getClass().getResourceAsStream("/fonts/Roboto-Regular.ttf"), 16
-        );
-        if ( roboto != null) logger.log("roboto font loaded");
+
+        //String font_name = "AtkinsonHyperlegible-BoldItalic";
+        //load_font("AtkinsonHyperlegible-BoldItalic.ttf");
+        //String font_name = "AtkinsonHyperlegible-Regular";
+        //load_font("AtkinsonHyperlegible-Regular.ttf");
+        //String font_name = "TRON";
+        //load_font("TRON.ttf");
+        String font_name = "Roboto-Bold";
+        //String font_name = "Papyrus";
+        //load_font("Roboto-Regular.ttf");
+        //load_font("Roboto-Bold.ttf");
+
+        System_info.print_all_font_families();
+
         //Color background = Non_booleans_properties.get_custom_color(owner);
-
         //Color hover =  background.darker();
-
         //String background_s = background.toString().replace("0x","#");
         //String hover_s = hover.toString().replace("0x","#");
 
+        //-fx-font-family: %s, Arial, sans-serif;
+
         // special case: we create a data-URL
         String css = String.format("""
+
+.root {
+-fx-text-fill: #202124;
+-fx-font-family: %s;
+-fx-font-size: %spx;
+}
+
 .look_and_feel_general {
 -fx-text-fill: #202124;
--fx-font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+-fx-font-family: %s;
 -fx-font-size: %spx;
 -fx-font-weight: 500;
 -fx-background-color: #F5F5F5;
@@ -65,7 +84,7 @@ public class Look_and_feel_material extends Look_and_feel
                 
 .menu_buttons {
 -fx-text-fill: #202124;
--fx-font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+-fx-font-family: %s;
 -fx-font-size: %spx;
 -fx-font-weight: 500;
 -fx-background-color: #90CAF9;
@@ -87,12 +106,16 @@ public class Look_and_feel_material extends Look_and_feel
 
 .context-menu {
 -fx-text-fill: #202124;
+-fx-font-family: %s;
+-fx-font-size: %spx;
 -fx-background-color: #FFFFFF;
 -fx-background-radius: 12px;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 8, 0.2, 0, 2);
 }
                    
 .context-menu, .combo-box-popup {
+-fx-font-family: %s;
+-fx-font-size: %spx;
 -fx-background-color: #FFFFFF;
 -fx-background-radius: 12px;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 8, 0.2, 0, 2);
@@ -104,11 +127,12 @@ public class Look_and_feel_material extends Look_and_feel
                                
 .menu-item, .list-cell {
 -fx-text-fill: #202124;
--fx-font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+-fx-font-family: %s;
 -fx-font-size: %spx;
 -fx-background-color: transparent;
 -fx-padding: 8 16 8 16;
 }
+
 
 .menu-item:hover, .list-cell:hover {
 -fx-background-color: #E3F2FD;
@@ -120,8 +144,8 @@ public class Look_and_feel_material extends Look_and_feel
                                
 .image-window {
 -fx-text-fill: #202124;
+-fx-font-family: %s;
 -fx-font-size: %spx;
--fx-font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 -fx-font-weight: 500;
 -fx-background-color: #FFFFFF;
 -fx-background-radius: 16px;
@@ -170,40 +194,41 @@ my_dialog{
 }
 
 .my_dialog > *.label.content{
+-fx-font-family: %s;
 -fx-font-size: %spx;
 -fx-font-weight: bold;
 }
 
 .my_dialog:header *.header-panel{
+-fx-font-family: %s;
+-fx-font-size: %spx;
 -fx-background-color: white;
 }
 
 .my_dialog:header *.header-panel *.label{
+-fx-font-family: %s;
 -fx-font-size: %spx;
 -fx-font-style: italic;
 -fx-fill: #404040; // dark grey
 }
-                    """,font_size,font_size,font_size,font_size,font_size,font_size);
-        // Encode the content using Base64
-        //String encoded_css = Base64.getEncoder().encodeToString(css.getBytes());
+                    """
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+                ,font_name,font_size
+        );
 
-        // Create a tmp file for the CSS, in klik_trash folder
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
-        try {
-            Path script_path = klik_trash.resolve("tmp.css");
-            Files.write(script_path, css.getBytes());
-            Files.setPosixFilePermissions(script_path, PosixFilePermissions.fromString("rwxr-xr-x"));
-            return script_path.toUri().toURL();
-        }
-        catch (MalformedURLException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("" + e));
-            return null;
-        }
-        catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("Error with script file: " + e));
-            return null;
-        }
+        logger.log("CSS\n"+css);
+        return get_CSS_URL2(css,owner);
     }
+
+
 
     @Override
     public String get_view_icon_path() {
