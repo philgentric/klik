@@ -217,6 +217,8 @@ public class Image_window
             return;
         }
         image_display_handler = option.get();
+        image_display_handler.set_fv_cache(fv_cache_supplier);
+        image_display_handler.set_image_properties_cache(image_properties_cache);
         mouse_handling_for_image_window = new Mouse_handling_for_Image_window(this, logger);
 
         //boolean white_background = mouse_handling_for_image_stage.something_is_wrong_with_image_size();
@@ -269,6 +271,8 @@ public class Image_window
         });
 
 
+
+        /*
         EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY)
             {
@@ -281,6 +285,7 @@ public class Image_window
             }
         };
         stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
+        */
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
         Virtual_landscape.show_progress_window_on_redraw = false;

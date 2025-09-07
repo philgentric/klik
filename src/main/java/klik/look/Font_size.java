@@ -43,52 +43,54 @@ public class Font_size
         String style = node.getStyle();
         if ( style.isEmpty())
         {
-            node.setStyle(get_new_style(style,size,font_name,logger));
+            node.setStyle(get_new_style(style,size,font_family,logger));
             return;
         }
-        //if ( dbg)
-            logger.log("\nfound node style->" + style + "<-");
+        if ( dbg) logger.log("\nfound node style->" + style + "<-");
 
         if ( style.contains(FX_FONT_SIZE))
         {
-            logger.log("NOP: style has font size already:"+style);
+            if ( dbg) logger.log("NOP: style has font size already:"+style);
             return;
         }
 
-        node.setStyle(get_new_style(style,size,font_name,logger));
+        node.setStyle(get_new_style(style,size,font_family,logger));
     }
 
     private static boolean font_loaded = false;
-    private static String font_name;
+    public static String font_family;
 
     //**********************************************************
-    private static void init(Logger logger)
+    public static void init(Logger logger)
     //**********************************************************
     {
         if ( !font_loaded)
         {
-            //font_name = "Papyrus";
-            font_name = "Roboto-Bold";
-            //font_name = "AtkinsonHyperlegible-BoldItalic";
-            //font_name = "TRON";
-            //String font_name = "AtkinsonHyperlegible-Regular";
+            font_loaded = true;
+            // this one is default:
+            //font_family = "Papyrus";
 
+            font_family = "'Atkinson Hyperlegible'";
+            String font_filename = "AtkinsonHyperlegible-Bold.ttf";
+
+            //font_family = "TRON";
             //String font_filename = "TRON.ttf";
-            //String font_filename = "AtkinsonHyperlegible-Regular.ttf";
-            //String font_filename = "AtkinsonHyperlegible-BoldItalic.ttf";
-            String font_filename = "Roboto-Bold.ttf";
-            font_loaded = Look_and_feel_manager.get_instance(null, logger).load_font(font_filename);
+
+            //font_family = "Roboto";
+            //String font_filename = "Roboto-Bold.ttf";
+
+            Look_and_feel_manager.get_instance(null, logger).load_font(font_filename);
         }
     }
 
     //**********************************************************
-    private static String get_new_style(String old_style, double size,String font_name, Logger logger)
+    private static String get_new_style(String old_style, double size,String font_family, Logger logger)
     //**********************************************************
     {
         StringBuilder sb = new StringBuilder();
         sb.append(old_style).append(FX_FONT_SIZE).append(size).append(PX);
-        sb.append("-fx-font-family: "+font_name+";");
-        logger.log("font get_new_style->" + sb + "<-");
+        sb.append("-fx-font-family: "+font_family+";");
+        if ( dbg) logger.log("font get_new_style->" + sb + "<-");
 
         return sb.toString();
     }
@@ -102,26 +104,26 @@ public class Font_size
         String style = mi.getStyle();
         if ( style == null)
         {
-            logger.log("WEIRD style is null for MenuItem ?"+mi.getText());
+            // happens quite a lot actually :
+            // logger.log("WEIRD style is null for MenuItem ?"+mi.getText());
 
-            mi.setStyle(get_new_style("",size,font_name,logger));
+            mi.setStyle(get_new_style("",size,font_family,logger));
             return;
         }
         if ( style.isEmpty())
         {
-            mi.setStyle(get_new_style(style,size,font_name,logger));
+            mi.setStyle(get_new_style(style,size,font_family,logger));
             return;
         }
-        //if ( dbg)
-        logger.log("\nfound node style->" + style + "<-");
+        if ( dbg)  logger.log("\nfound node style->" + style + "<-");
 
         if ( style.contains(FX_FONT_SIZE))
         {
-            logger.log("NOP: style has font size already:"+style);
+            if ( dbg) logger.log("NOP: style has font size already:"+style);
             return;
         }
 
-        mi.setStyle(get_new_style(style,size,font_name,logger));
+        mi.setStyle(get_new_style(style,size,font_family,logger));
     }
 
 
@@ -135,18 +137,17 @@ public class Font_size
         String style = popup_control.getStyle();
         if ( style.isEmpty())
         {
-            popup_control.setStyle(get_new_style(style,size,font_name,logger));
+            popup_control.setStyle(get_new_style(style,size,font_family,logger));
             return;
         }
-        //if ( dbg)
-        logger.log("\nfound node style->" + style + "<-");
+        if ( dbg) logger.log("\nfound node style->" + style + "<-");
 
         if ( style.contains(FX_FONT_SIZE))
         {
-            logger.log("NOP: style has font size already:"+style);
+            if ( dbg) logger.log("NOP: style has font size already:"+style);
             return;
         }
 
-        popup_control.setStyle(get_new_style(style,size,font_name,logger));
+        popup_control.setStyle(get_new_style(style,size,font_family,logger));
     }
 }

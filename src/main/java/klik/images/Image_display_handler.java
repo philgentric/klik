@@ -148,10 +148,14 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
 
     //**********************************************************
-    void handle_mouse_clicked_secondary(Image_properties_RAM_cache image_properties_cache, Supplier<Image_feature_vector_cache> fv_cache_supplier, Window window, MouseEvent e, Logger logger)
+    void handle_mouse_clicked_secondary(
+            Image_properties_RAM_cache image_properties_cache,
+            Supplier<Image_feature_vector_cache> fv_cache_supplier,
+            Window window, MouseEvent e, Logger logger)
     //**********************************************************
     {
         ContextMenu contextMenu = Menus_for_image_window.make_context_menu(image_window, image_properties_cache, fv_cache_supplier,logger);
+
         contextMenu.show(window, e.getScreenX(), e.getScreenY());
     }
 
@@ -302,6 +306,16 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 return;
             }
             image_context = Optional.of(local);
+            image_context.get().the_image_view.setOnContextMenuRequested(event ->
+            {
+                ContextMenu contextMenu = Menus_for_image_window.make_context_menu(
+                        image_window,
+                        image_properties_cache,
+                        fv_cache_supplier,
+                        logger);
+                contextMenu.show(image_window.stage, event.getScreenX(), event.getScreenY());
+
+            });
             image_indexer.ifPresent(imageIndexer -> index_reporter.report_index((double) imageIndexer.get_index(local.path) / (double) imageIndexer.get_max()));
         };
         Actor_engine.run(Change_image_actor.get_instance(), change_image_message, tr,logger);
@@ -336,5 +350,17 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
     public void save_in_cache(String skey, Image_context iai) {
         image_cache.put(skey,iai);
+    }
+
+    Supplier<Image_feature_vector_cache> fv_cache_supplier;
+
+    public void set_fv_cache(Supplier<Image_feature_vector_cache> fvCacheSupplier)
+    {
+        fv_cache_supplier = fvCacheSupplier;
+    }
+
+    Image_properties_RAM_cache image_properties_cache;
+    public void set_image_properties_cache(Image_properties_RAM_cache imagePropertiesCache) {
+        image_properties_cache = imagePropertiesCache;
     }
 }

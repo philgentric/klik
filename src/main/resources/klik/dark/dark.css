@@ -1,27 +1,65 @@
 
 
-.look_and_feel_general {
+.root {
     -fx-text-fill: #fefcff; // bluish light grey
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
-    -fx-alignment: top-left;
-    -fx-background-color: #1a1f2c; // bluish super dark grey
-    //-fx-padding: -1 -1 -1 -1;
 }
 
-.menu_buttons {
+.look_and_feel_general {
+    -fx-background-color: #1a1f2c; // bluish super dark grey
+}
+
+.my_button {
     -fx-text-fill: #fefcff;
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
     -fx-alignment: top-left;
     -fx-background-color: #1a1f2c;
-    //-fx-padding: -1 -1 -1 -1;
     -fx-padding: 0 2 0 2;
+}
+.my_button:hover {
+  -fx-background-color: #606060;
+}
+
+
+
+.my_context_menu {
+    -fx-background: #1a1f2c;
+    -fx-background-color: -fx-background;
+    -fx-border-color: -fx-background;
+}
+.my_context_menu > .label {
+    -fx-text-fill: #fefcff;
+}
+.my_context_menu:focused {
+    -fx-background: #606060;
+    -fx-background-color: -fx-background;
+    -fx-border-color: -fx-background;
+}
+.my_context_menu:focused > .label {
+    -fx-text-fill: #fefcff;
+}
+.my_context_menu:hover {
+    -fx-background: #606060;
+    -fx-background-color: -fx-background;
+    -fx-border-color: -fx-background;
+}
+.my_context_menu:hover > .label {
+    -fx-text-fill: #fefcff;
+}
+.my_context_menu:selected {
+    -fx-background: #606060;
+    -fx-background-color: -fx-background;
+    -fx-border-color: -fx-background;
+}
+.my_context_menu:selected > .label {
+    -fx-text-fill: #fefcff;
 }
 
 
 .image-window {
-    -fx-text-fill: #fefcff	; // color of text
+    -fx-text-fill: #fefcff	; 
     -fx-font:20 Helvetica;
     -fx-font-weight: bold;
     //-fx-alignment: center;
@@ -32,7 +70,7 @@
 
 
 .check-box .box {
--fx-text-fill: #fefcff	; // color of text
+-fx-text-fill: #fefcff	; 
 -fx-background-color: #1a1f2c;
 -fx-border-color:white;
 -fx-border-radius:3px;
@@ -42,30 +80,15 @@
 
 .check-box:selected .mark {
 
--fx-text-fill: #fefcff	; // color of text
+-fx-text-fill: #fefcff	; 
 -fx-background-color: #1a1f2c;
 -fx-mark-color:green;
 }
 
 .check-box:selected .box {
 
--fx-text-fill: #fefcff	; // color of text
+-fx-text-fill: #fefcff	; 
 -fx-background-color: white;
-}
-
-
-
-.menu_buttons:hover {
-  -fx-background-color: #606060;
-}
-
-.context-menu {
-    -fx-text-fill: white;
-    -fx-background-color: #1a1f2c;
-}
-
-.menu-item .label {
-    -fx-text-fill: white;
 }
 
 .check-menu-item:checked

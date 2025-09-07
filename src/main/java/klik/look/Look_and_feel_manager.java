@@ -61,7 +61,12 @@ public class Look_and_feel_manager
     public static Look_and_feel get_instance(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( instance == null ) instance = read_look_and_feel_from_properties_file(owner,logger);
+        if ( instance != null )
+        {
+            return instance;
+        }
+
+        instance = read_look_and_feel_from_properties_file(owner,logger);
         return instance;
     }
 
@@ -69,7 +74,6 @@ public class Look_and_feel_manager
     public static Look_and_feel read_look_and_feel_from_properties_file(Window owner, Logger logger)
     //**********************************************************
     {
-        //logger.log(Stack_trace_getter.get_stack_trace("\n\n\n\n\n\nLook_and_feel_manager.read_look_and_feel_from_properties_file()"));
         Look_and_feel_style look_and_feel_style = null;
         String style_s = Non_booleans_properties.get_main_properties_manager(owner).get(Non_booleans_properties.STYLE_KEY);
         boolean and_save = false;
@@ -662,7 +666,7 @@ public class Look_and_feel_manager
         if (laf.style_sheet_url_string != null) {
             dialog_pane.getStylesheets().clear();
             dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
-            dialog_pane.getStyleClass().clear();
+            //dialog_pane.getStyleClass().clear();
             dialog_pane.getStyleClass().add("my_dialog");
         }
         //Font_size.set_preferred_font_size(dialog_pane,logger);
@@ -746,7 +750,7 @@ public class Look_and_feel_manager
         if (laf.style_sheet_url_string != null) {
             region.getStylesheets().clear();
             region.getStylesheets().add(laf.style_sheet_url_string);
-            region.getStyleClass().clear();
+            //region.getStyleClass().clear();
             region.getStyleClass().add("image-window");
         }
         Font_size.apply_global_font_size_to_Node(region,owner,logger);
@@ -762,8 +766,8 @@ public class Look_and_feel_manager
         {
             label.getStylesheets().clear();
             label.getStylesheets().add(laf.style_sheet_url_string);
-            label.getStyleClass().clear();
-            label.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            //label.getStyleClass().clear();
+            label.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
         }
         Font_size.apply_global_font_size_to_Node(label,owner,logger);
     }
@@ -792,17 +796,26 @@ public class Look_and_feel_manager
     public static void set_menu_item_look(MenuItem item, Window owner, Logger logger)
     //**********************************************************
     {
-        logger.log("menu item "+item.getText());
-        item.getStyleClass().add("context-menu");
-        Font_size.apply_global_font_size_to_MenuItem(item,owner,logger);
+        logger.log("set_menu_item_look() menu item "+item.getText()
+                +"\n   "+item.getStyle()
+                +"\n   "+item.getStyleClass());
+        //item.getStyleClass().clear();
+        item.getStyleClass().add("my_context_menu");
+        //Font_size.apply_global_font_size_to_MenuItem(item,owner,logger);
     }
 
     //**********************************************************
     public static void set_context_menu_look(ContextMenu context_menu, Window owner, Logger logger)
     //**********************************************************
     {
-        context_menu.getStyleClass().add("context-menu");
+
+        /*
+        does not do anything?
+        context_menu.getStyleClass().clear();
+        context_menu.getStyleClass().add("my_context_menu");
         Font_size.apply_global_font_size_to_PopupControl(context_menu,owner,logger);
+        */
+
     }
 
     //**********************************************************
@@ -814,7 +827,7 @@ public class Look_and_feel_manager
         {
             check_box.getStylesheets().clear();
             check_box.getStylesheets().add(laf.style_sheet_url_string);
-            check_box.getStyleClass().clear();
+            //check_box.getStyleClass().clear();
             check_box.getStyleClass().add("check-box");
         }
         Font_size.apply_global_font_size_to_Node(check_box,owner,logger);
@@ -850,8 +863,8 @@ public class Look_and_feel_manager
         {
             button.getStylesheets().clear();
             button.getStylesheets().add(laf.style_sheet_url_string);
-            button.getStyleClass().clear();
-            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            //button.getStyleClass().clear();
+            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
         }
 
         if ( image != null) {
@@ -911,8 +924,8 @@ public class Look_and_feel_manager
         {
             region.getStylesheets().clear();
             region.getStylesheets().add(laf.style_sheet_url_string);
-            region.getStyleClass().clear();
-            region.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+            //region.getStyleClass().clear();
+            region.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
             if ( with_border)
             {
                 region.setBorder(get_border(owner,logger));
@@ -927,7 +940,8 @@ public class Look_and_feel_manager
                 if ( g != null)
                 {
                     // the button has a Label... must set the right text color
-                    g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
+                    //g.getStyleClass().clear();
+                    g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
                 }
             }
         }
@@ -977,30 +991,6 @@ public class Look_and_feel_manager
         }
     }
 
-    /*
-    //**********************************************************
-    public static void set_box_look(Region r) // VBox is a region
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        Color color = laf.get_stroke_color_of_folder_items();
-        r.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
-        r.getStylesheets().clear();
-        r.getStylesheets().add(laf.style_sheet_url_string);
-        r.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-    }
-
-    //**********************************************************
-    public static void set_hbox_look(HBox hbox,Color col) // VBox is a region
-    //**********************************************************
-    {
-        Look_and_feel laf = get_instance();
-        hbox.setBorder(new Border(new BorderStroke(col, BorderStrokeStyle.SOLID, new CornerRadii(0), BorderWidths.DEFAULT)));
-        hbox.getStylesheets().clear();
-        hbox.getStylesheets().add(laf.style_sheet_url_string);
-        hbox.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MENU_BUTTONS);
-    }
-*/
 
     //**********************************************************
     public static BackgroundFill get_drag_fill(Window owner, Logger logger)

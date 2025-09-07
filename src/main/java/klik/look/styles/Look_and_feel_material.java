@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Window;
 import klik.System_info;
+import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_style;
 import klik.properties.Non_booleans_properties;
@@ -23,7 +24,9 @@ public class Look_and_feel_material extends Look_and_feel
 {
     public Look_and_feel_style get_look_and_feel_style(){return Look_and_feel_style.material;}
 
+    //**********************************************************
     public Look_and_feel_material(Window owner, Logger logger)
+    //**********************************************************
     {
         super("Material",owner,logger);
     }
@@ -38,20 +41,11 @@ public class Look_and_feel_material extends Look_and_feel
     public URL get_CSS_URL(Window owner)
     //**********************************************************
     {
-        logger.log("get_CSS_URL");
+        logger.log(Stack_trace_getter.get_stack_trace("get_CSS_URL"));
 
         int font_size = (int)Non_booleans_properties.get_font_size(owner,logger);
 
-        //String font_name = "AtkinsonHyperlegible-BoldItalic";
-        //load_font("AtkinsonHyperlegible-BoldItalic.ttf");
-        //String font_name = "AtkinsonHyperlegible-Regular";
-        //load_font("AtkinsonHyperlegible-Regular.ttf");
-        //String font_name = "TRON";
-        //load_font("TRON.ttf");
-        String font_name = "Roboto-Bold";
-        //String font_name = "Papyrus";
-        //load_font("Roboto-Regular.ttf");
-        //load_font("Roboto-Bold.ttf");
+        Font_size.init(logger);
 
         System_info.print_all_font_families();
 
@@ -60,6 +54,9 @@ public class Look_and_feel_material extends Look_and_feel
         //String background_s = background.toString().replace("0x","#");
         //String hover_s = hover.toString().replace("0x","#");
 
+        // NOT THIS: the javafx doc https://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html
+        // says in the 'limitations' section that javafx CSS does NOT support
+        // coma separated font list
         //-fx-font-family: %s, Arial, sans-serif;
 
         // special case: we create a data-URL
@@ -69,24 +66,17 @@ public class Look_and_feel_material extends Look_and_feel
 -fx-text-fill: #202124;
 -fx-font-family: %s;
 -fx-font-size: %spx;
+-fx-font-weight: 500;
 }
 
 .look_and_feel_general {
--fx-text-fill: #202124;
--fx-font-family: %s;
--fx-font-size: %spx;
--fx-font-weight: 500;
 -fx-background-color: #F5F5F5;
 -fx-padding: 16px;
 -fx-background-radius: 16px;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 8, 0.2, 0, 2);
 }
                 
-.menu_buttons {
--fx-text-fill: #202124;
--fx-font-family: %s;
--fx-font-size: %spx;
--fx-font-weight: 500;
+.my_button {
 -fx-background-color: #90CAF9;
 -fx-background-radius: 24px;
 -fx-border-radius: 24px;
@@ -98,25 +88,18 @@ public class Look_and_feel_material extends Look_and_feel
 //-fx-margin: 8px; /* Add spacing between buttons */
 }
 
-.menu_buttons:hover {
+.my_button:hover {
 -fx-background-color: #1976D2; /* Material V3 blue highlight */
 -fx-effect: dropshadow(gaussian, #1976D2, 8, 0.2, 0, 2);
 -fx-background-radius: 24px;                
 }
 
-.context-menu {
--fx-text-fill: #202124;
--fx-font-family: %s;
--fx-font-size: %spx;
--fx-background-color: #FFFFFF;
+.my_context_menu {
 -fx-background-radius: 12px;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 8, 0.2, 0, 2);
 }
                    
-.context-menu, .combo-box-popup {
--fx-font-family: %s;
--fx-font-size: %spx;
--fx-background-color: #FFFFFF;
+.my_context_menu, .combo-box-popup {
 -fx-background-radius: 12px;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 8, 0.2, 0, 2);
 -fx-padding: 8px;
@@ -126,9 +109,6 @@ public class Look_and_feel_material extends Look_and_feel
 }
                                
 .menu-item, .list-cell {
--fx-text-fill: #202124;
--fx-font-family: %s;
--fx-font-size: %spx;
 -fx-background-color: transparent;
 -fx-padding: 8 16 8 16;
 }
@@ -143,17 +123,13 @@ public class Look_and_feel_material extends Look_and_feel
 }                               
                                
 .image-window {
--fx-text-fill: #202124;
--fx-font-family: %s;
--fx-font-size: %spx;
--fx-font-weight: 500;
--fx-background-color: #FFFFFF;
+//-fx-background-color: #FFFFFF;
 -fx-background-radius: 16px;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 8, 0.2, 0, 2);
 }
     
 .check-box .box {
--fx-background-color: #FFFFFF;
+//-fx-background-color: #FFFFFF;
 -fx-border-color: #B0BEC5;
 -fx-border-radius: 6px;
 -fx-mark-color: #90CAF9;
@@ -161,7 +137,7 @@ public class Look_and_feel_material extends Look_and_feel
 }
                 
 .check-box:selected .mark {
--fx-background-color: #FFFFFF;
+//-fx-background-color: #FFFFFF;
  -fx-mark-color: #D32F2F;
 }
                 
@@ -194,34 +170,21 @@ my_dialog{
 }
 
 .my_dialog > *.label.content{
--fx-font-family: %s;
--fx-font-size: %spx;
+
 -fx-font-weight: bold;
 }
 
 .my_dialog:header *.header-panel{
--fx-font-family: %s;
--fx-font-size: %spx;
 -fx-background-color: white;
 }
 
 .my_dialog:header *.header-panel *.label{
--fx-font-family: %s;
--fx-font-size: %spx;
+
 -fx-font-style: italic;
 -fx-fill: #404040; // dark grey
 }
                     """
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
-                ,font_name,font_size
+                ,Font_size.font_family,font_size
         );
 
         logger.log("CSS\n"+css);

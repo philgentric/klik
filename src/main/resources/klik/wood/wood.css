@@ -13,7 +13,7 @@
 //    -fx-padding: 15 30 15 30;
 }
 
-.menu_buttons {
+.my_button {
     -fx-text-fill:white;
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
     -fx-font-family: Helvetica;
@@ -38,7 +38,7 @@
 //    -fx-padding: -1 -1 -1 -1;
 }
 
-.menu_buttons:hover {
+.my_button:hover {
     -fx-text-fill:white;
     -fx-font-family: Helvetica;
     //-fx-font-weight: bold;
@@ -49,7 +49,7 @@
 }
 
 
-.context-menu {
+.my_context_menu {
     -fx-text-fill: white;
     -fx-background-color: darkgrey;//#1a1f2c;
 }

@@ -37,7 +37,7 @@ public abstract class Look_and_feel
     public static final String LOOK_AND_FEEL_GENERAL = "look_and_feel_general";
     public static final String LOOK_AND_FEEL_IMAGE_PLAYLIST = "look_and_feel_image_playlist";
     public static final String LOOK_AND_FEEL_DRAG = "look_and_feel_drag";
-    public static final String LOOK_AND_FEEL_MENU_BUTTONS = "menu_buttons";
+    public static final String LOOK_AND_FEEL_MY_BUTTON = "my_button";
     public static final String LOOK_AND_FEEL_ALL_FILES = "look_and_feel_all_files";
     public static final String LOOK_AND_FEEL_ALL_DIRS = "look_and_feel_all_dirs";
 
@@ -91,6 +91,7 @@ public abstract class Look_and_feel
         // uses a temporary scene to create and capture the CSS style ...
         final BackgroundFill background_fill;
         Pane tmp_pane = new Pane();
+        //tmp_pane.getStyleClass().clear();
         tmp_pane.getStyleClass().add(laf);
         Scene tmp_scene = new Scene(tmp_pane);
         tmp_scene.getStylesheets().clear();
@@ -297,7 +298,7 @@ public abstract class Look_and_feel
         if (style_sheet_url_string != null) {
             scene.getStylesheets().clear();
             scene.getStylesheets().add(style_sheet_url_string);
-            text.getStyleClass().add(LOOK_AND_FEEL_MENU_BUTTONS);
+            text.getStyleClass().add(LOOK_AND_FEEL_MY_BUTTON);
         }
         text.applyCss();
         double w = text.getLayoutBounds().getWidth();
@@ -310,14 +311,18 @@ public abstract class Look_and_feel
     protected boolean load_font(String file_name)
     //**********************************************************
     {
-        //InputStream in = Jar_utils.get_jar_InputStream_by_name("/fonts/"+file_name);
-        //Font font = Font.loadFont(in, 24);
-        Font font = Font.loadFont("file:src/main/resources/fonts/"+file_name, 24);
+        InputStream in = Jar_utils.get_jar_InputStream_by_name("/fonts/"+file_name);
+        Font font = Font.loadFont(in, 24);
+        try {
+            in.close();
+        } catch (IOException e) {
+            logger.log(""+e);
+        }
         // the size is a convenience if we would use the font object
         // here, we just load the font in the javafx cache
         if ( font != null)
         {
-            logger.log("fonfont "+file_name+" loaded");
+            logger.log("fonfont "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family= "+font.getFamily());
             return true;
         }
         else

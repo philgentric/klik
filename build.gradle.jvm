@@ -66,8 +66,6 @@ dependencies {
     // for writing png files without AWT
     implementation 'ar.com.hjg:pngj:2.1.0'
 
-    // https://mvnrepository.com/artifact/com.cathive.fonts/fonts-roboto
-    //implementation("com.cathive.fonts:fonts-roboto:2012023.1")
 }
 
 tasks.register('klik', JavaExec) {
