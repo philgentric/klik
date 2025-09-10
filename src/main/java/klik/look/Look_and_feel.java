@@ -38,6 +38,7 @@ public abstract class Look_and_feel
     public static final String LOOK_AND_FEEL_IMAGE_PLAYLIST = "look_and_feel_image_playlist";
     public static final String LOOK_AND_FEEL_DRAG = "look_and_feel_drag";
     public static final String LOOK_AND_FEEL_MY_BUTTON = "my_button";
+    public static final String LOOK_AND_FEEL_MY_BUTTON_with_border = "my_button_with_border";
     public static final String LOOK_AND_FEEL_ALL_FILES = "look_and_feel_all_files";
     public static final String LOOK_AND_FEEL_ALL_DIRS = "look_and_feel_all_dirs";
 
@@ -150,7 +151,7 @@ public abstract class Look_and_feel
     public String get_speaker_icon_path()
     //**********************************************************
     {
-        return "speaker.png";
+        return "icons/speaker.png";
     }
 
     //**********************************************************
@@ -159,46 +160,44 @@ public abstract class Look_and_feel
     {
         // dummy is a transparent icon 14 pixel wide by 256
         // it is used as a DEFAULT graphic in button for folders
-        return "dummy.png";
+        return "icons/dummy.png";
     }
 
     //**********************************************************
     protected String get_denied_icon_path()
     //**********************************************************
     {
-        return "denied.png";
+        return "icons/denied.png";
     }
 
     //**********************************************************
     protected String get_unknown_error_icon_path()
     //**********************************************************
     {
-        return "unknown-error.png";
+        return "icons/unknown-error.png";
     }
 
     //**********************************************************
     protected String get_not_found_icon_path()
     //**********************************************************
     {
-        return "not-found.png";
+        return "icons/not-found.png";
     }
 
     //**********************************************************
     public String get_running_film_icon_path()
     //**********************************************************
     {
-        return "running_film.gif";
+        return "icons/running_film.gif";
     }
 
+    /*
     //**********************************************************
     public void set_hovered_directory_style(Node node, Window owner)
     //**********************************************************
     {
-        //System.out.println("Look_and_feel::set_hovered_directory_style");
-        Font_size.apply_global_font_size_to_Node(node, owner, logger);
-        set_text_color(node, get_selected_text_color());//"-fx-text-fill: #704040;");
-    }
-
+            }
+*/
 
     //**********************************************************
     private static void set_text_color(Node node, String color)
@@ -228,45 +227,17 @@ public abstract class Look_and_feel
     //**********************************************************
     {
         //logger.log("set_file_style");
-        //Font_size.set_preferred_font_size(node,logger);
         Font_size.apply_global_font_size_to_Node(node, owner, logger);
-/*
-        if (node instanceof Button button)
-        {
-            button.setFont(Font.font("Monaco", FontPosture.ITALIC, Non_booleans_properties.get_font_size( logger)));
-            set_text_color(node,"-fx-text-fill: #404040;");
-        }
-        else
-        {
-            Font_size.set_preferred_font_size(node,logger);
-        }
-        //button.setFont(Font.font("Verdana", FontPosture.ITALIC, Non_booleans_properties.get_font_size( logger)));
-
- */
     }
 
     //**********************************************************
-    protected void set_selected_file_style(Node button, Window owner)
+    protected void set_selected_file_style(Node node, Window owner)
     //**********************************************************
     {
         //logger.log("set_selected_file_style");
-        set_hovered_directory_style(button, owner);
+        Font_size.apply_global_font_size_to_Node(node, owner, logger);
+        set_text_color(node, get_selected_text_color());//"-fx-text-fill: #704040;");
     }
-
-/*
-    //**********************************************************
-    public Color get_stroke_color_of_folder_items()
-    //**********************************************************
-    {
-        return Color.BLACK;
-    }
-
-
-    public void set_dragged_over_directory_style(Button button) {
-        button.setStyle(Virtual_landscape_UI.LOOK_AND_FEEL_MENU_BUTTONS_DRAG_OVER);
-    }
-*/
-
 
     public BackgroundFill get_background_fill() {
         return background_fill;

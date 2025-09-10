@@ -3,7 +3,7 @@
 //FILES ../../resources/klik/denied.png
 //FILES ../../resources/klik/ding.mp3
 //FILES ../../resources/klik/dummy.png
-//FILES ../../resources/klik/haarcascade_frontalface_default.xml
+//FILES ../../resources/haarcascade_frontalface_default.xml
 //FILES ../../resources/klik/lazy.png
 //FILES ../../resources/klik/not-found.png
 //FILES ../../resources/klik/speaker.png
@@ -13,7 +13,7 @@
 
 
 //FILES dark/bookmarks.png=../../resources/klik/dark/bookmarks.png
-//FILES dark/dark.css=../../resources/klik/dark/dark.css
+//FILES dark/dark.css=../../resources/klik/css/dark.css
 //FILES dark/folder.png=../../resources/klik/dark/folder.png
 //FILES dark/image.png=../../resources/klik/dark/image.png
 //FILES dark/preferences.png=../../resources/klik/dark/preferences.png
@@ -29,7 +29,7 @@
 //FILES light/folder.png=../../resources/klik/light/folder.png
 //FILES light/image.png=../../resources/klik/light/image.png
 //FILES klik.png=../../resources/klik/klik.png
-//FILES light/light.css=../../resources/klik/light/light.css
+//FILES light/light.css=../../resources/klik/css/light.css
 //FILES light/preferences.png=../../resources/klik/light/preferences.png
 //FILES light/trash.png=../../resources/klik/light/trash.png
 //FILES light/up.png=../../resources/klik/light/up.png
@@ -39,7 +39,7 @@
 //FILES wood/bookmarks.png=../../resources/klik/wood/bookmarks.png
 //FILES wood/preferences.png=../../resources/klik/wood/preferences.png
 //FILES wood/view.png=../../resources/klik/wood/view.png
-//FILES wood/wood.css=../../resources/klik/wood/wood.css
+//FILES wood/wood.css=../../resources/klik/css/wood.css
 //FILES wood/wooden_camera.png=../../resources/klik/wood/wooden_camera.png
 //FILES wood/wooden_folder.png=../../resources/klik/wood/wooden_folder.png
 //FILES wood/wooden_trash.png=../../resources/klik/wood/wooden_trash.png

@@ -22,72 +22,72 @@ public class Look_and_feel_dark extends Look_and_feel
 
     @Override
     public String get_sleeping_man_icon_path() {
-        return "dark/lazy_dark.png";
+        return "icons/lazy.png";
     }
 
     public String get_broken_icon_path()
     {
-        return "broken.png";
+        return "icons/broken.png";
     }
 
     @Override
     public String get_trash_icon_path()
     {
-        return "dark/trash.png";
+        return "icons/dark/trash.png";
     }
 
     @Override
     public String get_up_icon_path()
     {
-        return "dark/up.png";
+        return "icons/dark/up.png";
     }
 
     @Override
-    public String get_klik_icon_path() {return "klik.png";}
+    public String get_klik_icon_path() {return "icons/klik.png";}
 
     @Override
     public String get_default_icon_path()
     {
-        return "dark/image.png";
+        return "icons/dark/image.png";
     }
 
     @Override
     public String get_music_icon_path()
     {
-        return "music.png";
+        return "icons/dark/music.png";
     }
 
     @Override
     public String get_slingshot_icon_path()
     {
-        return "slingshot.png";
+        return "icons/slingshot.png";
     }
 
     @Override
     public String get_folder_icon_path()
     {
-        return "dark/folder.png";
+        return "icons/dark/folder.png";
     }
 
     @Override
     public URL get_CSS_URL(Window owner) {
-        return Jar_utils.get_URL_by_name("dark/dark.css");
+        return Jar_utils.get_URL_by_name("css/dark.css");
     }
 
     @Override
     public String get_view_icon_path() {
-        return "dark/view.png";
+        return "icons/dark/view.png";
     }
 
 
     @Override
     public String get_bookmarks_icon_path() {
-        return "dark/bookmarks.png";
+        return "icons/dark/bookmarks.png";
     }
 
     @Override
     public String get_preferences_icon_path() {
-        return "dark/preferences.png";
+        return "icons/dark/preferences.png";
     }
 
     @Override

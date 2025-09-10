@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Window;
+import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_style;
 import klik.properties.Non_booleans_properties;
@@ -30,7 +31,7 @@ public class Look_and_feel_modena extends Look_and_feel
 
     @Override
     public String get_sleeping_man_icon_path() {
-        return "lazy.png";
+        return "icons/lazy.png";
     }
 
     //**********************************************************
@@ -39,76 +40,67 @@ public class Look_and_feel_modena extends Look_and_feel
     //**********************************************************
     {
         Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);
-        //return null;
-
-        String css = """
-.button
-{
--fx-padding: 0 24 0 24;
-}
-                """;
-
-        return get_CSS_URL2(css,owner);
+        return Jar_utils.get_URL_by_name("css/modena.css");
     }
 
     @Override
     public String get_view_icon_path() {
-        return "light/view.png";
+        return "icons/light/view.png";
     }
 
        @Override
     public String get_bookmarks_icon_path() {
-        return "light/bookmarks.png";
+        return "icons/light/bookmarks.png";
     }
 
     @Override
     public String get_preferences_icon_path() {
-        return "light/preferences.png";
+        return "icons/light/preferences.png";
     }
 
     @Override
     public String get_trash_icon_path()
     {
-        return "light/trash.png";
+        return "icons/light/trash.png";
     }
     @Override
     public String get_up_icon_path()
     {
-        return "light/up.png";
+        return "icons/light/up.png";
     }
 
     @Override
     public String get_klik_icon_path() {
-        return "light/camera.png";
+        return "icons/light/camera.png";
     }
 
     @Override
     public String get_broken_icon_path()
     {
-        return "light/broken.png";
+        return "icons/light/broken.png";
     }
 
     @Override
     public String get_default_icon_path()
     {
-        return "light/camera.png";
+        return "icons/light/camera.png";
     }
 
     @Override
     public String get_music_icon_path()
     {
-        return "music.png";
+        return "icons/music.png";
     }
 
 
     @Override
     public String get_slingshot_icon_path()
     {
-        return "slingshot.png";
+        return "icons/slingshot.png";
     }
 
     @Override
-    public String get_folder_icon_path() {return "light/folder.png";}
+    public String get_folder_icon_path() {return "icons/light/folder.png";}
 
 
     @Override

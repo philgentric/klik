@@ -297,7 +297,8 @@ public class Playlist
             reset_background_to_default(selected);
         }
         selected = future;
-        set_background_to(selected, COLOR_OF_SELECTION);
+        //set_background_to(selected, COLOR_OF_SELECTION);
+        set_background_to_selected(selected);
 
         the_music_ui.scroll_to(the_song_path);
         Non_booleans_properties.save_current_song(the_song_path,owner);
@@ -309,23 +310,15 @@ public class Playlist
     private void reset_background_to_default(Song song)
     //**********************************************************
     {
-        if (dbg) logger.log("resetting background for previously selected");
-        String s = song.node().getStyle();
-        if (dbg) logger.log("style before = " + s);
-        s = change_background_color(s, DEFAULT_BACKGROUND_COLOR);
-        if (dbg) logger.log("style after = " + s);
-        song.node().setStyle(s);
+        song.node().getStyleClass().add("unselected_song");
     }
 
+
     //**********************************************************
-    private void set_background_to(Song future, String color)
+    private void set_background_to_selected(Song song)
     //**********************************************************
     {
-        String s = future.node().getStyle();
-        if (dbg) logger.log("style before = " + s);
-        s = change_background_color(s, color);
-        if (dbg) logger.log("style after = " + s);
-        future.node().setStyle(s);
+        song.node().getStyleClass().add("selected_song");
     }
 
 

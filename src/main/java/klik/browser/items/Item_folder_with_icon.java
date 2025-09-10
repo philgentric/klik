@@ -120,23 +120,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
         Look_and_feel_manager.set_button_look(button,true,owner,logger);
 
-        /*Look_and_feel_manager.set_button_look(button,true);
-        button.setOnAction(actionEvent ->
-                {
-                    Path old_folder_path = get_item_path().getParent(); // this works when going "down", path is the new target path, therefore going back is the parent of that
-                    if ( this.is_parent_of()) old_folder_path = path_list_provider.get_folder_path(); // when the button is the parent aka up button, the old path is the current path
-                    Browsing_caches.scroll_position_cache.put(old_folder_path.toAbsolutePath().toString(),top_left_provider.get_top_left());
 
-                    New_window_context.replace_different_folder(shutdown_target, get_item_path(),owner,logger);
-                });
-        Tooltip.install(button,new Tooltip(get_item_path().getFileName().toString()));
-*/
         resize_the_box(button);
-/*
-        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(), get_Node(),owner,get_item_path(),is_trash(),logger);
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
-        give_a_menu_to_the_button(button,null);
-*/
     }
 
 

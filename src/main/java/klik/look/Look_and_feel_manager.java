@@ -713,11 +713,6 @@ public class Look_and_feel_manager
     public static void give_button_a_selected_file_style(Node node, Window owner, Logger logger)
     //**********************************************************
     {
-        // a klik browser "button" has 2 graphical components
-        // because there is a Label in the button
-        // and "folders with icon" actually have a VBox and a label...
-        //logger.log(Stack_trace_getter.get_stack_trace("give_button_a_selected_file_style"+node1+" "+node2 ));
-
         if ( node == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("node is null"));
@@ -796,9 +791,10 @@ public class Look_and_feel_manager
     public static void set_menu_item_look(MenuItem item, Window owner, Logger logger)
     //**********************************************************
     {
-        logger.log("set_menu_item_look() menu item "+item.getText()
+        /*logger.log("set_menu_item_look() menu item "+item.getText()
                 +"\n   "+item.getStyle()
                 +"\n   "+item.getStyleClass());
+         */
         //item.getStyleClass().clear();
         item.getStyleClass().add("my_context_menu");
         //Font_size.apply_global_font_size_to_MenuItem(item,owner,logger);
@@ -838,8 +834,8 @@ public class Look_and_feel_manager
     public static void set_TextField_look(TextField text_field, Window owner, Logger logger)
     //**********************************************************
     {
-
         Font_size.apply_global_font_size_to_Node(text_field,owner,logger);
+
         Look_and_feel laf = get_instance(owner,logger);
         if (laf.style_sheet_url_string != null)
         {
@@ -925,25 +921,19 @@ public class Look_and_feel_manager
             region.getStylesheets().clear();
             region.getStylesheets().add(laf.style_sheet_url_string);
             //region.getStyleClass().clear();
-            region.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
             if ( with_border)
             {
-                region.setBorder(get_border(owner,logger));
-                region.setStyle("-fx-padding: 0 2 0 2;");
+                region.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON_with_border);
+                //region.setBorder(get_border(owner,logger));
+                //region.setStyle("-fx-padding: 0 2 0 2;");
+            }
+            else
+            {
+                region.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
             }
             //Font_size.set_preferred_font_size(button,logger);
             Font_size.apply_global_font_size_to_Node(region,owner,logger);
 
-            if ( region instanceof Button button)
-            {
-                Node g = button.getGraphic();
-                if ( g != null)
-                {
-                    // the button has a Label... must set the right text color
-                    //g.getStyleClass().clear();
-                    g.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
-                }
-            }
         }
     }
     //**********************************************************

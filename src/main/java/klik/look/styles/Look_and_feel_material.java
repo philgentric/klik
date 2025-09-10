@@ -5,6 +5,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Window;
 import klik.System_info;
 import klik.look.Font_size;
+import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_style;
 import klik.properties.Non_booleans_properties;
@@ -33,7 +34,7 @@ public class Look_and_feel_material extends Look_and_feel
 
     @Override
     public String get_sleeping_man_icon_path() {
-        return "lazy.png";
+        return "icons/lazy.png";
     }
 
     //**********************************************************
@@ -41,7 +42,9 @@ public class Look_and_feel_material extends Look_and_feel
     public URL get_CSS_URL(Window owner)
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("get_CSS_URL"));
+        return Jar_utils.get_URL_by_name("css/material.css");
+/*
+        //logger.log(Stack_trace_getter.get_stack_trace("get_CSS_URL"));
 
         int font_size = (int)Non_booleans_properties.get_font_size(owner,logger);
 
@@ -85,11 +88,10 @@ public class Look_and_feel_material extends Look_and_feel
 -fx-effect: dropshadow(gaussian, #B0BEC5, 4, 0.1, 0, 1);
 -fx-border-color: #E0E0E0;
 -fx-border-width: 1px;
-//-fx-margin: 8px; /* Add spacing between buttons */
 }
 
 .my_button:hover {
--fx-background-color: #1976D2; /* Material V3 blue highlight */
+-fx-background-color: #1976D2; // Material V3 blue highlight
 -fx-effect: dropshadow(gaussian, #1976D2, 8, 0.2, 0, 2);
 -fx-background-radius: 24px;                
 }
@@ -187,70 +189,72 @@ my_dialog{
                 ,Font_size.font_family,font_size
         );
 
-        logger.log("CSS\n"+css);
+        //logger.log("CSS\n"+css);
         return get_CSS_URL2(css,owner);
+
+ */
     }
 
 
 
     @Override
     public String get_view_icon_path() {
-        return "light/view.png";
+        return "icons/light/view.png";
     }
 
        @Override
     public String get_bookmarks_icon_path() {
-        return "light/bookmarks.png";
+        return "icons/light/bookmarks.png";
     }
 
     @Override
     public String get_preferences_icon_path() {
-        return "light/preferences.png";
+        return "icons/light/preferences.png";
     }
 
     @Override
     public String get_trash_icon_path()
     {
-        return "light/trash.png";
+        return "icons/light/trash.png";
     }
     @Override
     public String get_up_icon_path()
     {
-        return "light/up.png";
+        return "icons/light/up.png";
     }
 
     @Override
     public String get_klik_icon_path() {
-        return "light/camera.png";
+        return "icons/light/camera.png";
     }
 
     @Override
     public String get_broken_icon_path()
     {
-        return "light/broken.png";
+        return "icons/light/broken.png";
     }
 
     @Override
     public String get_default_icon_path()
     {
-        return "light/camera.png";
+        return "icons/light/camera.png";
     }
 
     @Override
     public String get_music_icon_path()
     {
-        return "music.png";
+        return "icons/light/music.png";
     }
 
 
     @Override
     public String get_slingshot_icon_path()
     {
-        return "slingshot.png";
+        return "icons/slingshot.png";
     }
 
     @Override
-    public String get_folder_icon_path() {return "light/folder.png";}
+    public String get_folder_icon_path() {return "icons/light/folder.png";}
 
 
     @Override

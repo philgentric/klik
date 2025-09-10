@@ -21,72 +21,72 @@ public class Look_and_feel_wood extends Look_and_feel
 
     @Override
     public String get_sleeping_man_icon_path() {
-        return "dark/lazy_dark.png";
+        return "icons/lazy.png";
     }
 
     @Override
     public URL get_CSS_URL(Window owner) {
-        return Jar_utils.get_URL_by_name("wood/wood.css");
+        return Jar_utils.get_URL_by_name("css/wood.css");
     }
 
     @Override
     public String get_view_icon_path() {
-        return "wood/view.png";
+        return "icons/wood/view.png";
     }
 
        @Override
     public String get_bookmarks_icon_path() {
-        return "wood/bookmarks.png";
+        return "icons/wood/bookmarks.png";
     }
 
     @Override
     public String get_preferences_icon_path() {
-        return "wood/preferences.png";
+        return "icons/wood/preferences.png";
     }
 
     @Override
     public String get_trash_icon_path()
     {
-        return "wood/wooden_trash.png";
+        return "icons/wood/trash.png";
     }
 
     @Override
     public String get_up_icon_path()
     {
-        return "wood/wooden_up.png";
+        return "icons/wood/up.png";
     }
 
     @Override
     public String get_klik_icon_path() {
-        return "wood/wooden_camera.png";
+        return "icons/wood/camera.png";
     }
 
     @Override
     public String get_broken_icon_path()
     {
-        return "wood/broken.png";
+        return "icons/wood/broken.png";
     }
 
     @Override
     public String get_default_icon_path()
     {
-        return "wood/wooden_camera.png";
+        return "icons/wood/camera.png";
     }
 
     @Override
     public String get_music_icon_path()
     {
-        return "music.png";
+        return "icons/dark/music.png";
     }
 
     @Override
     public String get_slingshot_icon_path()
     {
-        return "slingshot.png";
+        return "icons/slingshot.png";
     }
 
     @Override
-    public String get_folder_icon_path() {return "wood/wooden_folder.png";}
+    public String get_folder_icon_path() {return "icons/wood/folder.png";}
 
     @Override
     public String get_selected_text_color() {return "-fx-text-fill: #FF4040;";}

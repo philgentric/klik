@@ -105,7 +105,7 @@ public class My_I18n
 
             // this method work with jbang
             try {
-                String name = "MessagesBundle" + "_" + locale.getLanguage() + "_" + locale.getCountry()+".properties";
+                String name = "languages/MessagesBundle" + "_" + locale.getLanguage() + "_" + locale.getCountry()+".properties";
                 logger.log("trying get_jar_InputStream_by_name with name : "+name);
 
                 InputStream is = Jar_utils.get_jar_InputStream_by_name(name);

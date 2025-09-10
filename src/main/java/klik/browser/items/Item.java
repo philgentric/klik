@@ -218,64 +218,61 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    public void give_a_menu_to_the_button(Button local_button, Label local_label)
+    public ContextMenu make_context_menu(Button local_button, Label local_label)
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
+        Look_and_feel_manager.set_context_menu_look(context_menu, owner, logger);
+        logger.log("give_a_menu_to_the_button " + context_menu.getStyleClass());
         Path local_path = get_item_path();
-        if (Files.isDirectory(local_path))
-        {
+        if (Files.isDirectory(local_path)) {
             context_menu.getItems().add(create_get_folder_size_menu_item());
-            if ( is_trash())
-            {
+            if (is_trash()) {
                 MenuItem menu_item = create_clear_trash_menu_item();
                 context_menu.getItems().add(menu_item);
             }
-            if(!is_trash() && (is_parent_of()==null))
-            {
+            if (!is_trash() && (is_parent_of() == null)) {
                 context_menu.getItems().add(create_browse_in_new_window_menu_item());
                 context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-                if ( Feature_cache.get(Feature.Enable_tags))
-                {
-                    context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner,aborter,logger));
+                if (Feature_cache.get(Feature.Enable_tags)) {
+                    context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner, aborter, logger));
                 }
-                context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
+                context_menu.getItems().add(create_rename_menu_item(local_button, local_label));
                 context_menu.getItems().add(create_delete_menu_item());
                 context_menu.getItems().add(create_copy_dir_menu_item());
                 context_menu.getItems().add(create_edit_color_menu_item(logger));
             }
-        }
-        else
-        {
-            if (Guess_file_type.is_this_path_an_image(get_item_path()))
-            {
-                context_menu.getItems().add(create_open_exif_frame_menu_item(get_item_path(),logger));
+        } else {
+            if (Guess_file_type.is_this_path_an_image(get_item_path())) {
+                context_menu.getItems().add(create_open_exif_frame_menu_item(get_item_path(), logger));
             }
-            if (Guess_file_type.is_this_path_a_music(get_item_path()))
-            {
-                context_menu.getItems().add(create_open_mediainfo_frame_menu_item(get_item_path(),logger));
+            if (Guess_file_type.is_this_path_a_music(get_item_path())) {
+                context_menu.getItems().add(create_open_mediainfo_frame_menu_item(get_item_path(), logger));
             }
-            if ( this.get_item_type() == Iconifiable_item_type.video)
-            {
-                Item_file_with_icon.make_menu_items_for_videos(get_item_path(),owner,context_menu,dbg, aborter,logger);
+            if (this.get_item_type() == Iconifiable_item_type.video) {
+                Item_file_with_icon.make_menu_items_for_videos(get_item_path(), owner, context_menu, dbg, aborter, logger);
             }
 
             // is a "plain" file
             context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
             context_menu.getItems().add(create_open_with_special_app_item(get_item_path()));
-            context_menu.getItems().add(create_rename_menu_item(local_button,local_label));
+            context_menu.getItems().add(create_rename_menu_item(local_button, local_label));
             context_menu.getItems().add(create_copy_menu_item());
             context_menu.getItems().add(create_delete_menu_item());
 
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg,owner,logger));
-            if ( Feature_cache.get(Feature.Enable_tags))
-            {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner,aborter,logger));
+            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, owner, logger));
+            if (Feature_cache.get(Feature.Enable_tags)) {
+                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner, aborter, logger));
             }
         }
+        return context_menu;
+    }
 
-
+    //**********************************************************
+    public void give_a_menu_to_the_button(Button local_button, Label local_label)
+    //**********************************************************
+    {
+        ContextMenu context_menu = make_context_menu(local_button, local_label);
         local_button.setOnContextMenuRequested((ContextMenuEvent event) -> {
             //if ( dbg)
                 logger.log("show context menu of button:"+ get_item_path().toAbsolutePath());
@@ -291,6 +288,8 @@ public abstract class Item implements Icon_destination
         String txt = My_I18n.get_I18n_string("Info_about", owner,logger);
         MenuItem menu_item = new MenuItem(txt);
         Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
+
+        logger.log("create_open_exif_frame_menu_item "+menu_item.getStyleClass());
 
         menu_item.setOnAction(actionEvent -> {
             if (dbg) logger.log("info");

@@ -73,7 +73,7 @@ public class Image_context
         }
         else
         {
-            logger_.log("javafx ImageView rescaler is ON for :"+path);
+            if (dbg) logger_.log("javafx ImageView rescaler is ON for :"+path);
             returned = Image_context.get_Image_context(path, owner,aborter, logger_);
         }
         return returned;

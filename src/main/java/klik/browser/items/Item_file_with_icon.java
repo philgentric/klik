@@ -8,12 +8,10 @@ package klik.browser.items;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -31,8 +29,6 @@ import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.change.Change_gang;
-import klik.experimental.work_in_progress.Multiple_image_window;
 import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.image_ml.image_similarity.Image_similarity;
 import klik.images.Image_window;
@@ -61,6 +57,7 @@ import java.util.function.Supplier;
 public class Item_file_with_icon extends Item_file
 //**********************************************************
 {
+    private Button button;
     protected ImageView image_view;
     Pane image_pane;
     public Double aspect_ratio;
@@ -111,6 +108,9 @@ public class Item_file_with_icon extends Item_file
             Tooltip.install(image_view, new Tooltip(path.getFileName().toString()));
         }
         image_pane = new StackPane(image_view);
+        button = new Button();
+        button.setGraphic(image_pane);
+        button.setStyle("-fx-padding: 0; -fx-background-insets: 0; -fx-border-insets: 0;");
 
         if ( dbg)
             logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
@@ -120,33 +120,67 @@ public class Item_file_with_icon extends Item_file
         image_view.setFitHeight(actual_icon_size);
         image_view.setCache(false);
         //image_view.setCacheHint(CacheHint.SPEED);
+
+
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
 
+        ContextMenu context_menu = make_context_menu();
+        button.setOnContextMenuRequested((ContextMenuEvent event) -> {
+            //if ( dbg)
+            logger.log("show context menu of image_view:"+ get_item_path().toAbsolutePath());
+            context_menu.show(button, event.getScreenX(), event.getScreenY());
+        });
+
+
+        //give_a_menu_to_the_button(button,new Label("toto"));
+        button.setOnAction(event -> {
+            on_mouse_clicked(logger);
+            event.consume();
+        });
+
+
+        /*
         image_view.setOnMouseClicked(event ->
             {
-                if (event.getButton() == MouseButton.SECONDARY) {
-                    //logger.log("\n\nItem_image isSecondaryButtonDown");
-                    ContextMenu context_menu = define_a_menu_to_the_imageview();
-                    context_menu.show(image_view, event.getScreenX(), event.getScreenY());
+                if (event.getButton() == MouseButton.PRIMARY)
+                {
+                    logger.log("\n\nItem_file_with_icon event=" + event + " PRIMARY is down");
+                    on_mouse_clicked(logger);
+                    event.consume();
                     return;
                 }
+                if (event.getButton() == MouseButton.SECONDARY)
+                {
+                    logger.log("\n\nItem_file_with_icon event=" + event + " SECONDARY is down");
+                    event.consume();
+                    return;
+                }
+
                 // meta is control on windows and 'command' in macos
-                if (event.isMetaDown()) {
+                if (event.isMetaDown())
+                {
+                    logger.log("\n\nItem_file_with_icon event=" + event + " META is down");
+
                     Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",owner, path, false, path_list_provider, logger);
-                    if (option.isEmpty()) {
+                    if (option.isEmpty())
+                    {
                         // let us a bit of checking about why this failed
                         Change_gang.report_anomaly(path,owner);
                     }
+                    event.consume();
                     return;
                 }
-                if (event.isControlDown()) {
-                    if (dbg) logger.log("\n\nItem_image event=" + event + " CTRL is down");
+
+                if (event.isControlDown())
+                {
+                    //if (dbg)
+                        logger.log("\n\nItem_file_with_icon event=" + event + " CTRL is down");
                     set_is_selected();
-                } else {
-                    if (dbg) logger.log("\n\nItem_image OnMouseClicked " + path);
-                    on_mouse_clicked(logger);
+                    event.consume();
+
                 }
-            });
+
+            });*/
     }
 
 
@@ -259,7 +293,7 @@ public class Item_file_with_icon extends Item_file
     }
 
     //**********************************************************
-    public ContextMenu define_a_menu_to_the_imageview()
+    public ContextMenu make_context_menu()
     //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
@@ -269,7 +303,6 @@ public class Item_file_with_icon extends Item_file
         double y = owner.getY()+100;
         {
             MenuItem menu_item = create_open_exif_frame_menu_item(get_item_path(),logger);
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             context_menu.getItems().add(menu_item);
         }
         {
@@ -316,17 +349,7 @@ public class Item_file_with_icon extends Item_file
                 System_open_actor.open_special(owner,get_item_path(), aborter,logger);
             });
             context_menu.getItems().add(menu_item);
-        }/*
-        {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_In_New_Process", owner,logger));
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setMnemonicParsing(false);
-            menu_item.setOnAction(event -> {
-                if (dbg) logger.log("Opening as separate process: "+get_item_path());
-                Item_file_with_icon.open_an_image(false,path_list_provider,path_comparator_source,get_item_path(),owner,logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }*/
+        }
         
         {
             context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, owner,logger));
@@ -677,7 +700,8 @@ public class Item_file_with_icon extends Item_file
     public Node get_Node()
     //**********************************************************
     {
-        return image_pane;
+        //return image_pane;
+        return button;
     }
 
     //**********************************************************

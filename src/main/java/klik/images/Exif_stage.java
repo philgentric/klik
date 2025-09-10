@@ -7,6 +7,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -34,6 +37,7 @@ public class Exif_stage
 {
     private static final boolean exif_dbg = false;
     private static final double WIDTH = 1000;
+    private static final double VERY_WIDE = 3000;
 
     //**********************************************************
     public static void show_exif_stage(Image image, Path path, Window owner, Aborter aborter, Logger logger)
@@ -65,10 +69,12 @@ public class Exif_stage
         textFlow.setLayoutY(40);
         if ( exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
 
-        TextField tf = new TextField(path.toAbsolutePath().toString());
-        Look_and_feel_manager.set_TextField_look(tf,owner,logger);
-        tf.setMinWidth(WIDTH);
-        textFlow.getChildren().add(tf);
+        TextField text_field = new TextField(path.toAbsolutePath().toString());
+        Look_and_feel_manager.set_TextField_look(text_field,owner,logger);
+        text_field.setMinWidth(VERY_WIDE);
+        text_field.setEditable(false);
+        text_field.setFocusTraversable(false);
+        textFlow.getChildren().add(text_field);
 
         textFlow.getChildren().add(new Text(System.lineSeparator()));
 
@@ -88,7 +94,7 @@ public class Exif_stage
         local_stage.setHeight(600);
         local_stage.setWidth(WIDTH);
 
-        Scene scene = new Scene(sp, WIDTH, 600);
+        Scene scene = new Scene(sp);
 
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
@@ -109,6 +115,7 @@ public class Exif_stage
         }
         local_stage.setScene(scene);
         local_stage.show();
+        local_stage.sizeToScene();
         local_stage.addEventHandler(KeyEvent.KEY_PRESSED,
                 key_event -> {
                     if (key_event.getCode() == KeyCode.ESCAPE) {
@@ -146,7 +153,9 @@ public class Exif_stage
     {
         TextField text_field = new TextField(file_size);
         text_field.setEditable(false);
-        text_field.setMinWidth(WIDTH);
+        text_field.setFocusTraversable(false);
+        text_field.setMinWidth(VERY_WIDE);
+
         Look_and_feel_manager.set_TextField_look(text_field,owner,logger);
         textFlow.getChildren().add(text_field);
         textFlow.getChildren().add(new Text(System.lineSeparator()));
