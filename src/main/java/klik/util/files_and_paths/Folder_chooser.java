@@ -220,7 +220,8 @@ public class Folder_chooser
             for (Path p : ds) {
                 try {
                     if (Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
-                        if (also_hidden || !is_hidden(p)) {
+                        if (also_hidden || !Guess_file_type.should_ignore(p))
+                        {
                             out.add(p);
                         }
                     }
@@ -237,14 +238,4 @@ public class Folder_chooser
         return out;
     }
 
-    //**********************************************************
-    private static boolean is_hidden(Path p)
-    //**********************************************************
-    {
-        try {
-            return Files.isHidden(p);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

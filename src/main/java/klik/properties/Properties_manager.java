@@ -128,7 +128,11 @@ public class Properties_manager
             load_properties(on_disk, the_properties_path);
             for (String k : on_disk.stringPropertyNames())
             {
-                if ( k.endsWith(AGE)) continue;
+                if ( k.endsWith(AGE))
+                {
+                    //logger.log("ignoring age key:"+k);
+                    continue;
+                }
                 String v = the_Properties.getProperty(k);
                 if (v == null)
                 {
@@ -139,6 +143,7 @@ public class Properties_manager
                     {
                         age = LocalDateTime.now().toString();
                     }
+                    logger.log("storing age for key:"+k);
                     the_Properties.setProperty(k + AGE, age);
                 }
                 else

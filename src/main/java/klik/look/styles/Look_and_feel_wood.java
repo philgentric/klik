@@ -64,7 +64,7 @@ public class Look_and_feel_wood extends Look_and_feel
     @Override
     public String get_broken_icon_path()
     {
-        return "icons/wood/broken.png";
+        return "icons/light/broken_image.png";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class Look_and_feel_wood extends Look_and_feel
     @Override
     public String get_music_icon_path()
     {
-        return "icons/dark/music.png";
+        return "icons/wood/music.png";
     }
 
     @Override

@@ -3,59 +3,64 @@
 
 # Check that the translation are ok #
 
-I cannot check, only  english and french : native speakers, please help!
+I can check only english and french : native speakers, please help!
 
 # bug fixes #
 
-- race condition in browser? 
+known bugs:
+- race condition in browser? (rare)
 - search results becomes super slow when there are a lot of results
 
 # going native with grallvm #
 
-- there are difficulties with graadle+javafx+graalvm
-  (that I managed to overcome once but I lost it when I performed a java upgrade...)
+- done
+- the start time is small (start times: native < java -jar < gradle start)
+- the run-time speed benefit looks small (difficult to benchmark)
 
 # Installers #
 
 Yes, that would make it easier for the average granma user...
-But installers are really a pain, actually I have never managed to create 
-and test well enough 3 installers (Mac, Windaube, Linux)
+But installers are really a pain,
+alos need to create and test 3 installers (Mac, Windaube, Linux)
 And klik is in rolling releases...
 
 # Aesthetic: Better look, more styles, better icons better layouts#
 
 I need help with that !
-Icons : help me find free icons
-Styles : the javafx CCS format is close to the web one, 
+Icons : help me find/make better AND free icons
+CSS : the javafx CCS format is close to the web one,
 so a web CSS expert should be able to make meaningfully changes/additions ...
-we cab create as many styles as we want, and users can choose the one they like best.
+we can create as many styles as we want, and users can choose the one they like best.
 
 # more i18n #
 
 - for i18n new strings translation is not a problem with the side projet: translator
-- translate the README.md in more languages: why not? (free LLMs are a bit limited)
-- there are a few strings that are not i18n in the code
+- translate the README.md in more languages: why not?
+- there are still a few strings that are not i18n in the code
 
-# make "sort by" folder-specific #
+# minor: make "sort by" folder-specific #
 
 Easy to do: just record the user choice for each visited folder...
 could become weird like if you dont remember the last choice...
 
+I think it should be a "pin it" choice: user chooses which folders remember their sorting method?
+
 # Support for more image formats #
 
-right ! which ones ? 
+right ! which ones ?
 
 webp?
+xcf? (the gimp format)
 
-FITS? 
+FITS? (for scientists/astronomers)
 https://en.wikipedia.org/wiki/FITS
 https://imagej.net/libs/scifio
 
-Try supporting more formats via Java Advanced Imaging
+Try supporting more formats via Java Advanced Imaging?
 
-Try faster jpeg decoding like twelveMonkey
+Try faster jpeg decoding like twelveMonkey?
 
-Try better down-scaling filters (not needed on mac screens, it is built-in) for example with imgscalr
+Try better down-scaling filters (not needed on mac screens, it is built-in) for example with imgscalr, I have implemented a pure java bicubic ...
 
 # Support for more video formats #
 
@@ -65,16 +70,14 @@ webm is the obvious target..
 
 Opus?
 
-
 # Allow more fonts especially super legible ones #
 
-klik already allows large fonts...
+klik already allows large fonts... and uses Atkinson Hyperlegible
 
-# implement AI-based voice-over for menus... and images! #
+# implement AI-based voice-over for menus... and images! ??
 
-Use AI to produce explanation when the n-mouse is over ...
-
-- a menu item: super easy use AI Test-To-Speech
+Use AI to produce explanations when the mouse is over ...
+- a menu item: super easy use AI Text-To-Speech
 - an image: use AI to produce a description of the image and then use AI Text-To-Speech
 
 
@@ -107,7 +110,3 @@ Because the booleans are static final, this is only possible by editing the code
 
 But the editing part is a bit tricky: the java app would edit the source code?
 Is it safer to first create a git branch?
-
-
-
-

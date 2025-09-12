@@ -13,7 +13,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.icons.Icon_factory_actor;
@@ -109,7 +108,7 @@ public class Animated_gifs_from_video
             Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
             in_flight.incrementAndGet();
             Actor_engine.run(actor,
-                    new Animated_gif_generation_message(owner,video_path,512,destination_gif_full_path,clip_lenght,start,progress_window.aborter,abort_reported,logger),
+                    new Animated_gif_generation_message(owner,video_path,512,50,destination_gif_full_path,clip_lenght,start,progress_window.aborter,abort_reported,logger),
                     tr,
                     logger);
         }
@@ -126,6 +125,7 @@ public class Animated_gifs_from_video
         start_time_seconds = 0;
         duration_seconds =  5;
         final int[] icon_height = {512};
+        final int[] fps = {50};
 
         Platform.runLater(() -> {
             the_stage = new Stage();
@@ -146,15 +146,14 @@ public class Animated_gifs_from_video
                 logger.log("FATAL: ffprobe cannot find duration of "+video_path);
                 return;
             }
-            make_animated_gif_in_tmp_folder(icon_height[0],owner);//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder(icon_height[0],fps[0], owner);//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
             Pane vb = new VBox();
             Look_and_feel_manager.set_region_look(vb,owner,logger);
             {
                 HBox hb =  new HBox();
                 {
                     VBox vbb = new VBox();
-                    Label l = new Label("GIF height (pixel)");
-                    vbb.getChildren().add(l);
+                    vbb.getChildren().add(new Label("GIF height (pixel)"));
                     TextField icon_height_tf = new TextField(""+icon_height[0]);
                     vbb.getChildren().add(icon_height_tf);
                     icon_height_tf.setOnAction(new EventHandler<ActionEvent>() {
@@ -162,7 +161,19 @@ public class Animated_gifs_from_video
                         public void handle(ActionEvent event) {
                             icon_height[0] = Integer.valueOf(icon_height_tf.getText());
                             the_imageview.setFitHeight(icon_height[0]);
+                            make_animated_gif_in_tmp_folder(icon_height[0],fps[0], owner);
 
+                        }
+                    });
+                    vbb.getChildren().add(new Label("Frame rate (per second)"));
+                    TextField fps_tf = new TextField(""+fps[0]);
+                    vbb.getChildren().add(fps_tf);
+                    fps_tf.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            fps[0] = Integer.valueOf(fps_tf.getText());
+                            //logger.log("fps="+fps[0]);
+                            make_animated_gif_in_tmp_folder(icon_height[0],fps[0], owner);
                         }
                     });
                     hb.getChildren().add(vbb);
@@ -195,12 +206,12 @@ public class Animated_gifs_from_video
                 if ( gif_saving_dir == null) return;
                 save_same.setDisable(false);
                 save_same.setText("Save in "+gif_saving_dir.getAbsolutePath());
-                save_now(icon_height[0],the_stage, logger);
+                save_now(icon_height[0],fps[0], the_stage, logger);
             });
 
             save_same.setOnAction(actionEvent -> {
                 if (gif_saving_dir== null) return;
-                save_now(icon_height[0],owner, logger);
+                save_now(icon_height[0],fps[0], owner, logger);
             });
 
             {
@@ -218,7 +229,7 @@ public class Animated_gifs_from_video
                     EventHandler<ActionEvent> start_change = actionEvent -> {
                         start_time_seconds = Double.parseDouble(tf_start.getText());
                         logger.log(" START  =" + start_time_seconds);
-                        make_animated_gif_in_tmp_folder(icon_height[0],owner);//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
+                        make_animated_gif_in_tmp_folder(icon_height[0],fps[0], owner);//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                     };
                     tf_start.setOnAction(start_change);
@@ -235,7 +246,7 @@ public class Animated_gifs_from_video
                     hb.getChildren().add(jump);
                     jump.setOnAction(actionEvent -> {
                         change_start_time(start_time_seconds+duration_seconds);
-                        make_animated_gif_in_tmp_folder(icon_height[0],owner);
+                        make_animated_gif_in_tmp_folder(icon_height[0],fps[0], owner);
                     });
                 }
 
@@ -245,14 +256,14 @@ public class Animated_gifs_from_video
                 {
                     HBox hb = new HBox();
                     double[] values ={0.1,0.5,1,5,10,30,60,180};
-                    for ( double val : values) add_change_start_time_button(val,  hb,icon_height[0],owner,logger);
+                    for ( double val : values) add_change_start_time_button(val,  hb,icon_height,fps, owner,logger);
                     vb.getChildren().add(hb);
                 }
 
                 {
                     HBox hb = new HBox();
                     double[] values ={-0.1,-0.5,-1,-5,-10,-30,-60,-180};
-                    for ( double val : values) add_change_start_time_button(val, hb,icon_height[0],owner,logger);
+                    for ( double val : values) add_change_start_time_button(val, hb,icon_height,fps,owner,logger);
                     vb.getChildren().add(hb);
                 }
             }
@@ -269,7 +280,7 @@ public class Animated_gifs_from_video
                 EventHandler<ActionEvent> duration_change = actionEvent -> {
                     duration_seconds = Double.parseDouble(tf_duration.getText());
                     logger.log(" DURATION  ="+duration_seconds);
-                    make_animated_gif_in_tmp_folder(icon_height[0],owner);//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
+                    make_animated_gif_in_tmp_folder(icon_height[0],fps[0], owner);//start_time_seconds,duration_seconds,video_path, logger, icon_cache_dir);
 
                 };
                 tf_duration.setOnAction(duration_change);
@@ -282,14 +293,14 @@ public class Animated_gifs_from_video
                 {
                     HBox hb = new HBox();
                     double[] values ={0.1,0.5,1,5,10,30,60,180};
-                    for ( double val : values) add_change_duration_button(val,hb, icon_height[0],owner,logger);
+                    for ( double val : values) add_change_duration_button(val,hb, icon_height,fps,owner,logger);
                     vb.getChildren().add(hb);
                 }
 
                 {
                     HBox hb = new HBox();
                     double[] values ={-0.1,-0.5,-1,-5,-10,-30,-60,-180};
-                    for ( double val : values) add_change_duration_button(val, hb, icon_height[0],owner,logger);
+                    for ( double val : values) add_change_duration_button(val, hb, icon_height,fps,owner,logger);
                     vb.getChildren().add(hb);
                 }
             }
@@ -305,14 +316,14 @@ public class Animated_gifs_from_video
     }
 
     //**********************************************************
-    private static void save_now(int icon_height, Window owner,Logger logger)
+    private static void save_now(int icon_height, int fps, Window owner,Logger logger)
     //**********************************************************
     {
         // if the user already saved, the file has been moved to the target folder
         // so we need to re-generate (use case is: user saved, changed her mind, erased the result, wants to redo it)
         if ( !temporary_gif_full_path.toFile().exists())
         {
-            make_animated_gif_in_tmp_folder(icon_height, owner);
+            make_animated_gif_in_tmp_folder(icon_height, fps, owner);
         }
         String new_name = temporary_gif_full_path.getFileName().toString();
 
@@ -341,7 +352,7 @@ public class Animated_gifs_from_video
 
 
     //**********************************************************
-    private static void add_change_start_time_button(double amount, HBox hb,int height, Window owner,Logger logger)
+    private static void add_change_start_time_button(double amount, HBox hb,int height[], int fps[], Window owner,Logger logger)
     //**********************************************************
     {
         String d = amount+" s";
@@ -352,13 +363,13 @@ public class Animated_gifs_from_video
         button.setMaxWidth(HUNDRED[0]);
         EventHandler<ActionEvent> plus_action = actionEvent -> {
             change_start_time(start_time_seconds+amount);
-            make_animated_gif_in_tmp_folder( height, owner);//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder( height[0], fps[0], owner);//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
         };
         button.setOnAction(plus_action);
         hb.getChildren().add(button);
     }
     //**********************************************************
-    private static void add_change_duration_button(double amount, HBox hb, int height, Window owner, Logger logger)
+    private static void add_change_duration_button(double amount, HBox hb, int height[], int fps[], Window owner, Logger logger)
     //**********************************************************
     {
         String d = amount+" s";
@@ -369,14 +380,14 @@ public class Animated_gifs_from_video
         button.setMaxWidth(HUNDRED[0]);
         EventHandler<ActionEvent> plus_action = actionEvent -> {
             change_duration(duration_seconds+amount);
-            make_animated_gif_in_tmp_folder(height,owner);//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
+            make_animated_gif_in_tmp_folder(height[0],fps[0], owner);//start_time_seconds, duration_seconds, path, logger, icon_cache_dir);
         };
         button.setOnAction(plus_action);
         hb.getChildren().add(button);
     }
 
     //**********************************************************
-    private static void make_animated_gif_in_tmp_folder(int height, Window owner)
+    private static void make_animated_gif_in_tmp_folder(int height, int fps, Window owner)
     //**********************************************************
     {
         logger.log("path="+ video_path);
@@ -392,6 +403,7 @@ public class Animated_gifs_from_video
                 the_stage,
                 video_path,
                 height,
+                fps,
                 temporary_gif_full_path,
                 duration_seconds,
                 start_time_seconds,

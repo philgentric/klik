@@ -109,6 +109,7 @@ public class Image_context
         logger = logger_;
         image = image_;
         the_image_view = new ImageView(image);
+        the_image_view.setPickOnBounds(true); // allow click on transparent areas
         the_image_view.setCacheHint(CacheHint.QUALITY);
 
 
@@ -137,6 +138,7 @@ public class Image_context
         previous_path = null;
         creation_time = null;
         the_image_view = new ImageView(image);
+        the_image_view.setPickOnBounds(true); // allow click on transparent areas
         the_image_view.setCacheHint(CacheHint.QUALITY);
     }
 

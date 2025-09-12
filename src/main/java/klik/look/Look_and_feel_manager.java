@@ -205,7 +205,7 @@ public class Look_and_feel_manager
     }
 
     //**********************************************************
-    public static Image get_speaker_icon(Window owner, Logger logger)
+    public static Image get_speaker_on_icon(Window owner, Logger logger)
     //**********************************************************
     {
         Look_and_feel local_instance = get_instance(owner,logger);
@@ -214,7 +214,25 @@ public class Look_and_feel_manager
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
             return null;
         }
-        String path = local_instance.get_speaker_icon_path();
+        String path = local_instance.get_speaker_on_icon_path();
+        if (path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));
+            return null;
+        }
+        return Jar_utils.load_jfx_image_from_jar(path, 256, owner,logger);
+    }
+    //**********************************************************
+    public static Image get_speaker_off_icon(Window owner, Logger logger)
+    //**********************************************************
+    {
+        Look_and_feel local_instance = get_instance(owner,logger);
+        if (local_instance == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
+            return null;
+        }
+        String path = local_instance.get_speaker_off_icon_path();
         if (path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get folder icon path"));

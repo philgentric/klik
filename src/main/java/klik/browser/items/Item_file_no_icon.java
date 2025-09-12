@@ -82,7 +82,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Logger logger)
     //**********************************************************
     {
-        super(scene,selection_handler,icon_factory_actor,color, path, path_list_provider,owner,aborter, logger);
+        super(scene,selection_handler,icon_factory_actor,color, path, path_list_provider,path_comparator_source,owner,aborter, logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;

@@ -54,7 +54,6 @@ public class Item_folder extends Item implements Icon_destination
     private final Image_properties_RAM_cache image_properties_RAM_cache;
     private final Shutdown_target shutdown_target;
     private final Top_left_provider top_left_provider;
-    protected final Path_comparator_source path_comparator_source;
 
 
     //**********************************************************
@@ -83,13 +82,13 @@ public class Item_folder extends Item implements Icon_destination
                 icon_factory_actor,
                 color,
                 path_list_provider,
+                path_comparator_source,
                 owner,
                 aborter,
                 logger);
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
-        this.path_comparator_source = path_comparator_source;
         text = text_;
         is_trash = is_trash_;
         this.is_parent_of = is_parent_of;

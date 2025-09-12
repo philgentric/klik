@@ -34,6 +34,7 @@ public class Animated_gif_generation_actor implements Actor
                 mm.originator,
                 mm.video_path,
                 mm.height,
+                mm.fps,
                 mm.destination_gif_full_path,
                 mm.dur,
                 mm.start,

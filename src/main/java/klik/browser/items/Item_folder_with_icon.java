@@ -215,6 +215,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         if ( the_image_view == null)
         {
             the_image_view = new ImageView();
+            the_image_view.setPickOnBounds(true); // allow click on transparent areas
             the_image_pane.getChildren().add(the_image_view);
         }
 

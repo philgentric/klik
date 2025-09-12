@@ -181,6 +181,7 @@ public class Ffmpeg_utils
             Window owner,
             Path video_path,
             int height,
+            int fps,
             Path destination_gif_full_path,
             double clip_duration_in_seconds,
             double start_time_in_seconds,
@@ -204,7 +205,10 @@ public class Ffmpeg_utils
         list.add("-i");
         list.add(video_path.getFileName().toString());
         list.add("-r");
-        list.add("10"); // -r 10 ==> 10 fps
+        if (fps < 1) fps = 1;
+        if (fps > 60) fps = 60;
+        //logger.log("calling ffmpeg with:"+fps);
+        list.add(""+fps); // -r 10 ==> 10 fps
         list.add("-vf");
         list.add("scale="+height+":-1,setsar=1.1");
         list.add("-t");
@@ -231,7 +235,7 @@ public class Ffmpeg_utils
             if ( retry_safety_count > 5) return false;
             retry_safety_count++;
             //retry without delay
-            return video_to_gif(owner, video_path, height,destination_gif_full_path, clip_duration_in_seconds, 0, retry_safety_count, aborter,logger);
+            return video_to_gif(owner, video_path, height,fps,destination_gif_full_path, clip_duration_in_seconds, 0, retry_safety_count, aborter,logger);
 
         }
         return true;

@@ -27,7 +27,7 @@ public class Look_and_feel_dark extends Look_and_feel
 
     public String get_broken_icon_path()
     {
-        return "icons/broken.png";
+        return "icons/dark/broken_image.png";
     }
 
     @Override

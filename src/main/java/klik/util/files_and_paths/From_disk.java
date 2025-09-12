@@ -39,6 +39,7 @@ public class From_disk
     public static final boolean dbg = false;
     public static final int MIN_REMAINING_FREE_MEMORY_10MB = 10_000_000;
 
+    private static boolean user_warned_about_slow_disk = false;
     //**********************************************************
     public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
@@ -53,8 +54,17 @@ public class From_disk
 
                 if ( System.currentTimeMillis()-start > 1000)
                 {
-                    Runnable r = ()-> Platform.runLater(()->Popups.popup_warning("Reading file "+original_image_file+ " was ridiculously slow.","Maybe this is a network drive and your network connection is slow?",false,null,logger));
-                    Actor_engine.execute(r,logger);
+                    if ( !user_warned_about_slow_disk)
+                    {
+                        user_warned_about_slow_disk = true;
+                        Actor_engine.execute(()-> Platform.runLater(
+                                ()->Popups.popup_warning(
+                                        "Reading file "+original_image_file+ " was ridiculously slow.",
+                                        "Maybe this is a network drive and your network connection is slow?",
+                                        false,
+                                        null,logger)),logger);
+
+                    }
                 }
                 return null;
             }

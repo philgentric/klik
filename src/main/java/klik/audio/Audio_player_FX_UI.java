@@ -64,6 +64,7 @@ public class Audio_player_FX_UI
     Slider balance_slider;
     Slider the_timeline_slider;
     VBox the_vertical_box;
+    ImageView speaker_image_view;
 
     Label now_value_label;
     Label duration_value_label;
@@ -461,11 +462,13 @@ public class Audio_player_FX_UI
             {
                 mp.setMute(false);
                 mute.setText(mute_string);
+                speaker_image_view.setImage(Look_and_feel_manager.get_speaker_on_icon(stage,logger));
             }
             else
             {
                 mp.setMute(true);
                 mute.setText(My_I18n.get_I18n_string("Unmute",stage,logger)); //"Unmute");
+                speaker_image_view.setImage(Look_and_feel_manager.get_speaker_off_icon(stage,logger));
             }
         });
         returned.getChildren().add(mute);
@@ -480,10 +483,10 @@ public class Audio_player_FX_UI
     {
         HBox volume_hbox = new HBox();
 
-        ImageView iv = new ImageView(Look_and_feel_manager.get_speaker_icon(stage,logger));
-        iv.setFitHeight(20);
-        iv.setFitWidth(20);
-        volume_hbox.getChildren().add(iv);
+        speaker_image_view = new ImageView(Look_and_feel_manager.get_speaker_on_icon(stage,logger));
+        speaker_image_view.setFitHeight(60);
+        speaker_image_view.setFitWidth(60);
+        volume_hbox.getChildren().add(speaker_image_view);
 
         volume = Non_booleans_properties.get_audio_volume(stage,logger);
         Slider volume_slider = new Slider(0, 1, volume);
@@ -494,6 +497,14 @@ public class Audio_player_FX_UI
             volume = volume_slider.getValue();
             the_media_player_option.get().setVolume(volume);
             Non_booleans_properties.save_audio_volume(volume,stage);
+            if ( volume >=0.01)
+            {
+                speaker_image_view.setImage(Look_and_feel_manager.get_speaker_on_icon(stage,logger));
+            }
+            else
+            {
+                speaker_image_view.setImage(Look_and_feel_manager.get_speaker_off_icon(stage,logger));
+            }
         });
         return volume_hbox;
     }

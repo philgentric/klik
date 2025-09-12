@@ -8,6 +8,7 @@ import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -93,13 +94,25 @@ public class Finder_actor implements Actor
         {
             return Search_status.invalid;
         }
+        if ( fm.search_config.ignore_hidden())
+        {
+            if( Guess_file_type.should_ignore(dir))
+            {
+                //if ( dbg)
+                    logger.log("ignoring hidden folder:"+dir.toAbsolutePath());
+                return Search_status.done;
+            }
+
+        }
 
         if ( dbg) logger.log("Now looking into dir:"+dir.toAbsolutePath());
         visited_folders++;
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))
         {
-            for (Path path : stream)
+            File files[] = dir.toFile().listFiles();
+            for ( File f : files)
             {
+                //logger.log("looking at:"+f.getAbsolutePath());
+                Path path = f.toPath();
                 if ( fm.aborter.should_abort() )
                 {
                     if ( ultra_dbg) logger.log("finder abort");
@@ -138,23 +151,39 @@ public class Finder_actor implements Actor
                 }
                 else
                 {
+                    visited_files++;
+                    //logger.log("looking at file:"+path.toAbsolutePath());
+                    boolean do_this_file = true;
+                    if ( fm.search_config.ignore_hidden())
+                    {
+                        if( Guess_file_type.should_ignore(path))
+                        {
+                            //if ( dbg)
+                                logger.log("ignoring hidden file:"+path.toAbsolutePath());
+                            do_this_file = false;
+                        }
+
+                    }
                     if (!fm.search_config.search_files())
                     {
-                        // we are nio interested in files
-                        continue;
-                    }
+                        logger.log("ignoring files");
 
-                    visited_files++;
-                    if ( fm.search_config.look_only_for_images())
+                        // we are not interested in files
+                        do_this_file = false;
+                    }
+                    if ( do_this_file)
                     {
-                        if (Guess_file_type.is_this_path_an_image(path))
+                        if (fm.search_config.look_only_for_images())
+                        {
+                            if (Guess_file_type.is_this_path_an_image(path))
+                            {
+                                check_if_name_matches_keywords(path, fm);
+                            }
+                        }
+                        else
                         {
                             check_if_name_matches_keywords(path, fm);
                         }
-                    }
-                    else
-                    {
-                        check_if_name_matches_keywords(path, fm);
                     }
                 }
                 long now = System.currentTimeMillis();
@@ -168,15 +197,8 @@ public class Finder_actor implements Actor
                 }
 
             }
-        } catch (IOException e)
-        {
-            if (dbg) logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            else logger.log("Finder_actor:extract_dir "+e.toString());
-            if ( fm.callback != null)
-            {
-                fm.callback.on_the_fly_stats(null,new Search_statistics(visited_folders, visited_files,matched_keyword_counts));
-            }
         }
+
         return Search_status.done;
     }
 
@@ -184,6 +206,7 @@ public class Finder_actor implements Actor
     private void check_if_name_matches_keywords(Path target_path, Finder_message fm)
     //**********************************************************
     {
+        //logger.log("checking "+target_path.toAbsolutePath());
         if ( fm.search_config.keywords().isEmpty())
         {
             search_with_extension(target_path, fm);
@@ -238,18 +261,21 @@ public class Finder_actor implements Actor
         }
 
 
-        if ( ultra_dbg) logger.log(target_path.toAbsolutePath()+" checking if all keywords are present for: "+name);
+        if ( ultra_dbg)
+            logger.log(target_path.toAbsolutePath()+" checking if all keywords are present for: "+name);
         // look for ALL of them
         for ( String keyword : fm.search_config.keywords())
         {
             String kk = keyword;
             if (!fm.search_config.check_case()) kk = keyword.toLowerCase();
-            if ( ultra_dbg) logger.log(target_path.toAbsolutePath()+" checking if all keywords are present for: "+name+" keyword="+kk);
             if ( !name.contains(kk) )
             {
                 // if one keyword is missing we give up
+                if ( ultra_dbg)
+                logger.log(target_path.toAbsolutePath()+" checking if all keywords are present for: "+name+" keyword="+kk+ " not found");
                 break;
             }
+
             count_keyword(keyword);
             all_matched_keywords.add(keyword);
         }
@@ -259,7 +285,8 @@ public class Finder_actor implements Actor
         if ( all_matched_keywords.isEmpty())
         {
             // second chance: trying matching only some keywords
-            if (ultra_dbg) logger.log("checking if a few keywords are present for: " + name);
+            if (ultra_dbg)
+                logger.log("checking if a few keywords are present for: " + name);
             List<String> shorter_keyword_list = new ArrayList<>();
             for (String keyword : fm.search_config.keywords())
             {
@@ -269,6 +296,10 @@ public class Finder_actor implements Actor
                 {
                     count_keyword(keyword);
                     shorter_keyword_list.add(keyword);
+                }
+                else
+                {
+                    //logger.log(k+ " not found in " + name);
                 }
             }
             if ( !shorter_keyword_list.isEmpty())

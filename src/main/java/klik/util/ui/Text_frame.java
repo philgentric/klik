@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Text_frame
 //**********************************************************
 {
-    private static final String TEXT_FRAME = "Text_frame_with_labels";
+    private static final String TEXT_FRAME = "Text_frame";
     private final Path the_path;
     private final WebView web_view = new WebView();
    // private final ScrollPane scroll_pane;
@@ -45,6 +45,7 @@ public class Text_frame
 
     private final Path_comparator_source path_comparator_source;
     private final Aborter aborter;
+
     public static void show(Path path, Path_comparator_source path_comparator_source) {
         new Text_frame(path,path_comparator_source);
     }
@@ -253,68 +254,94 @@ public class Text_frame
     //**********************************************************
     {
         scroll = (int) web_view.getEngine().executeScript("window.scrollY");
-        logger.log("scroll="+scroll);
+        logger.log("scroll=" + scroll);
 
         web_view.getEngine().load("about:blank");
         line_numbers_of_marked_items.clear();
         number_of_items = 0;
-        try {
-            List<String> lines = Files.readAllLines(the_path);
-            if ( lines.isEmpty())
-            {
-                web_view.getEngine().loadContent(" ======= EMPTY FILE  =========");
-            }
-            else
-            {
-                StringBuilder t = new StringBuilder();
-                t.append("<style type=\"text/css\">\n");
-                t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
-                t.append("</style>");
-                for (String line : lines)
-                {
-                    if ( line.contains(marked))
-                    {
-                        line = line.replace(marked, "<mark>" + marked + "</mark>");
-                        line_numbers_of_marked_items.add(number_of_items);
-                    }
-                    String ID_s = ""+number_of_items;
-                    t.append("<p id=\""+ ID_s +"\">").append(line).append("</p>");
-                    number_of_items++;
-                }
-                web_view.getEngine().loadContent(t.toString());
-            }
+        List<String> lines = null;
+        try
+        {
+            lines = Files.readAllLines(the_path, StandardCharsets.UTF_8);
         }
         catch ( MalformedInputException e)
         {
-            // binary !!!
-            try {
-                byte[] bytes = Files.readAllBytes(the_path);
-                byte bb[] = new byte[1];
-                String line = "";
-                for ( byte b : bytes)
-                {
-                    if (( b == 10)||(b==13))
-                    {
-                        line+="\n";
-                    }
-                    else
-                    {
-                        bb[0] = b;
-                        line += new String(bb, StandardCharsets.UTF_8);
-                    }
-                }
+            try
+            {
+                lines = Files.readAllLines(the_path, StandardCharsets.ISO_8859_1);
+            }
+            catch ( MalformedInputException ee)
+            {
+                try_binary(the_path);
+                return;
+            }
+            catch (IOException ee)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("" + ee));
+                web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  =========" + "\n");
+                return;
+            }
+        }
+        catch (IOException eee) {
+            logger.log(Stack_trace_getter.get_stack_trace("" + eee));
+        }
 
-                web_view.getEngine().loadContent(line);
-            } catch (IOException ex) {
-                logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n");
+        logger.log("Text_frame, read " + lines.size() + " lines from " + the_path);
+        if ( lines.isEmpty())
+        {
+            web_view.getEngine().loadContent(" ======= EMPTY FILE  =========");
+        }
+        else
+        {
+            StringBuilder t = new StringBuilder();
+            t.append("<style type=\"text/css\">\n");
+            t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
+            t.append("</style>");
+            for (String line : lines)
+            {
+                if ( line.contains(marked))
+                {
+                    line = line.replace(marked, "<mark>" + marked + "</mark>");
+                    line_numbers_of_marked_items.add(number_of_items);
+                }
+                String ID_s = ""+number_of_items;
+                t.append("<p id=\""+ ID_s +"\">").append(line).append("</p>");
+                number_of_items++;
+            }
+            web_view.getEngine().loadContent(t.toString());
+        }
+
+
+    }
+
+    private void try_binary(Path the_path)
+    {
+        logger.log("file is binary? ");
+        // binary !!!
+        try
+        {
+            byte[] bytes = Files.readAllBytes(the_path);
+            byte bb[] = new byte[1];
+            String line = "";
+            for ( byte b : bytes)
+            {
+                if (( b == 10)||(b==13))
+                {
+                    line+="\n";
+                }
+                else
+                {
+                    bb[0] = b;
+                    line += new String(bb, StandardCharsets.UTF_8);
+                }
             }
 
+            web_view.getEngine().loadContent(line);
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE (IS NOT UTF-8 TEXT?)  ========="+"\n");
-
+            web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n");
         }
     }
 

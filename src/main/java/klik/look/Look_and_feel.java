@@ -148,11 +148,19 @@ public abstract class Look_and_feel
     abstract public Color get_foreground_color();
 
     //**********************************************************
-    public String get_speaker_icon_path()
+    public String get_speaker_on_icon_path()
     //**********************************************************
     {
-        return "icons/speaker.png";
+        return "icons/speaker_on.png";
     }
+    //**********************************************************
+    public String get_speaker_off_icon_path()
+    //**********************************************************
+    {
+        return "icons/speaker_off.png";
+    }
+
+
 
     //**********************************************************
     protected String get_dummy_icon_path()

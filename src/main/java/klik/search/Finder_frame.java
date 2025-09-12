@@ -54,7 +54,8 @@ public class Finder_frame implements Search_receiver
 	final Stage stage;
 	private boolean look_only_for_images = false;
 	private boolean use_extension = false;
-	private boolean search_folders_names = true;
+    private boolean search_folders_names = true;
+    private boolean ignore_hidden = true;
 	private boolean search_files_names = true;
 	private boolean check_case = false;
 	Search_session session;
@@ -192,6 +193,16 @@ public class Finder_frame implements Search_receiver
             });
 			settings_vbox.getChildren().add(search_folder_names_cb);
 		}
+        {
+            CheckBox ignore_hidden_cb = new CheckBox(My_I18n.get_I18n_string("Ignore_hidden_items", stage,logger));
+            ignore_hidden_cb.setSelected(ignore_hidden);
+            Look_and_feel_manager.set_CheckBox_look(ignore_hidden_cb,stage,logger);
+            ignore_hidden_cb.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean new_value) -> {
+                ignore_hidden = new_value;
+                logger.log("ignore_hidden = "+ ignore_hidden);
+            });
+            settings_vbox.getChildren().add(ignore_hidden_cb);
+        }
 		{
 			CheckBox search_file_names_cb = new CheckBox(My_I18n.get_I18n_string("Search_File_names", stage,logger));
 			search_file_names_cb.setSelected(search_files_names);
@@ -477,7 +488,7 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, check_case);
+		Search_config search_config = new Search_config(target_path,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, ignore_hidden, check_case);
 		session = new Search_session(
 				path_list_provider,
 				path_comparator_source,

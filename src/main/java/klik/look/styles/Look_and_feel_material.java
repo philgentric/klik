@@ -231,7 +231,7 @@ my_dialog{
     @Override
     public String get_broken_icon_path()
     {
-        return "icons/light/broken.png";
+        return "icons/light/broken_image.png";
     }
 
     @Override

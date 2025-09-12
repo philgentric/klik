@@ -17,12 +17,14 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static klik.properties.Properties_manager.AGE;
+
 //**********************************************************
 public class Registered_applications
 //**********************************************************
 {
     public static final String USER_CANCELLED = "USER_CANCELLED";
-    private static final Map<String,String> map = new HashMap<String,String>();
+    private static final Map<String,String> map = new HashMap<>();
 
     public static final String REGISTERED_APPLICATIONS_FILENAME = "registered_applications.properties";
     private static Properties_manager properties_manager;
@@ -84,6 +86,7 @@ public class Registered_applications
         }
         for (String key : map.keySet())
         {
+            if ( key.endsWith(AGE)) continue; // skip age entries
             String value = map.get(key);
             properties_manager.add(key,value);
             logger.log("Registered_applications.save_map: "+key+" "+value);

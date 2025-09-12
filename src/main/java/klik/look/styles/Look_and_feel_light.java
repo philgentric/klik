@@ -48,7 +48,7 @@ public class Look_and_feel_light extends Look_and_feel
     @Override
     public String get_broken_icon_path()
     {
-        return "icons/broken.png";
+        return "icons/light/broken_image.png";
     }
 
 

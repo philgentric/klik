@@ -1037,6 +1037,7 @@ public class Static_files_and_paths_utilities
     public static boolean is_same_path(Path p1, Path p2, Logger logger)
     //**********************************************************
     {
+        if (p1 == null) return false;
         if (p2 == null) return false; // happens for delete forever
         try {
             return Files.isSameFile(p1, p2);

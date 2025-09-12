@@ -64,7 +64,6 @@ public class Item_file_with_icon extends Item_file
     public static Image default_icon;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
     private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
-    private final Path_comparator_source path_comparator_source;
 
     //**********************************************************
     public Item_file_with_icon(
@@ -91,18 +90,19 @@ public class Item_file_with_icon extends Item_file
                 color,
                 path_,
                 path_list_provider,
+                path_comparator_source,
                 owner,
                 aborter,
                 logger);
         this.aspect_ratio = aspect_ratio;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.fv_cache_supplier = fv_cache_supplier;
-        this.path_comparator_source = path_comparator_source;
         double actual_icon_size = icon_size / 3.0;
         if ( default_icon == null) default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size,owner,logger);
 
         // first time
         image_view = new ImageView();
+        image_view.setPickOnBounds(true); // allow click on transparent areas
         if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
         {
             Tooltip.install(image_view, new Tooltip(path.getFileName().toString()));

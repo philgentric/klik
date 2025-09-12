@@ -9,4 +9,5 @@ public record Search_config(Path path,
                             String extension,
                             boolean search_folders,
                             boolean search_files,
+                            boolean ignore_hidden,
                             boolean check_case) {}
