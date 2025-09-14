@@ -16,6 +16,7 @@ import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
+import klik.util.ui.Menu_items;
 
 import java.util.concurrent.TimeUnit;
 
@@ -95,20 +96,16 @@ public class RAM_and_threads_meters_stage
         stage.setMinHeight(DISPLAY_PIXEL_HEIGHT+100);
         stage.show();
 
-        {
-            ContextMenu context_menu = new ContextMenu();
-            Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
-            MenuItem menu_item = new MenuItem("Call GC");
-            Look_and_feel_manager.set_menu_item_look(menu_item,stage,logger);
-            context_menu.getItems().add(menu_item);
-            menu_item.setOnAction(event -> {
+        ContextMenu context_menu = new ContextMenu();
+        Menu_items.add_menu_item("Call_GC",
+                    event -> {
                 System.gc();
                 logger.log("Garbage collector was called");
-            });
-            scene.setOnMouseClicked(event -> {
-                context_menu.show(stage, event.getScreenX(), event.getScreenY());
-            });
-        }
+            },context_menu,stage,logger);
+
+        scene.setOnMouseClicked(event -> {
+            context_menu.show(stage, event.getScreenX(), event.getScreenY());
+        });
 
         return stage;
     }

@@ -29,6 +29,7 @@ import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Menu_items;
 import klik.util.ui.Popups;
 
 import java.io.*;
@@ -363,7 +364,7 @@ public class Playlist
 
 
 
-        double bitrate = Ffmpeg_utils.get_audio_bitrate(null, Path.of(new_song), logger);
+        double bitrate = Ffmpeg_utils.get_audio_bitrate(Path.of(new_song), null,logger);
         if ( dbg) logger.log(  (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
         the_music_ui.set_status("Status: OK for:" + (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
 
@@ -800,7 +801,7 @@ public class Playlist
     private void get_media_duration(String path, AtomicLong seconds, CountDownLatch cdl)
     //**********************************************************
     {
-        Double dur = Ffmpeg_utils.get_media_duration(null, Path.of(path), logger);
+        Double dur = Ffmpeg_utils.get_media_duration(Path.of(path), null, logger);
         if ( dur != null) seconds.addAndGet((long) (double)dur);
         cdl.countDown();
     }
@@ -1078,22 +1079,10 @@ public class Playlist
         });
 
         // add a menu to the button!
-        ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu,search_stage,logger);
-
-
-        MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",search_stage,logger));
-        Look_and_feel_manager.set_menu_item_look(browse,search_stage,logger);
-        browse.setOnAction((ActionEvent e) -> {
-            logger.log("Browse in new window");
-            Path local = Path.of(song.path());
-            if (! local.toFile().isDirectory()) local = local.getParent();
-            New_window_context.additional_no_past(local,owner,logger);
-        });
-        context_menu.getItems().add(browse);
+        ContextMenu context_menu = Song.get_context_menu_for_a_song(this, song.path(), owner, logger);
 
         b.setOnContextMenuRequested((ContextMenuEvent event) -> {
-            logger.log("show context menu of button:"+ song.path());
+            //logger.log("show context menu of button:"+ song.path());
             context_menu.show(b, event.getScreenX(), event.getScreenY());
         });
 
@@ -1110,4 +1099,6 @@ public class Playlist
     {
         return new ArrayList<>(path_to_Song.values());
     }
+
+
 }

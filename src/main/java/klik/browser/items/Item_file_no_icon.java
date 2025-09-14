@@ -376,7 +376,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 }
             }
             logger.log("asking the system to open: " + get_item_path().toAbsolutePath());
-            System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
+            System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
         });
 
         give_a_menu_to_the_button(button,label);

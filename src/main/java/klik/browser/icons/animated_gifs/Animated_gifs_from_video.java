@@ -58,7 +58,7 @@ public class Animated_gifs_from_video
     public static void generate_many_gifs(Window owner, Path video_path, int clip_lenght, int skip_to_next, Logger logger)
     //**********************************************************
     {
-        Double duration_in_seconds = Ffmpeg_utils.get_media_duration(owner, video_path,logger);
+        Double duration_in_seconds = Ffmpeg_utils.get_media_duration(video_path,owner, logger);
         if ( duration_in_seconds == null)
         {
             logger.log("FATAL: ffprobe cannot find duration of "+video_path);
@@ -139,7 +139,7 @@ public class Animated_gifs_from_video
             the_imageview = new ImageView();
             the_imageview.setPreserveRatio(true);
             the_imageview.setFitHeight(icon_height[0]);
-            Double full_clip_duration_in_seconds = Ffmpeg_utils.get_media_duration(the_stage, video_path,logger);
+            Double full_clip_duration_in_seconds = Ffmpeg_utils.get_media_duration(video_path, the_stage, logger);
 
             if ( full_clip_duration_in_seconds == null)
             {

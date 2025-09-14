@@ -34,6 +34,7 @@ import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
+import klik.util.ui.Menu_items;
 import klik.util.ui.Progress_spinner;
 import klik.util.ui.Text_frame;
 
@@ -160,7 +161,7 @@ public class Results_frame
 				logger.log("opening text file: " + path.toAbsolutePath());
 				Text_frame.show(path, path_comparator_source);
 			} else {
-				System_open_actor.open_with_system(stage, path, aborter, logger);
+				System_open_actor.open_with_system(path, stage, aborter, logger);
 			}
 		});
 
@@ -169,45 +170,32 @@ public class Results_frame
 		Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
 
 
-		MenuItem browse = new MenuItem( My_I18n.get_I18n_string("Browse",stage,logger));
-        Look_and_feel_manager.set_menu_item_look(browse,owner,logger);
-        browse.setOnAction((ActionEvent e) -> {
+        Menu_items.add_menu_item("Browse",
+                e -> {
 			logger.log("Browse in new window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
 			New_window_context.additional_no_past(local,owner,logger);
-		});
-		context_menu.getItems().add(browse);
+		},context_menu,owner,logger);
 
 		if (! path.toFile().isDirectory())
 		{
-			{
-				String text = My_I18n.get_I18n_string("Open_With_Registered_Application",stage,logger);
-				MenuItem open_special = new MenuItem(text);
-                Look_and_feel_manager.set_menu_item_look(open_special,owner,logger);
-
-                open_special.setOnAction((ActionEvent e) -> {
+			Menu_items.add_menu_item("Open_With_Registered_Application",
+                    e-> {
 					logger.log("Open_With_Registered_Application");
-					System_open_actor.open_special(owner,path,aborter,logger);
-				});
-				context_menu.getItems().add(open_special);
-			}
-			{
-				String text = My_I18n.get_I18n_string("Delete",stage,logger);
-				MenuItem delete = new MenuItem(text);
-                Look_and_feel_manager.set_menu_item_look(delete,owner,logger);
+					System_open_actor.open_special(path,owner, aborter,logger);
+				},context_menu,owner,logger);
 
-                delete.setOnAction((ActionEvent e) -> {
-					logger.log("Delete");
-					double x = stage.getX()+100;
-					double y = stage.getY()+100;
-					Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
-					// need to remove the button from the list
-					the_result_vbox.getChildren().remove(b);
+            Menu_items.add_menu_item("Delete",
+                    e -> {
+                logger.log("Delete");
+                double x = stage.getX()+100;
+                double y = stage.getY()+100;
+                Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
+                // need to remove the button from the list
+                the_result_vbox.getChildren().remove(b);
+            },context_menu,owner,logger);
 
-				});
-				context_menu.getItems().add(delete);
-			}
 			{
 				double x = stage.getX()+100;
 				double y = stage.getY()+100;

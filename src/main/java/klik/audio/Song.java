@@ -10,10 +10,11 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
+import klik.util.ui.Menu_items;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -68,41 +69,67 @@ public record Song(String path, Node node)
             Window owner, Logger logger)
     //**********************************************************
     {
-        ContextMenu the_context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(the_context_menu, owner, logger);
+        ContextMenu context_menu = get_context_menu_for_a_song(playlist, path(),owner,logger);
+        node().setOnContextMenuRequested((ContextMenuEvent event) -> context_menu.show(node(), event.getScreenX(), event.getScreenY()));
+
+    }
+
+    //**********************************************************
+    public static ContextMenu get_context_menu_for_a_song(
+            Playlist playlist,
+            String full_path,
+            Window owner, Logger logger)
+    //**********************************************************
+    {
+        ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu, owner, logger);
+
+        Menu_items.add_menu_item(
+            "Browse",
+            (ActionEvent e) ->
+            Audio_player.start_new_process_to_browse(Path.of(full_path).getParent(), logger),
+            context_menu,
+                owner, logger);
+
+        Menu_items.add_menu_item(
+                "Rename",
+                (ActionEvent e) ->
+                {
+
+                    Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner, Path.of(full_path), logger);
+                    if ( new_path == null) return;
+
+                    List<Old_and_new_Path> l = new ArrayList<>();
+                    Old_and_new_Path oandn = new Old_and_new_Path(Path.of(full_path), new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
+                    l.add(oandn);
+                    Moving_files.perform_safe_moves_in_a_thread( l, true, owner.getX()+100, owner.getY()+100,owner, new Aborter("dummy", logger), logger);
+
+                    playlist.remove_from_playlist(full_path);
+                    playlist.add_to_playlist(new_path.toAbsolutePath().toString());
+                    if ( playlist.the_song_path.equals(full_path)) playlist.the_song_path = new_path.toAbsolutePath().toString();
+                },
+                context_menu,
+                owner, logger);
+
+        Menu_items.add_menu_item(
+                "Remove_From_Playlist",
+                (ActionEvent e) ->
+                        playlist.remove_from_playlist(full_path),                context_menu,
+                owner, logger);
+
+
         {
-            MenuItem the_menu_item = new MenuItem("Browse folder");
+            String info_string = "Info: ";
+            Double dur = Ffmpeg_utils.get_media_duration( Path.of(full_path), owner, logger);
+            if ( dur != null) info_string += String.format("Duration %.1f s ", dur);
+            double bitrate = Ffmpeg_utils.get_audio_bitrate( Path.of(full_path), owner, logger);
+            if ( bitrate > 0) info_string += String.format(" Bitrate %.0f kb/s", bitrate);
+            MenuItem the_menu_item = new MenuItem("Info : "+info_string);
             Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
-
-            the_menu_item.setOnAction((s) -> Audio_player.start_new_process_to_browse(Path.of(path()).getParent(), logger));
-            the_context_menu.getItems().add(the_menu_item);
+            context_menu.getItems().add(the_menu_item);
         }
-        {
-            MenuItem the_menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner, logger));
-            Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
-            the_menu_item.setOnAction((ActionEvent s) -> {
 
-                Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner, Path.of(path()), logger);
-                if ( new_path == null) return;
-
-                List<Old_and_new_Path> l = new ArrayList<>();
-                Old_and_new_Path oandn = new Old_and_new_Path(Path.of(path()), new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
-                l.add(oandn);
-                Moving_files.perform_safe_moves_in_a_thread( l, true, owner.getX()+100, owner.getY()+100,owner, new Aborter("dummy", logger), logger);
-
-                playlist.remove_from_playlist(path());
-                playlist.add_to_playlist(new_path.toAbsolutePath().toString());
-                if ( playlist.the_song_path.equals(path())) playlist.the_song_path = new_path.toAbsolutePath().toString();
-            });
-            the_context_menu.getItems().add(the_menu_item);
-        }
-        {
-            MenuItem the_menu_item = new MenuItem("Remove from list");
-            Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
-            the_menu_item.setOnAction((ActionEvent s) -> playlist.remove_from_playlist(path()));
-            the_context_menu.getItems().add(the_menu_item);
-        }
-        node().setOnContextMenuRequested((ContextMenuEvent event) -> the_context_menu.show(node(), event.getScreenX(), event.getScreenY()));
+        return context_menu;
     }
 
 }

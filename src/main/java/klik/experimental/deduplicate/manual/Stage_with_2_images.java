@@ -196,7 +196,7 @@ public class Stage_with_2_images
 				}
 				else
 				{
-					System_open_actor.open_with_system(owner, file.toPath(), aborter, logger);
+					System_open_actor.open_with_system(file.toPath(), owner, aborter, logger);
 				}
             }
         });

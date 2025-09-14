@@ -204,7 +204,7 @@ public class Image_context
         logger.log("asking desktop to open: " + path.getFileName());
         //try
         {
-            System_open_actor.open_with_system(owner,path, new Aborter("edit",logger), logger);
+            System_open_actor.open_with_system(path, owner,new Aborter("dummy",logger), logger);
 
             //Desktop desktop = Desktop.getDesktop();
             //desktop.edit(path.toFile());
@@ -237,7 +237,7 @@ public class Image_context
     void edit2(Stage the_stage, Window owner, Aborter aborter)
     //**********************************************************
     {
-        System_open_actor.open_special(the_stage,path,aborter,logger);
+        System_open_actor.open_special(path,the_stage,aborter,logger);
 
             // we want the UI to refresh if the file is modified
             // we do not know when the edition will end so we need to start a watcher
@@ -445,7 +445,7 @@ public class Image_context
     void open(Image_window image_window)
     //**********************************************************
     {
-        System_open_actor.open_with_system(image_window.stage,path, new Aborter("open",logger), logger);
+        System_open_actor.open_with_system(path, image_window.stage,new Aborter("dummy",logger), logger);
         /*
         Desktop d = Desktop.getDesktop();
         logger.log("asking desktop to OPEN: " + path.getFileName());

@@ -49,6 +49,7 @@ import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Menu_items;
 import klik.util.ui.Popups;
 import klik.util.ui.Text_frame;
 
@@ -119,6 +120,10 @@ public abstract class Item implements Icon_destination
 
     }
 
+    // path for display takes different form depending on the item type
+    // it can be null, a PNG icon, or an animated gif
+    abstract public Path get_path_for_display(boolean try_deep);
+
     abstract void set_new_path(Path newPath);
 
     abstract public Path get_item_path();
@@ -158,6 +163,10 @@ public abstract class Item implements Icon_destination
     public abstract double get_Height();
     public abstract boolean is_trash();
     public abstract Path is_parent_of();
+    abstract void you_are_visible_specific();
+    abstract void you_are_invisible_specific();
+    abstract int get_icon_size();
+    abstract boolean has_icon();
 
 
     @Override // Icon_destination
@@ -220,6 +229,8 @@ public abstract class Item implements Icon_destination
         }
     }
 
+    static double xxx = 200;
+    static double yyy = 200;
 
     //**********************************************************
     public ContextMenu make_context_menu(Button local_button, Label local_label)
@@ -230,51 +241,290 @@ public abstract class Item implements Icon_destination
         Path local_path = get_item_path();
         if (Files.isDirectory(local_path))
         {
-            context_menu.getItems().add(create_get_folder_size_menu_item());
+            Menu_items.add_menu_item(
+                    "Get_folder_size",
+                    event -> Folder_size.get_folder_size(get_item_path(),owner, logger),
+                    context_menu,owner,logger);
+
             if (is_trash())
             {
-                MenuItem menu_item = create_clear_trash_menu_item();
-                context_menu.getItems().add(menu_item);
+                Menu_items.add_menu_item(
+                    "Clear_Trash_Folder",
+                event -> {
+                        if (dbg) logger.log("clearing trash!");
+                        Static_files_and_paths_utilities.clear_trash(true,owner, aborter,logger);
+                    },
+                    context_menu,owner,logger);
             }
+
+
             if (!is_trash() && (is_parent_of() == null))
             {
-                context_menu.getItems().add(create_browse_in_new_window_menu_item());
-                context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-                if (Feature_cache.get(Feature.Enable_tags)) {
-                    context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner, aborter, logger));
+                Menu_items.add_menu_item(
+                "Browse in new window",
+            event -> {
+                    if (dbg) logger.log("Browse in new window!");
+                    New_window_context.additional_no_past(get_item_path().getParent(),owner,logger);
+                },context_menu,owner,logger);
+
+                create_open_with_system_menu_item(get_item_path(),context_menu);
+                if (Feature_cache.get(Feature.Enable_tags))
+                {
+                    create_edit_tag_menu_item(get_item_path(), context_menu, dbg, owner, aborter, logger);
                 }
-                context_menu.getItems().add(create_rename_menu_item(local_button, local_label));
-                context_menu.getItems().add(create_delete_menu_item());
-                context_menu.getItems().add(create_copy_dir_menu_item());
-                context_menu.getItems().add(create_edit_color_menu_item(logger));
+                create_rename_menu_item(local_button, local_label,context_menu);
+                create_delete_menu_item(context_menu);
+                Menu_items.add_menu_item("Copy",
+                        event -> {
+                        if (dbg) logger.log("Copying the directory");
+                        Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
+                        if ( new_path == null)
+                        {
+                            Popups.popup_warning("copy of dir failed","names are same ?", false,owner,logger);
+                            return;
+                        }
+                        Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, get_item_path(), new_path, aborter, logger);
+                    },
+                        context_menu,owner,logger);
+
+                create_edit_color_menu_item(context_menu);
             }
         }
         else
         {
             if (Guess_file_type.is_this_path_an_image(get_item_path())) {
-                context_menu.getItems().add(create_open_exif_frame_menu_item(get_item_path(), logger));
+                create_open_exif_frame_menu_item(get_item_path(), context_menu);
             }
             if (Guess_file_type.is_this_path_a_music(get_item_path())) {
-                context_menu.getItems().add(create_open_mediainfo_frame_menu_item(get_item_path(), logger));
+                create_open_mediainfo_frame_menu_item(get_item_path(), context_menu);
             }
             if (this.get_item_type() == Iconifiable_item_type.video) {
                 Item_file_with_icon.make_menu_items_for_videos(get_item_path(), owner, context_menu, dbg, aborter, logger);
             }
 
             // is a "plain" file
-            context_menu.getItems().add(create_open_with_system_menu_item(get_item_path()));
-            context_menu.getItems().add(create_open_with_special_app_item(get_item_path()));
-            context_menu.getItems().add(create_open_with_klik_text_frame(get_item_path()));
-            context_menu.getItems().add(create_rename_menu_item(local_button, local_label));
-            context_menu.getItems().add(create_copy_menu_item());
-            context_menu.getItems().add(create_delete_menu_item());
+            create_open_with_system_menu_item(get_item_path(),context_menu);
 
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, owner, logger));
+            Menu_items.add_menu_item(
+                    "Open_With_Registered_Application",
+                    actionEvent -> {
+                    if (dbg) logger.log("button in item: Open_With_Registered_Application");
+                    System_open_actor.open_special(get_item_path(), owner,aborter,logger);
+                },context_menu,owner,logger);
+
+
+            Menu_items.add_menu_item("Open_With_Klik_Text_Frame",
+                    actionEvent -> {
+                    if (dbg) logger.log("button in item: Open_With_Klik_Text_Frame");
+                    Text_frame.show(get_item_path(),path_comparator_source);
+                }, context_menu,owner,logger);
+
+            create_rename_menu_item(local_button, local_label,context_menu);
+
+            Menu_items.add_menu_item("Copy",
+                    event -> {
+                    if (dbg) logger.log("copying!");
+
+                    Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,get_item_path(),logger);
+                    if ( new_path == null) return;
+                    try
+                    {
+                        Files.copy(get_item_path(), new_path);
+                    } catch (IOException e)
+                    {
+                        logger.log("copy failed: could not create new file for: " + get_item_path().getFileName() + ", Exception:" + e);
+                    }
+                },context_menu,owner,logger);
+
+            create_delete_menu_item(context_menu);
+
+            create_show_file_size_menu_item(context_menu);
+
+
             if (Feature_cache.get(Feature.Enable_tags)) {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner, aborter, logger));
+                create_edit_tag_menu_item(get_item_path(), context_menu,dbg, owner, aborter, logger);
             }
         }
         return context_menu;
+    }
+
+    protected void create_show_file_size_menu_item(ContextMenu context_menu) {
+        Menu_items.add_menu_item("Show_file_size",
+                event -> {
+                if (dbg) logger.log("File size");
+                String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(get_item_path(),owner,logger);
+                String message = My_I18n.get_I18n_string("File_size_for", owner,logger) +"\n"+ get_item_path().getFileName().toString();
+                //Popups.popup_warning(error_message, file_size, false,logger);
+                Stage local_stage = new Stage();
+                local_stage.setHeight(200);
+                local_stage.setWidth(600);
+                local_stage.setX(xxx);
+                local_stage.setY(yyy);
+                yyy+= 200;
+                if ( yyy > 600)
+                {
+                    yyy = 200;
+                    xxx += 600;
+                    if ( xxx > 1000) xxx = 200;
+                }
+                TextArea textarea1 = new TextArea(message+"\n"+size_in_bytes);
+                Font_size.apply_this_font_size_to_Node(textarea1,24,logger);
+                VBox vbox = new VBox(textarea1);
+                Scene scene = new Scene(vbox, Color.WHITE);
+                local_stage.setTitle(get_item_path().toAbsolutePath().toString());
+                local_stage.setScene(scene);
+                local_stage.show();
+
+                logger.log("size_in_bytes->"+size_in_bytes+"<-");
+                //b_.set_status(size_in_bytes);
+            }, context_menu,owner,logger);
+    }
+
+    //**********************************************************
+    public void create_open_mediainfo_frame_menu_item(Path path, ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item("Info_about",
+                actionEvent -> {
+            if (dbg) logger.log("info");
+            Audio_info_frame.show(path,owner,logger);
+        },context_menu,owner,logger);
+    }
+
+
+    //**********************************************************
+    public void create_open_exif_frame_menu_item(Path path, ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item("Info_about",
+                actionEvent -> {
+                    if (dbg) logger.log("info");
+                    Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, owner, aborter,logger);
+                    Exif_stage.show_exif_stage(local_image, path, owner,aborter, logger);
+                },
+                context_menu,
+                owner,
+                logger);
+
+    }
+
+    //**********************************************************
+    public static void create_edit_tag_menu_item(Path path, ContextMenu context_menu,boolean dbg, Window owner, Aborter aborter,Logger logger)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item("Show_tag",
+                event -> {
+            if (dbg) logger.log("File tag");
+            Tag_stage.open_tag_stage(path,true,owner,aborter,logger);
+        },context_menu,owner,logger);
+    }
+
+    //**********************************************************
+    public void create_open_with_system_menu_item(Path path, ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item("Open_with_system",
+                actionEvent -> {
+            if (dbg) logger.log("button in item: System Open");
+            System_open_actor.open_with_system(path, owner,aborter,logger);
+        },context_menu,owner,logger);
+    }
+
+    //**********************************************************
+    public void create_edit_color_menu_item(ContextMenu context_menu)
+    //**********************************************************
+    {
+
+        String text = My_I18n.get_I18n_string("Color_Tag",owner,logger);
+        Menu menu = new Menu(text);
+        Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
+        List<My_color> possible_colors = new ArrayList<>();
+        for (My_color candidate_color : My_colors.get_all_colors(owner,logger))
+        {
+            possible_colors.add(candidate_color);
+        }
+        List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
+        for ( My_color color : possible_colors)
+        {
+            create_menu_item_for_one_color( menu, color, all_check_menu_items, logger);
+        }
+        context_menu.getItems().add(menu);
+    }
+
+    //**********************************************************
+    public void create_menu_item_for_one_color(Menu menu, My_color target_color, List<CheckMenuItem> all_check_menu_items, Logger logger)
+    //**********************************************************
+    {
+        String txt = target_color.localized_name();
+        CheckMenuItem item = new CheckMenuItem(txt);
+        item.setGraphic(new Circle(10, target_color.color()));
+        if ( color == null)
+        {
+            if ( target_color.java_name() == null)
+            {
+                item.setSelected(true);
+            }
+        }
+        else
+        {
+            item.setSelected(color.toString() == target_color.java_name());
+        }
+
+
+        item.setOnAction(actionEvent -> {
+            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
+            if (local.isSelected())
+            {
+                for ( CheckMenuItem cmi : all_check_menu_items)
+                {
+                    if (cmi != local) cmi.setSelected(false);
+                }
+                String localized_name = local.getText();
+
+                My_color my_color = My_colors.my_color_from_localized_name(localized_name,owner,logger);
+                //logger.log("is selected: ->"+localized_name+"<-");
+                color = my_color.color();
+                My_colors.save_color(get_item_path(),my_color.java_name(),logger);
+                if ( this instanceof Item_file_no_icon ifni)
+                {
+                    double font_size = Non_booleans_properties.get_font_size(owner,logger);
+                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+                    Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color,owner,logger);
+                }
+                if ( this instanceof Item_folder itf)
+                {
+                    double font_size = Non_booleans_properties.get_font_size(owner, logger);
+                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+                    Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color,owner,logger);
+                }
+                if ( this instanceof Item_folder_with_icon itfwi)
+                {
+                    double font_size = Non_booleans_properties.get_font_size(owner, logger);
+                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+                    Look_and_feel_manager.set_button_look_as_folder(itfwi.button, icon_height, color,owner,logger);
+                }
+            }
+        });
+        menu.getItems().add(item);
+        all_check_menu_items.add(item);
+
+    }
+
+    //**********************************************************
+    public void unset_image_is_selected()
+    //**********************************************************
+    {
+        set_is_unselected_internal();
+    }
+
+    //**********************************************************
+    public void set_is_selected()
+    //**********************************************************
+    {
+        if (selection_handler.add_to_selected_files(get_item_path())) {
+            set_is_selected_internal();
+            logger.log("item selected:" + get_item_path());
+        }
     }
 
     //**********************************************************
@@ -284,136 +534,92 @@ public abstract class Item implements Icon_destination
         ContextMenu context_menu = make_context_menu(local_button, local_label);
         local_button.setOnContextMenuRequested((ContextMenuEvent event) -> {
             //if ( dbg)
-                logger.log("show context menu of button:"+ get_item_path().toAbsolutePath());
+            logger.log("show context menu of button:"+ get_item_path().toAbsolutePath());
             context_menu.show(local_button, event.getScreenX(), event.getScreenY());
         });
     }
 
 
-    //**********************************************************
-    public MenuItem create_open_exif_frame_menu_item(Path path, Logger logger)
-    //**********************************************************
-    {
-        String txt = My_I18n.get_I18n_string("Info_about", owner,logger);
-        MenuItem menu_item = new MenuItem(txt);
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-
-        menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("info");
-            Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, owner, aborter,logger);
-            Exif_stage.show_exif_stage(local_image, path, owner,aborter, logger);
-        });
-
-        return menu_item;
-    }
 
     //**********************************************************
-    public MenuItem create_open_mediainfo_frame_menu_item(Path path, Logger logger)
+    private void create_delete_menu_item(ContextMenu context_menu)
     //**********************************************************
     {
-        String txt = My_I18n.get_I18n_string("Info_about", owner,logger);
-        MenuItem menu_item = new MenuItem(txt);
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-
-        menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("info");
-            Audio_info_frame.show(path,owner,logger);
-        });
-
-        return menu_item;
-    }
-
-
-
-    //**********************************************************
-    private MenuItem create_browse_in_new_window_menu_item()
-    //**********************************************************
-    {
-        MenuItem browse = new MenuItem("Browse in new window");
-        Look_and_feel_manager.set_menu_item_look(browse,owner,logger);
-
-        browse.setOnAction(event -> {
-            if (dbg) logger.log("Browse in new window!");
-
-            New_window_context.additional_no_past(get_item_path().getParent(),owner,logger);
-        });
-        return browse;
-    }
-
-    //**********************************************************
-    private MenuItem create_get_folder_size_menu_item()
-    //**********************************************************
-    {
-        MenuItem size = new MenuItem(My_I18n.get_I18n_string("Get_folder_size",owner,logger));
-        Look_and_feel_manager.set_menu_item_look(size,owner,logger);
-        size.setOnAction(event -> Folder_size.get_folder_size(get_item_path(),owner, logger));
-        return size;
-    }
-
-
-    //**********************************************************
-    private MenuItem create_clear_trash_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Clear_Trash_Folder",owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("clearing trash!");
-            Static_files_and_paths_utilities.clear_trash(true,owner, aborter,logger);
-        });
-        return menu_item;
-    }
-
-
-    //**********************************************************
-    private MenuItem create_copy_menu_item()
-    //**********************************************************
-    {
-
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Copy", owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("copying!");
-
-            Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,get_item_path(),logger);
-            if ( new_path == null) return;
-            try
-            {
-                Files.copy(get_item_path(), new_path);
-            } catch (IOException e)
-            {
-                logger.log("copy failed: could not create new file for: " + get_item_path().getFileName() + ", Exception:" + e);
-            }
-        });
-        return menu_item;
-    }
-
-    //**********************************************************
-    private MenuItem create_delete_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
+        Menu_items.add_menu_item("Delete",
+                event -> {
             if (dbg) logger.log("Deleting!");
             double x = owner.getX()+100;
             double y = owner.getY()+100;
             path_list_provider.delete(get_item_path(), owner, x, y, aborter, logger);
             //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
-        });
-        return menu_item;
+        },context_menu,owner,logger);
+    }
+    //**********************************************************
+    public void you_are_invisible()
+    //**********************************************************
+    {
+        you_are_invisible_specific();
+        cancel_icon();
+
+    }
+
+    //**********************************************************
+    public void you_are_visible()
+    //**********************************************************
+    {
+        //logger.log("Visible: "+path.getFileName());
+        //if( !Platform.isFxApplicationThread())  logger.log(Stack_trace_getter.get_stack_trace("PANIC not on Fx thread"));
+
+        you_are_visible_specific();
+        //get_Node().setVisible(true);
+        if( has_icon())
+            request_icon_to_factory(get_icon_size());
     }
 
 
+    // this is called SUPER intensively when scrolling
     //**********************************************************
-    private MenuItem create_rename_menu_item(Button local_button_, Label local_label_)
+    public synchronized void process_is_visible(double current_vertical_offset)
     //**********************************************************
     {
-        final Button local_button = local_button_;
-        final Label local_label = local_label_;
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
+        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+        //if ( get_javafx_y() == 0) logger.log("process_is_visible item "+get_item_path()+" x="+get_javafx_x()+" y="+get_javafx_y());
+
+
+        set_translate_X(get_javafx_x());
+        set_translate_Y(get_javafx_y() - current_vertical_offset);
+
+        // this is essential: dont call you_are_visible() unless needed
+        if (!visible_in_scene.get())
+        {
+            visible_in_scene.set(true);
+            you_are_visible();
+        }
+    }
+
+    //**********************************************************
+    public void process_is_invisible(double current_vertical_offset)
+    //**********************************************************
+    {
+        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
+
+        set_translate_X(get_javafx_x());
+        set_translate_Y(get_javafx_y() - current_vertical_offset);
+
+        //if ( !Platform.isFxApplicationThread())logger.log(Stack_trace_getter.get_stack_trace("PANIC process_is_invisible "+Platform.isFxApplicationThread()));
+        if (visible_in_scene.get())
+        {
+            visible_in_scene.set(false);
+            you_are_invisible();
+        }
+    }
+
+    //**********************************************************
+    private void create_rename_menu_item(Button local_button, Label local_label, ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item("Rename",
+                event -> {
             if (dbg) logger.log("Item2_button: Renaming");
             String original_name = get_item_path().getFileName().toString();
             TextField text_edit = new TextField(original_name);
@@ -476,311 +682,6 @@ public abstract class Item implements Icon_destination
                 if (dbg) logger.log("rename done");
                 // button.setOnAction(the_button_event_handler);
             });
-        });
-        return menu_item;
+        },context_menu,owner,logger);
     }
-
-
-    //**********************************************************
-    private MenuItem create_copy_dir_menu_item()
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Copy", owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Copying the directory");
-            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
-            if ( new_path == null)
-            {
-                Popups.popup_warning("copy of dir failed","names are same ?", false,owner,logger);
-                return;
-            }
-            Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, get_item_path(), new_path, aborter, logger);
-        });
-        return menu_item;
-    }
-
-
-
-
-
-
-
-    //**********************************************************
-    public void unset_image_is_selected()
-    //**********************************************************
-    {
-        set_is_unselected_internal();
-    }
-
-    //**********************************************************
-    public void set_is_selected()
-    //**********************************************************
-    {
-        if (selection_handler.add_to_selected_files(get_item_path())) {
-            set_is_selected_internal();
-            logger.log("item selected:" + get_item_path());
-        }
-    }
-
-
-
-    static double xxx = 200;
-    static double yyy = 200;
-    //**********************************************************
-    public static MenuItem create_show_file_size_menu_item(
-            Path path, boolean dbg, Window owner,Logger logger)
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Show_file_size", owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("File size");
-            String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(path,owner,logger);
-            String message = My_I18n.get_I18n_string("File_size_for", owner,logger) +"\n"+ path.getFileName().toString();
-            //Popups.popup_warning(error_message, file_size, false,logger);
-            Stage local_stage = new Stage();
-            local_stage.setHeight(200);
-            local_stage.setWidth(600);
-            local_stage.setX(xxx);
-            local_stage.setY(yyy);
-            yyy+= 200;
-            if ( yyy > 600)
-            {
-                yyy = 200;
-                xxx += 600;
-                if ( xxx > 1000) xxx = 200;
-            }
-            TextArea textarea1 = new TextArea(message+"\n"+size_in_bytes);
-            Font_size.apply_this_font_size_to_Node(textarea1,24,logger);
-            VBox vbox = new VBox(textarea1);
-            Scene scene = new Scene(vbox, Color.WHITE);
-            local_stage.setTitle(path.toAbsolutePath().toString());
-            local_stage.setScene(scene);
-            local_stage.show();
-
-            logger.log("size_in_bytes->"+size_in_bytes+"<-");
-            //b_.set_status(size_in_bytes);
-        });
-        return menu_item;
-    }
-
-    //**********************************************************
-    public static MenuItem create_edit_tag_menu_item(Path path, boolean dbg, Window owner, Aborter aborter,Logger logger)
-    //**********************************************************
-    {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Show_tag", owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("File tag");
-            Tag_stage.open_tag_stage(path,true,owner,aborter,logger);
-        });
-
-        return menu_item;
-    }
-
-    //**********************************************************
-    public  MenuItem create_edit_color_menu_item(Logger logger)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Color_Tag",owner,logger);
-        Menu menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
-        List<My_color> possible_colors = new ArrayList<>();
-        for (My_color candidate_color : My_colors.get_all_colors(owner,logger))
-        {
-            possible_colors.add(candidate_color);
-        }
-        List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        for ( My_color color : possible_colors)
-        {
-            create_menu_item_for_one_color( menu, color, all_check_menu_items, logger);
-        }
-        return menu;
-    }
-
-    //**********************************************************
-    public void create_menu_item_for_one_color(Menu menu, My_color target_color, List<CheckMenuItem> all_check_menu_items, Logger logger)
-    //**********************************************************
-    {
-        String txt = target_color.localized_name();
-        CheckMenuItem item = new CheckMenuItem(txt);
-        item.setGraphic(new Circle(10, target_color.color()));
-        if ( color == null)
-        {
-            if ( target_color.java_name() == null)
-            {
-                item.setSelected(true);
-            }
-        }
-        else
-        {
-            item.setSelected(color.toString() == target_color.java_name());
-        }
-        //My_I18n.get_I18n_string("Font_size",logger) + " = " +target_size);
-
-        item.setOnAction(actionEvent -> {
-            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
-            if (local.isSelected())
-            {
-                for ( CheckMenuItem cmi : all_check_menu_items)
-                {
-                    if (cmi != local) cmi.setSelected(false);
-                }
-                String localized_name = local.getText();
-
-                My_color my_color = My_colors.my_color_from_localized_name(localized_name,owner,logger);
-                //logger.log("is selected: ->"+localized_name+"<-");
-                color = my_color.color();
-                My_colors.save_color(get_item_path(),my_color.java_name(),logger);
-                if ( this instanceof Item_file_no_icon ifni)
-                {
-                    double font_size = Non_booleans_properties.get_font_size(owner,logger);
-                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                    Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color,owner,logger);
-                }
-                if ( this instanceof Item_folder itf)
-                {
-                    double font_size = Non_booleans_properties.get_font_size(owner, logger);
-                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                    Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color,owner,logger);
-                }
-                if ( this instanceof Item_folder_with_icon itfwi)
-                {
-                    double font_size = Non_booleans_properties.get_font_size(owner, logger);
-                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                    Look_and_feel_manager.set_button_look_as_folder(itfwi.button, icon_height, color,owner,logger);
-                }
-            }
-        });
-        menu.getItems().add(item);
-        all_check_menu_items.add(item);
-
-    }
-
-
-    //**********************************************************
-    public  MenuItem create_open_with_system_menu_item(Path path)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Open_with_system",owner,logger);
-        MenuItem menu_item = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("button in item: System Open");
-            System_open_actor.open_with_system(owner,path, aborter,logger);
-        });
-
-        return menu_item;
-    }
-
-
-
-
-    //**********************************************************
-    public  MenuItem create_open_with_klik_text_frame(Path path)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Open_With_Klik_Text_Frame",owner,logger);
-        MenuItem menu_item = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("button in item: Open_With_Klik_Text_Frame");
-            Text_frame.show(path,path_comparator_source);
-        });
-
-        return menu_item;
-    }
-
-    //**********************************************************
-    public  MenuItem create_open_with_special_app_item(Path path)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Open_With_Registered_Application",owner,logger);
-        MenuItem menu_item = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("button in item: Open_With_Registered_Application");
-            System_open_actor.open_special(owner,path, aborter,logger);
-        });
-
-        return menu_item;
-    }
-
-
-
-    // path for display takes different form depending on the item type
-    // it can be null, a PNG icon, or an animated gif
-    abstract public Path get_path_for_display(boolean try_deep);
-
-
-
-
-    //**********************************************************
-    public void you_are_invisible()
-    //**********************************************************
-    {
-        you_are_invisible_specific();
-        cancel_icon();
-
-    }
-
-    //**********************************************************
-    public void you_are_visible()
-    //**********************************************************
-    {
-        //logger.log("Visible: "+path.getFileName());
-        //if( !Platform.isFxApplicationThread())  logger.log(Stack_trace_getter.get_stack_trace("PANIC not on Fx thread"));
-
-        you_are_visible_specific();
-        //get_Node().setVisible(true);
-        if( has_icon())
-            request_icon_to_factory(get_icon_size());
-    }
-
-
-    // this is called SUPER intensively when scrolling
-    //**********************************************************
-    public synchronized void process_is_visible(double current_vertical_offset)
-    //**********************************************************
-    {
-        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
-        //if ( get_javafx_y() == 0) logger.log("process_is_visible item "+get_item_path()+" x="+get_javafx_x()+" y="+get_javafx_y());
-
-
-        set_translate_X(get_javafx_x());
-        set_translate_Y(get_javafx_y() - current_vertical_offset);
-
-        // this is essential: dont call you_are_visible() unless needed
-        if (!visible_in_scene.get())
-        {
-            visible_in_scene.set(true);
-            you_are_visible();
-        }
-    }
-
-    //**********************************************************
-    public void process_is_invisible(double current_vertical_offset)
-    //**********************************************************
-    {
-        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
-
-        set_translate_X(get_javafx_x());
-        set_translate_Y(get_javafx_y() - current_vertical_offset);
-
-        //if ( !Platform.isFxApplicationThread())logger.log(Stack_trace_getter.get_stack_trace("PANIC process_is_invisible "+Platform.isFxApplicationThread()));
-        if (visible_in_scene.get())
-        {
-            visible_in_scene.set(false);
-            you_are_invisible();
-        }
-    }
-
-
-    abstract void you_are_visible_specific();
-    abstract void you_are_invisible_specific();
-    abstract int get_icon_size();
-    abstract boolean has_icon();
-
-
 }

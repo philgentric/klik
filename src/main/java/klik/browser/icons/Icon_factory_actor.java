@@ -362,7 +362,7 @@ public class Icon_factory_actor implements Actor
 
             double skip = 0;
             {
-                Double duration_in_seconds = Ffmpeg_utils.get_media_duration(icon_factory_request.originator, destination.get_item_path(), logger);
+                Double duration_in_seconds = Ffmpeg_utils.get_media_duration(destination.get_item_path(), icon_factory_request.originator, logger);
                 if (duration_in_seconds != null) {
                     if (duration_in_seconds > 3 * 3600) {
                         logger.log("WARNING: ffprobe reports duration that looks wrong");

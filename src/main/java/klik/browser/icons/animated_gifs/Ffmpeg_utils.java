@@ -35,8 +35,8 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static Double get_media_duration(
-            Window owner,
             Path path,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
@@ -79,8 +79,8 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static double get_audio_bitrate(
-            Stage owner,
             Path audio_path,
+            Window owner,
             Logger logger)
     //**********************************************************
     {

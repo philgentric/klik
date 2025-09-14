@@ -42,6 +42,7 @@ import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Menu_items;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -206,7 +207,7 @@ public class Item_file_with_icon extends Item_file
         }
         else
         {
-            System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
+            System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
         }
     }
 
@@ -301,61 +302,46 @@ public class Item_file_with_icon extends Item_file
 
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        {
-            MenuItem menu_item = create_open_exif_frame_menu_item(get_item_path(),logger);
-            context_menu.getItems().add(menu_item);
-        }
-        {
-            MenuItem menu_item = create_show_similar_menu_item(
-                    get_item_path(),
-                    image_properties_RAM_cache,
-                    fv_cache_supplier,
-                    path_comparator_source,
-                    owner,
-                    aborter,
-                    logger);
-            context_menu.getItems().add(menu_item);
-        }
-        
+        create_open_exif_frame_menu_item(get_item_path(),context_menu);
+
+        context_menu.getItems().add(create_show_similar_menu_item(
+                get_item_path(),
+                image_properties_RAM_cache,
+                fv_cache_supplier,
+                path_comparator_source,
+                owner,
+                aborter,
+                logger));
+
         {
             MenuItem menu_item = get_rename_MenuItem(get_item_path(),owner,x, y, aborter,logger);
             context_menu.getItems().add(menu_item);
         }
-        {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Delete", owner,logger));
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setOnAction(event -> {
-                if (dbg) logger.log("Deleting "+get_item_path());
 
+        Menu_items.add_menu_item("Delete",
+                    event -> {
+                if (dbg) logger.log("Deleting "+get_item_path());
                 path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
                 //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter, logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }
-        {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Edit", owner,logger));
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setOnAction(event -> {
+            },context_menu,owner,logger);
+
+        Menu_items.add_menu_item("Edit",
+                    event -> {
                 if (dbg) logger.log("Editing "+get_item_path());
-                System_open_actor.open_with_system(owner,get_item_path(), aborter,logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }
-        {
-            MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Open_With_Registered_Application", owner,logger));
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setOnAction(event -> {
+                System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
+            },context_menu,owner,logger);
+
+        Menu_items.add_menu_item("Open_With_Registered_Application",
+                    event -> {
                 if (dbg) logger.log("Opening with registered app: "+get_item_path());
-                System_open_actor.open_special(owner,get_item_path(), aborter,logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }
-        
+                System_open_actor.open_special(get_item_path(), owner,aborter,logger);
+            },context_menu,owner,logger);
+
         {
-            context_menu.getItems().add(Item.create_show_file_size_menu_item(get_item_path(), dbg, owner,logger));
+            create_show_file_size_menu_item(context_menu);
             if (Feature_cache.get(Feature.Enable_tags))
             {
-                context_menu.getItems().add(Item.create_edit_tag_menu_item(get_item_path(), dbg, owner,aborter,logger));
+                create_edit_tag_menu_item(get_item_path(), context_menu,dbg, owner,aborter,logger);
             }
         }
 
@@ -367,26 +353,6 @@ public class Item_file_with_icon extends Item_file
 
     }
 
-    public static MenuItem get_rename_MenuItem(Path path, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
-    {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger)+ " "+path.getFileName());
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setMnemonicParsing(false);
-        menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item_image: Renaming "+path);
-
-            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
-            if ( new_path == null) return;
-
-            List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
-            l.add(oandn);
-            Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,owner,browser_aborter, logger);
-        });
-        return menu_item;
-    }
-
-    //static final int N = 5;
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
                                                          Image_properties_RAM_cache image_properties_cache,
@@ -429,6 +395,29 @@ public class Item_file_with_icon extends Item_file
         return menu_item;
     }
 
+
+    //**********************************************************
+    public static MenuItem get_rename_MenuItem(Path path, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
+    //**********************************************************
+    {
+        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger)+ " "+path.getFileName());
+        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
+        menu_item.setMnemonicParsing(false);
+        menu_item.setOnAction(event -> {
+            if (dbg) logger.log("Item_image: Renaming "+path);
+
+            Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
+            if ( new_path == null) return;
+
+            List<Old_and_new_Path> l = new ArrayList<>();
+            Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
+            l.add(oandn);
+            Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,owner,browser_aborter, logger);
+        });
+        return menu_item;
+    }
+
+
     //**********************************************************
     public static void make_menu_items_for_videos(
             Path path, 
@@ -436,34 +425,23 @@ public class Item_file_with_icon extends Item_file
             ContextMenu context_menu, boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        {
-            MenuItem menu_item = new MenuItem("Convert to mp4");
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setOnAction(event -> {
-                if (dbg) logger.log("convert to mp4");
-                AtomicBoolean abort_reported = new AtomicBoolean(false);
-                Ffmpeg_utils.video_to_mp4_in_a_thread(owner,path,aborter, abort_reported, logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }
-        {
-            MenuItem menu_item = new MenuItem("Generate as many 5s gif animation as 5s in the movie, in a new folder (may take a long time!)");
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setOnAction(event -> {
+        Menu_items.add_menu_item("Convert_To_Mp4",
+    event -> {
+            if (dbg) logger.log("convert to mp4");
+            AtomicBoolean abort_reported = new AtomicBoolean(false);
+            Ffmpeg_utils.video_to_mp4_in_a_thread(owner,path,aborter, abort_reported, logger);
+            },
+            context_menu,owner,logger);
+        Menu_items.add_menu_item("Generate_many_animated_GIFs",
+                    event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Animated_gifs_from_video.generate_many_gifs(owner,path,5,5,logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }
-        {
-            MenuItem menu_item = new MenuItem("Generate gif animations from a video, interactively");
-            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-            menu_item.setOnAction(event -> {
+            }, context_menu,owner,logger);
+        Menu_items.add_menu_item("Generate_Animated_GIF_interactively",
+                event -> {
                 if (dbg) logger.log("Generating animated gifs !");
                 Animated_gifs_from_video.interactive(path,owner,logger);
-            });
-            context_menu.getItems().add(menu_item);
-        }
+            },context_menu,owner,logger);
     }
 
     @Override

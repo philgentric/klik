@@ -989,21 +989,24 @@ public class Face_recognition_service
     }
 
 
-    public void skipped() {
+    public void skipped()
+    {
         recognition_stats.skipped.incrementAndGet();
         recognition_stats.done.incrementAndGet();
         training_stats.skipped.incrementAndGet();
         training_stats.done.incrementAndGet();
     }
 
-    public void server_error() {
+    public void server_error()
+    {
         recognition_stats.error.incrementAndGet();
         recognition_stats.done.incrementAndGet();
         training_stats.error.incrementAndGet();
         training_stats.done.incrementAndGet();
     }
 
-    public void no_face_detected() {
+    public void no_face_detected()
+    {
         recognition_stats.done.incrementAndGet();
         recognition_stats.no_face_detected.incrementAndGet();
         training_stats.no_face_detected.incrementAndGet();
@@ -1011,7 +1014,8 @@ public class Face_recognition_service
 
     }
 
-    public void should_not_happen() {
+    public void should_not_happen()
+    {
         recognition_stats.error.incrementAndGet();
         recognition_stats.done.incrementAndGet();
         training_stats.error.incrementAndGet();

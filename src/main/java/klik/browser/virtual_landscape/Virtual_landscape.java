@@ -105,7 +105,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public static final int MIN_COLUMN_WIDTH = 300;
     public static final double RIGHT_SIDE_SINGLE_COLUMN_MARGIN = 100;
     private static final double MARGIN_Y = 50;
-    public static final String CONTACT_SHEET_FILE_NAME = "contact_sheet.pdf";
 
 
 
@@ -114,7 +113,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public final Logger logger;
     private Landscape_height_listener landscape_height_listener;
     private Scroll_to_listener scroll_to_listener;
-    private final Paths_holder paths_holder;
+    final Paths_holder paths_holder;
 
 
     // otherwise there are 2 sorted lists
@@ -263,34 +262,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         logger.log("Status = " + s);
     }
 
-    //**********************************************************
-    public void clear_all_RAM_caches()
-    //**********************************************************
-    {
-        clear_image_properties_RAM_cache();
-        clear_scroll_position_cache();
-        logger.log("Image properties cache cleared");
-        logger.log("Return-to scroll positions cache cleared");
-        clear_image_comparators_caches();
-        logger.log("Image comparators caches cleared");
-        clear_image_feature_vector_RAM_cache();
-
-    }
-
-    //**********************************************************
-    public void clear_image_comparators_caches()
-    //**********************************************************
-    {
-        ((Clearable_RAM_cache) (image_file_comparator)).clear_RAM_cache();
-        ((Clearable_RAM_cache) (other_file_comparator)).clear_RAM_cache();
-    }
-
-    //**********************************************************
-    public void clear_image_feature_vector_RAM_cache()
-    //**********************************************************
-    {
-        Browsing_caches.fv_cache_of_caches.clear();
-    }
 
     //**********************************************************
     private void set_all_event_handlers()
@@ -331,7 +302,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             if (keyEvent.getCharacter().equals("k")) {
                 if (Browser.keyboard_dbg) logger.log("character is k = keyword search");
-                search_files_by_keyworks_fx();
+                browser_menus.search_files_by_keyworks_fx();
             }
             if (keyEvent.getCharacter().equals("s")) {
                 if (Browser.keyboard_dbg) logger.log("character is s = start/stop scan");
@@ -608,15 +579,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
 
-
-
-    public void remove_empty_folders(boolean recursively) {
-        paths_holder.remove_empty_folders(recursively);
-    }
-
-    public void clear_scroll_position_cache() {
-        Browsing_caches.scroll_position_cache_clear();
-    }
 
     public void set_text_background(String text) {
 
@@ -1144,15 +1106,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return p;
     }
 
-    //**********************************************************
-    public void clear_image_properties_RAM_cache()
-    //**********************************************************
-    {
-        if ( browsing_caches.image_properties_RAM_cache == null) return;
-        browsing_caches.image_properties_RAM_cache.clear_cache();
 
-        Browsing_caches.image_properties_RAM_cache_of_caches.clear();
-    }
 
 
 
@@ -1855,7 +1809,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void button_preferences(ActionEvent e)
     //**********************************************************
     {
-        ContextMenu pref = define_contextmenu_preferences();
+        ContextMenu pref = browser_menus.define_contextmenu_preferences();
         Button b = (Button) e.getSource();
         pref.show(b, Side.TOP, 0, 0);
     }
@@ -1864,7 +1818,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void button_files(ActionEvent e)
     //**********************************************************
     {
-        ContextMenu files = define_contextmenu_files();
+        ContextMenu files = browser_menus.define_files_ContextMenu();
         Button b = (Button) e.getSource();
         files.show(b, Side.TOP, 0, 0);
     }
@@ -1915,174 +1869,55 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private ContextMenu define_contextmenu_view()
     //**********************************************************
     {
-        ContextMenu view_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(view_menu,owner,logger);
+        ContextMenu context_menu = new ContextMenu();
+        Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
 
-        Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
-        view_menu.getItems().add(browser_menus.make_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),get_top_left(),owner,logger)));
+        //Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
+        Menu_items.add_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
 
 
         {
-            start_full_screen_menu_item = browser_menus.make_menu_item("Go_full_screen",event -> full_screen_handler.go_full_screen());
+            start_full_screen_menu_item = Menu_items.make_menu_item("Go_full_screen",event -> full_screen_handler.go_full_screen(),owner,logger);
             start_full_screen_menu_item.setDisable(false);
-            view_menu.getItems().add(start_full_screen_menu_item);
+            context_menu.getItems().add(start_full_screen_menu_item);
         }
         {
-            stop_full_screen_menu_item = browser_menus.make_menu_item("Stop_full_screen",event -> full_screen_handler.stop_full_screen());
+            stop_full_screen_menu_item = Menu_items.make_menu_item("Stop_full_screen",event -> full_screen_handler.stop_full_screen(),owner,logger);
             stop_full_screen_menu_item.setDisable(true);
-            view_menu.getItems().add(stop_full_screen_menu_item);
+            context_menu.getItems().add(stop_full_screen_menu_item);
         }
         {
             String text = My_I18n.get_I18n_string("Scan_show",owner,logger);
             Menu scan = new Menu(text);
             Look_and_feel_manager.set_menu_item_look(scan,owner,logger);
 
-            scan.getItems().add(browser_menus.make_menu_item("Start_stop_slow_scan",event -> handle_scan_switch()));
-            scan.getItems().add(browser_menus.make_menu_item("Slow_down_scan",event -> slow_down_scan()));
-            scan.getItems().add(browser_menus.make_menu_item("Speed_up_scan",event -> speed_up_scan()));
-            view_menu.getItems().add(scan);
+            scan.getItems().add(Menu_items.make_menu_item("Start_stop_slow_scan",event -> handle_scan_switch(),owner,logger));
+            scan.getItems().add(Menu_items.make_menu_item("Slow_down_scan",event -> slow_down_scan(),owner,logger));
+            scan.getItems().add(Menu_items.make_menu_item("Speed_up_scan",event -> speed_up_scan(),owner,logger));
+            context_menu.getItems().add(scan);
         }
-        view_menu.getItems().add(browser_menus.make_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> show_how_many_files_deep_in_each_folder()));
-        view_menu.getItems().add(browser_menus.make_menu_item("Show_Each_Folder_Total_Size",event -> show_total_size_deep_in_each_folder()));
-        view_menu.getItems().add(browser_menus.make_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage()));
-        view_menu.getItems().add(browser_menus.make_menu_item("Refresh",event -> redraw_fx("refresh")));
-        if( !change_events_off) view_menu.getItems().add(browser_menus.make_menu_item("Disable_change_events",event -> change_events_off = true));
-        if( change_events_off) view_menu.getItems().add(browser_menus.make_menu_item("Enable_change_events",event -> change_events_off = false));
+        Menu_items.add_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> show_how_many_files_deep_in_each_folder(),context_menu,owner,logger);
+        Menu_items.add_menu_item("Show_Each_Folder_Total_Size",event -> show_total_size_deep_in_each_folder(),context_menu,owner,logger);
+        Menu_items.add_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage(),context_menu,owner,logger);
+        Menu_items.add_menu_item("Refresh",event -> redraw_fx("refresh"),context_menu,owner,logger);
+        if( !change_events_off) Menu_items.add_menu_item("Disable_change_events",event -> change_events_off = true,context_menu,owner,logger);
+        if( change_events_off) Menu_items.add_menu_item("Enable_change_events",event -> change_events_off = false,context_menu,owner,logger);
 
 
-        view_menu.getItems().add(browser_menus.make_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(owner,logger)));
+        Menu_items.add_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(owner,logger),context_menu,owner,logger);
 
 
         if (Feature_cache.get(Feature.Enable_tags))
         {
-            view_menu.getItems().add(browser_menus.make_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(owner,aborter,logger)));
+            Menu_items.add_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(owner,aborter,logger),context_menu,owner,logger);
         }
 
-        return view_menu;
+        return context_menu;
     }
 
     public boolean change_events_off = false;
-
-
-    //**********************************************************
-    private ContextMenu define_contextmenu_files()
-    //**********************************************************
-    {
-        ContextMenu files_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(files_menu,owner,logger);
-
-        files_menu.getItems().add(browser_menus.make_select_all_files_menu_item(logger));
-        files_menu.getItems().add(browser_menus.make_select_all_folders_menu_item(logger));
-
-        {
-            String create_string = My_I18n.get_I18n_string("Create",owner,logger);
-            Menu create = new Menu(create_string);
-            Look_and_feel_manager.set_menu_item_look(create,owner,logger);
-
-            create.getItems().add(browser_menus.make_menu_item("Create_new_empty_directory",event -> create_new_directory()));
-            /*if (Feature_cache.get(Feature.Enable_image_playlists))
-            {
-                logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
-                //create.getItems().add(browser_menus.make_menu_item("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
-            }*/
-            create.getItems().add(browser_menus.make_menu_item("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet()));
-            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Year",event -> sort_by_time(Sort_by_time.year)));
-            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Month",event -> sort_by_time(Sort_by_time.month)));
-            create.getItems().add(browser_menus.make_menu_item("Sort_Files_In_Folders_By_Day",event -> sort_by_time(Sort_by_time.day)));
-            create.getItems().add(browser_menus.make_import_menu());
-            files_menu.getItems().add(create);
-        }
-        {
-            String search_string = My_I18n.get_I18n_string("Search",owner,logger);
-            Menu search = new Menu(search_string);
-            Look_and_feel_manager.set_menu_item_look(search,owner,logger);
-
-            search.getItems().add(browser_menus.make_menu_item("Search_by_keywords",event -> search_files_by_keyworks_fx()));
-            search.getItems().add(browser_menus.make_menu_item("Show_Where_Are_Images",event -> show_where_are_images()));
-            search.getItems().add(browser_menus.make_add_to_Enable_face_recognition_training_set_menu_item());
-
-
-            files_menu.getItems().add(search);
-        }
-        if (Booleans.get_boolean(Feature.Enable_face_recognition.name(),owner))
-        {
-            Menu face_recognition = new Menu("Face recognition");
-            Look_and_feel_manager.set_menu_item_look(face_recognition,owner,logger);
-
-            face_recognition.getItems().add(browser_menus.make_load_face_recog_menu_item());
-            face_recognition.getItems().add(browser_menus.make_save_face_recog_menu_item());
-            face_recognition.getItems().add(browser_menus.make_reset_face_recog_menu_item());
-            face_recognition.getItems().add(browser_menus.make_start_auto_face_recog_menu_item());
-            face_recognition.getItems().add(browser_menus.make_start_self_face_recog_menu_item());
-
-            files_menu.getItems().add(face_recognition);
-        }
-        {
-            String cleanup = My_I18n.get_I18n_string("Clean_Up",owner,logger);
-            Menu clean = new Menu(cleanup);
-            Look_and_feel_manager.set_menu_item_look(clean,owner,logger);
-
-            clean.getItems().add(browser_menus.make_remove_empty_folders_menu_item());
-            if (Booleans.get_boolean(Feature.Enable_recursive_empty_folders_removal.name(),owner))
-            {
-                clean.getItems().add(browser_menus.make_menu_item("Remove_empty_folders_recursively", event -> browser_menus.remove_empty_folders_recursively_fx()));
-            }
-            if (Booleans.get_boolean(Feature.Enable_name_cleaning.name(),owner) )
-            {
-                clean.getItems().add(browser_menus.make_menu_item("Clean_up_names", event -> browser_menus.clean_up_names_fx()));
-            }
-            if ( Booleans.get_boolean(Feature.Enable_corrupted_images_removal.name(),owner) )
-            {
-                clean.getItems().add(browser_menus.make_menu_item("Remove_corrupted_images", event -> browser_menus.remove_corrupted_images_fx()));
-            }
-
-
-            if (Booleans.get_boolean(Feature.Enable_bit_level_deduplication.name(),owner) )
-            {
-                String txt = My_I18n.get_I18n_string("File_bit_exact_deduplication",owner,logger);
-                Menu deduplicate = new Menu(txt);
-                Look_and_feel_manager.set_menu_item_look(deduplicate,owner,logger);
-
-                deduplicate.getItems().add(create_help_on_deduplication_menu_item());
-                deduplicate.getItems().add(create_deduplication_count_menu_item());
-                deduplicate.getItems().add(create_manual_deduplication_menu_item());
-                deduplicate.getItems().add(create_auto_deduplication_menu_item());
-                clean.getItems().add(deduplicate);
-            }
-
-            if (Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner) )
-            {
-                String txt = My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
-                Menu deduplicate2 = new Menu(txt);
-                Look_and_feel_manager.set_menu_item_look(deduplicate2,owner,logger);
-
-
-                MenuItem deduplicate_menu_item = create_manual_deduplication_by_similarity_menu_item2();
-                deduplicate2.getItems().add(deduplicate_menu_item);
-
-                MenuItem deduplicate_menu_item2 = create_manual_deduplication_by_similarity_menu_item();
-                deduplicate2.getItems().add(deduplicate_menu_item2);
-                clean.getItems().add(deduplicate2);
-            }
-            files_menu.getItems().add(clean);
-        }
-
-        if (Booleans.get_boolean(Feature.Enable_backup.name(),owner))
-        {
-            files_menu.getItems().add(browser_menus.make_backup_menu());
-        }
-
-        if (Feature_cache.get(Feature.Enable_fusk))
-        {
-            if (Feature_cache.get(Feature.Fusk_is_on))
-            {
-                files_menu.getItems().add(browser_menus.make_fusk_menu());
-            }
-        }
-        return files_menu;
-    }
 
 
 
@@ -2103,13 +1938,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Importer.estimate_size(owner, aborter, logger);
     }
 
-    //**********************************************************
-    public void show_where_are_images()
-    //**********************************************************
-    {
-        Path top = path_list_provider.get_folder_path();
-        Folders_with_large_images_locator.locate(top, 10, 200_000, owner, logger);
-    }
 
 
     //**********************************************************
@@ -2121,85 +1949,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         day
     }
 
-    //**********************************************************
-    public void sort_by_time(Sort_by_time sort_by_time)
-    //**********************************************************
-    {
-        Runnable r = () -> sort_by(sort_by_time);
-        Actor_engine.execute(r, logger);
-    }
 
 
-    //**********************************************************
-    public void sort_by(Sort_by_time sort_by)
-    //**********************************************************
-    {
-        List<File> files = path_list_provider.only_files(Feature_cache.get(Feature.Show_hidden_files));
-        if (files == null) {
-            logger.log("ERROR: cannot list files in " + path_list_provider.get_name());
-        }
-        if (files.size() == 0) {
-            logger.log("WARNING: no file in " + path_list_provider.get_name());
-        }
-        Map<String, Path> folders = new HashMap<>();
-        List<Old_and_new_Path> moves = new ArrayList<>();
-        for (File f : files)
-        {
-            BasicFileAttributes bfa;
-            try
-            {
-                bfa = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
-            }
-            catch (IOException e)
-            {
-                logger.log("" + e);
-                continue;
-            }
 
-            FileTime ft = bfa.creationTime();
-            LocalDateTime ldt = ft.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            String sorter = null;
-            switch ( sort_by)
-            {
-                case year -> sorter = ""+ldt.getYear();
-                case month -> sorter = ldt.getMonth().toString();
-                case day -> sorter = ""+ldt.getDayOfYear();
-            }
-            Path folder = folders.get(sorter);
-            if (folder == null)
-            {
-                folder = path_list_provider.resolve( sorter);
-                try {
-                    Files.createDirectory(folder);
-                } catch (IOException e) {
-                    logger.log("" + e);
-                    continue;
-                }
-            }
-            folders.put(sorter, folder);
-            {
-                // TODO: check if this is useful
-                // since perform_safe_moves_in_a_thread will trigger the Chang_gang?
-                List<Old_and_new_Path> l = new ArrayList<>();
-                Path displayed_folder_path = path_list_provider.get_folder_path();
-                l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done, false));
-                Change_gang.report_changes(l, owner);
-            }
-            Old_and_new_Path oanp = new Old_and_new_Path(
-                    f.toPath(),
-                    Path.of(folder.toAbsolutePath().toString(), f.getName()),
-                    Command_old_and_new_Path.command_move,
-                    Status_old_and_new_Path.before_command, false);
-            moves.add(oanp);
 
-        }
 
-        double x = this.owner.getX()+100;
-        double y = this.owner.getY()+100;
-        Moving_files.perform_safe_moves_in_a_thread(moves, true, x,y, this.owner, aborter, logger);
 
-        // display will be updated because of the Change_gang
-    }
 
 
 
@@ -2207,375 +1962,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
 
-
-    //**********************************************************
-    public void create_PDF_contact_sheet()
-    //**********************************************************
-    {
-        Runnable r = this::create_PDF_contact_sheet_in_a_thread;
-        Actor_engine.execute(r,logger);
-    }
-    //**********************************************************
-    public void create_PDF_contact_sheet_in_a_thread()
-    //**********************************************************
-    {
-        double x = this.owner.getX()+100;
-        double y = this.owner.getY()+100;
-
-        Hourglass hourglass = Progress_window.show(
-                false,
-                "Making PDF contact sheet",
-                20_000,
-                x,
-                y,
-                owner,
-                logger);
-        List<String> graphicsMagick_command_line = new ArrayList<>();
-
-        boolean formula1 = false;
-        if ( formula1)
-        {
-            graphicsMagick_command_line.add("gm");
-            graphicsMagick_command_line.add("convert");
-            graphicsMagick_command_line.add("vid:*.jpg");
-            graphicsMagick_command_line.add("contact_sheet.pdf");
-
-        }
-        else {
-            graphicsMagick_command_line.add("gm");
-            graphicsMagick_command_line.add("montage");
-            graphicsMagick_command_line.add("-label");
-            graphicsMagick_command_line.add("'%f'");
-            graphicsMagick_command_line.add("-font");
-            graphicsMagick_command_line.add("Helvetica");
-            graphicsMagick_command_line.add("-pointsize");
-            graphicsMagick_command_line.add("10");
-            graphicsMagick_command_line.add("-background");
-            graphicsMagick_command_line.add("#000000");
-            graphicsMagick_command_line.add("-fill");
-            graphicsMagick_command_line.add("#ffffff");
-            graphicsMagick_command_line.add("-define");
-            graphicsMagick_command_line.add("jpeg:size=300x200");
-            graphicsMagick_command_line.add("-geometry");
-            graphicsMagick_command_line.add("300x200+2+2");
-            graphicsMagick_command_line.add("*.jpg");
-            graphicsMagick_command_line.add(CONTACT_SHEET_FILE_NAME);
-        }
-
-
-        StringBuilder sb = null;
-        if ( dbg) sb = new StringBuilder();
-        File wd = (path_list_provider.get_folder_path()).toFile();
-        if ( Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger) == null)
-        {
-            Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
-        }
-        else
-        {
-            if ( dbg) logger.log("contact sheet generated "+ sb);
-            else
-            {
-                logger.log("contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
-                System_open_actor.open_with_system(owner,Path.of(path_list_provider.get_folder_path().toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),aborter,logger);
-
-                Platform.runLater(() ->set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
-            }
-        }
-        hourglass.close();
-    }
-
-
-    //**********************************************************
-    public void create_new_directory()
-    //**********************************************************
-    {
-        TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", owner,logger));
-        Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
-        dialog.initOwner(owner);
-        dialog.setWidth(owner.getWidth());
-        dialog.setTitle(My_I18n.get_I18n_string("New_directory", owner,logger));
-        dialog.setHeaderText(My_I18n.get_I18n_string("Enter_name_of_new_directory", owner,logger));
-        dialog.setContentText(My_I18n.get_I18n_string("New_directory_name", owner,logger));
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            String new_name = result.get();
-            for (int i = 0; i < 10; i++)
-            {
-                try {
-                    Path new_dir = path_list_provider.resolve(new_name);
-                    Files.createDirectory(new_dir);
-                    Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(), new_dir);
-                    redraw_fx("created new empty dir");
-                    break;
-                }
-                catch (IOException e)
-                {
-                    logger.log("new directory creation FAILED: " + e);
-                    // n case the issue is the name, we just addd "_" at the end and retry
-                    new_name += "_";
-                }
-            }
-
-        }
-    }
-
-
-    //**********************************************************
-    void search_files_by_keyworks_fx()
-    //**********************************************************
-    {
-        List<String> given = new ArrayList<>();
-        Image_context.ask_user_and_find(
-                path_list_provider,
-                this,
-                given,
-                false,
-                owner,
-                aborter,
-                logger
-        );
-
-    }
-    //**********************************************************
-    private ContextMenu define_contextmenu_preferences()
-    //**********************************************************
-    {
-        ContextMenu pref = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(pref,owner,logger);
-
-
-        pref.getItems().add(browser_menus.make_file_sort_method_menu());
-
-        pref.getItems().add(browser_menus.make_icon_size_menu());
-        if ( Feature_cache.get(Feature.Show_icons_for_folders))
-        {
-            pref.getItems().add(browser_menus.make_folder_icon_size_menu());
-        }
-        pref.getItems().add(browser_menus.make_column_width_menu());
-        pref.getItems().add(browser_menus.make_font_size_menu_item());
-        pref.getItems().add(browser_menus.make_style_menu_item());
-        pref.getItems().add(browser_menus.make_language_menu());
-        pref.getItems().add(browser_menus.make_video_length_menu());
-        //pref.getItems().add(browser_menus.make_ding_menu_item());
-        //pref.getItems().add(browser_menus.make_escape_menu_item());
-        //pref.getItems().add(browser_menus.make_invert_vertical_scroll_menu_item());
-        if (Booleans.get_boolean(Feature.Enable_face_recognition.name(),owner))
-        {
-            pref.getItems().add(browser_menus.make_start_Enable_face_recognition_menu_item());
-        }
-        if (Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner))
-        {
-            pref.getItems().add(browser_menus.make_start_image_similarity_servers_menu_item());
-        }
-
-        if (Feature_cache.get(Feature.Enable_fusk))
-        {
-            pref.getItems().add(browser_menus.make_fusk_check_menu_item());
-        }
-        pref.getItems().add(browser_menus.make_cache_size_limit_warning_menu_item());
-        if ( Feature_cache.get(Feature.max_RAM_is_defined_by_user)) {
-            pref.getItems().add(browser_menus.make_max_RAM_menu_item());
-        }
-
-
-
-        pref.getItems().add(browser_menus.make_menu_item(
-                "Clear_Trash_Folder",
-                event -> Static_files_and_paths_utilities.clear_trash(true,owner, aborter, logger)));
-
-        pref.getItems().add(browser_menus.make_clear_all_caches_menu_item());
-        if (Booleans.get_boolean(Feature.Enable_detailed_cache_cleaning_options.name(),owner))
-        {
-
-            Menu cleanup = new Menu(My_I18n.get_I18n_string("Cache_cleaning",owner,logger));
-            Look_and_feel_manager.set_menu_item_look(cleanup,owner,logger);
-            pref.getItems().add(cleanup);
-            {
-                Menu ram = new Menu(My_I18n.get_I18n_string("RAM_Caches_Cleaming",owner,logger));
-                Look_and_feel_manager.set_menu_item_look(ram,owner,logger);
-                cleanup.getItems().add(ram);
-                ram.getItems().add(browser_menus.make_menu_item("Clear_All_RAM_Caches",
-                        event -> clear_all_RAM_caches()));
-                ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Properties_RAM_Cache",
-                        event -> clear_image_properties_RAM_cache()));
-                ram.getItems().add(browser_menus.make_menu_item("Clear_Image_Comparators_Caches",
-                        event -> clear_image_comparators_caches()));
-                ram.getItems().add(browser_menus.make_menu_item("Clear_Scroll_Position_Cache",
-                        event ->         Browsing_caches.scroll_position_cache_clear()));
-
-            }
-            {
-                Menu disk = new Menu(My_I18n.get_I18n_string("DISK_Caches_Cleaning",owner,logger));
-                Look_and_feel_manager.set_menu_item_look(disk,owner,logger);
-                cleanup.getItems().add(disk);
-
-                disk.getItems().add(browser_menus.make_menu_item(
-                        "Clear_All_Disk_Caches",
-                        event -> Static_files_and_paths_utilities.clear_all_DISK_caches(owner,aborter,logger)));
-                disk.getItems().add(browser_menus.make_menu_item(
-                        "Clear_Icon_Cache_On_Disk",
-                        event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_icon_cache,true,owner,aborter,logger)));
-
-                disk.getItems().add(browser_menus.make_menu_item(
-                        "Clear_Folders_Icon_Cache_Folder",
-                        event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_folder_icon_cache,false,owner, aborter, logger)));
-                disk.getItems().add(browser_menus.make_menu_item(
-                        "Clear_Image_Properties_DISK_Cache",
-                        event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_properties_cache,false,owner,aborter, logger)));
-
-                disk.getItems().add(browser_menus.make_menu_item("Clear_Image_Feature_Vector_DISK_Cache",
-                        event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_feature_vectors_cache,true,owner, aborter, logger)));
-
-                disk.getItems().add(browser_menus.make_menu_item("Clear_Image_Similarity_DISK_Cache",
-                        event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_similarity_cache,true,owner, aborter, logger)));
-
-            }
-
-        }
-        pref.getItems().add(browser_menus.get_advanced_preferences());
-
-
-        return pref;
-    }
-
-
-
-    //**********************************************************
-    private MenuItem create_auto_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Deduplicate_auto",owner,logger);
-        MenuItem menu_item = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
-        menu_item.setOnAction(event -> {
-            //logger.log("Deduplicate auto");
-
-            if ( !Popups.popup_ask_for_confirmation( "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",owner,logger)) return;
-            (new Deduplication_engine(owner, (path_list_provider.get_folder_path()).toFile(), path_list_provider,this,logger)).do_your_job(true);
-        });
-        return menu_item;
-    }
-
-
-
-    //**********************************************************
-    public Supplier<Image_feature_vector_cache> get_fv_cache = new Supplier<>()
-    //**********************************************************
-    {
-        public Image_feature_vector_cache get() {
-
-            Image_feature_vector_cache.Images_and_feature_vectors local =
-                    Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, owner,owner.getX()+100, owner.getY()+100, aborter, logger);
-            return local.fv_cache();
-        }
-    };
-
-    //**********************************************************
-    private MenuItem create_manual_deduplication_by_similarity_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Deduplicate_with_confirmation_images_looking_a_bit_the_same",owner,logger);
-
-        MenuItem item0 = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
-        item0.setOnAction(event -> {
-            //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(
-                    path_list_provider,
-                    this,
-                    false,
-                    owner,
-                    path_list_provider.get_folder_path().toFile(),
-                    browsing_caches.image_properties_RAM_cache,
-                    get_fv_cache,
-                    logger)).do_your_job();
-        });
-        return item0;
-    }
-
-
-    //**********************************************************
-    private MenuItem create_manual_deduplication_by_similarity_menu_item2()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Deduplicate_with_confirmation_quasi_similar_images",owner,logger);
-
-        MenuItem item0 = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
-
-        item0.setOnAction(event -> {
-            //logger.log("Deduplicate manually");
-            (new Deduplication_by_similarity_engine(
-                    path_list_provider,
-                    this,
-                    true,
-                    owner,
-                    path_list_provider.get_folder_path().toFile(),
-                    browsing_caches.image_properties_RAM_cache,
-                    get_fv_cache,
-                    
-                    logger)).do_your_job();
-        });
-        return item0;
-    }
-
-    //**********************************************************
-    private MenuItem create_manual_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Deduplicate_manual",owner,logger);
-
-        MenuItem item0 = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
-
-        item0.setOnAction(event -> {
-            //logger.log("Deduplicate manually");
-            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,this,logger)).do_your_job(false);
-        });
-        return item0;
-    }
-
-    //**********************************************************
-    private MenuItem create_deduplication_count_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Deduplicate_count",owner,logger);
-        MenuItem item0 = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(item0,owner,logger);
-
-        item0.setOnAction(event -> {
-            //logger.log("count duplicates!");
-            (new Deduplication_engine(owner, path_list_provider.get_folder_path().toFile(), path_list_provider,this,logger)).count(false);
-        });
-        return item0;
-    }
-
-
-    //**********************************************************
-    private MenuItem create_help_on_deduplication_menu_item()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Deduplicate_help",owner,logger);
-        MenuItem itemhelp = new MenuItem(text);
-        Look_and_feel_manager.set_menu_item_look(itemhelp,owner,logger);
-
-        itemhelp.setOnAction(event -> Popups.popup_warning(
-                "Help on deduplication",
-                "The deduplication tool will look recursively down the path starting at:" + path_list_provider.get_name() +
-                        "\nLooking for identical files in terms of file content i.e. names/path are different but it IS the same file" +
-                        " Then you will be able to either:" +
-                        "\n  1. Review each pair of duplicate files one by one" +
-                        "\n  2. Or ask for automated deduplication (DANGER!)" +
-                        "\n  Beware: automated de-duplication may give unexpected results" +
-                        " since you do not choose which file in the pair is deleted." +
-                        "\n  However, the files are not actually deleted: they are MOVED to the klik_trash folder," +
-                        " which you can visit by clicking on the trash button." +
-                        "\n\n WARNING: On folders containing a lot of data, the search can take a long time!",
-                false,
-                owner,logger));
-        return itemhelp;
-    }
 
 
     /*

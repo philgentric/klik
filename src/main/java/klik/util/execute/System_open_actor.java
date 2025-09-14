@@ -26,8 +26,8 @@ public class System_open_actor implements Actor
 {
     //**********************************************************
     public static void open_with_system(
-            Window window,
             Path path,
+            Window window,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -49,7 +49,7 @@ public class System_open_actor implements Actor
 
     //**********************************************************
     public static void open_special(
-            Window owner, Path path, Aborter aborter, Logger logger)
+            Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("open_special " + path);

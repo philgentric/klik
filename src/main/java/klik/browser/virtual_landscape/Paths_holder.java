@@ -9,6 +9,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 //**********************************************************
 public class Paths_holder
@@ -154,6 +156,8 @@ public class Paths_holder
         //double l = t.getLayoutBounds().getWidth();
         //if (l > the_browser.max_dir_text_length) the_browser.max_dir_text_length = l;
     }
+
+
 
 
 

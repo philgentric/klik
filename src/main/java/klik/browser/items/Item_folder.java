@@ -125,7 +125,7 @@ public class Item_folder extends Item implements Icon_destination
         }
         else
         {
-            logger.log("SHOULD NOT HAPPEN Item_folder path is not a dorectory!");
+            logger.log("SHOULD NOT HAPPEN Item_folder path is not a directory!");
         }
         Look_and_feel_manager.set_button_look(button,false,owner,logger);
         button.setManaged(true); // means the parent tells the button its layout
