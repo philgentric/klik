@@ -368,7 +368,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             }*/
             if ( Guess_file_type.is_this_path_a_music(get_item_path()))
             {
-                if ( !Guess_file_type.is_this_a_video_or_audio_file(owner,get_item_path(),logger))
+                if ( !Guess_file_type.is_this_a_video_or_audio_file(get_item_path(),owner,logger))
                 {
                     logger.log("Item_button, opening audio file: " + get_item_path().toAbsolutePath());
                     Audio_player_access.play_song_in_separate_process(get_item_path().toFile(),logger);

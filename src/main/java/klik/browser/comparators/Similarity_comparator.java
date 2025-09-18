@@ -5,9 +5,9 @@ package klik.browser.comparators;
 
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.image_ml.image_similarity.Path_pair;
-import klik.image_ml.image_similarity.Similarity_cache;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.similarity.Path_pair;
+import klik.machine_learning.similarity.Similarity_cache;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
@@ -26,13 +26,13 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     protected final Map<Path, Integer> dummy_names = new HashMap<>();
 
     private final Map<Path_pair, Integer> distances_cache = new HashMap<>();
-    protected Supplier<Image_feature_vector_cache> fv_cache_supplier = null;
+    protected Supplier<Feature_vector_cache> fv_cache_supplier = null;
     Logger logger;
     protected final Similarity_cache similarity_cache;
     protected final List<Path> images;
 
     //**********************************************************
-    public Similarity_comparator(Supplier<Image_feature_vector_cache> fv_cache_supplier, Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
+    public Similarity_comparator(Supplier<Feature_vector_cache> fv_cache_supplier, Similarity_cache similarity_cache, Path_list_provider path_list_provider, Logger logger)
     //**********************************************************
     {
         this.fv_cache_supplier = fv_cache_supplier;

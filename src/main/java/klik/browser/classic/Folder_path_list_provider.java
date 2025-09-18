@@ -78,6 +78,29 @@ public class Folder_path_list_provider implements Path_list_provider
         return returned;
     }
 
+
+    //**********************************************************
+    @Override
+    public List<Path> only_song_paths(boolean consider_also_hidden_files)
+    //**********************************************************
+    {
+        File dir = folder_path.toFile();
+        File[] files = dir.listFiles();
+        if ( files == null) return new ArrayList<>();
+        List<Path> returned = new ArrayList<>();
+        for (File file : files)
+        {
+            if ( file.isDirectory() ) continue;
+            if ( !Guess_file_type.is_this_path_a_music(file.toPath())) continue;
+            if (! consider_also_hidden_files)
+            {
+                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+            }
+            returned.add(file.toPath());
+        }
+        return returned;
+    }
+
     //**********************************************************
     @Override
     public int how_many_files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders)

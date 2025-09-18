@@ -1,10 +1,7 @@
 //SOURCES ../browser/icons/animated_gifs/Gif_repair.java
 package klik.images;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.print.PrinterJob;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -17,15 +14,14 @@ import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_file_with_icon;
 import klik.change.Redo_same_move_engine;
 import klik.change.undo.Undo_for_moves;
-import klik.image_ml.face_recognition.Face_detection_type;
-import klik.image_ml.face_recognition.Face_recognition_actor;
-import klik.image_ml.face_recognition.Face_recognition_message;
-import klik.image_ml.face_recognition.Face_recognition_service;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.machine_learning.face_recognition.Face_detection_type;
+import klik.machine_learning.face_recognition.Face_recognition_actor;
+import klik.machine_learning.face_recognition.Face_recognition_message;
+import klik.machine_learning.face_recognition.Face_recognition_service;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
-import klik.properties.boolean_features.Preferences_stage;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
@@ -505,7 +501,7 @@ public class Menus_for_image_window
     //**********************************************************
     public static ContextMenu make_context_menu(Image_window image_window,
                                                 Image_properties_RAM_cache image_properties_cache,
-                                                Supplier<Image_feature_vector_cache> fv_cache_supplier,
+                                                Supplier<Feature_vector_cache> fv_cache_supplier,
                                                 Logger logger)
     //**********************************************************
     {

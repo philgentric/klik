@@ -3,7 +3,7 @@
 //SOURCES ../../image_ml/face_recognition/Face_recognition_service.java
 //SOURCES ../../image_ml/ML_servers_util.java
 //SOURCES ../../image_ml/image_similarity/Similarity_cache.java
-//SOURCES ../../image_ml/image_similarity/Image_feature_vector_cache.java
+//SOURCES ../../image_ml/image_similarity/Feature_vector_cache.java
 //SOURCES ../../util/files_and_paths/Name_cleaner.java
 //SOURCES ../../experimental/metadata/Tag_items_management_stage.java
 //SOURCES ../../properties/boolean_features/Preferences_stage.java
@@ -36,16 +36,19 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_for_moves;
 import klik.change.undo.Undo_item;
 import klik.experimental.deduplicate.Deduplication_engine;
-import klik.image_ml.ML_servers_util;
-import klik.image_ml.face_recognition.Face_recognition_service;
-import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.machine_learning.ML_servers_util;
+import klik.machine_learning.face_recognition.Face_recognition_service;
+import klik.machine_learning.deduplication.Deduplication_by_similarity_engine;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.images.Image_context;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_style;
 import klik.look.my_i18n.My_I18n;
 import klik.look.my_i18n.Language;
+import klik.machine_learning.feature_vector.Feature_vector_source;
+import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
+import klik.machine_learning.song_similarity.Feature_vector_source_for_song_similarity;
 import klik.properties.*;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
@@ -181,7 +184,8 @@ public class Virtual_landscape_menus
 
             if (Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner) )
             {
-                create_similarity_deduplication_menu(menu);
+                create_image_similarity_deduplication_menu(menu);
+                create_song_similarity_deduplication_menu(menu);
             }
             files_menu.getItems().add(menu);
         }
@@ -507,10 +511,10 @@ public class Virtual_landscape_menus
                     event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_properties_cache,false,owner,virtual_landscape.aborter, logger),disk,owner,logger);
 
             Menu_items.add_menu_item2("Clear_Image_Feature_Vector_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_feature_vectors_cache,true,owner, virtual_landscape.aborter, logger),disk,owner,logger);
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_feature_vectors_cache,true,owner, virtual_landscape.aborter, logger),disk,owner,logger);
 
             Menu_items.add_menu_item2("Clear_Image_Similarity_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_similarity_cache,true,owner, virtual_landscape.aborter, logger),disk,owner,logger);
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_similarity_cache,true,owner, virtual_landscape.aborter, logger),disk,owner,logger);
 
         }
     }
@@ -652,7 +656,7 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    private void create_similarity_deduplication_menu(Menu clean)
+    private void create_image_similarity_deduplication_menu(Menu clean)
     //**********************************************************
     {
         String txt = My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
@@ -670,7 +674,7 @@ public class Virtual_landscape_menus
                             owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
                             virtual_landscape.browsing_caches.image_properties_RAM_cache,
-                            get_fv_cache,
+                            get_image_fv_cache,
                             logger)).do_your_job();
                 },menu,owner,logger);
 
@@ -684,7 +688,48 @@ public class Virtual_landscape_menus
                             owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
                             virtual_landscape.browsing_caches.image_properties_RAM_cache,
-                            get_fv_cache,
+                            get_image_fv_cache,
+                            logger)).do_your_job();
+                },menu,owner,logger);
+
+
+    }
+
+
+    //**********************************************************
+    private void create_song_similarity_deduplication_menu(Menu clean)
+    //**********************************************************
+    {
+        String txt = "Song similarity";//My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
+        Menu menu = new Menu(txt);
+        Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
+        clean.getItems().add(menu);
+
+        Menu_items.add_menu_item2("Deduplicate_with_confirmation_quasi_similar_images",
+                event -> {
+                    //logger.log("Deduplicate manually");
+                    (new Deduplication_by_similarity_engine(
+                            virtual_landscape.path_list_provider,
+                            virtual_landscape,
+                            true,
+                            owner,
+                            virtual_landscape.path_list_provider.get_folder_path().toFile(),
+                            virtual_landscape.browsing_caches.image_properties_RAM_cache,
+                            get_song_fv_cache,
+                            logger)).do_your_job();
+                },menu,owner,logger);
+
+        Menu_items.add_menu_item2("Deduplicate_with_confirmation_images_looking_a_bit_the_same",
+                event -> {
+                    //logger.log("Deduplicate manually");
+                    (new Deduplication_by_similarity_engine(
+                            virtual_landscape.path_list_provider,
+                            virtual_landscape,
+                            false,
+                            owner,
+                            virtual_landscape.path_list_provider.get_folder_path().toFile(),
+                            virtual_landscape.browsing_caches.image_properties_RAM_cache,
+                            get_song_fv_cache,
                             logger)).do_your_job();
                 },menu,owner,logger);
 
@@ -692,13 +737,31 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public Supplier<Image_feature_vector_cache> get_fv_cache = new Supplier<>()
+    public Supplier<Feature_vector_cache> get_image_fv_cache = new Supplier<>()
             //**********************************************************
     {
-        public Image_feature_vector_cache get() {
+        public Feature_vector_cache get() {
 
-            Image_feature_vector_cache.Images_and_feature_vectors local =
-                    Image_feature_vector_cache.preload_all_feature_vector_in_cache(virtual_landscape.path_list_provider, owner,owner.getX()+100, owner.getY()+100, virtual_landscape.aborter, logger);
+            Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(virtual_landscape.aborter);
+
+            List<Path> paths = virtual_landscape.path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+            Feature_vector_cache.Paths_and_feature_vectors local =
+                    Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, owner,owner.getX()+100, owner.getY()+100, virtual_landscape.aborter, logger);
+            return local.fv_cache();
+        }
+    };
+
+    //**********************************************************
+    public Supplier<Feature_vector_cache> get_song_fv_cache = new Supplier<>()
+            //**********************************************************
+    {
+        public Feature_vector_cache get() {
+
+            Feature_vector_source fvs = new Feature_vector_source_for_song_similarity(virtual_landscape.aborter);
+
+            List<Path> paths = virtual_landscape.path_list_provider.only_song_paths(Feature_cache.get(Feature.Show_hidden_files));
+            Feature_vector_cache.Paths_and_feature_vectors local =
+                    Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, owner,owner.getX()+100, owner.getY()+100, virtual_landscape.aborter, logger);
             return local.fv_cache();
         }
     };

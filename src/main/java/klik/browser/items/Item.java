@@ -261,7 +261,7 @@ public abstract class Item implements Icon_destination
             if (!is_trash() && (is_parent_of() == null))
             {
                 Menu_items.add_menu_item(
-                "Browse in new window",
+                "Browse_in_new_window",
             event -> {
                     if (dbg) logger.log("Browse in new window!");
                     New_window_context.additional_no_past(get_item_path().getParent(),owner,logger);

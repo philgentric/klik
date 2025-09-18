@@ -1,6 +1,7 @@
 package klik.audio;
 
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -10,15 +11,26 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Window;
 import klik.actor.Aborter;
+import klik.actor.Actor_engine;
+import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.browser.virtual_landscape.Path_comparator_source;
+import klik.browser.virtual_landscape.Path_list_provider;
+import klik.experimental.image_playlist.Playlist_path_list_provider;
 import klik.look.Look_and_feel_manager;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.feature_vector.Feature_vector_source;
+import klik.machine_learning.similarity.Most_similar;
+import klik.machine_learning.similarity.Similarity_engine;
+import klik.machine_learning.song_similarity.Feature_vector_source_for_song_similarity;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.ui.Menu_items;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 //**********************************************************
 public record Song(String path, Node node)
@@ -85,6 +97,14 @@ public record Song(String path, Node node)
         Look_and_feel_manager.set_context_menu_look(context_menu, owner, logger);
 
         Menu_items.add_menu_item(
+                "Play_Similar_Song",
+                (ActionEvent e) ->
+                        play_similar(Path.of(full_path), playlist, owner, logger),
+                context_menu,
+                owner, logger);
+
+
+        Menu_items.add_menu_item(
             "Browse",
             (ActionEvent e) ->
             Audio_player.start_new_process_to_browse(Path.of(full_path).getParent(), logger),
@@ -114,8 +134,18 @@ public record Song(String path, Node node)
         Menu_items.add_menu_item(
                 "Remove_From_Playlist",
                 (ActionEvent e) ->
-                        playlist.remove_from_playlist(full_path),                context_menu,
-                owner, logger);
+                        playlist.remove_from_playlist(full_path),
+                context_menu, owner, logger);
+        Menu_items.add_menu_item(
+                "Delete",
+                (ActionEvent e) ->
+                {
+                    double x = owner.getX()+100;
+                    double y = owner.getY()+100;
+                    Path_list_provider path_list_provider = new Folder_path_list_provider(Path.of(full_path).getParent());
+                    path_list_provider.delete(Path.of(full_path), owner, x, y, new Aborter("dummy",logger), logger);
+                    playlist.remove_from_playlist(full_path);
+                },context_menu, owner, logger);
 
 
         {
@@ -130,6 +160,67 @@ public record Song(String path, Node node)
         }
 
         return context_menu;
+    }
+
+    //**********************************************************
+    private static void play_similar(Path path, Playlist playlist, Window owner, Logger logger)
+    //**********************************************************
+    {
+        Actor_engine.execute(()->
+                play_similar_in_thread(path, playlist, owner, logger),logger
+        );
+    }
+
+    //**********************************************************
+    private static void play_similar_in_thread(Path path, Playlist playlist, Window owner, Logger logger)
+    //**********************************************************
+    {
+
+        Aborter aborter = new Aborter("dummy",logger);
+
+        Path_comparator_source path_comparator_source = new Path_comparator_source() {
+            @Override
+            public Comparator<Path> get_path_comparator() {
+                return new Comparator<Path>() {
+                    @Override
+                    public int compare(Path o1, Path o2) {
+                        return o1.compareTo(o2);
+                    }
+                };
+            }
+        };
+        Path_list_provider path_list_provider = new Playlist_path_list_provider(Playlist.get_playlist_file(owner).toPath(),logger);
+        Similarity_engine similarity_engine = new Similarity_engine(
+                path_list_provider.only_file_paths(false),
+                path_list_provider,
+                path_comparator_source,
+                owner,
+                aborter,
+                logger);
+        Feature_vector_source fvs = new Feature_vector_source_for_song_similarity(aborter);
+        Feature_vector_cache fvc = new Feature_vector_cache("audio_feature_vector_cache", fvs, aborter, logger);
+        Supplier<Feature_vector_cache> fv_cache_supplier = () -> fvc;
+        AtomicLong count_pairs_examined = new AtomicLong(0);
+        List<Most_similar> similars = similarity_engine.find_similars(
+                path,
+                new ArrayList<>(),
+                3,
+                false,
+                100000000.0,
+                fv_cache_supplier,
+                owner, 100,100,
+                count_pairs_examined,
+                aborter);
+
+        if ( similars.size() == 0)
+        {
+            logger.log("no similar song found");
+            return;
+        }
+        Path similar = similars.get(0).path();
+        logger.log("similar song found : "+ similar);
+
+        Platform.runLater(()-> playlist.change_song(similar.toAbsolutePath().toString()));
     }
 
 }

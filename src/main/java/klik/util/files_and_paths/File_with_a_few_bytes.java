@@ -9,8 +9,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 // for fast file processing we keep in RAM the file length and the first few bytes
 //**********************************************************
@@ -177,6 +180,17 @@ public class File_with_a_few_bytes
 	}
 
 
-
+    //**********************************************************
+    public static List<Path> convert_to_paths(List<File_with_a_few_bytes> files)
+    //**********************************************************
+    {
+        List<Path> returned = new ArrayList<>();
+        for ( File_with_a_few_bytes fff : files)
+        {
+            Path p = fff.file.toPath();
+            returned.add(p);
+        }
+        return returned;
+    }
 }
 

@@ -113,7 +113,7 @@ public class Guess_file_type
     public static boolean is_this_path_a_music(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("._")) return false;
+        if ( should_ignore(path)) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio(extension);
     }
@@ -122,7 +122,7 @@ public class Guess_file_type
     public static boolean is_this_path_an_audio_playlist(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("._")) return false;
+        if ( should_ignore(path)) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio_playlist(extension);
     }
@@ -130,7 +130,7 @@ public class Guess_file_type
     public static boolean is_this_path_an_image_playlist(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("._")) return false;
+        if ( should_ignore(path)) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_an_image_playlist(extension);
     }
@@ -138,7 +138,7 @@ public class Guess_file_type
     public static boolean is_this_path_a_pdf(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("._")) return false;
+        if ( should_ignore(path)) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_pdf(extension);
     }
@@ -146,7 +146,7 @@ public class Guess_file_type
     public static boolean is_this_path_a_gif(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("._")) return false;
+        if ( should_ignore(path)) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_gif(extension);
     }
@@ -155,15 +155,15 @@ public class Guess_file_type
     public static boolean is_this_path_a_video(Path path)
     //**********************************************************
     {
-        if (path.getFileName().toString().startsWith("._")) return false;
+        if ( should_ignore(path)) return false;
         String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
         return is_this_extension_a_video(extension);
     }
 
     //**********************************************************
     public static boolean is_this_a_video_or_audio_file(
-            Window owner,
             Path path,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
@@ -182,11 +182,47 @@ public class Guess_file_type
         {
             Booleans.manage_show_ffmpeg_install_warning(owner,logger);
         }
-        logger.log("->"+sb+"<-");
+        logger.log("ffprobe result:->"+sb+"<-");
 
         String[] x = sb.toString().split("\\R");
         for (String l : x) {
             if (l.contains("video"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //**********************************************************
+    public static boolean is_this_a_song(
+            Path path,
+            Window owner,
+            Logger logger)
+    //**********************************************************
+    {
+        List<String> list = new ArrayList<>();
+        list.add("ffprobe");
+        list.add("-v");
+        list.add("error");
+        list.add("-select_streams");
+        list.add("a");
+        list.add("-show_entries");
+        list.add("stream=codec_type");
+        list.add("-of");
+        list.add("csv=p=0");
+        list.add(path.getFileName().toString());
+        StringBuilder sb = new StringBuilder();
+        File wd = path.getParent().toFile();
+        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
+        {
+            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+        }
+        logger.log("ffprobe result:->"+sb+"<-");
+
+        String[] x = sb.toString().split("\\R");
+        for (String l : x) {
+            if (l.contains("audio"))
             {
                 return true;
             }

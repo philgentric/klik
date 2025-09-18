@@ -7,8 +7,12 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.comparators.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.image_ml.image_similarity.Similarity_cache;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.feature_vector.Feature_vector_source;
+import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
+import klik.machine_learning.similarity.Similarity_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 import klik.actor.Aborter;
 import klik.util.log.Stack_trace_getter;
@@ -16,6 +20,7 @@ import klik.util.log.Stack_trace_getter;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // warning: these names are used as-is in the resource bundles !!!
@@ -34,93 +39,97 @@ public enum File_sort_by {
 
   public static final String SORT_FILES_BY = "sort_files_by";
 
-public final static boolean dbg = false;
+    public final static boolean dbg = false;
 
 
-
-  //**********************************************************
-  public static Comparator<Path> get_non_image_comparator(Path_list_provider path_list_provider,Window owner, Logger logger)
-  //**********************************************************
-  {
-    switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
+    //**********************************************************
+    public static Comparator<Path> get_non_image_comparator(Path_list_provider path_list_provider,Window owner, Logger logger)
+    //**********************************************************
     {
-      case NAME_GIFS_FIRST, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT , IMAGE_WIDTH,SIMILARITY_BY_PURSUIT, SIMILARITY_BY_PAIRS, NAME:
-        return new Alphabetical_file_name_comparator();
-      case RANDOM:
-        return new Random_comparator();
-      case DATE:
-        return new Date_comparator(logger);
-      case SIZE:
-        return new Decreasing_disk_footprint_comparator();
-
+        switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
+        {
+            case NAME_GIFS_FIRST, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT , IMAGE_WIDTH,SIMILARITY_BY_PURSUIT, SIMILARITY_BY_PAIRS, NAME:
+                return new Alphabetical_file_name_comparator();
+            case RANDOM:
+                return new Random_comparator();
+            case DATE:
+                return new Date_comparator(logger);
+            case SIZE:
+                return new Decreasing_disk_footprint_comparator();
+        }
+        return null;
     }
-    return null;
-  }
 
 
-
-  //**********************************************************
-  public static Comparator<Path> get_image_comparator(
-          Path_list_provider path_list_provider,
-          Path_comparator_source path_comparator_source,
-          Image_properties_RAM_cache image_properties_cache,
-          Window owner,
-          double x, double y, Aborter aborter, Logger logger)
-  //**********************************************************
-  {
-    switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
+    //**********************************************************
+    public static Comparator<Path> get_image_comparator(
+        Path_list_provider path_list_provider,
+        Path_comparator_source path_comparator_source,
+        Image_properties_RAM_cache image_properties_cache,
+        Window owner,
+        double x, double y, Aborter aborter, Logger logger)
+    //**********************************************************
     {
-      case SIMILARITY_BY_PURSUIT:
-        return get_similarity_comparator_by_pursuit(path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, aborter, logger);
-      case SIMILARITY_BY_PAIRS:
-        return get_similarity_comparator_pairs_of_closests(path_list_provider, owner, x, y, aborter, logger);
-      case NAME:
-        return new Alphabetical_file_name_comparator();
-      case ASPECT_RATIO:
-        return new Aspect_ratio_comparator(image_properties_cache);
-      case RANDOM_ASPECT_RATIO:
-        return new Aspect_ratio_comparator_random(image_properties_cache);
-      case IMAGE_HEIGHT:
-        return new Image_height_comparator(image_properties_cache,logger);
-      case IMAGE_WIDTH:
-        return new Image_width_comparator(image_properties_cache);
-      case RANDOM:
-        return new Random_comparator();
-      case DATE:
-        return new Date_comparator(logger);
-      case SIZE:
-        return new Decreasing_disk_footprint_comparator();
-      case NAME_GIFS_FIRST:
-        return new Alphabetical_file_name_comparator_gif_first();
+        Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(Shared_services.aborter);
+
+        switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
+        {
+            case SIMILARITY_BY_PURSUIT:
+                return get_similarity_comparator_by_pursuit(fvs,path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, aborter, logger);
+            case SIMILARITY_BY_PAIRS:
+                return get_similarity_comparator_pairs_of_closests(fvs,path_list_provider, owner, x, y, aborter, logger);
+            case NAME:
+                return new Alphabetical_file_name_comparator();
+            case ASPECT_RATIO:
+                return new Aspect_ratio_comparator(image_properties_cache);
+            case RANDOM_ASPECT_RATIO:
+                return new Aspect_ratio_comparator_random(image_properties_cache);
+            case IMAGE_HEIGHT:
+                return new Image_height_comparator(image_properties_cache,logger);
+            case IMAGE_WIDTH:
+                return new Image_width_comparator(image_properties_cache);
+            case RANDOM:
+                return new Random_comparator();
+            case DATE:
+                return new Date_comparator(logger);
+            case SIZE:
+                return new Decreasing_disk_footprint_comparator();
+            case NAME_GIFS_FIRST:
+                return new Alphabetical_file_name_comparator_gif_first();
+            }
+        return null;
     }
-    return null;
-  }
 
 
-
-
-  //**********************************************************
-  private static Similarity_comparator_pairs_of_closests get_similarity_comparator_pairs_of_closests(Path_list_provider path_list_provider, Window owner, double x, double y, Aborter aborter, Logger logger)
-  //**********************************************************
-  {
-    Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, owner, x, y, logger);
-    Image_feature_vector_cache fv_cache = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, owner, x, y, aborter, logger).fv_cache();
-    return new Similarity_comparator_pairs_of_closests(
+    //**********************************************************
+    private static Similarity_comparator_pairs_of_closests get_similarity_comparator_pairs_of_closests(Feature_vector_source fvs, Path_list_provider path_list_provider, Window owner, double x, double y, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+        Similarity_cache similarity_cache = get_similarity_cache(fvs,paths,path_list_provider, owner, x, y, logger);
+        Feature_vector_cache fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger).fv_cache();
+        return new Similarity_comparator_pairs_of_closests(
             ()->fv_cache,
             similarity_cache,
             path_list_provider,
             x, y,
             aborter, logger);
-  }
+    }
 
-  //**********************************************************
-  private static Similarity_comparator_by_pursuit get_similarity_comparator_by_pursuit(
-          Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Image_properties_RAM_cache image_properties_cache, Window owner, double x, double y,  Aborter aborter, Logger logger)
-  //**********************************************************
-  {
-    Similarity_cache similarity_cache = get_similarity_cache(path_list_provider, owner, x, y, logger);
-    Image_feature_vector_cache fv_cache = Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, owner, x, y, aborter, logger).fv_cache();
-    return new Similarity_comparator_by_pursuit(
+    //**********************************************************
+    private static Similarity_comparator_by_pursuit get_similarity_comparator_by_pursuit(
+        Feature_vector_source fvs,
+        Path_list_provider path_list_provider,
+        Path_comparator_source path_comparator_source,
+        Image_properties_RAM_cache image_properties_cache,
+        Window owner, double x, double y,
+        Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+        Similarity_cache similarity_cache = get_similarity_cache(fvs, paths, path_list_provider, owner, x, y, logger);
+        Feature_vector_cache fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs,paths, path_list_provider, owner, x, y, aborter, logger).fv_cache();
+        return new Similarity_comparator_by_pursuit(
             ()->fv_cache,
             similarity_cache,
             path_list_provider,
@@ -129,79 +138,79 @@ public final static boolean dbg = false;
             owner,
             x, y,
             aborter, logger);
-  }
-
-
-  //**********************************************************
-  private static Similarity_cache get_similarity_cache(Path_list_provider path_list_provider, Window owner,double x, double y, Logger logger)
-  //**********************************************************
-  {
-    Similarity_cache similarity_cache = Browsing_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
-    if (similarity_cache == null)
-    {
-      similarity_cache = new Similarity_cache(path_list_provider, owner, x, y, Shared_services.aborter, logger);
-      Browsing_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
-    }
-    return similarity_cache;
-  }
-
-
-  private static Map<Path,File_sort_by> cached = new HashMap<>();
-  //**********************************************************
-  public static File_sort_by get_sort_files_by(Path folder_path, Window owner)
-  //**********************************************************
-  {
-    File_sort_by from_cache = cached.get(folder_path);
-    if ( from_cache != null)
-    {
-      if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (1): "+File_sort_by.NAME));
-      return from_cache;
     }
 
-    String s = Non_booleans_properties.get_main_properties_manager(owner).get(SORT_FILES_BY);
-    if (s == null)
+    //**********************************************************
+    private static Similarity_cache get_similarity_cache(
+            Feature_vector_source fvs,
+            List<Path> paths,
+            Path_list_provider path_list_provider, Window owner,double x, double y, Logger logger)
+    //**********************************************************
     {
-      Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, File_sort_by.NAME.name());
-      if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+File_sort_by.NAME));
-      cached.put(folder_path, File_sort_by.NAME);
-      return File_sort_by.NAME;
+        Similarity_cache similarity_cache = Browsing_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        if (similarity_cache == null)
+        {
+            similarity_cache = new Similarity_cache(fvs, paths, path_list_provider, owner, x, y, Shared_services.aborter, logger);
+            Browsing_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
+        }
+        return similarity_cache;
     }
 
-
-    try
+    private static Map<Path,File_sort_by> cached = new HashMap<>();
+    //**********************************************************
+    public static File_sort_by get_sort_files_by(Path folder_path, Window owner)
+    //**********************************************************
     {
-      File_sort_by returned = File_sort_by.valueOf(s);
+        File_sort_by from_cache = cached.get(folder_path);
+        if ( from_cache != null)
+        {
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (1): "+File_sort_by.NAME));
+            return from_cache;
+        }
 
-      if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (3): "+returned));
-      cached.put(folder_path, returned);
-      return returned;
+        String s = Non_booleans_properties.get_main_properties_manager(owner).get(SORT_FILES_BY);
+        if (s == null)
+        {
+            Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, File_sort_by.NAME.name());
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+File_sort_by.NAME));
+            cached.put(folder_path, File_sort_by.NAME);
+            return File_sort_by.NAME;
+        }
+
+        try
+        {
+            File_sort_by returned = File_sort_by.valueOf(s);
+
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (3): "+returned));
+            cached.put(folder_path, returned);
+            return returned;
+        }
+        catch ( IllegalArgumentException e)
+        {
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (4): "+File_sort_by.NAME));
+
+            return File_sort_by.NAME;
+        }
+
     }
-    catch ( IllegalArgumentException e)
+
+    //**********************************************************
+    public static void set_sort_files_by(Path folder_path, File_sort_by b, Window owner, Logger logger)
+    //**********************************************************
     {
-      if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (4): "+File_sort_by.NAME));
+        cached.put(folder_path, b);
 
-      return File_sort_by.NAME;
+        if ( b == File_sort_by.SIMILARITY_BY_PAIRS)
+        {
+            logger.log("warning: SIMILARITY_BY_PAIRS not saved to properties");
+            return;
+        }
+        if ( b == File_sort_by.SIMILARITY_BY_PURSUIT)
+        {
+            logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
+            return;
+        }
+        Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, b.name());
     }
-
-  }
-
-  //**********************************************************
-  public static void set_sort_files_by(Path folder_path, File_sort_by b, Window owner, Logger logger)
-  //**********************************************************
-  {
-    cached.put(folder_path, b);
-
-    if ( b == File_sort_by.SIMILARITY_BY_PAIRS)
-    {
-        logger.log("warning: SIMILARITY_BY_PAIRS not saved to properties");
-        return;
-    }
-    if ( b == File_sort_by.SIMILARITY_BY_PURSUIT)
-    {
-      logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
-      return;
-    }
-    Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, b.name());
-  }
 
 }

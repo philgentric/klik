@@ -34,7 +34,7 @@ Any of this can be from 2 different origins:
 
 In both cases, browser windows and image windows CAN get warned thanks to the change gang
 - internal action : the change gang tells us... if the action included sending an event!
-- external actions : a FileSystems WatchService can be used ... OR ... we discover the problem because of an error!
+- external actions : a FFilesystem_item_modification_watcher can be used ... OR ... we discover the problem because of an error!
 
 typical scenario is:
 - we display image #23
@@ -44,7 +44,7 @@ typical scenario is:
 - we get the path from the list
 - ERROR when reading: file does not exist
 - we increment to 25 and retry ....
-(eventually if the full directory has been erased, we will end up with no image...)
+(eventually if the full directory has been erased/moved, we will end up with no image...)
 
 
  */
@@ -114,7 +114,7 @@ public class Image_indexer
         ok so now we have a target INDEX...
         but it does not mean there is (still) a corresponding file,
         especially since we may also be looking for an ULTIM one
-         */
+        */
         for (int max = 0; max < 2*state.how_many_images();max++)
         {
             Path returned = state.path_from_index(target);

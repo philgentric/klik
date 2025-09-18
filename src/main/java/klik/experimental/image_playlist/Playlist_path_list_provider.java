@@ -135,6 +135,14 @@ public class Playlist_path_list_provider implements Path_list_provider
 
     //**********************************************************
     @Override
+    public List<Path> only_song_paths(boolean consider_also_hidden_files)
+    //**********************************************************
+    {
+        return new ArrayList<>();
+    }
+
+    //**********************************************************
+    @Override
     public List<Path> only_image_paths(boolean consider_also_hidden_files)
     //**********************************************************
     {

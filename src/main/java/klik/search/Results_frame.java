@@ -172,7 +172,7 @@ public class Results_frame
 
         Menu_items.add_menu_item("Browse",
                 e -> {
-			logger.log("Browse in new window");
+			logger.log("Browse");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
 			New_window_context.additional_no_past(local,owner,logger);

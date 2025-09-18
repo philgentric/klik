@@ -1,7 +1,6 @@
 package klik.images;
 
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -10,8 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -24,8 +21,10 @@ import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.look.my_i18n.My_I18n;
+import klik.machine_learning.feature_vector.Feature_vector_source;
+import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.File_sort_by;
@@ -75,8 +74,8 @@ public class Image_window
     boolean is_full_screen = false;
     Path dir;
     private final Image_properties_RAM_cache image_properties_cache;
-    private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
-    private Image_feature_vector_cache fv_cache;
+    private final Supplier<Feature_vector_cache> fv_cache_supplier;
+    private Feature_vector_cache fv_cache;
     Path_list_provider path_list_provider;
     public Path_comparator_source path_comparator_source;
 
@@ -170,8 +169,10 @@ public class Image_window
         {
             if ( fv_cache == null)
             {
-                Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors =
-                        Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider, stage, x,  y,  aborter,  logger);
+                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
+                List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+                Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
+                        Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, stage, x,  y,  aborter,  logger);
                 fv_cache= images_and_feature_vectors.fv_cache();
             }
             return fv_cache;

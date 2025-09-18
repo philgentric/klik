@@ -39,7 +39,10 @@ public class Filesystem_item_signature
                 logger.log("FATAL: Filesystem_item_signature scanning failed for "+path);
                 return false;
             }
-            Arrays.sort(folder_signature_array); // just in case
+            // File.list() returns an OS dependent order, which is also user choice dependant
+            // so the same folder may show a different order at different times
+            // we must sort it to have a reproducible signature
+            Arrays.sort(folder_signature_array);
         }
         else
         {

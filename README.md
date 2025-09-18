@@ -286,8 +286,8 @@ Image-ML:
 
 ML brings to klik (1) image similarity and (2) face recognition  
 
-All operations are performed over HTTP to python servers that are leveraging free opensource opencv + tensorflow python bindings. 
-It requires to have multiple python3 stuff installed: See the dedicated README in the folder python_for_image_ML.
+All operations are performed over HTTP to python servers that are leveraging free opensource python. 
+It requires to have multiple python3 stuff installed: See the dedicated README in the folder python_for_ML.
 
 The main hurdle is that you must "manually" start the python servers, for this, copy/paste the command given in the help menu.
 

@@ -16,7 +16,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.images.caching.Image_cache_linkedhashmap;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Cache_interface;
@@ -150,7 +150,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     void handle_mouse_clicked_secondary(
             Image_properties_RAM_cache image_properties_cache,
-            Supplier<Image_feature_vector_cache> fv_cache_supplier,
+            Supplier<Feature_vector_cache> fv_cache_supplier,
             Window window, MouseEvent e, Logger logger)
     //**********************************************************
     {
@@ -352,9 +352,9 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         image_cache.put(skey,iai);
     }
 
-    Supplier<Image_feature_vector_cache> fv_cache_supplier;
+    Supplier<Feature_vector_cache> fv_cache_supplier;
 
-    public void set_fv_cache(Supplier<Image_feature_vector_cache> fvCacheSupplier)
+    public void set_fv_cache(Supplier<Feature_vector_cache> fvCacheSupplier)
     {
         fv_cache_supplier = fvCacheSupplier;
     }

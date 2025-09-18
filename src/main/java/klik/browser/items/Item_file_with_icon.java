@@ -1,6 +1,6 @@
 //SOURCES ../../images/decoding/Fast_rotation_from_exif_metadata_extractor.java
 //SOURCES ../../experimental/work_in_progress/Multiple_image_window.java
-//SOURCES ../../image_ml/image_similarity/Image_similarity.java
+//SOURCES ../../image_ml/image_similarity/Similarity_engine.java
 //SOURCES ./Item_file.java
 
 package klik.browser.items;
@@ -29,8 +29,8 @@ import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.image_ml.image_similarity.Image_similarity;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.similarity.Similarity_engine;
 import klik.images.Image_window;
 import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
@@ -64,7 +64,7 @@ public class Item_file_with_icon extends Item_file
     public Double aspect_ratio;
     public static Image default_icon;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
-    private final Supplier<Image_feature_vector_cache> fv_cache_supplier;
+    private final Supplier<Feature_vector_cache> fv_cache_supplier;
 
     //**********************************************************
     public Item_file_with_icon(
@@ -74,7 +74,7 @@ public class Item_file_with_icon extends Item_file
             Color color,
             Double aspect_ratio,
             Image_properties_RAM_cache image_properties_RAM_cache,
-            Supplier<Image_feature_vector_cache> fv_cache_supplier,
+            Supplier<Feature_vector_cache> fv_cache_supplier,
             Path path_,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
@@ -356,7 +356,7 @@ public class Item_file_with_icon extends Item_file
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
                                                          Image_properties_RAM_cache image_properties_cache,
-                                                         Supplier<Image_feature_vector_cache> fv_cache_supplier,
+                                                         Supplier<Feature_vector_cache> fv_cache_supplier,
                                                          Path_comparator_source path_comparator_source,
                                                          Window owner,
                                                          Aborter browser_aborter,
@@ -372,13 +372,15 @@ public class Item_file_with_icon extends Item_file
             {
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                Image_similarity image_similarity = new Image_similarity(
-                        new Folder_path_list_provider(image_path.getParent()),
+                Path_list_provider path_list_provider = new Folder_path_list_provider(image_path.getParent());
+                List<Path> paths =  path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+                Similarity_engine image_similarity = new Similarity_engine(
+                        paths,
+                        path_list_provider,
                         path_comparator_source,
-                        x,y,
                         owner,
                         browser_aborter,logger);
-                image_similarity.find_similars(
+                image_similarity.find_similars2(
                         false,
                         image_path,
                         null,
@@ -387,7 +389,7 @@ public class Item_file_with_icon extends Item_file
                         Double.MAX_VALUE,
                         image_properties_cache,
                         fv_cache_supplier,
-                        false,owner, x,y,null,browser_aborter);
+                        owner, x,y,null,browser_aborter);
             };
             Actor_engine.execute(r,logger);
         });

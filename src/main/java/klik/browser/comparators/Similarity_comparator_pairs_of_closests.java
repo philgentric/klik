@@ -4,8 +4,8 @@ package klik.browser.comparators;
 
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.image_ml.image_similarity.Similarity_cache;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.similarity.Similarity_cache;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -21,7 +21,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
     // the distances are computed in the constructor
     //**********************************************************
     public Similarity_comparator_pairs_of_closests(
-            Supplier<Image_feature_vector_cache> fv_cache_supplier,
+            Supplier<Feature_vector_cache> fv_cache_supplier,
             Similarity_cache similarity_cache,
             Path_list_provider path_list_provider,
             double x, double y,

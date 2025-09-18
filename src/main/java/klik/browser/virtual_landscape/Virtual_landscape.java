@@ -46,41 +46,31 @@ import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.items.*;
-import klik.browser.locator.Folders_with_large_images_locator;
 import klik.browser.ram_and_threads_meter.RAM_and_threads_meters_stage;
-import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.experimental.backup.Backup_singleton;
-import klik.experimental.deduplicate.Deduplication_engine;
 import klik.experimental.fusk.Fusk_bytes;
 import klik.experimental.fusk.Fusk_singleton;
 import klik.experimental.fusk.Static_fusk_paths;
 import klik.experimental.metadata.Tag_items_management_stage;
-import klik.image_ml.image_similarity.Deduplication_by_similarity_engine;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.images.Image_context;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.look.Font_size;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.machine_learning.feature_vector.Feature_vector_source;
+import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klik.properties.*;
 import klik.properties.boolean_features.*;
-import klik.util.execute.Execute_command;
-import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -163,7 +153,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public static boolean show_progress_window_on_redraw = true;
 
     public final Browsing_caches browsing_caches;
-    private Image_feature_vector_cache fv_cache;
+    private Feature_vector_cache fv_cache;
 
     //**********************************************************
     public Virtual_landscape(
@@ -195,7 +185,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         browsing_caches = new Browsing_caches(path_list_provider,owner,aborter,logger);
         icon_factory_actor = new Icon_factory_actor(browsing_caches.image_properties_RAM_cache, owner, aborter, logger);
-        paths_holder = new Paths_holder(icon_factory_actor, browsing_caches.image_properties_RAM_cache, aborter, logger);
+        paths_holder = new Paths_holder(browsing_caches.image_properties_RAM_cache, aborter, logger);
         selection_handler = new Selection_handler(the_Pane, this, this, logger);
 
         browser_menus = new Virtual_landscape_menus(this, change_receiver, owner);
@@ -781,13 +771,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 cache_aspect_ratio = (Double) ip.get_aspect_ratio();
             }
             getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
-            Supplier<Image_feature_vector_cache> fv_cache_supplier = () ->
+            Supplier<Feature_vector_cache> fv_cache_supplier = () ->
             {
                 if ( fv_cache != null) return fv_cache;
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                Image_feature_vector_cache.Images_and_feature_vectors images_and_feature_vectors =
-                        Image_feature_vector_cache.preload_all_feature_vector_in_cache(path_list_provider,  owner,x,  y,  aborter,  logger);
+                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
+                List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+                Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
+                        Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths,path_list_provider,  owner,x,  y,  aborter,  logger);
                 fv_cache= images_and_feature_vectors.fv_cache();
                 return fv_cache;
             };
@@ -858,7 +850,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         // manage the non-iconifed-files section
         double row_increment_for_files = 2 * Non_booleans_properties.get_font_size(owner,logger);
 
-        for (Path path : paths_holder.non_iconized.keySet())
+        for (Path path : paths_holder.non_iconized)
         {
             if (ultra_dbg) logger.log("Virtual_landscape process_non_iconized_files "+path.toAbsolutePath());
             String text = path.getFileName().toString();
@@ -932,7 +924,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             actual_row_increment = row_increment_for_dirs_with_picture;
 
-            for (Path folder_path : paths_holder.folders.keySet())
+            for (Path folder_path : paths_holder.folders)
             {
                 if (dbg) logger.log("Virtual_landscape process_folders (1) "+folder_path);
                 long start = System.currentTimeMillis();
@@ -944,7 +936,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         else
         {
             actual_row_increment = row_increment_for_dirs;
-            List<Path> paths = new ArrayList<>(paths_holder.folders.keySet());
+            List<Path> paths = new ArrayList<>(paths_holder.folders);
             if ( show_total_size_deep_in_each_folder_done)
             {
                 Comparator<Path> comp = (p1, p2) -> {
@@ -2322,9 +2314,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         image_file_comparator = File_sort_by.get_image_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
                 owner,x,y, aborter,logger);;
 
-        // these MUST be mutually exclusive:
-        paths_holder.folders = new ConcurrentSkipListMap<>(alphabetical_file_name_comparator);
-        paths_holder.non_iconized = new ConcurrentSkipListMap<>(other_file_comparator);
+        paths_holder.folders = new ConcurrentSkipListSet<>(alphabetical_file_name_comparator);
+        paths_holder.non_iconized = new ConcurrentSkipListSet<>(other_file_comparator);
     }
 
 
@@ -2356,7 +2347,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     return;
                 }
 
-                paths_holder.do_folder(path);
+                paths_holder.add_folder(path);
             }
             for ( Path path : path_list_provider.only_file_paths(Feature_cache.get(Feature.Show_hidden_files)))
             {
@@ -2367,7 +2358,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     aborter.on_abort();
                     return;
                 }
-                paths_holder.do_file( path, Feature_cache.get(Feature.Show_icons_for_files), owner);
+                paths_holder.add_file( path, Feature_cache.get(Feature.Show_icons_for_files), owner);
                 // this will start one virtual thread per image to prefill the image property cache
             }
         }

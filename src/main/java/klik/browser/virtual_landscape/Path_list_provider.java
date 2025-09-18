@@ -13,15 +13,17 @@ import java.util.List;
 public interface Path_list_provider
 //**********************************************************
 {
+    // an abstract interface to provide a list of paths (files)
+    // could be in a disk folder OR in a 'playlist'
     Path get_folder_path();
     String get_name(); // absolute path if true folder
     Path resolve(String string);
 
     void reload();
-    //List<Path> get_all(); // files and folder
     List<File> only_files(boolean consider_also_hidden_files); // only files, no folders
     List<Path> only_file_paths(boolean consider_also_hidden_files);
     List<Path> only_image_paths(boolean considerAlsoHiddenFiles);
+    List<Path> only_song_paths(boolean considerAlsoHiddenFiles);
 
     List<File> only_folders(boolean consider_also_hidden_folders);
     List<Path> only_folder_paths(boolean consider_also_hidden_folders);

@@ -73,7 +73,7 @@ Klik dispose de plusieurs services basés sur des réseaux de neurones pour les 
 - Deduplication par similarité : pour les images dans un dossier, itérez sur les images qui se ressemblent (mais le fichier n'est pas forcément identique) avec l'option d'effacer la version qui ne vous plait pas. (exemple sympathique : ce service détecte les images en miroir !!)
 - Reconnaissance de visages. Pour des raisons légales, aucun modèle n'est fourni, donc ce service nécessite une étape d'apprentissage *supervisé* pour laquelle vous devez *fournir les données avec les étiquettes* , c'est donc du boulot... mais ça marche vraiment bien !
 
-Tous utilisent du code et des modèles Python open-source (basés sur tensorflow/keras et opencv)
+Tous utilisent du code et des modèles Python open-source
 
 La reconnaissance faciale et la similarité d'images reposent sur des serveurs HTTP locaux qui peuvent être interrogés par l'application klik depuis Java, ce qui signifie que les serveurs survivent aux redémarrages de l'application klik.
 (Note : il y a plusieurs serveurs sur plusieurs ports TCP car Python ne supporte pas le multithreading (enfin... pas aussi bien que Java !) et le serveur HTTP Python ne gère pas très bien la mise en file d'attente, donc le code Java de klik va 'équilibrer la charge' des requêtes vers les serveurs.)
@@ -87,7 +87,7 @@ Pour la vitesse du ML, vous avez besoin d'une machine avec une carte graphique q
 
 ATTENTION : l'installation de tensorflow peut être très fastidieuse... (google sera votre ami)
 
-Dans le dossier "python_for_image_ML" se trouve une recette qui exploite l'accélération matérielle (metal) pour les Macs ARM64 qui fonctionne sur mon MacBookPro M3 64GB.
+Dans le dossier "python_for_ML" se trouve une recette qui exploite l'accélération matérielle (metal) pour les Macs ARM64 qui fonctionne sur mon MacBookPro M3 64GB.
 
 2. Lancer les serveurs (après chaque redémarrage de votre machine)
 

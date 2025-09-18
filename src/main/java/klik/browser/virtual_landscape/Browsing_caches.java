@@ -2,9 +2,9 @@ package klik.browser.virtual_landscape;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.image_ml.image_similarity.Similarity_cache;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.similarity.Similarity_cache;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -36,7 +36,7 @@ public class Browsing_caches
     private static Map<String, Path> scroll_position_cache = new HashMap<>();
     public static Map<String,Image_properties_RAM_cache> image_properties_RAM_cache_of_caches = new HashMap<>();
     public static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
-    public final static Map<String, Image_feature_vector_cache> fv_cache_of_caches = new HashMap<>();
+    public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new HashMap<>();
 
     //**********************************************************
     public Browsing_caches(Path_list_provider path_list_provider, Window owner, Aborter aborter, Logger logger)

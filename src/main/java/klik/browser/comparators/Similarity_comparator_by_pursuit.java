@@ -7,10 +7,13 @@ import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.image_ml.Feature_vector;
-import klik.image_ml.image_similarity.Image_feature_vector_cache;
-import klik.image_ml.image_similarity.Image_similarity;
-import klik.image_ml.image_similarity.Similarity_cache;
+import klik.machine_learning.feature_vector.Feature_vector;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
+import klik.machine_learning.similarity.Most_similar;
+import klik.machine_learning.similarity.Similarity_engine;
+import klik.machine_learning.similarity.Similarity_cache;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -25,7 +28,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
 
     //**********************************************************
     public Similarity_comparator_by_pursuit(
-            Supplier<Image_feature_vector_cache> fv_cache_supplier,
+            Supplier<Feature_vector_cache> fv_cache_supplier,
             Similarity_cache similarity_cache,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
@@ -95,7 +98,8 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         }
 
         // we "extend" each pair by looking for the closest neighbors of each pair member
-        Image_similarity similarity = new Image_similarity(path_list_provider, path_comparator_source, x,y,owner,browser_aborter, logger);
+        List<Path> paths =  path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+        Similarity_engine similarity = new Similarity_engine(paths,path_list_provider,path_comparator_source, owner,browser_aborter, logger);
 
         dummy_names.clear();
         int max_friend = 2;
@@ -135,16 +139,15 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
     }
 
     //**********************************************************
-    private int extend(Path p1, List<Path> excluding, Image_similarity similarity, List<Path> remaining, int i, int max_friend, Image_properties_RAM_cache image_properties_cache, Supplier<Image_feature_vector_cache> fv_cache_supplier, Window owner, Aborter browser_aborter)
+    private int extend(Path p1, List<Path> excluding, Similarity_engine similarity, List<Path> remaining, int i, int max_friend, Image_properties_RAM_cache image_properties_cache, Supplier<Feature_vector_cache> fv_cache_supplier, Window owner, Aborter browser_aborter)
     //**********************************************************
     {
-        Image_feature_vector_cache fv_cache = fv_cache_supplier.get();
-        Feature_vector fv = fv_cache.get_from_cache(p1, null, true, owner, browser_aborter);
-        List<Image_similarity.Most_similar> ms = similarity.find_similars_of(
+        Feature_vector_cache fv_cache = fv_cache_supplier.get();
+        Feature_vector fv = fv_cache.get_from_cache_or_make(p1, null, true, owner, browser_aborter);
+        List<Most_similar> ms = similarity.find_similars_of2(
                 p1,
                 fv,
                 false,
-                true,
                 max_friend+3,
                 Double.MAX_VALUE,
                 image_properties_cache,
@@ -155,7 +158,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
                 browser_aborter);
 
         int how_many = 0;
-        for (Image_similarity.Most_similar m : ms)
+        for (Most_similar m : ms)
         {
             Path p3 = m.path();
             if (excluding.contains(p3)) continue;

@@ -14,10 +14,10 @@ module klikmodule {
     requires com.google.gson;
 
 
-    exports klik.image_ml.face_recognition; // required for parsing json from embeddings server
+    exports klik.machine_learning.face_recognition; // required for parsing json from embeddings server
     exports klik;
-    exports klik.image_ml;
-    exports klik.image_ml.image_similarity;
+    exports klik.machine_learning;
+    exports klik.machine_learning.image_similarity;
     exports klik.actor;
 
     opens klik to javafx.graphics, javafx.fxml;

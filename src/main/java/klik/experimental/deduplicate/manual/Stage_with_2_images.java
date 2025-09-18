@@ -177,7 +177,7 @@ public class Stage_with_2_images
 		double width = 0;
 		double height = 0;
 
-		Button view = new Button("View this one");
+		Button view = new Button("Open this one");
 		Look_and_feel_manager.set_button_look(view,true,stage,logger);
 		view.setOnAction(event -> {
 			boolean is_image = true;

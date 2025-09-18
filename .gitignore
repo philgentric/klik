@@ -11,7 +11,7 @@ out/*
 nohup.out
 .aider*
 *.jfr
-/python_for_image_ML/__pycache__
+/python_for_ML/__pycache__
 test.txt
 script.txt
 script.txt

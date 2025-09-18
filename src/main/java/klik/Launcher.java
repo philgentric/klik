@@ -23,7 +23,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player_access;
-import klik.image_ml.ML_servers_util;
+import klik.machine_learning.ML_servers_util;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -93,7 +93,9 @@ public class Launcher extends Application implements UI_change
     private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
 
 
+    //**********************************************************
     public static void main(String[] args)
+    //**********************************************************
     {
         launch(args);
     }
@@ -223,6 +225,22 @@ public class Launcher extends Application implements UI_change
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
         }
 
+        /*
+        {
+            Separator separator = new Separator();
+            vbox.getChildren().add(separator);
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Start_Song_Similarity_Servers", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_song_similarity_servers(logger), stage, logger));
+        }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Stop_Song_Similarity_Servers", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_song_similarity_servers(logger), stage, logger));
+        }
+        */
 
 
 
