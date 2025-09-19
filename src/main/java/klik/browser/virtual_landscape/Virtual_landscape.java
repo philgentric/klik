@@ -1892,7 +1892,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         Menu_items.add_menu_item("Show_How_Many_Files_Are_In_Each_Folder",event -> show_how_many_files_deep_in_each_folder(),context_menu,owner,logger);
         Menu_items.add_menu_item("Show_Each_Folder_Total_Size",event -> show_total_size_deep_in_each_folder(),context_menu,owner,logger);
-        Menu_items.add_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage(),context_menu,owner,logger);
+        Menu_items.add_menu_item("About_klik",event -> About_klik_stage.show_about_klik_stage(owner,logger),context_menu,owner,logger);
         Menu_items.add_menu_item("Refresh",event -> redraw_fx("refresh"),context_menu,owner,logger);
         if( !change_events_off) Menu_items.add_menu_item("Disable_change_events",event -> change_events_off = true,context_menu,owner,logger);
         if( change_events_off) Menu_items.add_menu_item("Enable_change_events",event -> change_events_off = false,context_menu,owner,logger);

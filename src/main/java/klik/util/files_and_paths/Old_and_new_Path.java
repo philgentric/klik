@@ -1,10 +1,12 @@
-//SOURCES ./Command_old_and_new_Path.java
+//SOURCES ./Command.java
 //SOURCES ./Status_old_and_new_Path.java
 
 
 
 package klik.util.files_and_paths;
 
+
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 
@@ -15,41 +17,47 @@ public 	class Old_and_new_Path
 	private static final boolean dbg = false;
 	public final Path old_Path;
 	public final Path new_Path;
-	public final Command_old_and_new_Path cmd;
+	public final Command cmd;
 	public final Status_old_and_new_Path status;
     public Runnable run_after;
 	public final boolean is_a_restore;
 
 
     //**********************************************************
-	public Old_and_new_Path(Path old_Path_, Path new_Path_,
-							//boolean is_move_to_trash_,
-							Command_old_and_new_Path cmd_, Status_old_and_new_Path status_, boolean is_a_restore_)
+	public Old_and_new_Path(Path old_path, Path new_path,
+                            //boolean is_move_to_trash_,
+                            Command cmd_, Status_old_and_new_Path status_, boolean is_a_restore_)
 	//**********************************************************
 	{
-		old_Path = old_Path_;
-		new_Path = new_Path_;
+		old_Path = old_path;
+        // make sure new_path CANNOT be null
+        if (new_path == null) {
+            System.out.println(Stack_trace_getter.get_stack_trace("new_path is null. DONT do this, if you want to delete forever something instead of moving it to klik trash, use the Command.command_delete_forever"));
+
+            throw new IllegalArgumentException("new_path cannot be null");
+        }
+		new_Path = new_path;
 		is_a_restore = is_a_restore_;
 		//is_move_to_trash = is_move_to_trash_;
 		status = status_;
 		cmd = cmd_;
 		if ( dbg)
 		{
-			if ( old_Path_ == null)
+			if ( old_path == null)
 			{
 				System.out.println("old Path is null");
 			}
 			else
 			{
-				System.out.println("old_Path="+old_Path_);
+				System.out.println("old_Path="+old_path);
 			}
-			if ( new_Path_ == null)
+			if ( new_path == null)
 			{
 				System.out.println("new Path is null");
 			}
 			else
 			{
-				System.out.println("new_Path="+new_Path_);
+				System.out.println("new_Path="+new_path);
 			}			
 		}
 
@@ -75,7 +83,7 @@ public 	class Old_and_new_Path
 	{
 		return old_Path;
 	}
-	public Command_old_and_new_Path get_cmd()
+	public Command get_cmd()
 	{
 		return cmd;
 	}

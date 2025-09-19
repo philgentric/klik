@@ -6,7 +6,7 @@ import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
-import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Command;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
 import klik.util.log.Logger;
@@ -265,7 +265,7 @@ public class Undo_core implements Datetime_to_signature_source
     //**********************************************************
     {
         if ( dbg) logger.log(("Undo_core READ"));
-        Command_old_and_new_Path cmd = Command_old_and_new_Path.command_move;
+        Command cmd = Command.command_move;
         Status_old_and_new_Path stt = Status_old_and_new_Path.move_done;
 
         List<Undo_item> returned = new ArrayList<>();
@@ -296,7 +296,7 @@ public class Undo_core implements Datetime_to_signature_source
                     String new_path_string = properties_manager.get(generate_key_for_new_path(index,j));
                     if ( new_path_string == null)
                     {
-                        l.add(new Old_and_new_Path(Path.of(old_path_string),null,cmd,stt,false));
+                        //l.add(new Old_and_new_Path(Path.of(old_path_string),null,cmd,stt,false));
                     }
                     else
                     {

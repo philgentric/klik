@@ -210,7 +210,7 @@ public class Stage_with_2_images
 			Path trash_dir = Non_booleans_properties.get_trash_dir(p,owner,logger);
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
-			l.add(new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false));
+			l.add(new Old_and_new_Path(p, new_Path, Command.command_move_to_trash, Status_old_and_new_Path.before_command,false));
             double x = stage.getX()+100;
 			double y = stage.getY()+100;
 			Moving_files.safe_delete_files(l, x,y,stage,aborter,logger);

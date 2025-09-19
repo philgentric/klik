@@ -5,7 +5,7 @@ import klik.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
-import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Command;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
@@ -245,7 +245,7 @@ public class Playlist_path_list_provider implements Path_list_provider
         Old_and_new_Path oanp = new Old_and_new_Path(
                 the_playlist_file_path,
                 the_playlist_file_path,
-                Command_old_and_new_Path.command_edit,
+                Command.command_edit,
                 Status_old_and_new_Path.edition_done,
                 false);
         l.add(oanp);

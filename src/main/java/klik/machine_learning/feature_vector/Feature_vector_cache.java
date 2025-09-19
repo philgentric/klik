@@ -303,7 +303,7 @@ public class Feature_vector_cache
         {
             Progress_window progress_window = Progress_window.show(
                     in_flight,
-                    "Wait, calling ML servers to get feature vectors",
+                    "Wait, making feature vectors",
                     3600*60,
                     x,
                     y,
@@ -314,6 +314,7 @@ public class Feature_vector_cache
             feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, or_aborter, logger);
             Paths_and_feature_vectors paths_and_feature_vectors = feature_vector_cache.read_from_disk_and_update(paths,in_flight, owner, or_aborter,logger);
             Browsing_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
+            progress_window.close();
             return paths_and_feature_vectors;
         }
         return feature_vector_cache.update(paths, in_flight,owner, browser_aborter,logger);

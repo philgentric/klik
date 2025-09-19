@@ -1,8 +1,14 @@
 package klik.browser;
 
+import javafx.scene.image.Image;
+import javafx.stage.Window;
+import klik.look.Jar_utils;
+import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans_properties;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
+import klik.util.log.Logger;
 
 import java.time.Year;
 import java.util.ArrayList;
@@ -12,7 +18,7 @@ public class About_klik_stage
 {
 
     //**********************************************************
-    public static void show_about_klik_stage()
+    public static void show_about_klik_stage(Window owner, Logger logger)
     //**********************************************************
     {
         List<Line_for_info_stage> l = new ArrayList<>();
@@ -105,7 +111,9 @@ public class About_klik_stage
         //String pref_string = "Image production performance = "+ Icon_factory_actor.sample_collector.get_Mpixel_per_second()+" Mpix/s";
         //l.add(new Line_for_info_stage(false,pref_string));
 
-        Info_stage.show_info_stage("About Klik",l, null);
+        String icon_path = Look_and_feel_manager.get_main_window_icon_path(Look_and_feel_manager.get_instance(owner,logger), Look_and_feel_manager.Icon_type.KLIK);
+        Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, 128, owner,logger);
+        Info_stage.show_info_stage("About Klik",l, icon, null);
 
     }
 

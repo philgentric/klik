@@ -27,6 +27,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 import org.apache.commons.io.FileUtils;
 
@@ -57,8 +58,8 @@ public class Moving_files
                 popup = true;
                 continue;
             }
-            Command_old_and_new_Path cmd_ = Command_old_and_new_Path.command_move;
-            if (destination_is_trash) cmd_ = Command_old_and_new_Path.command_move_to_trash;
+            Command cmd_ = Command.command_move;
+            if (destination_is_trash) cmd_ = Command.command_move_to_trash;
             Old_and_new_Path oan = new Old_and_new_Path(old_Path_, new_Path_, cmd_, Status_old_and_new_Path.rename_done,false);
             oan_list.add(oan);
         }
@@ -69,26 +70,14 @@ public class Moving_files
         perform_safe_moves_in_a_thread(oan_list,  true, x,y,owner, aborter,logger);
     }
 
-    /*
-    //**********************************************************
-    public static void safe_move_a_file_or_dir_in_a_thread(Window owner, double x, double y, Path destination_dir, File the_file_being_moved, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        List<Old_and_new_Path> oanl = new ArrayList<>();
-        Path old_Path_ = the_file_being_moved.toPath();
-        Path new_Path_ = Paths.get(destination_dir.toAbsolutePath().toString(), the_file_being_moved.getName());
-        Command_old_and_new_Path cmd_ = Command_old_and_new_Path.command_move;
-        Old_and_new_Path oan = new Old_and_new_Path(old_Path_, new_Path_, cmd_, Status_old_and_new_Path.move_done,false);
-        oanl.add(oan);
-        perform_safe_moves_in_a_thread(owner,x,y, oanl,  true, aborter,logger);
-    }*/
+
 
     //**********************************************************
     public static void safe_move_a_file_or_dir_NOT_in_a_thread(Path new_Path_, File the_file_being_moved, double x, double y, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path old_Path_ = the_file_being_moved.toPath();
-        Command_old_and_new_Path cmd_ = Command_old_and_new_Path.command_move;
+        Command cmd_ = Command.command_move;
         Old_and_new_Path oan = new Old_and_new_Path(old_Path_, new_Path_, cmd_, Status_old_and_new_Path.move_done,false);
 
         List<Old_and_new_Path> oanl = new ArrayList<>();
@@ -177,7 +166,7 @@ public class Moving_files
             if (meta_old.toFile().exists()) {
                 // if there is an associated metadata file, move it too
                 Path meta_new = Metadata_handler.make_metadata_path(oandn.new_Path);
-                process_one_move(owner, new Old_and_new_Path(meta_old, meta_new, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false), local, logger);
+                process_one_move(new Old_and_new_Path(meta_old, meta_new, Command.command_rename, Status_old_and_new_Path.before_command,false), owner, local, logger);
             }
 
             {
@@ -200,7 +189,7 @@ public class Moving_files
             }
 
             // then we move the actual file
-            Old_and_new_Path actual = process_one_move(owner, oandn, local, logger);
+            Old_and_new_Path actual = process_one_move(oandn, owner, local, logger);
             if ( actual==null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("move has failed for "+oandn.get_old_Path()));
@@ -294,100 +283,139 @@ public class Moving_files
         return null;
     }
 
-    private static final boolean unsafe = true;
 
     //**********************************************************
-    private static Old_and_new_Path process_one_move(Window owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
+    private static Old_and_new_Path process_one_move(Old_and_new_Path oandn, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (oandn.cmd == Command_old_and_new_Path.command_move)
+        boolean is_same_path = Static_files_and_paths_utilities.is_same_path(oandn.get_old_Path(),oandn.get_new_Path(),logger);
+        if ( is_same_path)
         {
-            // when this is NOT a move to trash,
-            // we check if the destination file is already there
-            if (file_contents_are_identical(oandn, aborter, logger))
-            {
-                // Yes the destination is there AND identical content
-                // the use case is a reconciliation of multiple copies with different NAMES
-                // in that case trying to "overwrite" is counterproductive (and depending on OS may fail in different ways)
-                // so instead we have 2 choices
-                // 1. move the source file to klik_trash aka "safe"
-                // 2. delete the source file, since we have it already in the destination
-                // IN BOTH CASES WE CALL THIS ROUTINE AGAIN BUT THE COMMAND IS CHANGED
-                if (unsafe)
-                {
-                    // TRANSFORM the command to "delete_for_ever"
-                    Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.identical_file_deleted,false);
-                    logger.log(oandn.get_old_Path() + " deleted because a file at destination has exactly the same content");
-                    return process_one_move(owner, new_, aborter, logger);
-                }
-                else
-                {
-                    Path new_path = Paths.get(Non_booleans_properties.get_trash_dir(oandn.old_Path, owner,logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
-                    new_path = generate_new_candidate_name(new_path, "", "_identical_file", logger);
-                    Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, new_path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.identical_file_moved_to_klik_trash,false);
-                    logger.log(oandn.get_old_Path() + " moved to klik_trash because a file at destination has exactly the same content");
-                    return process_one_move(owner, new_, aborter, logger);
-                }
-            }
-            else
-            {
-                //logger.log(oandn.get_old_Path() + " files are not identical");
-            }
-
+            if (moving_files_dbg)
+                logger.log("WARNING !!! nothing done : identical paths " + oandn.get_old_Path() + "=>" + oandn.get_new_Path());
+            return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, oandn.cmd, Status_old_and_new_Path.same_path,false);
         }
-
-        if (oandn.get_new_Path() == null)
+        boolean destination_exists = destination_exists(oandn.get_new_Path(), logger);
+        boolean content_is_same = file_contents_are_identical(oandn, aborter, logger);
+        if ( destination_exists)
         {
-            logger.log("oandn.get_new_Path() is null, this is a delete forever of:" + oandn.get_old_Path());
-            return do_the_move_or_delete(owner, oandn,aborter,logger);
-        }
-
-        // this is a MOVE, and there is a risk that the destination FILE exists
-        // to avoid erase the destination file, we try to find a new name
-        // MAGIC: try up to 42000 new names
-        for (int i = 0; i < 42_000; i++) {
-            //logger.log("oandn.get_new_Path() = " + oandn.get_new_Path());
-
-            // one trick is to make sure we do not have case problems e.g. depending on file system
-            File proposed_new_name = oandn.get_new_Path().toFile();
-            String proposed_new_name_string = proposed_new_name.getName();
-
-            File test = new File(oandn.get_new_Path().getParent().toFile(),proposed_new_name_string);
-            if ( test.isDirectory())
+            if ( oandn.get_cmd() == Command.command_move)
             {
-                // DIRECTORY
-                if (test.exists())
-                {
-                    if(moving_files_dbg) logger.log("DIRECTORY "+ proposed_new_name_string+", this name is NOT ok, there is a file with that name in the folder: "+oandn.get_new_Path().getParent());
-                    Path new_path = generate_new_candidate_name_special(oandn.get_new_Path(), "",  i, logger);
-                    oandn = new Old_and_new_Path(oandn.old_Path, new_path, oandn.cmd, Status_old_and_new_Path.name_augmented,false);
-                }
-                else
-                {
-                    if(moving_files_dbg) logger.log("DIRECTORY "+ proposed_new_name_string+", this name is OK, no file with that name in the folder: "+oandn.get_new_Path().getParent());
-                    return do_the_move_or_delete(owner, oandn, aborter,logger);
+                if (content_is_same) {
+                    // the contents are the same
+                    // then the "old" file goes to trash
+                    Path new_path = generate_safe_name(Non_booleans_properties.get_trash_dir(oandn.old_Path, owner, logger), oandn.get_old_Path().getFileName().toString(), logger);
+                    Old_and_new_Path oandn2 = new Old_and_new_Path(
+                            oandn.get_old_Path(),
+                            new_path,
+                            Command.command_move_to_trash,
+                            Status_old_and_new_Path.before_command,
+                            false);
+                    return do_the_move_or_delete(oandn2, owner, aborter, logger);
                 }
             }
-            else
+            // we don't trust the developper to correctly set the command to Command.command_rename
+            if ( is_a_rename(oandn,logger))
             {
-                //FILE
-                if ( check_file_really_exists(test,logger))
+                // "destination exists" on macos maybe the case that we want to rename
+                // my_file.txt into My_File.txt and macos says My_File.txt exists because it
+                // "sees" it as my_file.txt, which does exist, of course
+                if ( names_differ_only_by_case(oandn, aborter, logger))
                 {
-                    if(moving_files_dbg) logger.log("FILE "+proposed_new_name_string+" new name NOT ok, there is a file with that name");
-                    Path new_path = generate_new_candidate_name_special(oandn.get_new_Path(), "", i, logger);
-                    oandn = new Old_and_new_Path(oandn.old_Path, new_path, oandn.cmd, Status_old_and_new_Path.name_augmented,false);
+                    if (content_is_same)
+                    {
+                        // the trick is to move in 2 steps with a temporary name
+                        try {
+                            String tmp_name = oandn.get_old_Path().getFileName().toString()+"___";
+                            File tmp = oandn.get_old_Path().getParent().resolve(tmp_name).toFile();
+                            FileUtils.moveFile(oandn.get_old_Path().toFile(), tmp);
+                            FileUtils.moveFile(tmp, oandn.get_new_Path().toFile());
+                            return move_success(oandn, logger);
+                        }
+                        catch( IOException e)
+                        {
+                            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                            return move_failed(oandn,e,owner,aborter,logger);
+                        }                    }
                 }
-                else
-                {
-                    if(moving_files_dbg) logger.log("FILE " + proposed_new_name_string + " this name is OK, no file with that name");
-                    return do_the_move_or_delete(owner, oandn, aborter,logger);
-                }
+
             }
 
-
+            // in any case we MUST NOT overwrite the destination
+            Path new_path = generate_safe_name(oandn.get_new_Path().getParent(), oandn.get_new_Path().getFileName().toString(),logger);
+            Old_and_new_Path oandn2 = new Old_and_new_Path(
+                    oandn.get_old_Path(),
+                    new_path,
+                    Command.command_move,
+                    Status_old_and_new_Path.before_command,
+                    false);
+            return do_the_move_or_delete(oandn2,owner,aborter,logger);
         }
-        return null; // will cause a crash
+        else
+        {
+            // no problemo
+            return do_the_move_or_delete(oandn,owner,aborter,logger);
+        }
+
     }
+
+    //**********************************************************
+    private static boolean is_a_rename(Old_and_new_Path oandn, Logger logger)
+    //**********************************************************
+    {
+        return Static_files_and_paths_utilities.is_same_path(oandn.get_old_Path().getParent(),oandn.get_new_Path().getParent(),logger);
+    }
+
+    //**********************************************************
+    private static Path generate_safe_name(Path folder, String original_name, Logger logger)
+    //**********************************************************
+    {
+        String base_name = Static_files_and_paths_utilities.get_base_name(original_name);
+        String extension = Static_files_and_paths_utilities.get_extension(original_name);
+
+        String candidate_name = original_name;
+        for (int index = 1; index < 100000; index++)
+        {
+            Path candidate_path = Path.of(folder.toAbsolutePath().toString(),candidate_name);
+            if (!destination_exists(candidate_path,logger))
+            {
+                return candidate_path;
+            }
+            candidate_name = name_is_alredy_a_count(base_name,index,logger);
+            if ( candidate_name == null) break;
+            if ( ! extension.isEmpty()) candidate_name += "."+extension;
+        }
+        candidate_name = base_name+ UUID.randomUUID();
+        if ( ! extension.isEmpty()) candidate_name += "."+extension;
+        return Path.of(folder.toAbsolutePath().toString(), candidate_name);
+    }
+
+
+    //**********************************************************
+    private static boolean destination_exists(Path path, Logger logger)
+    //**********************************************************
+    {
+        File destination = path.toFile();
+        if ( destination.isDirectory())
+        {
+            return destination.exists();
+        }
+        return check_file_really_exists(destination,logger);
+    }
+
+    //**********************************************************
+    private static boolean names_differ_only_by_case(Old_and_new_Path oandn, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        String proposed_new_name_string = oandn.get_new_Path().getFileName().toString();
+
+        if( proposed_new_name_string.toLowerCase().equals(oandn.get_old_Path().getFileName().toString().toLowerCase()))
+        {
+            return true;
+        }
+        return false;
+    }
+
     //**********************************************************
     private static boolean check_file_really_exists(File f, Logger logger)
     //**********************************************************
@@ -397,7 +425,6 @@ public class Moving_files
             return true;
         }
         //if ( f.length() == 0) return true; DONT DO THAT, if the file does not exists length is zero !
-
         //return f.exists();
 
         // it seems that sometimes, when a network or USB drive is "under the water"
@@ -449,19 +476,21 @@ public class Moving_files
 
 
     //**********************************************************
-    private static Old_and_new_Path do_the_move_or_delete(Window owner, Old_and_new_Path oandn, Aborter aborter, Logger logger)
+    private static Old_and_new_Path do_the_move_or_delete(Old_and_new_Path oandn, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         try {
-            if (oandn.cmd == Command_old_and_new_Path.command_delete_forever)
+            if (oandn.cmd == Command.command_delete_forever)
             {
                 if (moving_files_dbg) logger.log("delete for ever issued for : " + oandn.get_old_Path());
                 Files.delete(oandn.get_old_Path());
                 if (moving_files_dbg) logger.log("delete for ever DONE for : " + oandn.get_old_Path());
+                return move_success(oandn, logger);
             }
-            else
+
             {
-                if (Static_files_and_paths_utilities.is_same_path(oandn.get_old_Path(), oandn.get_new_Path(), logger)) {
+                if (Static_files_and_paths_utilities.is_same_path(oandn.get_old_Path(), oandn.get_new_Path(), logger))
+                {
                     if (moving_files_dbg)
                         logger.log("WARNING !!! do_the_move not performed : identical paths " + oandn.get_old_Path() + "=>" + oandn.get_new_Path());
                     return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, oandn.cmd, Status_old_and_new_Path.same_path,false);
@@ -475,8 +504,6 @@ public class Moving_files
                 }
                 else
                 {
-                    //Static_files_and_paths_utilities.move_file(oandn.get_old_Path(),oandn.get_new_Path(),logger);
-
                     FileUtils.moveDirectory(oandn.get_old_Path().toFile(), oandn.get_new_Path().toFile());
                 }
 
@@ -494,12 +521,12 @@ public class Moving_files
         catch (AccessDeniedException x)
         {
             logger.log("WARNING1: move failed " + oandn.get_old_Path() + " ACCESS DENIED exception ");
-            return move_failed(owner, oandn, x, aborter,logger);
+            return move_failed(oandn, x, owner, aborter,logger);
         }
 
         catch (FileNotFoundException x) {
             logger.log("WARNING3: move failed " + oandn.get_old_Path() + " file not found exception, the source does not exists?"+oandn.get_old_Path());
-            return move_failed(owner, oandn, x, aborter,logger);
+            return move_failed( oandn, x, owner,aborter,logger);
         }
         catch (DirectoryNotEmptyException x)
         {
@@ -512,12 +539,12 @@ public class Moving_files
                 //
                 logger.log("WARNING4: move failed " + oandn.get_old_Path() + " directory not empty exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
                 Popups.popup_warning( "Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, owner,logger);
-                return move_failed(owner, oandn, x, aborter,logger);
+                return move_failed( oandn, x, owner,aborter,logger);
             }
 
             logger.log(oandn.get_old_Path() + " directory not empty: it is not allowed!");
             Popups.popup_Exception(x, 200, "Directory is not empty", owner, logger);
-            return move_failed(owner, oandn, x, aborter,logger);
+            return move_failed( oandn, x, owner,aborter,logger);
         } catch (IOException e) {
             logger.log("WARNING5 "+oandn.get_old_Path() + " " + e);
             if ( !oandn.get_old_Path().toFile().canWrite())
@@ -526,13 +553,13 @@ public class Moving_files
                 Popups.popup_warning("File is not writeable:"+oandn.get_old_Path(), "This file cannot be moved because its file-system properties do not allow it", false, owner,logger);
 
             }
-            return move_failed(owner, oandn, e, aborter,logger);
+            return move_failed( oandn, e, owner,aborter,logger);
         }
     }
 
 
     //**********************************************************
-    private static Old_and_new_Path move_failed(Window owner, Old_and_new_Path oandn, IOException e0, Aborter aborter, Logger logger)
+    private static Old_and_new_Path move_failed(Old_and_new_Path oandn, IOException e0, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("******* move failed for: *********\n" +
@@ -578,7 +605,7 @@ public class Moving_files
                                 + My_I18n.get_I18n_string("And_it_worked", owner,logger);
                 if (moving_files_dbg) Popups.popup_warning( "Move success (dbg is on)", local_string, false, owner,logger);
                 logger.log(local_string + "<-\n" + e0);
-                return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done,false);
+                return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, Command.command_copy, Status_old_and_new_Path.copy_done,false);
             }
             catch (FileAlreadyExistsException ex) {
                 logger.log("FATAL! we tried moving a file/dir and it failed, so we tried to copy instead and is ALSO failed!" + oandn.get_old_Path().toAbsolutePath() +
@@ -626,6 +653,149 @@ public class Moving_files
         };
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+        if (oandn.cmd == Command.command_move)
+        {
+            // when this is NOT a move to trash,
+            // we check if the destination file is already there
+            if (file_contents_are_identical(oandn, aborter, logger))
+            {
+                // Yes the destination is there AND identical content
+                // the use case is a reconciliation of multiple copies with different NAMES
+                // in that case trying to "overwrite" is counterproductive (and depending on OS may fail in different ways)
+                // so instead we move the source file to klik_trash aka "safe"
+
+                Path new_path = Paths.get(Non_booleans_properties.get_trash_dir(oandn.old_Path, owner,logger).toAbsolutePath().toString(), oandn.old_Path.getFileName().toString());
+                new_path = generate_new_candidate_name(new_path, "", "_identical_file", logger);
+                Old_and_new_Path new_ = new Old_and_new_Path(oandn.old_Path, new_path, Command.command_move_to_trash, Status_old_and_new_Path.identical_file_moved_to_klik_trash,false);
+                logger.log(oandn.get_old_Path() + " moved to klik_trash because a file at destination has exactly the same content");
+                return process_one_move(owner, new_, aborter, logger);
+            }
+            else
+            {
+                //logger.log(oandn.get_old_Path() + " files are not identical");
+            }
+
+        }
+
+
+
+        // this is a MOVE, and there is a risk that the destination FILE exists
+        // to avoid erase the destination file, we try to find a new name
+        // MAGIC: try up to 42000 new names
+        for (int i = 0; i < 42_000; i++) {
+            //logger.log("oandn.get_new_Path() = " + oandn.get_new_Path());
+
+            // one trick is to make sure we do not have case problems e.g. depending on file system
+            File proposed_new_name = oandn.get_new_Path().toFile();
+            String proposed_new_name_string = proposed_new_name.getName();
+
+            File test = new File(oandn.get_new_Path().getParent().toFile(),proposed_new_name_string);
+            if ( test.isDirectory())
+            {
+                // DIRECTORY
+                if (test.exists())
+                {
+                    if(moving_files_dbg) logger.log("DIRECTORY "+ proposed_new_name_string+", this name is NOT ok, there is a file with that name in the folder: "+oandn.get_new_Path().getParent());
+                    Path new_path = generate_new_candidate_name_special(oandn.get_new_Path(), "",  i, logger);
+                    oandn = new Old_and_new_Path(oandn.old_Path, new_path, oandn.cmd, Status_old_and_new_Path.name_augmented,false);
+                }
+                else
+                {
+                    if(moving_files_dbg) logger.log("DIRECTORY "+ proposed_new_name_string+", this name is OK, no file with that name in the folder: "+oandn.get_new_Path().getParent());
+                    return do_the_move_or_delete(owner, oandn, aborter,logger);
+                }
+            }
+            else
+            {
+                //FILE
+                if ( check_file_really_exists(test,logger))
+                {
+                    //if(moving_files_dbg)
+                        logger.log("FILE "+proposed_new_name_string+" new name NOT ok, there is a file with that name");
+
+                    // for macos, the user may be trying to rename with different CASE
+                    if( proposed_new_name_string.toLowerCase().equals(oandn.get_old_Path().getFileName().toString().toLowerCase()))
+                    {
+                        // the trick is to move to a temp file and then impose the new name !!!
+                        try {
+                            String tmp_name = oandn.get_old_Path().getFileName().toString()+"___";
+                            File tmp = oandn.get_old_Path().getParent().resolve(tmp_name).toFile();
+                            FileUtils.moveFile(oandn.get_old_Path().toFile(), tmp);
+                            FileUtils.moveFile(tmp, oandn.get_new_Path().toFile());
+                            return move_success(oandn, logger);
+                        }
+                        catch( IOException e)
+                        {
+                            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+                            return move_failed(oandn,e,owner,aborter,logger);
+                        }
+                    }
+
+                    Path new_path = generate_new_candidate_name_special(oandn.get_new_Path(), "", i, logger);
+                    oandn = new Old_and_new_Path(oandn.old_Path, new_path, oandn.cmd, Status_old_and_new_Path.name_augmented,false);
+                }
+                else
+                {
+                    if(moving_files_dbg) logger.log("FILE " + proposed_new_name_string + " this name is OK, no file with that name");
+                    return do_the_move_or_delete(owner, oandn, aborter,logger);
+                }
+            }
+
+
+        }
+        return null; // will cause a crash
+    }
+
+     */
+
     //**********************************************************
     public static Path generate_new_candidate_name(Path old_path, String prefix, String postfix, Logger logger)
     //**********************************************************
@@ -660,7 +830,7 @@ public class Moving_files
 
     private static final Random random = new Random();
     //**********************************************************
-    private static Path name_is_alredy_a_count(Path old_path, String prefix, String base_name, String extension, Logger logger)
+    private static Path name_is_alredy_a_count(Path path, String prefix, String base_name, String extension, Logger logger)
     //**********************************************************
     {
         int lenght_of_trailing_numbers = 0;
@@ -696,15 +866,52 @@ public class Moving_files
             String new_integer_with_leading_zeroes = String.format("%0"+lenght_of_trailing_numbers+"d",(k+ii));
             String new_name = prefix+base_name.substring(0, base_name.length() - lenght_of_trailing_numbers) + new_integer_with_leading_zeroes+ "." + extension;
             if (moving_files_dbg) logger.log("candidate new_name? ->" + new_name+"<-");
-            Path path = Paths.get(old_path.getParent().toString(), new_name);
-            if ( !path.toFile().exists())
+            Path local = Paths.get(path.getParent().toString(), new_name);
+            if ( !local.toFile().exists())
             {
-                logger.log("NEW NAME ->"+path.toAbsolutePath()+"<-");
-                return path;
+                logger.log("NEW NAME ->"+local.toAbsolutePath()+"<-");
+                return local;
             }
         }
         return null;
     }
+
+    //**********************************************************
+    private static String name_is_alredy_a_count(String base_name, int index, Logger logger)
+    //**********************************************************
+    {
+        int lenght_of_trailing_numbers = 0;
+        for(int i = base_name.length()-1;i >=0; i--)
+        {
+            char c = base_name.charAt(i);
+            if (Character.isDigit(c))
+            {
+                lenght_of_trailing_numbers++;
+            }
+            else {
+                break;
+            }
+        }
+        if (lenght_of_trailing_numbers == 0) return null; // nope
+        if (moving_files_dbg) logger.log(base_name+" ends with a number of length "+lenght_of_trailing_numbers);
+        String number =  base_name.substring(base_name.length()-lenght_of_trailing_numbers);
+        if (moving_files_dbg) logger.log(base_name+" ends with a number = "+number);
+        long k = 0;
+        try
+        {
+            k = Long.parseLong(number);
+        }
+        catch (NumberFormatException e)
+        {
+            return null;
+        }
+
+        String new_integer_with_leading_zeroes = String.format("%0"+lenght_of_trailing_numbers+"d",(k+index));
+        String new_name = base_name.substring(0, base_name.length() - lenght_of_trailing_numbers) + new_integer_with_leading_zeroes;
+        logger.log("candidate new_name? ->" + new_name+"<-");
+        return new_name;
+    }
+
 
     /*
     public static Path try_to_prune(Path path, Logger logger)
@@ -739,6 +946,32 @@ public class Moving_files
         if (candidate.exists()) return null;
         return Paths.get(path.getParent().toAbsolutePath().toString(), pruned_name);
     }
+    //**********************************************************
+    private static boolean names_are_different(Old_and_new_Path oandn, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        String proposed_new_name_string = oandn.get_new_Path().getFileName().toString();
+
+        if( proposed_new_name_string.equals(oandn.get_old_Path().getFileName().toString()))
+        {
+            return false;
+        }
+        return true;
+    }
+
 */
 
+     /*
+    //**********************************************************
+    public static void safe_move_a_file_or_dir_in_a_thread(Window owner, double x, double y, Path destination_dir, File the_file_being_moved, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        List<Old_and_new_Path> oanl = new ArrayList<>();
+        Path old_Path_ = the_file_being_moved.toPath();
+        Path new_Path_ = Paths.get(destination_dir.toAbsolutePath().toString(), the_file_being_moved.getName());
+        Command cmd_ = Command.command_move;
+        Old_and_new_Path oan = new Old_and_new_Path(old_Path_, new_Path_, cmd_, Status_old_and_new_Path.move_done,false);
+        oanl.add(oan);
+        perform_safe_moves_in_a_thread(owner,x,y, oanl,  true, aborter,logger);
+    }*/
 }

@@ -43,20 +43,24 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         String result = call_fpcalc_to_get_embedding(wav_path, logger);
         if (result == null)
         {
+            new File(wav_path).delete();
             logger.log("call_fpcalc_to_get_embedding failed");
             return null;
         }
         if (result.isBlank())
         {
+            new File(wav_path).delete();
             logger.log("call_fpcalc_to_get_embedding failed");
             return null;
         }
         if (!result.contains(Feature_vector_bitmap.FINGERPRINT))
         {
+            new File(wav_path).delete();
             logger.log("call_fpcalc_to_get_embedding failed");
             return null;
         }
 
+        new File(wav_path).delete();
         return new Feature_vector_bitmap(result,logger);
     }
 

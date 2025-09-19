@@ -26,7 +26,6 @@ import klik.look.Look_and_feel_manager;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
 import klik.util.files_and_paths.From_disk;
-import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
@@ -215,7 +214,7 @@ public class Image_context
 
             Filesystem_modification_reporter reporter = () -> {
                 List<Old_and_new_Path> oanps = new ArrayList<>();
-                Command_old_and_new_Path cmd = Command_old_and_new_Path.command_edit;
+                Command cmd = Command.command_edit;
                 Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
                 oanps.add(oan);
                 Change_gang.report_changes(oanps, owner);
@@ -245,7 +244,7 @@ public class Image_context
 
             Filesystem_modification_reporter reporter = () -> {
                 List<Old_and_new_Path> oanps = new ArrayList<>();
-                Command_old_and_new_Path cmd = Command_old_and_new_Path.command_edit;
+                Command cmd = Command.command_edit;
                 Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
                 oanps.add(oan);
                 Change_gang.report_changes(oanps,owner);
@@ -522,7 +521,7 @@ public class Image_context
         l.add(new Old_and_new_Path(
                 path,
                 new_path,
-                Command_old_and_new_Path.command_copy,
+                Command.command_copy,
                 Status_old_and_new_Path.copy_done,false));
         Change_gang.report_changes(l,owner);
 

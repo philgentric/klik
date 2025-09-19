@@ -96,7 +96,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
         Hourglass hourglass = Progress_window.show(
                 false,
-                "wait",
+                "wait, looking for similar items",
                 20000,
                 x,
                 y,
@@ -182,10 +182,9 @@ public class Similarity_engine implements Clearable_RAM_cache
             Aborter browser_aborter)
     //**********************************************************
     {
-        Hourglass hourglass = null;
-        hourglass = Progress_window.show(
+        Hourglass hourglass = Progress_window.show(
                 false,
-                "wait",
+                "wait, looking for similar items",
                 20000,
                 x,
                 y,
@@ -194,6 +193,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
         if (paths.isEmpty())
         {
+            hourglass.close();
             return new ArrayList<>();
         }
 
@@ -201,11 +201,13 @@ public class Similarity_engine implements Clearable_RAM_cache
         if ( fv_cache == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv_cache is null"));
+            hourglass.close();
             return new ArrayList<>();
         }
         Feature_vector fv0 = fv_cache.get_from_cache_or_make(reference_item_path, null, true, owner, browser_aborter);
         if ( fv0 ==null)
         {
+            hourglass.close();
             return new ArrayList<>();
         }
         List<Path> to_be_compared = new ArrayList<>(paths);
@@ -236,7 +238,6 @@ public class Similarity_engine implements Clearable_RAM_cache
             public void run() {
                 double xxx = xx;
                 double yyy = yy;
-
 
                 Image_window local = show_one_at(new Most_similar(reference_item_path,fv0,fv0,0.0),owner,xxx,yyy);
                 Image_window.stage_group.add(local);

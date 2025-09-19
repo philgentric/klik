@@ -4,5 +4,5 @@ public enum Similarity_result
 {
     same,
     not_same,
-    aborted,
+    aborted, same_size,
 }

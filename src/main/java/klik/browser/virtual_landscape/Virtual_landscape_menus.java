@@ -274,13 +274,13 @@ public class Virtual_landscape_menus
                 // since perform_safe_moves_in_a_thread will trigger the Chang_gang?
                 List<Old_and_new_Path> l = new ArrayList<>();
                 Path displayed_folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.move_done, false));
+                l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command.command_unknown, Status_old_and_new_Path.move_done, false));
                 Change_gang.report_changes(l, owner);
             }
             Old_and_new_Path oanp = new Old_and_new_Path(
                     f.toPath(),
                     Path.of(folder.toAbsolutePath().toString(), f.getName()),
-                    Command_old_and_new_Path.command_move,
+                    Command.command_move,
                     Status_old_and_new_Path.before_command, false);
             moves.add(oanp);
 
@@ -1795,7 +1795,7 @@ public class Virtual_landscape_menus
             }
             logger.log("processing "+old_name+" as it is NOT conformant, will try: "+new_name);
             Path new_path = Paths.get(dir.toString(),new_name);
-            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
+            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status_old_and_new_Path.before_command,false);
             l.add(oandn);
         }
         double x = owner.getX()+100;
@@ -1900,7 +1900,7 @@ public class Virtual_landscape_menus
         l.add(new Line_for_info_stage(false,"If names and content are the same, the file is not copied (it is not a brute force copy)"));
         l.add(new Line_for_info_stage(false,"If names are matching but content is different, the source file is copied"));
         l.add(new Line_for_info_stage(false,"and the previous file in the destination is renamed"));
-        Info_stage.show_info_stage("Help on backup",l, null);
+        Info_stage.show_info_stage("Help on backup",l, null, null);
     }
     //**********************************************************
     private void show_fusk_help()
@@ -1916,7 +1916,7 @@ public class Virtual_landscape_menus
         l.add(new Line_for_info_stage(false,"If the pin code is not the good one the images are not displayed"));
         l.add(new Line_for_info_stage(false,"WARNING: this is encryption, if you forget your pin code, recovering your files will be painful"));
         l.add(new Line_for_info_stage(false,"(recovery: someone will have to make a brute force attack code i.e. try all possible pin codes!)"));
-        Info_stage.show_info_stage("Help on fusk",l, null);
+        Info_stage.show_info_stage("Help on fusk",l, null, null);
     }
 
 

@@ -5,7 +5,7 @@ package klik.change;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.util.files_and_paths.Command_old_and_new_Path;
+import klik.util.files_and_paths.Command;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.files_and_paths.Status_old_and_new_Path;
@@ -69,7 +69,7 @@ public class Change_gang
         {
             if (oan.get_old_Path() == null)
             {
-                if ( oan.cmd == Command_old_and_new_Path.command_copy)
+                if ( oan.cmd == Command.command_copy)
                 {
                     if ( dbg) logger.log( oan.get_string());
                 }
@@ -91,7 +91,7 @@ public class Change_gang
                     {
                         if (dbg) logger.log("is_my_directory_impacted? YES! "+oan.get_old_Path().getParent().toAbsolutePath() +" OLD path matches "+ dir.toAbsolutePath());
 
-                        if ( oan.cmd == Command_old_and_new_Path.command_move)
+                        if ( oan.cmd == Command.command_move)
                         {
                             return Possible_outcome.one_file_gone;
                         }
@@ -108,7 +108,7 @@ public class Change_gang
                 if (Static_files_and_paths_utilities.is_same_path(oan.get_new_Path(), dir, logger))
                 {
                     if (dbg) logger.log("is_my_directory_impacted? YES! " + oan.get_new_Path().toAbsolutePath() + " NEW path matches " + dir.toAbsolutePath());
-                    if ( oan.cmd == Command_old_and_new_Path.command_move)
+                    if ( oan.cmd == Command.command_move)
                     {
                         return Possible_outcome.one_new_file;
                     }
@@ -123,7 +123,7 @@ public class Change_gang
                     if (Static_files_and_paths_utilities.is_same_path(oan.get_new_Path().getParent(), dir, logger))
                     {
                         if (dbg) logger.log("is_my_directory_impacted? YES! " + oan.get_new_Path().getParent().toAbsolutePath() + " NEW path matches " + dir.toAbsolutePath());
-                        if ( oan.cmd == Command_old_and_new_Path.command_move)
+                        if ( oan.cmd == Command.command_move)
                         {
                             return Possible_outcome.one_new_file;
                         }
@@ -166,7 +166,7 @@ public class Change_gang
     //**********************************************************
     {
         List<Old_and_new_Path> l = new ArrayList<>();
-        l.add(new Old_and_new_Path(path,null, Command_old_and_new_Path.command_unknown, Status_old_and_new_Path.before_command,false));
+        l.add(new Old_and_new_Path(path,null, Command.command_unknown, Status_old_and_new_Path.before_command,false));
         Change_gang.report_changes(l,owner);
     }
 

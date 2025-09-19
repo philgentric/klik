@@ -75,7 +75,9 @@ public class Static_files_and_paths_utilities
     }
 
 
-    // warning: this is a low level function, prefer Moving_files.actual_safe_moves
+    // warning: this is a low level function,
+    // it does not check for overwrite etc
+    // prefer Moving_files.actual_safe_moves
     //**********************************************************
     public static boolean move_file(Path old_path, Path new_path, Logger logger)
     //**********************************************************
@@ -217,7 +219,7 @@ public class Static_files_and_paths_utilities
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for ( Path p : paths) {
             Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
-            Old_and_new_Path oanf2 = new Old_and_new_Path(p, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command, false);
+            Old_and_new_Path oanf2 = new Old_and_new_Path(p, new_Path, Command.command_move_to_trash, Status_old_and_new_Path.before_command, false);
             oanf2.run_after = after_the_move;
             l2.add(oanf2);
         }
@@ -236,7 +238,7 @@ public class Static_files_and_paths_utilities
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
         Path new_Path = (Paths.get(trash_dir.toString(), path.getFileName().toString()));
-        Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command_old_and_new_Path.command_move_to_trash, Status_old_and_new_Path.before_command,false);
+        Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command.command_move_to_trash, Status_old_and_new_Path.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
         Moving_files.perform_safe_moves_in_a_thread(l2, true, x,y,owner, aborter, logger);
@@ -704,7 +706,7 @@ public class Static_files_and_paths_utilities
             }
             else
             {
-                String s = delete_for_ever_a_file(f.toPath(),l,logger);
+                String s = delete_for_ever_a_file(f.toPath(),logger);
                 if ( s != null) logger.log(s);
             }
 
@@ -767,7 +769,7 @@ public class Static_files_and_paths_utilities
                 }
                 else
                 {
-                    String s = delete_for_ever_a_file(p,l,logger);
+                    String s = delete_for_ever_a_file(p,logger);
                     if ( s != null) logger.log(s);
 
                 }
@@ -813,14 +815,13 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    private static String delete_for_ever_a_file(Path p, List<Old_and_new_Path> l, Logger logger)
+    private static String delete_for_ever_a_file(Path p, Logger logger)
     //**********************************************************
     {
         try
         {
             Files.delete(p);
-            //logger.log("Deleted for ever: " + p);
-            l.add(new Old_and_new_Path(p, null, Command_old_and_new_Path.command_delete_forever, Status_old_and_new_Path.delete_forever_done, false));
+            logger.log("Deleted for ever: " + p);
         }
         catch (NoSuchFileException x)
         {
@@ -894,7 +895,7 @@ public class Static_files_and_paths_utilities
        // logger.log("trying rename: " + old_path.getFileName() + " => " + new_name);
         Path new_path = Paths.get(old_path.getParent().toString(), new_name);
 
-        Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
+        Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status_old_and_new_Path.before_command, false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
         List<Old_and_new_Path> done = Moving_files.actual_safe_moves(l, true, x, y, owner, aborter, logger);
@@ -919,7 +920,7 @@ public class Static_files_and_paths_utilities
             return null;
         }
         logger.log("....done");
-        Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path,Command_old_and_new_Path.command_rename,Status_old_and_new_Path.rename_done,false);
+        Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path, Command.command_rename,Status_old_and_new_Path.rename_done,false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
         Undo_for_moves.add(l, owner,logger);
@@ -1065,7 +1066,7 @@ public class Static_files_and_paths_utilities
         }
 
         List<Old_and_new_Path> l = new ArrayList<>();
-        Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command_old_and_new_Path.command_copy, Status_old_and_new_Path.copy_done, false);
+        Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command.command_copy, Status_old_and_new_Path.copy_done, false);
         l.add(oan);
         Change_gang.report_changes(l,owner);
         return true;

@@ -412,7 +412,7 @@ public class Item_file_with_icon extends Item_file
             if ( new_path == null) return;
 
             List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command,false);
+            Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command.command_rename, Status_old_and_new_Path.before_command,false);
             l.add(oandn);
             Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,owner,browser_aborter, logger);
         });

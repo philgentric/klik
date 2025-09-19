@@ -19,7 +19,6 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.Drag_and_drop;
-import klik.New_window_context;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.change.undo.Undo_core;
 import klik.change.undo.Undo_item;
@@ -29,7 +28,6 @@ import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Menu_items;
 import klik.util.ui.Popups;
 
 import java.io.*;
@@ -137,8 +135,8 @@ public class Playlist
 
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(Path.of(to_be_removed),
-                null,
-                Command_old_and_new_Path.command_remove_for_playlist,
+                Path.of(to_be_removed),
+                Command.command_remove_for_playlist,
                 Status_old_and_new_Path.before_command,
                 false));
         Undo_item ui = new Undo_item(l, LocalDateTime.now(), UUID.randomUUID(), logger);
@@ -428,52 +426,9 @@ public class Playlist
         String file_name = (new File(song)).getName();
         String new_name = Static_files_and_paths_utilities.get_base_name(file_name);
 
-        char[] x = new_name.toCharArray();
-        new_name = "";
-        boolean last_was_underscore = true; //avoid leading underscores
-        for ( char c:x)
-        {
-            if (is_allowed(c))
-            {
-                new_name += c;
-                last_was_underscore = false;
-            }
-            else
-            {
-                if( !last_was_underscore)
-                {
-                    new_name += "_";
-                    last_was_underscore = true;
-                }
-            }
-        }
-        /*
-        new_name = new_name.replaceAll("\\|", "_");
-        new_name = new_name.replaceAll("\\[", "_");
-        new_name = new_name.replaceAll("]", "_");
-        new_name = new_name.replaceAll("\\(", "_");
-        new_name = new_name.replaceAll("\\)", "_");
-        new_name = new_name.replaceAll(" & ", "_and_");
-        new_name = new_name.replaceAll("&", "_and_");
-        new_name = new_name.replaceAll("-", "_");
-        new_name = new_name.replaceAll("=", "_");
-        new_name = new_name.replaceAll(":", "_");
-        new_name = new_name.replaceAll(";", "_");
-        new_name = new_name.replaceAll("\\{", "_");
-        new_name = new_name.replaceAll("\\}", "_");
-        new_name = new_name.replaceAll("\\?", "_");
-        new_name = new_name.replaceAll("!", "_");
-        new_name = new_name.replaceAll("\\.", "_");
-        new_name = new_name.replaceAll("'", "_");
-        new_name = new_name.replaceAll(",", "_");
-        new_name = new_name.replaceAll(" ", "_");
-        new_name = new_name.replaceAll("_+", "_");
-        */
-        //new_name = new_name.toLowerCase();
-
+        new_name = Filename_sanitizer.sanitize(new_name,logger);
 
         new_name = new_name + "." + Static_files_and_paths_utilities.get_extension(file_name);
-
 
         if (new_name.equals(file_name))
         {
@@ -481,21 +436,10 @@ public class Playlist
             return;
         }
 
-        out.add(new Old_and_new_Path(Path.of(song), Path.of(parent, new_name),Command_old_and_new_Path.command_rename,Status_old_and_new_Path.before_command,false));
+        out.add(new Old_and_new_Path(Path.of(song), Path.of(parent, new_name), Command.command_rename,Status_old_and_new_Path.before_command,false));
 
     }
 
-    //**********************************************************
-    private static boolean is_allowed(char c)
-    //**********************************************************
-    {
-        int i = (int) c;
-        if ((i>= 48) &&( i <= 57)) return true; // numbers 0-9
-        if ((i>= 65) &&( i <= 90)) return true; // uppercase A-Z
-        if ((i>= 97) &&( i <= 122)) return true; //lowercase a-z
-        if (i == 95) return true; // underscore
-        return false;
-    }
 
     //**********************************************************
     public void init()
@@ -832,7 +776,7 @@ public class Playlist
         List<Old_and_new_Path> l = last.oans;
         for (Old_and_new_Path o : l)
         {
-            //if ( o.cmd != Command_old_and_new_Path.command_remove_for_playlist) continue;
+            //if ( o.cmd != Command.command_remove_for_playlist) continue;
             //if ( o.status != Status_old_and_new_Path.before_command) continue;
             if (o.old_Path == null) continue;
             if ( dbg) logger.log("undo remove from play list for" + o.old_Path);

@@ -42,7 +42,29 @@ public class File_comparator
         aborter.abort("File_comparator abort");
     }
     //**********************************************************
-    public  Similarity_result files_are_same(File file_to_be_copied, File destination_file, long[] bytes_read, boolean deep)
+    public  Similarity_result files_have_same_size(
+            File file_to_be_copied,
+            File destination_file)
+    //**********************************************************
+    {
+        long ori_s = file_to_be_copied.length();
+        long des_s = destination_file.length();
+        if (ori_s != des_s) {
+            if (debug_flag) {
+                logger.log("file sizes differ " + file_to_be_copied.getName() + " " + ori_s + " vs " + des_s);
+            }
+            return Similarity_result.not_same;
+        }
+
+        return Similarity_result.same_size;
+
+    }
+
+    //**********************************************************
+    public  Similarity_result files_are_same(
+            File file_to_be_copied,
+            File destination_file,
+            long[] bytes_read)
     //**********************************************************
     {
         long ori_s = file_to_be_copied.length();
@@ -55,7 +77,6 @@ public class File_comparator
             return Similarity_result.not_same;
         }
 
-        if (!deep) return Similarity_result.same;
 
         // same size, let us check bytes, block per block
         // at the first sign of a difference, return false

@@ -2,6 +2,9 @@ package klik.util.info_stage;
 
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
@@ -17,7 +20,9 @@ public class Info_stage
 {
 
     //**********************************************************
-    public static void show_info_stage(String title, List<Line_for_info_stage> lines, Runnable on_window_close)
+    public static void show_info_stage(String title,
+                                       List<Line_for_info_stage> lines,
+                                       Image icon, Runnable on_window_close)
     //**********************************************************
     {
         TextFlow textFlow = new TextFlow();
@@ -30,17 +35,19 @@ public class Info_stage
             else one_line(l.text,textFlow);
         }
 
+        VBox vb = new VBox();
+        if ( icon != null) vb.getChildren().add(new ImageView(icon));
         ScrollPane sp = new ScrollPane();
         sp.setPrefSize(1000, 1000);
         sp.setContent(textFlow);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-
+        vb.getChildren().add(sp);
         Stage local_stage = new Stage();
         local_stage.setHeight(600);
         local_stage.setWidth(1000);
 
-        Scene scene = new Scene(sp, 1000, 600, Color.WHITE);
+        Scene scene = new Scene(vb, 1000, 600, Color.WHITE);
         local_stage.setTitle(title);
         local_stage.setScene(scene);
         local_stage.show();

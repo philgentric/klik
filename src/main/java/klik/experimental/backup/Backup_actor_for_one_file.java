@@ -313,22 +313,26 @@ public class Backup_actor_for_one_file implements Actor
             boolean deep)
     //**********************************************************
     {
-        switch (file_comparator.files_are_same(file_to_be_copied, destination_file,bytes_read, deep))
+        switch (file_comparator.files_have_same_size(file_to_be_copied, destination_file))
         {
             default:
             case aborted:
                 if (verbose == true) logger.log("aborted: " + target_name);
                 return Similarity_result.aborted;
-            case same:
+            case same_size:
                 if (verbose == true) logger.log("SKIPPED: the SAME file is already there: " + target_name);
+                if (deep)
+                {
+                    return file_comparator.files_are_same(file_to_be_copied, destination_file,bytes_read);
+                }
                 return Similarity_result.same;
             case not_same:
                 //if (verbose == true)
                 logger.log("OHOH ??: name exists, but files are DIFFERENT, checking again: " + target_name);
-                Similarity_result check = file_comparator.files_are_same(file_to_be_copied, destination_file, bytes_read, true);
+                Similarity_result check = file_comparator.files_are_same(file_to_be_copied, destination_file, bytes_read);
                 if ( check == Similarity_result.same)
                 {
-                    logger.log("fausse alerte: " + target_name);
+                    logger.log("fausse alerte: (deeper check)" + target_name);
                     return Similarity_result.same;
                 }
                 logger.log("CONFIRMED: name exists, but files are DIFFERENT, destination will be renamed: " + target_name);

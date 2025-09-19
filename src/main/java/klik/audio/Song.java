@@ -120,7 +120,7 @@ public record Song(String path, Node node)
                     if ( new_path == null) return;
 
                     List<Old_and_new_Path> l = new ArrayList<>();
-                    Old_and_new_Path oandn = new Old_and_new_Path(Path.of(full_path), new_path, Command_old_and_new_Path.command_rename, Status_old_and_new_Path.before_command, false);
+                    Old_and_new_Path oandn = new Old_and_new_Path(Path.of(full_path), new_path, Command.command_rename, Status_old_and_new_Path.before_command, false);
                     l.add(oandn);
                     Moving_files.perform_safe_moves_in_a_thread( l, true, owner.getX()+100, owner.getY()+100,owner, new Aborter("dummy", logger), logger);
 
@@ -157,6 +157,7 @@ public record Song(String path, Node node)
             MenuItem the_menu_item = new MenuItem("Info : "+info_string);
             Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
             context_menu.getItems().add(the_menu_item);
+            the_menu_item.setOnAction(e->Audio_info_frame.show(Path.of(full_path),owner,logger));
         }
 
         return context_menu;

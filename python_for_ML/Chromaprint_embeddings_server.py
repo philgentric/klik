@@ -74,7 +74,7 @@ def compute_embedding(audio_path: Path) -> list[int]:
     )
     output = json.loads(result.stdout)
     fingerprint = output["fingerprint"]
-    #os.remove(output_path)
+    os.remove(output_path)
     return fingerprint
 
 

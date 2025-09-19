@@ -1,7 +1,7 @@
 package klik.util.files_and_paths;
 
 //**********************************************************
-public enum Command_old_and_new_Path
+public enum Command
 //**********************************************************
 {
 	command_move_to_trash, // goes to trash dir
