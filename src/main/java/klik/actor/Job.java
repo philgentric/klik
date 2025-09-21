@@ -48,6 +48,12 @@ public class Job
     {
         if (termination_reporter !=null) termination_reporter.has_ended(message,this);
     }
+    //**********************************************************
+    public void has_failed(String message)
+    //**********************************************************
+    {
+        if (termination_reporter !=null) termination_reporter.has_ended(message,this);
+    }
 
     //**********************************************************
     public void cancel(String msg)

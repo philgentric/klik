@@ -201,7 +201,7 @@ public class Undo_for_moves implements Datetime_to_signature_source
             }
             else {
                 reverse_last_move.add(r);
-                logger.log("reversed action =" + r.get_string());
+                logger.log("reversed action =" + r.to_string());
             }
         }
 
@@ -222,12 +222,12 @@ public class Undo_for_moves implements Datetime_to_signature_source
         {
             if ( oan.is_a_restore )
             {
-                if ( dbg) logger.log("not recording restore event: "+oan.get_string());
+                if ( dbg) logger.log("not recording restore event: "+oan.to_string());
                 return false;
             }
             else
             {
-                if ( dbg)  logger.log("Adding event: "+oan.get_string());
+                if ( dbg)  logger.log("Adding event: "+oan.to_string());
 
             }
         }

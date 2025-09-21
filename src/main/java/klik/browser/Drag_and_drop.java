@@ -30,12 +30,12 @@ public class Drag_and_drop
     //**********************************************************
     public static int accept_drag_dropped_as_a_move_in(
             Move_provider move_provider,
-            Window owner,
             DragEvent drag_event,
             Path destination_dir,
             Node excluded,
             String origin,
             boolean destination_is_trash,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
@@ -130,10 +130,11 @@ public class Drag_and_drop
         double x = drag_event.getX();
         double y = drag_event.getY();
 
-        move_provider.move(owner,x,y,
+        move_provider.move(
                 destination_dir,
                 destination_is_trash,
                 the_list,
+                owner,x,y,
                 new Aborter("dummy",logger),
                 logger);
 
@@ -179,12 +180,12 @@ public class Drag_and_drop
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("OnDragDropped RECEIVER SIDE");
             Drag_and_drop.accept_drag_dropped_as_a_move_in(
                     move_provider,
-                    owner,
                     drag_event,
                     path,
                     node,
                     "Browser item",
                     is_trash,
+                    owner,
                     logger);
             drag_event.consume();
         });

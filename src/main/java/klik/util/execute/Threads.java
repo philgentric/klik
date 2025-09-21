@@ -4,6 +4,7 @@ package klik.util.execute;
 import klik.System_info;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
+import klik.util.log.Stack_trace_getter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +35,14 @@ public class Threads
     //**********************************************************
     {
         if (executor == null) init(logger);
-        executor.execute(r);
+        try
+        {
+            executor.execute(r);
+        }
+        catch (RejectedExecutionException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("WARNING: thread not started"+e));
+        }
     }
 
 

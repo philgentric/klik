@@ -22,6 +22,7 @@ import klik.look.Look_and_feel_manager;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
+import klik.util.ui.Folder_chooser;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
 import klik.util.ui.Progress_window;
@@ -79,7 +80,7 @@ public class Animated_gifs_from_video
                 return;
             }
             List<Old_and_new_Path> c = new ArrayList<>();
-            c.add(new Old_and_new_Path(null,dir.toPath(), Command.command_move,Status_old_and_new_Path.before_command,false));
+            c.add(new Old_and_new_Path(null,dir.toPath(), Command.command_move, Status.before_command,false));
             Change_gang.report_changes(c, owner);
         }
         AtomicBoolean abort_reported = new AtomicBoolean(false);
@@ -329,7 +330,7 @@ public class Animated_gifs_from_video
 
         //if (new_name.length() > 24) new_name = new_name.substring(new_name.length() - 12);
         Path new_path = Path.of(gif_saving_dir.getAbsolutePath(), new_name);
-        Old_and_new_Path oandnp = new Old_and_new_Path(temporary_gif_full_path, new_path, Command.command_move, Status_old_and_new_Path.before_command,false);
+        Old_and_new_Path oandnp = new Old_and_new_Path(temporary_gif_full_path, new_path, Command.command_move, Status.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oandnp);
         Moving_files.perform_safe_moves_in_a_thread(ll,false, 100,100, the_stage, Shared_services.aborter, logger);

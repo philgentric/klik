@@ -1,5 +1,5 @@
 //SOURCES ./Command.java
-//SOURCES ./Status_old_and_new_Path.java
+//SOURCES ./Status.java
 
 
 
@@ -18,22 +18,20 @@ public 	class Old_and_new_Path
 	public final Path old_Path;
 	public final Path new_Path;
 	public final Command cmd;
-	public final Status_old_and_new_Path status;
+	public final Status status;
     public Runnable run_after;
 	public final boolean is_a_restore;
 
 
     //**********************************************************
 	public Old_and_new_Path(Path old_path, Path new_path,
-                            //boolean is_move_to_trash_,
-                            Command cmd_, Status_old_and_new_Path status_, boolean is_a_restore_)
+                            Command cmd_, Status status_, boolean is_a_restore_)
 	//**********************************************************
 	{
 		old_Path = old_path;
         // make sure new_path CANNOT be null
         if (new_path == null) {
-            System.out.println(Stack_trace_getter.get_stack_trace("new_path is null. DONT do this, if you want to delete forever something instead of moving it to klik trash, use the Command.command_delete_forever"));
-
+            System.out.println(Stack_trace_getter.get_stack_trace("new_path is null. DONT do this, if you want to delete forever something instead of moving it to klik trash, use Command.command_delete_forever"));
             throw new IllegalArgumentException("new_path cannot be null");
         }
 		new_Path = new_path;
@@ -62,34 +60,16 @@ public 	class Old_and_new_Path
 		}
 
 	}
-	/*
-	// the new and old Path are in the same dir: this is a rename 
-	//**********************************************************
-	public boolean is_a_rename()
-	//**********************************************************
-	{
-		return old_Path.getParent().toAbsolutePath().equals(
-				new_Path.getParent().toAbsolutePath());
-	}*/
+
+    //**********************************************************
 	public Old_and_new_Path reverse_for_restore()
+    //**********************************************************
 	{
-		return new Old_and_new_Path(this.new_Path, this.old_Path, this.cmd, Status_old_and_new_Path.before_command, true);
-	}
-	public Path get_new_Path() 
-	{
-		return new_Path;
-	}
-	public Path get_old_Path()
-	{
-		return old_Path;
-	}
-	public Command get_cmd()
-	{
-		return cmd;
+		return new Old_and_new_Path(this.new_Path, this.old_Path, this.cmd, Status.before_command, true);
 	}
 
 	//**********************************************************
-	public String get_string()
+	public String to_string()
 	//**********************************************************
 	{
 		return "old Path="+old_Path+" new Path="+new_Path+" cmd="+cmd+" status="+status+"\n";

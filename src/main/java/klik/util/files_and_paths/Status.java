@@ -1,6 +1,6 @@
 package klik.util.files_and_paths;
 
-public enum Status_old_and_new_Path
+public enum Status
 {
 	before_command,
 	name_augmented,
@@ -16,5 +16,5 @@ public enum Status_old_and_new_Path
 	command_failed,
 	same_path,
 	edition_done,
-	a_change_occured_in_this_folder
+    a_change_occurred_in_this_folder
 }

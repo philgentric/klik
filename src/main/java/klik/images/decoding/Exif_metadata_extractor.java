@@ -11,6 +11,7 @@ import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -84,12 +85,12 @@ public class Exif_metadata_extractor
         //String file = My_I18n.get_I18n_string("File",logger);
 
 
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
             if (Feature_cache.get(Feature.Fusk_is_on)) {
                 if (Fusk_static_core.is_fusk(path,logger)) {
-                    String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
+                    String base = Extensions.get_base_name(path.toAbsolutePath().toString());
                     exif_metadata.add("... which is a fusk of: ->" + Fusk_strings.defusk_string(base, logger) + "<-");
                 } else {
                     exif_metadata.add("... which has a fusk extension BUT IS NOT!");

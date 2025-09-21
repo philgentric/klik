@@ -97,12 +97,12 @@ public class Undo_item
         {
             if (oan.old_Path == null)
             {
-                logger.log("WARNING:  oan.old_Path == null "+oan.get_string());
+                logger.log("WARNING:  oan.old_Path == null "+oan.to_string());
                 return null;
             }
             if (oan.new_Path == null)
             {
-                logger.log("WARNING:  oan.new_Path == null "+oan.get_string());
+                logger.log("WARNING:  oan.new_Path == null "+oan.to_string());
                 return null;
             }
             //logger.log("ideal oan = "+oan.get_string());

@@ -120,7 +120,7 @@ public record Song(String path, Node node)
                     if ( new_path == null) return;
 
                     List<Old_and_new_Path> l = new ArrayList<>();
-                    Old_and_new_Path oandn = new Old_and_new_Path(Path.of(full_path), new_path, Command.command_rename, Status_old_and_new_Path.before_command, false);
+                    Old_and_new_Path oandn = new Old_and_new_Path(Path.of(full_path), new_path, Command.command_rename, Status.before_command, false);
                     l.add(oandn);
                     Moving_files.perform_safe_moves_in_a_thread( l, true, owner.getX()+100, owner.getY()+100,owner, new Aborter("dummy", logger), logger);
 
@@ -136,16 +136,6 @@ public record Song(String path, Node node)
                 (ActionEvent e) ->
                         playlist.remove_from_playlist(full_path),
                 context_menu, owner, logger);
-        Menu_items.add_menu_item(
-                "Delete",
-                (ActionEvent e) ->
-                {
-                    double x = owner.getX()+100;
-                    double y = owner.getY()+100;
-                    Path_list_provider path_list_provider = new Folder_path_list_provider(Path.of(full_path).getParent());
-                    path_list_provider.delete(Path.of(full_path), owner, x, y, new Aborter("dummy",logger), logger);
-                    playlist.remove_from_playlist(full_path);
-                },context_menu, owner, logger);
 
 
         {
@@ -159,6 +149,11 @@ public record Song(String path, Node node)
             context_menu.getItems().add(the_menu_item);
             the_menu_item.setOnAction(e->Audio_info_frame.show(Path.of(full_path),owner,logger));
         }
+
+        Menu_items.add_menu_item(
+                "Edit_Song_Metadata",
+                (ActionEvent e) -> Metadata_editor.edit_metadata_of_a_file_in_a_thread(Path.of(full_path), owner, logger),
+                context_menu, owner, logger);
 
         return context_menu;
     }

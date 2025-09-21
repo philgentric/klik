@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// Text_frame using webview is much better
 //**********************************************************
 public class Text_frame_with_labels
 //**********************************************************

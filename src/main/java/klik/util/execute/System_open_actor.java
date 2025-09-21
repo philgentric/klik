@@ -9,6 +9,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -93,7 +94,7 @@ public class System_open_actor implements Actor
     private String special(System_open_message som)
     //**********************************************************
     {
-        String extension = Static_files_and_paths_utilities.get_extension(som.path.toFile().getName());
+        String extension = Extensions.get_extension(som.path.toFile().getName());
 
         String app = Registered_applications.get_registered_application(extension, som.owner, som.aborter,som.logger);
 

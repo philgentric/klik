@@ -8,7 +8,7 @@ import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
 import klik.util.files_and_paths.Command;
 import klik.util.files_and_paths.Old_and_new_Path;
-import klik.util.files_and_paths.Status_old_and_new_Path;
+import klik.util.files_and_paths.Status;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -56,7 +56,7 @@ public class Undo_core implements Datetime_to_signature_source
             Old_and_new_Path r = e.reverse_for_restore();
             if ( r.old_Path == null)
             {
-                logger.log("nope, cannot undo this : "+r.get_string());
+                logger.log("nope, cannot undo this : "+r.to_string());
                 continue;
             }
             if ( Files.exists(r.old_Path))
@@ -266,7 +266,7 @@ public class Undo_core implements Datetime_to_signature_source
     {
         if ( dbg) logger.log(("Undo_core READ"));
         Command cmd = Command.command_move;
-        Status_old_and_new_Path stt = Status_old_and_new_Path.move_done;
+        Status stt = Status.move_done;
 
         List<Undo_item> returned = new ArrayList<>();
         Set<String> set = properties_manager.get_all_keys();

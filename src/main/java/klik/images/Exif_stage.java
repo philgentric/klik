@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.properties.boolean_features.Booleans;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.decoding.Exif_metadata_extractor;
 import klik.experimental.fusk.Fusk_static_core;
@@ -96,12 +97,12 @@ public class Exif_stage
 
         Scene scene = new Scene(sp);
 
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
             if (Fusk_static_core.is_fusk(path, logger))
             {
-                String base = Static_files_and_paths_utilities.get_base_name(path.toAbsolutePath().toString());
+                String base = Extensions.get_base_name(path.toAbsolutePath().toString());
                 local_stage.setTitle(Fusk_strings.defusk_string(base, logger));
             }
             else

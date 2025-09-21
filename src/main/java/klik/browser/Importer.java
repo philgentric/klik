@@ -12,6 +12,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
@@ -86,9 +87,9 @@ public class Importer
 
         File_payload file_payload = (f, folder_count_stop_counter) -> {
             logger.log("Importer: looking at file: "+f.getName());
-            if (!(Static_files_and_paths_utilities.get_extension(f.getName()).equals("jpeg")))
+            if (!(Extensions.get_extension(f.getName()).equals("jpeg")))
             {
-                logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Static_files_and_paths_utilities.get_extension(f.getName()));
+                logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Extensions.get_extension(f.getName()));
                 return;
             }
             try
@@ -171,9 +172,9 @@ public class Importer
             @Override
             public void process_file(File f, AtomicLong file_count_stop_counter) {
                 //logger.log("Importer: looking at file: "+f.getName());
-                if (!(Static_files_and_paths_utilities.get_extension(f.getName()).equals("jpeg")))
+                if (!(Extensions.get_extension(f.getName()).equals("jpeg")))
                 {
-                    //logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Static_files_and_paths_utilities.get_extension(f.getName()));
+                    //logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Extensions.get_extension(f.getName()));
                     return;
                 }
                 size.addAndGet(f.length());

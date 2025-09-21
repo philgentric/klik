@@ -38,34 +38,33 @@ public class Text_frame
     private static final String TEXT_FRAME = "Text_frame";
     private final Path the_path;
     private final WebView web_view = new WebView();
-   // private final ScrollPane scroll_pane;
     private final Logger logger;
     private final Stage stage;
     private final AtomicLong font_size_times_1000 = new AtomicLong(2000);
 
-    private final Path_comparator_source path_comparator_source;
     private final Aborter aborter;
-
-    public static void show(Path path, Path_comparator_source path_comparator_source) {
-        new Text_frame(path,path_comparator_source);
-    }
-
-    String marked = "";
-    List<Integer> line_numbers_of_marked_items = new ArrayList<>();
-    int scroll = 0;
-    int number_of_items = 0;
-    int marked_item_index = 0;
+    private String marked = "";
+    private List<Integer> line_numbers_of_marked_items = new ArrayList<>();
+    private int scroll = 0;
+    private int number_of_items = 0;
+    private int marked_item_index = 0;
 
     //**********************************************************
-    private Text_frame(Path path_, Path_comparator_source path_comparator_source)
+    public static void show(Path path,  Logger logger)
     //**********************************************************
     {
-        the_path = path_;
-        this.path_comparator_source = path_comparator_source;
-        logger = new File_logger("Text_frame_with_labels");
-        aborter = new Aborter("Text_frame_with_labels",logger);
+        new Text_frame(path,logger);
+    }
+
+
+    //**********************************************************
+    private Text_frame(Path path, Logger logger)
+    //**********************************************************
+    {
+        this.logger = logger;
+        the_path = path;
+        aborter = new Aborter("Text_frame",logger);
         Filesystem_item_modification_watcher watcher = new Filesystem_item_modification_watcher();
-        Aborter aborter = new Aborter("Text_frame_with_labels",logger);
         Filesystem_modification_reporter reporter = () -> {
             //logger.log("Filesystem_item_modification_watcher event ==> RELOADING");
             Platform.runLater(Text_frame.this::reload);
@@ -119,7 +118,7 @@ public class Text_frame
                 });
 
         stage.setOnCloseRequest(e -> {
-            aborter.abort("Text_frame_with_labels is closing");
+            aborter.abort("Text_frame is closing");
         });
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );

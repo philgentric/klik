@@ -32,4 +32,56 @@ public class MediaInfo
 
         return List.of(lines);
     }
+
+    //**********************************************************
+    public static String extract_release(List<String> l,Logger logger)
+    //**********************************************************
+    {
+        String release = null;
+        for(String s : l)
+        {
+            String marker = "Track name";
+            if (s.contains(marker))
+            {
+                if (!s.contains("Track name/Position"))
+                {
+                    if (!s.contains("Track name/Total"))
+                    {
+                        logger.log("looking for:"+marker+" found:"+s);
+                        int i = s.indexOf(marker);
+                        if (i >= 0) {
+                            release = s.substring(i + marker.length());
+                            release = release.replace(":", "");
+                            release = release.trim();
+                            logger.log("looking for:"+marker+" found:"+release);
+                        }
+                    }
+                }
+            }
+        }
+        return release;
+
+    }
+    //**********************************************************
+    public static String extract_performer(List<String> l, Logger logger)
+    //**********************************************************
+    {
+        String performer = null;
+        for(String s : l)
+        {
+            String marker = "Performer";
+            if (s.contains(marker)) {
+                if (!s.contains("Album/Performer"))
+                {
+                    int i = s.indexOf(marker);
+                    if (i >= 0) {
+                        performer = s.substring(i + marker.length());
+                        performer = performer.replace(":", "");
+                        performer = performer.trim();
+                    }
+                }
+            }
+        }
+        return performer;
+    }
 }

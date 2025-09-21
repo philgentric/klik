@@ -215,7 +215,7 @@ public class Image_context
             Filesystem_modification_reporter reporter = () -> {
                 List<Old_and_new_Path> oanps = new ArrayList<>();
                 Command cmd = Command.command_edit;
-                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
+                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status.edition_requested, false);
                 oanps.add(oan);
                 Change_gang.report_changes(oanps, owner);
             };
@@ -245,7 +245,7 @@ public class Image_context
             Filesystem_modification_reporter reporter = () -> {
                 List<Old_and_new_Path> oanps = new ArrayList<>();
                 Command cmd = Command.command_edit;
-                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status_old_and_new_Path.edition_requested, false);
+                Old_and_new_Path oan = new Old_and_new_Path(path, path, cmd, Status.edition_requested, false);
                 oanps.add(oan);
                 Change_gang.report_changes(oanps,owner);
             };
@@ -466,11 +466,9 @@ public class Image_context
             Window owner)
     //**********************************************************
     {
-        //if (Popups.popup_ask_for_confirmation(My_I18n.get_I18n_string("Warning", logger),
-        //        My_I18n.get_I18n_string("Copy_are_you_sure", logger), logger) == false) return;
-
         // to get a good (long) prefix, add 2 levels of folders names
-        // since a copy is usually moved afterward and you  want to get a good name for the copy
+        // since a copy is usually moved afterward
+        // and you  want to get a good name for the copy
 
         String prefix = "";
         if ( path.getParent() != null)
@@ -522,7 +520,7 @@ public class Image_context
                 path,
                 new_path,
                 Command.command_copy,
-                Status_old_and_new_Path.copy_done,false));
+                Status.copy_done,false));
         Change_gang.report_changes(l,owner);
 
         Item_file_with_icon.open_an_image(

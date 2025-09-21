@@ -7,6 +7,7 @@ package klik.browser.virtual_landscape;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
@@ -14,10 +15,7 @@ import klik.util.log.Logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Paths_holder
@@ -72,7 +70,7 @@ public class Paths_holder
         {
             if (show_video_as_gif)
             {
-                String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+                String extension = Extensions.get_extension(path.getFileName().toString());
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
                     // special dirty case: MKV can be audio OR video ...
@@ -119,7 +117,7 @@ public class Paths_holder
             return;
         }
 
-        if (Guess_file_type.is_this_path_an_image(path))
+        if (Guess_file_type.is_this_extension_an_image(path))
         {
             if (show_icons_instead_of_text)
             {

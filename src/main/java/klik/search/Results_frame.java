@@ -159,7 +159,7 @@ public class Results_frame
 				Audio_player_access.play_song_in_separate_process(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
-				Text_frame.show(path, path_comparator_source);
+				Text_frame.show(path, logger);
 			} else {
 				System_open_actor.open_with_system(path, stage, aborter, logger);
 			}

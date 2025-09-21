@@ -29,17 +29,30 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     static AtomicBoolean popup_done = new AtomicBoolean(false);
 
     protected final Aborter aborter;
-    public Feature_vector_source_server(Aborter aborter)
-    {
-        this.aborter = aborter;
-    }
 
     protected abstract int get_random_port();
     static long start = System.currentTimeMillis();
     static long tx_count = 0;
     static long SUM_dur = 0;
-    static{
-        Logger l = Logger_factory.get("embeddings");
+
+    static boolean monitoring_on = false;
+
+    //**********************************************************
+    public Feature_vector_source_server(Aborter aborter)
+    //**********************************************************
+    {
+        this.aborter = aborter;
+        if ( ! monitoring_on)
+        {
+            start_monitoring();
+        }
+    }
+
+    //**********************************************************
+    private void start_monitoring()
+    //**********************************************************
+    {
+        Logger l = Logger_factory.get("feature vextor source");
         Runnable r = () ->
         {
             for(;;)
@@ -53,8 +66,8 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             }
         };
         Actor_engine.execute(r, l);
+        monitoring_on = true;
     }
-
 
     //**********************************************************
     public Feature_vector get_feature_vector_from_server(Path path, Window owner, Logger logger)

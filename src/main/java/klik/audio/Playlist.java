@@ -28,6 +28,7 @@ import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Folder_chooser;
 import klik.util.ui.Popups;
 
 import java.io.*;
@@ -137,7 +138,7 @@ public class Playlist
         l.add(new Old_and_new_Path(Path.of(to_be_removed),
                 Path.of(to_be_removed),
                 Command.command_remove_for_playlist,
-                Status_old_and_new_Path.before_command,
+                Status.before_command,
                 false));
         Undo_item ui = new Undo_item(l, LocalDateTime.now(), UUID.randomUUID(), logger);
         undo_core.add(ui);
@@ -417,18 +418,18 @@ public class Playlist
     static void sanitize(String song, List<String> oks, List<Old_and_new_Path> out,Logger logger)
     //**********************************************************
     {
-        if (!Guess_file_type.is_this_extension_an_audio(Static_files_and_paths_utilities.get_extension((new File(song)).getName())))
+        if (!Guess_file_type.is_this_extension_an_audio(Extensions.get_extension((new File(song)).getName())))
         {
             if ( dbg) logger.log("Rejected as a possible song due to extension: "+(new File(song)).getName());
             return;
         }
         String parent = (new File(song)).getParent();
         String file_name = (new File(song)).getName();
-        String new_name = Static_files_and_paths_utilities.get_base_name(file_name);
+        String new_name = Extensions.get_base_name(file_name);
 
         new_name = Filename_sanitizer.sanitize(new_name,logger);
 
-        new_name = new_name + "." + Static_files_and_paths_utilities.get_extension(file_name);
+        new_name = Extensions.add(new_name,Extensions.get_extension(file_name));
 
         if (new_name.equals(file_name))
         {
@@ -436,7 +437,7 @@ public class Playlist
             return;
         }
 
-        out.add(new Old_and_new_Path(Path.of(song), Path.of(parent, new_name), Command.command_rename,Status_old_and_new_Path.before_command,false));
+        out.add(new Old_and_new_Path(Path.of(song), Path.of(parent, new_name), Command.command_rename, Status.before_command,false));
 
     }
 
@@ -496,7 +497,7 @@ public class Playlist
     String extract_playlist_name()
     //**********************************************************
     {
-        return Static_files_and_paths_utilities.get_base_name(playlist_file.getName());
+        return Extensions.get_base_name(playlist_file.getName());
     }
 
 
@@ -616,7 +617,7 @@ public class Playlist
         String new_playlist_name = result.get();
 
         if (!new_playlist_name.endsWith(Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION))
-            new_playlist_name += "." + Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION;
+            new_playlist_name = Extensions.add(new_playlist_name, Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION);
 
         change_play_list_name(new_playlist_name);
 
@@ -777,7 +778,7 @@ public class Playlist
         for (Old_and_new_Path o : l)
         {
             //if ( o.cmd != Command.command_remove_for_playlist) continue;
-            //if ( o.status != Status_old_and_new_Path.before_command) continue;
+            //if ( o.status != Status.before_command) continue;
             if (o.old_Path == null) continue;
             if ( dbg) logger.log("undo remove from play list for" + o.old_Path);
             add_to_playlist(o.old_Path.toAbsolutePath().toString());

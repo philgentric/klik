@@ -19,7 +19,7 @@ public class MusicBrainz
 //**********************************************************
 {
     private static final boolean ultra_dbg = false;
-    private static final String user_agent = "MyMusicApp/1.0 (myemail@example.com)";
+    private static final String user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
     //**********************************************************
     public static String find_release_UUID(String artist, String release, Logger logger)
     //**********************************************************
@@ -38,7 +38,7 @@ public class MusicBrainz
             int responseCode = conn.getResponseCode();
             if ( ! (responseCode == HttpURLConnection.HTTP_OK) )
             {
-                logger.log("Unexpected response code: " + responseCode);
+                logger.log("ERROR response code: " + responseCode);
                 return null;
             }
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -83,18 +83,20 @@ public class MusicBrainz
         URL url = null;
         try {
             url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("User-Agent", user_agent);
-            int responseCode = conn.getResponseCode();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", user_agent);
+            connection.setInstanceFollowRedirects(true);
+            int responseCode = connection.getResponseCode();
             if ( ! (responseCode == HttpURLConnection.HTTP_OK) )
             {
                 logger.log("Unexpected response code: " + responseCode);
                 return null;
             }
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
-            while ((line = in.readLine()) != null) {
+            while ((line = in.readLine()) != null)
+            {
                 response.append(line);
             }
             in.close();
@@ -141,27 +143,66 @@ public class MusicBrainz
     }
 
     //**********************************************************
-    public static Image download_icon(String artist, String release, Window owner, Logger logger)
+    private static boolean download_bloody_icon(String url_string, File icon_file,Logger logger)
+    //**********************************************************
+    {
+        try {
+            URL url = new URL(url_string);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", user_agent);
+            connection.setInstanceFollowRedirects(true);
+            int responseCode = connection.getResponseCode();
+            if ( ! (responseCode == HttpURLConnection.HTTP_OK) )
+            {
+                logger.log("Error response code: " + responseCode);
+                if ( responseCode == 301)
+                {
+                    String redirectUrl = connection.getHeaderField("Location");
+                    return download_bloody_icon(redirectUrl,icon_file,logger);
+                }
+                return false;
+            }
+
+            InputStream in = connection.getInputStream();
+            byte[] imageData = in.readAllBytes();
+
+            try (FileOutputStream outputStream = new FileOutputStream(icon_file))
+            {
+                outputStream.write(imageData);
+            }
+            in.close();
+            return true;
+        }
+        catch (IOException e)
+        {
+            logger.log("get_cover_art_URL failed, "+e+"\nurl="+url_string);
+            return false;
+        }
+    }
+    //**********************************************************
+    public static Image download_icon(String artist, String release, Path icon_folder, Window owner, Logger logger)
     //**********************************************************
     {
         String image_URL = get_cover_art_URL(artist,release,logger);
         if ( image_URL == null) return null;
 
-        File icon_file = make_icon_file(artist,release,owner,logger);
-        try (BufferedInputStream in = new BufferedInputStream(new URL(image_URL).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(icon_file)) {
-            byte dataBuffer[] = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
-            }
+        File icon_file = make_icon_file(artist,release,icon_folder,owner,logger);
+
+        download_bloody_icon(image_URL,icon_file,logger);
+
+        try {
+            InputStream is = new FileInputStream(icon_file.getAbsolutePath());
+            Image returned = new Image(is);
+            is.close();
+            logger.log("icon acquired from:"+image_URL+" saved as: "+icon_file.getAbsolutePath());
+            return returned;
         }
         catch (IOException e)
         {
-            logger.log(""+e);
-        }
+            logger.log("WARNING icon acquired from:"+image_URL+" NOT saved as: "+icon_file+" "+e);
 
-        return new Image(icon_file.toURI().toString());
+        }
+        return null;
     }
 
     //**********************************************************
@@ -174,28 +215,29 @@ public class MusicBrainz
     }
 
     //**********************************************************
-    private static File make_icon_file(String artist, String release, Window owner,Logger logger)
+    private static File make_icon_file(String artist, String release, Path icon_folder, Window owner,Logger logger)
     //**********************************************************
     {
         String name = make_name(artist,release,owner,logger);
         name += ".jpg";
 
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, owner, logger);
-        return new File(icon_cache_dir.toFile(),name);
+        //Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, owner, logger);
+        return new File(icon_folder.toFile(),name);
     }
 
     //**********************************************************
-    public static Image get_icon(String artist, String release, Window owner, Logger logger)
+    public static Image get_icon(String artist, String release, Path icon_folder, Window owner, Logger logger)
     //**********************************************************
     {
 
-        File f = make_icon_file(artist,release,owner,logger);
+        File f = make_icon_file(artist,release,icon_folder,owner,logger);
         try (FileInputStream input_stream = new FileInputStream(f))
         {
             Image image = new Image(input_stream);
             return image;
         }
-        catch (FileNotFoundException e) {
+        catch (FileNotFoundException e)
+        {
             // this always happens, the first time
             if (ultra_dbg)
                 logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
@@ -203,7 +245,7 @@ public class MusicBrainz
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
 
-        Image icon = download_icon(artist,release,owner,logger);
+        Image icon = download_icon(artist,release,icon_folder,owner,logger);
         return icon;
     }
 }

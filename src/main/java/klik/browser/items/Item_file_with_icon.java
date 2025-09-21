@@ -201,7 +201,7 @@ public class Item_file_with_icon extends Item_file
     {
         selection_handler.reset_selection(); // will clear all selections
 
-        if ( Guess_file_type.is_this_path_an_image(get_item_path()))
+        if ( Guess_file_type.is_this_extension_an_image(get_item_path()))
         {
             open_an_image(path_list_provider,path_comparator_source,get_item_path(),owner,logger);
         }
@@ -412,7 +412,7 @@ public class Item_file_with_icon extends Item_file
             if ( new_path == null) return;
 
             List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command.command_rename, Status_old_and_new_Path.before_command,false);
+            Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command.command_rename, Status.before_command,false);
             l.add(oandn);
             Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,owner,browser_aborter, logger);
         });

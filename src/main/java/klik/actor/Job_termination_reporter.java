@@ -9,4 +9,8 @@ public interface Job_termination_reporter
 //**********************************************************
 {
     void has_ended(String message, Job job);
+    default void has_failed(String message, Job job)
+    {
+        job.logger.log("thread job has failed "+message+" "+job.to_string());
+    }
 }

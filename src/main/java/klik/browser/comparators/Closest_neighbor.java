@@ -6,7 +6,9 @@ import klik.machine_learning.similarity.Similarity_cache;
 import java.nio.file.Path;
 import java.util.List;
 
+//**********************************************************
 public record Closest_neighbor(Path p1, Path closest, double dist)
+//**********************************************************
 {
 
     //**********************************************************

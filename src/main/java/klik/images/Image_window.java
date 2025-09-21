@@ -178,7 +178,7 @@ public class Image_window
             return fv_cache;
         };
 
-        String extension = Static_files_and_paths_utilities.get_extension(first_image_path.getFileName().toString());
+        String extension = Extensions.get_extension(first_image_path.getFileName().toString());
         set_background(the_image_Pane,extension, owner);
         the_Scene = new Scene(the_image_Pane);
         //Look_and_feel_manager.set_scene_look(the_Scene,owner,logger);
@@ -487,10 +487,10 @@ public class Image_window
         {
 
 
-            String extension = Static_files_and_paths_utilities.get_extension(ic.path.getFileName().toString());
+            String extension = Extensions.get_extension(ic.path.getFileName().toString());
             if ( extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
             {
-                String base = Static_files_and_paths_utilities.get_base_name(ic.path.toAbsolutePath().toString());
+                String base = Extensions.get_base_name(ic.path.toAbsolutePath().toString());
                 local_title.append(Fusk_strings.defusk_string(base, logger)).append("*");
             }
             else
@@ -642,7 +642,7 @@ public class Image_window
                     local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
                 }
             }
-            set_background(the_image_Pane,Static_files_and_paths_utilities.get_extension(local_image_context.get_image_name()), stage);
+            set_background(the_image_Pane,Extensions.get_extension(local_image_context.get_image_name()), stage);
 
             the_image_Pane.getChildren().clear();
             the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
@@ -677,7 +677,7 @@ public class Image_window
         // now do the actual renaming
         {
             List<Old_and_new_Path> l = new ArrayList<>();
-            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status_old_and_new_Path.before_command,false);
+            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status.before_command,false);
             oandn.run_after = () -> Jfx_batch_injector.inject(() -> set_stage_title(local_new_image_context),logger);
             l.add(oandn);
 

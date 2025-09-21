@@ -13,7 +13,6 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_writer_actor;
-import klik.change.undo.Undo_for_moves;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Cache_folder;
@@ -28,7 +27,7 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.log.Stack_trace_getter;
-
+import org.apache.commons.io.FileUtils;
 
 
 import java.io.File;
@@ -53,87 +52,7 @@ public class Static_files_and_paths_utilities
     private static final boolean dbg = false;
 
 
-    //**********************************************************
-    public static String get_base_name(String file_name)
-    //**********************************************************
-    {
-        int index = file_name.lastIndexOf(".");
-        if ( index == -1) return file_name;
 
-        String extension = file_name.substring(0,index);
-        return extension;
-    }
-    //**********************************************************
-    public static String get_extension(String file_name)
-    //**********************************************************
-    {
-        int index = file_name.lastIndexOf(".");
-        if ( index == -1) return "";
-
-        String extension = file_name.substring(index+1);
-        return extension;
-    }
-
-
-    // warning: this is a low level function,
-    // it does not check for overwrite etc
-    // prefer Moving_files.actual_safe_moves
-    //**********************************************************
-    public static boolean move_file(Path old_path, Path new_path, Logger logger)
-    //**********************************************************
-    {
-        if (! old_path.toFile().exists())
-        {
-            logger.log("cannot move, file does not exists: "+old_path);
-            return false;
-        }
-        // move a file, if the destination path contains folders that do not exist yet, create them
-
-        Path parent = new_path.getParent();
-        if ( parent != null && !parent.toFile().exists())
-        {
-            if ( !parent.toFile().mkdirs())
-            {
-                logger.log("cannot create folders for new path "+new_path.toAbsolutePath());
-                return  false;
-            }
-        }
-        
-        try
-        {
-            Files.move(old_path,new_path);
-        }
-        catch (FileAlreadyExistsException e)
-        {
-            logger.log("FileAlreadyExistsException Files.move() cannot move "+old_path+" => "+ new_path);
-            return false;
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("IOException Files.move() cannot move "+old_path+" => "+ new_path));
-            try
-            {
-                Files.copy(old_path,new_path);
-                logger.log("file/folder was copied instead "+old_path+" => "+ new_path);
-            }
-            catch (IOException ee)
-            {
-                logger.log("cannot copy "+old_path+" => "+ new_path+ " "+ee);
-                return false;
-
-            }
-            try
-            {
-                Files.delete(old_path);
-            }
-            catch (IOException eee)
-            {
-                logger.log("cannot delete "+old_path+ " "+eee);
-                return false;
-            }
-        }
-        return true;
-    }
 
 
     //**********************************************************
@@ -156,9 +75,9 @@ public class Static_files_and_paths_utilities
                 logger.log("could not create folders for new path "+new_path.toAbsolutePath());
                 return  false;
             }
-            else {
+            else
+            {
                 logger.log("created folders for new path "+new_path.toAbsolutePath());
-
             }
         }
 
@@ -172,29 +91,26 @@ public class Static_files_and_paths_utilities
             return false;
         }
 
-        return copy_folder_content(old_path,new_path, logger);
-    }
-
-    private static boolean copy_folder_content(Path oldPath, Path newPath, Logger logger)
-    {
+        // copy_folder_content
         boolean returned = true;
-        for (File f : oldPath.toFile().listFiles())
+        for (File f : old_path.toFile().listFiles())
         {
-            Path ff = Path.of(newPath.toAbsolutePath().toString(),f.getName());
+            Path ff = Path.of(new_path.toAbsolutePath().toString(),f.getName());
             if ( f.isDirectory())
             {
                 if ( !copy_directory(f.toPath(),ff,logger))
                 {
-                    logger.log("could not copy : "+f.getAbsolutePath());
+                    logger.log("could not copy folder: "+f.getAbsolutePath());
                     returned = false;
                 }
             }
-            try {
+            try
+            {
                 Files.copy(f.toPath(), ff);
             }
             catch (IOException e)
             {
-                logger.log("could not copy : "+f.getAbsolutePath());
+                logger.log("copy_folder_content failed : "+f.getAbsolutePath()+ " "+e);
                 returned = false;
             }
         }
@@ -213,13 +129,13 @@ public class Static_files_and_paths_utilities
         }
         Path trash_dir = Non_booleans_properties.get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explanation",owner,logger), false, owner,logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for ( Path p : paths) {
             Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
-            Old_and_new_Path oanf2 = new Old_and_new_Path(p, new_Path, Command.command_move_to_trash, Status_old_and_new_Path.before_command, false);
+            Old_and_new_Path oanf2 = new Old_and_new_Path(p, new_Path, Command.command_move_to_trash, Status.before_command, false);
             oanf2.run_after = after_the_move;
             l2.add(oanf2);
         }
@@ -233,12 +149,12 @@ public class Static_files_and_paths_utilities
     {
         Path trash_dir = Non_booleans_properties.get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_done", owner,logger), My_I18n.get_I18n_string("Nothing_done_explanation", owner,logger), false, owner,logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
         Path new_Path = (Paths.get(trash_dir.toString(), path.getFileName().toString()));
-        Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command.command_move_to_trash, Status_old_and_new_Path.before_command,false);
+        Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command.command_move_to_trash, Status.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
         Moving_files.perform_safe_moves_in_a_thread(l2, true, x,y,owner, aborter, logger);
@@ -466,7 +382,7 @@ public class Static_files_and_paths_utilities
         {
             Error_type error = Static_files_and_paths_utilities.explain_error(path,logger);
             logger.log(error+ " get_sizes_on_disk_shallow: cannot scan folder "+path);
-            return new Sizes(0,0,0,0,null);
+            return new Sizes(0,0,0,0);
         }
         int folders = 0;
         int files = 0;
@@ -491,7 +407,7 @@ public class Static_files_and_paths_utilities
                 bytes += f.length();
             }
         }
-        return new Sizes(bytes,folders,files,images,null);
+        return new Sizes(bytes,folders,files,images);
 
     }
     //**********************************************************
@@ -531,11 +447,19 @@ public class Static_files_and_paths_utilities
         };
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(path, "get_sizes_on_disk_deep_concurrent", fp,dp, warnings, aborter, logger);
-
+        if (! warnings.isEmpty())
+        {
+            StringBuilder sb = new StringBuilder();
+            for ( String w : warnings)
+            {
+                sb.append(w).append("\n");
+            }
+            logger.log("Disk_scanner.process_folder, warnings:\n"+sb);
+        }
 
         //long now = System.currentTimeMillis();
         //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +bytes.get());
-        return new Sizes(bytes.get(),folders.get(),files.get(),images.get(),warnings);
+        return new Sizes(bytes.get(),folders.get(),files.get(),images.get());
     }
 
 
@@ -895,7 +819,7 @@ public class Static_files_and_paths_utilities
        // logger.log("trying rename: " + old_path.getFileName() + " => " + new_name);
         Path new_path = Paths.get(old_path.getParent().toString(), new_name);
 
-        Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status_old_and_new_Path.before_command, false);
+        Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status.before_command, false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
         List<Old_and_new_Path> done = Moving_files.actual_safe_moves(l, true, x, y, owner, aborter, logger);
@@ -905,28 +829,6 @@ public class Static_files_and_paths_utilities
     }
 
 
-    //**********************************************************
-    public static Path change_dir_name(Path old_path, String new_name,Window owner, Aborter aborter , Logger logger)
-    //**********************************************************
-    {
-        if (dbg) logger.log("change_dir_name, new name: " + new_name);
-
-        logger.log("trying rename: " + old_path.getFileName() + " => " + new_name);
-        Path new_path = Paths.get(old_path.getParent().toString(), new_name);
-        //Files.move(path, new_path);
-        //FileUtils.moveDirectory(old_path.toFile(),new_path.toFile());
-        if ( !move_file(old_path,new_path,logger))
-        {
-            return null;
-        }
-        logger.log("....done");
-        Old_and_new_Path oan = new Old_and_new_Path(old_path,new_path, Command.command_rename,Status_old_and_new_Path.rename_done,false);
-        List<Old_and_new_Path> l = new ArrayList<>();
-        l.add(oan);
-        Undo_for_moves.add(l, owner,logger);
-        return new_path;
-        
-    }
 
 
     //**********************************************************
@@ -944,7 +846,7 @@ public class Static_files_and_paths_utilities
             dialog.setTitle(text);
         }
         {
-            String text = My_I18n.get_I18n_string("Rename_explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Rename_Explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setHeaderText(text);
 
         }
@@ -968,12 +870,12 @@ public class Static_files_and_paths_utilities
         }
         logger.log("ask_user_for_new_file_name ->" + old_name + "<-   ==>   ->" + new_name + "<-");
 
-        if (get_extension(new_name).isEmpty()) {
-            if (!get_extension(old_name).isEmpty()) {
+        if (Extensions.get_extension(new_name).isEmpty()) {
+            if (!Extensions.get_extension(old_name).isEmpty()) {
                 logger.log("WARNING, should not remove extension");
-                if (Guess_file_type.is_this_path_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
+                if (Guess_file_type.is_this_extension_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
                     logger.log("WARNING, extension restored");
-                    new_name = new_name + "." + get_extension(old_name);
+                    new_name = Extensions.add(new_name ,Extensions.get_extension(old_name));
                     Popups.popup_warning( "extension restored: ", old_name + "=>" + new_name, true, owner,logger);
                 } else {
                     logger.log("WARNING, should not remove extension");
@@ -981,7 +883,7 @@ public class Static_files_and_paths_utilities
                 }
 
             } else {
-                if (!get_extension(new_name).equals(get_extension(old_name))) {
+                if (!Extensions.get_extension(new_name).equals(Extensions.get_extension(old_name))) {
                     Popups.popup_warning( "extension check:", "you changed the file name extension", false, owner,logger);
                 }
             }
@@ -1001,16 +903,16 @@ public class Static_files_and_paths_utilities
         Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
         dialog.initOwner(owner);
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_Copy_Name", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setTitle(text);
         }
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name_explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_Copy_Name_Explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setHeaderText(text);
 
         }
         {
-            String text = My_I18n.get_I18n_string("Folder_copy_name_explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
+            String text = My_I18n.get_I18n_string("Folder_Copy_Name_Explanation", owner,logger);// to: " + parent.toAbsolutePath().toString();
             dialog.setContentText(text);
         }
         // The Java 8 way to get the response value (with lambda expression).
@@ -1052,7 +954,52 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
+    public static void copy_dir_in_a_thread(Window owner, Path path, Path new_path, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        if ( dbg) logger.log("copy_dir_in_a_thread start");
+        Runnable r = () -> {
+            boolean status = copy_dir(path, new_path, owner, logger);
+            if (status) {
+                if (dbg) logger.log("Folder copy done: " + new_path);
+            }
+            else
+            {
+                logger.log("Folder copy error!");
+                Jfx_batch_injector.inject(() -> Popups.popup_warning("copy of dir failed", "see the logs", false, owner,logger),logger);
+            }
+        };
+        try {
+            Actor_engine.execute(r,logger);
+            if ( dbg) logger.log("copy_dir_in_a_thread LAUNCHED");
+        } catch (RejectedExecutionException ree) {
+            logger.log("copy_dir_in_a_thread()" + ree);
+        }
+
+    }
+
+    //**********************************************************
     public static boolean copy_dir(Path origin, Path new_path, Window owner, Logger logger)
+    //**********************************************************
+    {
+        File src = origin.toFile();
+        File dst = new_path.toFile();
+        try
+        {
+            FileUtils.copyDirectory(src,dst);
+            return true;
+        }
+        catch (IOException e)
+        {
+            logger.log("Folder copy failed "+e);
+            Popups.popup_warning( My_I18n.get_I18n_string("Folder copy failed", owner,logger), "Folder copy failed: "+e, false, owner,logger);
+        }
+
+        return false;
+    }
+
+    //**********************************************************
+    private static boolean copy_dir2(Path origin, Path new_path, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -1066,7 +1013,7 @@ public class Static_files_and_paths_utilities
         }
 
         List<Old_and_new_Path> l = new ArrayList<>();
-        Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command.command_copy, Status_old_and_new_Path.copy_done, false);
+        Old_and_new_Path oan = new Old_and_new_Path(null, new_path, Command.command_copy, Status.copy_done, false);
         l.add(oan);
         Change_gang.report_changes(l,owner);
         return true;
@@ -1074,29 +1021,6 @@ public class Static_files_and_paths_utilities
     }
 
 
-
-    //**********************************************************
-    public static void copy_dir_in_a_thread(Window owner, Path path, Path new_path, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        if ( dbg) logger.log("copy_dir_in_a_thread start");
-        Runnable r = () -> {
-            boolean status = copy_dir(path, new_path, owner, logger);
-            if (status) {
-                if (dbg) logger.log("Folder copy done: " + new_path);
-            } else {
-                logger.log("Folder copy error!");
-                Jfx_batch_injector.inject(() -> Popups.popup_warning("copy of dir failed", "see the logs", false, owner,logger),logger);
-            }
-        };
-        try {
-            Actor_engine.execute(r,logger);
-            if ( dbg) logger.log("copy_dir_in_a_thread LAUNCHED");
-        } catch (RejectedExecutionException ree) {
-            logger.log("copy_dir_in_a_thread()" + ree);
-        }
-
-    }
 
     //**********************************************************
     public static Error_type explain_error(Path dir, Logger logger)

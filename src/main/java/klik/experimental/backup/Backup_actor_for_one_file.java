@@ -210,7 +210,7 @@ public class Backup_actor_for_one_file implements Actor
                 //try {
                     //Files.move(obsolete_name, source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()));
                     logger.log("renaming a destination file: " + obsolete_name.toFile().getName() + " to " + file_backup_job_request.file_to_be_copied.getName());
-                    if ( !Static_files_and_paths_utilities.move_file(obsolete_name, source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()),logger))
+                    if ( !Moving_files.move_file(obsolete_name, source.resolveSibling(file_backup_job_request.file_to_be_copied.getName()),logger))
                 //} catch (IOException e)
                 {
                     logger.log("WARNING: attempt to rename failed ");
@@ -356,13 +356,13 @@ public class Backup_actor_for_one_file implements Actor
     private boolean rename_destination_file(File destination_file)
     //**********************************************************
     {
-        for ( int i = 0; i < 33; i++)
+        for ( int i = 0; i < 10000; i++)
         {
             Path x = Moving_files.generate_new_candidate_name(destination_file.toPath(), "RENAMED_", ""+i, logger);
             if ( x.toFile().exists()) continue;
             //try {
                 //FileUtils.moveFile(destination_file,x.toFile());
-                if (!Static_files_and_paths_utilities.move_file(destination_file.toPath(),x,logger))
+                if (!Moving_files.move_file(destination_file.toPath(),x,logger))
         //    } catch (IOException e)
         {
                 logger.log_stack_trace("rename failed");

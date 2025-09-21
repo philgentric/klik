@@ -3,14 +3,12 @@ package klik.search;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.util.files_and_paths.Ding;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -175,7 +173,7 @@ public class Finder_actor implements Actor
                     {
                         if (fm.search_config.look_only_for_images())
                         {
-                            if (Guess_file_type.is_this_path_an_image(path))
+                            if (Guess_file_type.is_this_extension_an_image(path))
                             {
                                 check_if_name_matches_keywords(path, fm);
                             }
@@ -228,7 +226,7 @@ public class Finder_actor implements Actor
             // is a file
             if ( fm.search_config.look_only_for_images())
             {
-                if (!Guess_file_type.is_this_path_an_image(target_path))
+                if (!Guess_file_type.is_this_extension_an_image(target_path))
                 {
                     return;
                 }
@@ -237,7 +235,7 @@ public class Finder_actor implements Actor
             {
                 if (!fm.extension.isBlank())
                 {
-                    String ext = Static_files_and_paths_utilities.get_extension(target_path.getFileName().toString()).toLowerCase();
+                    String ext = Extensions.get_extension(target_path.getFileName().toString()).toLowerCase();
                     if (ext.equals(fm.extension))
                     {
                         count_keyword(ext);
@@ -250,7 +248,7 @@ public class Finder_actor implements Actor
                     }
                 }
             }
-            name = Static_files_and_paths_utilities.get_base_name(target_path.getFileName().toString());
+            name = Extensions.get_base_name(target_path.getFileName().toString());
             if ( name != null)
             {
                 if ( !fm.search_config.check_case())
@@ -321,7 +319,7 @@ public class Finder_actor implements Actor
         if ( fm.search_config.extension()!=null)
         {
             // no keywords but an extension
-            String ext = Static_files_and_paths_utilities.get_extension(target_path.getFileName().toString()).toLowerCase();
+            String ext = Extensions.get_extension(target_path.getFileName().toString()).toLowerCase();
             //logger.log("ext="+ext+" vs "+fm.search_config.extension());
             if(ext.equals(fm.search_config.extension()))
             {

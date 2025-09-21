@@ -18,16 +18,15 @@ import java.util.*;
 import java.util.function.Supplier;
 
 
-// a per-folder cache of image distances
+// a per-folder cache of item distances
 //**********************************************************
 public abstract class Similarity_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
     protected final Map<Path, Integer> dummy_names = new HashMap<>();
-
     private final Map<Path_pair, Integer> distances_cache = new HashMap<>();
-    protected Supplier<Feature_vector_cache> fv_cache_supplier = null;
-    Logger logger;
+    protected final Supplier<Feature_vector_cache> fv_cache_supplier;
+    protected final Logger logger;
     protected final Similarity_cache similarity_cache;
     protected final List<Path> images;
 

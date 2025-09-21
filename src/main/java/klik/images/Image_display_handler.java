@@ -176,16 +176,16 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         //boolean found = false;
         for (Old_and_new_Path oanf : l)
         {
-            if ( dbg) logger2.log("Image_display_handler, getting a you_receive_this_because_a_move_occurred_somewhere " + oanf.get_string());
+            if ( dbg) logger2.log("Image_display_handler, getting a you_receive_this_because_a_move_occurred_somewhere " + oanf.to_string());
 
             if (local.path == null)
             {
                 logger2.log("Image_display_handler, ic.f == null");
                 continue;
             }
-            if ( Static_files_and_paths_utilities.is_same_path(oanf.get_old_Path(),local.path,logger))
+            if ( Static_files_and_paths_utilities.is_same_path(oanf.old_Path,local.path,logger))
             {
-                if ( dbg) logger.log(oanf.get_old_Path().toAbsolutePath()+ " OLD path corresponds to currently displayed image "+local.path.toAbsolutePath());
+                if ( dbg) logger.log(oanf.old_Path.toAbsolutePath()+ " OLD path corresponds to currently displayed image "+local.path.toAbsolutePath());
                 // the case when the image has been dragged away is handled directly
                 // by the setOnDragDone event handler
 
@@ -193,7 +193,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 // for example the image was renamed
                 if (image_indexer.get().is_known(oanf.new_Path))
                 {
-                    if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.get_string());
+                    if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.to_string());
                     Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_cache.evict(local.path,owner);
@@ -213,13 +213,13 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 else
                 {
                     // the image was moved out of the current directory
-                    if ( dbg) logger.log("image moved out:" + oanf.get_string());
+                    if ( dbg) logger.log("image moved out:" + oanf.to_string());
                 }
 
             }
             else
             {
-                if ( dbg) logger.log(oanf.get_old_Path().toAbsolutePath()+ "OLD path DOES NOT corresponds to currently displayed image "+local.path.toAbsolutePath());
+                if ( dbg) logger.log(oanf.old_Path.toAbsolutePath()+ "OLD path DOES NOT corresponds to currently displayed image "+local.path.toAbsolutePath());
             }
         }
 

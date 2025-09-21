@@ -274,14 +274,14 @@ public class Virtual_landscape_menus
                 // since perform_safe_moves_in_a_thread will trigger the Chang_gang?
                 List<Old_and_new_Path> l = new ArrayList<>();
                 Path displayed_folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command.command_unknown, Status_old_and_new_Path.move_done, false));
+                l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command.command_unknown, Status.move_done, false));
                 Change_gang.report_changes(l, owner);
             }
             Old_and_new_Path oanp = new Old_and_new_Path(
                     f.toPath(),
                     Path.of(folder.toAbsolutePath().toString(), f.getName()),
                     Command.command_move,
-                    Status_old_and_new_Path.before_command, false);
+                    Status.before_command, false);
             moves.add(oanp);
 
         }
@@ -1795,7 +1795,7 @@ public class Virtual_landscape_menus
             }
             logger.log("processing "+old_name+" as it is NOT conformant, will try: "+new_name);
             Path new_path = Paths.get(dir.toString(),new_name);
-            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status_old_and_new_Path.before_command,false);
+            Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status.before_command,false);
             l.add(oandn);
         }
         double x = owner.getX()+100;

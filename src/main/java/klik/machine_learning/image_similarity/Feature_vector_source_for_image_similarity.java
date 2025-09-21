@@ -26,7 +26,9 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
 
     static Random random = new Random();
 
+    //**********************************************************
     public Feature_vector_source_for_image_similarity(Aborter aborter)
+    //**********************************************************
     {
         super(aborter);
     }

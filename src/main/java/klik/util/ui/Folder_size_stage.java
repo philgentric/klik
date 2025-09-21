@@ -1,4 +1,4 @@
-package klik.util.files_and_paths;
+package klik.util.ui;
 
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -16,13 +16,14 @@ import klik.actor.Actor_engine;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.util.ui.Jfx_batch_injector;
+import klik.util.files_and_paths.Sizes;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
 
 //**********************************************************
-public class Folder_size
+public class Folder_size_stage
 //**********************************************************
 {
 

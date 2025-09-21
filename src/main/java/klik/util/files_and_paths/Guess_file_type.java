@@ -9,15 +9,15 @@ import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-static utilities to guess the file type from its extension
- */
+// static utilities to guess the file type
+// 1. from its extension, for speed
+// 2. from the metadata
+
 //**********************************************************
 public class Guess_file_type
 //**********************************************************
@@ -53,7 +53,7 @@ public class Guess_file_type
     public static boolean is_file_an_image(File f)
     //**********************************************************
     {
-        return is_this_path_an_image(f.toPath());
+        return is_this_extension_an_image(f.toPath());
     }
 
     //**********************************************************
@@ -80,15 +80,15 @@ public class Guess_file_type
     //**********************************************************
     {
         if (should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_text(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_an_image(Path path)
+    public static boolean is_this_extension_an_image(Path path)
     //**********************************************************
     {
         if (should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_image(extension);
     }
 
@@ -114,7 +114,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if ( should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio(extension);
     }
 
@@ -123,7 +123,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if ( should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio_playlist(extension);
     }
     //**********************************************************
@@ -131,7 +131,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if ( should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_image_playlist(extension);
     }
     //**********************************************************
@@ -139,7 +139,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if ( should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_pdf(extension);
     }
     //**********************************************************
@@ -147,7 +147,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if ( should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_gif(extension);
     }
 
@@ -156,7 +156,7 @@ public class Guess_file_type
     //**********************************************************
     {
         if ( should_ignore(path)) return false;
-        String extension = Static_files_and_paths_utilities.get_extension(path.getFileName().toString());
+        String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_video(extension);
     }
 

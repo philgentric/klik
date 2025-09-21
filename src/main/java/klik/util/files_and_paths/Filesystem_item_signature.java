@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
+// stores the signature of a folder or a file
 //**********************************************************
 public class Filesystem_item_signature
 //**********************************************************

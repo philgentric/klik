@@ -6,6 +6,8 @@ import klik.util.log.Logger;
 public class Filename_sanitizer
 //**********************************************************
 {
+    // remove all 'weird' stuff in a string that may make it
+    // unsuitable for a filename and especially a URL
     //**********************************************************
     public static String sanitize(String name, Logger logger)
     //**********************************************************

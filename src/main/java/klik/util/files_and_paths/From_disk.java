@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 //static utilities for loading images and icons from the disk
-
 //**********************************************************
 public class From_disk
 //**********************************************************

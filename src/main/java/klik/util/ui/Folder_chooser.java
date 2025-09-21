@@ -1,4 +1,4 @@
-package klik.util.files_and_paths;
+package klik.util.ui;
 
 
 import javafx.geometry.Insets;
@@ -17,6 +17,7 @@ import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans_properties;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 
 import java.io.File;

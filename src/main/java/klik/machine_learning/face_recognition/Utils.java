@@ -73,7 +73,8 @@ public class Utils
         }
     }
 
-    public static Image get_image(Path path) {
+    public static Image get_image(Path path)
+    {
         return new Image(path.toFile().toURI().toString());
     }
 }

@@ -3,8 +3,10 @@ package klik.actor.virtual_threads;
 import klik.actor.*;
 import klik.util.log.Logger;
 import klik.util.execute.Threads;
+import klik.util.log.Stack_trace_getter;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
 //**********************************************************
 public class Actor_engine_with_virtual_threads implements Actor_engine_interface
@@ -39,7 +41,15 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
             Actor_engine.threads_in_flight.decrementAndGet();
         };
         ExecutorService executor_service = Threads.get_executor_service(logger);
-        executor_service.execute(r);
+        try
+        {
+            executor_service.execute(r);
+        }
+        catch (RejectedExecutionException e)
+        {
+            job.has_failed(""+e);
+            logger.log(Stack_trace_getter.get_stack_trace("WARNING: thread not started"+e));
+        }
         return job;
     }
 

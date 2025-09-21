@@ -17,7 +17,9 @@ import java.util.*;
 public class My_I18n
 //**********************************************************
 {
+
     private static final boolean dbg = false;
+    private static final boolean ultra_dbg = false;
     private ResourceBundle the_resource_bundle;
     private final Language language;
     private final Locale locale;
@@ -63,10 +65,12 @@ public class My_I18n
         catch (MissingResourceException e)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<- not found"));
-            logger.log("the resource bundle contains these keys:");
-            Enumeration<String> es = the_resource_bundle.getKeys();
-            while (es.hasMoreElements()) {
-                logger.log("->"+es.nextElement()+"<-");
+            if ( ultra_dbg) {
+                logger.log("the resource bundle contains these keys:");
+                Enumeration<String> es = the_resource_bundle.getKeys();
+                while (es.hasMoreElements()) {
+                    logger.log("->" + es.nextElement() + "<-");
+                }
             }
             return key;
         }

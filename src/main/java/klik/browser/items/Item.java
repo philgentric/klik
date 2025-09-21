@@ -1,6 +1,6 @@
 //SOURCES ../../util/execute/System_open_actor.java
 //SOURCES ../icons/*.java
-//SOURCES ../../util/files_and_paths/Folder_size.java
+//SOURCES ../../util/files_and_paths/Folder_size_stage.java
 //SOURCES ../../experimental/metadata/Tag_stage.java
 //SOURCES ./My_color.java
 /*
@@ -43,7 +43,8 @@ import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.System_open_actor;
-import klik.util.files_and_paths.Folder_size;
+import klik.util.files_and_paths.Moving_files;
+import klik.util.ui.Folder_size_stage;
 import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -243,7 +244,7 @@ public abstract class Item implements Icon_destination
         {
             Menu_items.add_menu_item(
                     "Get_folder_size",
-                    event -> Folder_size.get_folder_size(get_item_path(),owner, logger),
+                    event -> Folder_size_stage.get_folder_size(get_item_path(),owner, logger),
                     context_menu,owner,logger);
 
             if (is_trash())
@@ -292,7 +293,7 @@ public abstract class Item implements Icon_destination
         }
         else
         {
-            if (Guess_file_type.is_this_path_an_image(get_item_path())) {
+            if (Guess_file_type.is_this_extension_an_image(get_item_path())) {
                 create_open_exif_frame_menu_item(get_item_path(), context_menu);
             }
             if (Guess_file_type.is_this_path_a_music(get_item_path())) {
@@ -316,7 +317,7 @@ public abstract class Item implements Icon_destination
             Menu_items.add_menu_item("Open_With_Klik_Text_Frame",
                     actionEvent -> {
                     if (dbg) logger.log("button in item: Open_With_Klik_Text_Frame");
-                    Text_frame.show(get_item_path(),path_comparator_source);
+                    Text_frame.show(get_item_path(),logger);
                 }, context_menu,owner,logger);
 
             create_rename_menu_item(local_button, local_label,context_menu);
@@ -634,7 +635,7 @@ public abstract class Item implements Icon_destination
                 actionEvent.consume();
                 if ( get_item_path().toFile().isDirectory() )
                 {
-                    Path new_path = Static_files_and_paths_utilities.change_dir_name(get_item_path(), new_dir_name, owner, aborter, logger);
+                    Path new_path = Moving_files.change_dir_name(get_item_path(), new_dir_name, owner, aborter, logger);
                     if ( new_path == null)
                     {
                         if (dbg) logger.log("rename failed");

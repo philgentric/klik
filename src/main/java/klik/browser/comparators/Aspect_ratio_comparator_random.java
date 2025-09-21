@@ -14,24 +14,32 @@ import java.util.UUID;
 public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
-    long seed;
+    private final long seed;
     // make sure the comparator is consistent
-    HashMap<Path,Long> cache_local = new HashMap<>();
+    private final HashMap<Path,Long> cache_local = new HashMap<>();
     private final Image_properties_RAM_cache image_properties_ram_cache;
 
+    //**********************************************************
     public Aspect_ratio_comparator_random(Image_properties_RAM_cache image_properties_ram_cache)
+    //**********************************************************
     {
         this.image_properties_ram_cache = image_properties_ram_cache;
         Random r = new Random();
         seed = r.nextLong();
     }
 
+    //**********************************************************
     @Override
-    public void clear_RAM_cache() {
+    public void clear_RAM_cache()
+    //**********************************************************
+    {
         cache_local.clear();
+        image_properties_ram_cache.clear_cache();
     }
+    //**********************************************************
     @Override
     public int compare(Path p1, Path p2)
+    //**********************************************************
     {
         Image_properties ip1 = image_properties_ram_cache.get_from_cache(p1,null);
         if ( ip1 == null)

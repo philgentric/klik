@@ -15,7 +15,6 @@ import klik.machine_learning.feature_vector.Feature_vector_double;
 import klik.images.Image_window;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
-import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.*;

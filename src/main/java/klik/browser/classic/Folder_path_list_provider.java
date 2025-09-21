@@ -68,7 +68,7 @@ public class Folder_path_list_provider implements Path_list_provider
         for (File file : files)
         {
             if ( file.isDirectory() ) continue;
-            if ( !Guess_file_type.is_this_path_an_image(file.toPath())) continue;
+            if ( !Guess_file_type.is_this_extension_an_image(file.toPath())) continue;
             if (! consider_also_hidden_files)
             {
                 if ( Guess_file_type.should_ignore(file.toPath())) continue;
@@ -217,11 +217,12 @@ public class Folder_path_list_provider implements Path_list_provider
     public Move_provider get_move_provider()
     //**********************************************************
     {
-        return (owner, x, y, destination_dir, destination_is_trash, the_list, safeMoveFilesOrDirs, logger) -> Moving_files.safe_move_files_or_dirs(owner,x,y,
+        return ( destination_dir, destination_is_trash, the_list, owner, x, y,aborter, logger) -> Moving_files.safe_move_files_or_dirs(
                 destination_dir,
                 destination_is_trash,
                 the_list,
-                new Aborter("dummy",logger),
+                owner, x, y,
+                aborter,
                 logger);
     }
 

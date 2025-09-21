@@ -8,7 +8,7 @@ import klik.change.Change_gang;
 import klik.util.files_and_paths.Command;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Old_and_new_Path;
-import klik.util.files_and_paths.Status_old_and_new_Path;
+import klik.util.files_and_paths.Status;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -150,7 +150,7 @@ public class Playlist_path_list_provider implements Path_list_provider
         for ( String s : paths)
         {
             if ( (new File(s)).isDirectory()) continue;
-            if( !Guess_file_type.is_this_path_an_image(Path.of(s))) continue;
+            if( !Guess_file_type.is_this_extension_an_image(Path.of(s))) continue;
             if (! consider_also_hidden_files)
             {
                 if ( Guess_file_type.should_ignore(Path.of(s))) continue;
@@ -223,7 +223,7 @@ public class Playlist_path_list_provider implements Path_list_provider
     public Move_provider get_move_provider()
     //**********************************************************
     {
-        return (owner, x, y, destination_dir, destination_is_trash, the_list, safeMoveFilesOrDirs, logger) ->
+        return (destination_dir, destination_is_trash, the_list,owner, x, y,  aborter, logger) ->
         {
             for ( File f : the_list)
             {
@@ -246,7 +246,7 @@ public class Playlist_path_list_provider implements Path_list_provider
                 the_playlist_file_path,
                 the_playlist_file_path,
                 Command.command_edit,
-                Status_old_and_new_Path.edition_done,
+                Status.edition_done,
                 false);
         l.add(oanp);
         Change_gang.report_changes(l,owner);

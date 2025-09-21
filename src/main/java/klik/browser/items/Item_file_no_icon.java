@@ -347,7 +347,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if ( Guess_file_type.is_this_path_a_text(get_item_path()))
             {
                 logger.log("opening text: " + get_item_path().toAbsolutePath());
-                Text_frame.show(get_item_path(),path_comparator_source);
+                Text_frame.show(get_item_path(),logger);
                 return;
             }
             if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path()))

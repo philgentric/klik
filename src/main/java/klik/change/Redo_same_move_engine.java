@@ -27,7 +27,7 @@ public class Redo_same_move_engine
         }
         Path new_path = Path.of(last_destination_folder.toAbsolutePath().toString(), old_path.getFileName().toString());
         logger.log("Redo_same_move_engine.same_move:\n    old: "+old_path+"\n    new: "+new_path);
-        Old_and_new_Path oanp = new Old_and_new_Path(old_path,new_path, Command.command_move, Status_old_and_new_Path.before_command,false);
+        Old_and_new_Path oanp = new Old_and_new_Path(old_path,new_path, Command.command_move, Status.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oanp);
         double x = the_stage.getX()+100;

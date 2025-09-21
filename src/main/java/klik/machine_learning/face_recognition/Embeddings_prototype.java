@@ -2,6 +2,7 @@ package klik.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
 import klik.machine_learning.feature_vector.Feature_vector;
+import klik.util.files_and_paths.Extensions;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -23,7 +24,7 @@ public interface Embeddings_prototype
     static Path make_prototype_path(Path face_recognizer_path, String name)
     //**********************************************************
     {
-        return Path.of(face_recognizer_path.toAbsolutePath().toString() , name+"."+Face_recognition_service.EXTENSION_FOR_EP);
+        return Path.of(face_recognizer_path.toAbsolutePath().toString() , Extensions.add(name,Face_recognition_service.EXTENSION_FOR_EP));
     }
 
     //**********************************************************

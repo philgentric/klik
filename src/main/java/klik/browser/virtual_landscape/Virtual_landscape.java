@@ -378,7 +378,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         the_Scene.setOnDragDropped(drag_event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Browser: OnDragDropped handler called");
             if (dbg) logger.log("Something has been dropped in browser for dir :" + path_list_provider.get_name());
-            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),owner, drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, logger);
+            int n = Drag_and_drop.accept_drag_dropped_as_a_move_in(path_list_provider.get_move_provider(),drag_event, displayed_folder_path, the_Pane, "browser of dir: " + displayed_folder_path, false, owner, logger);
             set_status(n + " files have been dropped in");
             selection_handler.on_drop();
             drag_event.setDropCompleted(true);

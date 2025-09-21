@@ -6,6 +6,7 @@ import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source;
 import klik.properties.Non_booleans_properties;
 import klik.util.execute.Execute_command;
+import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 
@@ -89,7 +90,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     //**********************************************************
     {
         Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
-        String base = Static_files_and_paths_utilities.get_base_name(path.getFileName().toString());
+        String base = Extensions.get_base_name(path.getFileName().toString());
         String wav_path = klik_trash.resolve(base+".wav").toString();
 
         //logger.log("tmp wav path is:"+wav_path);

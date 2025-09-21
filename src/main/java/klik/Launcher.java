@@ -275,6 +275,11 @@ public class Launcher extends Application implements UI_change
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_graphicsmagick(logger), stage, logger));
         }
+        {
+            Button b = new Button(My_I18n.get_I18n_string("Install_mediainfo", stage,logger));
+            set_look(b, vbox, look_and_feel,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_mediainfo(logger), stage, logger));
+        }
 
 
 
@@ -317,6 +322,19 @@ public class Launcher extends Application implements UI_change
                 false, stage, logger);
         return null;
     }
+
+    //**********************************************************
+    private String get_command_string_to_install_mediainfo(Logger logger)
+    //**********************************************************
+    {
+        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
+            return "brew install mediainfo";
+        }
+        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
+                false, stage, logger);
+        return null;
+    }
+
 
     //**********************************************************
     private void show_version(Window owner, Logger logger)

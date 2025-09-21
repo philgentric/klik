@@ -9,5 +9,5 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface Move_provider {
-    void move(Window owner, double x, double y, Path destinationDir, boolean destinationIsTrash, List<File> theList, Aborter safeMoveFilesOrDirs, Logger logger);
+    void move(Path destinationDir, boolean destinationIsTrash, List<File> theList, Window owner, double x, double y, Aborter aborter, Logger logger);
 }
