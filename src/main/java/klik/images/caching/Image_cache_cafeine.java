@@ -84,8 +84,7 @@ public class Image_cache_cafeine implements Cache_interface
             Image_decode_request_for_cache idr = new Image_decode_request_for_cache(
                     path,
                     this,
-                    image_display_handler.image_window.alternate_rescaler,
-                    owner,
+                    image_display_handler.image_window,
                     aborter);
             if (ultra_dbg)
                 logger.log("preloading request: " + idr.get_string());

@@ -76,7 +76,7 @@ public class Image_cache_linkedhashmap implements Cache_interface
 
         for (Path path: kk)
         {
-            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, image_display_handler.image_window.alternate_rescaler,owner,aborter);
+            Image_decode_request_for_cache idr = new Image_decode_request_for_cache(path, this, image_display_handler.image_window,aborter);
             Actor_engine.run(image_decoding_actor,idr,null,logger);
         }
 

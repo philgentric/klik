@@ -50,6 +50,13 @@ I think it should be a "pin it" choice: user chooses which folders remember thei
 right ! which ones ?
 
 webp?
+
+one simple trick is to use some tool like ffmpeg to convert to a format JavaFX supports like jpg, as a tmp file ?
+
+or use javaCV?
+
+or use libsdl4j?
+
 xcf? (the gimp format)
 
 FITS? (for scientists/astronomers)

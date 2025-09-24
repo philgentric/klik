@@ -79,7 +79,7 @@ public class Image_window
     Path_list_provider path_list_provider;
     public Path_comparator_source path_comparator_source;
 
-    public boolean alternate_rescaler;
+    public boolean alternate_rescaler = false;
 
     //**********************************************************
     public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
@@ -209,7 +209,7 @@ public class Image_window
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp, alternate_rescaler,stage,aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp,aborter, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -477,7 +477,7 @@ public class Image_window
 
         StringBuilder local_title = new StringBuilder();
 
-
+        if ( alternate_rescaler) local_title.append("Magic Kernel Sharp 2021 rescaler ");
         if ( title_optional_addendum !=null) local_title.append(title_optional_addendum).append(" ");
         if (ic.path == null)
         {
@@ -590,7 +590,12 @@ public class Image_window
 
         if ( local_image_context == null)
         {
-            logger.log_stack_trace(" Image_context is null, should not happen");
+            logger.log_stack_trace("FATAL: Image_context is null, should not happen");
+            return;
+        }
+        if ( local_image_context.image == null)
+        {
+            logger.log_stack_trace("FATAL: Image_context.Image is null, should not happen");
             return;
         }
         // if pix-for-pix was used on a very large image, the window size is very large too..
@@ -696,6 +701,22 @@ public class Image_window
         return dir;
     }
 
+    //**********************************************************
+    void redisplay()
+    //**********************************************************
+    {
+        Optional<Image_context> option = Image_context.build_Image_context(image_display_handler.get_image_context().get().path, this, aborter, logger);
+        if (option.isPresent())
+        {
+            set_image(option.get());
+            if ( alternate_rescaler) logger.log("image has been re-displayed with alternate rescaling");
+            else logger.log("image has been re-displayed with default rescaling");
+        }
+        else
+        {
+            logger.log("WARNING: image has NOT been re-displayed???");
+        }
+    }
 
 
 }

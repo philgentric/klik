@@ -705,7 +705,7 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         clean.getItems().add(menu);
 
-        Menu_items.add_menu_item2("Deduplicate_with_confirmation_quasi_similar_images",
+        Menu_items.add_menu_item2("Deduplicate_with_confirmation_quasi_similar_songs",
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -719,7 +719,7 @@ public class Virtual_landscape_menus
                             logger)).do_your_job();
                 },menu,owner,logger);
 
-        Menu_items.add_menu_item2("Deduplicate_with_confirmation_images_looking_a_bit_the_same",
+        Menu_items.add_menu_item2("Deduplicate_with_confirmation_songs_sounding_a_bit_the_same",
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(

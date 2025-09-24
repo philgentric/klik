@@ -471,7 +471,7 @@ public class Mouse_handling_for_Image_window
                 if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
 
                 image_window.show_wait_cursor();
-                Optional<Image_context> option = Image_context.build_Image_context(file.toPath(), image_window.alternate_rescaler,image_window.stage, image_window.aborter, logger);
+                Optional<Image_context> option = Image_context.build_Image_context(file.toPath(), image_window, image_window.aborter, logger);
                 //image_file_source =  Image_indexer.get_Image_file_source(fff.getParentFile().toPath(), logger);
                 if ( option.isPresent())
                 {

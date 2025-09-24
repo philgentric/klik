@@ -66,6 +66,8 @@ dependencies {
     // for writing png files without AWT
     implementation 'ar.com.hjg:pngj:2.1.0'
 
+    // for Magic Kernel Sharp 2021 top quality image rescaling
+    implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
 }
 
 tasks.register('klik', JavaExec) {
@@ -73,6 +75,7 @@ tasks.register('klik', JavaExec) {
     mainClass = 'klik.Klik_application'
     classpath(sourceSets.main.runtimeClasspath)
     group = 'applications'
+    //jvmArgs = ['--enable-native-access=ALL-UNNAMED', '-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
 
     doFirst {
         println "doFirst start"
@@ -109,6 +112,8 @@ application {
 run{
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
+    //systemProperty 'java.library.path' , '/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib'
+    //jvmArgs = ['--enable-native-access=ALL-UNNAMED','-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
 }
 
 

@@ -67,7 +67,6 @@ public class Multiple_image_window
         Aborter aborter = new Aborter("Multiple_image_window",logger_);
         Optional<Image_context> option = Image_context.build_Image_context(
                 path,
-                false,
                 from_stage, aborter, logger_);
         if (option.isEmpty()) {
             logger_.log(Stack_trace_getter.get_stack_trace("Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
@@ -231,12 +230,12 @@ public class Multiple_image_window
                 {
                     System.out.println("method="+method+" left side is method1");
                     method_1();
-                    method_2(size);
+                    method_2(size,100);
                 }
                 else
                 {
                     System.out.println("method="+method+" left side is method2");
-                    method_2(size);
+                    method_2(size,100);
                     method_1();
                 }
                 method++;
@@ -253,14 +252,25 @@ public class Multiple_image_window
 
 
     //**********************************************************
-    private void method_2(double size)
+    private void method_2(double w, double h)
     //**********************************************************
     {
-        Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) size);
+        Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) w, (int) h);
         if (option.isEmpty()) return;
         ImageView local = option.get().the_image_view;
         add(local,"bicubic");
         logger.log("bicubic rescaled used for:" + option.get().path.getFileName());
+    }
+
+    //**********************************************************
+    private void method_3(double w, double h)
+    //**********************************************************
+    {
+        Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) w, (int) h);
+        if (option.isEmpty()) return;
+        ImageView local = option.get().the_image_view;
+        add(local,"Lanczos");
+        logger.log("Lanczos rescaled used for:" + option.get().path.getFileName());
     }
 
     //**********************************************************
@@ -277,14 +287,14 @@ public class Multiple_image_window
 
 
     //**********************************************************
-    private Optional<Image_context> get_Image_context_with_alternate_rescaler(int width)
+    private Optional<Image_context> get_Image_context_with_alternate_rescaler(int width, int height)
     //**********************************************************
     {
         if (image_indexer == null)
         {
             image_indexer = Image_indexer.get_Image_indexer(path_list_provider, ic.path.getParent(),new Alphabetical_file_name_comparator(),aborter,logger);
         }
-        return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, null, aborter, logger);
+        return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, height, the_stage, aborter, logger);
 
     }
 

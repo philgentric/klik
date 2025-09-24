@@ -301,12 +301,12 @@ public abstract class Look_and_feel
         // here, we just load the font in the javafx cache
         if ( font != null)
         {
-            logger.log("fonfont "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family= "+font.getFamily());
+            logger.log("load_font: "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family= "+font.getFamily());
             return true;
         }
         else
         {
-            logger.log("ERROR: fonfont "+file_name+" not loaded");
+            logger.log("ERROR: load_font: "+file_name+" not loaded");
             return false;
         }
     }

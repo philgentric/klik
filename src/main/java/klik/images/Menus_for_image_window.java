@@ -124,7 +124,7 @@ public class Menus_for_image_window
         }
 
         image_display_handler.logger.log("GIF repair2 OK");
-        Optional<Image_context> option = Image_context.build_Image_context(local_path, image_window.alternate_rescaler, image_window.stage, image_window.aborter, image_window.logger);
+        Optional<Image_context> option = Image_context.build_Image_context(local_path, image_window, image_window.aborter, image_window.logger);
         if (option.isEmpty()) {
             image_display_handler.logger.log("getting a new image context failed after gif repair");
         } else {
@@ -278,7 +278,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Perform_face_recognition_service_DIRECTLY (debug)",
+                "Perform_face_recognition_service_DIRECTLY",
                 event -> perform_face_reco_directly(image_window),
                 image_window.stage, image_window.logger);
     }
@@ -338,10 +338,9 @@ public class Menus_for_image_window
             boolean new_alternate_rescaler = ((CheckMenuItem) actionEvent.getSource()).isSelected();
             if (new_alternate_rescaler != image_window.alternate_rescaler)
             {
-                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                Optional<Image_context> option = Image_context.build_Image_context(image_window.image_display_handler.get_image_context().get().path,image_window.alternate_rescaler, image_window.stage, image_window.aborter, image_window.logger);
-                option.ifPresent(image_window::set_image);
-                image_window.logger.log("image has been re-displayed with alternate rescaling");
+                image_window.alternate_rescaler = new_alternate_rescaler;
+                //if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+                image_window.redisplay();
             }
 
         });

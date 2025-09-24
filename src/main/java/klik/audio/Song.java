@@ -12,7 +12,6 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -152,7 +151,7 @@ public record Song(String path, Node node)
 
         Menu_items.add_menu_item(
                 "Edit_Song_Metadata",
-                (ActionEvent e) -> Metadata_editor.edit_metadata_of_a_file_in_a_thread(Path.of(full_path), owner, logger),
+                (ActionEvent e) -> Ffmpeg_metadata_editor.edit_metadata_of_a_file_in_a_thread(Path.of(full_path), owner, logger),
                 context_menu, owner, logger);
 
         return context_menu;

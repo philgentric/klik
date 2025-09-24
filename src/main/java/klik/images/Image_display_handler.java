@@ -57,20 +57,19 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public static Optional<Image_display_handler> get_Image_display_handler_instance(
             Path_list_provider path_list_provider,
             Path path,
-            Image_window v_,
+            Image_window image_window,
             Comparator<? super Path> file_comparator,
-            boolean alternate_rescaler,
-            Window owner, Aborter aborter, Logger logger_)
+            Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Optional<Image_context> image_context_ = Image_context.build_Image_context(path,alternate_rescaler,owner,aborter, logger_);
+        Optional<Image_context> image_context_ = Image_context.build_Image_context(path,image_window,aborter, logger_);
         if (image_context_.isEmpty())
         {
             logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
         }
 
-        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), v_, file_comparator,aborter, logger_));
+        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), image_window, file_comparator,aborter, logger_));
         return returned;
     }
 
@@ -199,7 +198,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         image_cache.evict(local.path,owner);
                         Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.stage,logger);
                         // reload the image
-                        Optional<Image_context> option = Image_context.build_Image_context(local.path, false, image_window.stage,aborter,logger);
+                        Optional<Image_context> option = Image_context.build_Image_context(local.path, image_window,aborter,logger);
                         if ( option.isPresent())
                         {
                             image_context = Optional.of(option.get());
@@ -267,7 +266,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
             Path p = image_indexer.get().path_from_index(0);
             if ( p == null) return;
-            image_context = Image_context.build_Image_context(p,image_window.alternate_rescaler,image_window.stage,aborter,logger);
+            image_context = Image_context.build_Image_context(p,image_window,aborter,logger);
         }
         if ( dbg) logger.log("change_image_relative delta=" + delta);
 

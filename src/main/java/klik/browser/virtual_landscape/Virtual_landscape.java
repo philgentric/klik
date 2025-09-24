@@ -83,8 +83,6 @@ import java.util.function.Supplier;
 public class Virtual_landscape implements Scan_show_slave, Selection_reporter, Top_left_provider, Path_comparator_source, Feature_change_target, String_change_target
 //**********************************************************
 {
-
-
     public static final boolean dbg = false;
     public static final boolean ultra_dbg = false;
     public static final boolean invisible_dbg = false;
@@ -764,7 +762,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
             if ( ip == null)
             {
-                logger.log(("Warning: image property cache miss for: "+path));
+                if ( dbg) logger.log(("Warning: image property cache miss for: "+path));
             }
             else
             {

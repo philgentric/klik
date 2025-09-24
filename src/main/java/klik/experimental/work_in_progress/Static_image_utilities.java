@@ -4,9 +4,7 @@ package klik.experimental.work_in_progress;
 import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.image.*;
-import javafx.scene.transform.Scale;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.images.Image_context;
@@ -17,9 +15,14 @@ import klik.util.log.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.foreign.*;
+import java.lang.invoke.MethodHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+
+import static java.lang.Math.sin;
+import static java.lang.foreign.ValueLayout.*;
 
 
 //**********************************************************
@@ -42,78 +45,106 @@ public class Static_image_utilities
         ImageInfo image_info = new ImageInfo(w, h, 8, true); // 8-bit RGBA
 
         Path out_path = out_file.toPath();
-        try
-        {
+        try {
             OutputStream os = Files.newOutputStream(out_path);
             PngWriter png = new PngWriter(os, image_info);
 
             ImageLineByte line = new ImageLineByte(image_info);
             byte[] scan = line.getScanlineByte();
 
-            for (int y = 0; y < h; y++)
-            {
+            for (int y = 0; y < h; y++) {
                 int idx = 0;
-                for (int x = 0; x < w; x++)
-                {
+                for (int x = 0; x < w; x++) {
                     int argb = pr.getArgb(x, y);
                     // PNG expects RGBA
                     scan[idx++] = (byte) ((argb >> 16) & 0xFF); // R
-                    scan[idx++] = (byte) ((argb >> 8)  & 0xFF); // G
-                    scan[idx++] = (byte) ( argb        & 0xFF); // B
+                    scan[idx++] = (byte) ((argb >> 8) & 0xFF); // G
+                    scan[idx++] = (byte) (argb & 0xFF); // B
                     scan[idx++] = (byte) ((argb >> 24) & 0xFF); // A
                 }
                 png.writeRow(line, y);
             }
             png.end();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             logger.log("Icon_writer_actor: Error writing icon to cache: " + e.getMessage() + " for tag: " + tag);
         }
-        if ( dbg) logger.log("Icon_writer_actor: Icon written to cache: ");
+        if (dbg) logger.log("Icon_writer_actor: Icon written to cache: ");
     }
 
 
     //**********************************************************
-    public static Optional<Image_context> get_Image_context_with_alternate_rescaler(Path path_, double width, Window owner, Aborter aborter, Logger logger_)
+    public static Optional<Image_context> get_Image_context_with_alternate_rescaler(
+            Path path_,
+            double window_width,
+            double window_height,
+            Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         if (!Files.exists(path_)) return Optional.empty();
-        javafx.scene.image.Image local_image = From_disk.load_native_resolution_image_from_disk(path_, true, owner, aborter, logger_);
-        if ( local_image == null) return Optional.empty();
-        if ( local_image.isError())
-        {
-            javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300,owner,logger_);
+        Image local_image = From_disk.load_native_resolution_image_from_disk(path_, true, owner, aborter, logger_);
+        if (local_image == null) return Optional.empty();
+        if (local_image.isError()) {
+            javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300, owner, logger_);
 
-            return Optional.of(new Image_context(path_,path_, broken,logger_));
+            return Optional.of(new Image_context(path_, path_, broken, logger_));
         }
         logger_.log("using alternate rescaling");
 
-        WritableImage resized_image = Static_image_utilities.transform_with_alternate_rescaler(local_image,(int)width,logger_);
-        return Optional.of(new Image_context(path_,path_,resized_image,logger_));
+        double width_ratio = window_width/local_image.getWidth();
+        double height_ratio = window_height/local_image.getHeight();
+        double scale = width_ratio;
+        if ( width_ratio > height_ratio)
+        {
+            scale = height_ratio;
+        }
+        Image resized_image = Vips_utils.resize(local_image, scale,logger_);
+        return Optional.of(new Image_context(path_, path_, resized_image, logger_));
     }
 
     //**********************************************************
-    public static WritableImage transform_with_alternate_rescaler(
+    public static Image transform_with_alternate_rescaler(
             Image input,
-            int target_width,
+            double scale,
             Logger logger)
     //**********************************************************
     {
-        int source_image_width = (int)input.getWidth();
-        int source_image_height = (int)input.getHeight();
-        logger.log("source_image_width="+source_image_width);
-        logger.log("source_image_height="+source_image_height);
-        logger.log("target_width="+target_width);
+        return Vips_utils.resize(input,scale,logger);
+    }
 
+    //**********************************************************
+    public static WritableImage transform_with_alternate_rescaler_old(
+            Image input,
+            int window_width,
+            int window_height,
+            Logger logger)
+    //**********************************************************
+    {
+        // we want the image to 'fit' in the window
+        // let us look at the aspect ratios to see which constraint is the most demanding
+        // is it window_width or window_height?
 
-        double scaleX = (double)target_width / (double)source_image_width;
-        int target_height = (int) ((double)source_image_height * scaleX);
-        logger.log("target_height="+target_height);
+        double width_ratio = (double)window_width/input.getWidth();
+        double height_ratio = (double)window_height/input.getHeight();
+        double scale = width_ratio;
+        if ( width_ratio > height_ratio)
+        {
+            scale = height_ratio;
+        }
+        int target_width = (int) (input.getWidth() * scale);
+        logger.log("target_width=" + target_width);
 
-        double scaleY =  (double)target_height/ (double)source_image_height ;
-        logger.log("scaleX="+scaleX);
-        logger.log("scaleY="+scaleY);
+        int source_image_width = (int) input.getWidth();
+        int source_image_height = (int) input.getHeight();
+        logger.log("source_image_width=" + source_image_width);
+        logger.log("source_image_height=" + source_image_height);
+
+        double scaleX = (double) target_width / (double) source_image_width;
+        int target_height = (int) ((double) source_image_height * scaleX);
+        logger.log("target_height=" + target_height);
+
+        double scaleY = (double) target_height / (double) source_image_height;
+        logger.log("scaleX=" + scaleX);
+        logger.log("scaleY=" + scaleY);
 
         double ratioX = (double) source_image_width / target_width;
         double ratioY = (double) source_image_height / target_height;
@@ -123,13 +154,316 @@ public class Static_image_utilities
         WritableImage output = new WritableImage(target_width, target_height);
 
         PixelReader reader = input.getPixelReader();
-        if ( reader == null)
-        {
+        if (reader == null) {
             logger.log("FATAL: cannot get a PixelReader, wrong image format?");
             return null;
         }
         PixelWriter writer = output.getPixelWriter();
 
+        final boolean bicubic = false;
+        if ( bicubic)
+        {
+            bicubic(source_image_width, source_image_height,
+                    target_width, target_height,
+                    ratioX, ratioY,
+                    reader, writer);
+        }
+        else
+        {
+            lanczos_resize(source_image_width, source_image_height,
+                    target_width, target_height,
+                    ratioX, ratioY,
+                    1.0,
+                    reader, writer);
+        }
+
+        return output;
+    }
+
+
+    static class Pixel {
+        int red;
+        int green;
+        int blue;
+        int opacity;
+
+        Pixel(int red, int green, int blue, int opacity) {
+            this.red = red;
+            this.green = green;
+            this.blue = blue;
+            this.opacity = opacity;
+
+        }
+    }
+
+    static Pixel[] alloc_pixels(int w, int h) {
+        Pixel[] returned = new Pixel[w * h];
+        int index = 0;
+        for (int X = 0; X < w; X++) {
+            for (int Y = 0; Y < h; Y++) {
+                returned[index++] = new Pixel(0, 0, 0, 0);
+            }
+        }
+        return returned;
+    }
+
+    static Pixel[] AcquireImagePixels(PixelReader reader, int x_, int y_, int w_, int h_) {
+        Pixel[] returned = new Pixel[w_ * h_];
+        int index = 0;
+        for (int xx = x_; xx < x_+w_; xx++) {
+            for (int yy = y_; yy < y_+h_; yy++) {
+                int argb = reader.getArgb(xx, yy);
+                // extract red:
+                int alpha = (argb >> 24) & 0xFF;
+                int opacity = 255 - alpha;
+                int red = (argb >> 16) & 0xFF;
+                int green = (argb >> 8) & 0xFF;
+                int blue = argb & 0xFF;
+                returned[index++] = new Pixel(red, green, blue, opacity);
+            }
+        }
+        return returned;
+    }
+
+    public static int RoundDoubleToQuantum(double value) {
+        int quantum = (int) Math.round(value);
+        if (quantum < 0) return 0;
+        if (quantum > 255) return 255;
+        return quantum;
+    }
+
+    static final int TransparentOpacity = 24;
+    static final double MagickEpsilon = 1.0e-12;
+
+
+    static boolean HorizontalFilter(PixelReader reader, PixelWriter writer,
+                                    int target_width, int target_height,
+                                    int source_image_width, int source_image_height,
+                                    double x_factor, double y_factor,
+                                    double blur, int span, long quantum[])
+    {
+        double[] contribution_pixel = new double[128];
+        double[] contribution_weight = new double[128];
+        double scale = blur * Math.max(1.0 / x_factor, 1.0);
+        double support = scale * 3.0; // support for lanczos is 3.0
+        scale = 1.0 / scale;
+        for (int x = 0; x < target_width; x++)
+        {
+            double center = (x + 0.5) / x_factor;
+            long start = (long) Math.max(center - support + 0.5, 0);
+            long stop = (long) Math.min(center + support + 0.5, source_image_width);
+            double density = 0.0;
+            int n;
+            for (n = 0; n < (stop - start); n++) {
+                contribution_pixel[n] = start + n;
+                contribution_weight[n] = Lanczos(scale * (start + n - center + 0.5));
+                density += contribution_weight[n];
+            }
+            if ((density != 0.0) && (density != 1.0)) {
+                density = 1.0 / density;
+                for (int i = 0; i < n; i++)
+                    contribution_weight[i] *= density;
+            }
+
+            Pixel[] q = alloc_pixels(1, target_height);
+
+            Pixel[] p = AcquireImagePixels(
+                    reader,
+                    (int) contribution_pixel[0], //x
+                    0, //y
+                    (int) (contribution_pixel[n - 1] - contribution_pixel[0] + 1), // w
+                    source_image_height // h
+            );
+
+            Pixel zero = new Pixel(0, 0, 0, 0);
+            Pixel pixel = zero;
+            for (int y = 0; y < target_height; y++)
+            {
+                double normalize = 0.0;
+                for (int i = 0; i < n; i++)
+                {
+                    int j = (int) (y * (contribution_pixel[n - 1] - contribution_pixel[0] + 1) +
+                            (contribution_pixel[i] - contribution_pixel[0]));
+                    double weight = contribution_weight[i];
+                    double transparency_coeff = weight * (1 - ((double) p[j].opacity / TransparentOpacity));
+                    pixel.red += transparency_coeff * p[j].red;
+                    pixel.green += transparency_coeff * p[j].green;
+                    pixel.blue += transparency_coeff * p[j].blue;
+                    pixel.opacity += weight * p[j].opacity;
+                    normalize += transparency_coeff;
+                }
+                normalize = 1.0 / (Math.abs(normalize) <= MagickEpsilon ? 1.0 : normalize);
+                pixel.red *= normalize;
+                pixel.green *= normalize;
+                pixel.blue *= normalize;
+                q[y].red = RoundDoubleToQuantum(pixel.red);
+                q[y].green = RoundDoubleToQuantum(pixel.green);
+                q[y].blue = RoundDoubleToQuantum(pixel.blue);
+                q[y].opacity = RoundDoubleToQuantum(pixel.opacity);
+
+                int alpha = 0;//255 - (q[y].opacity & 0xFF);
+                int argb = ((alpha & 0xFF) << 24) |
+                        ((q[y].red & 0xFF) << 16) |
+                        ((q[y].green & 0xFF) << 8) |
+                        (q[y].blue & 0xFF);
+                writer.setArgb(x, y, argb);
+                System.out.println(""+x+" "+y+" "+argb);
+            }
+            quantum[0] = quantum[0] + 1;
+        }
+        return true;
+    }
+
+
+    static boolean VerticalFilter(PixelReader reader, PixelWriter writer,
+                                        int target_width, int target_height,
+                                        int source_image_width, int source_image_height,
+                                        double x_factor, double y_factor,
+                                        double blur, int span,long quantum[])
+    {
+        double[] contribution_pixel = new double[128];
+        double[] contribution_weight = new double[128];
+        double scale=blur*Math.max(1.0/y_factor,1.0);
+        double support=scale*3.0; // support for lanczos is 3.0
+        scale=1.0/scale;
+        for (int y=0; y < target_height; y++)
+        {
+            double center= (y+0.5)/y_factor;
+            long start=(long) Math.max(center-support+0.5,0);
+            long stop=(long) Math.min(center+support+0.5,source_image_height);
+            double density=0.0;
+            int n;
+            for ( n=0; n < (stop-start); n++)
+            {
+                contribution_pixel[n]=start+n;
+                contribution_weight[n]=Lanczos(scale*(start+n-center+0.5));
+                density+=contribution_weight[n];
+            }
+            if ((density != 0.0) && (density != 1.0))
+            {
+                density = 1.0 / density;
+                for (int i = 0; i < n; i++)
+                {
+                    contribution_weight[i] *= density;
+                }
+            }
+
+            Pixel[] q = alloc_pixels(target_width,1);
+
+            Pixel[] p = AcquireImagePixels(
+                    reader,
+                    0, // x
+                    (int)contribution_pixel[0], //y
+                    source_image_width, //w
+                    (int)(contribution_pixel[n-1]-contribution_pixel[0]+1) // h
+                );
+
+            Pixel zero = new Pixel(0,0,0,0);
+            Pixel pixel = zero;
+            for (int x=0; x <  target_width; y++)
+            {
+                double normalize=0.0;
+                for (int i=0; i < n; i++)
+                {
+                    int j= (int) (x + (contribution_pixel[i]-contribution_pixel[0])*source_image_width);
+                    double weight=contribution_weight[i];
+                    double transparency_coeff = weight * (1 - ((double) p[j].opacity/TransparentOpacity));
+                    pixel.red+=transparency_coeff*p[j].red;
+                    pixel.green+=transparency_coeff*p[j].green;
+                    pixel.blue+=transparency_coeff*p[j].blue;
+                    pixel.opacity+=weight*p[j].opacity;
+                    normalize += transparency_coeff;
+                }
+                normalize = 1.0 / (Math.abs(normalize) <= MagickEpsilon ? 1.0 : normalize);
+                pixel.red *= normalize;
+                pixel.green *= normalize;
+                pixel.blue *= normalize;
+                q[x].red=RoundDoubleToQuantum(pixel.red);
+                q[x].green=RoundDoubleToQuantum(pixel.green);
+                q[x].blue=RoundDoubleToQuantum(pixel.blue);
+                q[x].opacity=RoundDoubleToQuantum(pixel.opacity);
+
+                int alpha = 255 - (q[y].opacity & 0xFF);
+                int argb = ((alpha & 0xFF) << 24) |
+                        ((q[y].red & 0xFF) << 16) |
+                        ((q[y].green & 0xFF) << 8) |
+                        (q[y].blue & 0xFF);
+                writer.setArgb(x, y, argb);
+            }
+            quantum[0] = quantum[0]+1;
+        }
+        return true;
+    }
+
+
+    static double Sinc( double x)
+    {
+        if (x == 0.0)
+            return(1.0);
+        return(sin(Math.PI*x)/(Math.PI*x));
+    }
+    
+    static double Lanczos( double x)
+    {
+        if (x < -3.0)
+            return(0.0);
+        if (x < 0.0)
+            return(Sinc(-x)*Sinc(-x/3.0));
+        if (x < 3.0)
+            return(Sinc(x)*Sinc(x/3.0));
+        return(0.0);
+    }
+    
+    private static boolean lanczos_resize(int source_image_width, int source_image_height,
+                                       int target_width, int target_height,
+                                       double ratioX, double ratioY,
+                                       double blur,// nop is 1.0, blur > 1.0 ==> softer, blur < 1.0 ==> sharper
+                                       PixelReader reader, PixelWriter writer)
+    {     
+
+        double x_factor=(double) target_width/source_image_width;
+        double y_factor=(double) target_height/source_image_height;
+
+        double x_support=blur*Math.max(1.0/x_factor,1.0)*3.0;
+        double y_support=blur*Math.max(1.0/y_factor,1.0)*3.0;
+        double support=Math.max(x_support,y_support);
+        if (support < 3.0) support=3.0;
+
+        long[] quantum= {0};
+        int span=source_image_width+target_height;
+        boolean status=HorizontalFilter(
+                reader,writer,
+                target_width,target_height,
+                source_image_width, source_image_height,
+                x_factor, y_factor,
+                blur,
+                span,
+                quantum);
+
+/*        if (!status ) return false;
+
+         status=VerticalFilter(
+                reader,writer,
+                target_width,target_height,
+                source_image_width, source_image_height,
+                x_factor, y_factor,
+                blur,
+                span,
+                quantum);
+*/
+         System.out.println("lanczos_resize done, quantum= "+quantum[0]);
+        return status;
+    }
+
+
+
+    //**********************************************************
+    private static void bicubic(int source_image_width, int source_image_height,
+                                int target_width, int target_height,
+                                double ratioX, double ratioY,
+                                PixelReader reader, PixelWriter writer)
+    //**********************************************************
+    {
         for (int j = 0; j < target_height; j++)
         {
             double y = j * ratioY;
@@ -169,10 +503,8 @@ public class Static_image_utilities
                 writer.setArgb(i, j, argb);
             }
 
-            
+
         }
-        
-        return output;
     }
 
     //**********************************************************
@@ -202,6 +534,109 @@ public class Static_image_utilities
             return 0.0;
         }
     }
+
+    public boolean use_FFM()
+    {
+        // Load the GraphicsMagick shared library
+        Linker linker = Linker.nativeLinker();
+        SymbolLookup lookup = SymbolLookup.libraryLookup("GraphicsMagickWand", Arena.global());
+
+        // Find essential functions
+        MethodHandle genesis = linker.downcallHandle(
+                lookup.find("MagickWandGenesis").get(),
+                FunctionDescriptor.ofVoid()
+        );
+        MethodHandle terminus = linker.downcallHandle(
+                lookup.find("MagickWandTerminus").get(),
+                FunctionDescriptor.ofVoid()
+        );
+        MethodHandle newWand = linker.downcallHandle(
+                lookup.find("NewMagickWand").get(),
+                FunctionDescriptor.of(ADDRESS)
+        );
+        MethodHandle readImage = linker.downcallHandle(
+                lookup.find("MagickReadImage").get(),
+                FunctionDescriptor.of(JAVA_BOOLEAN, ADDRESS, ADDRESS)
+        );
+        MethodHandle resizeImage = linker.downcallHandle(
+                lookup.find("MagickResizeImage").get(),
+                FunctionDescriptor.of(JAVA_BOOLEAN, ADDRESS, JAVA_LONG, JAVA_LONG, JAVA_INT, JAVA_DOUBLE)
+        );
+        MethodHandle writeImage = linker.downcallHandle(
+                lookup.find("MagickWriteImage").get(),
+                FunctionDescriptor.of(JAVA_BOOLEAN, ADDRESS, ADDRESS)
+        );
+
+        // Initialize GraphicsMagick
+        try {
+            genesis.invoke();
+        } catch (Throwable e) {
+            System.out.println(e);
+            return false;
+        }
+        System.out.println("init OK");
+
+        try (Arena arena = Arena.ofConfined()) {
+            // Create a new MagickWand
+            MemorySegment wand = null;
+            try {
+                wand = (MemorySegment) newWand.invoke();
+            } catch (Throwable e) {
+                System.out.println(e);
+                return false;
+            }
+
+            // Read input image
+            MemorySegment inputPath = arena.allocateFrom("input.jpg");
+            try {
+                readImage.invoke(wand, inputPath);
+            } catch (Throwable e) {
+                System.out.println(e);
+                return false;            }
+            System.out.println("read OK");
+
+            // Apply Lanczos filter (filter constant = 22)
+            int LanczosFilter = 22;
+            long newWidth = 800, newHeight = 600;
+            double blur = 1.0;
+
+            try {
+                resizeImage.invoke(wand, newWidth, newHeight, LanczosFilter, blur);
+            } catch (Throwable e) {
+                System.out.println(e);
+                return false;            }
+
+            System.out.println("resize OK");
+
+            // Write output image
+            MemorySegment outputPath = arena.allocateFrom("output.jpg");
+            try {
+                writeImage.invoke(wand, outputPath);
+            } catch (Throwable e) {
+                System.out.println(e);
+                return false;
+            }
+
+            System.out.println("resize OK");
+
+        }
+
+        // Cleanup
+        try {
+            terminus.invoke();
+        } catch (Throwable e) {
+            System.out.println(e);
+            return false;
+        }
+
+
+        return true;
+    }
+
+
+
+
+
 /*
     TODO restore the alternate rescaler option, this code used AWT Graphics2D
     there is an alternative using pure javafx

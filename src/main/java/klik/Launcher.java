@@ -276,7 +276,7 @@ public class Launcher extends Application implements UI_change
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_graphicsmagick(logger), stage, logger));
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Install_mediainfo", stage,logger));
+            Button b = new Button(My_I18n.get_I18n_string("Install_Mediainfo", stage,logger));
             set_look(b, vbox, look_and_feel,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_mediainfo(logger), stage, logger));
         }

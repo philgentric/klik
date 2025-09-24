@@ -43,7 +43,7 @@ public class Image_decoding_actor_for_cache implements Actor
         if ( m.get_aborter().should_abort()) return "aborted";
 
         // this is the expensive operation:
-        Optional<Image_context> option = Image_context.build_Image_context(request.path, request.alternate_rescaler, request.owner, request.aborter, logger);
+        Optional<Image_context> option = Image_context.build_Image_context(request.path, request.image_window, request.aborter, logger);
         if (option.isPresent())
         {
             Image_context image_context = option.get();

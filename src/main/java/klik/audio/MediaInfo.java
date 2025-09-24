@@ -59,6 +59,22 @@ public class MediaInfo
                 }
             }
         }
+        if ( release != null) return release;
+        for(String s : l)
+        {
+            String marker = "Title";
+            if (s.contains(marker))
+            {
+                logger.log("found ->"+s+"<-");
+                int i = s.indexOf(marker);
+                if (i >= 0) {
+                    release = s.substring(i + marker.length());
+                    release = release.replace(":", "");
+                    release = release.trim();
+                    logger.log("looking for:"+marker+" found:"+release);
+                }
+            }
+        }
         return release;
 
     }

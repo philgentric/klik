@@ -285,13 +285,14 @@ public class Keyboard_handling_for_Image_window
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
                 image_window.image_display_handler.get_image_context().get().change_zoom_factor(image_window,1.05);
                 break;
+                */
 
             case DOWN:
-                if ( keyword_dbg) logger.log("zoom down/out:");
-                if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                image_window.image_display_handler.get_image_context().get().change_zoom_factor(image_window,0.95);
+                if ( keyboard_dbg) logger.log("DOWN = toggle alternate and redisplay");
+                image_window.alternate_rescaler = !image_window.alternate_rescaler;
+                image_window.redisplay();
                 break;
-            */
+
             case LEFT:
                 if (keyboard_dbg) logger.log("left");
                 image_window.image_display_handler.change_image_relative(-1, image_window.ultim_mode);

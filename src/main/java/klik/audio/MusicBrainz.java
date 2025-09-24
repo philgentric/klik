@@ -2,9 +2,8 @@ package klik.audio;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
-import klik.properties.Cache_folder;
-import klik.util.files_and_paths.Filename_sanitizer;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.actor.Aborter;
+import klik.util.files_and_paths.*;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -12,7 +11,10 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 //**********************************************************
 public class MusicBrainz
@@ -226,7 +228,7 @@ public class MusicBrainz
     }
 
     //**********************************************************
-    public static Image get_icon(String artist, String release, Path icon_folder, Window owner, Logger logger)
+    private static Image get_icon_internal(String artist, String release, Path icon_folder, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -247,5 +249,70 @@ public class MusicBrainz
 
         Image icon = download_icon(artist,release,icon_folder,owner,logger);
         return icon;
+    }
+
+    //**********************************************************
+    public static Image get_icon(
+            Path path,
+            String performer,
+            String release,
+            Window owner, Logger logger)
+    //**********************************************************
+    {
+        Image icon;
+        if ( (performer != null) && (release != null))
+        {
+            logger.log("performer:"+ performer + " release:"+ release);
+            Path icon_folder = path.getParent();
+            icon = MusicBrainz.get_icon_internal(performer, release, icon_folder, owner, logger);
+        }
+        else
+        {
+            icon = null;
+        }
+        return icon;
+    }
+
+    //**********************************************************
+    public static boolean improve_file_name(
+            Path path,
+            String performer,
+            String release,
+            Window owner, Logger logger)
+    //**********************************************************
+    {
+        if ( (performer != null) && (release != null))
+        {
+            logger.log("performer:"+ performer + " release:"+ release);
+
+            String candidate_name =  MusicBrainz.make_name(performer, release, owner, logger);
+            String extension = Extensions.get_extension(path.getFileName().toString());
+            candidate_name = Extensions.add(candidate_name,extension);
+            if ( path.getFileName().toString().equals(candidate_name))
+            {
+                return false; // name unchanged
+            }
+            else
+            {
+                logger.log("name ->"+ path.getFileName()+"<- could be improved ->"+candidate_name+"<-");
+                Path new_path = null;
+                try
+                {
+                    new_path = path.getParent().resolve(candidate_name);
+                }
+                catch( InvalidPathException e)
+                {
+                    logger.log(""+e);
+                }
+                if (new_path != null)
+                {
+                    List<Old_and_new_Path> ll = new ArrayList<>();
+                    ll.add(new Old_and_new_Path(path, new_path, Command.command_rename, Status.before_command, false));
+                    Moving_files.perform_safe_moves_in_a_thread(ll, true, 100, 100, owner, new Aborter("dummy", logger), logger);
+                    return true;
+                }
+            }
+        }
+        return  false;
     }
 }

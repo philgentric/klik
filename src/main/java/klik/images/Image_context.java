@@ -60,23 +60,38 @@ public class Image_context
     public final FileTime creation_time;
 
     //**********************************************************
-    public static Optional<Image_context> build_Image_context(Path path, boolean alternate_rescaler, Window owner, Aborter aborter, Logger logger_)
+    public static Optional<Image_context> build_Image_context(Path path, Image_window image_window, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        //logger_.log(Stack_trace_getter.get_stack_trace("\n\nWTF"));
-        Optional<Image_context> returned;
-        if (alternate_rescaler)
-        {
-            logger_.log("high quality (bicubic) rescaler is ON for :"+path);
-            returned = Static_image_utilities.get_Image_context_with_alternate_rescaler(path, 800, owner, aborter, logger_);
-        }
-        else
-        {
-            if (dbg) logger_.log("javafx ImageView rescaler is ON for :"+path);
-            returned = Image_context.get_Image_context(path, owner,aborter, logger_);
-        }
-        return returned;
+       if ( image_window.alternate_rescaler)
+       {
+           return build_Image_context_bis(path,image_window.stage.getWidth(),image_window.stage.getHeight(),image_window.stage,aborter,logger_);
+       }
+       else
+       {
+           return build_Image_context(path,image_window.stage,aborter,logger_);
+       }
     }
+
+    //**********************************************************
+    private static Optional<Image_context> build_Image_context_bis(Path path, double width, double height,  Window owner, Aborter aborter, Logger logger_)
+    //**********************************************************
+    {
+        logger_.log("high quality (Magic Kernel Sharp 2021) rescaler is ON for :"+path);
+        return Static_image_utilities.get_Image_context_with_alternate_rescaler(path, width, height,owner, aborter, logger_);
+
+    }
+
+    //**********************************************************
+    public static Optional<Image_context> build_Image_context(Path path, Window owner, Aborter aborter, Logger logger_)
+    //**********************************************************
+    {
+        // rescaling will be performed automagically by the ImageView
+        if (dbg)
+            logger_.log("javafx ImageView rescaler is ON for :"+path);
+        return Image_context.get_Image_context(path, owner,aborter, logger_);
+    }
+
 
 
     //**********************************************************

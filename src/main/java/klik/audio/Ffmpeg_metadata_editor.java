@@ -5,21 +5,17 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.Window;
 import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
-import klik.look.my_i18n.My_I18n;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.Extensions;
-import klik.util.info_stage.Line_for_info_stage;
 import klik.util.log.Logger;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 //**********************************************************
-public class Metadata_editor
+public class Ffmpeg_metadata_editor
 //**********************************************************
 {
     //**********************************************************
@@ -83,7 +79,7 @@ public class Metadata_editor
             }
             if (new_performer != null) {
                 cmds.add("-metadata");
-                cmds.add("performer=" + new_performer);
+                cmds.add("artist=" + new_performer);
             }
             cmds.add(output_path);
 

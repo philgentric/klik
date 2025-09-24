@@ -3,6 +3,7 @@ package klik.images.caching;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Message;
+import klik.images.Image_window;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -12,23 +13,20 @@ public class Image_decode_request_for_cache implements Message
 //**********************************************************
 {
     public final Path path;
-    public final boolean alternate_rescaler;
     public final Cache_interface cache;
     public final Aborter aborter;
-    public Window owner;
+    public final Image_window image_window;
 
     //**********************************************************
     public Image_decode_request_for_cache(Path path_,
                                           Cache_interface preloaded_,
-                                          boolean alternate_rescaler,
-                                          Window owner,Aborter aborter)
+                                          Image_window image_window,Aborter aborter)
     //**********************************************************
     {
         path = Objects.requireNonNull(path_);
         cache = preloaded_;
-        this.alternate_rescaler = alternate_rescaler;
+        this.image_window = image_window;
         this.aborter = aborter;
-        this.owner = owner;
     }
 
     //**********************************************************

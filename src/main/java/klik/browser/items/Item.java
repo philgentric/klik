@@ -11,6 +11,7 @@
 
 package klik.browser.items;
 
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -26,6 +27,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.audio.Audio_info_frame;
 import klik.New_window_context;
+import klik.audio.Ffmpeg_metadata_editor;
 import klik.browser.classic.Folder_path_list_provider;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
@@ -298,6 +300,7 @@ public abstract class Item implements Icon_destination
             }
             if (Guess_file_type.is_this_path_a_music(get_item_path())) {
                 create_open_mediainfo_frame_menu_item(get_item_path(), context_menu);
+                create_edit_metadata_frame_menu_item(get_item_path(), context_menu);
             }
             if (this.get_item_type() == Iconifiable_item_type.video) {
                 Item_file_with_icon.make_menu_items_for_videos(get_item_path(), owner, context_menu, dbg, aborter, logger);
@@ -390,6 +393,16 @@ public abstract class Item implements Icon_destination
             if (dbg) logger.log("info");
             Audio_info_frame.show(path,owner,logger);
         },context_menu,owner,logger);
+    }
+    //**********************************************************
+    public void create_edit_metadata_frame_menu_item(Path path, ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item(
+                "Edit_Song_Metadata",
+                (ActionEvent e) -> Ffmpeg_metadata_editor.edit_metadata_of_a_file_in_a_thread(path, owner, logger),
+                context_menu, owner, logger);
+
     }
 
 
