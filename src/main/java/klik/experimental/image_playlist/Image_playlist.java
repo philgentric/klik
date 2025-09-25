@@ -1,15 +1,19 @@
 package klik.experimental.image_playlist;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Background;
 import javafx.stage.Window;
+import klik.New_image_playlist_window_context;
 import klik.browser.Abstract_browser;
 import klik.New_window_context;
 import klik.browser.virtual_landscape.Path_list_provider;
+import klik.browser.virtual_landscape.Shutdown_target;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.util.files_and_paths.Old_and_new_Path;
 import klik.util.log.Logger;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,13 +26,13 @@ public class Image_playlist extends Abstract_browser
     public final Playlist_path_list_provider path_list_provider;
 
     //**********************************************************
-    public Image_playlist(New_window_context context, Logger logger)
+    public Image_playlist(Path target_path, Shutdown_target shutdown_target, Rectangle2D rectangle, Logger logger)
     //**********************************************************
     {
         super(logger);
         ID = id_generator.getAndIncrement();
-        path_list_provider = new Playlist_path_list_provider(context.target_path, logger);
-        init(context,this,"playlist");
+        path_list_provider = new Playlist_path_list_provider(target_path, logger);
+        init(shutdown_target, rectangle,this,"playlist");
         set_pink_background(logger);
 
         logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW IMAGE PLAY LIST "+path_list_provider.get_name());

@@ -1,8 +1,9 @@
-package klik.audio;
+package klik.audio_new;
 
 import javafx.stage.Window;
-import klik.browser.Abstract_browser;
+import klik.New_audio_window_context;
 import klik.New_window_context;
+import klik.browser.Abstract_browser;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_receiver;
 import klik.experimental.image_playlist.Playlist_path_list_provider;
@@ -12,15 +13,19 @@ import klik.util.log.Logger;
 import java.nio.file.Path;
 import java.util.List;
 
+//**********************************************************
 public class Song_playlist extends Abstract_browser
+//**********************************************************
 {
     public final Playlist_path_list_provider path_list_provider;
 
-    public Song_playlist(New_window_context context, Logger logger)
+    //**********************************************************
+    public Song_playlist(New_audio_window_context context, Logger logger)
+    //**********************************************************
     {
         super(logger);
         logger.log("Song_playlist\n");
-        path_list_provider = new Playlist_path_list_provider(Path.of("../pl.pl"), logger);
+        path_list_provider = new Playlist_path_list_provider(context.play_list_file_path, logger);
 
         logger.log("Song_playlist created with path_list_provider: " + path_list_provider.get_name());
 
@@ -39,7 +44,7 @@ public class Song_playlist extends Abstract_browser
                 return "";
             }
         };
-        init(context, cr, "song_playlist");
+        init(context.shutdown_target,context.rectangle, cr, "song_playlist");
     }
 
     @Override

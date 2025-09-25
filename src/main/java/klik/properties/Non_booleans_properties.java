@@ -652,14 +652,14 @@ public class Non_booleans_properties
     static int previous = -1;
 
     //**********************************************************
-    public static void save_curent_time_in_song(int time, Window owner)
+    public static void save_current_time_in_song(int time, Window owner)
     //**********************************************************
     {
         if (previous > 0) {
             if (previous / 10 == time / 10) return;
         }
         previous = time;
-        //logger.log("save_curent_time_in_song "+time);
+        //logger.log("save_current_time_in_song "+time);
         IProperties pm = get_main_properties_manager(owner);
         pm.set(AUDIO_PLAYER_CURRENT_TIME, "" + time);
 

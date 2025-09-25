@@ -32,14 +32,12 @@ public class Playlist_path_list_provider implements Path_list_provider
     public final Logger logger;
 
     //**********************************************************
-    public Playlist_path_list_provider(Path path, Logger logger)
+    public Playlist_path_list_provider(Path the_playlist_file_path, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
-
-        the_playlist_file_path = path;
+        this.the_playlist_file_path = the_playlist_file_path;
         reload();
-
     }
 
     //**********************************************************

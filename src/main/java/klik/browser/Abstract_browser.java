@@ -74,15 +74,18 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     }
 
     //**********************************************************
-    public void init(New_window_context context, Change_receiver change_receiver, String badge)
+    public void init(
+            Shutdown_target shutdown_target,
+            Rectangle2D rectangle,
+            Change_receiver change_receiver, String badge)
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();
         if ( dbg) logger.log("Browser constructor browsers_created(1)=" + count);
-        if (context.shutdown_target != null)
+        if (shutdown_target != null)
         {
             if ( dbg) logger.log("closing previous browser");
-            context.shutdown_target.shutdown();
+            shutdown_target.shutdown();
         }
 
         aborter = new Aborter("Abstract_browser for: " + get_name(), logger);
@@ -122,12 +125,12 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         }
         else
         {
-            if (context.rectangle != null)
+            if (rectangle != null)
             {
-                x = context.rectangle.getMinX();
-                y = context.rectangle.getMinY();
-                width = context.rectangle.getWidth();
-                height = context.rectangle.getHeight();
+                x = rectangle.getMinX();
+                y = rectangle.getMinY();
+                width = rectangle.getWidth();
+                height = rectangle.getHeight();
             }
         }
         if (dbg) logger.log("NEW Abstract_browser "+x+","+y);

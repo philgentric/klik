@@ -106,7 +106,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
             path = context.target_path;
         }
         path_list_provider = new Folder_path_list_provider(path);
-        init(context,this,"klik");
+        init(context.shutdown_target,context.rectangle,this,"klik");
 
         //if ( dbg)
             logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());

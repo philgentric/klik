@@ -1,4 +1,4 @@
-package klik.audio;
+package klik.audio_new;
 //SOURCES ../change/undo/Undo_core.java
 
 import javafx.application.Platform;
@@ -10,7 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
@@ -113,6 +113,7 @@ public class Playlist
         node.setMnemonicParsing(false);
         Look_and_feel_manager.set_button_look(node,false,owner,logger);
         node.setPrefWidth(2000);
+        node.getStyleClass().add("unselected_song");
         // the node active part is set when is becomes visible
         path_to_Song.put(file_path, new Song(file_path, node));
         return node;
@@ -294,11 +295,13 @@ public class Playlist
                 if (dbg) logger.log("already selected " + the_song_path);
                 return;
             }
-            reset_background_to_default(selected);
+            selected.set_background_to_unselected();
         }
         selected = future;
+
+        logger.log("SELECTED = "+selected.path());
         //set_background_to(selected, COLOR_OF_SELECTION);
-        set_background_to_selected(selected);
+        selected.set_background_to_selected();
 
         the_music_ui.scroll_to(the_song_path);
         Non_booleans_properties.save_current_song(the_song_path,owner);
@@ -306,62 +309,25 @@ public class Playlist
 
     }
 
-    //**********************************************************
-    private void reset_background_to_default(Song song)
-    //**********************************************************
-    {
-        song.node().getStyleClass().add("unselected_song");
-    }
-
-
-    //**********************************************************
-    private void set_background_to_selected(Song song)
-    //**********************************************************
-    {
-        song.node().getStyleClass().add("selected_song");
-    }
 
 
     //**********************************************************
     void change_song(String new_song)
     //**********************************************************
     {
-        Integer current_time_s;
-        if (new_song == null)
+        if ( new_song == null)
         {
-            String path = Non_booleans_properties.get_current_song(owner);
-            if (path == null)
+            new_song = Non_booleans_properties.get_current_song(owner);
+            if ( new_song == null)
             {
-                current_time_s = null;
-                if (the_playlist == null) return;
-                if (the_playlist.isEmpty()) return;
                 new_song = the_playlist.get(0);
+                if ( new_song == null) return;
             }
-            else
-            {
-                new_song = path;
-                current_time_s = Non_booleans_properties.get_current_time_in_song(owner,logger);
-            }
-            if (new_song == null)
-            {
-                logger.log("FATAL: cannot cope with new_song is null");
-                return;
-            }
-        }
-        else
-        {
-            if ((new File(new_song)).exists() == false)
-            {
-                if ( dbg) logger.log(("warning: " + new_song + " does not exist"));
-                the_music_ui.set_status("File not found: " + new_song);
-                remove_from_playlist(new_song);
-                save_playlist();
-                return;
-            }
-            current_time_s = Integer.valueOf(0);
         }
 
 
+        the_music_ui.stop_current_media();
+        Non_booleans_properties.save_current_time_in_song(0, null);
 
         double bitrate = Ffmpeg_utils.get_audio_bitrate(Path.of(new_song), null,logger);
         if ( dbg) logger.log(  (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
@@ -371,10 +337,9 @@ public class Playlist
         the_song_path = new_song;
         the_music_ui.set_title((new File(new_song)).getName() + "       bitrate= " + bitrate + " kb/s");
 
-        the_music_ui.stop_current_media();
         add_one_song_to_playlist_if_not_already_there(the_song_path);
 
-        the_music_ui.play_song_with_new_media_player(new_song, current_time_s);
+        the_music_ui.play_song_with_new_media_player(the_song_path);
         set_selected();
 
     }

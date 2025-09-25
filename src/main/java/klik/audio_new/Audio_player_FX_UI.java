@@ -1,4 +1,4 @@
-package klik.audio;
+package klik.audio_new;
 //SOURCES ./Playlist.java
 //SOURCES ./Song.java
 
@@ -42,7 +42,7 @@ import java.util.*;
 
 
 //**********************************************************
-public class Audio_player_FX_UI
+public class Audio_player_FX_UI implements Zozo
 //**********************************************************
 {
     private static final boolean dbg =  true;
@@ -75,8 +75,8 @@ public class Audio_player_FX_UI
     ScrollPane scroll_pane;
     Logger logger;
     Aborter aborter;
-    private volatile Optional<MediaPlayer> the_media_player_option = Optional.empty();
-    private volatile Optional<AudioEqualizer> the_equalizer_option = Optional.empty();
+    //private volatile Optional<MediaPlayer> the_media_player_option = Optional.empty();
+    //private volatile Optional<AudioEqualizer> the_equalizer_option = Optional.empty();
     private ObservableList<EqualizerBand> equalizer_bands;
 
     double volume = 0.5;
@@ -151,7 +151,7 @@ public class Audio_player_FX_UI
             logger.log("Audio player closing");
             stop_current_media();
             stage.close();
-            Audio_player.ui = null;
+            UI_instance_holder.set_null();
         });
 
         BorderPane bottom_border_pane = define_bottom_pane(the_top_vbox, scroll_pane);
@@ -423,9 +423,8 @@ public class Audio_player_FX_UI
         balance_slider.setMinWidth(30);
         balance_hbox.getChildren().add(balance_slider);
         balance_slider.valueProperty().addListener((observableValue, number, t1) -> {
-            if (the_media_player_option.isEmpty()) return;
             balance = balance_slider.getValue();
-            the_media_player_option.get().setBalance(balance);
+            Media_instance.set_balance(balance);
         });
 
         return balance_hbox;
@@ -440,7 +439,7 @@ public class Audio_player_FX_UI
         Look_and_feel_manager.set_button_look(reset_balance,true,stage,logger);
         reset_balance.setOnAction((ActionEvent e) -> {
             balance_slider.setValue(0);
-            the_media_player_option.get().setBalance(0);
+            Media_instance.set_balance(0);
         });
         return reset_balance;
     }
@@ -457,16 +456,13 @@ public class Audio_player_FX_UI
         Button mute = new Button(mute_string);
         Look_and_feel_manager.set_button_look(mute,true,stage,logger);
         mute.setOnAction((ActionEvent e) -> {
-            MediaPlayer mp = the_media_player_option.get();
-            if ( mp.isMute())
+            if ( Media_instance.toggle_mute())
             {
-                mp.setMute(false);
                 mute.setText(mute_string);
                 speaker_image_view.setImage(Look_and_feel_manager.get_speaker_on_icon(stage,logger));
             }
             else
             {
-                mp.setMute(true);
                 mute.setText(My_I18n.get_I18n_string("Unmute",stage,logger)); //"Unmute");
                 speaker_image_view.setImage(Look_and_feel_manager.get_speaker_off_icon(stage,logger));
             }
@@ -493,9 +489,8 @@ public class Audio_player_FX_UI
         volume_slider.setMinWidth(30);
         volume_hbox.getChildren().add(volume_slider);
         volume_slider.valueProperty().addListener((observableValue, number, t1) -> {
-            if (the_media_player_option.isEmpty()) return;
             volume = volume_slider.getValue();
-            the_media_player_option.get().setVolume(volume);
+            Media_instance.set_volume(volume);
             Non_booleans_properties.save_audio_volume(volume,stage);
             if ( volume >=0.01)
             {
@@ -678,14 +673,13 @@ public class Audio_player_FX_UI
         the_timeline_slider.setPrefWidth(WIDTH);
         // but the user may click/slide the slider
         the_timeline_slider.setOnMouseReleased(event -> {
-            if (the_media_player_option.isEmpty()) return;
             the_timeline_slider.setValueChanging(true);
             double v = event.getX() / the_timeline_slider.getWidth() * the_timeline_slider.getMax();
             the_timeline_slider.setValue(v);
             //logger.log("player seeking: slider new value = "+slider.getValue());
             Duration target = Duration.seconds(v);
             //logger.log("player seeking:"+target);
-            the_media_player_option.get().seek(target);
+            Media_instance.seek(target);
             the_timeline_slider.setValueChanging(false);
         });
     }
@@ -746,42 +740,46 @@ public class Audio_player_FX_UI
         hbox.getChildren().add(now_value_label);
         return hbox;
     }
-
     //**********************************************************
-    private void on_player_ready(MediaPlayer local_)
+    @Override // Zozo
+    public void on_end_of_media()
     //**********************************************************
     {
-        if ( the_media_player_option.isPresent())
-        {
-            the_media_player_option.get().stop();
-            the_media_player_option.get().dispose();
-        }
-        the_media_player_option = Optional.of(local_);
-        the_equalizer_option = Optional.of(local_.getAudioEqualizer());
-        equalizer_bands = the_equalizer_option.get().getBands();
+        playlist.jump_to_next();
+    }
+
+    //**********************************************************
+    @Override // Zozo
+    public void on_player_ready()
+    //**********************************************************
+    {
+
+        equalizer_bands = Media_instance.get_bands();
         //logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());
 
         define_equalizer();
 
-        the_media_player_option.get().setOnEndOfMedia(() -> playlist.jump_to_next());
-
-        // the player pilots how the slider moves during playback
-        the_media_player_option.get().currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
-            if (ultra_dbg) logger.log("player changing current time:"+newValue.toSeconds());
+        ChangeListener<Duration> xx = (observable, oldValue, newValue) -> {
+            if (ultra_dbg)
+                logger.log("song current time:" + newValue.toSeconds());
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
-            now_value_label.setText((int)seconds+" seconds");
-            if ( seconds > 20) Non_booleans_properties.save_current_time_in_song((int)seconds,stage);
-        });
+            now_value_label.setText((int) seconds + " seconds");
+            Non_booleans_properties.save_current_time_in_song((int) seconds, stage);
+
+        };
+
+        // the player pilots how the slider moves during playback
+        Media_instance.add_current_time_listener(xx);
 
         //logger.log("song start:"+ player.getStartTime().toSeconds());
         //logger.log("song stop:"+ player.getStopTime().toSeconds());
-        double seconds = the_media_player_option.get().getStopTime().toSeconds();
+        double seconds = Media_instance.get_stop_time().toSeconds();
         the_timeline_slider.setValue(0);
         the_timeline_slider.setMax(seconds);
-        the_media_player_option.get().setVolume(volume);
-        the_media_player_option.get().setBalance(balance);
-        the_media_player_option.get().play();
+        Media_instance.set_volume(volume);
+        Media_instance.set_balance(balance);
+        Media_instance.play();
         String s = get_nice_string_for_duration(seconds,stage,logger);
         duration_value_label.setText(s);
 
@@ -897,12 +895,8 @@ public class Audio_player_FX_UI
     public void stop_current_media()
     //**********************************************************
     {
-        if (the_media_player_option.isPresent())
-        {
-            the_media_player_option.get().stop();
-            the_media_player_option.get().dispose();
-            the_media_player_option = Optional.empty();
-        }
+        Media_instance.stop();
+        Media_instance.dispose();
     }
 
     //**********************************************************
@@ -924,7 +918,7 @@ public class Audio_player_FX_UI
 
 
     //**********************************************************
-    public void play_song_with_new_media_player(String new_song, Integer current_time_s)
+    public void play_song_with_new_media_player(String new_song)
     //**********************************************************
     {
         String encoded;
@@ -940,38 +934,9 @@ public class Audio_player_FX_UI
         encoded = encoded.replaceAll(" ","%20");
 
 
-        Media sound;
-        try
-        {
-            sound = new Media(encoded);
-        }
-        catch (IllegalArgumentException e)
-        {
-            logger.log("invalid media NAME or PATH: "+encoded);
-            logger.log(""+e);
-            playlist.remove(new_song);
-            return;
-        }
-        catch (MediaException e)
-        {
-            logger.log("\n\nInvalid media, unlisted: "+encoded+"\n\n");
-            playlist.remove(new_song);
-            return;
-        }
-        MediaPlayer local = new MediaPlayer(sound);
-        local.setCycleCount(1);
-        local.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
-        local.setOnReady(() -> {
-            on_player_ready(local);
-        });
-        local.setOnPlaying(() -> {
-            if ( current_time_s != null)
-            {
-                if ( dbg) logger.log("seeking to "+current_time_s);
-                Duration target = Duration.seconds(current_time_s);
-                if (the_media_player_option.isPresent()) the_media_player_option.get().seek(target);
-            }
-        });
+        Media_instance.play_this(encoded,this,stage,logger);
+        
+
         Platform.runLater(() -> play_pause_button.setText(pause_string));
     }
 
@@ -1235,9 +1200,7 @@ public class Audio_player_FX_UI
     private void toggle_play_stop()
     //**********************************************************
     {
-        if (the_media_player_option.isEmpty()) return;
-        MediaPlayer mp = the_media_player_option.get();
-        MediaPlayer.Status status = mp.getStatus();
+        MediaPlayer.Status status = Media_instance.get_status();
         if ( status== MediaPlayer.Status.PLAYING) set_is_paused();
         else set_is_playing();
     }
@@ -1247,8 +1210,8 @@ public class Audio_player_FX_UI
     private void rewind()
     //**********************************************************
     {
-        if (the_media_player_option.isEmpty()) return;
-        the_media_player_option.get().stop();
+
+        Media_instance.stop();
         set_is_playing();
     }
 
@@ -1257,7 +1220,7 @@ public class Audio_player_FX_UI
     private void set_is_playing()
     //**********************************************************
     {
-        the_media_player_option.get().play();
+        Media_instance.play();
         play_pause_button.setText(pause_string);
 
     }
@@ -1266,7 +1229,7 @@ public class Audio_player_FX_UI
     private void set_is_paused()
     //**********************************************************
     {
-        the_media_player_option.get().pause();
+        Media_instance.pause();
         play_pause_button.setText(play_string);
     }
 

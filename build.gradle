@@ -42,7 +42,8 @@ version = "1.0" // application_version
 group = 'klik'
 
 javafx {
-    version = "24.0.2"
+    //version = "24.0.2"
+    version = "25"
     modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.fxml','javafx.media','javafx.web' ]
 }
 
@@ -96,7 +97,7 @@ tasks.register('klik', JavaExec) {
 
 tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.audio.Audio_player_application'
+    mainClass = 'klik.audio_new.Audio_player_application'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return

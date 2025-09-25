@@ -22,6 +22,18 @@
   -fx-background-color: #606060;
 }
 
+.my_button_highlight {
+    -fx-text-fill: #fefcff;
+    -fx-font:20 Helvetica;
+    -fx-font-weight: bold;
+    -fx-alignment: top-left;
+    -fx-background-color: #606060;
+    -fx-padding: 0 2 0 2;
+}
+.my_button_highlight:hover {
+    -fx-text-fill: blue;
+}
+
 
 .my_button_with_border{
     -fx-text-fill: #fefcff;
@@ -164,13 +176,3 @@ my_dialog{
     -fx-border-color: white;
 }
 
-
-.selected_song{
-    -fx-text-fill: black	;
-    -fx-background-color: white;
-}
-
-.unselected_song{
-    -fx-background-color: black;
-    -fx-text-fill: white;
-}

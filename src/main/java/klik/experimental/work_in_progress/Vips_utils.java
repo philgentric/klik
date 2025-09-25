@@ -1,6 +1,7 @@
 package klik.experimental.work_in_progress;
 
 import app.photofox.vipsffm.VImage;
+import app.photofox.vipsffm.Vips;
 import app.photofox.vipsffm.enums.VipsBandFormat;
 import app.photofox.vipsffm.enums.VipsInterpretation;
 import javafx.scene.image.Image;
@@ -14,29 +15,119 @@ import java.lang.foreign.Arena;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Locale;
 
-// prerequisites: brew install vips
+//
+// vips is a fast image processing lib implemented in C
+// see https://github.com/libvips/libvips
+//
+// at this time, we use vips to provide an alternate rescaler to the default one in ImageView
+// and of course we use the best one : Magic Filter Sharp 2021
+// it is EXTREMELY fast (but not as fast the default)
+//
+// technically, it seems that:
+// OpenJFX uses Prism ES2 which is based on OpenGL, which Apple has deprecated
+//  with JFX26 build4 and above a metal-based solution will be available,
+// but it seems that on Mac it will not use the advanced 'metal' HW features?
+//
+// 1. ImageView
+// setSmooth(true)  would be a linear filter (GL_LINEAR)
+// setSmooth(false)  would be a nearest neighbor (GL_NEAREST)
+//
+// 2. if downscale is requested to the Image constructor,
+// it goes through ImageTools with simple subsampling and maybe a bilinear
+
+
+// there is a FFM (Foreign Function and Memory aka "Panama") adapter to use it from java:
+// see https://github.com/lopcode/vips-ffm
+// see in build.gradle how this lib is imported
+//
+// prerequisites: install vips, on mac it is super simple:
+// brew install vips
+//
+// Note: criteo as a JNI adapter see https://github.com/criteo/JVips, I did not try it
 
 public class Vips_utils
 {
 
     static
     {
-        // had to use the overrides below to point to the exact libs...
-        // which is a bad shame of course,
-        // but I could not make it work the "normal" way, which is to do:
-        // System.loadLibrary("vips");
-        // which will continue working even after a "brew upgrade"
+        // I found 4 documented ways to make vips FFM work.
+        // In the 3 first cases, BAD SHAME, one needs to "hardcode" the library path
+        // ... might break the code after a "brew upgrade"
 
-        System.setProperty("vipsffm.libpath.vips.override","/opt/homebrew/Cellar/vips/8.17.2/lib/libvips.dylib");
-        System.setProperty("vipsffm.libpath.glib.override","/opt/homebrew/Cellar/glib/2.86.0/lib/libglib-2.0.0.dylib");
-        System.setProperty("vipsffm.libpath.gobject.override","/opt/homebrew/Cellar/glib/2.86.0/lib/libgobject-2.0.0.dylib");
+        // Method1: does NOT work for me
+        //  System.setProperty("java.library.path","/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib");
+        //  String s = System.getProperty("java.library.path");
+        //  System.out.println("java.library.path="+s);
+        //  System.loadLibrary("vips");
 
-        //System.setProperty("java.library.path","/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib");
-        //String s = System.getProperty("java.library.path");
-        //System.out.println("java.library.path="+s);
-        //System.load("/opt/homebrew/Cellar/vips/8.17.2/lib/libvips.dylib");
+        // Method2: does NOT work for me
+        //  System.load("/opt/homebrew/Cellar/vips/8.17.2/lib/libvips.dylib");
+
+        // the typical error is:
+        // UnsatisfiedLinkError: could not make loader for libvips
+        //        at app.photofox.vipsffm.VipsLibLookup.buildSymbolLoader(VipsLibLookup.java:14)
+
+        // Method3: works for me
+        // use the override ( see makeOptionalLibraryLookup in VipsLibLookup)
+        //System.setProperty("vipsffm.libpath.vips.override","/opt/homebrew/Cellar/vips/8.17.2/lib/libvips.dylib");
+        //System.setProperty("vipsffm.libpath.glib.override","/opt/homebrew/Cellar/glib/2.86.0/lib/libglib-2.0.0.dylib");
+        //System.setProperty("vipsffm.libpath.gobject.override","/opt/homebrew/Cellar/glib/2.86.0/lib/libgobject-2.0.0.dylib");
+
+        // Method4: works for me
+        // see https://github.com/lopcode/vips-ffm/discussions/132
+        // I copied the code, (changed the log)
+        // this code looks for the libs and uses the override
+        // so it is better than a hardcode
+
+        findAndSetMacLibraries();
     }
+
+
+    private static Path scanLibrary(List<String> paths, List<String> names) {
+        for (String path : paths) {
+            for (String name : names) {
+                String libName = System.mapLibraryName(name);
+                Path libPathName = Path.of(path, libName);
+                System.out.println("Checking for presence of "+ libPathName);
+                if (Files.exists(libPathName)) {
+                    System.out.println("Found "+ libPathName);
+                    return libPathName;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void setPropertyWhenLibraryExists(String property, List<String> paths, String... names) {
+        Path lib = scanLibrary(paths, List.of(names));
+        if (lib != null) {
+            System.out.println("Setting "+ property+ " to " + lib);
+            System.setProperty(property, lib.toString());
+        }
+    }
+
+    private static void findAndSetMacLibraries() {
+        String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+        if (!os.contains("mac")) {
+            // not a mac so bail out
+            return;
+        }
+        List<String> libPaths = List.of(
+                "/opt/homebrew/lib", // homebrew on apple silicon
+                "/usr/local/lib", // homebrew on intel
+                "/opt/sw/lib", // fink
+                "/opt/local/lib" // macports
+        );
+        setPropertyWhenLibraryExists("vipsffm.libpath.vips.override", libPaths, "vips");
+        setPropertyWhenLibraryExists("vipsffm.libpath.glib.override", libPaths, "glib-2.0.0");
+        setPropertyWhenLibraryExists("vipsffm.libpath.gobject.override", libPaths, "gobject-2.0.0");
+    }
+
 
     public static Image VImage_to_FX_Image(VImage in, Logger logger)
     {
@@ -60,7 +151,7 @@ public class Vips_utils
                 pixel_writer.setColor(x,y,color);
             }
         }
-        //logger.log("fx image acquired from VImage");
+        //System.out.println("fx image acquired from VImage");
 
         return writable_image;
     }
@@ -71,7 +162,7 @@ public class Vips_utils
         int h = (int) in.getHeight();
         PixelReader pixel_reader = in.getPixelReader();
         int bands = 3;
-        //logger.log("Arena.ofConfined() OK !"+arena.toString());
+        //System.out.println("Arena.ofConfined() OK !"+arena.toString());
         MemorySegment memory_segment = arena.allocate(w*h*3);
         for ( int y = 0; y < h ; y++)
         {
@@ -88,7 +179,7 @@ public class Vips_utils
         int format = VipsBandFormat.FORMAT_UCHAR.getRawValue();
         VImage returned = VImage.newFromMemory(arena,memory_segment,w,h,3, format);
 
-        //logger.log("VImage acquired from FX Image");
+        //System.out.println("VImage acquired from FX Image");
         return returned;
     }
 
@@ -99,13 +190,13 @@ public class Vips_utils
         VImage before = FX_Image_to_VImage(in,arena,logger);
         if ( before == null)
         {
-            logger.log("failed to translate FX Image to VImage");
+            System.out.println("failed to translate FX Image to VImage");
             return null;
         }
         VImage after = before.resize(scale);
         if ( after == null)
         {
-            logger.log("failed to resize VImage");
+            System.out.println("failed to resize VImage");
             return null;
         }
         return VImage_to_FX_Image(after,logger);
