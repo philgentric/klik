@@ -39,7 +39,7 @@ this will create a folder "klik"
 
 **gradle run**
 
-(this starts the launcher, abd then you can start both klik and the music player)
+(this starts the launcher, and then you can start both klik and the music player)
 
 to start klik directly:
 
@@ -49,12 +49,12 @@ to start the music player directly:
 
 **gradle audio_player**
 
-(note well: normally you can run only one player at a time)
+(note well: you can run only one player at a time)
 
 
 ### Install ffmpeg
 
-(klik uses ffmpeg to make animated icons for videos)
+(klik uses ffmpeg to make several things including animated icons for videos)
 
 **brew install ffmpeg**
 
@@ -68,8 +68,12 @@ to start the music player directly:
 
 
 
-Note: as an alternative to gradle, you can use jbang:
+Note1: as an alternative to gradle, you can use jbang:
 
 **sdk install jbang**
 
 **jbang src/main/java/klik/Klik_application.java**
+
+Note2: as an alternative to gradle, you can use the mill:
+
+read mill.MD

@@ -478,10 +478,6 @@ public class Image_window
 
         StringBuilder local_title = new StringBuilder();
 
-        //if ( rescaler != Image_rescaling_filter.Native)
-        {
-            local_title.append(rescaler.get_String());
-        }
         if ( title_optional_addendum !=null) local_title.append(title_optional_addendum).append(" ");
         if (ic.path == null)
         {
@@ -519,6 +515,9 @@ public class Image_window
 
             local_title.append(" ").append(ic.creation_time);
             local_title.append(" ").append(ic.title);
+        }
+        {
+            local_title.append(rescaler.get_String());
         }
         if (slide_show != null)
         {

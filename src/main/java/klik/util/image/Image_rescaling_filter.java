@@ -5,7 +5,7 @@ import app.photofox.vipsffm.enums.VipsKernel;
 public enum Image_rescaling_filter
 {
     Native, // this is the default JavaFX
-    Nearest,
+    NearestNeighbour,
     Linear,
     Cubic,
     Mitchell,
@@ -22,7 +22,7 @@ public enum Image_rescaling_filter
             {
                 return null;
             }
-            case Nearest:
+            case NearestNeighbour:
             {
                 return VipsKernel.KERNEL_NEAREST;
             }
@@ -67,7 +67,7 @@ public enum Image_rescaling_filter
             {
                 return "JavaFX default rescaler ";
             }
-            case Nearest:
+            case NearestNeighbour:
             {
               return "Nearest Neighbor rescaler ";
             }
