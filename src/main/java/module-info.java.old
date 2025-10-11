@@ -1,0 +1,25 @@
+module klikmodule {
+
+    requires ar.com.hjg.pngj;
+    //requires pngj;
+
+    requires javafx.base;
+    requires javafx.graphics;
+    requires javafx.controls;
+    requires javafx.media;
+    requires org.apache.commons.io;
+    requires com.github.benmanes.caffeine;
+    requires javafx.web;
+    //requires metadata.extractor;
+    requires com.google.gson;
+
+
+    exports klik.machine_learning.face_recognition; // required for parsing json from embeddings server
+    exports klik;
+    exports klik.machine_learning;
+    exports klik.machine_learning.image_similarity;
+    exports klik.actor;
+
+    opens klik to javafx.graphics, javafx.fxml;
+
+}

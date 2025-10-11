@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# need to copy here the lists from  "launch_face_recognition_servers" ... bit dirty
+
+FACENET_EMBEDDINGS_PORTS=(8020 8021)
+
+for PORT in "${FACENET_EMBEDDINGS_PORTS[@]}"; do
+    pids=$(pgrep -f "Python.*run_server.*${PORT}" | xargs)
+    if [ -n "$pids" ]; then
+        echo "Killing process(es) ${pids} for port ${PORT}"
+        kill $pids
+    else
+        echo "No process(es) found for port ${PORT}"
+    fi
+done
+
+
+FACE_DETECTION_PORTS=(
+8040 8041 8042 8043 8044 8045 8046 8047 8048 8049
+8080 8081
+8090 8091
+8100 8101
+8110 8111)
+
+for PORT in "${FACE_DETECTION_PORTS[@]}"; do
+    pids=$(pgrep -f "Python.*run_server.*${PORT}" | xargs)
+    if [ -n "$pids" ]; then
+        echo "Killing process(es) ${pids} for port ${PORT}"
+        kill $pids
+    else
+        echo "No process(es) found for port ${PORT}"
+    fi
+done

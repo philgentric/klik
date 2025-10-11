@@ -1,0 +1,12 @@
+HTTPServer
+requests
+matplotlib
+pillow
+numpy
+mtcnn
+facenet-pytorch
+librosa
+openl3
+chromaprint
+pyacoustid
+opencv-python

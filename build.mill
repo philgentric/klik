@@ -1,0 +1,74 @@
+// this works for "klik" the image browser
+// install mill and then do:
+// path_to_mill/mill run
+//
+// or produce an EXECUTABLE JAR with:
+// path_to_mill/mill show assembly
+// (show = will display the path to the JAR file)
+
+package build
+
+import mill._
+import mill.javalib._
+import mill.javalib.publish._
+import mill.api.ModuleRef
+import mill.{Module, T, _}
+
+
+object `package` extends PublishModule with MavenModule {
+
+  def mainClass = Some("klik.Klik_application")
+
+  def artifactName = "klik"
+
+  def javacOptions = Seq("-source", "24", "-target", "24")
+
+  def jvmWorker = ModuleRef(JvmWorkerGraalvm)
+
+  def compileMvnDeps = Seq(
+    mvn"com.google.code.gson:gson:2.13.1",
+    mvn"com.drewnoakes:metadata-extractor:2.19.0",
+    mvn"com.github.ben-manes.caffeine:caffeine:3.2.2",
+    mvn"commons-io:commons-io:2.19.0",
+    mvn"ar.com.hjg:pngj:2.1.0"
+  )
+
+  def runMvnDeps = Seq(
+    mvn"com.google.code.gson:gson:2.13.1",
+    mvn"com.drewnoakes:metadata-extractor:2.19.0",
+    mvn"com.github.ben-manes.caffeine:caffeine:3.2.2",
+    mvn"commons-io:commons-io:2.19.0",
+    mvn"ar.com.hjg:pngj:2.1.0",
+    mvn"org.openjfx:javafx-base:24;classifier=mac-aarch64",
+    mvn"org.openjfx:javafx-graphics:24;classifier=mac-aarch64",
+    mvn"org.openjfx:javafx-controls:24;classifier=mac-aarch64",
+    mvn"org.openjfx:javafx-fxml:24;classifier=mac-aarch64",
+    //mvn"org.openjfx:javafx-swing:24;classifier=mac-aarch64",
+    mvn"org.openjfx:javafx-media:24;classifier=mac-aarch64",
+    mvn"org.openjfx:javafx-web:24;classifier=mac-aarch64"
+  )
+
+  def pomSettings = PomSettings(
+    "",
+    "philgent",
+    "",
+    Seq(),
+    VersionControl(None, None, None, None),
+    Seq()
+  )
+
+  def publishVersion = "1.0.290"
+
+  def nativeImageOptions = Seq(
+    "--no-fallback",
+    "-H:IncludeResourceBundles=net.sourceforge.argparse4j.internal.ArgumentParserImpl",
+    "-H:IncludeResources=src/main/resources/**/*"
+  )
+
+  object JvmWorkerGraalvm extends JvmWorkerModule {
+    def jvmId = "graalvm-community:24.0.2"
+  }
+
+
+}
+

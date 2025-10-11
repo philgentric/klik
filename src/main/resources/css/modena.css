@@ -1,0 +1,14 @@
+.button
+{
+-fx-padding: 0 24 0 24;
+-fx-alignment: center-left;
+}
+
+.my_button_highlight {
+    -fx-background-color:#888888;
+}
+
+
+.my_button_highlight:hover {
+    -fx-text-fill:orange;
+}

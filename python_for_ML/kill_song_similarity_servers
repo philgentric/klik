@@ -1,0 +1,17 @@
+#!/bin/bash
+
+
+EMBEDDINGS_PORTS=(8400 8401 8402 8403 8404 8405 8406 8407 8408 8409
+8410 8411 8412 8413 8414 8415 8416 8417 8418 8419
+8420 8421 8422 8423 8424 8425 8426 8427 8428 8429
+8430 8431 8432 8433 )
+
+for PORT in "${EMBEDDINGS_PORTS[@]}"; do
+    pids=$(pgrep -f "Python.*run_server.*${PORT}" | xargs)
+    if [ -n "$pids" ]; then
+        echo "Killing process(es) ${pids} for port ${PORT}"
+        kill $pids
+    else
+        echo "No process(es) found for port ${PORT}"
+    fi
+done

@@ -1,0 +1,138 @@
+/*
+ JVM "classic" build for klik
+
+0. cp build.gradle.jvm build.gradle
+
+1. make sure you have a JDK with javafx bundled:
+
+sdk install java 25.fx-zulu
+
+2. Enjoy!
+
+start klik 'standalone' with:
+
+gradle klik
+
+start audio_player 'standalone' with:
+
+gradle audio_player
+
+start the launcher with:
+
+gradle run
+
+COSMETIC: to get 'live' transmission
+of UI properties (style, font, etc) to work,
+you need to start the launcher first as it acts
+as a dispatcher for these properties.
+
+
+*/
+
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gradleup.shadow' version '9.0.1'
+
+}
+
+
+
+version = "1.0" // application_version
+group = 'klik'
+
+
+javafx {
+    version = "25"
+    modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.fxml','javafx.media','javafx.web' ]
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // EXIF reader
+    implementation 'com.drewnoakes:metadata-extractor:2.19.0'
+
+    // Cache
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
+
+    // moving folders across different drives
+    implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
+
+    // for writing png files without AWT
+    implementation 'ar.com.hjg:pngj:2.1.0'
+
+    // for Magic Kernel Sharp 2021 top quality image rescaling
+    implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
+}
+
+tasks.register('klik', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.Klik_application'
+    classpath(sourceSets.main.runtimeClasspath)
+    group = 'applications'
+    //jvmArgs = ['--enable-native-access=ALL-UNNAMED', '-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
+
+    doFirst {
+        println "doFirst start"
+        def props = new Properties()
+        def dir = new File(System.getProperty("user.home"),".klik")
+        def file = new File(dir, "ram.properties")
+        file.withInputStream {
+            props.load(it)
+            println "doFirst props loaded: ${props}"
+            null
+        }
+        if (props['max_RAM_in_GBytes']) {
+            println "doFirst found max_RAM_in_GBytes: ${props}"
+            jvmArgs "-Xmx${props['max_RAM_in_GBytes']}G"
+        }
+        return
+    }
+
+}
+
+tasks.register('audio_player', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.audio.Audio_player_application'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+tasks.register('in3D', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.in3D.The_main_circular_3'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+application {
+    mainClass = "klik.Launcher"
+}
+
+run{
+    standardInput = System.in
+    classpath = sourceSets.main.runtimeClasspath
+    //systemProperty 'java.library.path' , '/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib'
+    //jvmArgs = ['--enable-native-access=ALL-UNNAMED','-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
+}
+
+
+shadowJar {
+    archiveFileName.set("klik.jar")
+    manifest {
+        attributes(
+                'Main-Class': 'klik.Klik_application',
+                'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
+        )
+    }
+    mergeServiceFiles()
+}
+
