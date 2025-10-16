@@ -106,11 +106,11 @@ public class Jar_utils
 
         // create a conformant png file from the bytes
 
-        WritableImage wimg = new WritableImage(max,max);
-        PixelWriter pw = wimg.getPixelWriter();
+        WritableImage icon = new WritableImage(max,max);
+        PixelWriter pw = icon.getPixelWriter();
         pw.setPixels(0,0,max,max,fmt,out_bytes,0,max*4);
         File out_file = new File(tmp_icon_file_name);
-        Static_image_utilities.write_png_to_disk(wimg, out_file, "tmp_klik_icon.png", logger);
+        Static_image_utilities.write_png_to_disk(icon, out_file.toPath(), logger);
 
         // read it back
         try {

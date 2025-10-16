@@ -17,6 +17,11 @@ import klik.properties.Cache_folder;
 import klik.experimental.metadata.Metadata_handler;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Booleans;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
+import klik.util.image.Icons_from_disk;
+import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Progress_window;
@@ -176,13 +181,13 @@ public class Moving_files
 
                 Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache,owner,logger);
                 int icon_size = Non_booleans_properties.get_icon_size(owner);
-                File current_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.old_Path,String.valueOf(icon_size), Icon_factory_actor.png_extension);
-                if (current_icon.exists()) {
-                    File new_icon = From_disk.file_for_icon_caching(icon_cache_dir, oandn.new_Path, String.valueOf(icon_size), Icon_factory_actor.png_extension);
+                Path current_icon = Icon_caching.path_for_icon_caching(oandn.old_Path,String.valueOf(icon_size), Icon_caching.png_extension,owner,logger);
+                if (Files.exists(current_icon)) {
+                    Path new_icon = Icon_caching.path_for_icon_caching(oandn.new_Path, String.valueOf(icon_size), Icon_caching.png_extension, owner, logger);
 
                     //Files.move(current_icon.toPath(), new_icon.toPath());
                     //FileUtils.moveFile(current_icon, new_icon, StandardCopyOption.REPLACE_EXISTING);
-                    if ( !move_file(current_icon.toPath(),new_icon.toPath(),logger))
+                    if ( !move_file(current_icon,new_icon,logger))
                     {
                         logger.log("icon move failed");
                     }

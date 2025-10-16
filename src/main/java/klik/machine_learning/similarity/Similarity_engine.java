@@ -337,6 +337,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             {
                 // skip images of different size
                 Image_properties ip1 = image_properties_cache.get_from_cache(path1,null);
+                if ( ip1 == null) continue;
                 if ( ip0.w() != ip1.w()) continue;
                 if ( ip0.h() != ip1.h()) continue;
             }

@@ -23,6 +23,9 @@ import klik.machine_learning.similarity.Most_similar;
 import klik.machine_learning.similarity.Similarity_engine;
 import klik.machine_learning.song_similarity.Feature_vector_source_for_song_similarity;
 import klik.util.files_and_paths.*;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.log.Logger;
 import klik.util.ui.Menu_items;
 

@@ -1,7 +1,7 @@
 //SOURCES ../../../actor/Job_termination_reporter.java
 //SOURCES ../../../util/ui/Progress_window.java
 //SOURCES ../../../util/ui/Jfx_batch_injector.java
-//SOURCES ../../../util/files_and_paths/From_disk.java
+//SOURCES ../../../util/files_and_paths/Icons_from_disk.java
 //SOURCES ./Animated_gif_generation_actor.java
 
 package klik.browser.icons.animated_gifs;

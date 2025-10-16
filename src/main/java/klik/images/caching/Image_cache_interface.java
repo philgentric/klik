@@ -3,7 +3,6 @@ package klik.images.caching;
 import javafx.stage.Window;
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
-import klik.util.image.Image_rescaling_filter;
 
 import java.nio.file.Path;
 

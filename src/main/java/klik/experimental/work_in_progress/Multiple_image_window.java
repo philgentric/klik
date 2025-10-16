@@ -24,7 +24,7 @@ import klik.image_indexer.Image_indexer;
 import klik.images.Image_context;
 import klik.look.Look_and_feel_manager;
 import klik.util.image.Static_image_utilities;
-import klik.util.image.Image_rescaling_filter;
+import klik.util.image.rescaling.Image_rescaling_filter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;

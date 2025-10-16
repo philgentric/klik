@@ -5,10 +5,10 @@ import klik.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
-import klik.util.files_and_paths.Command;
+import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.util.files_and_paths.Old_and_new_Path;
-import klik.util.files_and_paths.Status;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 

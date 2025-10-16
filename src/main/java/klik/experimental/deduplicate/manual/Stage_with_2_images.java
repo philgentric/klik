@@ -25,12 +25,15 @@ import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Non_booleans_properties;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
+import klik.util.image.Full_image_from_disk;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel_manager;
 import klik.properties.File_sort_by;
-import klik.util.files_and_paths.From_disk;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -275,37 +278,39 @@ public class Stage_with_2_images
 		if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
 		if ( is_image)
 		{
-			Image image = From_disk.load_native_resolution_image_from_disk(file.toPath(), true, owner,aborter, logger);
-			HBox hbox2 = new HBox();
-			{
-				width = image.getWidth();
-				height = image.getHeight();
-				String lab = "Image size: "+width+" x "+height;
-				boolean same = true;
-				if ( previous.image_width() != width) same = false;
-				if ( previous.image_height() != height) same = false;
-				if ( same)
-				{
-					lab += " ========  SAME SIZE";
-				}
-				Label label = new Label(lab);
-				Look_and_feel_manager.set_region_look(label,stage,logger);
-				label.setMinWidth(w);
-				label.setWrapText(true);
-				hbox2.getChildren().add(label);
+			Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(file.toPath(), true, owner,aborter, logger);
+            if (op.isPresent())
+            {
+                Image image = op.get();
+                HBox hbox2 = new HBox();
+                {
+                    width = image.getWidth();
+                    height = image.getHeight();
+                    String lab = "Image size: " + width + " x " + height;
+                    boolean same = true;
+                    if (previous.image_width() != width) same = false;
+                    if (previous.image_height() != height) same = false;
+                    if (same) {
+                        lab += " ========  SAME SIZE";
+                    }
+                    Label label = new Label(lab);
+                    Look_and_feel_manager.set_region_look(label, stage, logger);
+                    label.setMinWidth(w);
+                    label.setWrapText(true);
+                    hbox2.getChildren().add(label);
+                }
+                Region spacer = new Region();
+                Look_and_feel_manager.set_region_look(spacer,owner,logger);
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                hbox2.getChildren().add(spacer);
+                the_vbox.getChildren().add(hbox2);
 
-			}
-			Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,owner,logger);
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-			hbox2.getChildren().add(spacer);
-			the_vbox.getChildren().add(hbox2);
-
-			ImageView image_view = new ImageView(image);
-			image_view.setPreserveRatio(true);
-			image_view.setFitWidth(w);
-			image_view.setFitHeight(H);
-			the_vbox.getChildren().add(image_view);
+                ImageView image_view = new ImageView(image);
+                image_view.setPreserveRatio(true);
+                image_view.setFitWidth(w);
+                image_view.setFitHeight(H);
+                the_vbox.getChildren().add(image_view);
+            }
 		}
 
 		hbox.getChildren().add(the_vbox);

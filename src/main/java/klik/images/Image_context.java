@@ -16,18 +16,20 @@ import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
+import klik.util.image.Full_image_from_disk;
 import klik.util.image.Static_image_utilities;
 import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.*;
-import klik.images.decoding.Fast_date_from_OS;
-import klik.images.decoding.Fast_rotation_from_exif_metadata_extractor;
+import klik.util.image.decoding.Fast_date_from_filesystem;
+import klik.util.image.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
 import klik.search.Finder;
 import klik.search.Keyword_extractor;
-import klik.util.files_and_paths.From_disk;
-import klik.util.image.Image_rescaling_filter;
-import klik.util.log.Stack_trace_getter;
+import klik.util.image.rescaling.Image_rescaling_filter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.execute.System_open_actor;
@@ -62,7 +64,7 @@ public class Image_context
     public final FileTime creation_time;
 
     //**********************************************************
-    public static Optional<Image_context> build_Image_context_javafx(Path path, Image_window image_window, Aborter aborter, Logger logger_)
+    public static Optional<Image_context> build_Image_context(Path path, Image_window image_window, Aborter aborter, Logger logger_)
     //**********************************************************
     {
        if ( image_window.rescaler == Image_rescaling_filter.Native)
@@ -96,16 +98,15 @@ public class Image_context
     //**********************************************************
     {
         if ( !Files.exists(path)) return Optional.empty();
-        Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, owner, aborter,logger_);
-        if ( local_image == null)
-        {
-            return Optional.empty();
-        }
+        Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(path, true, owner, aborter,logger_);
+        if (op.isEmpty()) return Optional.empty();
+        Image local_image = op.get();
         if ( local_image.isError())
         {
             Image broken = Jar_utils.get_broken_icon(300,owner,logger_);
             return Optional.of(new Image_context(path,path,broken,logger_));
         }
+
         Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image,logger_));
         return returned;
     }
@@ -124,7 +125,7 @@ public class Image_context
         the_image_view.setCacheHint(CacheHint.QUALITY);
 
 
-        creation_time = Fast_date_from_OS.get_date(current_path,logger);
+        creation_time = Fast_date_from_filesystem.get_date(current_path,logger);
         //if ( get_rotation) get_rotation();
         if ( dbg)
         {

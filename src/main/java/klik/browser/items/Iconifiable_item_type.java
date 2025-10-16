@@ -2,7 +2,6 @@ package klik.browser.items;
 
 import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Files;
@@ -14,9 +13,11 @@ public enum Iconifiable_item_type
 {
     folder,
     symbolic_link_on_folder,
-    image_not_gif_not_png,
+    non_javafx_image, // webp, tiff, etc
+    javafx_image_not_gif_not_png, // which includes jpeg
     image_png,
     image_gif,
+    //image_fits, // this is use only with the nasa java fits library, but we support it via GraphicsMagick i.e. non_javafx_image
     video,
     pdf,
     no_path,
@@ -55,7 +56,9 @@ public enum Iconifiable_item_type
         if (Guess_file_type.is_this_extension_a_pdf(extension)) return pdf;
         if (Guess_file_type.is_this_extension_a_gif(extension)) return image_gif;
         if (Guess_file_type.is_this_extension_a_png(extension)) return image_png;
-        if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return image_not_gif_not_png;
+        if (Guess_file_type.is_this_extension_a_non_javafx_type(extension)) return non_javafx_image;
+        //if (Guess_file_type.is_this_extension_a_fits(extension)) return image_fits;
+        if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return javafx_image_not_gif_not_png;
 
         //System.out.println(("WARNING: from_extension returns DEFAULT 'other'' for path: " + path));
 

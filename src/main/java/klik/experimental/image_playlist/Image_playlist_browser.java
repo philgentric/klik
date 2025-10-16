@@ -8,7 +8,7 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Shutdown_target;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;

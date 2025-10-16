@@ -1,4 +1,4 @@
-package klik.util.image;
+package klik.util.image.rescaling;
 
 import app.photofox.vipsffm.VImage;
 import app.photofox.vipsffm.VipsOption;
@@ -56,6 +56,92 @@ import java.util.Locale;
 public class Vips_utils
 //**********************************************************
 {
+
+
+    //**********************************************************
+    public static Image VImage_to_FX_Image(VImage in, Logger logger)
+    //**********************************************************
+    {
+        int w = in.getWidth();
+        int h = in.getHeight();
+        VImage vimage = in.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
+        MemorySegment memory_segment = vimage.writeToMemory();
+        WritableImage writable_image = new WritableImage(w,h);
+        PixelWriter pixel_writer = writable_image.getPixelWriter();
+        int bands = 3; //(RGB)
+        for ( int y = 0; y < h ; y++)
+        {
+            for ( int x = 0; x < w; x++)
+            {
+                long index = (y*w+x)*bands;
+                int r = Byte.toUnsignedInt(memory_segment.get(ValueLayout.JAVA_BYTE,index));
+                int g = Byte.toUnsignedInt(memory_segment.get(ValueLayout.JAVA_BYTE,index+1));
+                int b = Byte.toUnsignedInt(memory_segment.get(ValueLayout.JAVA_BYTE,index+2));
+
+                Color color = Color.rgb(r,g,b);
+                pixel_writer.setColor(x,y,color);
+            }
+        }
+        //System.out.println("fx image acquired from VImage");
+
+        return writable_image;
+    }
+
+    //**********************************************************
+    public static VImage FX_Image_to_VImage(Image in, Arena arena, Logger logger)
+    //**********************************************************
+    {
+        int w = (int) in.getWidth();
+        int h = (int) in.getHeight();
+        PixelReader pixel_reader = in.getPixelReader();
+        int bands = 3;
+        //System.out.println("Arena.ofConfined() OK !"+arena.toString());
+        MemorySegment memory_segment = arena.allocate(w*h*3);
+        for ( int y = 0; y < h ; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                Color color = pixel_reader.getColor(x,y);
+                long index = (y * w + x) * bands;
+
+                memory_segment.setAtIndex(ValueLayout.JAVA_BYTE,index,(byte)(color.getRed()*255));
+                memory_segment.setAtIndex(ValueLayout.JAVA_BYTE,index+1,(byte)(color.getGreen()*255));
+                memory_segment.setAtIndex(ValueLayout.JAVA_BYTE,index+2,(byte)(color.getBlue()*255));
+            }
+        }
+        int format = VipsBandFormat.FORMAT_UCHAR.getRawValue();
+        VImage returned = VImage.newFromMemory(arena,memory_segment,w,h,3, format);
+
+        //System.out.println("VImage acquired from FX Image");
+        return returned;
+    }
+
+
+    //**********************************************************
+    public static Image resize(Image in, double scale, Image_rescaling_filter filter, Logger logger)
+    //**********************************************************
+    {
+        Arena arena = Arena.ofConfined();
+        VImage before = FX_Image_to_VImage(in,arena,logger);
+        if ( before == null)
+        {
+            System.out.println("failed to translate FX Image to VImage");
+            return null;
+        }
+
+
+        VipsKernel k = filter.get();
+        VipsOption o = VipsOption.Enum("kernel",k);
+        VImage after = before.resize(scale, o);
+        if ( after == null)
+        {
+            System.out.println("failed to resize VImage");
+            return null;
+        }
+        return VImage_to_FX_Image(after,logger);
+    }
+
+
 
     static
     {
@@ -142,88 +228,6 @@ public class Vips_utils
     }
 
 
-    //**********************************************************
-    public static Image VImage_to_FX_Image(VImage in, Logger logger)
-    //**********************************************************
-    {
-        int w = in.getWidth();
-        int h = in.getHeight();
-        VImage vimage = in.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
-        MemorySegment memory_segment = vimage.writeToMemory();
-        WritableImage writable_image = new WritableImage(w,h);
-        PixelWriter pixel_writer = writable_image.getPixelWriter();
-        int bands = 3; //(RGB)
-        for ( int y = 0; y < h ; y++)
-        {
-            for ( int x = 0; x < w; x++)
-            {
-                long index = (y*w+x)*bands;
-                int r = Byte.toUnsignedInt(memory_segment.get(ValueLayout.JAVA_BYTE,index));
-                int g = Byte.toUnsignedInt(memory_segment.get(ValueLayout.JAVA_BYTE,index+1));
-                int b = Byte.toUnsignedInt(memory_segment.get(ValueLayout.JAVA_BYTE,index+2));
-
-                Color color = Color.rgb(r,g,b);
-                pixel_writer.setColor(x,y,color);
-            }
-        }
-        //System.out.println("fx image acquired from VImage");
-
-        return writable_image;
-    }
-
-    //**********************************************************
-    public static VImage FX_Image_to_VImage(Image in, Arena arena, Logger logger)
-    //**********************************************************
-    {
-        int w = (int) in.getWidth();
-        int h = (int) in.getHeight();
-        PixelReader pixel_reader = in.getPixelReader();
-        int bands = 3;
-        //System.out.println("Arena.ofConfined() OK !"+arena.toString());
-        MemorySegment memory_segment = arena.allocate(w*h*3);
-        for ( int y = 0; y < h ; y++)
-        {
-            for (int x = 0; x < w; x++)
-            {
-                Color color = pixel_reader.getColor(x,y);
-                long index = (y * w + x) * bands;
-
-                memory_segment.setAtIndex(ValueLayout.JAVA_BYTE,index,(byte)(color.getRed()*255));
-                memory_segment.setAtIndex(ValueLayout.JAVA_BYTE,index+1,(byte)(color.getGreen()*255));
-                memory_segment.setAtIndex(ValueLayout.JAVA_BYTE,index+2,(byte)(color.getBlue()*255));
-            }
-        }
-        int format = VipsBandFormat.FORMAT_UCHAR.getRawValue();
-        VImage returned = VImage.newFromMemory(arena,memory_segment,w,h,3, format);
-
-        //System.out.println("VImage acquired from FX Image");
-        return returned;
-    }
-
-
-    //**********************************************************
-    public static Image resize(Image in, double scale, Image_rescaling_filter filter, Logger logger)
-    //**********************************************************
-    {
-        Arena arena = Arena.ofConfined();
-        VImage before = FX_Image_to_VImage(in,arena,logger);
-        if ( before == null)
-        {
-            System.out.println("failed to translate FX Image to VImage");
-            return null;
-        }
-
-
-        VipsKernel k = filter.get();
-        VipsOption o = VipsOption.Enum("kernel",k);
-        VImage after = before.resize(scale, o);
-        if ( after == null)
-        {
-            System.out.println("failed to resize VImage");
-            return null;
-        }
-        return VImage_to_FX_Image(after,logger);
-    }
 
 /*
     // diagnostic code

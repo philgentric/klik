@@ -1,4 +1,4 @@
-package klik.images.decoding;
+package klik.util.image.decoding;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -12,8 +12,8 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.Extensions;
-import klik.util.files_and_paths.From_disk;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
+import klik.util.image.Full_image_from_disk;
+import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.experimental.fusk.Fusk_static_core;
@@ -147,7 +147,7 @@ public class Exif_metadata_extractor
 
         image_is_damaged = false;
 
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
+        InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             image_is_damaged = true;

@@ -1,7 +1,7 @@
 package klik.change;
 
 import javafx.stage.Window;
-import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 
 import java.util.List;

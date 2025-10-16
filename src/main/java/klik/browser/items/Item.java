@@ -46,8 +46,9 @@ import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Moving_files;
+import klik.util.image.Full_image_from_disk;
+import klik.util.image.Icons_from_disk;
 import klik.util.ui.Folder_size_stage;
-import klik.util.files_and_paths.From_disk;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
@@ -61,6 +62,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
@@ -414,8 +416,8 @@ public abstract class Item implements Icon_destination
                 actionEvent -> {
                     if (dbg) logger.log("info");
                     Actor_engine.execute(()-> {
-                        Image local_image = From_disk.load_native_resolution_image_from_disk(path, true, owner, aborter, logger);
-                        Exif_stage.show_exif_stage(local_image, path, owner, aborter, logger);
+                        Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(path, true, owner, aborter, logger);
+                        if ( op.isPresent()) Exif_stage.show_exif_stage(op.get(), path, owner, aborter, logger);
                     },logger);
                 },
                 context_menu,

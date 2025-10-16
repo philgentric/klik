@@ -21,7 +21,7 @@ import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
-import klik.util.image.Image_rescaling_filter;
+import klik.util.image.rescaling.Image_rescaling_filter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Menu_items;
@@ -122,7 +122,7 @@ public class Menus_for_image_window
         }
 
         image_display_handler.logger.log("GIF repair2 OK");
-        Optional<Image_context> option = Image_context.build_Image_context_javafx(local_path, image_window, image_window.aborter, image_window.logger);
+        Optional<Image_context> option = Image_context.build_Image_context(local_path, image_window, image_window.aborter, image_window.logger);
         if (option.isEmpty()) {
             image_display_handler.logger.log("getting a new image context failed after gif repair");
         } else {
@@ -291,8 +291,10 @@ public class Menus_for_image_window
 
         AtomicInteger count_for_label = new AtomicInteger(0);// not used
         boolean do_face_detection = false;
+        Path image_path = image_window.image_display_handler.get_image_context().get().path;
+
         Face_recognition_message msg = new Face_recognition_message(
-                image_window.image_display_handler.get_image_context().get().path.toFile(),
+                image_path.toFile(),
                 Face_detection_type.haars_high_precision,// ignored
                 do_face_detection,
                 null, // this recognition ONLY i.e. no training will happen

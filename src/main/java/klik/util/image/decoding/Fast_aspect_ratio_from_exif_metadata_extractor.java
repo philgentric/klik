@@ -1,4 +1,4 @@
-package klik.images.decoding;
+package klik.util.image.decoding;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -8,7 +8,8 @@ import com.drew.metadata.Tag;
 import klik.actor.Aborter;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.util.files_and_paths.From_disk;
+import klik.util.image.Full_image_from_disk;
+import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -18,20 +19,22 @@ import java.nio.file.Path;
 import java.util.List;
 
 //**********************************************************
-public class Fast_width_from_exif_metadata_extractor
+public class Fast_aspect_ratio_from_exif_metadata_extractor
 //**********************************************************
 {
     public static final boolean dbg = false;
 
+    private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done){}
+
     //**********************************************************
-    public static double get_width(Path path, boolean report_if_not_found, List<String> sb, Aborter aborter, Logger logger)
+    public static double get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Logger logger)
     //**********************************************************
     {
         if( sb != null)
         {
             sb.add(path.toString());
         }
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
+        InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             if ( sb != null)
@@ -42,7 +45,8 @@ public class Fast_width_from_exif_metadata_extractor
             return -1.0;
         }
 
-        Double w = null;
+        Directory_result best = null;
+        Directory_result best_no_rot = null;
         try
         {
             Metadata metadata = ImageMetadataReader.readMetadata(is);
@@ -65,25 +69,30 @@ public class Fast_width_from_exif_metadata_extractor
                     continue;
                 }
                 if (sb != null)sb.add("directory="+directory);
-                Double local = do_one_dir(directory,sb);
+                Directory_result local = do_one_dir(directory,sb);
 
-                if (local != null)
+                if (local.w_done && local.h_done && local.rot_done)
                 {
-                    if (sb != null)sb.add("width found");
-                    w = local;
+                    best = local;
+                    if (sb != null)sb.add("rotation found");
                     break;
+                }
+                if (local.w_done && local.h_done)
+                {
+                    if (sb != null)sb.add("rotation not found");
+                    best_no_rot = local;
                 }
             }
             is.close();
         }
         catch (ImageProcessingException e)
         {
-            if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_width() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
+            if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
             if ( e.toString().contains("File format could not be determined"))  return -1.0;
         }
         catch (IOException e)
         {
-            if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_width() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
+            if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
             return -1.0;
         }
         catch (Exception e)
@@ -92,12 +101,75 @@ public class Fast_width_from_exif_metadata_extractor
                 sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
             return -1.0;
         }
-        return w;
+
+        Directory_result result = best;
+        if ( result == null)
+        {
+            if (sb != null)sb.add("finally ... rotation not found");
+            result = best_no_rot;
+        }
+        else
+        {
+            if (sb != null)sb.add("finally ... rotation found");
+        }
+
+        if ((best != null) && (best_no_rot != null))
+        {
+            double h = 0;
+            double w = 0;
+            if (best.h != best_no_rot.h) h = best_no_rot.h;
+            if (best.w != best_no_rot.w) w = best_no_rot.w;
+            if (best.invert_width_and_height)
+            {
+                if (sb != null) sb.add(" INVERTED aspect ratio h/w: "+h+"/"+w+"="+h/w);
+                return h/w;
+            }
+            else
+            {
+                if (sb != null) sb.add(" aspect ratio w/h: "+w+"/"+h+"="+w/h);
+                return w/h;
+            }
+        }
+
+        if ( result == null)
+        {
+            if ( sb != null)
+            {
+                sb.add("NO EXIF data?");
+                logger.log(sb.toString());
+            }
+            return -1.0;
+        }
+        if (( result.w != null) && ( result.h != null))
+        {
+            if (result.invert_width_and_height)
+            {
+                if (sb != null)
+                {
+                    sb.add(" INVERTED aspect ratio h/w: "+result.h+"/"+result.w+"="+result.h/result.w);
+                    logger.log(sb.toString());
+                }
+                return result.h/result.w;
+            }
+            if (sb != null)
+            {
+                sb.add(" aspect ratio w/h: "+result.w+"/"+result.h+"="+result.w/result.h);
+                logger.log(sb.toString());
+
+            }
+            return result.w/result.h;
+        }
+        if ( sb != null)
+        {
+            sb.add("should not happen?");
+            logger.log(sb.toString());
+        }
+        return -1.0;
     }
 
 
     //**********************************************************
-    private static Double do_one_dir(Directory directory, List<String> sb)
+    private static Directory_result do_one_dir(Directory directory, List<String> sb)
     //**********************************************************
     {
         Double w = null;
@@ -107,7 +179,7 @@ public class Fast_width_from_exif_metadata_extractor
         boolean h_done = false;
         boolean invert_width_and_height = false;
 
-
+        
         for (Tag tag : directory.getTags())
         {
             if (tag.toString().contains("Thumbnail")) continue;
@@ -192,8 +264,7 @@ public class Fast_width_from_exif_metadata_extractor
                 }
             }
         }
-        if ( invert_width_and_height) return h;
-        return w;
+        return new Directory_result(w,h,invert_width_and_height,w_done,h_done,rot_done);
     }
     public static Double get_number(String s)
     {

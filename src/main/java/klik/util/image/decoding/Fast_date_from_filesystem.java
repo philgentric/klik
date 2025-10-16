@@ -1,4 +1,4 @@
-package klik.images.decoding;
+package klik.util.image.decoding;
 
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -11,7 +11,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
 //**********************************************************
-public class Fast_date_from_OS
+public class Fast_date_from_filesystem
 //**********************************************************
 {
     public static final boolean dbg = false;

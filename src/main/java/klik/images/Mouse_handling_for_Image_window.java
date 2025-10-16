@@ -5,6 +5,9 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -13,6 +16,8 @@ import javafx.stage.Stage;
 import klik.browser.Drag_and_drop;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
+import klik.properties.Non_booleans_properties;
+import klik.util.image.Static_image_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -47,6 +52,9 @@ public class Mouse_handling_for_Image_window
     EventHandler<MouseEvent> mouse_pressed_pix_for_pix_event_handler;
     EventHandler<MouseEvent> mouse_dragged_pix_for_pix_event_handler;
     EventHandler<MouseEvent> mouse_released_pix_for_pix_event_handler;
+
+    public Path tmp_zoomed = null;
+
 
     //**********************************************************
     public Mouse_handling_for_Image_window(Image_window image_window_, Logger logger)
@@ -184,7 +192,18 @@ public class Mouse_handling_for_Image_window
         logger.log("rectangle2 :" + view_port.getMinX() + "/" + view_port.getMinY() + " " + view_port.getWidth() + "x" + view_port.getHeight());
 
         local.the_image_view.setViewport(view_port);
-        //Image_stage is = Image_stage.get_Image_stage2(this,ic,rect,the_properties_manager,tpe,logger);
+
+
+
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        Image tmp_zoomed_image = local.the_image_view.snapshot(params, null);
+
+        Path image_path = image_window.image_display_handler.get_image_context().get().path;
+
+        Path tmp_dir = Non_booleans_properties.get_trash_dir(image_path, image_window.stage, logger);
+        tmp_zoomed = tmp_dir.resolve(image_path.getFileName());
+        Static_image_utilities.write_png_to_disk(tmp_zoomed_image, tmp_zoomed,logger);
     }
 
 
@@ -471,7 +490,7 @@ public class Mouse_handling_for_Image_window
                 if (Drag_and_drop.drag_and_drop_dbg) logger.log("  drag2 ACCEPTED for: " + file.getAbsolutePath());
 
                 image_window.show_wait_cursor();
-                Optional<Image_context> option = Image_context.build_Image_context_javafx(file.toPath(), image_window, image_window.aborter, logger);
+                Optional<Image_context> option = Image_context.build_Image_context(file.toPath(), image_window, image_window.aborter, logger);
                 if ( option.isPresent())
                 {
                     image_window.image_display_handler.set_image_context(option.get());

@@ -68,6 +68,8 @@ dependencies {
 
     // for Magic Kernel Sharp 2021 top quality image rescaling
     implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
+
+
 }
 
 tasks.register('klik', JavaExec) {

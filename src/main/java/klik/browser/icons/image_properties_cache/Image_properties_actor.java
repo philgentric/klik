@@ -2,7 +2,7 @@ package klik.browser.icons.image_properties_cache;
 
 import klik.actor.Actor;
 import klik.actor.Message;
-import klik.images.decoding.Fast_image_property_from_exif_metadata_extractor;
+import klik.util.image.decoding.Fast_image_property_from_exif_metadata_extractor;
 
 //**********************************************************
 public class Image_properties_actor implements Actor

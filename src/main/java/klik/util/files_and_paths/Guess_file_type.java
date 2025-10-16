@@ -4,11 +4,12 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
 //import klik.experimental.image_playlist.Playlist_path_list_provider;
-import klik.images.decoding.Exif_metadata_extractor;
+import klik.util.image.decoding.Exif_metadata_extractor;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -25,11 +26,54 @@ public class Guess_file_type
     private static final String GIF = "GIF";
     private static final String PNG = "PNG";
     public static final String PDF = "PDF";
-    private static final String[] supported_image_formats = {"BMP","GIF","JPEG","JPG","PNG"};//ImageIO.getReaderFormatNames();
+    private static final String[] JAVAFX_supported_image_formats = {
+            "BMP","GIF","JPEG","JPG","PNG"};
+    //private static final String[] supported_image_formats = ImageIO.getReaderFormatNames();
+    private static final String[] graphicsMagick_supported_image_formats = {
+            "3FR","8BIM","8BIMTEXT","8BIMWTEXT","AAI","APP1","APP1JPEG","ART", "ARW","AVIF","AVS","B","BIGTIFF",
+            //"BMP",
+            "BMP2","BMP3","BRF","C", "CACHE","CALS","CAPTION","CIN","CMYK","CMYKA","CR2","CRW","CUR",
+            "CUT","DCM","DCR","DCX","DNG","DPX","EPDF","EPI","EPS","EPS2",
+            "EPS3","EPSF","EPSI","EPT","EPT2","EPT3","ERF","EXIF","FAX",
+            //"FILE", (?)
+            "FITS",
+            "FRACTAL","FTP","G",
+            //"GIF",
+            "GIF87","GRADIENT","GRAY",
+            "GRAYA","HEIC","HEIF","HISTOGRAM","HRZ","HTML","HTTP","ICB",
+            "ICC","ICM","ICO","ICON","IDENTITY","IMAGE","INFO","IPTC",
+            "IPTCTEXT","IPTCWTEXT","ISOBRL","ISOBRL6","J2C","JNG","JNX",
+            "JP2","JPC",
+            //"JPEG","JPG",
+            "JXL","K","K25","KDC","LABEL","M", "M2V","MAC","MAP","MAT","MATTE","MEF","MIFF","MNG","MONO",
+            "MPC",
+            //"MPEG","MPG",
+            "MRW","MSL","MTV","MVG","NEF","NULL","O",
+            "ORF","OTB","P7","PAL","PALM","PAM","PBM","PCD","PCDS","PCL",
+            "PCT","PCX","PDB","PDF","PEF","PFA","PFB","PGM","PGX","PICON",
+            "PICT","PIX","PLASMA",
+            //"PNG",
+            "PNG00","PNG24","PNG32","PNG48", "PNG64","PNG8","PNM","PPM","PREVIEW","PS","PS2","PS3","PTIF",
+            "PWP","R","RAF","RAS","RGB","RGBA","RLA","RLE","SCT","SFW", "SGI","SHTML","SR2","SRF","STEGANO","SUN",
+            "SVG", "SVGZ",
+            //"TEXT", "TXT", (?)
+            "TGA",
+            "TIF","TIFF",
+            "TILE","TIM","TOPOL", "UBRL","UBRL6", "UIL","UYVY","VDA","VICAR","VID","VIFF","VST",
+            "WBMP",
+            "WEBP",
+            "WPG","X3F","XBM","XC",
+            "XCF",
+            "XMP","XPM","XV","Y","YUV"};
+    public static final boolean use_nasa_fits_java_lib = false;
+    private static final String[] fits = {"FITS"};
+
+    //private static final String[] VIPS_supported_image_formats = {"TIFF","WEBP","JPEG2000","HEIC","AVIF","FITS","MATLAB","OPENEXR","SVG","HDR","PPM","PGM","PFM","CSV","ANALYZE","NIFTI","DEEPZOOM","OPENSLIDE"};
     private static final String[] supported_text_formats = {"TXT","NFO","RTF","MD","PY","C","C++","CPP","JAVA","JS","HTML"};
     public static final String[] supported_video_extensions = {"MP4","WEBM","MOV","M4V","MPG","MKV","AVI","FLV","WMV"};
     public static final String[] supported_audio_extensions = {"WAV","AAC","MP3","PCM","AVC","VP6","M4A"};//,"MKV"};
     public static final String KLIK_AUDIO_PLAYLIST_EXTENSION = "klik_audio_playlist";
+    static String[] supported_non_gif_non_png_image_formats = null; // initialized the first time
 
     // portability notes:
     // "._" when a Mac writes a file into an external drive (or NAS via AFP or SMB)
@@ -47,15 +91,19 @@ public class Guess_file_type
     private static final String[] invisible_if_starts_with = {".","._",".DS_Store",".color"};
     private static final String[] invisible_if_ends_with = {".properties",".prototype"};
 
-    static String[] supported_non_gif_non_png_image_formats = null;
 
+    static {
+        System.out.println("\n\n");
+        for( String s : ImageIO.getReaderFormatNames())
+        System.out.println(s);
+    }
     //**********************************************************
     public static boolean is_file_an_image(File f)
     //**********************************************************
     {
         return is_this_extension_an_image(f.toPath());
     }
-
+/*
     //**********************************************************
     public static String get_supported_image_formats_as_a_comma_separated_string()
     //**********************************************************
@@ -72,7 +120,7 @@ public class Guess_file_type
         sb.append(Fusk_static_core.FUSK_EXTENSION.toUpperCase());
         return sb.toString();
     }
-
+*/
 
 
     //**********************************************************
@@ -273,9 +321,19 @@ public class Guess_file_type
     public static boolean is_this_extension_an_image(String extension)
     //**********************************************************
     {
-        for (String e : supported_image_formats)
+        for (String e : JAVAFX_supported_image_formats)
         {
             if (extension.toUpperCase().equals(e) )return true;
+        }
+        for (String e : graphicsMagick_supported_image_formats)
+        {
+            if (extension.toUpperCase().equals(e) )return true;
+        }
+        if ( use_nasa_fits_java_lib)
+        {
+            for (String e : fits) {
+                if (extension.toUpperCase().equals(e)) return true;
+            }
         }
         if (extension.equalsIgnoreCase(Fusk_static_core.FUSK_EXTENSION))
         {
@@ -362,7 +420,26 @@ public class Guess_file_type
         return false;
     }
 
-
+    //**********************************************************
+    public static boolean is_this_extension_a_non_javafx_type(String extension)
+    //**********************************************************
+    {
+        for ( String s : graphicsMagick_supported_image_formats)
+        {
+            if ( extension.equalsIgnoreCase(s)) return true;
+        }
+        return false;
+    }
+    //**********************************************************
+    public static boolean is_this_extension_a_fits(String extension)
+    //**********************************************************
+    {
+        for ( String s : fits)
+        {
+            if ( extension.equalsIgnoreCase(s)) return true;
+        }
+        return false;
+    }
     //**********************************************************
     public static boolean is_this_extension_an_image_not_gif_not_png(String extension)
     //**********************************************************
@@ -371,24 +448,41 @@ public class Guess_file_type
         if ( supported_non_gif_non_png_image_formats == null)
         {
             int size = 0;
-            for ( String s : supported_image_formats)
+            for ( String s : JAVAFX_supported_image_formats)
             {
                 if ( ! s.equalsIgnoreCase(GIF)) size++;
                 if ( ! s.equalsIgnoreCase(PNG)) size++;
             }
-            size++; // for fusk
+            for ( String s : graphicsMagick_supported_image_formats)
+            {
+                if ( ! s.equalsIgnoreCase(GIF)) size++;
+                if ( ! s.equalsIgnoreCase(PNG)) size++;
+            }
+            size += fits.length;
+            size++; // for fusk we need 1 more slot (just safety since we skip GIF and PNG)
             supported_non_gif_non_png_image_formats = new String[size];
             int i = 0;
-            for ( String s : supported_image_formats)
+            for ( String s : JAVAFX_supported_image_formats)
+            {
+                if ( ! s.equalsIgnoreCase(GIF)) supported_non_gif_non_png_image_formats[i++] = s.toUpperCase();
+                if ( ! s.equalsIgnoreCase(PNG)) supported_non_gif_non_png_image_formats[i++] = s.toUpperCase();
+            }
+            for ( String s : graphicsMagick_supported_image_formats)
             {
                 if ( ! s.equalsIgnoreCase(GIF)) supported_non_gif_non_png_image_formats[i++] = s.toUpperCase();
                 if ( ! s.equalsIgnoreCase(PNG)) supported_non_gif_non_png_image_formats[i++] = s.toUpperCase();
             }
             supported_non_gif_non_png_image_formats[i] = Fusk_static_core.FUSK_EXTENSION.toUpperCase();
         }
-        for (String supportedNonGifImageFormat : supported_non_gif_non_png_image_formats) {
-            if (extension.toUpperCase().equals(supportedNonGifImageFormat)) return true;
+        for (String supportedNonGifImageFormat : supported_non_gif_non_png_image_formats)
+        {
+            if (extension.toUpperCase().equals(supportedNonGifImageFormat))
+            {
+                //System.out.println("SUPPORTED: "+extension);
+                return true;
+            }
         }
+        //System.out.println("NOT supported: "+extension);
         return false;
     }
 }

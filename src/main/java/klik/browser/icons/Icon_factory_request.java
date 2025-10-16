@@ -16,16 +16,16 @@ public class Icon_factory_request implements Message
     public final Aborter aborter;
     public int retry_count = 0;
     public final static int max_retry = 3;
-    public final Window originator;
+    public final Window owner;
 
     //**********************************************************
-    public Icon_factory_request(Icon_destination destination, int icon_size,Window originator,Aborter aborter)
+    public Icon_factory_request(Icon_destination destination, int icon_size,Window owner,Aborter aborter)
     //**********************************************************
     {
         this.icon_size = icon_size;
         this.destination = destination;
         this.aborter = aborter;
-        this.originator = originator;
+        this.owner = owner;
     }
 
     @Override

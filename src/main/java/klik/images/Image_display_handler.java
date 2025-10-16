@@ -13,14 +13,15 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
+import klik.look.Jar_utils;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.images.caching.Image_cache_linkedhashmap;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Image_cache_interface;
 import klik.images.caching.Image_cache_cafeine;
-import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
-import klik.util.files_and_paths.From_disk;
+import klik.util.image.Full_image_from_disk;
 import klik.util.perf.Perf;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -57,13 +58,14 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             Path path,
             Image_window image_window,
             Comparator<? super Path> file_comparator,
-            Aborter aborter, Logger logger_)
+            Aborter aborter, Window owner, Logger logger_)
     //**********************************************************
     {
-        Optional<Image_context> image_context_ = Image_context.build_Image_context_javafx(path,image_window,aborter, logger_);
+        Optional<Image_context> image_context_ = Image_context.build_Image_context(path,image_window,aborter, logger_);
         if (image_context_.isEmpty())
         {
-            logger_.log(Stack_trace_getter.get_stack_trace("PANIC: cannot load image " + path.toAbsolutePath()));
+            logger_.log("WARNING: cannot load image " + path.toAbsolutePath());
+
             return Optional.empty();
         }
 
@@ -88,7 +90,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         Change_gang.register(this,aborter,logger); // image_context must be valid!
 
 
-        long remaining_RAM = From_disk.get_remaining_memory();
+        long remaining_RAM = Full_image_from_disk.get_remaining_memory();
         int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
         int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
         int forward_size = cache_slots/2;
@@ -180,7 +182,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         image_cache.evict(local.path,owner);
                         Static_files_and_paths_utilities.clear_one_icon_from_cache_on_disk(local.path,image_window.stage,logger);
                         // reload the image
-                        Optional<Image_context> option = Image_context.build_Image_context_javafx(local.path, image_window,aborter,logger);
+                        Optional<Image_context> option = Image_context.build_Image_context(local.path, image_window,aborter,logger);
                         if ( option.isPresent())
                         {
                             image_context = Optional.of(option.get());
@@ -249,7 +251,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             if (image_context.isEmpty()) {
                 Path p = image_indexer.get().path_from_index(0);
                 if (p == null) return;
-                image_context = Image_context.build_Image_context_javafx(p, image_window, aborter, logger);
+                image_context = Image_context.build_Image_context(p, image_window, aborter, logger);
             }
             if (dbg) logger.log("change_image_relative delta=" + delta);
 

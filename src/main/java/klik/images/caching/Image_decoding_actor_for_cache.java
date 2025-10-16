@@ -43,7 +43,7 @@ public class Image_decoding_actor_for_cache implements Actor
         if ( m.get_aborter().should_abort()) return "aborted";
 
         // this is the expensive operation:
-        Optional<Image_context> option = Image_context.build_Image_context_javafx(request.path, request.image_window, request.aborter, logger);
+        Optional<Image_context> option = Image_context.build_Image_context(request.path, request.image_window, request.aborter, logger);
 
         if (option.isPresent())
         {
@@ -60,7 +60,7 @@ public class Image_decoding_actor_for_cache implements Actor
                 if (!Guess_file_type.should_ignore(image_context.path))
                 {
                     logger.log( Stack_trace_getter.get_stack_trace(image_context.path.getFileName().toString()
-                            +" BAD WARNING weird image ?"+image_context.image.getWidth() +"x"+image_context.image.getHeight()));
+                            +" WARNING weird image: "+image_context.path.toAbsolutePath()+"\n we have: w="+image_context.image.getWidth() +" h="+image_context.image.getHeight()));
                 }
             }
         }

@@ -33,7 +33,7 @@
 //SOURCES ./../icons/Icon_factory_actor.java
 //SOURCES ./../virtual_landscape/Paths_holder.java
 //SOURCES ./../locator/Folders_with_large_images_locator.java
-//SOURCES ../../images/decoding/Fast_date_from_OS.java
+//SOURCES ../../images/decoding/Fast_date_from_filesystem.java
 //SOURCES ./../virtual_landscape/Virtual_landscape.java
 //SOURCES ./../virtual_landscape/Scan_show.java
 //SOURCES ./../Escape_keyboard_handler.java
@@ -65,7 +65,7 @@ import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature_cache;
 import klik.properties.boolean_features.Feature_change_target;
 import klik.util.files_and_paths.Filesystem_item_modification_watcher;
-import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
 

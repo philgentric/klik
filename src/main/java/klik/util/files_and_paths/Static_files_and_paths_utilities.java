@@ -23,6 +23,10 @@ import klik.util.files_and_paths.disk_scanner.Disk_scanner;
 import klik.util.files_and_paths.disk_scanner.File_payload;
 import klik.look.Look_and_feel_manager;
 import klik.change.Change_gang;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
+import klik.util.image.icon_cache.Icon_caching;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -267,11 +271,11 @@ public class Static_files_and_paths_utilities
     {
         Path icon_cache_dir = get_cache_dir( Cache_folder.klik_icon_cache,owner,logger);
         int icon_size = Non_booleans_properties.get_icon_size(owner);
-        String name = Icon_writer_actor.make_cache_name(path.toAbsolutePath().toString(), String.valueOf(icon_size), Icon_factory_actor.png_extension);
-        Path icon_path = Path.of(icon_cache_dir.toAbsolutePath().toString(), name);
+
+        Path icon_path = Icon_caching.path_for_icon_caching(path,String.valueOf(icon_size),Icon_caching.png_extension,owner,logger);
         try {
             Files.delete(icon_path);
-            logger.log("one icon deleted from cache:" + name);
+            logger.log("one icon deleted from cache:" + icon_path);
 
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace("WARNING: deleting one icon FAILED: " + e));

@@ -6,9 +6,9 @@ import klik.change.active_list_stage.Datetime_to_signature_source;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
-import klik.util.files_and_paths.Command;
-import klik.util.files_and_paths.Old_and_new_Path;
-import klik.util.files_and_paths.Status;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 

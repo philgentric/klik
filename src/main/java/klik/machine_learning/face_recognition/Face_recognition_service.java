@@ -836,7 +836,7 @@ public class Face_recognition_service
         Path path =  Embeddings_prototype.make_image_path(folder_path,tag,logger);
         logger.log("writing tmp image to: "+path+" face="+face.getWidth()+"x"+face.getHeight());
 
-        Static_image_utilities.write_png_to_disk(face, path.toFile(), "facereco", logger);
+        Static_image_utilities.write_png_to_disk(face, path, logger);
         /*
         try {
             BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);

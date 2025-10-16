@@ -16,7 +16,7 @@ known bugs:
 - done
 - the start time is small (start times: native < java -jar < gradle start)
 - the run-time speed benefit looks small (difficult to benchmark)
-- VIPS FFM does not ork
+- some features are lost like VIPS FFM does not work
 
 # Installers #
 
@@ -50,19 +50,10 @@ I think it should be a "pin it" choice: user chooses which folders remember thei
 
 right ! which ones ?
 
-webp?
-
-one simple trick is to use some tool like ffmpeg to convert to a format JavaFX supports like jpg, as a tmp file ?
-
-or use javaCV?
-
-or use libsdl4j?
-
-xcf? (the gimp format)
-
-FITS? (for scientists/astronomers)
-https://en.wikipedia.org/wiki/FITS
-https://imagej.net/libs/scifio
+Klik already supports a lot of formats via:
+- JavaFX Image "native" (jpeg, png, bmp, gif, animated gif)
+- GraphicsMagick (92 image formats) via conversion to png
+  (deprecated: - FITS via the nasa java lib)
 
 Try supporting more formats via Java Advanced Imaging?
 

@@ -68,6 +68,9 @@ dependencies {
 
     // for Magic Kernel Sharp 2021 top quality image rescaling
     implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
+
+    // for FITS we use GraphicsMagick but this also works: implementation 'gov.nasa.gsfc.heasarc:nom-tam-fits:1.19.1'
+
 }
 
 tasks.register('klik', JavaExec) {

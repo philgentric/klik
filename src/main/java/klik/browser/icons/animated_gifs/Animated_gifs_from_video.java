@@ -21,6 +21,11 @@ import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Cache_folder;
 import klik.util.files_and_paths.*;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
+import klik.util.image.Icons_from_disk;
+import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;
 import klik.util.ui.Folder_chooser;
 import klik.util.ui.Jfx_batch_injector;
@@ -393,13 +398,9 @@ public class Animated_gifs_from_video
     {
         logger.log("path="+ video_path);
 
-        File icon_file = From_disk.file_for_icon_caching(icon_cache_dir, video_path, String.valueOf(height), Icon_factory_actor.gif_extension);
-        logger.log("icon_file="+icon_file.getAbsolutePath());
+        Path temporary_gif_full_path = Icon_caching.path_for_icon_caching( video_path, String.valueOf(height), Icon_caching.gif_extension, owner,logger);
+        logger.log("icon_file="+temporary_gif_full_path.toAbsolutePath());
 
-
-        temporary_gif_full_path = icon_file.toPath();//Paths.get(icon_cache_dir.toAbsolutePath().toString(), icon_file.getName());
-
-        logger.log("temporary_gif_full_path="+ temporary_gif_full_path);
         Ffmpeg_utils.video_to_gif(
                 the_stage,
                 video_path,
@@ -413,7 +414,7 @@ public class Animated_gifs_from_video
                 logger);
 
 
-        Image image = From_disk.load_icon_from_disk_cache(video_path, icon_cache_dir, height, String.valueOf(height), Icon_factory_actor.gif_extension, From_disk.dbg, owner,logger);
+        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
 
         if ( image == null) logger.log("image==null");
         else the_imageview.setImage(image);

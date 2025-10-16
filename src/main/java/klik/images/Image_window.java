@@ -34,7 +34,10 @@ import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.fusk.Fusk_strings;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.util.image.Image_rescaling_filter;
+import klik.util.files_and_paths.old_and_new.Command;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Status;
+import klik.util.image.rescaling.Image_rescaling_filter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -210,7 +213,7 @@ public class Image_window
             long now = System.currentTimeMillis();
             logger.log("get_true_comparator took " + (now - start) + " ms");
         }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp,aborter, logger);
+        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp,aborter, owner, logger);
         if ( option.isEmpty())
         {
             image_display_handler = null;
@@ -713,7 +716,7 @@ public class Image_window
             logger.log("clearing cache for: "+image_display_handler.get_image_context().get().path);
             image_display_handler.image_cache.evict(image_display_handler.get_image_context().get().path, stage);
         }
-        Optional<Image_context> option = Image_context.build_Image_context_javafx(image_display_handler.get_image_context().get().path, this, aborter, logger);
+        Optional<Image_context> option = Image_context.build_Image_context(image_display_handler.get_image_context().get().path, this, aborter, logger);
         if (option.isPresent())
         {
             image_display_handler.set_image_context(option.get());

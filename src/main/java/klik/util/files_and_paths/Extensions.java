@@ -1,6 +1,8 @@
 package klik.util.files_and_paths;
 
+//**********************************************************
 public class Extensions
+//**********************************************************
 {
     //**********************************************************
     public static String get_base_name(String file_name)

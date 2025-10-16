@@ -21,7 +21,7 @@ class State
     Logger logger;
     private final Aborter aborter;
     private final Path_list_provider path_list_provider;
-    static final String target = "*.{"+Guess_file_type.get_supported_image_formats_as_a_comma_separated_string()+"}";
+    //static final String target = "*.{"+Guess_file_type.get_supported_image_formats_as_a_comma_separated_string()+"}";
     private final Comparator<? super Path> file_comparator;
 
     //**********************************************************
@@ -46,13 +46,13 @@ class State
     public synchronized void rescan()
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
 
 
         List<Path> path_list = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));//new ArrayList<>();
-        if (dbg) logger.log(("image file source scan for:"+target));
         /*
+        if (dbg) logger.log(("image file source scan for:"+target));
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, target))
         //try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, "*.{jpg,JPG,gif,GIF,png,PNG,jpeg,JPEG}"))
         {

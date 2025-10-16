@@ -1,4 +1,4 @@
-package klik.images.decoding;
+package klik.util.image.decoding;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -10,7 +10,8 @@ import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.util.files_and_paths.From_disk;
+import klik.util.image.Full_image_from_disk;
+import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -30,7 +31,7 @@ public class Fast_image_property_from_exif_metadata_extractor
     //**********************************************************
     {
         //logger.log("\n\n\nget_image_properties "+path);
-        InputStream is = From_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
+        InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file "+path));

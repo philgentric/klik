@@ -1,4 +1,4 @@
-package klik.util.image;
+package klik.util.image.rescaling;
 
 import app.photofox.vipsffm.enums.VipsKernel;
 

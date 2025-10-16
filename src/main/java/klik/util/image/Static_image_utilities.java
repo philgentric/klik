@@ -5,23 +5,18 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
 import javafx.scene.image.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.images.Image_context;
 import klik.look.Jar_utils;
-import klik.util.files_and_paths.From_disk;
+import klik.util.image.rescaling.Image_rescaling_filter;
+import klik.util.image.rescaling.Vips_utils;
 import klik.util.log.Logger;
 
 import java.io.*;
-import java.lang.foreign.*;
-import java.lang.invoke.MethodHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
-import static java.lang.Math.sin;
-import static java.lang.foreign.ValueLayout.*;
 
 
 //**********************************************************
@@ -32,7 +27,9 @@ public class Static_image_utilities
     private static final boolean dbg = false;
 
     //**********************************************************
-    public static void write_png_to_disk(Image image, File out_file, String tag, Logger logger)
+    public static void write_png_to_disk(Image image,
+                                         Path out_path,
+                                         Logger logger)
     //**********************************************************
     {
 
@@ -43,7 +40,6 @@ public class Static_image_utilities
 
         ImageInfo image_info = new ImageInfo(w, h, 8, true); // 8-bit RGBA
 
-        Path out_path = out_file.toPath();
         try {
             OutputStream os = Files.newOutputStream(out_path);
             PngWriter png = new PngWriter(os, image_info);
@@ -65,7 +61,7 @@ public class Static_image_utilities
             }
             png.end();
         } catch (IOException e) {
-            logger.log("Icon_writer_actor: Error writing icon to cache: " + e.getMessage() + " for tag: " + tag);
+            logger.log("Icon_writer_actor: Error writing icon to cache: " + e.getMessage());
         }
         if (dbg) logger.log("Icon_writer_actor: Icon written to cache: ");
     }
@@ -81,8 +77,9 @@ public class Static_image_utilities
     //**********************************************************
     {
         if (!Files.exists(path_)) return Optional.empty();
-        Image local_image = From_disk.load_native_resolution_image_from_disk(path_, true, owner, aborter, logger_);
-        if (local_image == null) return Optional.empty();
+        Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(path_, true, owner, aborter, logger_);
+        if (op.isEmpty()) return Optional.empty();
+        Image local_image = op.get();
         if (local_image.isError()) {
             javafx.scene.image.Image broken = Jar_utils.get_broken_icon(300, owner, logger_);
 

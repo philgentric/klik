@@ -6,7 +6,7 @@ import klik.browser.Abstract_browser;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_receiver;
 import klik.experimental.image_playlist.Playlist_path_list_provider;
-import klik.util.files_and_paths.Old_and_new_Path;
+import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 
 import java.util.List;

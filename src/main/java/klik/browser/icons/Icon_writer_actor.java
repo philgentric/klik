@@ -1,14 +1,15 @@
 package klik.browser.icons;
 
+import javafx.stage.Window;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
 import klik.util.image.Static_image_utilities;
+import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.UUID;
 
 
 /*
@@ -21,16 +22,17 @@ public class Icon_writer_actor implements Actor
 {
 	private static final boolean dbg = false;
 	// dbg_names is super useful to debug this feature BUT it has a major caveat:
-	// folders with [whaztever] in the name will not have an animated icon
-	private static final boolean dbg_names = false;
+	// folders with [whatever] in the name will not have an animated icon
 
 	Path cache_dir;
-	Logger logger;
+	private final Logger logger;
+    private final Window owner;
 	//**********************************************************
-	public Icon_writer_actor(Path cache_dir_, Logger l)
+	public Icon_writer_actor(Path cache_dir_, Window owner, Logger logger)
 	//**********************************************************
 	{
-		logger = l;
+		this.logger = logger;
+        this.owner = owner;
 		if ( dbg) logger.log("Icon_writer_actor created");
 		cache_dir = cache_dir_;
 	}
@@ -42,53 +44,6 @@ public class Icon_writer_actor implements Actor
 		Actor_engine.run(this, ii, null,logger);
 	}
 
-
-	//**********************************************************
-	public static String make_cache_name(String tag, String icon_size_tag, String extension)
-	//**********************************************************
-	{
-		if ( tag == null) return null;
-		StringBuilder sb = new StringBuilder();
-		sb.append(make_cache_name_raw(tag));
-		sb.append("_");
-		sb.append(icon_size_tag);
-		sb.append(".");
-		sb.append(extension);
-		return sb.toString();
-//		return clean_name(full_name) + "_"+tag + "."+extension;
-	}
-	//**********************************************************
-	public static String make_cache_name_raw(String tag)
-	//**********************************************************
-	{
-		if ( tag == null) return null;
-
-		StringBuilder sb = new StringBuilder();
-		if ( dbg_names)
-		{
-			sb.append(clean_name(tag));
-		}
-		else
-		{
-			sb.append(UUID.nameUUIDFromBytes(tag.getBytes())); // the name is always the same length and is obfuscated
-		}
-		return sb.toString();
-//		return clean_name(full_name) + "_"+tag + "."+extension;
-	}
-
-
-
-	//**********************************************************
-	public static String clean_name(String s)
-	//**********************************************************
-	{
-		s = s.replace("/", "_");
-		s = s.replace(".", "_");
-		s = s.replace("\\[", "_");
-		s = s.replace("]", "_");
-		//s = s.replace(" ", "_"); this is a bug: files named "xxx_yyy" and "xxx yyy" get the same icon!, sometimes no icon e.g. pdf
-		return s;
-	}
 
 	//**********************************************************
 	@Override
@@ -105,9 +60,8 @@ public class Icon_writer_actor implements Actor
     public void write_icon_to_cache_on_disk(Icon_write_message iwm)
     //**********************************************************
     {
-        File out_file = new File(cache_dir.toFile(),
-                make_cache_name(iwm.tag,String.valueOf(iwm.icon_size), iwm.extension));
-        Static_image_utilities.write_png_to_disk(iwm.image, out_file, iwm.tag, logger);
+        Path out_path = Icon_caching.path_for_icon_caching(iwm.absolute_path(),String.valueOf(iwm.icon_size()),Icon_caching.png_extension,owner,logger);
+        Static_image_utilities.write_png_to_disk(iwm.image(), out_path, logger);
     }
 
 
