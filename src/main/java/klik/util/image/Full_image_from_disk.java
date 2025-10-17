@@ -39,7 +39,7 @@ public class Full_image_from_disk
     public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger.log("get_image_InputStream");
+        //logger.log("get_image_InputStream");
         if (try_fusked)
         {
             long start = System.currentTimeMillis();

@@ -289,10 +289,11 @@ public class Menus_for_image_window
         Face_recognition_service recognition_services = Face_recognition_service.get_instance(image_window.stage, image_window.logger);
         if ( recognition_services == null) return;
 
-        AtomicInteger count_for_label = new AtomicInteger(0);// not used
+        //AtomicInteger count_for_label = new AtomicInteger(0);// not used
         boolean do_face_detection = false;
         Path image_path = image_window.image_display_handler.get_image_context().get().path;
 
+        if ( Mouse_handling_for_Image_window.cropped_image_path != null) image_path = Mouse_handling_for_Image_window.cropped_image_path;
         Face_recognition_message msg = new Face_recognition_message(
                 image_path.toFile(),
                 Face_detection_type.haars_high_precision,// ignored
@@ -521,6 +522,8 @@ public class Menus_for_image_window
             Look_and_feel_manager.set_menu_item_look(fr_context_menu, image_window.stage, logger);
 
             context_menu.getItems().add(fr_context_menu);
+            fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
+
             fr_context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
                     "Perform_face_recognition_service_with_high_precision_face_detector",
                     event -> face_rec(Face_detection_type.MTCNN, image_window),image_window.stage,logger));
@@ -534,7 +537,6 @@ public class Menus_for_image_window
                     "Perform_face_recognition_service_with_ALT2_face_detector",
                     event -> face_rec(Face_detection_type.haars_alt2, image_window),image_window.stage,logger));
 
-            fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
         }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));

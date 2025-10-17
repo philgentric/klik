@@ -414,7 +414,7 @@ public class Animated_gifs_from_video
                 logger);
 
 
-        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
+        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, "",Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
 
         if ( image == null) logger.log("image==null");
         else the_imageview.setImage(image);

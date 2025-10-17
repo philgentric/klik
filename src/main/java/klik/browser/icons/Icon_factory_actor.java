@@ -40,7 +40,7 @@ public class Icon_factory_actor implements Actor
 {
     private static final boolean verbose_dbg = false;
     private static final boolean dbg = true;
-    private static final boolean pdf_dbg = false;
+    private static final boolean pdf_dbg = true;
     private static final boolean aborting_dbg = false;
 
     Logger logger;
@@ -207,7 +207,9 @@ public class Icon_factory_actor implements Actor
 
         {
             Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(
-                    path, icon_factory_request.icon_size,
+                    path,
+                    icon_factory_request.icon_size,
+                    String.valueOf(icon_factory_request.icon_size),
                     Icon_caching.png_extension,
                     false, icon_factory_request.owner,logger);
             if (icon_factory_request.aborter.should_abort()) {
@@ -238,7 +240,7 @@ public class Icon_factory_actor implements Actor
         Image image_from_disk = null;
         if (op.isEmpty()) {
             //if (dbg)
-            logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
+            logger.log("WARNING: Icon_factory thread: load from file FAILED (1) for " + path.getFileName());
 
             image_from_disk = Jar_utils.get_broken_icon(300,icon_factory_request.owner,logger);
             write_icon_to_cache = false; // do not write the broken icon to the cache
@@ -249,12 +251,12 @@ public class Icon_factory_actor implements Actor
         }
         if (image_from_disk.getWidth() < 1.0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
-            logger.log("WARNING1: Icon_factory thread: load from file FAILED getWidth() ==0 for " + path.getFileName());
+            logger.log("WARNING: Icon_factory thread: load from file FAILED (2) getWidth() ==0 for " + path.getFileName());
             return Optional.empty();
         }
         if (image_from_disk.getHeight() ==0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
-            logger.log("WARNING1: Icon_factory thread: load from file FAILED getHeight() ==0 for " + path.getFileName());
+            logger.log("WARNING: Icon_factory thread: load from file FAILED (3) getHeight() ==0 for " + path.getFileName());
             return Optional.empty();
         }
 
@@ -324,7 +326,7 @@ public class Icon_factory_actor implements Actor
         //Image image = Icons_from_disk.load_native_resolution_image_from_disk(path, true, icon_factory_request.aborter, logger);
         if (op.isEmpty()) {
             if (dbg)
-                logger.log("WARNING: Icon_factory thread: load from file FAILED for " + path.getFileName());
+                logger.log("WARNING: Icon_factory thread: load from file FAILED (4) for " + path.getFileName());
             return Optional.empty();
         }
 
@@ -343,7 +345,7 @@ public class Icon_factory_actor implements Actor
         // ... unless it is already in the icon cache
         //String tag = ""; // empty since we do not resize the frames to icon size
         {
-            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_factory_request.icon_size, Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
+            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_factory_request.icon_size, "",Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting4");
                 return null;
@@ -407,18 +409,18 @@ public class Icon_factory_actor implements Actor
                 logger.log("Icon_factory Animated gif icon MADE for " + destination.get_item_path().getFileName() + " as " + destination_gif_full_path.toAbsolutePath());
         }
         {
-            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
+            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, "",Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
 
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting7");
                 return null;
             }
             if (image_from_cache == null) {
-                logger.log("Icon_factory thread: load from file FAILED (1) for " + destination.get_item_path().getFileName());
+                logger.log("Icon_factory thread: load from file FAILED (5) for " + destination.get_item_path().getFileName());
                 return null;
             }
             if ((image_from_cache.getHeight() == 0) && (image_from_cache.getWidth() == 0)) {
-                logger.log("Icon_factory thread: load from file FAILED (2) for " + destination.get_item_path().getFileName());
+                logger.log("Icon_factory thread: load from file FAILED (6) for " + destination.get_item_path().getFileName());
                 return null;
             }
             //logger.log("Icon_factory returning image for :" + destination.get_item_path().getFileName());
@@ -437,9 +439,8 @@ public class Icon_factory_actor implements Actor
 
         if (pdf_dbg) logger.log("Icon_factory thread:  process_pdf " + icon_destination.get_item_path().toAbsolutePath());
 
-        // we are going to create the PNG using pdfbox!
 
-        Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, Icon_caching.png_extension, false,icon_factory_request.owner,logger);
+        Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, "",Icon_caching.png_extension, false,icon_factory_request.owner,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting8");
@@ -454,6 +455,8 @@ public class Icon_factory_actor implements Actor
 
         if (pdf_dbg)
             logger.log("Icon_factory thread:  load from disk cache FAILED for " + icon_destination.get_item_path().getFileName() + " MAKING IT NOW");
+
+        // we are going to create the PNG using pdfbox!
 
         File file_in = icon_destination.get_item_path().toFile();
         Path resulting_png_name = Icon_caching.path_for_icon_caching(icon_destination.get_item_path(), "", Icon_caching.png_extension, icon_factory_request.owner, logger);
@@ -588,7 +591,7 @@ public class Icon_factory_actor implements Actor
         }*/
 
         if (pdf_dbg) logger.log("image of PDF write done (2)" + resulting_png_name);
-        image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_item_path(), icon_factory_request.icon_size, Icon_caching.png_extension, dbg, icon_factory_request.owner,logger);
+        image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_item_path(),icon_factory_request.icon_size, "", Icon_caching.png_extension, dbg, icon_factory_request.owner,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("Icon_factory thread: aborting14");
@@ -596,7 +599,7 @@ public class Icon_factory_actor implements Actor
         }
         if (image_from_cache == null)
         {
-            logger.log("Icon_factory thread: load from file FAILED for " + icon_destination.get_item_path().getFileName());
+            logger.log("Icon_factory thread: load from file FAILED (7) for " + icon_destination.get_item_path().getFileName());
             return null;
         }
         else

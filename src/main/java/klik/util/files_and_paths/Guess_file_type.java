@@ -29,6 +29,10 @@ public class Guess_file_type
     private static final String[] JAVAFX_supported_image_formats = {
             "BMP","GIF","JPEG","JPG","PNG"};
     //private static final String[] supported_image_formats = ImageIO.getReaderFormatNames();
+
+    // GraphicsMagick supported formats as per 'gm convert -list format'
+    // commented out formats are already supported by JavaFX
+    // OR are causing collisions (like FILE, MAP, HTML etc)
     private static final String[] graphicsMagick_supported_image_formats = {
             "3FR","8BIM","8BIMTEXT","8BIMWTEXT","AAI","APP1","APP1JPEG","ART", "ARW","AVIF","AVS","B","BIGTIFF",
             //"BMP",
@@ -40,12 +44,17 @@ public class Guess_file_type
             "FRACTAL","FTP","G",
             //"GIF",
             "GIF87","GRADIENT","GRAY",
-            "GRAYA","HEIC","HEIF","HISTOGRAM","HRZ","HTML","HTTP","ICB",
-            "ICC","ICM","ICO","ICON","IDENTITY","IMAGE","INFO","IPTC",
+            "GRAYA","HEIC","HEIF","HISTOGRAM","HRZ",
+            //"HTML","HTTP",
+            "ICB",
+            //"ICC",
+            "ICM","ICO","ICON","IDENTITY","IMAGE","INFO","IPTC",
             "IPTCTEXT","IPTCWTEXT","ISOBRL","ISOBRL6","J2C","JNG","JNX",
             "JP2","JPC",
             //"JPEG","JPG",
-            "JXL","K","K25","KDC","LABEL","M", "M2V","MAC","MAP","MAT","MATTE","MEF","MIFF","MNG","MONO",
+            "JXL","K","K25","KDC","LABEL","M", "M2V","MAC",
+            //"MAP",
+            "MAT","MATTE","MEF","MIFF","MNG","MONO",
             "MPC",
             //"MPEG","MPG",
             "MRW","MSL","MTV","MVG","NEF","NULL","O",

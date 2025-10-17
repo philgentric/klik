@@ -16,7 +16,9 @@ import javafx.stage.Stage;
 import klik.browser.Drag_and_drop;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
+import klik.properties.Cache_folder;
 import klik.properties.Non_booleans_properties;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.image.Static_image_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -53,7 +55,7 @@ public class Mouse_handling_for_Image_window
     EventHandler<MouseEvent> mouse_dragged_pix_for_pix_event_handler;
     EventHandler<MouseEvent> mouse_released_pix_for_pix_event_handler;
 
-    public Path tmp_zoomed = null;
+    public static Path cropped_image_path = null;
 
 
     //**********************************************************
@@ -193,17 +195,18 @@ public class Mouse_handling_for_Image_window
 
         local.the_image_view.setViewport(view_port);
 
+        Image cropped_image = new
+                WritableImage(
+                local.the_image_view.getImage().getPixelReader(),
+                (int)view_port.getMinX(),
+                (int)view_port.getMinY(),
+                (int)view_port.getWidth(),
+                (int)view_port.getHeight());
+        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, image_window.stage, logger);
 
+        cropped_image_path = icon_cache_dir.resolve("cropped_image.png");
+        Static_image_utilities.write_png_to_disk(cropped_image,cropped_image_path,logger);
 
-        SnapshotParameters params = new SnapshotParameters();
-        params.setFill(Color.TRANSPARENT);
-        Image tmp_zoomed_image = local.the_image_view.snapshot(params, null);
-
-        Path image_path = image_window.image_display_handler.get_image_context().get().path;
-
-        Path tmp_dir = Non_booleans_properties.get_trash_dir(image_path, image_window.stage, logger);
-        tmp_zoomed = tmp_dir.resolve(image_path.getFileName());
-        Static_image_utilities.write_png_to_disk(tmp_zoomed_image, tmp_zoomed,logger);
     }
 
 
@@ -348,6 +351,7 @@ public class Mouse_handling_for_Image_window
     private void disable_click_to_zoom(Pane pane)
     //**********************************************************
     {
+        Mouse_handling_for_Image_window.cropped_image_path = null;
         pane.removeEventHandler(MouseEvent.MOUSE_PRESSED, mouse_pressed_click_to_zoom_event_handler);
         pane.removeEventHandler(MouseEvent.MOUSE_DRAGGED, mouse_dragged_click_to_zoom_event_handler);
         pane.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouse_released_click_to_zoom_event_handler);

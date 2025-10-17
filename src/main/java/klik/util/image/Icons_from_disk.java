@@ -240,6 +240,7 @@ public class Icons_from_disk
             Path original_image_file, // this is NOT the ICON path, this is the true full size image
             //Path cache_dir,
             int icon_size,
+            String tag, // icon size or empty
             String extension,
             boolean dbg_local,
             Window owner,
@@ -253,7 +254,6 @@ public class Icons_from_disk
             logger.log("load_icon_from_cache_fx WARNING: running low on memory ! loading default icon");
             return Look_and_feel_manager.get_default_icon(icon_size,owner,logger);
         }
-        String tag = String.valueOf(icon_size);
         Path path = Icon_caching.path_for_icon_caching(original_image_file,tag,extension,owner,logger);
         if (dbg) logger.log("load_icon_from_disk file is:"+path.toAbsolutePath()+" for "+original_image_file);
         try (InputStream input_stream = Files.newInputStream(path))
