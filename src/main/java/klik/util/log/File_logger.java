@@ -46,7 +46,7 @@ public class File_logger implements Logger
 				}
 			}
 		};
-		Actor_engine.execute(r, new Simple_logger());
+		Actor_engine.execute(r, "File logger pump",new Simple_logger());
     }
 	//*******************************************************
 	@Override

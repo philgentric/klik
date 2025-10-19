@@ -81,6 +81,14 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
 
     //**********************************************************
     @Override
+    public LinkedBlockingQueue<Job> get_job_queue()
+    //**********************************************************
+    {
+        return input_queue_single;
+    }
+
+    //**********************************************************
+    @Override
     public void cancel_job(Job job)
     //**********************************************************
     {

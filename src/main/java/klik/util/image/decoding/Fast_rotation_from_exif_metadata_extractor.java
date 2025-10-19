@@ -8,14 +8,15 @@ import com.drew.metadata.Tag;
 import klik.actor.Aborter;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
 import klik.util.image.Full_image_from_disk;
-import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 
 //**********************************************************
 public class Fast_rotation_from_exif_metadata_extractor
@@ -24,15 +25,20 @@ public class Fast_rotation_from_exif_metadata_extractor
     public static final boolean dbg = false;
 
     //**********************************************************
-    public static double get_rotation(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static Optional<Double> get_rotation(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
+
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("get_rotation NOT DONE because running low on memory ! ");
+            return Optional.empty();
+        }
 
         InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file "+path));
-            return 0.0;
+            return Optional.empty();
         }
 
         try
@@ -51,20 +57,20 @@ public class Fast_rotation_from_exif_metadata_extractor
                             {
                                 if (tag.toString().contains("CW"))
                                 {
-                                    return 90.0;
+                                    return Optional.of(90.0);
                                 }
                             }
                             else if (tag.toString().contains("180"))
                             {
-                                return 180.0;
+                                return Optional.of(180.0);
                             }
                             else if (tag.toString().contains("270"))
                             {
-                                return 270.0;
+                                return Optional.of(270.0);
                             }
                             else
                             {
-                                return 0.0;
+                                return Optional.of(0.0);
                             }
                         }
                     }
@@ -78,7 +84,7 @@ public class Fast_rotation_from_exif_metadata_extractor
             if ( e.toString().contains("File format could not be determined"))
             {
                 logger.log("Warning:"+e);
-                return 0.0;
+                return Optional.empty();
             }
         }
         catch (IOException e)
@@ -90,7 +96,7 @@ public class Fast_rotation_from_exif_metadata_extractor
             if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("extract_exif_metadata() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
         }
 
-        return 0.0;
+        return Optional.empty();
     }
 
 }

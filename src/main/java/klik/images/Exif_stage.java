@@ -114,7 +114,7 @@ public class Exif_stage
                         key_event.consume();
                     }
                 });
-        Actor_engine.execute(()->feed_the_beast(path, image, textFlow, owner, logger),logger);
+        Actor_engine.execute(()->feed_the_beast(path, image, textFlow, owner, logger),"Extract EXIF and display",logger);
     }
 
     //**********************************************************

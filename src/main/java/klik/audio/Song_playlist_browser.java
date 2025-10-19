@@ -5,7 +5,7 @@ import klik.New_audio_window_context;
 import klik.browser.Abstract_browser;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_receiver;
-import klik.experimental.image_playlist.Playlist_path_list_provider;
+import klik.experimental.image_playlist.Path_list_provider_for_playlist;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 
@@ -15,7 +15,7 @@ import java.util.List;
 public class Song_playlist_browser extends Abstract_browser
 //**********************************************************
 {
-    public final Playlist_path_list_provider path_list_provider;
+    public final Path_list_provider_for_playlist path_list_provider;
 
     //**********************************************************
     public Song_playlist_browser(New_audio_window_context context, Logger logger)
@@ -23,7 +23,7 @@ public class Song_playlist_browser extends Abstract_browser
     {
         super(logger);
         logger.log("Song_playlist_browser\n");
-        path_list_provider = new Playlist_path_list_provider(context.play_list_file_path, logger);
+        path_list_provider = new Path_list_provider_for_playlist(context.play_list_file_path, logger);
 
         logger.log("Song_playlist_browser created with path_list_provider: " + path_list_provider.get_name());
 
@@ -42,7 +42,7 @@ public class Song_playlist_browser extends Abstract_browser
                 return "";
             }
         };
-        init(context.shutdown_target,context.rectangle, cr, "song_playlist");
+        init_abstract_browser(context.shutdown_target,context.rectangle, cr, "song_playlist");
     }
 
     @Override

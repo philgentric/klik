@@ -24,6 +24,15 @@ public class Image_decoding_actor_for_cache implements Actor
         logger = logger_;
     }
 
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Image_decoding_actor_for_cache";
+    }
+
     //**********************************************************
     @Override
     public String run(Message m)

@@ -4,7 +4,7 @@
 //SOURCES ../../look/Look_and_feel.java
 //SOURCES ../items/Item_folder_with_icon.java
 //SOURCES ../items/My_colors.java
-//SOURCES ../classic/Folder_path_list_provider.java
+//SOURCES ../classic/Path_list_provider_for_file_system.java
 //SOURCES ../ram_and_threads_meter/RAM_and_threads_meters_stage.java
 //SOURCES ../../experimental/deduplicate/Deduplication_engine.java
 //SOURCES ../../image_ml/image_similarity/Deduplication_by_similarity_engine.java
@@ -40,7 +40,7 @@ import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.*;
 import klik.browser.classic.Browser;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.comparators.*;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
@@ -997,7 +997,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         null,
                         browsing_caches.image_properties_RAM_cache,
                         shutdown_target,
-                        new Folder_path_list_provider(folder_path),
+                        new Path_list_provider_for_file_system(folder_path),
                         this,
                         this,
                         aborter,
@@ -1061,7 +1061,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         null,
                         browsing_caches.image_properties_RAM_cache,
                         shutdown_target,
-                        new Folder_path_list_provider(folder_path),
+                        new Path_list_provider_for_file_system(folder_path),
                         this,
                         this,
 
@@ -1257,7 +1257,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
 
         };
-        Actor_engine.execute(monitor,logger);
+        Actor_engine.execute(monitor,"compute_geometry after computing the number of files", logger);
     }
 
     //**********************************************************
@@ -1318,7 +1318,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
 
         };
-        Actor_engine.execute(monitor,logger);
+        Actor_engine.execute(monitor,"compute_geometry after computing folder sizes",logger);
     }
 
 
@@ -2233,7 +2233,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
             }
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Redraw engine", logger);
     }
 
     private final AtomicBoolean the_guard = new AtomicBoolean(false);
@@ -2372,7 +2372,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         if ( dbg) logger.log("Virtual_landscape::all_image_properties_acquired_4() ");
         Runnable r = () -> browsing_caches.image_properties_RAM_cache.save_whole_cache_to_disk();
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Save whole image property cache",logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
             if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name(),owner)) {
@@ -2551,7 +2551,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     }, logger);
                 }
             };
-            Actor_engine.execute(r, logger);
+            Actor_engine.execute(r, "compute_geometry, threaded part",logger);
 
         }
     }

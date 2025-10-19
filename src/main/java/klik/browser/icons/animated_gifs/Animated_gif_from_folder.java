@@ -130,7 +130,9 @@ public class Animated_gif_from_folder
         return output_animated_gif;
     }
 
+    //**********************************************************
     private static void generate_padded_icon(Path p, int icon_ize, Path destination, Logger logger)
+    //**********************************************************
     {
         // gm convert in.jpg -resize 256x256 -gravity center -background transparent -extent 256x256 padded_icon.png
         List<String> graphicsMagick_command_line = new ArrayList<>();

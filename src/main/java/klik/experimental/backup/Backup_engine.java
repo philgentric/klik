@@ -67,7 +67,7 @@ public class Backup_engine
         update_status(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString(),"incomplete_backup");
 
         Runnable runnable = () -> launch_in_thread(deep, owner);
-        Actor_engine.execute(runnable,logger);
+        Actor_engine.execute(runnable,"Run backup",logger);
     }
 
     //**********************************************************

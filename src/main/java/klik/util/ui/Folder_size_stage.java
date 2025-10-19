@@ -122,7 +122,7 @@ public class Folder_size_stage
 
             },logger);
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Explore tree",logger);
 
     }
 

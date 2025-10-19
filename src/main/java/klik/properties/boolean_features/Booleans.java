@@ -16,6 +16,8 @@ public class Booleans
 //**********************************************************
 {
 
+    public static final String GOT_IT_DONT_SHOW_ME_THIS_AGAIN = "Got it ! Dont show me this again.";
+
     //**********************************************************
     public static void set_boolean(String s, boolean b, Window owner)
     //**********************************************************
@@ -65,7 +67,7 @@ public class Booleans
             "\nOn Mac: 'brew install ffmpeg'";
 
             Platform.runLater(()->{
-            if ( Popups.info_popup(msg,owner,logger))
+            if ( Popups.info_popup(msg, GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
             {
                 set_boolean(Feature.Show_ffmpeg_install_warning.name(), false,owner);
             }});
@@ -83,7 +85,7 @@ public class Booleans
                     String msg = "klik uses the gm convert utility of graphicsmagick (gm) to support some features. " +
                             "\nIt is easy and free to install (http://www.graphicsmagick.org/)" +
                             "\nOn Mac: 'brew install graphicsmagick'";
-                    if ( Popups.info_popup(msg,owner,logger))
+                    if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
                         set_boolean(Feature.Show_graphicsmagick_install_warning.name(), false,owner);
                     }

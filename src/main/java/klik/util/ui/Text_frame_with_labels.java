@@ -16,8 +16,8 @@ import javafx.scene.text.*;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.properties.Non_booleans_properties;
-import klik.util.files_and_paths.Filesystem_item_modification_watcher;
-import klik.util.files_and_paths.Filesystem_modification_reporter;
+import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
+import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 // Text_frame using webview is much better
 //**********************************************************
+@Deprecated
 public class Text_frame_with_labels
 //**********************************************************
 {
@@ -103,7 +104,7 @@ public class Text_frame_with_labels
             aborter.abort("Text_frame_with_labels is closing");
         });
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
+            //logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
             Non_booleans_properties.save_window_bounds(stage, TEXT_FRAME,logger);
         };
         stage.xProperty().addListener(change_listener);

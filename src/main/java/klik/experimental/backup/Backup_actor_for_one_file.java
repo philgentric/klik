@@ -46,6 +46,13 @@ public class Backup_actor_for_one_file implements Actor
     }
 
 
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Backup_actor_for_one_file";
+    }
 
     //**********************************************************
     @Override

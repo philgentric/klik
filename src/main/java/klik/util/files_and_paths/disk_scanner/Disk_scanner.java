@@ -119,7 +119,7 @@ public class Disk_scanner implements Runnable
         folder_count_stop_counter.incrementAndGet();
 
         Runnable r = new Disk_scanner(path, origin, file_count_stop_counter, folder_count_stop_counter, file_payload_, dir_payload_, warning_payload_, aborter_, logger);
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Disk scanner, scan folder: "+path,logger);
     }
     //**********************************************************
     private Disk_scanner(
@@ -199,8 +199,8 @@ public class Disk_scanner implements Runnable
                     file_count_stop_counter.incrementAndGet();
                     if ((Threads.use_virtual_threads))
                     {
-                        // with virtual threads we caan afford to start one thread per file !
-                        Actor_engine.execute(() -> file_payload.process_file(f,file_count_stop_counter), logger);
+                        // with virtual threads we can afford to start one thread per file !
+                        Actor_engine.execute(() -> file_payload.process_file(f,file_count_stop_counter), "Disk scanner, scan file: "+path,logger);
                     }
                     else
                     {

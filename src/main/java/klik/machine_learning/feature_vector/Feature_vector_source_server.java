@@ -67,7 +67,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
                 print_embeddings_stats(l);
             }
         };
-        Actor_engine.execute(r, l);
+        Actor_engine.execute(r, "Monitor embeddings stats",l);
     }
 
     //**********************************************************

@@ -3,13 +3,13 @@ package klik.util.files_and_paths;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
-//import klik.experimental.image_playlist.Playlist_path_list_provider;
+//import klik.experimental.image_playlist.Path_list_provider_for_playlist;
 import klik.util.image.decoding.Exif_metadata_extractor;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
-import javax.imageio.ImageIO;
+//import javax.imageio.ImageIO;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,11 +32,14 @@ public class Guess_file_type
 
     // GraphicsMagick supported formats as per 'gm convert -list format'
     // commented out formats are already supported by JavaFX
-    // OR are causing collisions (like FILE, MAP, HTML etc)
+    // OR are causing collisions (like C, CACHE, FILE, MAP, HTML etc)
     private static final String[] graphicsMagick_supported_image_formats = {
             "3FR","8BIM","8BIMTEXT","8BIMWTEXT","AAI","APP1","APP1JPEG","ART", "ARW","AVIF","AVS","B","BIGTIFF",
             //"BMP",
-            "BMP2","BMP3","BRF","C", "CACHE","CALS","CAPTION","CIN","CMYK","CMYKA","CR2","CRW","CUR",
+            "BMP2","BMP3","BRF",
+            //"C",
+            //"CACHE",
+            "CALS","CAPTION","CIN","CMYK","CMYKA","CR2","CRW","CUR",
             "CUT","DCM","DCR","DCX","DNG","DPX","EPDF","EPI","EPS","EPS2",
             "EPS3","EPSF","EPSI","EPT","EPT2","EPT3","ERF","EXIF","FAX",
             //"FILE", (?)
@@ -57,9 +60,12 @@ public class Guess_file_type
             "MAT","MATTE","MEF","MIFF","MNG","MONO",
             "MPC",
             //"MPEG","MPG",
-            "MRW","MSL","MTV","MVG","NEF","NULL","O",
+            "MRW","MSL","MTV","MVG","NEF","NULL",
+            //"O",
             "ORF","OTB","P7","PAL","PALM","PAM","PBM","PCD","PCDS","PCL",
-            "PCT","PCX","PDB","PDF","PEF","PFA","PFB","PGM","PGX","PICON",
+            "PCT","PCX","PDB",
+            //"PDF", supported separately
+            "PEF","PFA","PFB","PGM","PGX","PICON",
             "PICT","PIX","PLASMA",
             //"PNG",
             "PNG00","PNG24","PNG32","PNG48", "PNG64","PNG8","PNM","PPM","PREVIEW","PS","PS2","PS3","PTIF",
@@ -100,12 +106,14 @@ public class Guess_file_type
     private static final String[] invisible_if_starts_with = {".","._",".DS_Store",".color"};
     private static final String[] invisible_if_ends_with = {".properties",".prototype"};
 
-
+/*
     static {
         System.out.println("\n\n");
         for( String s : ImageIO.getReaderFormatNames())
         System.out.println(s);
     }
+
+ */
     //**********************************************************
     public static boolean is_file_an_image(File f)
     //**********************************************************
@@ -336,7 +344,11 @@ public class Guess_file_type
         }
         for (String e : graphicsMagick_supported_image_formats)
         {
-            if (extension.toUpperCase().equals(e) )return true;
+            if (extension.toUpperCase().equals(e) )
+            {
+                //System.out.println("\n=============== SUPPORTED by GraphicsMagick: "+extension);
+                return true;
+            }
         }
         if ( use_nasa_fits_java_lib)
         {
@@ -400,7 +412,7 @@ public class Guess_file_type
     public static boolean is_this_extension_an_image_playlist(String extension)
     //**********************************************************
     {
-        //if (extension.equals(Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION))  return true;
+        //if (extension.equals(Path_list_provider_for_playlist.KLIK_IMAGE_PLAYLIST_EXTENSION))  return true;
         return false;
     }
 

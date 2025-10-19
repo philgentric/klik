@@ -7,9 +7,16 @@ import javafx.stage.Window;
 import klik.browser.classic.Browser;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Shutdown_target;
+import klik.change.history.History_engine;
+import klik.change.history.History_item;
+import klik.properties.Non_booleans_properties;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 //**********************************************************
 public class New_window_context
@@ -26,13 +33,28 @@ public class New_window_context
             Path target,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target,
-            Window originator)
+            Window originator,
+            Logger logger)
     //**********************************************************
     {
-        this.target_path = target;
         this.rectangle = rectangle;
         this.shutdown_target = shutdown_target;
         this.originator = originator;
+
+        if ( target == null) {
+            target = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
+            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), originator)) {
+                List<History_item> l = History_engine.get(originator, Shared_services.aborter, logger).get_all_history_items();
+                if (!l.isEmpty()) {
+                    History_item h = History_engine.get(originator, Shared_services.aborter, logger).get_all_history_items().get(0);
+                    if (h != null) {
+                        target = Path.of(h.value);
+                        logger.log("reloading last folder from history:" + target);
+                    }
+                }
+            }
+        }
+        this.target_path = target;
     }
 
     //**********************************************************
@@ -52,7 +74,8 @@ public class New_window_context
                 new_path,
                 null,
                 null,
-                originator);
+                originator,
+                logger);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
         return new Browser(context, logger);
     }
@@ -74,7 +97,8 @@ public class New_window_context
                 new_and_old_path,
                 rectangle,
                 null,
-                originator);
+                originator,
+                logger);
         if ( dbg) logger.log(("\nadditional_same_folder\n"+ context.to_string() ));
         new Browser(context, logger);
     }
@@ -136,7 +160,8 @@ public class New_window_context
                 new_and_old_path,
                 rectangle,
                 null,
-                originator);
+                originator,
+                logger);
         if (dbg) logger.log(("\nadditional_same_folder\n" + context.to_string()));
         new Browser(context, logger);
     }
@@ -158,7 +183,8 @@ public class New_window_context
                 old_and_new_path,
                 rectangle,
                 shutdown_target,
-                originator);
+                originator,
+                logger);
         if ( dbg) logger.log(("\nreplace_same_folder\n"+ context.to_string() ));
         new Browser(context, logger);
     }
@@ -177,7 +203,8 @@ public class New_window_context
                 new_path,
                 rectangle,
                 shutdown_target,
-                originator);
+                originator,
+                logger);
         if ( dbg) logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
         new Browser(context, logger);
 
@@ -247,7 +274,7 @@ public class New_window_context
             for (int i = 0; i < 10; i++) {
                 try {
                     String local = new_name;
-                    if ( !local.endsWith("." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION;
+                    if ( !local.endsWith("." + Path_list_provider_for_playlist.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Path_list_provider_for_playlist.KLIK_IMAGE_PLAYLIST_EXTENSION;
                     String home = System.getProperty(Non_booleans_properties.USER_HOME);
                     Path new_playlist_file = Path.of( home, local);
                     Files.createFile(new_playlist_file); //Files.createDirectory(new_dir);

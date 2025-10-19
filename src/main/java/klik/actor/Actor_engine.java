@@ -82,10 +82,10 @@ public class Actor_engine // is a singleton
     }
 
     //**********************************************************
-    public static Job execute(Runnable r, Logger logger)
+    public static Job execute(Runnable r, String id, Logger logger)
     //**********************************************************
     {
         if ( instance == null) instance = create(logger);
-        return instance.execute_internal(r, logger);
+        return instance.execute_internal(r, id,logger);
     }
 }

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //**********************************************************
-public class Playlist_path_list_provider implements Path_list_provider
+public class Path_list_provider_for_playlist implements Path_list_provider
 //**********************************************************
 {
     public static final String KLIK_IMAGE_PLAYLIST_EXTENSION = "klik_image_playlist";
@@ -32,7 +32,7 @@ public class Playlist_path_list_provider implements Path_list_provider
     public final Logger logger;
 
     //**********************************************************
-    public Playlist_path_list_provider(Path the_playlist_file_path, Logger logger)
+    public Path_list_provider_for_playlist(Path the_playlist_file_path, Logger logger)
     //**********************************************************
     {
         this.logger = logger;

@@ -64,7 +64,7 @@ public class Monitor
 
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Folder with large images: monitor finder",logger);
     }
 
     //**********************************************************

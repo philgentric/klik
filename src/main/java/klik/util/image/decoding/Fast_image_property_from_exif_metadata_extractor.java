@@ -10,14 +10,15 @@ import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
 import klik.util.image.Full_image_from_disk;
-import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 
 //**********************************************************
 public class Fast_image_property_from_exif_metadata_extractor
@@ -27,15 +28,20 @@ public class Fast_image_property_from_exif_metadata_extractor
     private record Directory_result(Double w, Double h, Rotation rotation, boolean w_done, boolean h_done, boolean rot_done){}
 
     //**********************************************************
-    public static Image_properties get_image_properties(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static Optional<Image_properties> get_image_properties(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("get_image_properties NOT DONE because running low on memory ! ");
+            return Optional.empty();
+        }
+
         //logger.log("\n\n\nget_image_properties "+path);
         InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file "+path));
-            return new Image_properties(-1,-1, Rotation.normal);
+            return Optional.empty();
         }
 
         Rotation rotation = Rotation.normal;
@@ -125,14 +131,14 @@ public class Fast_image_property_from_exif_metadata_extractor
                 }
             }
             is.close();
-            return new Image_properties(w,h,rotation);
+            return Optional.of(new Image_properties(w,h,rotation));
         }
         catch (ImageProcessingException e)
         {
             if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
             if ( e.toString().contains("File format could not be determined"))  
             {
-                return new Image_properties(-1,-1, Rotation.normal);
+                return Optional.empty();
             }
         }
         catch (IOException e)
@@ -141,7 +147,7 @@ public class Fast_image_property_from_exif_metadata_extractor
             {
                 logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
             }
-            return new Image_properties(-1,-1, Rotation.normal);
+            return Optional.empty();
         }
         catch (Exception e)
         {
@@ -149,14 +155,14 @@ public class Fast_image_property_from_exif_metadata_extractor
             {
                 logger.log(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
             }
-            return new Image_properties(-1,-1, Rotation.normal);
+            return Optional.empty();
         }
 
         if ( dbg)
         {
             logger.log("should not happen?");
         }
-        return new Image_properties(-1,-1, Rotation.normal);
+        return Optional.empty();
     }
 
 

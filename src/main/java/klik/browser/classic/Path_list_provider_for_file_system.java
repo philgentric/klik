@@ -15,13 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 //**********************************************************
-public class Folder_path_list_provider implements Path_list_provider
+public class Path_list_provider_for_file_system implements Path_list_provider
 //**********************************************************
 {
     private final Path folder_path;
 
     //**********************************************************
-    public Folder_path_list_provider(Path folder_path)
+    public Path_list_provider_for_file_system(Path folder_path)
     //**********************************************************
     {
         this.folder_path = folder_path;

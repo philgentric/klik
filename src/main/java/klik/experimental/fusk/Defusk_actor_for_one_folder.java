@@ -25,6 +25,15 @@ public class Defusk_actor_for_one_folder implements Actor
         logger = logger_;
     }
 
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Defusk_actor_for_one_folder";
+    }
+
     //**********************************************************
     @Override
     public String run(Message m)
@@ -58,7 +67,7 @@ public class Defusk_actor_for_one_folder implements Actor
                     if ( Threads.use_virtual_threads)
                     {
                         Runnable r = () -> Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter,logger);
-                        Actor_engine.execute(r,logger);
+                        Actor_engine.execute(r,"Defusk a file",logger);
                     }
                     else
                     {

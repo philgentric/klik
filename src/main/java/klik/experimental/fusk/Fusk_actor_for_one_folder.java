@@ -26,6 +26,14 @@ public class Fusk_actor_for_one_folder implements Actor
 
     //**********************************************************
     @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Fusk_actor_for_one_folder";
+    }
+
+    //**********************************************************
+    @Override
     public String run(Message m)
     //**********************************************************
     {
@@ -62,7 +70,7 @@ public class Fusk_actor_for_one_folder implements Actor
                 if ( Threads.use_virtual_threads)
                 {
                     Runnable r = () -> Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);
-                    Actor_engine.execute(r,logger);
+                    Actor_engine.execute(r,"Fusk a file",logger);
                 }
                 else {
                     Fusk_static_core.fusk_file(f.toPath(), destination_folder.toPath(), aborter, logger);

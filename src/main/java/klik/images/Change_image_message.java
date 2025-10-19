@@ -31,8 +31,23 @@ public class Change_image_message implements Message
         this.aborter = aborter;
     }
 
+    //**********************************************************
     @Override
-    public Aborter get_aborter() {
+    public Aborter get_aborter()
+    //**********************************************************
+    {
         return aborter;
+    }
+
+
+    //**********************************************************
+    @Override
+    public String to_string()
+    //**********************************************************
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" Change_image_message: ");
+        sb.append(" path: ").append(input_image_context.path);
+        return sb.toString();
     }
 }

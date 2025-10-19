@@ -1,7 +1,7 @@
 //SOURCES ./Filesystem_modification_reporter.java
 //SOURCES ./Filesystem_item_signature.java
 
-package klik.util.files_and_paths;
+package klik.util.files_and_paths.modifications;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;

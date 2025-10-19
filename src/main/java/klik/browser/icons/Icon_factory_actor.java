@@ -69,6 +69,15 @@ public class Icon_factory_actor implements Actor
 
     //**********************************************************
     @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Icon_factory_actor";
+    }
+
+
+    //**********************************************************
+    @Override
     public String run(Message m)
     //**********************************************************
     {
@@ -81,7 +90,6 @@ public class Icon_factory_actor implements Actor
             return null;
         }
 
-        //instance.incrementAndGet();
         Optional<Image_and_properties> image_and_properties = Optional.empty();
         for(;;) {
             image_and_properties = try_once(destination, icon_factory_request);
@@ -203,7 +211,6 @@ public class Icon_factory_actor implements Actor
                 logger.log("Icon_factory thread: aborting0 "+icon_factory_request.aborter.reason());
             return Optional.empty();
         }
-        //String tag = String.valueOf(icon_factory_request.icon_size);
 
         {
             Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(
@@ -212,7 +219,8 @@ public class Icon_factory_actor implements Actor
                     String.valueOf(icon_factory_request.icon_size),
                     Icon_caching.png_extension,
                     false, icon_factory_request.owner,logger);
-            if (icon_factory_request.aborter.should_abort()) {
+            if (icon_factory_request.aborter.should_abort())
+            {
                 if (aborting_dbg)
                     logger.log("Icon_factory thread: aborting2 " + icon_factory_request.aborter.name + " reason: " + icon_factory_request.aborter.reason());
                 return Optional.empty();
@@ -226,7 +234,7 @@ public class Icon_factory_actor implements Actor
             }
         }
         if (dbg)
-            logger.log("\n\nIcon_factory thread:  load from cache FAILED for " + path.toAbsolutePath());
+            logger.log("\n\nLoading icon from cache FAILED for " + path.toAbsolutePath());
 
 
         Optional<Image> op = Icons_from_disk.read_original_image_from_disk_and_return_icon(path, item_type, icon_factory_request.icon_size, true, icon_factory_request.aborter, icon_factory_request.owner, logger);
@@ -240,10 +248,11 @@ public class Icon_factory_actor implements Actor
         Image image_from_disk = null;
         if (op.isEmpty()) {
             //if (dbg)
-            logger.log("WARNING: Icon_factory thread: load from file FAILED (1) for " + path.getFileName());
+            logger.log("Making an icon FAILED (1) for " + path.getFileName());
+            return Optional.empty();
 
-            image_from_disk = Jar_utils.get_broken_icon(300,icon_factory_request.owner,logger);
-            write_icon_to_cache = false; // do not write the broken icon to the cache
+            //image_from_disk = Jar_utils.get_broken_icon(300,icon_factory_request.owner,logger);
+            //write_icon_to_cache = false; // do not write the broken icon to the cache
         }
         else
         {
@@ -251,12 +260,12 @@ public class Icon_factory_actor implements Actor
         }
         if (image_from_disk.getWidth() < 1.0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
-            logger.log("WARNING: Icon_factory thread: load from file FAILED (2) getWidth() ==0 for " + path.getFileName());
+            logger.log("Making an icon FAILED (2) getWidth() ==0 for " + path.getFileName());
             return Optional.empty();
         }
         if (image_from_disk.getHeight() ==0) {
             // this "should not happen" as it was seen when there was a multithreading bug: too many icon requests were arriving at the same time
-            logger.log("WARNING: Icon_factory thread: load from file FAILED (3) getHeight() ==0 for " + path.getFileName());
+            logger.log("Making an icon FAILED (3) getHeight() ==0 for " + path.getFileName());
             return Optional.empty();
         }
 
@@ -326,7 +335,7 @@ public class Icon_factory_actor implements Actor
         //Image image = Icons_from_disk.load_native_resolution_image_from_disk(path, true, icon_factory_request.aborter, logger);
         if (op.isEmpty()) {
             if (dbg)
-                logger.log("WARNING: Icon_factory thread: load from file FAILED (4) for " + path.getFileName());
+                logger.log("Making an icon FAILED (4) for " + path.getFileName());
             return Optional.empty();
         }
 

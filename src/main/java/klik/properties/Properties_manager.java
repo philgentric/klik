@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class Properties_manager
 //**********************************************************
 {
+
     private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
     public static final String AGE = "_age";
@@ -52,7 +53,7 @@ public class Properties_manager
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties(the_Properties, the_properties_path);
-        start_store_engine(owner, aborter,  logger);
+        start_store_engine(tag,  owner,aborter, logger);
 
         //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
@@ -75,7 +76,7 @@ public class Properties_manager
     // like the image properties cache or image feature vectors etc
     // but keep as safe as possible, especially always saved on clean exit (with aborter)
     //**********************************************************
-    private void start_store_engine(Window owner, Aborter aborter, Logger logger)
+    private void start_store_engine(String tag, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -109,7 +110,7 @@ public class Properties_manager
                 }
             }
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Properties_manager store engine for :"+tag,logger);
     }
 
     //**********************************************************
@@ -499,7 +500,7 @@ public class Properties_manager
         String TOTO = "toto";
         File f_ = new File("debil.txt");
         Logger logger = Logger_factory.get_system_logger("Properties test");
-        Properties_manager pm = new Properties_manager(f_.toPath(), "unit test",new Aborter("dummy",logger),logger);
+        Properties_manager pm = Properties_manager.get(f_.toPath(), "unit test",new Aborter("dummy",logger),logger);
 
         for (int i = 0; i < 15; i++)
         {

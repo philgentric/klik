@@ -113,17 +113,17 @@ public class Popups
 
     // if returns true, means "dont show me this again"
     //**********************************************************
-    public static boolean info_popup(String s, Window owner, Logger logger)
+    public static boolean info_popup(String s, String OK_button_alternate_text, Window owner, Logger logger)
     //**********************************************************
     {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         Look_and_feel_manager.set_dialog_look(alert, owner,logger);
         alert.initOwner(owner);
-        alert.setTitle("Info");
+        alert.setTitle("Information");
         alert.setHeaderText(s);
         alert.setContentText("");
         Button ok = (Button)alert.getDialogPane().lookupButton(ButtonType.OK);
-        ok.setText("Got it ! Dont show me this again.");
+        if ( OK_button_alternate_text != null) ok.setText(OK_button_alternate_text);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent())

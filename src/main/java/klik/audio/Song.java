@@ -15,7 +15,7 @@ import klik.actor.Actor_engine;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
-import klik.experimental.image_playlist.Playlist_path_list_provider;
+import klik.experimental.image_playlist.Path_list_provider_for_playlist;
 import klik.look.Look_and_feel_manager;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.feature_vector.Feature_vector_source;
@@ -181,7 +181,7 @@ public class Song
     //**********************************************************
     {
         Actor_engine.execute(()->
-                play_similar_in_thread(path, playlist, owner, logger),logger
+                play_similar_in_thread(path, playlist, owner, logger),"Find and play similar song",logger
         );
     }
 
@@ -204,7 +204,7 @@ public class Song
                 };
             }
         };
-        Path_list_provider path_list_provider = new Playlist_path_list_provider(Playlist.get_playlist_file(owner).toPath(),logger);
+        Path_list_provider path_list_provider = new Path_list_provider_for_playlist(Playlist.get_playlist_file(owner).toPath(),logger);
         Similarity_engine similarity_engine = new Similarity_engine(
                 path_list_provider.only_file_paths(false),
                 path_list_provider,

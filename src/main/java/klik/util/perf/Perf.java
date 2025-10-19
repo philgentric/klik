@@ -97,6 +97,6 @@ public class Perf implements AutoCloseable
                     logger.log("PERF exception" + e);
                 }
             }
-        },logger);
+        },"Performance monitoring",logger);
     }
 }

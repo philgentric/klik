@@ -1088,7 +1088,7 @@ public class Audio_player_FX_UI implements Media_callbacks
                             Platform.runLater(() -> playlist.user_wants_to_add_songs(file_names));
                         }
                     };
-                    Actor_engine.execute(r,logger);
+                    Actor_engine.execute(r,"Importing audio track(s)",logger);
                 } else {
                     System.out.println("No text content in clipboard");
                 }

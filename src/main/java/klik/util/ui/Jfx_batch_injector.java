@@ -94,7 +94,7 @@ public class Jfx_batch_injector
                 }
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"JFX batch injector pump (experimental)",logger);
     }
 
     //**********************************************************

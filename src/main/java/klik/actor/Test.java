@@ -54,6 +54,10 @@ public class Test
                 return actor_name+" ended: "+m1.s;
             }
 
+            @Override
+            public String name() {
+                return "Test actor 1";
+            }
 
 
         }

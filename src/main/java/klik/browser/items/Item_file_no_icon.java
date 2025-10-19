@@ -16,7 +16,7 @@ import klik.actor.Actor_engine;
 import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
@@ -258,7 +258,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
             Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
                     owner,
-                    new Folder_path_list_provider(local_path),
+                    new Path_list_provider_for_file_system(local_path),
                     path_comparator_source,
                     images_in_folder,
                     image_properties_RAM_cache,
@@ -459,7 +459,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Compute and display how many files deep",logger);
     }
 
 
@@ -502,7 +502,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Compute and display size deep",logger);
     }
 
     @Override

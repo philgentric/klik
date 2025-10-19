@@ -8,12 +8,13 @@ import com.drew.metadata.Tag;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties;
+import klik.browser.icons.image_properties_cache.Rotation;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
 import klik.util.files_and_paths.Extensions;
 import klik.util.image.Full_image_from_disk;
-import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.experimental.fusk.Fusk_static_core;
@@ -56,7 +57,7 @@ public class Exif_metadata_extractor
     {
         if ( exif_metadata != null ) return rotation;
         logger.log(Stack_trace_getter.get_stack_trace("WARNING"));
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, aborter, logger);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, aborter, logger).orElse(0.0);
         return rotation;
     }
 
@@ -105,11 +106,11 @@ public class Exif_metadata_extractor
             list_of_strings = new ArrayList<>();
         }
 
-        Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger);
+        Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger).orElse(new Image_properties(0,0, Rotation.normal));
         exif_metadata.add("EXIF width="+image_properties.get_image_width());
         exif_metadata.add("EXIF height="+image_properties.get_image_height());
         exif_metadata.add("EXIF aspect_ratio="+image_properties.get_aspect_ratio());
-        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger);
+        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger).orElse(1.0);
         exif_metadata.add("Alternative aspect_ratio="+aspect_ratio);
 
 
@@ -146,6 +147,11 @@ public class Exif_metadata_extractor
         }
 
         image_is_damaged = false;
+
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("get_exif_metadata NOT DONE because running low on memory ! ");
+            return exif_metadata;
+        }
 
         InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)

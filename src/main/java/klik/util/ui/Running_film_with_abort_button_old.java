@@ -159,7 +159,7 @@ public class Running_film_with_abort_button_old implements Hourglass
 				logger.log("Show running man wait interrupted");
 			}
 		};
-		Actor_engine.execute(r,logger);
+		Actor_engine.execute(r,"Running film with abort (old)",logger);
 	}
 	
 	//**********************************************************
@@ -186,7 +186,7 @@ public class Running_film_with_abort_button_old implements Hourglass
 
 			};
 
-			Actor_engine.execute(r, logger);
+			Actor_engine.execute(r, "Running film with abort old (2)",logger);
 		}
 		else
 		{
@@ -263,7 +263,7 @@ public class Running_film_with_abort_button_old implements Hourglass
 
             }
         };
-		Actor_engine.execute(tracker, logger);
+		Actor_engine.execute(tracker, "Running film with abort old (4)",logger);
 	}
 
 	//**********************************************************

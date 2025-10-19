@@ -22,7 +22,7 @@ import klik.actor.Actor_engine;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.Icon_size;
 import klik.New_window_context;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.items.Item_folder;
 import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;
@@ -223,13 +223,13 @@ public class Virtual_landscape_menus
     public void sort_by_time(Virtual_landscape.Sort_by_time sort_by_time)
     //**********************************************************
     {
-        Runnable r = () -> sort_by(sort_by_time);
-        Actor_engine.execute(r, logger);
+        Runnable r = () -> dispatch_by(sort_by_time);
+        Actor_engine.execute(r, "Dispatch files by date",logger);
     }
 
 
     //**********************************************************
-    public void sort_by(Virtual_landscape.Sort_by_time sort_by)
+    public void dispatch_by(Virtual_landscape.Sort_by_time sort_by)
     //**********************************************************
     {
         List<File> files = virtual_landscape.path_list_provider.only_files(Feature_cache.get(Feature.Show_hidden_files));
@@ -307,7 +307,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         Runnable r = this::create_PDF_contact_sheet_in_a_thread;
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"create PDF contact sheet",logger);
     }
     //**********************************************************
     public void create_PDF_contact_sheet_in_a_thread()
@@ -895,7 +895,7 @@ public class Virtual_landscape_menus
                 is_parent_of,
                 virtual_landscape.browsing_caches.image_properties_RAM_cache,
                 virtual_landscape.shutdown_target,
-                new Folder_path_list_provider(path),
+                new Path_list_provider_for_file_system(path),
                 virtual_landscape,
                 virtual_landscape,
                 
@@ -1660,7 +1660,7 @@ public class Virtual_landscape_menus
                     logger.log("new file/image sorting order= "+sort_by);
                     /*if (Feature_cache.get(Feature.Enable_image_playlists))
                     {
-                        if (virtual_landscape.path_list_provider instanceof Playlist_path_list_provider)
+                        if (virtual_landscape.path_list_provider instanceof Path_list_provider_for_playlist)
                         {
                             logger.log("not implemented");
                             //New_window_context.replace_image_playlist(virtual_landscape.shutdown_target, virtual_landscape.path_list_provider.get_folder_path(), owner, logger);

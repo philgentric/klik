@@ -64,7 +64,7 @@ import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature_cache;
 import klik.properties.boolean_features.Feature_change_target;
-import klik.util.files_and_paths.Filesystem_item_modification_watcher;
+import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
@@ -84,29 +84,8 @@ public class Browser extends Abstract_browser implements Feature_change_target
     //**********************************************************
     {
         super(logger_);
-        Path path;
-        if ( context.target_path == null)
-        {
-            path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
-            if ( Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), context.originator))
-            {
-                List<History_item> l = History_engine.get(context.originator, Shared_services.aborter, logger).get_all_history_items();
-                if ( !l.isEmpty()) {
-                    History_item h = History_engine.get(context.originator, Shared_services.aborter, logger).get_all_history_items().get(0);
-                    if (h != null) {
-                        path = Path.of(h.value);
-                        logger.log("reloading last folder from history:" + path);
-                    }
-                }
-            }
-
-        }
-        else
-        {
-            path = context.target_path;
-        }
-        path_list_provider = new Folder_path_list_provider(path);
-        init(context.shutdown_target,context.rectangle,this,"klik");
+        path_list_provider = new Path_list_provider_for_file_system(context.target_path);
+        init_abstract_browser(context.shutdown_target,context.rectangle,this,"klik");
 
         //if ( dbg)
             logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
@@ -156,7 +135,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
 
                 }
             };
-            Actor_engine.execute(r, logger);
+            Actor_engine.execute(r, "Monitor file system changes", logger);
         }
         else
         {
@@ -212,7 +191,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
             Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(name + " :     " + (long) how_many_files + " files & folders"), logger);
 
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Compute and display how many files", logger);
 
 
     }

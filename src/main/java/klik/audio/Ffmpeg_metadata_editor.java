@@ -24,7 +24,7 @@ public class Ffmpeg_metadata_editor
     //**********************************************************
     {
         Actor_engine.execute(()->
-        Platform.runLater(()->open_editor(path,owner,logger)),logger);
+        Platform.runLater(()->open_editor(path,owner,logger)),"Edit ffmpeg metadata",logger);
     }
 
     //**********************************************************
@@ -90,6 +90,6 @@ public class Ffmpeg_metadata_editor
             logger.log("wtf" + sb);
             logger.log("ffmpeg meta data edit:" + out);
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Ffmpeg meta data edit",logger);
     }
 }

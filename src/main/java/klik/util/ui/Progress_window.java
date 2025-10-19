@@ -200,7 +200,7 @@ public class Progress_window implements Hourglass
 				logger.log("Show running man wait interrupted");
 			}
 		};
-		Actor_engine.execute(r,logger);
+		Actor_engine.execute(r,"Progress window monitor",logger);
 	}
 	
 	//**********************************************************
@@ -231,7 +231,7 @@ public class Progress_window implements Hourglass
 
 			};
 
-			Actor_engine.execute(r, logger);
+			Actor_engine.execute(r, "sleep and close",logger);
 		}
 		else
 		{
@@ -308,7 +308,7 @@ public class Progress_window implements Hourglass
 
             }
         };
-		Actor_engine.execute(tracker, logger);
+		Actor_engine.execute(tracker, "Progress window ETA monitor",logger);
 	}
 
 	//**********************************************************

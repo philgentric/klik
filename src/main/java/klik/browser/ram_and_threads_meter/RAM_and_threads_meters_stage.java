@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Actor_engine;
+import klik.actor.Actor_engine_interface;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
@@ -102,7 +103,10 @@ public class RAM_and_threads_meters_stage
                 System.gc();
                 logger.log("Garbage collector was called");
             },context_menu,stage,logger);
-
+        Menu_items.add_menu_item("List_threads",
+                event -> {
+                    Actor_engine.get_instance().list_jobs(logger);
+                },context_menu,stage,logger);
         scene.setOnMouseClicked(event -> {
             context_menu.show(stage, event.getScreenX(), event.getScreenY());
         });

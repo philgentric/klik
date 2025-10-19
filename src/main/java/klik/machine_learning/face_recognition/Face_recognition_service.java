@@ -162,7 +162,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
-        Actor_engine.execute(() -> fr.auto_internal(displayed_folder_path, logger), fr.logger);
+        Actor_engine.execute(() -> fr.auto_internal(displayed_folder_path, logger), "face recognition auto",fr.logger);
     }
 
 
@@ -171,7 +171,7 @@ public class Face_recognition_service
     //**********************************************************
     {
         Face_recognition_service fr = Face_recognition_service.get_instance(owner,logger);
-        Actor_engine.execute(() -> fr.do_folder_internal(folder), logger);
+        Actor_engine.execute(() -> fr.do_folder_internal(folder), "face recognition do 1 folder",logger);
     }
 
     //**********************************************************
@@ -618,7 +618,7 @@ public class Face_recognition_service
         logger.log("save_internal : saving "+embeddings_prototypes.size()+ " prototypes");
         for (Embeddings_prototype ep : embeddings_prototypes)
         {
-            Actor_engine.execute(()->save_ep(ep),logger);
+            Actor_engine.execute(()->save_ep(ep),"Save face recognition prototypes",logger);
         }
     }
     //**********************************************************
@@ -661,7 +661,7 @@ public class Face_recognition_service
                         logger);
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Load face recognition prototypes",logger);
 
         //x.report_progress_and_close_when_finished(in_flight);
     }

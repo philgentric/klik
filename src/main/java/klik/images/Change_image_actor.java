@@ -25,6 +25,16 @@ public class Change_image_actor implements Actor
         return instance;
     }
 
+
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Change_image_actor";
+    }
+
     //**********************************************************
     @Override
     public String run(Message m)

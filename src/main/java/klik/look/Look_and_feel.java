@@ -1,17 +1,23 @@
 package klik.look;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
@@ -341,5 +347,55 @@ public abstract class Look_and_feel
             return null;
         }
     }
+
+    static Double estimated_text_label_height = null;
+
+    //**********************************************************
+    public void set_Button_look(
+            Button b,
+            double width,
+            double icon_size,
+            Look_and_feel_manager.Icon_type icon_type,
+            Window owner, Logger logger)
+    //**********************************************************
+    {
+        Look_and_feel_manager.set_button_look(b, true,owner,logger);
+        b.setPrefWidth(width);
+        b.setAlignment(Pos.CENTER);
+        b.setTextAlignment(TextAlignment.CENTER);
+        b.setMnemonicParsing(false);
+        if ( icon_type != null)
+        {
+            FlowPane the_image_pane = new FlowPane();
+            the_image_pane.setAlignment(Pos.BOTTOM_CENTER);
+            the_image_pane.setMinWidth(icon_size);
+            the_image_pane.setMaxWidth(icon_size);
+            the_image_pane.setMinHeight(icon_size);
+            the_image_pane.setMaxHeight(icon_size);
+            b.setGraphic(the_image_pane);
+            b.setContentDisplay(ContentDisplay.BOTTOM);
+            ImageView the_image_view = new ImageView();
+            the_image_pane.getChildren().add(the_image_view);
+
+
+            String icon_path = Look_and_feel_manager.get_main_window_icon_path(this, icon_type);
+            Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, icon_size, owner,logger);
+
+            the_image_view.setImage(icon);
+            the_image_view.setPreserveRatio(true);
+
+            if ( estimated_text_label_height == null)
+            {
+                double font_size = Non_booleans_properties.get_font_size(owner,logger);
+                estimated_text_label_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
+            }
+            double h = icon_size + estimated_text_label_height;
+            b.setPrefHeight(h);
+            b.setMinHeight(h);
+            b.setMaxHeight(h);
+        }
+    }
+
+
 
 }

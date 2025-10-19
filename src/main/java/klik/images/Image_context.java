@@ -16,6 +16,8 @@ import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
+import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
+import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.files_and_paths.old_and_new.Status;
@@ -168,7 +170,7 @@ public class Image_context
     //**********************************************************
     {
         if ( rotation != null) return rotation;
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger).orElse(0.0);
         return rotation;
     }
 
@@ -526,7 +528,7 @@ public class Image_context
             logger.log("copy failed: could not create new file for: " + path.getFileName() + ", Exception:" + e);
             return false;
         }
-        Actor_engine.execute(after,logger);
+        Actor_engine.execute(after,"Copy image",logger);
         //Popups.popup_text(My_I18n.get_I18n_string("Copy_done",logger),My_I18n.get_I18n_string("New_name",logger)+new_path.getFileName().toString(),false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(new Old_and_new_Path(

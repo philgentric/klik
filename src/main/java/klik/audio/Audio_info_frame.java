@@ -25,7 +25,7 @@ public class Audio_info_frame
     //**********************************************************
     {
         Runnable r = () -> show_(path,owner,logger);
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Show audio info frame",logger);
     }
 
     //**********************************************************

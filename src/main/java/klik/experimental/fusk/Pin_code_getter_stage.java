@@ -67,7 +67,7 @@ public class Pin_code_getter_stage
                 logger.log("fusk signature init, pin_code="+get_pin_code());
             }
         };
-        Actor_engine.execute(get_pin_code,logger);
+        Actor_engine.execute(get_pin_code,"Ask user for pin code",logger);
     }
     //**********************************************************
     public String get_pin_code()

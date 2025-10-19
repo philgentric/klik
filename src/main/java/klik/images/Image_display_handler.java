@@ -13,15 +13,14 @@ import klik.browser.virtual_landscape.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
-import klik.look.Jar_utils;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.images.caching.Image_cache_linkedhashmap;
+import klik.util.Check_remaining_RAM;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.images.caching.Image_cache_interface;
 import klik.images.caching.Image_cache_cafeine;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.image_indexer.Image_indexer;
-import klik.util.image.Full_image_from_disk;
 import klik.util.perf.Perf;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
@@ -85,12 +84,12 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         if ( dbg) logger.log("image_context.path.getParent()="+image_context_.path.toAbsolutePath().getParent());
         image_indexer = Optional.empty();
         Runnable r = () -> image_indexer = Optional.of(Image_indexer.get_Image_indexer(path_list_provider,image_context_.path.toAbsolutePath().getParent(), file_comparator, aborter,logger));
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Get image indexer",logger);
 
         Change_gang.register(this,aborter,logger); // image_context must be valid!
 
 
-        long remaining_RAM = Full_image_from_disk.get_remaining_memory();
+        long remaining_RAM = Check_remaining_RAM.get_remaining_memory(logger);
         int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
         int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
         int forward_size = cache_slots/2;

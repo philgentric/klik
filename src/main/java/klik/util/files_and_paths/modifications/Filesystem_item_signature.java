@@ -1,4 +1,4 @@
-package klik.util.files_and_paths;
+package klik.util.files_and_paths.modifications;
 
 import klik.util.log.Logger;
 

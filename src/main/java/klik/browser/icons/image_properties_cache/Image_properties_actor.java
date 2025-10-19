@@ -24,10 +24,17 @@ public class Image_properties_actor implements Actor
             return "aborted";
         }
 
-        Image_properties ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(image_properties_message.path,true,image_properties_message.aborter, image_properties_message.logger);
+        Image_properties ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(image_properties_message.path,true,image_properties_message.aborter, image_properties_message.logger).orElse(new Image_properties(0,0,Rotation.normal));
 
         image_properties_message.image_properties_cache.inject(image_properties_message.path,ip,false);
         return "ok";
     }
 
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Image_properties_actor";
+    }
 }

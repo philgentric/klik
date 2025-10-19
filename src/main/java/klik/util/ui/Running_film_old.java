@@ -140,7 +140,7 @@ public class Running_film_old implements Hourglass
 				logger.log("Show running man wait interrupted");
 			}
 		};
-		Actor_engine.execute(r,logger);
+		Actor_engine.execute(r,"Running film (old)",logger);
 	}
 	
 	//**********************************************************
@@ -175,7 +175,7 @@ public class Running_film_old implements Hourglass
 
 			};
 
-			Actor_engine.execute(r, logger);
+			Actor_engine.execute(r, "Running film (old) sleep and close",logger);
 		}
 		else
 		{

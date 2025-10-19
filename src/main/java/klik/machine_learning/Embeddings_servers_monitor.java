@@ -53,7 +53,7 @@ public class Embeddings_servers_monitor implements AutoCloseable
         port = port_tmp;
         monitoring_frame = new Embeddings_servers_monitoring_stage(logger);
 
-        Actor_engine.execute(() -> receive_messages(),logger);
+        Actor_engine.execute(() -> receive_messages(),"Receive embedding server UDP monitoring packets",logger);
     }
 
     //**********************************************************

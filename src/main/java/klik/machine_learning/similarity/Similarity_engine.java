@@ -222,7 +222,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
                 if ( Booleans.get_boolean_defaults_to_true(Feature.Show_can_use_ESC_to_close_windows.name(),owner))
                 {
-                    if (Popups.info_popup("After selecting one, you can use ESC to close these small windows one by one",owner,logger))
+                    if (Popups.info_popup("After selecting one, you can use ESC to close these small windows one by one",null,owner,logger))
                     {
                         Booleans.set_boolean(Feature.Show_can_use_ESC_to_close_windows.name(), false,owner);
                     }

@@ -11,20 +11,14 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Separator;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.audio.Audio_player_access;
 import klik.machine_learning.ML_servers_util;
-import klik.look.Jar_utils;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
@@ -85,7 +79,6 @@ public class Launcher extends Application implements UI_change
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
     public static final String NOT_STARTED = "NOT_STARTED";
-    public static double estimated_text_label_height;
 
     private Stage stage;
     private Logger logger;
@@ -116,8 +109,6 @@ public class Launcher extends Application implements UI_change
         vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
         Look_and_feel_manager.set_region_look(vbox,stage,logger);
-        double font_size = Non_booleans_properties.get_font_size(stage,logger);
-        estimated_text_label_height = klik.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
 
@@ -187,7 +178,8 @@ public class Launcher extends Application implements UI_change
         vbox.getChildren().clear();
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage,logger));
-            set_look(b, vbox, look_and_feel,Icon_type.IMAGE, stage,logger);
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,Icon_type.IMAGE, stage,logger);
             b.setOnAction(event -> {
                 if ( Launcher.gluon)
                 {
@@ -201,7 +193,8 @@ public class Launcher extends Application implements UI_change
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
-            set_look(b, vbox, look_and_feel,Icon_type.MUSIC, stage,logger);
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,Icon_type.MUSIC, stage,logger);
             b.setOnAction(event -> {
                 start_app_with_gradle_and_listen("audio_player",stage, logger);
                 propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
@@ -216,32 +209,16 @@ public class Launcher extends Application implements UI_change
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Start_Image_Similarity_Servers", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), stage, logger));
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Stop_Image_Similarity_Servers", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), stage, logger));
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false,stage, logger));
         }
-
-        /*
-        {
-            Separator separator = new Separator();
-            vbox.getChildren().add(separator);
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Start_Song_Similarity_Servers", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_song_similarity_servers(logger), stage, logger));
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Stop_Song_Similarity_Servers", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_song_similarity_servers(logger), stage, logger));
-        }
-        */
-
 
 
         {
@@ -251,13 +228,15 @@ public class Launcher extends Application implements UI_change
 
         {
             Button b = new Button(My_I18n.get_I18n_string("Start_Face_Recognition_Servers", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), stage, logger));
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false,stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Stop_Face_Recognition_Servers", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), stage, logger));
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
+            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false,stage, logger));
         }
 
 
@@ -266,19 +245,11 @@ public class Launcher extends Application implements UI_change
             vbox.getChildren().add(separator);
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Install_Ffmpeg", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_ffmpeg(logger), stage, logger));
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Install_Graphicsmagick", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_graphicsmagick(logger), stage, logger));
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Install_Mediainfo", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install_mediainfo(logger), stage, logger));
+            for (External_application app : External_application.values())
+            {
+                Button b = app.get_button(WIDTH, icon_size, look_and_feel, stage, logger);
+                vbox.getChildren().add(b);
+            }
         }
 
 
@@ -289,52 +260,17 @@ public class Launcher extends Application implements UI_change
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Show_Version", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> show_version(stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", stage,logger));
-            set_look(b, vbox, look_and_feel,null, stage,logger);
+            vbox.getChildren().add(b);
+            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> get_most_recent_version(stage, logger));
         }
     }
-
-    //**********************************************************
-    private String get_command_string_to_install_ffmpeg(Logger logger)
-    //**********************************************************
-    {
-        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
-            return "brew install ffmpeg";
-        }
-        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
-                false, stage, logger);
-        return null;
-    }
-
-    //**********************************************************
-    private String get_command_string_to_install_graphicsmagick(Logger logger)
-    //**********************************************************
-    {
-        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
-            return "brew install graphicsmagick";
-        }
-        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
-                false, stage, logger);
-        return null;
-    }
-
-    //**********************************************************
-    private String get_command_string_to_install_mediainfo(Logger logger)
-    //**********************************************************
-    {
-        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
-            return "brew install mediainfo";
-        }
-        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
-                false, stage, logger);
-        return null;
-    }
-
 
     //**********************************************************
     private void show_version(Window owner, Logger logger)
@@ -500,7 +436,7 @@ public class Launcher extends Application implements UI_change
                 TCP_client.send("localhost",port_to_reply_about_start,Launcher.NOT_STARTED,logger); // this is to unblock the hourglass
             }
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "gradle "+app_name,logger);
 
     }
 
@@ -574,43 +510,6 @@ public class Launcher extends Application implements UI_change
         {
             local_hourglass.close();
             local_hourglass = null;
-        }
-    }
-
-    //**********************************************************
-    private static void set_look(Button b, VBox vbox, Look_and_feel look_and_feel, Icon_type icon_type, Window owner,Logger logger)
-    //**********************************************************
-    {
-        Look_and_feel_manager.set_button_look(b, true,owner,logger);
-        b.setPrefWidth(WIDTH);
-        b.setAlignment(Pos.CENTER);
-        b.setTextAlignment(TextAlignment.CENTER);
-        b.setMnemonicParsing(false);
-        vbox.getChildren().add(b);
-        if ( icon_type != null)
-        {
-            FlowPane the_image_pane = new FlowPane();
-            the_image_pane.setAlignment(Pos.BOTTOM_CENTER);
-            the_image_pane.setMinWidth(icon_size);
-            the_image_pane.setMaxWidth(icon_size);
-            the_image_pane.setMinHeight(icon_size);
-            the_image_pane.setMaxHeight(icon_size);
-            b.setGraphic(the_image_pane);
-            b.setContentDisplay(ContentDisplay.BOTTOM);
-            ImageView the_image_view = new ImageView();
-            the_image_pane.getChildren().add(the_image_view);
-
-
-            String icon_path = Look_and_feel_manager.get_main_window_icon_path(look_and_feel, icon_type);
-            Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, icon_size, owner,logger);
-
-            the_image_view.setImage(icon);
-            the_image_view.setPreserveRatio(true);
-
-            double h = icon_size + estimated_text_label_height;
-            b.setPrefHeight(h);
-            b.setMinHeight(h);
-            b.setMaxHeight(h);
         }
     }
 

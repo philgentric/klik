@@ -8,7 +8,7 @@ import javafx.stage.Window;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Shutdown_target;
 import klik.experimental.image_playlist.Image_playlist_browser;
-import klik.experimental.image_playlist.Playlist_path_list_provider;
+import klik.experimental.image_playlist.Path_list_provider_for_playlist;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
@@ -211,7 +211,7 @@ public class New_image_playlist_window_context
             for (int i = 0; i < 10; i++) {
                 try {
                     String local = new_name;
-                    if ( !local.endsWith("." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Playlist_path_list_provider.KLIK_IMAGE_PLAYLIST_EXTENSION;
+                    if ( !local.endsWith("." + Path_list_provider_for_playlist.KLIK_IMAGE_PLAYLIST_EXTENSION)) local += "." + Path_list_provider_for_playlist.KLIK_IMAGE_PLAYLIST_EXTENSION;
                     String home = System.getProperty(Non_booleans_properties.USER_HOME);
                     Path new_playlist_file = Path.of( home, local);
                     Files.createFile(new_playlist_file); //Files.createDirectory(new_dir);

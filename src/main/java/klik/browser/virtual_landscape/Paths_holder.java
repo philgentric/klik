@@ -59,7 +59,11 @@ public class Paths_holder
     void add_file(Path path, boolean show_icons_instead_of_text, Window stage)
     //**********************************************************
     {
-
+        if ( show_icons_instead_of_text == false)
+        {
+            non_iconized.add(path);
+            return;
+        }
         if ( aborter.should_abort())
         {
             logger.log("path manager aborting2");
@@ -70,6 +74,8 @@ public class Paths_holder
         {
             if (show_video_as_gif)
             {
+
+
                 String extension = Extensions.get_extension(path.getFileName().toString());
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
@@ -88,9 +94,6 @@ public class Paths_holder
                 iconized_paths.add(path);
                 return;
             }
-            //non_iconized.put(path,true);
-            non_iconized.add(path);
-            return;
         }
         if ( aborter.should_abort())
         {

@@ -6,6 +6,7 @@ import klik.util.execute.Threads;
 import klik.util.log.Stack_trace_getter;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 
 //**********************************************************
@@ -18,6 +19,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     (so we can have as many actors that sleep as you want, we never risk deadlock!)
      */
     private final Logger logger;
+    LinkedBlockingQueue<Job> job_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
     public Actor_engine_with_virtual_threads(Logger logger_)
@@ -25,6 +27,13 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     {
         logger = logger_;
     }
+    //**********************************************************
+    public LinkedBlockingQueue<Job> get_job_queue()
+    //**********************************************************
+    {
+        return job_queue;
+    }
+
 
     //**********************************************************
     @Override
@@ -32,6 +41,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     //**********************************************************
     {
         Job job = new Job(actor,message,tr,logger);
+        job_queue.add(job);
         Runnable r = () -> {
             int now = Actor_engine.threads_in_flight.incrementAndGet();
             //logger.log("Actor_engine_with_virtual_threads: "+now+" threads in flight");
@@ -39,6 +49,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
             String msg = job.actor.run(job.message);
             job.has_ended(msg);
             Actor_engine.threads_in_flight.decrementAndGet();
+            job_queue.remove(job);
         };
         ExecutorService executor_service = Threads.get_executor_service(logger);
         try

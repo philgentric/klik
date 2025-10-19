@@ -219,7 +219,7 @@ public class Properties_server
                 }
             }
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Properties store engine (Properties server)",logger);
     }
 
     //**********************************************************

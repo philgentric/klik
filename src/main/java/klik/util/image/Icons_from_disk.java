@@ -6,17 +6,16 @@ package klik.util.image;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.Icon_writer_actor;
 import klik.browser.items.Iconifiable_item_type;
+import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
 
 import javafx.scene.image.Image;
-import klik.properties.Cache_folder;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
+import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_via_script_in_tmp_file;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 //import klik.util.image.decoding.FITS;
 import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;
@@ -30,6 +29,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 //static utilities for loading images and icons from the disk
@@ -55,9 +55,15 @@ public class Icons_from_disk
     {
         logger.log("read_original_image_from_disk_and_return_icon");
 
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("read_original_image_from_disk_and_return_icon NOT DONE because running low on memory ! ");
+            return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
+        }
+
         switch ( item_type)
         {
             /*
+            we use GraphicsMagick for FITS images now
             case image_fits ->  {
                 logger.log("using FITS for "+ item_type+ " "+original_image_file);
                 return use_fits_NASA(original_image_file,icon_size,aborter,owner, logger);
@@ -113,27 +119,47 @@ public class Icons_from_disk
     //**********************************************************
     {
         logger.log("use_GraphicsMagick_for_icon");
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, owner, logger);
 
         String tag = String.valueOf((int)icon_size);
-
         Path png_path = Icon_caching.path_for_icon_caching(original_image_file,tag, Icon_caching.png_extension,owner,logger);
 
-        String command_string_to_create_tmp_icon = "gm convert "+original_image_file.toAbsolutePath()+ " "+ png_path.toAbsolutePath();
-        Execute_via_script_in_tmp_file.execute(command_string_to_create_tmp_icon, null, logger);
+        //String command_string_to_create_tmp_icon = "gm convert "+original_image_file.toAbsolutePath()+ " "+ png_path.toAbsolutePath();
+        //Execute_via_script_in_tmp_file.execute(command_string_to_create_tmp_icon, false, owner, logger);
+        List<String> list = List.of("gm", "convert",original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
+        Execute_command.execute_command_list(list, new File("."), 20_000,null, logger);
 
         try ( InputStream is = new FileInputStream(png_path.toFile())) {
+            // use the javafx Image constructor that resizes while loading
             return Optional.of(new Image(is,icon_size,icon_size,true,true));
         }
         catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            // GraphicsMagick failed, let us try the same with imageMagick
+            return use_ImageMagick_for_icon(original_image_file, icon_size, owner, logger);
         }
-        finally {
-            try {
-                Files.deleteIfExists(png_path);
-            } catch (IOException e) {
-                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
-            }
+    }
+
+    //**********************************************************
+    private static Optional<Image> use_ImageMagick_for_icon(Path original_image_file, double icon_size, Window owner, Logger logger)
+    //**********************************************************
+    {
+        logger.log("use_ImageMagick_for_icon");
+
+        String tag = String.valueOf((int)icon_size);
+        Path png_path = Icon_caching.path_for_icon_caching(original_image_file,tag, Icon_caching.png_extension,owner,logger);
+
+        //String command_string_to_create_tmp_icon = "magick "+original_image_file.toAbsolutePath()+ " "+ png_path.toAbsolutePath();
+        //Execute_via_script_in_tmp_file.execute(command_string_to_create_tmp_icon, false, owner,logger);
+        List<String> list = List.of("magick", original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
+        Execute_command.execute_command_list(list, new File("."), 20_000,null, logger);
+
+        try ( InputStream is = new FileInputStream(png_path.toFile()))
+        {
+            // use the javafx Image constructor that resizes while loading
+            return Optional.of(new Image(is,icon_size,icon_size,true,true));
+        }
+        catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
         return Optional.empty();
     }
@@ -249,9 +275,9 @@ public class Icons_from_disk
     {
         logger.log("load_icon_from_disk_cache");
 
-        if (Full_image_from_disk.get_remaining_memory() < Full_image_from_disk.MIN_REMAINING_FREE_MEMORY_10MB)
+        if (Check_remaining_RAM.RAM_running_low(logger))
         {
-            logger.log("load_icon_from_cache_fx WARNING: running low on memory ! loading default icon");
+            logger.log("load_icon_from_disk_cache WARNING: running low on memory ! loading default icon");
             return Look_and_feel_manager.get_default_icon(icon_size,owner,logger);
         }
         Path path = Icon_caching.path_for_icon_caching(original_image_file,tag,extension,owner,logger);

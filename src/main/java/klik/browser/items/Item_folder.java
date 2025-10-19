@@ -13,7 +13,7 @@ import klik.New_window_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
@@ -298,7 +298,7 @@ public class Item_folder extends Item implements Icon_destination
 
             Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
                     owner,
-                    new Folder_path_list_provider(local_path),
+                    new Path_list_provider_for_file_system(local_path),
                     path_comparator_source,
                     images_in_folder,
                     image_properties_RAM_cache,
@@ -439,7 +439,7 @@ public class Item_folder extends Item implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Compute how many files deep", logger);
     }
 
 
@@ -482,7 +482,7 @@ public class Item_folder extends Item implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Add total size in a folder's button", logger);
     }
 
 

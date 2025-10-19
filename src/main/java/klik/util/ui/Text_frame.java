@@ -12,12 +12,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Path_comparator_source;
+import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans_properties;
-import klik.util.files_and_paths.Filesystem_item_modification_watcher;
-import klik.util.files_and_paths.Filesystem_modification_reporter;
-import klik.util.log.File_logger;
+import klik.util.execute.Execute_via_script_in_tmp_file;
+import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
+import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -29,26 +29,41 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
 
 //**********************************************************
 public class Text_frame
 //**********************************************************
 {
+    private static final boolean dbg = false;
     private static final String TEXT_FRAME = "Text_frame";
-    private final Path the_path;
+    private LinkedBlockingQueue<String> the_queue = null;
+    private Path the_path = null;
+    private List<String> the_lines = null;
     private final WebView web_view = new WebView();
     private final Logger logger;
-    private final Stage stage;
+    private Stage stage;
     private final AtomicLong font_size_times_1000 = new AtomicLong(2000);
 
-    private final Aborter aborter;
+    private Aborter aborter;
     private String marked = "";
     private List<Integer> line_numbers_of_marked_items = new ArrayList<>();
     private int scroll = 0;
     private int number_of_items = 0;
     private int marked_item_index = 0;
 
+    // loads lines into the text frame
+    //**********************************************************
+    public static void show(List<String> the_lines,  Logger logger)
+    //**********************************************************
+    {
+        new Text_frame(the_lines,logger);
+    }
+
+    // loads a file and watches it for changes
     //**********************************************************
     public static void show(Path path,  Logger logger)
     //**********************************************************
@@ -56,29 +71,159 @@ public class Text_frame
         new Text_frame(path,logger);
     }
 
+    // is like a console output window
+    //**********************************************************
+    public static void show(String command, LinkedBlockingQueue<String> queue, Logger logger)
+    //**********************************************************
+    {
+        new Text_frame(command,queue,logger);
+    }
 
     //**********************************************************
-    private Text_frame(Path path, Logger logger)
+    private Text_frame(
+            String command,
+            LinkedBlockingQueue<String> queue,
+            Logger logger)
     //**********************************************************
     {
         this.logger = logger;
-        the_path = path;
-        aborter = new Aborter("Text_frame",logger);
+        this.the_path = null;
+        this.the_lines = null;
+        this.the_queue = queue;
+
+        init(command);
+
+        Runnable r = () -> {
+            try {
+                //boolean active = false;
+                for (;;)
+                {
+                    String line = the_queue.poll(30, TimeUnit.SECONDS);
+                    if (line == null)
+                    {
+                        continue; // timeout
+                    }
+                    if ( dbg) logger.log("text frame received: " + line);
+
+                    if ( aborter.should_abort()) break;
+                    if ( line.equals(Execute_via_script_in_tmp_file.END))
+                    {
+                        if ( dbg) logger.log("text frame received END");
+                        break;
+                    }
+                    Platform.runLater(() -> {
+                        String jsSafe = "<br>"+ line
+                                .replace("\\", "\\\\")
+                                .replace("\"", "\\\"")
+                                .replace("\n", "\\n")
+                                .replace("\r", "");
+
+                        //web_view.getEngine().executeScript("document.body.insertAdjacentHTML('beforeend', \"" + jsSafe + "\");");
+
+                        web_view.getEngine().executeScript("window.appendHtml(\"" + jsSafe + "\");");
+                        try {
+                            web_view.requestLayout();
+                        } catch (Exception ignored) {}
+
+                    });
+                }
+            }
+            catch (InterruptedException e)
+            {
+                logger.log("Installer output thread interrupted: " + e.getMessage());
+            }
+        };
+        Actor_engine.execute(r,"Text frame source monitor",logger);
+    }
+
+
+    //**********************************************************
+    private Text_frame(
+            List<String> the_lines,
+            Logger logger)
+    //**********************************************************
+    {
+        this.logger = logger;
+        this.the_path = null;
+        this.the_lines = the_lines;
+
+        init("");
+    }
+
+    //**********************************************************
+    private Text_frame(
+            Path the_path,
+            Logger logger)
+    //**********************************************************
+    {
+        this.logger = logger;
+        this.the_path = the_path;
+        this.the_lines =null;
+
+        init(the_path.toAbsolutePath().toString());
+
         Filesystem_item_modification_watcher watcher = new Filesystem_item_modification_watcher();
         Filesystem_modification_reporter reporter = () -> {
             //logger.log("Filesystem_item_modification_watcher event ==> RELOADING");
-            Platform.runLater(Text_frame.this::reload);
+            Platform.runLater(() -> Text_frame.this.reload());
         };
         watcher.init(the_path, reporter, false, 100000, aborter, logger);
+    }
+
+
+
+    //**********************************************************
+    private void init(String title_header)
+    //**********************************************************
+    {
         web_view.setFontScale(2.0);
+        aborter = new Aborter("Text_frame", logger);
 
+        String fontUrl = null;
+        try {
+            if (getClass().getResource("/fonts/AtkinsonHyperlegible-Bold.ttf") != null) {
+                fontUrl = getClass().getResource("/fonts/AtkinsonHyperlegible-Bold.ttf").toExternalForm();
+            }
+        } catch (Exception ignored) {}
 
+        StringBuilder initial = new StringBuilder();
+        initial.append("<!doctype html><html><head><meta charset=\"utf-8\">");
 
+        if (fontUrl != null && !fontUrl.isEmpty()) {
+            initial.append("<style type=\"text/css\">")
+                    .append("@font-face{font-family:'Atkinson'; src: url('").append(fontUrl).append("') format('truetype'); font-weight: bold; font-style: normal;}")
+                    .append("body, p { font-family: 'Atkinson', sans-serif; font-size: 14px; }")
+                    .append("p { margin-bottom: 0em; margin-top: 0em; }")
+                    .append("</style>");
+        } else {
+            // fallback: system sans-serif
+            initial.append("<style type=\"text/css\">")
+                    .append("body, p { font-family: sans-serif; font-size: 14px; }")
+                    .append("p { margin-bottom: 0em; margin-top: 0em; }")
+                    .append("</style>");
+        }
+
+        initial.append("<script>\n")
+                .append("window.appendHtml = function(s, forceScroll) {\n")
+                .append("  try {\n")
+                .append("    // are we near the bottom? (50px tolerance)\n")
+                .append("    var nearBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 50);\n")
+                .append("    document.body.insertAdjacentHTML('beforeend', s);\n")
+                .append("    // scroll if forced or if we were already near bottom\n")
+                .append("    if (forceScroll === true || nearBottom) {\n")
+                .append("      window.scrollTo(0, document.body.scrollHeight+100);\n")
+                .append("    }\n")
+                .append("  } catch(e) { console.error(e); }\n")
+                .append("};\n")
+                .append("</script></head><body></body></html>");
+
+        web_view.getEngine().loadContent(initial.toString());
 
         ChangeListener<? super Worker.State> cl = new ChangeListener<Worker.State>() {
             @Override
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State state, Worker.State newState) {
                 // is executed once the page is re-loaded
+                //logger.log("Text_frame: load state changed to " + newState);
                 if (newState == Worker.State.SUCCEEDED)
                 {
                     web_view.getEngine().executeScript("window.scroll(0," + scroll + ");");
@@ -98,8 +243,8 @@ public class Text_frame
         {
             stage.setX(100);
             stage.setY(100);
-            stage.setWidth(1000);
-            stage.setHeight(1000);
+            stage.setWidth(800);
+            stage.setHeight(600);
         }
         else
         {
@@ -108,7 +253,8 @@ public class Text_frame
             stage.setWidth(r.getWidth());
             stage.setHeight(r.getHeight());
         }
-        stage.setTitle(the_path.toAbsolutePath()+ "   (READ ONLY)   Select text and press s,k or m to highlight all instances, then d or n to jump down and u or p to jump up");
+        String title = title_header;//+" / Select text and press s,k or m to highlight all instances, then d or n to jump down and u or p to jump up";
+        stage.setTitle(title);
         stage.setScene(scene);
 
         stage.addEventHandler(KeyEvent.KEY_PRESSED,
@@ -121,10 +267,10 @@ public class Text_frame
             aborter.abort("Text_frame is closing");
         });
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
+            //logger.log("save_window_bounds for text_frame"+stage.getX()+", "+stage.getY()+", "+stage.getWidth()+", "+stage.getHeight() );
             Non_booleans_properties.save_window_bounds(stage, TEXT_FRAME,logger);
         };
-        
+
         stage.xProperty().addListener(change_listener);
         stage.yProperty().addListener(change_listener);
         stage.show();
@@ -132,7 +278,9 @@ public class Text_frame
     }
 
     //**********************************************************
-    private boolean process_key_event(KeyEvent key_event, Stage stage)
+    private boolean process_key_event(
+            KeyEvent key_event,
+            Stage stage)
     //**********************************************************
     {
         logger.log("process_key_event in Text_frame:"+key_event);
@@ -179,44 +327,62 @@ public class Text_frame
             if (search_and_mark()) return true;
         }
 
-        if ( key_event.getText().equals("u") || key_event.getText().equals("p"))
+        if ( key_event.getCode()==KeyCode.UP || key_event.getText().equals("u") || key_event.getText().equals("p"))
         {
-            logger.log("process_key_event in Text_frame: UP");
-            int target_id = line_numbers_of_marked_items.get(marked_item_index);
-            logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
-
-            marked_item_index--;
-            if ( marked_item_index < 0) marked_item_index = line_numbers_of_marked_items.size()-1;
-            String target_s = ""+target_id;
-            String script =
-                    "{" +
-                            "let element = document.getElementById("+target_s+");" +
-                            "if ( element) element.scrollIntoView();"+
-                            "}";
-
-            web_view.getEngine().executeScript(script);
+            process_up();
         }
-        if ( key_event.getText().equals("d")|| key_event.getText().equals("n"))
+        if ( key_event.getCode()==KeyCode.DOWN || key_event.getText().equals("d")|| key_event.getText().equals("n"))
         {
-            logger.log("process_key_event in Text_frame: DOWN");
-            int target_id = line_numbers_of_marked_items.get(marked_item_index);
-            logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
-
-            marked_item_index++;
-            if ( marked_item_index >= line_numbers_of_marked_items.size()) marked_item_index = 0;
-            String target_s = ""+target_id;
-            String script =
-            "{" +
-                    "let element = document.getElementById("+target_s+");" +
-                    "if ( element) element.scrollIntoView();"+
-            "}";
-
-            web_view.getEngine().executeScript(script);
+            process_down();
 
         }
         logger.log("process_key_event in Text_frame: DONE");
 
         return false;
+    }
+
+    //**********************************************************
+    private void process_down()
+    //**********************************************************
+    {
+        logger.log("process_key_event in Text_frame: DOWN");
+        if (marked_item_index>= line_numbers_of_marked_items.size()) return;
+
+        int target_id = line_numbers_of_marked_items.get(marked_item_index);
+        logger.log("process_key_event in Text_frame: " + marked_item_index + " => " + target_id);
+
+        marked_item_index++;
+        if (marked_item_index >= line_numbers_of_marked_items.size()) marked_item_index = 0;
+        String target_s = "" + target_id;
+        String script =
+                "{" +
+                        "let element = document.getElementById(" + target_s + ");" +
+                        "if ( element) element.scrollIntoView();" +
+                        "}";
+
+        web_view.getEngine().executeScript(script);
+    }
+
+    //**********************************************************
+    private void process_up()
+    //**********************************************************
+    {
+        logger.log("process_key_event in Text_frame: UP");
+        if (marked_item_index>= line_numbers_of_marked_items.size()) return;
+
+        int target_id = line_numbers_of_marked_items.get(marked_item_index);
+        logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
+
+        marked_item_index--;
+        if ( marked_item_index < 0) marked_item_index = line_numbers_of_marked_items.size()-1;
+        String target_s = ""+target_id;
+        String script =
+                "{" +
+                        "let element = document.getElementById("+target_s+");" +
+                        "if ( element) element.scrollIntoView();"+
+                        "}";
+
+        web_view.getEngine().executeScript(script);
     }
 
     //**********************************************************
@@ -252,40 +418,60 @@ public class Text_frame
     private void reload()
     //**********************************************************
     {
-        scroll = (int) web_view.getEngine().executeScript("window.scrollY");
-        logger.log("scroll=" + scroll);
-
-        web_view.getEngine().load("about:blank");
-        line_numbers_of_marked_items.clear();
-        number_of_items = 0;
-        List<String> lines = null;
+        if ( the_path != null)
+        {
+            reload_file(the_path);
+            return;
+        }
+        if ( the_lines != null)
+        {
+            load_lines(the_lines);
+        }
+    }
+    //**********************************************************
+    private void reload_file(Path path)
+    //**********************************************************
+    {
         try
         {
-            lines = Files.readAllLines(the_path, StandardCharsets.UTF_8);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+            load_lines(lines);
         }
         catch ( MalformedInputException e)
         {
-            try
-            {
-                lines = Files.readAllLines(the_path, StandardCharsets.ISO_8859_1);
+            try {
+                List<String> lines = Files.readAllLines(path, StandardCharsets.ISO_8859_1);
+                load_lines(lines);
             }
             catch ( MalformedInputException ee)
             {
-                try_binary(the_path);
-                return;
+                List<String> lines = try_binary(path);
+                load_lines(lines);
             }
             catch (IOException ee)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("" + ee));
                 web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  =========" + "\n");
-                return;
             }
         }
         catch (IOException eee) {
             logger.log(Stack_trace_getter.get_stack_trace("" + eee));
         }
 
-        logger.log("Text_frame, read " + lines.size() + " lines from " + the_path);
+    }
+    //**********************************************************
+    private void load_lines(List<String> lines)
+    //**********************************************************
+    {
+        logger.log("Text_frame, got " + lines.size() + " lines");
+
+        scroll = (int) web_view.getEngine().executeScript("window.scrollY");
+        logger.log("scroll=" + scroll);
+
+        web_view.getEngine().load("about:blank");
+        line_numbers_of_marked_items.clear();
+        number_of_items = 0;
+
         if ( lines.isEmpty())
         {
             web_view.getEngine().loadContent(" ======= EMPTY FILE  =========");
@@ -294,6 +480,7 @@ public class Text_frame
         {
             StringBuilder t = new StringBuilder();
             t.append("<style type=\"text/css\">\n");
+            t.append("body, p { font-family: 'Atkinson', sans-serif; font-size: 14px; }\n");
             t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
             t.append("</style>");
             for (String line : lines)
@@ -313,10 +500,12 @@ public class Text_frame
 
     }
 
-    private void try_binary(Path the_path)
+    //**********************************************************
+    private List<String> try_binary(Path the_path)
+    //**********************************************************
     {
         logger.log("file is binary? ");
-        // binary !!!
+        List<String> returned = new ArrayList<>();
         try
         {
             byte[] bytes = Files.readAllBytes(the_path);
@@ -334,14 +523,14 @@ public class Text_frame
                     line += new String(bb, StandardCharsets.UTF_8);
                 }
             }
-
-            web_view.getEngine().loadContent(line);
+            returned.add(line);
         }
         catch (IOException e)
         {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            web_view.getEngine().loadContent(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n");
+            returned.add(" ======= CANNOT READ THIS FILE AT ALL ????  ========="+"\n");
         }
+        return returned;
     }
 
 }

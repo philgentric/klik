@@ -14,7 +14,7 @@ public class The_main_circular_3 extends Application
 {
 
     //*******************************************************
-    public static void main(String[] args) {
+    static void main(String[] args) {
         Application.launch(args);
     }
     //*******************************************************

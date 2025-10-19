@@ -189,7 +189,7 @@ public class Stage_with_2_images
             if (is_image)
 			{
 				Runnable r = () -> Platform.runLater(()->Item_file_with_icon.open_an_image(path_list_provider, path_comparator_source,file.toPath(),owner,logger));
-				Actor_engine.execute(r,logger);
+				Actor_engine.execute(r,"Open image",logger);
             }
 			else
 			{

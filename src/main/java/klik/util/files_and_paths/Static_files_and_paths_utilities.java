@@ -364,7 +364,7 @@ public class Static_files_and_paths_utilities
             };
             Jfx_batch_injector.inject(r2,logger);
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Clear trash",logger);
 
     }
 
@@ -610,7 +610,7 @@ public class Static_files_and_paths_utilities
             }
         };
 
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Delete forever files in trash",logger);
 
     }
 
@@ -974,7 +974,7 @@ public class Static_files_and_paths_utilities
             }
         };
         try {
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,"Copt folder",logger);
             if ( dbg) logger.log("copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
             logger.log("copy_dir_in_a_thread()" + ree);

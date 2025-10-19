@@ -33,7 +33,7 @@ public class TCP_client
             logger.log("TCP_client.send_in_a_thread called with negative port number "+port_number+" for host "+host+" message: "+msg);
             return;
         }
-        Actor_engine.execute(() -> send(host, port_number, msg, logger), logger);
+        Actor_engine.execute(() -> send(host, port_number, msg, logger), "TCP send",logger);
     }
     //**********************************************************
     public static void send(String host, int port_number, String msg, Logger logger)

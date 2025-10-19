@@ -247,7 +247,7 @@ public class Playlist
             }
             update_playlist_size_info();
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "Adding multiple songs to playlist",logger);
 
     }
 
@@ -585,24 +585,71 @@ public class Playlist
     //**********************************************************
     {
         Runnable r = () -> update_playlist_size_info_in_a_thread();
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Update playlist size info",logger);
     }
 
+    //**********************************************************
+    class Duration_message implements Message
+    //**********************************************************
+    {
+        public final String path;
+        public final AtomicLong seconds;
+        public final CountDownLatch cdl;
+        public final Aborter aborter;
+        //**********************************************************
+        public Duration_message(String path, AtomicLong seconds, CountDownLatch cdl, Aborter aborter)
+        //**********************************************************
+        {
+            this.path = path;
+            this.seconds = seconds;
+            this.cdl = cdl;
+            this.aborter = aborter;
+        }
+
+        //**********************************************************
+        @Override
+        public String to_string()
+        //**********************************************************
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append(" Duration_message: ");
+            sb.append(" path: ").append(path);
+            return sb.toString();
+        }
+
+        //**********************************************************
+        @Override
+        public Aborter get_aborter()
+        //**********************************************************
+        {
+            return aborter;
+        }
+    }
     //**********************************************************
     private void update_playlist_size_info_in_a_thread()
     //**********************************************************
     {
-
+        Actor actor = new Actor()
+        {
+            @Override
+            public String run(Message m)
+            {
+                Duration_message dm = (Duration_message) m;
+                get_media_duration(dm.path, dm.seconds, dm.cdl);
+                return "OK";
+            }
+            @Override
+            public String name()
+            {
+                return "Duration_finder_actor";
+            }
+        };
         Actor_engine_based_on_workers local = new Actor_engine_based_on_workers(logger);
         AtomicLong seconds = new AtomicLong(0);
         CountDownLatch cdl = new CountDownLatch(the_playlist.size());
         for ( String path: the_playlist)
         {
-            Actor actor = m -> {
-                get_media_duration(path, seconds, cdl);
-                return "OK";
-            };
-            Message m = () -> new Aborter("dummy",logger);
+            Message m = new Duration_message(path,seconds,cdl,new Aborter("dummy",logger));
             local.run(actor,m,null,logger);
         }
         try {
@@ -879,7 +926,7 @@ public class Playlist
                 });
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"set end of search icon",logger);
     }
 
     //**********************************************************
@@ -1020,7 +1067,7 @@ public class Playlist
         }
         String finalNew_song = new_song;
         Aborter aborter = new Aborter(new_song,logger);
-        Actor_engine.execute(() -> change_song_in_a_thread(finalNew_song, start, first_time,aborter),logger);
+        Actor_engine.execute(() -> change_song_in_a_thread(finalNew_song, start, first_time,aborter),"change song",logger);
 
     }
 
@@ -1039,7 +1086,7 @@ public class Playlist
             return;
         }
 
-        Actor_engine.execute(()->launch_bitrate_in_a_thread(new_song),logger);
+        Actor_engine.execute(()->launch_bitrate_in_a_thread(new_song),"Find and display bitrate",logger);
 
         the_song_path = new_song;
         the_music_ui.set_title((new File(new_song)).getName());

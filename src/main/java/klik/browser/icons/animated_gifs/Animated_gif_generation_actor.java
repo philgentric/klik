@@ -14,11 +14,24 @@ public class Animated_gif_generation_actor implements Actor
 //**********************************************************
 {
     private static Concurency_limiter cl;
+
+    //**********************************************************
     Animated_gif_generation_actor(Logger logger)
+    //**********************************************************
     {
         if ( cl == null) cl = new Concurency_limiter("Animated gif generator",1,logger);
-
     }
+
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Animated_gif_generation_actor";
+    }
+
+
     @Override
     //**********************************************************
     public String run(Message m)

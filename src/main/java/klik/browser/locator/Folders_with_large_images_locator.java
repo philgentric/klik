@@ -137,7 +137,7 @@ public class Folders_with_large_images_locator
                 show();
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Locate large images",logger);
     }
 
     //**********************************************************
@@ -213,7 +213,7 @@ public class Folders_with_large_images_locator
                 };
                 if ( Threads.use_virtual_threads)
                 {
-                    Actor_engine.execute(r,logger);
+                    Actor_engine.execute(r,"large image finder: per folder thread",logger);
                 }
                 else
                 {

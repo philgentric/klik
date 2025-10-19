@@ -31,4 +31,13 @@ public class Image_properties_message implements Message
         return aborter;
     }
 
-}
+    //**********************************************************
+    @Override
+    public String to_string()
+    //**********************************************************
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" Image_properties_message: ");
+        sb.append(" path: ").append(path);
+        return sb.toString();
+    }}

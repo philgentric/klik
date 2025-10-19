@@ -25,6 +25,8 @@ import java.util.List;
 public class System_open_actor implements Actor
 //**********************************************************
 {
+    private static System_open_actor instance;
+
     //**********************************************************
     public static void open_with_system(
             Path path,
@@ -38,7 +40,16 @@ public class System_open_actor implements Actor
             new System_open_message(false, Klik_application.application,window, path, aborter,logger),null,logger);
     }
 
-    private static System_open_actor instance;
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "System_open_actor";
+    }
+
+
     //**********************************************************
     private static System_open_actor get()
     //**********************************************************

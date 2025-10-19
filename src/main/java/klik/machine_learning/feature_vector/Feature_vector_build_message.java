@@ -29,9 +29,21 @@ public class Feature_vector_build_message implements Message
         this.aborter = aborter;
     }
 
+    //**********************************************************
     @Override
     public Aborter get_aborter() {
         return aborter;
+    }
+
+    //**********************************************************
+    @Override
+    public String to_string()
+    //**********************************************************
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" Feature_vector_build_message: ");
+        sb.append(" path: ").append(path);
+        return sb.toString();
     }
 
 }

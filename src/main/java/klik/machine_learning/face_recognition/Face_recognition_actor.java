@@ -40,6 +40,16 @@ public class Face_recognition_actor implements Actor
         service = service_;
     }
 
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Face_recognition_actor";
+    }
+
+
     //**********************************************************
     @Override
     public String run(Message m)

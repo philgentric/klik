@@ -18,6 +18,14 @@ public class House_keeping_actor implements Actor
         this.change_gang_receivers = change_gang_receivers;
     }
 
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "House_keeping_actor";
+    }
     //**********************************************************
     @Override
     public String run(Message m)

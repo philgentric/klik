@@ -118,7 +118,7 @@ public class Importer
                 logger.log("Importation: "+counter.get()+ " images copied");
             }
         };
-        Actor_engine.execute(r, logger);
+        Actor_engine.execute(r, "monitor picture importation", logger);
 
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(
@@ -212,7 +212,7 @@ public class Importer
                 done.set(true);
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Estimate size for 1 folder",logger);
 
         Runnable monitor = new Runnable() {
             @Override
@@ -248,7 +248,7 @@ public class Importer
                 }
             }
         };
-        Actor_engine.execute(monitor,logger);
+        Actor_engine.execute(monitor,"Monitor size estimation",logger);
 
 
 

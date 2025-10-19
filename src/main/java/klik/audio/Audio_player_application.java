@@ -146,7 +146,7 @@ public class Audio_player_application extends Application
                         My_I18n.reset();
                         Look_and_feel_manager.reset();
                         Runnable r = () -> Platform.runLater(() -> UI_instance_holder.define_ui());
-                        Actor_engine.execute(r,logger);
+                        Actor_engine.execute(r,"Redefining UI upon TCP message",logger);
                     }
                     else
                     {

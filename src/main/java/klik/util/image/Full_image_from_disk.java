@@ -8,6 +8,8 @@ import klik.actor.Actor_engine;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.look.Jar_utils;
 import klik.properties.Cache_folder;
+import klik.util.Check_remaining_RAM;
+import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -24,6 +26,7 @@ import klik.util.ui.Popups;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 //**********************************************************
@@ -33,7 +36,6 @@ public class Full_image_from_disk
     public static final boolean dbg = true;
 
     static boolean user_warned_about_slow_disk = false;
-    public static final int MIN_REMAINING_FREE_MEMORY_10MB = 10_000_000;
 
     //**********************************************************
     public static InputStream get_image_InputStream(Path original_image_file, boolean try_fusked, boolean report_if_not_found, Aborter aborter, Logger logger)
@@ -58,7 +60,7 @@ public class Full_image_from_disk
                                         "Reading file "+original_image_file+ " was ridiculously slow.",
                                         "Maybe this is a network drive and your network connection is slow?",
                                         false,
-                                        null,logger)),logger);
+                                        null,logger)),"Warm user about slow disk",logger);
 
                     }
                 }
@@ -103,7 +105,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         if (dbg) logger.log("\n\nIcons_from_disk determine_width "+path);
-        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found, null,aborter, logger);
+        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found, null,aborter, logger).orElse(0.0);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())
@@ -135,7 +137,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         if (dbg) logger.log("\n\nIcons_from_disk get_aspect_ratio "+path);
-        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter, null, logger);
+        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter, null, logger).orElse(1.0);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())
@@ -169,8 +171,8 @@ public class Full_image_from_disk
     //**********************************************************
     {
         logger.log("load_native_resolution_image_from_disk");
-        if (get_remaining_memory() < MIN_REMAINING_FREE_MEMORY_10MB) {
-            logger.log("load_image_fx NOT DONE because running low on memory ! ");
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("load_native_resolution_image_from_disk NOT DONE because running low on memory ! ");
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
         }
         /*
@@ -251,8 +253,8 @@ public class Full_image_from_disk
         {
             logger.log("png (converted image) does not exist, creating "+png_path);
             // use GraphicsMagick to convert to png
-            String command_string_to_create_tmp_icon = "gm convert "+original_image_file.toAbsolutePath()+ " "+ png_path.toAbsolutePath();
-            Execute_via_script_in_tmp_file.execute(command_string_to_create_tmp_icon, null, logger);
+            List<String> list = List.of("gm", "convert", original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
+            Execute_command.execute_command_list(list, new File("."), 20_000,null, logger);
         }
         else
         {
@@ -264,23 +266,46 @@ public class Full_image_from_disk
         try ( InputStream is = new FileInputStream(png_path.toFile())) {
             return Optional.of(new Image(is));
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+            // GraphicsMagick failed, let us try the same with imageMagick
+            return  use_ImageMagick_for_full_image(original_image_file, aborter, owner, logger);
+        }
+    }
+
+    //**********************************************************
+    private static Optional<Image> use_ImageMagick_for_full_image(Path original_image_file, Aborter aborter, Window owner, Logger logger)
+    //**********************************************************
+    {
+        logger.log("use_ImageMagick_for_full_image");
+        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, owner, logger);
+        Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
+
+        if ( !png_path.toFile().exists())
+        {
+            logger.log("png (converted image) does not exist, creating "+png_path);
+            // use ImageMagick to convert to png
+            List<String> list = List.of("magick", original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
+            Execute_command.execute_command_list(list, new File("."), 20_000,null, logger);
+        }
+        else
+        {
+            logger.log("SHOULD NOT HAPPEN ! png (converted image) exists:  "+png_path);
+        }
+
+        if ( aborter.should_abort()) return Optional.empty();
+
+        try ( InputStream is = new FileInputStream(png_path.toFile())) {
+            return Optional.of(new Image(is));
+        }
+        catch (IOException e)
+        {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
         return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
     }
 
 
-    //**********************************************************
-    public static long get_remaining_memory()
-    //**********************************************************
-    {
-        //https://stackoverflow.com/questions/3571203/what-are-runtime-getruntime-totalmemory-and-freememory
-        Runtime runtime = Runtime.getRuntime();
-        long used = runtime.totalMemory() - runtime.freeMemory();
-        long max = runtime.maxMemory();
-        long remaining = max - used;
-        return remaining;
-    }
 
 }

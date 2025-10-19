@@ -12,7 +12,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
@@ -237,7 +237,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             {
                 logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
                 Path local = get_path_for_display(false);
-                local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger);
+                local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger).orElse(0.0);
                 the_image_pane.setRotate(local_rot);
             }
             else
@@ -327,7 +327,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
         Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
                 owner,
-                new Folder_path_list_provider(get_item_path()),
+                new Path_list_provider_for_file_system(get_item_path()),
                 path_comparator_source,
                 images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)
@@ -495,7 +495,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter,logger);
             Jfx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Compute size deep",logger);
     }
 
 

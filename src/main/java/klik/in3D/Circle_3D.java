@@ -1,9 +1,7 @@
 package klik.in3D;
 
-import javafx.application.Application;
 import javafx.scene.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.PickResult;
 import javafx.scene.input.ScrollEvent;
@@ -14,18 +12,14 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.virtual_landscape.Path_list_provider;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -396,9 +390,9 @@ public class Circle_3D
 
                 System.out.println("Clicked on: " + p);
 
-                Path_list_provider plp = new Folder_path_list_provider(p.getParent());
-                Folder_path_list_provider comp = new Folder_path_list_provider(p.getParent());
-                Image_window image_stage = Image_window.get_Image_window(p, new Folder_path_list_provider(p.getParent()), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
+                Path_list_provider plp = new Path_list_provider_for_file_system(p.getParent());
+                Path_list_provider_for_file_system comp = new Path_list_provider_for_file_system(p.getParent());
+                Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent()), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
 
                 /*
                 // display the image in the full window

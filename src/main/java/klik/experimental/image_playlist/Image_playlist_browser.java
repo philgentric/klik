@@ -21,7 +21,7 @@ public class Image_playlist_browser extends Abstract_browser
 {
     private static AtomicInteger id_generator   = new AtomicInteger(0);
     private int ID;
-    public final Playlist_path_list_provider path_list_provider;
+    public final Path_list_provider_for_playlist path_list_provider;
 
     //**********************************************************
     public Image_playlist_browser(Path target_path, Shutdown_target shutdown_target, Rectangle2D rectangle, Logger logger)
@@ -29,8 +29,8 @@ public class Image_playlist_browser extends Abstract_browser
     {
         super(logger);
         ID = id_generator.getAndIncrement();
-        path_list_provider = new Playlist_path_list_provider(target_path, logger);
-        init(shutdown_target, rectangle,this,"playlist");
+        path_list_provider = new Path_list_provider_for_playlist(target_path, logger);
+        init_abstract_browser(shutdown_target, rectangle,this,"playlist");
         set_pink_background(logger);
 
         logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW IMAGE PLAY LIST "+path_list_provider.get_name());

@@ -7,13 +7,18 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Shared_services;
+import klik.System_info;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.util.Sys_init;
 import klik.util.log.File_logger;
 import klik.util.log.Logger;
+import klik.util.log.Simple_logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 
+import javax.swing.plaf.synth.SynthStyleFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -110,7 +115,7 @@ public class Non_booleans_properties
     public static Aborter init_main_properties_manager(String aborter_name, Window owner)
     //**********************************************************
     {
-        Logger logger = new File_logger("Non_booleans_properties_manager");
+        Logger logger = new Simple_logger(); // new File_logger("Non_booleans_properties_manager");
         Aborter aborter = new Aborter(aborter_name, logger);
 
         the_iproperties = new File_based_IProperties("klik", owner,aborter, logger);

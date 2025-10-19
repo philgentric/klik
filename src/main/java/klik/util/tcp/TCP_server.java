@@ -88,7 +88,7 @@ public class TCP_server
                 is_started_ok.set(false);
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"TCP server on: "+port_number,logger);
 
         try
         {
@@ -147,7 +147,7 @@ public class TCP_server
                 cdl.countDown();
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"TCP server on: "+port_number,logger);
 
         try
         {
@@ -204,7 +204,7 @@ public class TCP_server
                     }
                 }
             };
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,"TCP server, 1 client session",logger);
         }
         catch (IOException e)
         {

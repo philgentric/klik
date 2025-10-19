@@ -23,6 +23,15 @@ public class Prototype_adder_actor implements Actor
     }
 
 
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Prototype_adder_actor";
+    }
+
     //**********************************************************
     @Override
     public String run(Message m)

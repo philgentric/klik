@@ -8,8 +8,8 @@ import com.drew.metadata.Tag;
 import klik.actor.Aborter;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
 import klik.util.image.Full_image_from_disk;
-import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public class Fast_width_from_exif_metadata_extractor
@@ -26,9 +27,13 @@ public class Fast_width_from_exif_metadata_extractor
 
     //**********************************************************
     @Deprecated
-    public static double get_width(Path path, boolean report_if_not_found, List<String> sb, Aborter aborter, Logger logger)
+    public static Optional<Double> get_width(Path path, boolean report_if_not_found, List<String> sb, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("get_width NOT DONE because running low on memory ! ");
+            return Optional.empty();
+        }
         if( sb != null)
         {
             sb.add(path.toString());
@@ -41,7 +46,7 @@ public class Fast_width_from_exif_metadata_extractor
                 sb.add(" get_aspect_ratio failed cannot open input stream");
                 logger.log(sb.toString());
             }
-            return -1.0;
+            return Optional.empty();
         }
 
         Double w = null;
@@ -57,7 +62,7 @@ public class Fast_width_from_exif_metadata_extractor
                 if ( aborter.should_abort())
                 {
                     //logger.log("Fast_aspect_ratio_from_exif_metadata_extractor aborting ");
-                    return -1;
+                    return Optional.empty();
                 }
 
                 if ( directory.toString().contains("Canon Makernote"))
@@ -81,20 +86,23 @@ public class Fast_width_from_exif_metadata_extractor
         catch (ImageProcessingException e)
         {
             if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_width() Managed exception (3)->"+e+"<- for:"+ path.toAbsolutePath()));
-            if ( e.toString().contains("File format could not be determined"))  return -1.0;
+            if ( e.toString().contains("File format could not be determined"))
+            {
+                return Optional.empty();
+            }
         }
         catch (IOException e)
         {
             if ( sb != null) sb.add(Stack_trace_getter.get_stack_trace("get_width() Managed exception (4)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return -1.0;
+            return Optional.empty();
         }
         catch (Exception e)
         {
             if ( sb != null)
                 sb.add(Stack_trace_getter.get_stack_trace("get_aspect_ratio() Managed exception (5)->"+e+"<- for:"+ path.toAbsolutePath()));
-            return -1.0;
+            return Optional.empty();
         }
-        return w;
+        return Optional.of(w);
     }
 
 

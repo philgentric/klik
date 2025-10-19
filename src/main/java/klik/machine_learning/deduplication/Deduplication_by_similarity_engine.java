@@ -100,7 +100,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 owner, private_aborter, logger);
 
         Runnable r = this::runnable_deduplication;
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Deduplicate by similarity",logger);
         logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
 
@@ -166,7 +166,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                         files,
                         same_file_pairs_input_queue,
                         owner, private_aborter, logger);
-        Actor_engine.execute(duplicate_finder,logger);
+        Actor_engine.execute(duplicate_finder,"Deduplicate by similarity (2)",logger);
 
         logger.log("Deduplication::runnable_deduplication thread launched");
     }
@@ -331,7 +331,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 logger.log("manual deduplicator: nothing to do at this time but finder threads are still running");
             }
         };
-        Actor_engine.execute(r,logger);
+        Actor_engine.execute(r,"Deduplicate by similarity (3)",logger);
 
     }
 

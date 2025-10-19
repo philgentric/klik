@@ -20,7 +20,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Animated_gifs_from_video;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
@@ -357,7 +357,7 @@ public class Item_file_with_icon extends Item_file
             {
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                Path_list_provider path_list_provider = new Folder_path_list_provider(image_path.getParent());
+                Path_list_provider path_list_provider = new Path_list_provider_for_file_system(image_path.getParent());
                 List<Path> paths =  path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
                 Similarity_engine image_similarity = new Similarity_engine(
                         paths,
@@ -376,7 +376,7 @@ public class Item_file_with_icon extends Item_file
                         fv_cache_supplier,
                         owner, x,y,null,browser_aborter);
             };
-            Actor_engine.execute(r,logger);
+            Actor_engine.execute(r,"Find and display similar pictures",logger);
         });
 
         return menu_item;
@@ -534,7 +534,7 @@ public class Item_file_with_icon extends Item_file
                         if (dbg) logger.log("PDF or video => rot=0");
                         local_rot = 0;
                     } else {
-                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(get_item_path(), true, aborter, logger);
+                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(get_item_path(), true, aborter, logger).orElse(0.0);
                     }
                 }
                 else

@@ -22,7 +22,7 @@ import klik.change.history.History_engine;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
-import klik.util.files_and_paths.Filesystem_item_modification_watcher;
+import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
@@ -74,10 +74,11 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     }
 
     //**********************************************************
-    public void init(
+    public void init_abstract_browser(
             Shutdown_target shutdown_target,
             Rectangle2D rectangle,
-            Change_receiver change_receiver, String badge)
+            Change_receiver change_receiver,
+            String badge)
     //**********************************************************
     {
         int count = number_of_windows.incrementAndGet();

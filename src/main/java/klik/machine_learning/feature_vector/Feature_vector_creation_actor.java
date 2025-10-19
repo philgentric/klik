@@ -2,7 +2,6 @@ package klik.machine_learning.feature_vector;
 
 //SOURCES ../Feature_vector_source.java
 
-import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Message;
 
@@ -18,6 +17,14 @@ public class Feature_vector_creation_actor implements Actor
     //**********************************************************
     {
         this.fvs = fvs;
+    }
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Feature_vector_creation_actor";
     }
 
     //**********************************************************

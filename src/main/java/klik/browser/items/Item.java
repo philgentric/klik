@@ -28,7 +28,7 @@ import klik.actor.Job;
 import klik.audio.Audio_info_frame;
 import klik.New_window_context;
 import klik.audio.Ffmpeg_metadata_editor;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
@@ -47,7 +47,6 @@ import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.Moving_files;
 import klik.util.image.Full_image_from_disk;
-import klik.util.image.Icons_from_disk;
 import klik.util.ui.Folder_size_stage;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -418,7 +417,7 @@ public abstract class Item implements Icon_destination
                     Actor_engine.execute(()-> {
                         Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(path, true, owner, aborter, logger);
                         if ( op.isPresent()) Exif_stage.show_exif_stage(op.get(), path, owner, aborter, logger);
-                    },logger);
+                    },"Show EXIF info",logger);
                 },
                 context_menu,
                 owner,
@@ -662,7 +661,7 @@ public abstract class Item implements Icon_destination
                     }
                     local_button.setText(new_dir_name);
                     local_button.setGraphic(restored);
-                    path_list_provider = new Folder_path_list_provider(new_path);
+                    path_list_provider = new Path_list_provider_for_file_system(new_path);
                 }
                 else
                 {

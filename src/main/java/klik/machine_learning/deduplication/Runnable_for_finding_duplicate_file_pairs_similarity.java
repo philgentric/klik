@@ -2,7 +2,7 @@ package klik.machine_learning.deduplication;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.classic.Folder_path_list_provider;
+import klik.browser.classic.Path_list_provider_for_file_system;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.browser.virtual_landscape.Path_list_provider;
@@ -61,7 +61,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		private_aborter = private_aborter_;
 		output_queue_of_same_in_pairs = output_queue;
 		deduplication_by_similarity_engine = deduplication_by_similarity_engine_;
-		Path_list_provider path_list_provider = new Folder_path_list_provider(deduplication_by_similarity_engine.target_dir.toPath());
+		Path_list_provider path_list_provider = new Path_list_provider_for_file_system(deduplication_by_similarity_engine.target_dir.toPath());
 		similarity_engine = new Similarity_engine(
                 paths,
                 path_list_provider,

@@ -41,7 +41,7 @@ public class Media_instance_statics
         Aborter aborter = new Aborter("playing "+encoded,logger);
         aborters.add(aborter);
         instance = new Media_instance(aborter,logger);
-        Actor_engine.execute(() -> instance.play_this(encoded, media_callbacks,first_time,owner),logger);
+        Actor_engine.execute(() -> instance.play_this(encoded, media_callbacks,first_time,owner),"play song "+encoded,logger);
     }
 
     //**********************************************************

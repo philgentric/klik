@@ -8,8 +8,8 @@ import com.drew.metadata.Tag;
 import klik.actor.Aborter;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
 import klik.util.image.Full_image_from_disk;
-import klik.util.image.Icons_from_disk;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -32,6 +32,10 @@ public class Fast_date_from_exif_metadata_extractor
     public static LocalDateTime get_date(Path path, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        if (Check_remaining_RAM.RAM_running_low(logger)) {
+            logger.log("get_date NOT DONE because running low on memory ! ");
+            return LocalDateTime.now();
+        }
 
         InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), true, aborter, logger);
         if ( is == null)
