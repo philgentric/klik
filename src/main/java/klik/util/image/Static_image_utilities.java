@@ -95,6 +95,7 @@ public class Static_image_utilities
             scale = height_ratio;
         }
         Image resized_image = Vips_utils.resize(local_image, scale,filter,logger_);
+        if ( resized_image == null) return Optional.empty();
 /*
         int h = 10000;
         int w = 10000;

@@ -59,7 +59,7 @@ public class Paths_holder
     void add_file(Path path, boolean show_icons_instead_of_text, Window stage)
     //**********************************************************
     {
-        if ( show_icons_instead_of_text == false)
+        if ( !show_icons_instead_of_text )
         {
             non_iconized.add(path);
             return;
@@ -69,24 +69,20 @@ public class Paths_holder
             logger.log("path manager aborting2");
             return;
         }
-
-        if (Guess_file_type.is_this_path_a_video(path))
+        String extension = Extensions.get_extension(path.getFileName().toString());
+        if (Guess_file_type.is_this_extension_a_video(extension))
         {
             if (show_video_as_gif)
             {
-
-
-                String extension = Extensions.get_extension(path.getFileName().toString());
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
                     // special dirty case: MKV can be audio OR video ...
-                    if ( Guess_file_type.is_this_a_video_or_audio_file(path,stage,logger))
+                    if ( Guess_file_type.does_this_file_contain_a_video_track(path,stage,logger))
                     {
                         iconized_paths.add(path);
                     }
                     else
                     {
-                        //non_iconized.put(path,true);
                         non_iconized.add(path);
                     }
                     return;
@@ -101,17 +97,9 @@ public class Paths_holder
             return;
         }
 
-        if (Guess_file_type.is_this_path_a_pdf(path))
+        if (Guess_file_type.is_this_extension_a_pdf(extension))
         {
-            if (show_icons_instead_of_text)
-            {
-                iconized_paths.add(path);
-            }
-            else
-            {
-                //non_iconized.put(path,true);
-                non_iconized.add(path);
-            }
+            iconized_paths.add(path);
             return;
         }
         if ( aborter.should_abort())
@@ -120,19 +108,17 @@ public class Paths_holder
             return;
         }
 
-        if (Guess_file_type.is_this_extension_an_image(path))
+        if (Guess_file_type.is_this_extension_an_image(extension))
         {
-            if (show_icons_instead_of_text)
-            {
-                // calling this will pre-populate the cache
-                image_properties_RAM_cache.prefill_cache(path);
-                iconized_paths.add(path);
-                if (dbg) logger.log("calling image properties cache from path manager do_file()");
-                return;
-            }
+            // calling this will pre-populate the property cache
+            image_properties_RAM_cache.prefill_cache(path);
+            if (dbg) logger.log("calling image properties cache prefill from path manager do_file()");
+
+            iconized_paths.add(path);
+            return;
         }
-        // non-image, non-directory
-        //non_iconized.put(path,true);
+
+        // everything else: non-image, non-directory
         non_iconized.add(path);
     }
 

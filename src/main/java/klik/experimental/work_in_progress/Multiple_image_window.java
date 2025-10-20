@@ -1,4 +1,4 @@
-//SOURCES ../../image_indexer/Image_indexer.java
+//SOURCES ../../image_indexer/Indexer.java
 package klik.experimental.work_in_progress;
 
 import javafx.collections.ObservableList;
@@ -19,8 +19,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.comparators.Alphabetical_file_name_comparator;
-import klik.browser.virtual_landscape.Path_list_provider;
-import klik.image_indexer.Image_indexer;
+import klik.path_lists.Path_list_provider;
+import klik.path_lists.Indexer;
 import klik.images.Image_context;
 import klik.look.Look_and_feel_manager;
 import klik.util.image.Static_image_utilities;
@@ -49,7 +49,7 @@ public class Multiple_image_window
     public double H = 800;
     Logger logger;
 
-    Image_indexer image_indexer = null;
+    //Indexer image_indexer = null;
     private Image_context ic;
     public final Aborter aborter;
     private final Path_list_provider path_list_provider;
@@ -289,10 +289,10 @@ public class Multiple_image_window
     private Optional<Image_context> get_Image_context_with_alternate_rescaler(int width, int height)
     //**********************************************************
     {
-        if (image_indexer == null)
+        /*if (image_indexer == null)
         {
-            image_indexer = Image_indexer.get_Image_indexer(path_list_provider, ic.path.getParent(),new Alphabetical_file_name_comparator(),aborter,logger);
-        }
+            image_indexer = Indexer.get_Image_indexer(path_list_provider,new Alphabetical_file_name_comparator(),aborter,logger);
+        }*/
         return Static_image_utilities.get_Image_context_with_alternate_rescaler(ic.path, width, height, Image_rescaling_filter.MagicKernelSharp2021, the_stage, aborter, logger);
 
     }

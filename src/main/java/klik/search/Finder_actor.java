@@ -5,7 +5,6 @@ import klik.actor.Message;
 import klik.util.files_and_paths.Ding;
 import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Guess_file_type;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -182,7 +181,7 @@ public class Finder_actor implements Actor
                     {
                         if (fm.search_config.look_only_for_images())
                         {
-                            if (Guess_file_type.is_this_extension_an_image(path))
+                            if (Guess_file_type.is_this_path_an_image(path))
                             {
                                 check_if_name_matches_keywords(path, fm);
                             }
@@ -235,7 +234,7 @@ public class Finder_actor implements Actor
             // is a file
             if ( fm.search_config.look_only_for_images())
             {
-                if (!Guess_file_type.is_this_extension_an_image(target_path))
+                if (!Guess_file_type.is_this_path_an_image(target_path))
                 {
                     return;
                 }

@@ -12,14 +12,12 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.*;
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Full_screen_handler;
-import klik.browser.virtual_landscape.Path_list_provider;
-import klik.browser.virtual_landscape.Shutdown_target;
-import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.browser.virtual_landscape.*;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;
 import klik.change.history.History_engine;
 import klik.look.Look_and_feel_manager;
+import klik.path_lists.Path_list_provider;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
@@ -29,13 +27,13 @@ import klik.util.tcp.TCP_client;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider, UI_change
+public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider, UI_change, Background_provider
 //**********************************************************
 {
 
 
-    public static final boolean dbg = false;
-    public static final boolean keyboard_dbg = false;
+    public static final boolean dbg = true;
+    public static final boolean keyboard_dbg = true;
 
     public static final AtomicInteger number_of_windows = new AtomicInteger(0);
 
@@ -52,6 +50,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     protected final Logger logger;
     protected Aborter aborter;
     protected boolean ignore_escape_as_the_stage_is_full_screen = false;
+    Browser_type browser_type;
 
     protected abstract String get_name();
     protected abstract Path_list_provider get_Path_list_provider();
@@ -75,12 +74,14 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
     //**********************************************************
     public void init_abstract_browser(
+            Browser_type browser_type,
             Shutdown_target shutdown_target,
             Rectangle2D rectangle,
             Change_receiver change_receiver,
             String badge)
     //**********************************************************
     {
+        this.browser_type = browser_type;
         int count = number_of_windows.incrementAndGet();
         if ( dbg) logger.log("Browser constructor browsers_created(1)=" + count);
         if (shutdown_target != null)
@@ -165,7 +166,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         logger.log("Browser init");
         monitor();
-        virtual_landscape = new Virtual_landscape(get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,aborter, logger);
+        virtual_landscape = new Virtual_landscape(browser_type,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -208,7 +209,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     //**********************************************************
     {
         aborter.abort("Browser is closed for "+get_Path_list_provider().get_name());
-        if (dbg) logger.log("Browser close_window " + signature());
+        if (dbg) logger.log("Browser shutdown " + signature());
 
         int count = number_of_windows.decrementAndGet();
         if ( dbg) logger.log("close_window: browsers_created(2) ="+count);

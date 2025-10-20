@@ -23,7 +23,7 @@ import klik.actor.Actor_engine;
 import klik.audio.Audio_player_access;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
@@ -184,8 +184,8 @@ public class Stage_with_2_images
 		Look_and_feel_manager.set_button_look(view,true,stage,logger);
 		view.setOnAction(event -> {
 			boolean is_image = true;
-			if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
-			if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
+			if ( !Guess_file_type.is_this_file_an_image(the_pair.f1())) is_image = false;
+			if ( !Guess_file_type.is_this_file_an_image(the_pair.f2())) is_image = false;
             if (is_image)
 			{
 				Runnable r = () -> Platform.runLater(()->Item_file_with_icon.open_an_image(path_list_provider, path_comparator_source,file.toPath(),owner,logger));
@@ -274,8 +274,8 @@ public class Stage_with_2_images
 			the_vbox.getChildren().add(hbox2);
 		}
 		boolean is_image = true;
-		if ( !Guess_file_type.is_file_an_image(the_pair.f1())) is_image = false;
-		if ( !Guess_file_type.is_file_an_image(the_pair.f2())) is_image = false;
+		if ( !Guess_file_type.is_this_file_an_image(the_pair.f1())) is_image = false;
+		if ( !Guess_file_type.is_this_file_an_image(the_pair.f2())) is_image = false;
 		if ( is_image)
 		{
 			Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(file.toPath(), true, owner,aborter, logger);

@@ -49,7 +49,7 @@ public class Escape_keyboard_handler implements javafx.event.EventHandler<KeyEve
                     if (browser.windows_count.get() ==0)
                     {
                         //browser.logger.log(browser.signature()+" opening a HOME Browser");
-                        New_window_context.additional_no_past(browser.home,browser.logger);
+                        New_file_browser_context.additional_no_past(browser.home,browser.logger);
                         //browser.logger.log(browser.signature()+" after opening a HOME Browser");
                     }
                     */

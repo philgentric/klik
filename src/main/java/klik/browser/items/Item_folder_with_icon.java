@@ -12,14 +12,15 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.animated_gifs.Animated_gif_from_folder_content;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.*;
+import klik.path_lists.Path_list_provider;
 import klik.util.image.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
@@ -289,7 +290,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_an_image(f)) continue; // ignore non images
             if (Guess_file_type.is_this_path_a_gif(f.toPath()))
             {
                 if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), owner, aborter, logger))
@@ -309,7 +310,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                     Arrays.sort(files2);
                     for (File f2 : files2) {
                         if (f2.isDirectory()) continue; // ignore folders
-                        if (!Guess_file_type.is_file_an_image(f2)) continue; // ignore non images
+                        if (!Guess_file_type.is_this_file_an_image(f2)) continue; // ignore non images
                         if (Guess_file_type.is_this_path_a_gif(f2.toPath())) {
                             if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), owner,aborter, logger)) {
                                 return f2.toPath();
@@ -325,7 +326,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             return null;
         }
 
-        Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
+        Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                 owner,
                 new Path_list_provider_for_file_system(get_item_path()),
                 path_comparator_source,

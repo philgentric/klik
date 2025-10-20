@@ -5,7 +5,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import klik.actor.Aborter;
 import klik.Shared_services;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.util.Sys_init;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
@@ -48,7 +48,7 @@ public class Image_viewer_application extends Application
         }
 
 
-        //Browser browser = New_window_context.first(path.getParent().toString(),logger);
+        //Browser browser = New_file_browser_context.first(path.getParent().toString(),logger);
         //browser.my_Stage.the_Stage.hide();
         Image_window image_stage = Image_window.get_Image_window(path, new Path_list_provider_for_file_system(path.getParent()), Optional.empty(),stage,aborter,logger);
     }

@@ -71,13 +71,13 @@ public class Image_cache_cafeine implements Image_cache_interface
         //int increment = -1;
         //if (forward) increment = 1;
 
-        if (image_display_handler.image_indexer.isEmpty())
+        if (image_display_handler.image_indexer == null)
         {
             // may happen when opening a folder in aspect ratio (slow) mode
             return;
         }
         //if (ultra_dbg) logger.log("preloading target: " + how_many_preload_to_request);
-        final List<Path> kk = image_display_handler.image_indexer.get().get_paths(image_display_handler.get_image_context().get().path, forward_size, forward, ultimate);
+        final List<Path> kk = image_display_handler.image_indexer.get_paths(image_display_handler.get_image_context().get().path, forward_size, forward, ultimate);
 
         for (Path path: kk)
         {
@@ -99,6 +99,7 @@ public class Image_cache_cafeine implements Image_cache_interface
     public void check_decoded_image_cache_size(Image_display_handler image_context_owner, Logger logger)
     //**********************************************************
     {
+        if ( image_context_owner.image_indexer ==null) return;
         if (ultra_dbg)
             logger.log("------------ cache content: ---------------");
 
@@ -107,7 +108,7 @@ public class Image_cache_cafeine implements Image_cache_interface
             String key = (String) e.getKey();
             Image_context local_image_context = (Image_context) e.getValue();
 
-            if ( image_context_owner.image_indexer.get().distance_larger_than(forward_size,image_context_owner.get_image_context().get().path,local_image_context.path))
+            if ( image_context_owner.image_indexer.distance_larger_than(forward_size,image_context_owner.get_image_context().get().path,local_image_context.path))
             {
                 cache.invalidate(key);
                 if (ultra_dbg) logger.log("       Evicted:" + key + ", distance too large from:" + image_context_owner.get_image_context().get().path + " to " + local_image_context.path.toAbsolutePath());
@@ -184,7 +185,7 @@ public class Image_cache_cafeine implements Image_cache_interface
 
 /*
     //**********************************************************
-    private int distance(int possible_deletion_target, int current, Image_indexer image_file_source)
+    private int distance(int possible_deletion_target, int current, Indexer image_file_source)
     //**********************************************************
     {
         int distance1 = current - possible_deletion_target;

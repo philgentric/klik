@@ -1,4 +1,4 @@
-package klik.browser.virtual_landscape;
+package klik.path_lists;
 //SOURCES ../Move_provider.java
 import javafx.stage.Window;
 import klik.actor.Aborter;
@@ -16,8 +16,11 @@ public interface Path_list_provider
     // an abstract interface to provide a list of paths (files)
     // could be in a disk folder OR in a 'playlist'
     Path get_folder_path();
-    String get_name(); // absolute path if true folder
+    String get_name(); // absolute path of *folder* or *playlist file*
     Path resolve(String string);
+
+    Change get_Change();
+
 
     void reload();
     List<File> only_files(boolean consider_also_hidden_files); // only files, no folders

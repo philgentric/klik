@@ -10,17 +10,18 @@ import klik.util.log.Logger;
 import java.nio.file.Path;
 
 //**********************************************************
-public class New_audio_window_context
+public class New_song_playlist_context
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public final Path play_list_file_path; // this can be an absolute folder path or a image play list FILE  path
+    public final Path play_list_file_path;
+
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
     public final Window originator;
 
     //**********************************************************
-    private New_audio_window_context(
+    private New_song_playlist_context(
             Path play_list_file_path,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target,
@@ -46,7 +47,7 @@ public class New_audio_window_context
     public static Window_provider additional_no_past(Path play_list_file_path, Window originator, Logger logger)
     //**********************************************************
     {
-        New_audio_window_context context = new New_audio_window_context(
+        New_song_playlist_context context = new New_song_playlist_context(
                 play_list_file_path,
                 null,
                 null,
@@ -56,7 +57,7 @@ public class New_audio_window_context
     }
 
     //**********************************************************
-    public static void replace_same_folder(
+    public static void replace_same_playlist(
             Shutdown_target shutdown_target,
             Path play_list_file_path,
             Path top_left,
@@ -67,31 +68,31 @@ public class New_audio_window_context
         Browsing_caches.scroll_position_cache_write(play_list_file_path,top_left);
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
-        New_audio_window_context context =  new New_audio_window_context(
+        New_song_playlist_context context =  new New_song_playlist_context(
                 play_list_file_path,
                 rectangle,
                 shutdown_target,
                 originator);
-        if ( dbg) logger.log(("\nreplace_same_folder\n"+ context.to_string() ));
+        if ( dbg) logger.log(("\nreplace_same_playlist\n"+ context.to_string() ));
         new Song_playlist_browser(context, logger);
     }
 
     //**********************************************************
-    public static void replace_different_folder(
+    public static void replace_different_playlist(
             Shutdown_target shutdown_target,
             Path play_list_file_path,
             Window originator,
             Logger logger)
     //**********************************************************
     {
-        if ( dbg) logger.log("replace_different_folder new path: " + play_list_file_path.toAbsolutePath());
+        if ( dbg) logger.log("replace_different_playlist new path: " + play_list_file_path.toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
-        New_audio_window_context context =  new New_audio_window_context(
+        New_song_playlist_context context =  new New_song_playlist_context(
                 play_list_file_path,
                 rectangle,
                 shutdown_target,
                 originator);
-        if ( dbg) logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
+        if ( dbg) logger.log(("\nreplace_different_playlist\n"+ context.to_string() ));
         new Song_playlist_browser(context, logger);
 
     }

@@ -4,7 +4,7 @@
 //SOURCES ../../util/files_and_paths/Static_files_and_paths_utilities.java
 //SOURCES ../../images/decoding/Fast_image_property_from_exif_metadata_extractor.java
 //SOURCES ../../util/execute/Execute_command.java
-//SOURCES animated_gifs/Animated_gif_from_folder.java
+//SOURCES animated_gifs/Animated_gif_from_folder_content.java
 
 package klik.browser.icons;
 

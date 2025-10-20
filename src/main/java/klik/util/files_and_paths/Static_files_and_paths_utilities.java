@@ -11,8 +11,6 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.Error_type;
-import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.Icon_writer_actor;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Cache_folder;
@@ -407,7 +405,7 @@ public class Static_files_and_paths_utilities
             else
             {
                 files++;
-                if( Guess_file_type.is_file_an_image(f)) images++;
+                if( Guess_file_type.is_this_file_an_image(f)) images++;
                 bytes += f.length();
             }
         }
@@ -442,7 +440,7 @@ public class Static_files_and_paths_utilities
         File_payload fp = (f, file_count_stop_counter) -> {
             bytes.addAndGet(f.length());
             files.incrementAndGet();
-            if ( Guess_file_type.is_file_an_image(f)) images.incrementAndGet();
+            if ( Guess_file_type.is_this_file_an_image(f)) images.incrementAndGet();
             file_count_stop_counter.decrementAndGet();
         };
         Dir_payload dp = f -> {
@@ -877,7 +875,7 @@ public class Static_files_and_paths_utilities
         if (Extensions.get_extension(new_name).isEmpty()) {
             if (!Extensions.get_extension(old_name).isEmpty()) {
                 logger.log("WARNING, should not remove extension");
-                if (Guess_file_type.is_this_extension_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
+                if (Guess_file_type.is_this_path_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
                     logger.log("WARNING, extension restored");
                     new_name = Extensions.add(new_name ,Extensions.get_extension(old_name));
                     Popups.popup_warning( "extension restored: ", old_name + "=>" + new_name, true, owner,logger);

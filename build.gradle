@@ -106,6 +106,22 @@ tasks.register('audio_player', JavaExec) {
     return
 }
 
+tasks.register('song_playlist_app', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.audio.Song_playlist_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+tasks.register('image_playlist_app', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.experimental.image_playlist.Image_playlist_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
 
 tasks.register('in3D', JavaExec) {
     dependsOn 'classes'

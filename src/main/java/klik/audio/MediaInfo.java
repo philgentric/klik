@@ -1,5 +1,7 @@
 package klik.audio;
 
+import javafx.stage.Window;
+import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
@@ -11,10 +13,9 @@ import java.util.List;
 public class MediaInfo
 //**********************************************************
 {
-    private static final String warning_mediainfo = "This feature requires mediainfo\n . for mac: brew install mediainfo\n . for any system, download from mediaarea.net\n";
 
     //**********************************************************
-    public static List<String> get(Path path, Logger logger)
+    public static List<String> get(Path path, Window owner, Logger logger)
     //**********************************************************
     {
         List<String> cmds = new ArrayList<>();
@@ -25,7 +26,7 @@ public class MediaInfo
         String out = Execute_command.execute_command_list(cmds, path.getParent().toFile(), 2000, sb,logger);
         if ( out == null)
         {
-            logger.log(warning_mediainfo);
+            Booleans.manage_show_mediainfo_install_warning(owner,logger);
             return List.of("nothing found");
         }
         String[] lines = out.split("\\R");

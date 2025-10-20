@@ -9,17 +9,18 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
-import klik.New_window_context;
+import klik.New_file_browser_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.*;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.animated_gifs.Animated_gif_from_folder_content;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Look_and_feel_manager;
+import klik.path_lists.Path_list_provider;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
@@ -277,7 +278,7 @@ public class Item_folder extends Item implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_an_image(f)) continue; // ignore non images
             if( make_animated_gif)
             {
                 Objects.requireNonNull(images_in_folder).add(f);
@@ -296,7 +297,7 @@ public class Item_folder extends Item implements Icon_destination
                 return null;
             }
 
-            Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
+            Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                     owner,
                     new Path_list_provider_for_file_system(local_path),
                     path_comparator_source,
@@ -396,7 +397,7 @@ public class Item_folder extends Item implements Icon_destination
             }
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
-            New_window_context.replace_different_folder(
+            New_file_browser_context.replace_different_folder(
                     shutdown_target,
                     get_item_path(),
                     owner,

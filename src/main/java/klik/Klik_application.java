@@ -63,7 +63,7 @@
 //SOURCES ./System_info.java
 //SOURCES actor/Aborter.java
 //SOURCES browser/classic/Browser.java
-//SOURCES New_window_context.java
+//SOURCES New_file_browser_context.java
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
@@ -111,7 +111,6 @@ import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
-import klik.util.perf.Perf;
 import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
@@ -178,7 +177,7 @@ public class Klik_application extends Application
         {
             logger.log("Starting browser on path ->" + path+"<-");
         }
-        Window_provider window_provider = New_window_context.additional_no_past(path,primary_stage_,logger);
+        Window_provider window_provider = New_file_browser_context.additional_no_past(path,primary_stage_,logger);
         new Monitor(window_provider, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);

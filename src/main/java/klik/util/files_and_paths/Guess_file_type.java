@@ -3,7 +3,7 @@ package klik.util.files_and_paths;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
-//import klik.experimental.image_playlist.Path_list_provider_for_playlist;
+//import klik.path_lists.Path_list_provider_for_playlist;
 import klik.util.image.decoding.Exif_metadata_extractor;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
@@ -115,10 +115,10 @@ public class Guess_file_type
 
  */
     //**********************************************************
-    public static boolean is_file_an_image(File f)
+    public static boolean is_this_file_an_image(File f)
     //**********************************************************
     {
-        return is_this_extension_an_image(f.toPath());
+        return is_this_path_an_image(f.toPath());
     }
 /*
     //**********************************************************
@@ -149,7 +149,7 @@ public class Guess_file_type
         return is_this_extension_a_text(extension);
     }
     //**********************************************************
-    public static boolean is_this_extension_an_image(Path path)
+    public static boolean is_this_path_an_image(Path path)
     //**********************************************************
     {
         if (should_ignore(path)) return false;
@@ -226,7 +226,7 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    public static boolean is_this_a_video_or_audio_file(
+    public static boolean does_this_file_contain_a_video_track(
             Path path,
             Window owner,
             Logger logger)
@@ -260,7 +260,7 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    public static boolean is_this_a_song(
+    public static boolean does_this_file_contain_an_audio_track(
             Path path,
             Window owner,
             Logger logger)

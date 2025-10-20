@@ -17,14 +17,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.New_file_browser_context;
 import klik.actor.Aborter;
 import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
-import klik.New_window_context;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.look.Look_and_feel_style;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -141,9 +141,9 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				New_window_context.additional_no_past(path,owner,logger);
+				New_file_browser_context.additional_no_past(path,owner,logger);
 			}
-			else if (Guess_file_type.is_file_an_image(path.toFile()))
+			else if (Guess_file_type.is_this_file_an_image(path.toFile()))
 			{
                 Path_list_provider new_path_list_provider = new Path_list_provider_for_file_system(path.getParent());
 				Item_file_with_icon.open_an_image(
@@ -174,7 +174,7 @@ public class Results_frame
 			logger.log("Browse");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			New_window_context.additional_no_past(local,owner,logger);
+			New_file_browser_context.additional_no_past(local,owner,logger);
 		},context_menu,owner,logger);
 
 		if (! path.toFile().isDirectory())

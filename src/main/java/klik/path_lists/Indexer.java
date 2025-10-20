@@ -1,8 +1,7 @@
 //SOURCES ./State.java
-package klik.image_indexer;
+package klik.path_lists;
 
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 
@@ -11,7 +10,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 /*
 The role of the indexer is to always display files in a given order (e.g. alphabetic, or file size etc)
@@ -50,7 +48,7 @@ typical scenario is:
  */
 
 //**********************************************************
-public class Image_indexer
+public class Indexer
 //**********************************************************
 {
     public final static boolean dbg = false;
@@ -59,37 +57,36 @@ public class Image_indexer
     private final State state;
 
     //**********************************************************
-    public static Image_indexer get_Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    public static Indexer get_Image_indexer(Type type, Path_list_provider path_list_provider, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Path d = Objects.requireNonNull(dir_);
-        return new Image_indexer(path_list_provider, d, file_comparator, aborter, logger_);
+        return new Indexer(type, path_list_provider, file_comparator, aborter, logger_);
     }
 
     //**********************************************************
-    private Image_indexer(Path_list_provider path_list_provider, Path dir_, Comparator<? super Path> fileComparator, Aborter aborter, Logger l)
+    private Indexer(Type type, Path_list_provider path_list_provider, Comparator<? super Path> fileComparator, Aborter aborter, Logger l)
     //**********************************************************
     {
         logger = l;
         //current_dir = dir_;
-        state = new State(path_list_provider,fileComparator, aborter,logger);
+        state = new State(type, path_list_provider,fileComparator, aborter,logger);
     }
 
     //**********************************************************
-    public Path get_new_path_relative(Path path, int delta, boolean ultimate)
+    public Path get_new_path_relative(Path previous_path, int delta, boolean ultimate)
     //**********************************************************
     {
         int target = 0;
-        Integer current_index = state.index_from_path(path);//.toAbsolutePath());
-        if ( dbg) logger.log("path_to_index("+path+")="+current_index);
+        Integer current_index = state.index_from_path(previous_path);//.toAbsolutePath());
+        if ( dbg) logger.log("path_to_index("+previous_path+")="+current_index);
         if ( current_index == null)
         {
-            if ( dbg) logger.log("unknown path:" + path);
+            if ( dbg) logger.log("unknown path:" + previous_path);
             state.rescan();
-            current_index = state.index_from_path(path);
+            current_index = state.index_from_path(previous_path);
             if ( current_index == null)
             {
-                logger.log("OHO: Image_indexer does not know the path:" + path);
+                logger.log("OHO: Indexer does not know the path:" + previous_path);
             }
         }
         else
@@ -140,7 +137,7 @@ public class Image_indexer
             }
             target = increment(target);
         }
-        logger.log("FAILED for "+path+" delta="+delta);
+        logger.log("FAILED for "+previous_path+" delta="+delta);
         // FAILED!
         return null;
     }
@@ -258,7 +255,7 @@ public class Image_indexer
         return i;
     }
 
-    public void scan() {
+    public void rescan() {
         state.rescan();
     }
 
@@ -269,5 +266,6 @@ public class Image_indexer
     public Path path_from_index(int i) {
         return state.path_from_index(i);
     }
+
 
 }

@@ -67,12 +67,12 @@ public class Image_cache_linkedhashmap implements Image_cache_interface
     //**********************************************************
     {
 
-        if (image_display_handler.image_indexer.isEmpty())
+        if (image_display_handler.image_indexer == null)
         {
             // may happen when opening a folder in aspect ratio (slow) mode
             return;
         }
-        final List<Path> kk = image_display_handler.image_indexer.get().get_paths(image_display_handler.get_image_context().get().path, forward_size, forward, ultimate);
+        final List<Path> kk = image_display_handler.image_indexer.get_paths(image_display_handler.get_image_context().get().path, forward_size, forward, ultimate);
 
         for (Path path: kk)
         {

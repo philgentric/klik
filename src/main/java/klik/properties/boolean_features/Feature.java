@@ -39,6 +39,9 @@ public enum Feature
     Show_ffmpeg_install_warning,
     Show_can_use_ESC_to_close_windows,
     Show_graphicsmagick_install_warning,
+    Show_imagemagick_install_warning,
+    Show_mediainfo_install_warning,
+    Show_ytdlp_install_warning,
     max_RAM_is_defined_by_user
 
 

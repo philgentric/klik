@@ -8,9 +8,10 @@ import klik.actor.Actor_engine;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.look.Jar_utils;
 import klik.properties.Cache_folder;
+import klik.properties.Non_booleans_properties;
+import klik.properties.boolean_features.Booleans;
 import klik.util.Check_remaining_RAM;
 import klik.util.execute.Execute_command;
-import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 //import klik.util.image.decoding.FITS;
@@ -113,7 +114,7 @@ public class Full_image_from_disk
             //logger.log("determine_width aborting");
             return null;
         }
-        if(Guess_file_type.is_file_an_image(path.toFile()))
+        if(Guess_file_type.is_this_file_an_image(path.toFile()))
         {
             Optional<Image> op = load_native_resolution_image_from_disk( path,  true, owner, aborter,  logger);
             if ( op.isEmpty())
@@ -145,7 +146,7 @@ public class Full_image_from_disk
             //logger.log("get_aspect_ratio aborting");
             return null;
         }
-        if(Guess_file_type.is_file_an_image(path.toFile()))
+        if(Guess_file_type.is_this_file_an_image(path.toFile()))
         {
             Optional<Image> op = load_native_resolution_image_from_disk( path,  true, owner, aborter,  logger);
             if ( op.isEmpty())
@@ -287,7 +288,10 @@ public class Full_image_from_disk
             logger.log("png (converted image) does not exist, creating "+png_path);
             // use ImageMagick to convert to png
             List<String> list = List.of("magick", original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
-            Execute_command.execute_command_list(list, new File("."), 20_000,null, logger);
+            if ( Execute_command.execute_command_list(list, new File("."), 20_000,null, logger)==null);
+            {
+                Booleans.manage_show_imagemagick_install_warning(owner,logger);
+            }
         }
         else
         {

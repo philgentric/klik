@@ -14,11 +14,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.images.caching.Image_cache_cafeine;
+import klik.images.caching.Image_cache_interface;
+import klik.images.caching.Image_cache_linkedhashmap;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.Change_gang;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
@@ -29,6 +32,7 @@ import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.File_sort_by;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.Check_remaining_RAM;
 import klik.util.files_and_paths.*;
 import klik.experimental.fusk.Fusk_static_core;
 import klik.experimental.fusk.Fusk_strings;
@@ -55,6 +59,7 @@ import java.util.function.Supplier;
 public class Image_window
 //**********************************************************
 {
+    private static final boolean use_linkedhashmap_for_cache = false;
     public static final String IMAGE_WINDOW = "IMAGE_WINDOW";
     double progress;
     static boolean dbg = false;
@@ -84,6 +89,7 @@ public class Image_window
     public Path_comparator_source path_comparator_source;
 
     public Image_rescaling_filter rescaler = Image_rescaling_filter.Native;
+    public final Image_cache_interface image_cache;
 
     //**********************************************************
     public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
@@ -128,7 +134,7 @@ public class Image_window
     //**********************************************************
     {
         this.aborter = aborter;
-        this. path_list_provider = path_list_provider;
+        this.path_list_provider = path_list_provider;
         this.title_optional_addendum = title_optional_addendum;
         path_comparator_source = () -> image_comparator.orElse(null);
         logger = logger_;
@@ -140,6 +146,26 @@ public class Image_window
         }
         the_image_Pane = new StackPane();
         Look_and_feel_manager.set_region_look(the_image_Pane,owner,logger);
+
+        path_list_provider.get_Change().add_change_listener(()->rescan());
+
+        {
+            long remaining_RAM = Check_remaining_RAM.get_remaining_memory(logger);
+            int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
+            int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
+            int forward_size = cache_slots/2;
+            if ( forward_size > 10) forward_size = 10;
+            //logger.log("cache_slots="+cache_slots);
+            if (use_linkedhashmap_for_cache)
+            {
+                image_cache = new Image_cache_linkedhashmap(forward_size,aborter,logger);
+            }
+            else
+            {
+                image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
+            }
+
+        }
 
 
         if ( owner == null) {
@@ -294,6 +320,11 @@ public class Image_window
 
         mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
         Virtual_landscape.show_progress_window_on_redraw = false;
+    }
+
+    private void rescan()
+    {
+        image_display_handler.rescan();
     }
 
 
@@ -541,9 +572,9 @@ public class Image_window
         if ( budjet < 10) budjet = 10;
         {
             int max_progress_bar = budjet;
-            if ( image_display_handler.image_indexer.isPresent())
+            if ( image_display_handler.image_indexer != null)
             {
-                max_progress_bar = image_display_handler.image_indexer.get().get_max();
+                max_progress_bar = image_display_handler.image_indexer.get_max();
                 if (max_progress_bar > budjet) max_progress_bar = budjet;
             }
             int filler = budjet - max_progress_bar;
@@ -714,7 +745,7 @@ public class Image_window
         if ( clear_cache)
         {
             logger.log("clearing cache for: "+image_display_handler.get_image_context().get().path);
-            image_display_handler.image_cache.evict(image_display_handler.get_image_context().get().path, stage);
+            image_cache.evict(image_display_handler.get_image_context().get().path, stage);
         }
         Optional<Image_context> option = Image_context.build_Image_context(image_display_handler.get_image_context().get().path, this, aborter, logger);
         if (option.isPresent())
@@ -734,4 +765,26 @@ public class Image_window
     }
 
 
+    //**********************************************************
+    public void preload(boolean ultimate, boolean forward)
+    //**********************************************************
+    {
+        image_cache.preload(image_display_handler,ultimate,forward);
+    }
+
+
+    //**********************************************************
+    public void save_in_cache(String skey, Image_context iai)
+    //**********************************************************
+    {
+        image_cache.put(skey,iai);
+    }
+
+
+    //**********************************************************
+    public void evict_from_cache(Path path, Window owner)
+    //**********************************************************
+    {
+        image_cache.evict(path, owner);
+    }
 }

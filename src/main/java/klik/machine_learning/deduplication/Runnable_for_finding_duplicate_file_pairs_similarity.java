@@ -2,10 +2,10 @@ package klik.machine_learning.deduplication;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Most_similar;
 import klik.machine_learning.similarity.Similarity_engine;

@@ -11,7 +11,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.experimental.deduplicate.Abortable;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
 import klik.experimental.deduplicate.manual.Againor;
@@ -24,7 +24,6 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -345,7 +344,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         if ( files == null) return returned;
         for (File f : files)
         {
-            if ( !Guess_file_type.is_file_an_image(f)) continue;
+            if ( !Guess_file_type.is_this_file_an_image(f)) continue;
             File_with_a_few_bytes mf = new File_with_a_few_bytes(f,logger);
             returned.add(mf);
         }

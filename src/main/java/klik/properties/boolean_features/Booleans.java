@@ -64,7 +64,7 @@ public class Booleans
         {
             String msg = "klik uses ffmpeg to support several features. " +
                     "\nIt is easy and free to install (https://ffmpeg.org/)"+
-            "\nOn Mac: 'brew install ffmpeg'";
+                    "\nOn Mac: use the launcher or type 'brew install ffmpeg' in a shell";
 
             Platform.runLater(()->{
             if ( Popups.info_popup(msg, GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
@@ -73,6 +73,7 @@ public class Booleans
             }});
         }
     }
+
     //**********************************************************
     public static void manage_show_graphicsmagick_install_warning(Window owner, Logger logger)
     //**********************************************************
@@ -84,7 +85,7 @@ public class Booleans
                 public void run() {
                     String msg = "klik uses the gm convert utility of graphicsmagick (gm) to support some features. " +
                             "\nIt is easy and free to install (http://www.graphicsmagick.org/)" +
-                            "\nOn Mac: 'brew install graphicsmagick'";
+                            "\nOn Mac: use the launcher or type 'brew install graphicsmagick' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
                         set_boolean(Feature.Show_graphicsmagick_install_warning.name(), false,owner);
@@ -97,6 +98,77 @@ public class Booleans
         }
     }
 
+    //**********************************************************
+    public static void manage_show_imagemagick_install_warning(Window owner, Logger logger)
+    //**********************************************************
+    {
+        if ( get_boolean_defaults_to_true(Feature.Show_imagemagick_install_warning.name(),owner))
+        {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    String msg = "klik uses the convert utility of imagemagick ('magick'') to support some features. " +
+                            "\nIt is easy and free to install (http://www.imagemagick.org/)" +
+                            "\nOn Mac: use the launcher or type 'brew install imagemagick' in a shell";
+                    if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
+                    {
+                        set_boolean(Feature.Show_imagemagick_install_warning.name(), false,owner);
+                    }
+
+                }
+            };
+            Platform.runLater(r);
+
+        }
+    }
+
+    //**********************************************************
+    public static void manage_show_mediainfo_install_warning(Window owner, Logger logger)
+    //**********************************************************
+    {
+        if ( get_boolean_defaults_to_true(Feature.Show_mediainfo_install_warning.name(),owner))
+        {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    String msg = "klik uses the convert utility of imagemagick ('magick'') to support some features. " +
+                            "\nIt is easy and free to install (http://www.imagemagick.org/)" +
+                            "\nOn Mac: use the launcher or type 'brew install imagemagick' in a shell";
+                    if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
+                    {
+                        set_boolean(Feature.Show_mediainfo_install_warning.name(), false,owner);
+                    }
+
+                }
+            };
+            Platform.runLater(r);
+
+        }
+    }
+
+    //**********************************************************
+    public static void manage_show_ytdlp_install_warning(Window owner, Logger logger)
+    //**********************************************************
+    {
+        if ( get_boolean_defaults_to_true(Feature.Show_ytdlp_install_warning.name(),owner))
+        {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    String msg = "klik uses yt-dlp to support some features. " +
+                            "\nIt is easy and free to install (https://github.com/yt-dlp/yt-dlp)" +
+                            "\nOn Mac: use the launcher or type 'brew install yt-dlp' in a shell";
+                    if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
+                    {
+                        set_boolean(Feature.Show_ytdlp_install_warning.name(), false,owner);
+                    }
+
+                }
+            };
+            Platform.runLater(r);
+
+        }
+    }
 
 
 }

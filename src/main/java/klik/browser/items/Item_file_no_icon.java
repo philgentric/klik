@@ -16,14 +16,15 @@ import klik.actor.Actor_engine;
 import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.animated_gifs.Animated_gif_from_folder;
+import klik.browser.icons.animated_gifs.Animated_gif_from_folder_content;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
+import klik.path_lists.Path_list_provider;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
@@ -54,6 +55,9 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 //**********************************************************
 {
     public static final boolean dbg = false;
+
+    private static final boolean make_animated_gif = true;
+
     public Button button;
     public Label label;
     public String text;
@@ -210,7 +214,6 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
 
 
-    boolean make_animated_gif = true;
     //**********************************************************
     Path get_an_image_down_in_the_tree_files(Path local_path)
     //**********************************************************
@@ -237,26 +240,27 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_file_an_image(f)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_an_image(f)) continue; // ignore non images
             if( make_animated_gif)
             {
-                Objects.requireNonNull(images_in_folder).add(f);
+                images_in_folder.add(f);
             }
             else
             {
+                // use the first image as icon
                 return f.toPath();
             }
         }
         if( make_animated_gif)
         {
-            logger.log("make_animated_gif!?");
+            logger.log("make_animated_gif");
 
-            if ( Objects.requireNonNull(images_in_folder).isEmpty())
+            if ( images_in_folder.isEmpty())
             {
                 return null;
             }
 
-            Path returned = Animated_gif_from_folder.make_animated_gif_from_images_in_folder(
+            Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                     owner,
                     new Path_list_provider_for_file_system(local_path),
                     path_comparator_source,
@@ -265,13 +269,13 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                     aborter, logger);
             if ( returned == null)
             {
-                logger.log("make_animated_gif_from_all_images_in_folder fails");
+                if (dbg) logger.log("make_animated_gif_from_all_images_in_folder fails");
+                // use the first image as icon, if any
                 if (!images_in_folder.isEmpty()) return images_in_folder.get(0).toPath();
             }
             else
             {
-                logger.log("make_animated_gif_from_all_images_in_folder OK");
-
+                if (dbg) logger.log("make_animated_gif_from_all_images_in_folder OK");
                 return returned;
             }
         }
@@ -362,13 +366,13 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             {
                 if (Guess_file_type.is_this_path_an_image_playlist(get_item_path())) {
                     logger.log("NOT IMPLEMENTED opening image playlist: " + get_item_path().toAbsolutePath());
-                    //New_window_context.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
+                    //New_file_browser_context.open_new_image_playlist(get_item_path(), owner, get_item_path().getParent(),top_left_provider.get_top_left(),logger);
                     return;
                 }
             }*/
             if ( Guess_file_type.is_this_path_a_music(get_item_path()))
             {
-                if ( !Guess_file_type.is_this_a_video_or_audio_file(get_item_path(),owner,logger))
+                if ( !Guess_file_type.does_this_file_contain_a_video_track(get_item_path(),owner,logger))
                 {
                     logger.log("Item_button, opening audio file: " + get_item_path().toAbsolutePath());
                     Audio_player_access.play_song_in_separate_process(get_item_path().toFile(),logger);

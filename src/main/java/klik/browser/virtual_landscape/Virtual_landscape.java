@@ -34,13 +34,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Klik_application;
-import klik.New_window_context;
+import klik.New_file_browser_context;
+import klik.New_image_playlist_context;
+import klik.New_song_playlist_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
 import klik.browser.*;
 import klik.browser.classic.Browser;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.comparators.*;
 import klik.browser.icons.Error_type;
 import klik.browser.icons.Icon_factory_actor;
@@ -60,6 +62,7 @@ import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.machine_learning.feature_vector.Feature_vector_source;
 import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
+import klik.path_lists.Path_list_provider;
 import klik.properties.*;
 import klik.properties.boolean_features.*;
 import klik.util.files_and_paths.*;
@@ -84,7 +87,7 @@ import java.util.function.Supplier;
 public class Virtual_landscape implements Scan_show_slave, Selection_reporter, Top_left_provider, Path_comparator_source, Feature_change_target, String_change_target
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public static final boolean ultra_dbg = false;
     public static final boolean invisible_dbg = false;
     public static final boolean visible_dbg = false;
@@ -153,19 +156,24 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     public final Browsing_caches browsing_caches;
     private Feature_vector_cache fv_cache;
-
+    private final Background_provider background_provider;
+    public final Browser_type browser_type;
     //**********************************************************
     public Virtual_landscape(
+            Browser_type browser_type,
             Path_list_provider path_list_provider,
             Window owner,
             Shutdown_target shutdown_target,
             Change_receiver change_receiver,
             Title_target title_target,
             Full_screen_handler full_screen_handler,
+            Background_provider background_provider,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
+        this.browser_type = browser_type;
+        this.background_provider = background_provider;
         this.full_screen_handler = full_screen_handler;
         this.title_target = title_target;
         this.shutdown_target = shutdown_target;
@@ -225,15 +233,25 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         logger.log("virtual_landscape receiving update_config_string key="+key+" val="+new_value);
         if ( key.equals(Non_booleans_properties.LANGUAGE_KEY))
         {
-            New_window_context.replace_same_folder(shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
+            replace_same();
         }
         else if ( key.equals(Non_booleans_properties.STYLE_KEY))
         {
-            New_window_context.replace_same_folder(shutdown_target,path_list_provider.get_folder_path(),get_top_left(),owner,logger);
+            replace_same();
         }
     }
 
-
+    //**********************************************************
+    void replace_same()
+    //**********************************************************
+    {
+        switch (browser_type)
+        {
+            case Browser_type.File_browser -> New_file_browser_context.replace_same_folder(shutdown_target, path_list_provider.get_folder_path(), get_top_left(), owner, logger);
+            case Browser_type.Image_playlist -> New_image_playlist_context.replace_same_playlist(shutdown_target, path_list_provider.get_folder_path(), get_top_left(), owner, logger);
+            case Browser_type.Song_playlist -> New_song_playlist_context.replace_same_playlist(shutdown_target, path_list_provider.get_folder_path(), get_top_left(), owner, logger);
+        }
+    }
     //**********************************************************
     @Override // Selection_reporter
     public void report(String s)
@@ -327,7 +345,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
             if (keyEvent.getCharacter().equals("n")) {
                 if (Browser.keyboard_dbg) logger.log("character is n = new browser (clone)");
-                //New_window_context.additional_same_folder(local, logger);
+                //New_file_browser_context.additional_same_folder(local, logger);
             }
         });
 
@@ -1155,6 +1173,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 //logger.log("       tmp........"+top_left + " is now top left at y=" + min_y);
             }
         }
+
+        background_provider.set_background_color(the_Pane);
+
+
         //logger.log(top_left + " is now top left at y=" + min_y);
 
         //logger.log("currently Item2_image (s): "+Item2_image.currently.size());
@@ -1587,7 +1609,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double font_size = Non_booleans_properties.get_font_size(owner,logger);
         double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
-        Button up_button;
+        Button up_button = null;
+        if (browser_type == Browser_type.File_browser)
         {
             String go_up_text = "";
             if (path_list_provider.has_parent() )
@@ -1612,7 +1635,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             top_buttons.add(up_button);
         }
 
-        Button trash;
+        Button trash = null;
+        if (browser_type == Browser_type.File_browser)
         {
             String trash_text = My_I18n.get_I18n_string("Trash",owner,logger);// to: " + parent.toAbsolutePath().toString();
             trash = browser_menus.make_button_that_behaves_like_a_folder(
@@ -1709,13 +1733,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             HBox top_pane2 = new HBox();
             top_pane2.setAlignment(Pos.CENTER);
             top_pane2.setSpacing(10);
-            top_pane2.getChildren().add(go_up);
-            define_top_bar_using_buttons_deep(top_pane2, height);
+            if ( go_up != null) top_pane2.getChildren().add(go_up);
+            define_top_bar_using_buttons_deep2(top_pane2, height);
             Region spacer = new Region();
             Look_and_feel_manager.set_region_look(spacer,owner,logger);
             top_pane2.getChildren().add(spacer);
             HBox.setHgrow(spacer, Priority.ALWAYS);
-            top_pane2.getChildren().add(trash);
+            if ( trash != null) top_pane2.getChildren().add(trash);
             Region spacer2 = new Region();
             Look_and_feel_manager.set_region_look(spacer2,owner,logger);
             top_pane2.getChildren().add(spacer2);
@@ -1729,7 +1753,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     //**********************************************************
-    private void define_top_bar_using_buttons_deep(Pane top_pane, double height)
+    private void define_top_bar_using_buttons_deep2(Pane top_pane, double height)
     //**********************************************************
     {
         {
@@ -1848,9 +1872,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
 
         //Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        Menu_items.add_menu_item("New_Window",event -> New_window_context.additional_same_folder(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
-        Menu_items.add_menu_item("New_Twin_Window",event -> New_window_context.additional_same_folder_twin(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
-        Menu_items.add_menu_item("New_Double_Window",event -> New_window_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Window",event -> New_file_browser_context.additional_same_folder(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Twin_Window",event -> New_file_browser_context.additional_same_folder_twin(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Double_Window",event -> New_file_browser_context.additional_same_folder_fat_tall(path_list_provider.get_folder_path(),get_top_left(),owner,logger),context_menu,owner,logger);
 
 
         {
@@ -2205,7 +2229,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void redraw_fx(String from)
     //**********************************************************
     {
-        if (dbg) logger.log("Browser redraw from:" + from );
+        if (dbg) logger.log("Virtual_landscape redraw from:" + from );
 
         try
         {
@@ -2250,6 +2274,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
         the_guard.set(true);
         aborter.add_on_abort(() -> the_guard.set(false));
+
 
         long start = System.currentTimeMillis();
 
@@ -2406,6 +2431,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void refresh_UI_on_fx_thread(String from, Hourglass progress_window)
     //**********************************************************
     {
+
         try (Perf p = new Perf("1. refresh_UI_on_fx_thread"))
         {
             if (dbg) logger.log("refresh_UI_on_fx_thread from: " + from);
@@ -2495,6 +2521,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
             the_Pane.getChildren().clear();
+
             // now we can be in a thread
 
             int final_column_increment_for_folders = column_increment_for_folders;

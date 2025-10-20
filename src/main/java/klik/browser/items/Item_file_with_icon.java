@@ -20,13 +20,13 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.animated_gifs.Animated_gifs_from_video;
 import klik.browser.icons.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Similarity_engine;
@@ -203,7 +203,7 @@ public class Item_file_with_icon extends Item_file
     {
         selection_handler.reset_selection(); // will clear all selections
 
-        if ( Guess_file_type.is_this_extension_an_image(get_item_path()))
+        if ( Guess_file_type.is_this_path_an_image(get_item_path()))
         {
             open_an_image(path_list_provider,path_comparator_source,get_item_path(),owner,logger);
         }
@@ -307,7 +307,6 @@ public class Item_file_with_icon extends Item_file
                     event -> {
                 if (dbg) logger.log("Deleting "+get_item_path());
                 path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
-                //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter, logger);
             },context_menu,owner,logger);
 
         Menu_items.add_menu_item("Edit",

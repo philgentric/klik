@@ -13,11 +13,11 @@ public enum Iconifiable_item_type
 {
     folder,
     symbolic_link_on_folder,
-    non_javafx_image, // webp, tiff, etc
+    non_javafx_image, // lots of formats, either via GraphicsMagick or ImageMagick
     javafx_image_not_gif_not_png, // which includes jpeg
     image_png,
     image_gif,
-    //image_fits, // this is use only with the nasa java fits library, but we support it via GraphicsMagick i.e. non_javafx_image
+    //image_fits, // with the nasa java fits library, but we support it via non_javafx_image
     video,
     pdf,
     no_path,

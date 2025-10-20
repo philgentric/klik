@@ -52,7 +52,7 @@ public class Ffmpeg_metadata_editor
     private static void open_editor(Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        List<String> lll = MediaInfo.get(path, logger);
+        List<String> lll = MediaInfo.get(path, owner, logger);
         String performer = MediaInfo.extract_performer(lll,logger);
         String release = MediaInfo.extract_release(lll,logger);
 

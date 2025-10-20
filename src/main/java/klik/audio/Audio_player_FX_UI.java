@@ -30,6 +30,7 @@ import klik.browser.Drag_and_drop;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
+import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.ui.Progress_window;
@@ -1173,7 +1174,11 @@ public class Audio_player_FX_UI implements Media_callbacks
 
         StringBuilder sb = new StringBuilder();
         String home = System.getProperty(Non_booleans_properties.USER_HOME);
-        Execute_command.execute_command_list(cmds, new File(home), 20 * 1000, sb, logger);
+        if ( Execute_command.execute_command_list(cmds, new File(home), 20 * 1000, sb, logger)==null)
+        {
+            Booleans.manage_show_ytdlp_install_warning(stage,logger);
+            return List.of();
+        }
         logger.log(sb.toString());
 
         List<String> returned = new ArrayList<>();

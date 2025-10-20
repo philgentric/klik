@@ -14,7 +14,7 @@ import klik.actor.Or_aborter;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Browsing_caches;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.machine_learning.song_similarity.Feature_vector_for_song;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Cache_folder;

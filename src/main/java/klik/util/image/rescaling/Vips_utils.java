@@ -94,6 +94,11 @@ public class Vips_utils
         int w = (int) in.getWidth();
         int h = (int) in.getHeight();
         PixelReader pixel_reader = in.getPixelReader();
+        if ( pixel_reader == null)
+        {
+            logger.log("FX_Image_to_VImage: pixel_reader is null ");
+            return null;
+        }
         int bands = 3;
         //System.out.println("Arena.ofConfined() OK !"+arena.toString());
         MemorySegment memory_segment = arena.allocate(w*h*3);

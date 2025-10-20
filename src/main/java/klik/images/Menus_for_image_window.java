@@ -3,9 +3,9 @@ package klik.images;
 
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
+import klik.New_file_browser_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.New_window_context;
 import klik.browser.icons.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_file_with_icon;
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 //**********************************************************
@@ -178,7 +177,8 @@ public class Menus_for_image_window
     {
         return Menu_items.make_menu_item("Copy",
                 event -> {
-            Runnable r = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
+            if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
+            Runnable r = image_window.image_display_handler.image_indexer::signal_file_copied;
             image_window.image_display_handler.get_image_context().get().copy(image_window.path_list_provider, image_window.path_comparator_source, r,image_window.stage);
         }, image_window.stage, image_window.logger);
     }
@@ -247,7 +247,7 @@ public class Menus_for_image_window
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.logger.log("browse this!");
-             New_window_context.additional_no_past(
+             New_file_browser_context.additional_no_past(
                       image_window.image_display_handler.get_image_context().get().path.getParent(),
                      image_window.stage,
                      image_window.logger);
@@ -500,7 +500,12 @@ public class Menus_for_image_window
 
         if (Booleans.get_boolean(Feature.Enable_alternate_image_scaling.name(),image_window.stage))
         {
-            context_menu.getItems().add(get_rescaler_menu(image_window));
+            Path p = image_window.image_display_handler.get_image_context().get().path;
+            if(!Guess_file_type.is_this_path_a_gif(p))
+            {
+                // javafx Image for GIF does not support pixelReader
+                context_menu.getItems().add(get_rescaler_menu(image_window));
+            }
         }
 
         if ( Booleans.get_boolean(Feature.Enable_image_similarity.name(), image_window.stage))

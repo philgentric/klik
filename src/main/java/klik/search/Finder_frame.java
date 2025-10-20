@@ -22,7 +22,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import klik.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
 import klik.util.files_and_paths.Ding;

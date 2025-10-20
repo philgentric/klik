@@ -3,7 +3,7 @@ package klik.images;
 import klik.actor.Actor;
 import klik.actor.Message;
 import klik.change.Change_gang;
-import klik.image_indexer.Image_indexer;
+import klik.path_lists.Indexer;
 import klik.util.ui.Jfx_batch_injector;
 
 import java.nio.file.Path;
@@ -94,7 +94,7 @@ public class Change_image_actor implements Actor
             // wait if needed for the image_indexer to be there
             for (;;)
             {
-                if (change_image_message.image_window.image_display_handler.image_indexer.isPresent()) break;
+                if (change_image_message.image_window.image_display_handler.image_indexer != null) break;
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
@@ -102,7 +102,7 @@ public class Change_image_actor implements Actor
                 }
             }
 
-            Image_indexer x = change_image_message.image_window.image_display_handler.image_indexer.get();
+            Indexer x = change_image_message.image_window.image_display_handler.image_indexer;
             target_path = x.get_new_path_relative(
                     change_image_message.input_image_context.previous_path, change_image_message.delta, change_image_message.ultimate);
         }
@@ -132,7 +132,7 @@ public class Change_image_actor implements Actor
     {
         if ( dbg) change_image_message.logger.log("Change_image_actor change_image_relative target = "+ target_image_path);
         String full_path = Image_context.get_full_path(target_image_path);
-        Image_context image_context = change_image_message.image_window.image_display_handler.image_cache.get(full_path);
+        Image_context image_context = change_image_message.image_window.image_cache.get(full_path);
 
         boolean forward = true;
         if ( change_image_message.delta < 0) forward = false;
@@ -144,7 +144,7 @@ public class Change_image_actor implements Actor
             if ( dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);
             Jfx_batch_injector.inject(() -> change_image_message.image_window.set_image_internal(change_image_message.output_image_context[0]), change_image_message.logger);
             //cim.image_stage.restore_cursor();
-            change_image_message.image_window.image_display_handler.preload( change_image_message.ultimate, forward);
+            change_image_message.image_window.preload( change_image_message.ultimate, forward);
             return "found in cache";
         }
         if ( change_image_message.get_aborter().should_abort()) return "aborted";
@@ -164,7 +164,7 @@ public class Change_image_actor implements Actor
             return "Failed";
         }
         image_context = option.get();
-        change_image_message.image_window.image_display_handler.save_in_cache(full_path,option.get());
+        change_image_message.image_window.save_in_cache(full_path,option.get());
         change_image_message.output_image_context[0] = option.get();
 
         if (change_image_message.image_window.mouse_handling_for_image_window.something_is_wrong_with_image_size())
@@ -185,9 +185,7 @@ public class Change_image_actor implements Actor
             change_image_message.image_window.set_image_internal(image_context);
         }
 
-        //cim.image_stage.restore_cursor();
-
-        change_image_message.image_window.image_display_handler.preload(change_image_message.ultimate, forward);
+        change_image_message.image_window.preload(change_image_message.ultimate, forward);
         return "OK";
     }
 

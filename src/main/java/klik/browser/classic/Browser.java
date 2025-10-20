@@ -49,17 +49,17 @@
 
 package klik.browser.classic;
 
+import javafx.scene.layout.Pane;
 import javafx.stage.Window;
-import klik.New_window_context;
+import klik.New_file_browser_context;
 import klik.Shared_services;
 import klik.actor.Actor_engine;
 import klik.browser.*;
+import klik.browser.virtual_landscape.Browser_type;
 import klik.browser.virtual_landscape.Browsing_caches;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.change.Change_gang;
-import klik.change.history.History_engine;
-import klik.change.history.History_item;
-import klik.properties.Non_booleans_properties;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature_cache;
@@ -69,8 +69,6 @@ import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.log.Logger;
 import klik.util.ui.Jfx_batch_injector;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -80,12 +78,12 @@ public class Browser extends Abstract_browser implements Feature_change_target
 {
     public final Path_list_provider path_list_provider;
     //**********************************************************
-    public Browser(New_window_context context, Logger logger_)
+    public Browser(New_file_browser_context context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
         path_list_provider = new Path_list_provider_for_file_system(context.target_path);
-        init_abstract_browser(context.shutdown_target,context.rectangle,this,"klik");
+        init_abstract_browser(Browser_type.File_browser, context.shutdown_target,context.rectangle,this,"klik");
 
         //if ( dbg)
             logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
@@ -257,4 +255,8 @@ public class Browser extends Abstract_browser implements Feature_change_target
         return "Browser:" + path_list_provider.get_folder_path().toAbsolutePath() + " " + abstract_browser_ID;
     }
 
+    @Override
+    public void set_background_color(Pane thePane) {
+
+    }
 }

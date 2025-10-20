@@ -26,14 +26,14 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job;
 import klik.audio.Audio_info_frame;
-import klik.New_window_context;
+import klik.New_file_browser_context;
 import klik.audio.Ffmpeg_metadata_editor;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.icons.Icon_factory_request;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
 import klik.experimental.metadata.Tag_stage;
 import klik.images.Exif_stage;
@@ -268,7 +268,7 @@ public abstract class Item implements Icon_destination
                 "Browse_in_new_window",
             event -> {
                     if (dbg) logger.log("Browse in new window!");
-                    New_window_context.additional_no_past(get_item_path().getParent(),owner,logger);
+                    New_file_browser_context.additional_no_past(get_item_path().getParent(),owner,logger);
                 },context_menu,owner,logger);
 
                 create_open_with_system_menu_item(get_item_path(),context_menu);
@@ -296,7 +296,7 @@ public abstract class Item implements Icon_destination
         }
         else
         {
-            if (Guess_file_type.is_this_extension_an_image(get_item_path())) {
+            if (Guess_file_type.is_this_path_an_image(get_item_path())) {
                 create_open_exif_frame_menu_item(get_item_path(), context_menu);
             }
             if (Guess_file_type.is_this_path_a_music(get_item_path())) {

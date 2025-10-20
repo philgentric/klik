@@ -18,11 +18,13 @@ package klik.browser.virtual_landscape;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.stage.Window;
+import klik.New_file_browser_context;
+import klik.New_song_playlist_context;
+import klik.New_image_playlist_context;
 import klik.actor.Actor_engine;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.Icon_size;
-import klik.New_window_context;
-import klik.browser.classic.Path_list_provider_for_file_system;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.items.Item_folder;
 import klik.browser.locator.Folders_with_large_images_locator;
 import klik.change.Change_gang;
@@ -115,24 +117,27 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_context_menu_look(files_menu,owner,logger);
 
         files_menu.getItems().add(make_select_all_files_menu_item(logger));
-        files_menu.getItems().add(make_select_all_folders_menu_item(logger));
+        if ( virtual_landscape.browser_type == Browser_type.File_browser) files_menu.getItems().add(make_select_all_folders_menu_item(logger));
 
         {
             String create_string = My_I18n.get_I18n_string("Create",owner,logger);
             Menu create = new Menu(create_string);
             Look_and_feel_manager.set_menu_item_look(create,owner,logger);
 
-            Menu_items.add_menu_item2("Create_new_empty_directory",event -> create_new_directory(),create,owner,logger);
+            if ( virtual_landscape.browser_type == Browser_type.File_browser) Menu_items.add_menu_item2("Create_new_empty_directory",event -> create_new_directory(),create,owner,logger);
             /*if (Feature_cache.get(Feature.Enable_image_playlists))
             {
                 logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
-                //Menu_items.add_menu_item2("Create_new_empty_image_playlist",event -> New_window_context.create_new_image_playlist(owner, logger)));
+                //Menu_items.add_menu_item2("Create_new_empty_image_playlist",event -> New_file_browser_context.create_new_image_playlist(owner, logger)));
             }*/
             Menu_items.add_menu_item2("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet(),create,owner,logger);
-            Menu_items.add_menu_item2("Sort_Files_In_Folders_By_Year",event -> sort_by_time(Virtual_landscape.Sort_by_time.year),create,owner,logger);
-            Menu_items.add_menu_item2("Sort_Files_In_Folders_By_Month",event -> sort_by_time(Virtual_landscape.Sort_by_time.month),create,owner,logger);
-            Menu_items.add_menu_item2("Sort_Files_In_Folders_By_Day",event -> sort_by_time(Virtual_landscape.Sort_by_time.day),create,owner,logger);
-            create.getItems().add(make_import_menu());
+            if ( virtual_landscape.browser_type == Browser_type.File_browser)
+            {
+                Menu_items.add_menu_item2("Sort_Files_In_Folders_By_Year",event -> sort_by_time(Virtual_landscape.Sort_by_time.year),create,owner,logger);
+                Menu_items.add_menu_item2("Sort_Files_In_Folders_By_Month",event -> sort_by_time(Virtual_landscape.Sort_by_time.month),create,owner,logger);
+                Menu_items.add_menu_item2("Sort_Files_In_Folders_By_Day",event -> sort_by_time(Virtual_landscape.Sort_by_time.day),create,owner,logger);
+                create.getItems().add(make_import_menu());
+            }
             files_menu.getItems().add(create);
         }
         {
@@ -141,7 +146,10 @@ public class Virtual_landscape_menus
             Look_and_feel_manager.set_menu_item_look(search,owner,logger);
 
             Menu_items.add_menu_item2("Search_by_keywords",event -> search_files_by_keyworks_fx(),search,owner,logger);
-            Menu_items.add_menu_item2("Show_Where_Are_Images",event -> show_where_are_images(),search,owner,logger);
+            if ( virtual_landscape.browser_type == Browser_type.File_browser)
+            {
+                Menu_items.add_menu_item2("Show_Where_Are_Images",event -> show_where_are_images(),search,owner,logger);
+            }
             search.getItems().add(make_add_to_Enable_face_recognition_training_set_menu_item());
 
 
@@ -160,6 +168,7 @@ public class Virtual_landscape_menus
 
             files_menu.getItems().add(face_recognition);
         }
+        if ( virtual_landscape.browser_type == Browser_type.File_browser)
         {
             String cleanup = My_I18n.get_I18n_string("Clean_Up",owner,logger);
             Menu menu = new Menu(cleanup);
@@ -196,18 +205,20 @@ public class Virtual_landscape_menus
             files_menu.getItems().add(menu);
         }
 
-        if (Booleans.get_boolean(Feature.Enable_backup.name(),owner))
+        if ( virtual_landscape.browser_type == Browser_type.File_browser)
         {
-            files_menu.getItems().add(make_backup_menu());
-        }
-
-        if (Feature_cache.get(Feature.Enable_fusk))
-        {
-            if (Feature_cache.get(Feature.Fusk_is_on))
+            if (Booleans.get_boolean(Feature.Enable_backup.name(), owner)) {
+                files_menu.getItems().add(make_backup_menu());
+            }
+            if (Feature_cache.get(Feature.Enable_fusk))
             {
-                files_menu.getItems().add(make_fusk_menu());
+                if (Feature_cache.get(Feature.Fusk_is_on))
+                {
+                    files_menu.getItems().add(make_fusk_menu());
+                }
             }
         }
+
         return files_menu;
     }
 
@@ -1136,8 +1147,7 @@ public class Virtual_landscape_menus
                     event -> {
                         logger.log("clearing history");
                         History_engine.get(virtual_landscape.owner, virtual_landscape.aborter,logger).clear();
-                        New_window_context.replace_same_folder( virtual_landscape.shutdown_target,virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left(),owner,logger);
-
+                        virtual_landscape.replace_same();
                     },history_menu,owner,logger);
 
 
@@ -1182,7 +1192,7 @@ public class Virtual_landscape_menus
                         if ( Guess_file_type.is_this_path_an_image_playlist(path))
                         {
                             logger.log("not implemented yet");
-                            //New_window_context.replace_image_playlist(virtual_landscape.shutdown_target, path, owner,logger);
+                            //New_file_browser_context.replace_image_playlist(virtual_landscape.shutdown_target, path, owner,logger);
                             return;
                         }
 
@@ -1191,7 +1201,7 @@ public class Virtual_landscape_menus
                     Path old_folder_path = virtual_landscape.path_list_provider.get_folder_path();
                     Browsing_caches.scroll_position_cache_write(old_folder_path,virtual_landscape.get_top_left());
 
-                    New_window_context.replace_different_folder( virtual_landscape.shutdown_target, Path.of(hi.value), owner,logger);
+                    New_file_browser_context.replace_different_folder( virtual_landscape.shutdown_target, Path.of(hi.value), owner,logger);
                 });
                 path_already_done.put(hi.value,hi);
                 history_menu.getItems().add(item);
@@ -1228,7 +1238,7 @@ public class Virtual_landscape_menus
     {
         Active_list_stage_action action = text -> {
             Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
-            New_window_context.replace_different_folder( virtual_landscape.shutdown_target, Path.of(text), owner, logger);
+            New_file_browser_context.replace_different_folder( virtual_landscape.shutdown_target, Path.of(text), owner, logger);
         };
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
             @Override
@@ -1258,7 +1268,7 @@ public class Virtual_landscape_menus
             Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
             item.setOnAction(event -> {
                 Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
-                New_window_context.replace_different_folder( virtual_landscape.shutdown_target, Path.of(hi), owner,logger);
+                New_file_browser_context.replace_different_folder( virtual_landscape.shutdown_target, Path.of(hi), owner,logger);
             });
             bookmarks_menu.getItems().add(item);
 
@@ -1296,7 +1306,7 @@ public class Virtual_landscape_menus
 
             item.setOnAction(event -> {
                 Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
-                New_window_context.replace_different_folder( virtual_landscape.shutdown_target,f.toPath(),owner,logger);
+                New_file_browser_context.replace_different_folder( virtual_landscape.shutdown_target,f.toPath(),owner,logger);
             });
             roots_menu.getItems().add(item);
         }
@@ -1658,16 +1668,7 @@ public class Virtual_landscape_menus
                 {
                     File_sort_by.set_sort_files_by(virtual_landscape.path_list_provider.get_folder_path(),sort_by,owner,logger);
                     logger.log("new file/image sorting order= "+sort_by);
-                    /*if (Feature_cache.get(Feature.Enable_image_playlists))
-                    {
-                        if (virtual_landscape.path_list_provider instanceof Path_list_provider_for_playlist)
-                        {
-                            logger.log("not implemented");
-                            //New_window_context.replace_image_playlist(virtual_landscape.shutdown_target, virtual_landscape.path_list_provider.get_folder_path(), owner, logger);
-                            return;
-                        }
-                    }*/
-                    New_window_context.replace_same_folder( virtual_landscape.shutdown_target, virtual_landscape.path_list_provider.get_folder_path(), virtual_landscape.get_top_left(), owner,logger);
+                    virtual_landscape.replace_same();
                 }
             }
         });
@@ -1675,6 +1676,8 @@ public class Virtual_landscape_menus
         all_check_menu_items.add(item);
 
     }
+
+
 
     //**********************************************************
     public Menu make_icon_size_menu()
@@ -1842,7 +1845,7 @@ public class Virtual_landscape_menus
                 continue;
             }
 
-            if ( !Guess_file_type.is_file_an_image(f)) continue;
+            if ( !Guess_file_type.is_this_file_an_image(f)) continue;
             Exif_metadata_extractor e = new Exif_metadata_extractor(f.toPath(),virtual_landscape.owner,logger);
             e.get_exif_metadata(0, true,virtual_landscape.aborter, false);
             if( !e.is_image_damaged()) continue;

@@ -30,7 +30,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.New_window_context;
+import klik.New_file_browser_context;
 //import klik.browser.icons.JavaFX_to_Swing;
 import klik.util.image.Static_image_utilities;
 import klik.machine_learning.feature_vector.Feature_vector;
@@ -81,7 +81,7 @@ public class Face_recognition_service
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(owner,logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
-        New_window_context.additional_no_past( face_recognizer_path,owner,logger);
+        New_file_browser_context.additional_no_past( face_recognizer_path,owner,logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -339,7 +339,7 @@ public class Face_recognition_service
                     return false;
                 }
             }
-            if (Guess_file_type.is_file_an_image(f))
+            if (Guess_file_type.is_this_file_an_image(f))
             {
                 label_in_flight.incrementAndGet();
                 Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);

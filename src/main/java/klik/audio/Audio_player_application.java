@@ -106,7 +106,7 @@ public class Audio_player_application extends Application
             TCP_client.send_in_a_thread("localhost",reply_port, Launcher.STARTED,logger);
         }
 
-        //Window_provider window_provider = New_audio_window_context.additional_no_past(null,stage,logger);
+        //Window_provider window_provider = New_song_playlist_context.additional_no_past(null,stage,logger);
 
         UI_instance_holder.init_ui(Shared_services.aborter, logger);
         if ( context != null)

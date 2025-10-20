@@ -14,17 +14,17 @@ public class Slide_show
     private static final boolean dbg = false;
     private Timeline slide_show_animation_timeline;
     long inter_frame_ms = 2000;
-    private final Slide_show_slave image_stage;
+    private final Slide_show_slave slide_show_slave;
     private final Logger logger;
     final boolean ultim_mode;
 
     //**********************************************************
-    public Slide_show(Slide_show_slave image_stage_, boolean ultim_mode_, Logger logger_)
+    public Slide_show(Slide_show_slave slide_show_slave, boolean ultim_mode, Logger logger)
     //**********************************************************
     {
-        image_stage = image_stage_;
-        ultim_mode = ultim_mode_;
-        logger = logger_;
+        this.slide_show_slave = slide_show_slave;
+        this.ultim_mode = ultim_mode;
+        this.logger = logger;
         start_the_show();
     }
     //**********************************************************
@@ -37,7 +37,7 @@ public class Slide_show
         }
         EventHandler<ActionEvent> eventHandler = e ->
         {
-            image_stage.change_image_relative(1, ultim_mode);
+            slide_show_slave.change_image_relative(1, ultim_mode);
             //logger.log("====>>>>> eventHandler executed from slide show thread:"+ic.f.getName());
         };
         slide_show_animation_timeline = new Timeline();
@@ -45,7 +45,7 @@ public class Slide_show
         slide_show_animation_timeline.setCycleCount(Timeline.INDEFINITE);
         slide_show_animation_timeline.play();
         if (dbg) logger.log("slide show start " + inter_frame_ms);
-        image_stage.set_title();
+        slide_show_slave.set_title();
 
     }
 

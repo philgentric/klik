@@ -1,9 +1,8 @@
-package klik.experimental.image_playlist;
+package klik.path_lists;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Move_provider;
-import klik.browser.virtual_landscape.Path_list_provider;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.Guess_file_type;
@@ -30,6 +29,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     public final Path the_playlist_file_path;
     public final List<String> paths = new ArrayList<>();
     public final Logger logger;
+    Change change = new Change();
 
     //**********************************************************
     public Path_list_provider_for_playlist(Path the_playlist_file_path, Logger logger)
@@ -37,6 +37,11 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     {
         this.logger = logger;
         this.the_playlist_file_path = the_playlist_file_path;
+        if ( the_playlist_file_path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("FATAL ERROR: the_playlist_file_path is null!"));
+            return;
+        }
         reload();
     }
 
@@ -87,8 +92,10 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         }
         return returned;
     }
+    //**********************************************************
     @Override
     public int how_many_files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders)
+    //**********************************************************
     {
         int returned = 0;
         for ( String s : paths)
@@ -148,7 +155,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         for ( String s : paths)
         {
             if ( (new File(s)).isDirectory()) continue;
-            if( !Guess_file_type.is_this_extension_an_image(Path.of(s))) continue;
+            if( !Guess_file_type.is_this_path_an_image(Path.of(s))) continue;
             if (! consider_also_hidden_files)
             {
                 if ( Guess_file_type.should_ignore(Path.of(s))) continue;
@@ -207,12 +214,18 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     //**********************************************************
     {
         try {
-
+            Files.delete(the_playlist_file_path);
             Files.write(the_playlist_file_path,paths,java.nio.charset.StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+            List<String> lines = Files.readAllLines(the_playlist_file_path);
+            for ( String s : lines)
+            {
+                logger.log("AFTER SAVE FILE IS: Path_list_provider_for_playlist.save(): " +s);
+            }
         }
         catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
+
     }
 
 
@@ -227,6 +240,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
             {
                 String s = f.getAbsolutePath();
                 if ( paths.contains(s)) continue;
+                logger.log("Path_list_provider_for_playlist.get_move_provider(): adding "+s);
                 paths.add(s);
             }
             save();
@@ -255,9 +269,25 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     public void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        logger.log("Path_list_provider_for_playlist.delete(): "+path.toAbsolutePath().toString());
+        dump("paths before delete");
         paths.remove(path.toAbsolutePath().toString());
+        dump("paths after delete");
         save();
+        dump("paths after save");
         report_change(owner);
+    }
+
+    //**********************************************************
+    private void dump(String msg)
+    //**********************************************************
+    {
+        logger.log("===== Path_list_provider_for_playlist.paths: "+msg+" =====");
+        for ( String s : paths)
+        {
+            logger.log("   "+s);
+        }
+        logger.log("=========================================");
     }
 
     //**********************************************************
@@ -278,11 +308,20 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     public void reload()
     //**********************************************************
     {
+        if ( the_playlist_file_path == null)
+        {
+            logger.log("FATAL ERROR: the_playlist_file_path is null!");
+            return;
+        }
         try {
             List<String> ss = Files.readAllLines(the_playlist_file_path);
             for ( String s : ss)
             {
-                paths.add(s);
+                if ( !paths.contains(s))
+                {
+                    logger.log("Path_list_provider_for_playlist.reload(): adding "+s);
+                    paths.add(s);
+                }
             }
         }
         catch (NoSuchFileException e)
@@ -292,5 +331,11 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
+        change.call_change_listeners();
+    }
+
+    @Override
+    public Change get_Change() {
+        return change;
     }
 }

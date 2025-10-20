@@ -5,6 +5,7 @@ import klik.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Similarity_cache;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.path_lists.Path_list_provider;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;

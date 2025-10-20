@@ -45,7 +45,7 @@ public class Audio_info_frame
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Information about this file as reported by mediainfo:"));
 
-        List<String> lll = MediaInfo.get(path, logger);
+        List<String> lll = MediaInfo.get(path, owner, logger);
         for(String s : lll)
         {
             l.add(new Line_for_info_stage(false,s));

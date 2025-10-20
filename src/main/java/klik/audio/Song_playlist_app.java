@@ -101,32 +101,141 @@
 //SOURCES util/Sys_init.java
 //SOURCES ./Start_context.java
 
-package klik;
+package klik.audio;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
-import klik.browser.*;
-import klik.properties.boolean_features.Feature;
-import klik.properties.boolean_features.Feature_cache;
+import klik.*;
+import klik.path_lists.Path_list_provider_for_playlist;
+import klik.properties.Non_booleans_properties;
 import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Exceptions_in_threads_catcher;
-import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Logger_factory;
 import klik.util.tcp.TCP_client;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
-// this is a hack to try to fix a mysterious fatal runtime issue
-// with native compilation using either graalvm or gluon
 //**********************************************************
-public class Klik_trick
+public class Song_playlist_app extends Application
 //**********************************************************
 {
+
+    public static Application application;
+    public static long start_time; // used to compute the time since the application started
+    private final static String name = "Song_playlist_app (song playlists)";
+
+    public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
+    public static Stage primary_stage;
+
+
+    //**********************************************************
     public static void main(String[] args)
+    //**********************************************************
     {
-        Klik_application.launch(Klik_application.class);
+
+        start_time = System.currentTimeMillis();
+        launch(args);
     }
+
+    //**********************************************************
+    @Override
+    public void start(Stage primary_stage_) throws Exception
+    //**********************************************************
+    {
+        application = this;
+        Sys_init.init(name, primary_stage_);
+        Logger logger = Logger_factory.get(name);
+        //Perf.monitor(logger);
+
+        primary_stage = primary_stage_;
+        Start_context context = Start_context.get_context_and_args(this);
+
+        logger.log("Klik_application Start_context= " + context.args());
+
+        primary_stage.setOnCloseRequest(event -> {
+            System.out.println("Klik_application primary_stage setOnCloseRequest exit");
+            System.exit(0);
+        });
+
+        System_info.print(Song_playlist_app.class);
+
+        Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
+
+        ui_change_report_port_at_launcher = extract_ui_change_report_port(logger);
+        if ( ui_change_report_port_at_launcher == null)
+        {
+            // probably launcher was not started
+            logger.log("Klik_application: ui_change_report_port_at_launcher=null ");
+        }
+        else
+        {
+            logger.log("Klik_application ui_change_report_port_at_launcher= " + ui_change_report_port_at_launcher);
+        }
+        Path path = context.extract_path();
+        if ( path == null)
+        {
+            path = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, "default."+ Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION);
+            logger.log("trying default playlist");
+            if (!Files.exists(path)) Files.createFile(path);
+        }
+        logger.log("Starting playlist browser on path ->" + path+"<-");
+        Window_provider window_provider = New_song_playlist_context.additional_no_past(path,primary_stage_,logger);
+        new Monitor(window_provider, logger).start();
+
+        Integer reply_port = extract_started_reply_port(logger);
+        if ( reply_port != null) // is null when launched from the audio player
+        {
+            TCP_client.send_in_a_thread("localhost", reply_port, Launcher.STARTED, logger);
+        }
+    }
+
+    //**********************************************************
+    private Integer extract_started_reply_port(Logger logger)
+    //**********************************************************
+    {
+        // going to read a file in the conf dir i.e. '.klik' folder
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
+        try {
+            if (Files.exists(p)) {
+                List<String> lines = Files.readAllLines(p);
+                if (lines.size() > 0) {
+                    String s = lines.get(0).trim();
+                    return Integer.parseInt(s);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.log("Klik_application: cannot read reply_port from " + p + " exception: " + e);
+        }
+        return null;
+    }
+
+    //**********************************************************
+    private Integer extract_ui_change_report_port(Logger logger)
+    //**********************************************************
+    {
+        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
+        try {
+            if (Files.exists(p)) {
+                List<String> lines = Files.readAllLines(p);
+                if (lines.size() > 0) {
+                    String s = lines.get(0).trim();
+                    return Integer.parseInt(s);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.log("Klik_application: cannot read ui_change_report_port_at_launcher from " + p + " exception: " + e);
+        }
+        return null;
+    }
+
+
 }

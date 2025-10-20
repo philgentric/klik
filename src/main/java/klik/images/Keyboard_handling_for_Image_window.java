@@ -3,10 +3,11 @@ package klik.images;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import klik.New_window_context;
+import klik.New_file_browser_context;
 import klik.experimental.metadata.Tag_stage;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -122,7 +123,7 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
-                New_window_context.additional_no_past(
+                New_file_browser_context.additional_no_past(
                          image_window.image_display_handler.get_image_context().get().path.getParent(),
                         owner,logger);
                 key_event.consume();
@@ -132,7 +133,7 @@ public class Keyboard_handling_for_Image_window
                 if (keyboard_dbg) logger.log("c like copy");
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-                Runnable after = image_window.image_display_handler.image_indexer.get()::signal_file_copied;
+                Runnable after = image_window.image_display_handler.image_indexer::signal_file_copied;
                 image_window.image_display_handler.get_image_context().get().copy(
                         image_window.path_list_provider,
                         image_window.path_comparator_source,
@@ -287,16 +288,28 @@ public class Keyboard_handling_for_Image_window
                 */
 
             case UP:
-                if ( keyboard_dbg) logger.log("UP = previous rescaler");
-                image_window.rescaler = image_window.rescaler.previous();
-                image_window.redisplay(true);
+                {
+                    if (keyboard_dbg) logger.log("UP = previous rescaler");
+                    Path p = image_window.image_display_handler.get_image_context().get().path;
+                    if (!Guess_file_type.is_this_path_a_gif(p)) {
+                        // JAVAFX Image for GIF does not support PixelReader
+                        image_window.rescaler = image_window.rescaler.previous();
+                        image_window.redisplay(true);
+                    }
+                }
                 break;
 
             case DOWN:
-                if ( keyboard_dbg) logger.log("DOWN = next rescaler");
-                image_window.rescaler = image_window.rescaler.next();
-                image_window.redisplay(true);
-                break;
+                {
+                    if (keyboard_dbg) logger.log("DOWN = next rescaler");
+                    Path p = image_window.image_display_handler.get_image_context().get().path;
+                    if (!Guess_file_type.is_this_path_a_gif(p)) {
+                        // JAVAFX Image for GIF does not support PixelReader
+                        image_window.rescaler = image_window.rescaler.next();
+                        image_window.redisplay(true);
+                    }
+                }
+            break;
 
             case LEFT:
                 if (keyboard_dbg) logger.log("left");

@@ -6,7 +6,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.browser.virtual_landscape.Selection_handler;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;

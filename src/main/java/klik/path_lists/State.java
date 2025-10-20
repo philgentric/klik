@@ -1,11 +1,10 @@
-package klik.image_indexer;
+package klik.path_lists;
 
 import klik.actor.Aborter;
-import klik.browser.virtual_landscape.Path_list_provider;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -15,22 +14,21 @@ class State
 //**********************************************************
 {
     private final static boolean dbg = false;
-    // STATE ! THE CONTAINERS ARE FINAL, NOT THE CONTENT !
     private final Map<Path, Integer> path_to_index;
     private final Map<Integer,Path> index_to_path;
     Logger logger;
     private final Aborter aborter;
     private final Path_list_provider path_list_provider;
-    //static final String target = "*.{"+Guess_file_type.get_supported_image_formats_as_a_comma_separated_string()+"}";
     private final Comparator<? super Path> file_comparator;
-
+    private final Type type;
     //**********************************************************
-    public State(Path_list_provider path_list_provider, Comparator<? super Path> fileComparator, Aborter aborter,Logger logger_)
+    public State(Type type, Path_list_provider path_list_provider, Comparator<? super Path> fileComparator, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        logger = logger_;
+        this.logger = logger;
         this.aborter = aborter;
         this.path_list_provider = path_list_provider;
+        this.type = type;
         file_comparator = fileComparator;
         path_to_index = new HashMap<>();
         index_to_path = new HashMap<>();
@@ -49,8 +47,18 @@ class State
         //long start = System.currentTimeMillis();
         //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
 
-
-        List<Path> path_list = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));//new ArrayList<>();
+        List<Path> path_list = null;
+        switch (type)
+        {
+            case images -> path_list = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+            case songs -> path_list = path_list_provider.only_song_paths(Feature_cache.get(Feature.Show_hidden_files));
+            case all_files -> path_list = path_list_provider.only_file_paths(Feature_cache.get(Feature.Show_hidden_files));
+        }
+        if (path_list == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("rescan failed"));
+            return;
+        }
         /*
         if (dbg) logger.log(("image file source scan for:"+target));
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(current_dir, target))

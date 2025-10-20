@@ -7,7 +7,7 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.machine_learning.feature_vector.Feature_vector;

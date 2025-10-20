@@ -14,7 +14,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
-import klik.browser.virtual_landscape.Path_list_provider;
+import klik.path_lists.Path_list_provider;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;

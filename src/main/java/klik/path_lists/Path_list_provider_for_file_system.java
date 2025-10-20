@@ -1,9 +1,8 @@
-package klik.browser.classic;
+package klik.path_lists;
 
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.browser.Move_provider;
-import klik.browser.virtual_landscape.Path_list_provider;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Moving_files;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
@@ -19,7 +18,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 //**********************************************************
 {
     private final Path folder_path;
-
+    Change change = new Change();
     //**********************************************************
     public Path_list_provider_for_file_system(Path folder_path)
     //**********************************************************
@@ -68,7 +67,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if ( file.isDirectory() ) continue;
-            if ( !Guess_file_type.is_this_extension_an_image(file.toPath())) continue;
+            if ( !Guess_file_type.is_this_path_an_image(file.toPath())) continue;
             if (! consider_also_hidden_files)
             {
                 if ( Guess_file_type.should_ignore(file.toPath())) continue;
@@ -165,7 +164,9 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     public void reload()
     //**********************************************************
     {
-
+        // we dont keep an internal state, so nothing to do here
+        // just notify listeners
+        change.call_change_listeners();
     }
 
     //**********************************************************
@@ -175,6 +176,12 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     {
         return folder_path.resolve(string);
     }
+
+    @Override
+    public Change get_Change() {
+        return change;
+    }
+
 
     //**********************************************************
     @Override
