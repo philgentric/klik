@@ -44,9 +44,9 @@ public class New_file_browser_context
         if ( target == null) {
             target = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
             if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), originator)) {
-                List<History_item> l = History_engine.get(originator, Shared_services.aborter, logger).get_all_history_items();
+                List<History_item> l = History_engine.get(originator).get_all_history_items();
                 if (!l.isEmpty()) {
-                    History_item h = History_engine.get(originator, Shared_services.aborter, logger).get_all_history_items().get(0);
+                    History_item h = History_engine.get(originator).get_all_history_items().get(0);
                     if (h != null) {
                         target = Path.of(h.value);
                         logger.log("reloading last folder from history:" + target);

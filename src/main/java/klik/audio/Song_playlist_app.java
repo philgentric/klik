@@ -106,14 +106,11 @@ package klik.audio;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import klik.*;
-import klik.path_lists.Path_list_provider_for_playlist;
 import klik.properties.Non_booleans_properties;
-import klik.util.Sys_init;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.tcp.TCP_client;
 
 import java.nio.file.Files;
@@ -148,8 +145,7 @@ public class Song_playlist_app extends Application
     //**********************************************************
     {
         application = this;
-        Sys_init.init(name, primary_stage_);
-        Logger logger = Logger_factory.get(name);
+        Logger logger = Shared_services.logger();
         //Perf.monitor(logger);
 
         primary_stage = primary_stage_;

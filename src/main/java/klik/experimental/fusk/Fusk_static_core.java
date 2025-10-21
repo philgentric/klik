@@ -2,9 +2,7 @@ package klik.experimental.fusk;
 
 import klik.actor.Aborter;
 import klik.Shared_services;
-import klik.util.Sys_init;
 import klik.util.files_and_paths.Extensions;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -170,9 +168,8 @@ public class Fusk_static_core
     //**********************************************************
     {
 
-        Sys_init.init("fusk test",null);
-        Logger logger = Shared_services.logger;
-        Aborter aborter = Shared_services.aborter;
+        Logger logger = Shared_services.logger();
+        Aborter aborter = Shared_services.aborter();
 
 
         Fusk_bytes.initialize( logger);

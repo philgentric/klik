@@ -67,7 +67,7 @@ public class Preferences_stage
 
     public static final Feature[] experimental_features ={
             Feature.Enable_backup,
-            Feature.Enable_tags,
+            //Feature.Enable_tags,
             Feature.Enable_fusk,
             Feature.Enable_name_cleaning,
             Feature.Enable_corrupted_images_removal,

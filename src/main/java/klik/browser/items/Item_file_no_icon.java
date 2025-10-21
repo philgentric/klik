@@ -19,7 +19,7 @@ import klik.browser.Image_and_properties;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.animated_gifs.Animated_gif_from_folder_content;
+import klik.util.animated_gifs.Animated_gif_from_folder_content;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.*;
 import klik.look.Font_size;

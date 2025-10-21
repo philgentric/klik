@@ -4,12 +4,17 @@
 //SOURCES ../util/execute/Threads.java
 package klik.actor;
 
+import javafx.application.Platform;
 import klik.actor.virtual_threads.Actor_engine_with_virtual_threads;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.util.log.Logger;
 import klik.util.execute.Threads;
+import klik.util.ui.Text_frame;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
@@ -20,6 +25,7 @@ public class Actor_engine // is a singleton
     private static Actor_engine_interface instance;
     public static final AtomicInteger threads_in_flight = new AtomicInteger(0);
     public static int recent_max_threads = 0;
+    public static LinkedBlockingQueue<Job> jobs_in_flight = new LinkedBlockingQueue<>();
 
 
     //**********************************************************
@@ -45,13 +51,28 @@ public class Actor_engine // is a singleton
         return instance;
     }
 
+
+    //**********************************************************
+    public static void list_jobs(Logger logger)
+    //**********************************************************
+    {
+        List<String> job_list = new ArrayList<>();
+        for ( Job job : jobs_in_flight)
+        {
+            logger.log("Job: "+job.to_string());
+            job_list.add(job.to_string());
+        }
+        Platform.runLater(()-> Text_frame.show(job_list, logger));
+    }
     //**********************************************************
     public static int how_many_threads_are_in_flight(Logger logger)
     //**********************************************************
     {
         return threads_in_flight.get();
     }
-    public static int max_threads_in_flight(Logger logger)
+    //**********************************************************
+    public static int recent_max_threads_in_flight(Logger logger)
+    //**********************************************************
     {
         if ( instance == null) return 0;
         return recent_max_threads;
@@ -66,13 +87,14 @@ public class Actor_engine // is a singleton
     }
 
     //**********************************************************
-    public static void cancel_all(ConcurrentLinkedQueue<Job> jobs)
+    public static void cancel_jobs(ConcurrentLinkedQueue<Job> jobs)
     //**********************************************************
     {
         if ( instance == null) return;
-        instance.cancel_all(jobs);
+        instance.cancel_jobs(jobs);
     }
 
+    /*
     //**********************************************************
     public static void cancel_job(Job job)
     //**********************************************************
@@ -80,6 +102,7 @@ public class Actor_engine // is a singleton
         if ( instance == null) return;
         instance.cancel_job(job);
     }
+    */
 
     //**********************************************************
     public static Job execute(Runnable r, String id, Logger logger)

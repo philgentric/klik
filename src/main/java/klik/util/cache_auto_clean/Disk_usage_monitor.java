@@ -68,9 +68,9 @@ public class Disk_usage_monitor
         //long total = 0;
         for( Monitored_folder monitored_folder : monitored_folders)
         {
-            long tmp = Static_files_and_paths_utilities.get_size_on_disk_concurrent(monitored_folder.path, Shared_services.aborter,logger);
+            long tmp = Static_files_and_paths_utilities.get_size_on_disk_concurrent(monitored_folder.path, Shared_services.aborter(),logger);
 
-            if ( Shared_services.aborter.should_abort())
+            if ( Shared_services.aborter().should_abort())
             {
                 logger.log("Disk_usage_monitor aborted");
                 return false;
@@ -96,7 +96,7 @@ public class Disk_usage_monitor
                     {
                         if (monitored_folder.name.equals(cache_folder.name()))
                         {
-                            Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false, owner, Shared_services.aborter, logger);
+                            Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false, owner, Shared_services.aborter(), logger);
                             cleared = true;
                         }
                     }

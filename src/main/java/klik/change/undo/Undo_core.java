@@ -39,7 +39,7 @@ public class Undo_core implements Datetime_to_signature_source
         Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, undo_filename);
         if( properties_manager == null)
         {
-            properties_manager = new Properties_manager(p, "Undo DB", owner, Shared_services.aborter, logger);
+            properties_manager = new Properties_manager(p, "Undo DB", owner, Shared_services.aborter(), logger);
         }
         List<Undo_item> l = read_all_undo_items_from_disk();
         if (dbg) logger.log("undo store "+l.size()+" items loaded from "+undo_filename);
@@ -218,7 +218,7 @@ public class Undo_core implements Datetime_to_signature_source
     public static void show_all_events(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties local = Non_booleans_properties.get_main_properties_manager();
+        IProperties local = Shared_services.main_properties();
 
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Items that can be undone:"));

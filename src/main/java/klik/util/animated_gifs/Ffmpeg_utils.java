@@ -4,10 +4,8 @@
 //SOURCES ../../../util/files_and_paths/Icons_from_disk.java
 //SOURCES ./Animated_gif_generation_actor.java
 
-package klik.browser.icons.animated_gifs;
+package klik.util.animated_gifs;
 
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
@@ -178,7 +176,6 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static boolean video_to_gif(
-            Window owner,
             Path video_path,
             int height,
             int fps,
@@ -187,6 +184,7 @@ public class Ffmpeg_utils
             double start_time_in_seconds,
             int retry_safety_count,
             Aborter aborter,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
@@ -235,7 +233,7 @@ public class Ffmpeg_utils
             if ( retry_safety_count > 5) return false;
             retry_safety_count++;
             //retry without delay
-            return video_to_gif(owner, video_path, height,fps,destination_gif_full_path, clip_duration_in_seconds, 0, retry_safety_count, aborter,logger);
+            return video_to_gif(video_path, height,fps,destination_gif_full_path, clip_duration_in_seconds, 0, retry_safety_count, aborter,owner, logger);
 
         }
         return true;

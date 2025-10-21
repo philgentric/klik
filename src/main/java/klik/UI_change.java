@@ -28,7 +28,7 @@ public interface UI_change
 
 
     //**********************************************************
-    static int start_UI_change_server(ConcurrentLinkedQueue<Integer> propagate_to, UI_change ui_change_target, String app_name, Window owner, Logger logger)
+    static int start_UI_change_server(ConcurrentLinkedQueue<Integer> propagate_to, UI_change ui_change_target, String app_name, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -85,7 +85,7 @@ public interface UI_change
                 return app_name+": UI_change_server";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter(app_name+" UI_change_server", logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,aborter, logger);
         int port = tcp_server.start_zero(app_name+" listening for UI change signal",false);
         if (port < 0)
         {

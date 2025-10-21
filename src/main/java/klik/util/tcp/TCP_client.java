@@ -5,8 +5,8 @@ package klik.util.tcp;
 
 import klik.actor.Actor_engine;
 import klik.properties.Properties_server;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.DataInputStream;
@@ -229,7 +229,7 @@ public class TCP_client
     public static void main( String []args)
     //**********************************************************
     {
-        Logger logger = Logger_factory.get("TCP client test");
+        Logger logger = new File_logger("TCP client test");
         TCP_client_out tco = TCP_client.request("localhost",TCP_server.TEST_PORT, "hello", logger);
 
         logger.log("status: "+tco.status());

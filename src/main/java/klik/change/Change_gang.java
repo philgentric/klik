@@ -3,6 +3,7 @@
 package klik.change;
 
 import javafx.stage.Window;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.files_and_paths.old_and_new.Command;
@@ -11,7 +12,6 @@ import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.log.Logger_factory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class Change_gang
     private Change_gang()
     //**********************************************************
     {
-        dedicated_logger = Logger_factory.get("change gang");
+        dedicated_logger = Shared_services.get_logger("change gang");
         change_gang_receivers = new ConcurrentLinkedQueue<>();
         house_keeping_actor = new House_keeping_actor(change_gang_receivers);
     }

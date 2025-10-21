@@ -1,46 +1,28 @@
 package klik.actor;
 
-import javafx.application.Platform;
 import klik.util.log.Logger;
-import klik.util.ui.Text_frame;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 //**********************************************************
 public interface Actor_engine_interface
 //**********************************************************
 {
     Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger); // error_message and/or tr may be null
-    void cancel_job(Job canceled);
+    //void cancel_job(Job canceled);
     void stop();
 
-    LinkedBlockingQueue<Job> get_job_queue();
+
 
     //**********************************************************
-    default void list_jobs(Logger logger)
+    default void cancel_jobs(ConcurrentLinkedQueue<Job> jobs)
     //**********************************************************
     {
-        List<String> job_list = new ArrayList<>();
-        for ( Job job : get_job_queue())
-        {
-            logger.log("Job: "+job.to_string());
-            job_list.add(job.to_string());
-        }
-        Platform.runLater(()->Text_frame.show(job_list, logger));
+        for ( Job j : jobs)  j.cancel();
     }
 
     //**********************************************************
-    default void cancel_all(ConcurrentLinkedQueue<Job> jobs)
-    //**********************************************************
-    {
-        for ( Job j : jobs)  cancel_job(j);
-    }
-
-    //**********************************************************
-    default Job execute_internal(Runnable r,  String tracker, Logger logger)
+    default Job execute_internal(Runnable r,  String job_description, Logger logger)
     //**********************************************************
     {
         Actor actor = new Actor() {
@@ -58,7 +40,7 @@ public interface Actor_engine_interface
             public String name()
             //**********************************************************
             {
-                return "(Pseudo) actor for: "+tracker;
+                return job_description;
             }
 
         };
@@ -70,7 +52,7 @@ public interface Actor_engine_interface
 
             @Override
             public Aborter get_aborter() {
-                return new Aborter("default thread",logger);
+                return new Aborter("thread for "+job_description,logger);
             }
         };
 

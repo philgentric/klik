@@ -25,7 +25,7 @@ public enum Feature
     Shift_d_is_sure_delete,
 
     Enable_backup,
-    Enable_tags,
+    //Enable_tags,
     Enable_fusk,
     Enable_name_cleaning,
     Enable_corrupted_images_removal,

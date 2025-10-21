@@ -43,7 +43,7 @@ public enum File_sort_by {
 
 
     //**********************************************************
-    public static Comparator<Path> get_non_image_comparator(Path_list_provider path_list_provider,Window owner, Logger logger)
+    public static Comparator<Path> get_non_image_comparator(Path_list_provider path_list_provider,Window owner, Aborter aborter,Logger logger)
     //**********************************************************
     {
         switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
@@ -55,7 +55,7 @@ public enum File_sort_by {
             case DATE:
                 return new Date_comparator(logger);
             case SIZE:
-                return new Decreasing_disk_footprint_comparator();
+                return new Decreasing_disk_footprint_comparator(aborter);
         }
         return null;
     }
@@ -70,7 +70,7 @@ public enum File_sort_by {
         double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(Shared_services.aborter);
+        Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(Shared_services.aborter());
 
         switch(File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
         {
@@ -93,7 +93,7 @@ public enum File_sort_by {
             case DATE:
                 return new Date_comparator(logger);
             case SIZE:
-                return new Decreasing_disk_footprint_comparator();
+                return new Decreasing_disk_footprint_comparator(aborter);
             case NAME_GIFS_FIRST:
                 return new Alphabetical_file_name_comparator_gif_first();
             }
@@ -150,7 +150,7 @@ public enum File_sort_by {
         Similarity_cache similarity_cache = Browsing_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if (similarity_cache == null)
         {
-            similarity_cache = new Similarity_cache(fvs, paths, path_list_provider, owner, x, y, Shared_services.aborter, logger);
+            similarity_cache = new Similarity_cache(fvs, paths, path_list_provider, owner, x, y, Shared_services.aborter(), logger);
             Browsing_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
         }
         return similarity_cache;
@@ -168,10 +168,10 @@ public enum File_sort_by {
             return from_cache;
         }
 
-        String s = Non_booleans_properties.get_main_properties_manager(owner).get(SORT_FILES_BY);
+        String s = Shared_services.main_properties().get(SORT_FILES_BY);
         if (s == null)
         {
-            Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, File_sort_by.NAME.name());
+            Shared_services.main_properties().set(SORT_FILES_BY, File_sort_by.NAME.name());
             if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+File_sort_by.NAME));
             cached.put(folder_path, File_sort_by.NAME);
             return File_sort_by.NAME;
@@ -210,7 +210,7 @@ public enum File_sort_by {
             logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
             return;
         }
-        Non_booleans_properties.get_main_properties_manager(owner).set(SORT_FILES_BY, b.name());
+        Shared_services.main_properties().set(SORT_FILES_BY, b.name());
     }
 
 }

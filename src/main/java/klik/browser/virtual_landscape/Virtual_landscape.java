@@ -1905,14 +1905,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if( change_events_off) Menu_items.add_menu_item("Enable_change_events",event -> change_events_off = false,context_menu,owner,logger);
 
 
-        Menu_items.add_menu_item("Show_Meters",event -> RAM_and_threads_meters_stage.show_stage(owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item(
+                "Show_Meters",
+                event -> RAM_and_threads_meters_stage.show_stage(owner,logger),
+                context_menu,owner,logger);
 
-
+/*
         if (Feature_cache.get(Feature.Enable_tags))
         {
             Menu_items.add_menu_item("Open_tag_management",event -> Tag_items_management_stage.open_tag_management_stage(owner,aborter,logger),context_menu,owner,logger);
         }
-
+*/
         return context_menu;
     }
 
@@ -2317,7 +2320,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
 
-        other_file_comparator = File_sort_by.get_non_image_comparator(path_list_provider, owner,logger);
+        other_file_comparator = File_sort_by.get_non_image_comparator(path_list_provider, owner,aborter,logger);
 
         image_file_comparator = File_sort_by.get_image_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
                 owner,x,y, aborter,logger);;
@@ -2648,7 +2651,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 local_file_comparator = new Date_comparator(logger);
                 break;
             case SIZE :
-                local_file_comparator = new Decreasing_disk_footprint_comparator();
+                local_file_comparator = new Decreasing_disk_footprint_comparator(aborter);
                 break;
 
             default : local_file_comparator = new Alphabetical_file_name_comparator();

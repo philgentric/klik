@@ -79,17 +79,9 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         for ( Worker r : runners) r.stop();
     }
 
-    //**********************************************************
-    @Override
-    public LinkedBlockingQueue<Job> get_job_queue()
-    //**********************************************************
-    {
-        return input_queue_single;
-    }
 
     //**********************************************************
-    @Override
-    public void cancel_job(Job job)
+    private void cancel_job(Job job)
     //**********************************************************
     {
         if ( job == null) return;
@@ -100,7 +92,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         else
         {
             if ( Actor_engine.cancel_dbg) logger.log("Actor-Message NOT found, actor canceled after start: "+job.to_string());
-            job.cancel("worked thread job cancelled");
+            job.cancel();
         }
         job.has_ended("Engine received cancel for "+job.to_string());
     }

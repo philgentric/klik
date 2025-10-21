@@ -10,6 +10,7 @@ import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.images.Image_context;
 import klik.images.Image_display_handler;
+import klik.util.Check_remaining_RAM;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -67,6 +68,14 @@ public class Image_cache_cafeine implements Image_cache_interface
     //**********************************************************
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
+
+        if (Check_remaining_RAM.RAM_running_low(logger))
+        {
+            if (ultra_dbg) logger.log("Skipping preloading, RAM is low");
+            clear_all();
+            return;
+        }
+
 
         //int increment = -1;
         //if (forward) increment = 1;

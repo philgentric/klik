@@ -5,17 +5,14 @@ package klik.util.tcp;
 
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.BindException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,6 +23,8 @@ public class TCP_server
 //**********************************************************
 {
     public static final int TEST_PORT = 4567;
+    public static final int SOCKET_TIMEOUT = 1000;
+
     private final static boolean dbg = false;
     private final Session_factory session_factory;
     private final Aborter aborter;
@@ -54,6 +53,7 @@ public class TCP_server
         Runnable r = () ->
         {
             try(ServerSocket welcome_socket = new ServerSocket(port_number)) {
+                welcome_socket.setSoTimeout(SOCKET_TIMEOUT); // 10s timeout
                 logger.log("TCP server starting on port: " + port_number+ " purpose: "+purpose);
                 is_started_ok.set(true);
                 cdl.countDown();
@@ -88,7 +88,7 @@ public class TCP_server
                 is_started_ok.set(false);
             }
         };
-        Actor_engine.execute(r,"TCP server on: "+port_number,logger);
+        Actor_engine.execute(r,"TCP server for: "+purpose+" on: "+port_number,logger);
 
         try
         {
@@ -124,6 +124,7 @@ public class TCP_server
         {
             try(ServerSocket welcome_socket = new ServerSocket(0))
             {
+                welcome_socket.setSoTimeout(SOCKET_TIMEOUT); // timeout
                 port_number = welcome_socket.getLocalPort();
                 logger.log("TCP server starting on port : " + port_number+ " purpose: "+purpose);
                 is_started_on.set(port_number);
@@ -147,7 +148,7 @@ public class TCP_server
                 cdl.countDown();
             }
         };
-        Actor_engine.execute(r,"TCP server on: "+port_number,logger);
+        Actor_engine.execute(r,"TCP server for: "+purpose,logger);
 
         try
         {
@@ -206,6 +207,22 @@ public class TCP_server
             };
             Actor_engine.execute(r,"TCP server, 1 client session",logger);
         }
+        catch (SocketTimeoutException e)
+        {
+            if (aborter.should_abort())
+            {
+                logger.log("\n\n\n TCP timeout and aborting!\n\n\n");
+
+                if ( dbg) logger.log("server closing down on abort");
+                try {
+                    welcome_socket.close();
+                } catch (IOException ex) {
+                    logger.log("server closing error "+ex);
+                }
+                return false;
+            }
+            return true;
+        }
         catch (IOException e)
         {
             if (! stopped_clean.get()) logger.log(Stack_trace_getter.get_stack_trace("server error "+e));
@@ -218,7 +235,7 @@ public class TCP_server
     public static void main( String []args)
     //**********************************************************
     {
-        Logger logger = Logger_factory.get("TCP server test");
+        Logger logger = new File_logger("TCP server test");
 
         CountDownLatch cdl = new CountDownLatch(1);
         Session_factory the_session_factory = () -> new Session()

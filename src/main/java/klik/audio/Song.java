@@ -12,7 +12,7 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
 import klik.path_lists.Path_list_provider_for_playlist;

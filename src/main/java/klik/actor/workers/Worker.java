@@ -20,6 +20,7 @@ public class Worker
     Logger logger;
     String name;
     private final Aborter aborter;
+    private Job worker_job;
 
     //**********************************************************
     public Worker(String name_, LinkedBlockingQueue<Job> input_queue_, Logger logger_)
@@ -46,6 +47,8 @@ public class Worker
                         if (aborter.should_abort())
                         {
                             logger.log("Worker "+name+" aborted");
+                            // this is the worker thread:
+                            Actor_engine.threads_in_flight.decrementAndGet();
                             return;
                         }
                         continue;
@@ -59,6 +62,7 @@ public class Worker
                     String msg = job.actor.run(job.message);
                     if ( job.termination_reporter != null) job.termination_reporter.has_ended(msg, job);
                     Actor_engine.threads_in_flight.decrementAndGet();
+                    Actor_engine.jobs_in_flight.remove(worker_job);
                 }
                 catch (InterruptedException e) {
                     logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
@@ -67,6 +71,11 @@ public class Worker
 
         };
         Threads.execute(r,logger);
+        // this is the worker thread:
+        Actor_engine.threads_in_flight.incrementAndGet();
+        worker_job = new Job(null,null,null,logger);
+        Actor_engine.jobs_in_flight.add(worker_job); // dummy job to count the worker thread
+
     }
 
     //**********************************************************

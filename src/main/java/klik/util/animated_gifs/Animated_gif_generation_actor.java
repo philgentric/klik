@@ -1,6 +1,6 @@
 //SOURCES ../../../actor/virtual_threads/Concurency_limiter.java
 //SOURCES ./Animated_gif_generation_message.java
-package klik.browser.icons.animated_gifs;
+package klik.util.animated_gifs;
 
 import klik.actor.Actor;
 import klik.actor.Message;
@@ -44,7 +44,6 @@ public class Animated_gif_generation_actor implements Actor
         }
         Animated_gif_generation_message mm = (Animated_gif_generation_message) m;
         boolean ok = Ffmpeg_utils.video_to_gif(
-                mm.originator,
                 mm.video_path,
                 mm.height,
                 mm.fps,
@@ -53,6 +52,7 @@ public class Animated_gif_generation_actor implements Actor
                 mm.start,
                 0,
                 mm.get_aborter(),
+                mm.originator,
                 mm.logger);
         cl.release();
         if ( !ok)

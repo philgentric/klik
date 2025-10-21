@@ -4,7 +4,6 @@ import javafx.stage.Window;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.Shared_services;
-import klik.util.Sys_init;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -309,8 +308,7 @@ public class Properties_server
     public static void main(String[] deb)
     //**********************************************************
     {
-        Sys_init.init("Audio_player_application",null);
-        Logger logger = Shared_services.logger;
+        Logger logger = Shared_services.logger();
 
         File f_ = new File("test.txt");
         Properties_server ps = new Properties_server(f_.toPath(), "unit test",null,new Aborter("dummy",logger),logger);

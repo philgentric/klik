@@ -37,23 +37,23 @@ public class Properties_manager
     private final Path the_properties_path;
     private final Logger logger;
     private final Aborter aborter;
-    private final String tag;
+    private final String purpose;
 
     // saving to file is done in a separate thread:
     private final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
-    public Properties_manager(Path f_, String tag, Window owner,Aborter aborter,Logger logger)
+    public Properties_manager(Path f_, String purpose, Window owner,Aborter aborter,Logger logger)
     //**********************************************************
     {
         Objects.requireNonNull(aborter);
-        this.tag = tag;
+        this.purpose = purpose;
         this.aborter = aborter;
         this.logger = logger;
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties(the_Properties, the_properties_path);
-        start_store_engine(tag,  owner,aborter, logger);
+        start_store_engine(purpose,  owner,aborter, logger);
 
         //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
@@ -76,18 +76,26 @@ public class Properties_manager
     // like the image properties cache or image feature vectors etc
     // but keep as safe as possible, especially always saved on clean exit (with aborter)
     //**********************************************************
-    private void start_store_engine(String tag, Window owner, Aborter aborter, Logger logger)
+    private void start_store_engine(String purpose, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
             for(;;)
             {
+                if (aborter.should_abort())
+                {
+                    logger.log("Properties store engine aborting: " + purpose + " " + the_properties_path);
+                }
                 try {
                     Boolean reload_before_save = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
                     if ( reload_before_save == null)
                     {
                         // this is a time out (20 seconds), nothing to save
-                        if (aborter.should_abort()) return;
+                        if (aborter.should_abort())
+                        {
+                            //logger.log("exiting Properties store engine due to abort: " + purpose + " " + the_properties_path);
+                            return;
+                        }
                         continue;
                     }
                     if ( disk_store_request_queue.peek() != null)
@@ -99,18 +107,18 @@ public class Properties_manager
                     save(reload_before_save, owner);
                     if (aborter.should_abort())
                     {
-                        logger.log("aborting (after saving) Properties store engine : " + tag + " " + the_properties_path);
+                        logger.log("aborting (after saving) Properties store engine : " + purpose + " " + the_properties_path);
                         return;
                     }
                 }
                 catch (InterruptedException e)
                 {
-                    logger.log("INTERRUPTED Properties store engine : " + tag + " " + the_properties_path);
+                    logger.log("INTERRUPTED Properties store engine : " + purpose + " " + the_properties_path);
                     return;
                 }
             }
         };
-        Actor_engine.execute(r, "Properties_manager store engine for :"+tag,logger);
+        Actor_engine.execute(r, "Properties_manager store engine for :"+purpose,logger);
     }
 
     //**********************************************************

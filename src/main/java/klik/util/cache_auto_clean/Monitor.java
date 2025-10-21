@@ -36,7 +36,7 @@ public class Monitor
         Runnable r = () -> {
             for(;;)
             {
-                if ( Shared_services.aborter.should_abort())
+                if ( Shared_services.aborter().should_abort())
                 {
                     logger.log("All 3 Monitors aborted");
                     return;

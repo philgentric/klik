@@ -61,7 +61,7 @@ public class Server_based_IProperties implements IProperties
     }
 
     @Override
-    public String get_tag() {
+    public String get_purpose() {
         return "Server_based_IProperties";
     }
 

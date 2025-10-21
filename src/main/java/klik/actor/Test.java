@@ -1,7 +1,7 @@
 package klik.actor;
 
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 
 import java.util.Random;
 
@@ -13,7 +13,7 @@ public class Test
     public static void main(String args[])
     //**********************************************************
     {
-        Logger logger = Logger_factory.get("actor test");
+        Logger logger = new File_logger("actor test");
 
         class Message1 implements Message
         {

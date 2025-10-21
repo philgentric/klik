@@ -26,11 +26,9 @@ import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
-import klik.util.Sys_init;
 import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
 import klik.util.ui.Hourglass;
@@ -81,6 +79,8 @@ public class Launcher extends Application implements UI_change
     public static final String NOT_STARTED = "NOT_STARTED";
 
     private Stage stage;
+    private Aborter aborter;
+
     private Logger logger;
     private VBox vbox;
     private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
@@ -98,10 +98,10 @@ public class Launcher extends Application implements UI_change
     public void start(Stage stage_) throws Exception
     //**********************************************************
     {
-
         stage = stage_;
-        Sys_init.init(name,stage);
-        logger = Logger_factory.get(name);
+        Shared_services.init(name);
+        logger = Shared_services.logger();
+        aborter = Shared_services.aborter();
 
         logger.log("Launcher starting");
         System_info.print(Launcher.class);
@@ -118,7 +118,7 @@ public class Launcher extends Application implements UI_change
         define_UI( );
 
 
-        int ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",stage,logger);
+        int ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",aborter,stage,logger);
 
 
         write_UI_change_listening_port_to_file(ui_change_listening_port,logger);

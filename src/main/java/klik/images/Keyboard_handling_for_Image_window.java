@@ -217,6 +217,7 @@ public class Keyboard_handling_for_Image_window
                 key_event.consume();
                 return;
             }
+            /*
             case "t","T" -> {
                 if (keyboard_dbg) logger.log("t like tag");
 
@@ -227,7 +228,7 @@ public class Keyboard_handling_for_Image_window
                 }
                 key_event.consume();
                 return;
-            }
+            }*/
             case "u" , "U" -> {
                 if (keyboard_dbg) logger.log("u like next ultim");
 

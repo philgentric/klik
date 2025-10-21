@@ -3,6 +3,7 @@ package klik.properties.boolean_features;
 import javafx.stage.Window;
 import klik.Klik_application;
 import klik.Launcher;
+import klik.Shared_services;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
@@ -135,7 +136,7 @@ public class Feature_cache
     {
         Preferences_stage.reset();
         System.out.println("Feature_cache: "+key+"=>"+new_value);
-        Non_booleans_properties.get_main_properties_manager(owner).set(key, new_value);
+        Shared_services.main_properties().set(key, new_value);
         send_UI_changed(Launcher.UI_CHANGED,new_value, logger);
         List<String_change_target> l = string_registered_for.get(key);
         if ( l == null) return;

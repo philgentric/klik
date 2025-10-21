@@ -71,8 +71,10 @@ public class Backup_console_window
 
         {
             Label source = new Label("SOURCE= "+ backup_engine.source.toAbsolutePath());
+            Look_and_feel_manager.set_region_look(source,stage,logger);
             vbox.getChildren().add(source);
             Label destination = new Label("DESTINATION= "+ backup_engine.destination.toAbsolutePath());
+            Look_and_feel_manager.set_region_look(destination,stage,logger);
             vbox.getChildren().add(destination);
         }
 
@@ -85,63 +87,78 @@ public class Backup_console_window
                 Backup_singleton.abort();
             });
         }
+        Look_and_feel_manager.set_button_look(cancel,true,stage,logger);
         vbox.getChildren().add(cancel);
 
         {
             number_of_folders_processed = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_folders_processed,stage,logger);
             add_one_line(vbox, number_of_folders_processed, "Number of folders processed:");
         }
         {
             number_of_files_processed = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_files_processed,stage,logger);
             add_one_line(vbox, number_of_files_processed, "Number of files processed:");
         }
         {
             number_of_files_copied = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_files_copied,stage,logger);
             add_one_line(vbox, number_of_files_copied, "Number of files copied:");
         }
         {
             number_of_files_skipped = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_files_skipped,stage,logger);
             add_one_line(vbox, number_of_files_skipped, "Number of files skipped:");
         }
         {
             number_of_bytes_copied = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_bytes_copied,stage,logger);
             add_one_line(vbox, number_of_bytes_copied, "Number of bytes copied:");
         }
         {
             number_of_bytes_to_be_processed = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_bytes_to_be_processed,stage,logger);
             add_one_line(vbox,number_of_bytes_to_be_processed,"Total number of bytes in the source");
         }
         {
             number_of_bytes_processed = new TextField("0");
+            Look_and_feel_manager.set_region_look(number_of_bytes_processed,stage,logger);
             add_one_line(vbox,number_of_bytes_processed,"Total number of bytes processed:");
         }
         {
             application_bytes_per_second = new TextField("0");
+            Look_and_feel_manager.set_region_look(application_bytes_per_second,stage,logger);
             add_one_line(vbox, application_bytes_per_second,"Speed (since start): ");
         }
         {
             bytes_read_per_second_for_file_bit_level_compare = new TextField("0");
+            Look_and_feel_manager.set_region_look(bytes_read_per_second_for_file_bit_level_compare,stage,logger);
             add_one_line(vbox, bytes_read_per_second_for_file_bit_level_compare,"READING speed since start for file bit-level compare: ");
         }
         {
             last_minute_bytes_per_second = new TextField("0");
+            Look_and_feel_manager.set_region_look(last_minute_bytes_per_second,stage,logger);
             add_one_line(vbox,last_minute_bytes_per_second,"Speed (over last "+ MILLISECONDS/1000 +" seconds): ");
         }
         {
             min_last_minute_bytes_per_second = new TextField("0");
+            Look_and_feel_manager.set_region_look(min_last_minute_bytes_per_second,stage,logger);
             add_one_line(vbox,min_last_minute_bytes_per_second,"Min speed (over "+ MILLISECONDS/1000 +" seconds): ");
         }
         {
             max_last_minute_bytes_per_second = new TextField("0");
+            Look_and_feel_manager.set_region_look(max_last_minute_bytes_per_second,stage,logger);
             add_one_line(vbox,max_last_minute_bytes_per_second,"Max speed (over "+ MILLISECONDS/1000 +" seconds): ");
         }
         {
             remaining_time = new TextField("0");
+            Look_and_feel_manager.set_region_look(remaining_time,stage,logger);
             //remaining_time.setPrefColumnCount(70);
             //remaining_time.setAlignment(Pos.BASELINE_LEFT);
             add_one_line(vbox, remaining_time, "Remaining time:");
         }
         textArea = new TextArea();
+        Look_and_feel_manager.set_region_look(textArea,stage,logger);
         textArea.setWrapText(true);
         textArea.setPrefColumnCount(80);
         textArea.setPrefRowCount(80);
@@ -165,6 +182,8 @@ public class Backup_console_window
         vbox.getChildren().add(hbox);
 
         Label label = new Label(text);
+        Look_and_feel_manager.set_region_look(label,stage,logger);
+
         hbox.getChildren().add(label);
         label.setAlignment(Pos.BASELINE_LEFT);
         Region spacer = new Region();
@@ -211,8 +230,8 @@ public class Backup_console_window
         {
             double speed = (double) stats.number_of_bytes_processed.get() / delta_t;
             application_bytes_per_second.setText(Strings.create_nice_bytes_per_second_string((long) speed));
-            long remaining = (long)((double)(stats.source_byte_count-stats.number_of_bytes_processed.get())/speed);
-            remaining_time.setText(Strings.create_nice_remaining_time_string(1000*remaining));
+            long remaining_ms = (long)((double)(stats.source_byte_count-stats.number_of_bytes_processed.get())/speed);
+            remaining_time.setText(Strings.create_nice_remaining_time_string(1000*remaining_ms));
         }
         {
             double read_speed = (double) stats.number_of_bytes_read.get() / delta_t;

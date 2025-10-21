@@ -16,8 +16,13 @@ import java.util.Map;
 public class Decreasing_disk_footprint_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
-
+    private final Aborter aborter;
     static Map<Path,Long> disk_foot_prints_cache = new HashMap<>();
+
+    public Decreasing_disk_footprint_comparator(Aborter aborter)
+    {
+        this.aborter = aborter;
+    }
 
     //**********************************************************
     @Override
@@ -32,8 +37,8 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        long s1 = get_disk_footprint_in_bytes(p1, Shared_services.aborter,Shared_services.logger);
-        long s2 = get_disk_footprint_in_bytes(p2, Shared_services.aborter,Shared_services.logger);
+        long s1 = get_disk_footprint_in_bytes(p1, aborter,Shared_services.logger());
+        long s2 = get_disk_footprint_in_bytes(p2, aborter,Shared_services.logger());
 
         int diff = Long.compare(s2,s1);
         if ( diff != 0) return diff;

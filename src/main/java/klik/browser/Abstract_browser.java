@@ -100,15 +100,18 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         // it will report this port to the launcher (if any)
         // so that the launcher can forward UI_CHANGE messages to all browsers
         int ui_change_receiver_port = UI_change.start_UI_change_server(
-                null, this, "Klik-browser",my_Stage.the_Stage, logger);
+                null, this, "Klik-browser ",
+                        //+get_Path_list_provider().get_name(),
+                aborter, my_Stage.the_Stage, logger);
         if ( Klik_application.ui_change_report_port_at_launcher !=null) // is null when launched from ther audio player
         {
             TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, UI_change.THIS_IS_THE_PORT_I_LISTEN_TO_FOR_UI_CHANGES + " " + ui_change_receiver_port, logger);
         }
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
-            System.out.println("Klik browser window exit");
-            System.exit(0);
+            //System.out.println("Klik browser window exit");
+            //System.exit(0);
+            shutdown();
         });
 
 
@@ -149,7 +152,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         //History_engine.get_instance(logger).add(get_name());
-        History_engine.get(get_owner(),aborter,logger).add(get_name());
+        History_engine.get(get_owner()).add(get_name());
 
 
         Change_gang.register(change_receiver, aborter, logger);
@@ -219,7 +222,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             {
                 if (dbg) logger.log("primary_stage closing = primary_stage.close()");
                 Klik_application.primary_stage.close();
-                Shared_services.aborter.abort("primary_stage closing");
+                Shared_services.aborter().abort("primary_stage closing");
             }
             else
             {

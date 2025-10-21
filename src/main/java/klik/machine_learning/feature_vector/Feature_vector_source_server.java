@@ -1,11 +1,11 @@
 package klik.machine_learning.feature_vector;
 
 import javafx.stage.Window;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
@@ -54,11 +54,12 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     private void start_monitoring()
     //**********************************************************
     {
-        Logger l = Logger_factory.get("feature vextor source");
+        Logger l = Shared_services.logger();
         Runnable r = () ->
         {
             for(;;)
             {
+                if ( Shared_services.aborter().should_abort()) return;
                 try {
                     Thread.sleep(60_000);
                 } catch (InterruptedException e) {

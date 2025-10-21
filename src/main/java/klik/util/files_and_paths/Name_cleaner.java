@@ -1,7 +1,6 @@
 package klik.util.files_and_paths;
 
 import klik.Shared_services;
-import klik.util.Sys_init;
 import klik.util.log.Logger;
 
 import java.util.UUID;
@@ -154,9 +153,7 @@ public class Name_cleaner
     public static void main(String[] args)
     //**********************************************************
     {
-        Sys_init.init("Name_cleaner test app",null);
-        Logger logger = Shared_services.logger;
-
+        Logger logger = Shared_services.logger();
 
         {
             String test =" $fsd,de  :dfd- _hd<gd. ___---84565FTaMere dwedsds .jpg";

@@ -2,8 +2,8 @@
 package klik.util.execute;
 
 import klik.System_info;
+import klik.util.log.File_logger;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 
 import java.util.ArrayList;
@@ -107,7 +107,7 @@ public class Threads
 
     public static void main(String args[])
     {
-        Logger logger = Logger_factory.get("Threads test");
+        Logger logger = new File_logger("Threads test");
 
         class My_result
         {

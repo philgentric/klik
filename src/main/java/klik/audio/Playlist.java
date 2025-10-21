@@ -15,13 +15,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.actor.Actor;
 import klik.actor.Actor_engine;
 import klik.actor.Message;
 import klik.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.Drag_and_drop;
-import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.change.undo.Undo_core;
 import klik.change.undo.Undo_item;
 import klik.look.Look_and_feel_manager;
@@ -380,7 +381,7 @@ public class Playlist
     public static File get_playlist_file(Window owner)
     //**********************************************************
     {
-        String playlist_file_name = Non_booleans_properties.get_main_properties_manager(owner).get(PLAYLIST_FILE_NAME);
+        String playlist_file_name = Shared_services.main_properties().get(PLAYLIST_FILE_NAME);
         if (playlist_file_name != null)
         {
             Path p = Path.of(playlist_file_name);
@@ -395,7 +396,7 @@ public class Playlist
 
         // new empty playlist with default name
         playlist_file_name = "playlist." + Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION;
-        Non_booleans_properties.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file_name);
+        Shared_services.main_properties().set(PLAYLIST_FILE_NAME, playlist_file_name);
         String home = System.getProperty(Non_booleans_properties.USER_HOME);
         Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, playlist_file_name);
         return p.toFile();
@@ -496,7 +497,7 @@ public class Playlist
     public void change_play_list_name(String new_playlist_name)
     //**********************************************************
     {
-        Non_booleans_properties.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, new_playlist_name);
+        Shared_services.main_properties().set(PLAYLIST_FILE_NAME, new_playlist_name);
         playlist_file = new File(saving_dir, new_playlist_name);
         save_playlist();
         the_music_ui.set_playlist_name_display(extract_playlist_name());
@@ -548,7 +549,7 @@ public class Playlist
             }
             add_all_to_playlist(to_be_loaded);
             playlist_file = playlist_file_;
-            Non_booleans_properties.get_main_properties_manager(owner).set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
+            Shared_services.main_properties().set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
 
             logger.log("\n\nloaded " + the_playlist.size() + " songs from file:" + playlist_file.getAbsolutePath() + "\n\n");
             update_playlist_size_info();

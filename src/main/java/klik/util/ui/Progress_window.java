@@ -98,7 +98,7 @@ public class Progress_window implements Hourglass
 	{
         this.with_abort_button = with_abort_button;
 		if ( with_abort_button) aborter = new Aborter("Progress_window",logger_);
-		else aborter = Shared_services.aborter;
+		else aborter = Shared_services.aborter();
         timeout_s = timeout_s_;
         logger = logger_;
 	}

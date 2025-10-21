@@ -22,8 +22,8 @@ import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_factory_actor;
-import klik.browser.icons.animated_gifs.Animated_gifs_from_video;
-import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.util.animated_gifs.Animated_gifs_from_video;
+import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
@@ -323,10 +323,10 @@ public class Item_file_with_icon extends Item_file
 
         {
             create_show_file_size_menu_item(context_menu);
-            if (Feature_cache.get(Feature.Enable_tags))
+            /*if (Feature_cache.get(Feature.Enable_tags))
             {
                 create_edit_tag_menu_item(get_item_path(), context_menu,dbg, owner,aborter,logger);
-            }
+            }*/
         }
 
         if ( this.item_type == Iconifiable_item_type.video)

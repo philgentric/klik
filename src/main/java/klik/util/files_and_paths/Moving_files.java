@@ -4,6 +4,7 @@
 package klik.util.files_and_paths;
 
 import javafx.stage.Window;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
 import klik.actor.Or_aborter;
@@ -692,7 +693,7 @@ public class Moving_files
         {
             logger.log("FAILED to move file, target dir does not exists->" + oandn.new_Path.getParent() + "<-" + e0);
             Path path = oandn.new_Path.getParent();
-            Non_booleans_properties.get_main_properties_manager(owner).remove(path.toAbsolutePath().toString());
+            Shared_services.main_properties().remove(path.toAbsolutePath().toString());
 
             return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, oandn.cmd, Status.target_dir_does_not_exist,false);
         } else {

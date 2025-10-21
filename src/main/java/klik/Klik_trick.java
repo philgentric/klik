@@ -103,22 +103,6 @@
 
 package klik;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import klik.browser.*;
-import klik.properties.boolean_features.Feature;
-import klik.properties.boolean_features.Feature_cache;
-import klik.util.Sys_init;
-import klik.util.cache_auto_clean.Monitor;
-import klik.util.log.Exceptions_in_threads_catcher;
-import klik.util.log.File_logger;
-import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
-import klik.util.tcp.TCP_client;
-
-import java.nio.file.Path;
-
 // this is a hack to try to fix a mysterious fatal runtime issue
 // with native compilation using either graalvm or gluon
 //**********************************************************

@@ -228,7 +228,7 @@ public abstract class Item implements Icon_destination
         icon_fabrication_requested.set(false);
         if ( icon_job!= null)
         {
-            Actor_engine.cancel_job(icon_job); // will trigger the aborter and if there is an associated thread, will interrupt it
+            icon_job.cancel(); // will trigger the aborter and if there is an associated thread, will interrupt it
             icon_job = null;
         }
     }
@@ -272,10 +272,10 @@ public abstract class Item implements Icon_destination
                 },context_menu,owner,logger);
 
                 create_open_with_system_menu_item(get_item_path(),context_menu);
-                if (Feature_cache.get(Feature.Enable_tags))
+                /*if (Feature_cache.get(Feature.Enable_tags))
                 {
                     create_edit_tag_menu_item(get_item_path(), context_menu, dbg, owner, aborter, logger);
-                }
+                }*/
                 create_rename_menu_item(local_button, local_label,context_menu);
                 create_delete_menu_item(context_menu);
                 Menu_items.add_menu_item("Copy",
@@ -346,9 +346,9 @@ public abstract class Item implements Icon_destination
             create_show_file_size_menu_item(context_menu);
 
 
-            if (Feature_cache.get(Feature.Enable_tags)) {
+            /*if (Feature_cache.get(Feature.Enable_tags)) {
                 create_edit_tag_menu_item(get_item_path(), context_menu,dbg, owner, aborter, logger);
-            }
+            }*/
         }
         return context_menu;
     }

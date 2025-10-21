@@ -4,16 +4,12 @@
 package klik.browser.ram_and_threads_meter;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.actor.Actor_engine;
-import klik.actor.Actor_engine_interface;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
@@ -42,7 +38,8 @@ public class RAM_and_threads_meters_stage
     //**********************************************************
     {
         Stage stage = new Stage();
-        stage.initOwner(originator);
+        //stage.initOwner(originator);
+        stage.initOwner(null);
 
         HBox hbox = new HBox();
         int width = 0;
@@ -91,6 +88,7 @@ public class RAM_and_threads_meters_stage
 
         Scene scene = new Scene(hbox, Look_and_feel_manager.get_instance(stage,logger).get_background_color());
         stage.setScene(scene);
+        Look_and_feel_manager.set_scene_look(scene,stage, logger);
         double context_length = Math.round((double)HEARTH_BEAT*(double)(Graph_for_meters.how_many_rectangles)/100.0)/10.0;
         stage.setTitle("Last "+context_length+" seconds");
         stage.setMinWidth(width);
@@ -105,7 +103,7 @@ public class RAM_and_threads_meters_stage
             },context_menu,stage,logger);
         Menu_items.add_menu_item("List_threads",
                 event -> {
-                    Actor_engine.get_instance().list_jobs(logger);
+                    Actor_engine.list_jobs(logger);
                 },context_menu,stage,logger);
         scene.setOnMouseClicked(event -> {
             context_menu.show(stage, event.getScreenX(), event.getScreenY());

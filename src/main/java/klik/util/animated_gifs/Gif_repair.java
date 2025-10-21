@@ -1,4 +1,4 @@
-package klik.browser.icons.animated_gifs;
+package klik.util.animated_gifs;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;

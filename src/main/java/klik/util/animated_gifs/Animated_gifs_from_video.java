@@ -1,4 +1,4 @@
-package klik.browser.icons.animated_gifs;
+package klik.util.animated_gifs;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -15,7 +15,6 @@ import javafx.stage.Window;
 import klik.Shared_services;
 import klik.actor.Actor_engine;
 import klik.actor.Job_termination_reporter;
-import klik.browser.icons.Icon_factory_actor;
 import klik.change.Change_gang;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -130,7 +129,7 @@ public class Animated_gifs_from_video
         logger = logger_;
         start_time_seconds = 0;
         duration_seconds =  5;
-        final int[] icon_height = {512};
+        final int[] icon_height = {256};
         final int[] fps = {50};
 
         Platform.runLater(() -> {
@@ -338,17 +337,21 @@ public class Animated_gifs_from_video
         Old_and_new_Path oandnp = new Old_and_new_Path(temporary_gif_full_path, new_path, Command.command_move, Status.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oandnp);
-        Moving_files.perform_safe_moves_in_a_thread(ll,false, 100,100, the_stage, Shared_services.aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(ll,false, 100,100, the_stage, Shared_services.aborter(), logger);
     }
 
+    //**********************************************************
     private static void change_start_time(double new_val)
+    //**********************************************************
     {
         start_time_seconds = new_val;
         tf_start.setText(String.valueOf(start_time_seconds));
         logger.log(" START  =" + start_time_seconds);
     }
 
+    //**********************************************************
     private static void change_duration(double new_val)
+    //**********************************************************
     {
         duration_seconds = new_val;
         tf_duration.setText(String.valueOf(duration_seconds));
@@ -396,13 +399,12 @@ public class Animated_gifs_from_video
     private static void make_animated_gif_in_tmp_folder(int height, int fps, Window owner)
     //**********************************************************
     {
-        logger.log("path="+ video_path);
+        logger.log("make_animated_gif_in_tmp_folder, video path="+ video_path);
 
         Path temporary_gif_full_path = Icon_caching.path_for_icon_caching( video_path, String.valueOf(height), Icon_caching.gif_extension, owner,logger);
-        logger.log("icon_file="+temporary_gif_full_path.toAbsolutePath());
+        logger.log("make_animated_gif_in_tmp_folder, icon_file="+temporary_gif_full_path.toAbsolutePath());
 
         Ffmpeg_utils.video_to_gif(
-                the_stage,
                 video_path,
                 height,
                 fps,
@@ -410,11 +412,12 @@ public class Animated_gifs_from_video
                 duration_seconds,
                 start_time_seconds,
                 0,
-                Shared_services.aborter,
+                Shared_services.aborter(),
+                the_stage,
                 logger);
 
 
-        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, "",Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
+        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, String.valueOf(height),Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
 
         if ( image == null) logger.log("image==null");
         else the_imageview.setImage(image);

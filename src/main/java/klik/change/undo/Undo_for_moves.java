@@ -205,7 +205,7 @@ public class Undo_for_moves implements Datetime_to_signature_source
             }
         }
 
-        Moving_files.perform_safe_moves_in_a_thread(reverse_last_move, false, x, y, owner, Shared_services.aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(reverse_last_move, false, x, y, owner, Shared_services.aborter(), logger);
 
         core.remove_undo_item(undo_item);
         refresh_UI();

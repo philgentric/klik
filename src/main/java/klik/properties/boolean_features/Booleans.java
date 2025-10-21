@@ -3,6 +3,7 @@ package klik.properties.boolean_features;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
+import klik.Shared_services;
 import klik.properties.IProperties;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
@@ -22,7 +23,7 @@ public class Booleans
     public static void set_boolean(String s, boolean b, Window owner)
     //**********************************************************
     {
-        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
+        IProperties pm = Shared_services.main_properties();
         pm.set(s, String.valueOf(b));
 
     }
@@ -32,7 +33,7 @@ public class Booleans
     public static boolean get_boolean(String s,  Window owner)
     //**********************************************************
     {
-        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
+        IProperties pm = Shared_services.main_properties();
         String bb = pm.get(s);
         Boolean b = Boolean.parseBoolean(bb);
         return b;
@@ -42,7 +43,7 @@ public class Booleans
     public static boolean get_boolean_defaults_to_true(String s, Window owner)
     //**********************************************************
     {
-        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
+        IProperties pm = Shared_services.main_properties();
         String bb = pm.get(s);
         if ( bb == null)
         {

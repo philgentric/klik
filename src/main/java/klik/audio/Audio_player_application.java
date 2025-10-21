@@ -9,9 +9,7 @@ import klik.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
-import klik.util.Sys_init;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
 
@@ -37,11 +35,11 @@ public class Audio_player_application extends Application
     //**********************************************************
     {
         this.stage = stage_;
-        Sys_init.init(name,stage_);
-        logger = Logger_factory.get(name);
+        Shared_services.init(name);
+        logger = Shared_services.logger();
         Start_context context = Start_context.get_context_and_args(this);
 
-        if (  start_server())
+        if (  start_server(Shared_services.aborter()))
         {
             init(context);
         }
@@ -108,7 +106,7 @@ public class Audio_player_application extends Application
 
         //Window_provider window_provider = New_song_playlist_context.additional_no_past(null,stage,logger);
 
-        UI_instance_holder.init_ui(Shared_services.aborter, logger);
+        UI_instance_holder.init_ui(Shared_services.aborter(), logger);
         if ( context != null)
         {
             Path path = context.extract_path();
@@ -126,7 +124,7 @@ public class Audio_player_application extends Application
     }
 
     //**********************************************************
-    private boolean start_server()
+    private boolean start_server(Aborter aborter)
     //**********************************************************
     {
         // start the server to receive play requests via TCP
@@ -170,7 +168,7 @@ public class Audio_player_application extends Application
                 return "";
             }
         };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter("Audio_player_application TCP server", logger), logger);
+        TCP_server tcp_server = new TCP_server(session_factory,aborter, logger);
         return tcp_server.start(Audio_player_access.AUDIO_PLAYER_PORT,"Audio player listening for songs and playlists",false);
     }
 

@@ -1146,7 +1146,7 @@ public class Virtual_landscape_menus
         Menu_items.add_menu_item2("Clear_History",
                     event -> {
                         logger.log("clearing history");
-                        History_engine.get(virtual_landscape.owner, virtual_landscape.aborter,logger).clear();
+                        History_engine.get(virtual_landscape.owner).clear();
                         virtual_landscape.replace_same();
                     },history_menu,owner,logger);
 
@@ -1155,7 +1155,7 @@ public class Virtual_landscape_menus
         int on_screen = 0;
         MenuItem more = null;
         Map<String, History_item> path_already_done = new HashMap<>();
-        for (History_item hi : History_engine.get(virtual_landscape.owner, virtual_landscape.aborter,logger).get_all_history_items())
+        for (History_item hi : History_engine.get(virtual_landscape.owner).get_all_history_items())
         {
             if ( on_screen < max_on_screen)
             {
@@ -1255,14 +1255,14 @@ public class Virtual_landscape_menus
     {
         Path local = virtual_landscape.path_list_provider.get_folder_path();
         Menu_items.add_menu_item2("Bookmark_this",
-                event -> Bookmarks.get(virtual_landscape.owner, virtual_landscape.aborter,logger).add(local.toAbsolutePath().toString()),
+                event -> Bookmarks.get(virtual_landscape.owner).add(local.toAbsolutePath().toString()),
                 bookmarks_menu,owner,logger);
         Menu_items.add_menu_item2("Clear_Bookmarks",
-                event -> Bookmarks.get(virtual_landscape.owner, virtual_landscape.aborter,logger).clear(),
+                event -> Bookmarks.get(virtual_landscape.owner).clear(),
                 bookmarks_menu,owner,logger);
 
 
-        for (String hi : Bookmarks.get(virtual_landscape.owner,virtual_landscape.aborter,logger).get_list())
+        for (String hi : Bookmarks.get(virtual_landscape.owner).get_list())
         {
             MenuItem item = new MenuItem(hi);
             Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);

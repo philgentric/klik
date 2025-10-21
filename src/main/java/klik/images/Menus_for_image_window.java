@@ -6,7 +6,7 @@ import javafx.scene.control.*;
 import klik.New_file_browser_context;
 import klik.actor.Aborter;
 import klik.actor.Actor_engine;
-import klik.browser.icons.animated_gifs.Gif_repair;
+import klik.util.animated_gifs.Gif_repair;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.items.Item_file_with_icon;
 import klik.change.Redo_same_move_engine;

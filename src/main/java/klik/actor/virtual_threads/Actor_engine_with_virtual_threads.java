@@ -19,19 +19,12 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     (so we can have as many actors that sleep as you want, we never risk deadlock!)
      */
     private final Logger logger;
-    LinkedBlockingQueue<Job> job_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
     public Actor_engine_with_virtual_threads(Logger logger_)
     //**********************************************************
     {
         logger = logger_;
-    }
-    //**********************************************************
-    public LinkedBlockingQueue<Job> get_job_queue()
-    //**********************************************************
-    {
-        return job_queue;
     }
 
 
@@ -41,7 +34,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     //**********************************************************
     {
         Job job = new Job(actor,message,tr,logger);
-        job_queue.add(job);
+        Actor_engine.jobs_in_flight.add(job);
         Runnable r = () -> {
             int now = Actor_engine.threads_in_flight.incrementAndGet();
             //logger.log("Actor_engine_with_virtual_threads: "+now+" threads in flight");
@@ -49,7 +42,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
             String msg = job.actor.run(job.message);
             job.has_ended(msg);
             Actor_engine.threads_in_flight.decrementAndGet();
-            job_queue.remove(job);
+            Actor_engine.jobs_in_flight.remove(job);
         };
         ExecutorService executor_service = Threads.get_executor_service(logger);
         try
@@ -72,6 +65,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
         logger.log("Actor_engine_with_virtual_threads stop requested, is NOP with virtual threads");
     }
 
+    /*
     //**********************************************************
     @Override
     public void cancel_job(Job job)
@@ -82,7 +76,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
 
          if( Actor_engine.cancel_dbg) logger.log("virtual threads engine has cancelled: "+job.to_string());
          job.has_ended("Engine received cancel for "+job.to_string()+" (virtual threads)");
-    }
+    }*/
 
 
 }

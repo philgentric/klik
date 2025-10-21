@@ -11,11 +11,10 @@ package klik.browser.icons;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
 import klik.actor.*;
-import klik.browser.icons.animated_gifs.Ffmpeg_utils;
+import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.image_properties_cache.*;
 import klik.browser.items.Iconifiable_item_type;
-import klik.look.Jar_utils;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.Cache_folder;
 import klik.properties.Non_booleans_properties;
@@ -404,7 +403,7 @@ public class Icon_factory_actor implements Actor
             }
 
 
-            Ffmpeg_utils.video_to_gif(icon_factory_request.owner, destination.get_item_path(), icon_factory_request.icon_size, 10,destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), logger);
+            Ffmpeg_utils.video_to_gif(destination.get_item_path(), icon_factory_request.icon_size, 10,destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), icon_factory_request.owner,logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("Icon_factory thread: aborting6");
                 return null;

@@ -4,6 +4,7 @@ package klik.change.history;
 //SOURCES ./Properties_for_history.java
 
 import javafx.stage.Window;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
@@ -16,19 +17,25 @@ public class History_engine
 //**********************************************************
 {
     private final Properties_for_history ph;
+    private static History_engine instance;
+
+    //**********************************************************
+    public static History_engine get(Window owner)
+    //**********************************************************
+    {
+        if ( instance ==null)
+        {
+            instance = new History_engine(owner, Shared_services.aborter(),Shared_services.logger());
+        }
+        return instance;
+    }
+
     //**********************************************************
     private History_engine(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties ip = new File_based_IProperties("history",owner,aborter,logger);
+        IProperties ip = new File_based_IProperties("history","history",owner,aborter,logger);
         ph = new Properties_for_history(ip,  300, logger);
-    }
-
-    //**********************************************************
-    public static History_engine get(Window owner,Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        return new History_engine(owner,aborter,logger);
     }
 
     //**********************************************************

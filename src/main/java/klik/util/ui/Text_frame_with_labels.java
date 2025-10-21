@@ -14,12 +14,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klik.util.log.Logger;
-import klik.util.log.Logger_factory;
 import klik.util.log.Stack_trace_getter;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class Text_frame_with_labels
     //**********************************************************
     {
         the_path = path_;
-        logger = Logger_factory.get("Text_frame_with_labels");
+        logger = Shared_services.get_logger("Text_frame_with_labels");
         Filesystem_item_modification_watcher watcher = new Filesystem_item_modification_watcher();
         Aborter aborter = new Aborter("Text_frame_with_labels",logger);
         Filesystem_modification_reporter reporter = () -> {

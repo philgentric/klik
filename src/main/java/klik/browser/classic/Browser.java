@@ -122,7 +122,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         if (monitor_this_folder)
         {
             Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, Shared_services.aborter, logger);
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
                     logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());

@@ -22,11 +22,11 @@ public class Job
         }
         if ( message==null)
         {
-            logger.log_stack_trace("FATAL error_message cannot be null");
+            logger.log_stack_trace("FATAL message cannot be null");
         }
         if ( message.get_aborter()==null)
         {
-            logger.log_stack_trace("FATAL error_message.Aborter cannot be null");
+            logger.log_stack_trace("FATAL Aborter cannot be null");
             System.exit(-1);
         }
         this.actor = actor;
@@ -56,10 +56,11 @@ public class Job
     }
 
     //**********************************************************
-    public void cancel(String msg)
+    public void cancel()
     //**********************************************************
     {
-        message.get_aborter().abort(msg+" "+message.to_string());
+        message.get_aborter().abort("Job cancelled, Actor: "+actor.name());
+        has_ended(message.to_string()+" cancelled");
     }
 
 }

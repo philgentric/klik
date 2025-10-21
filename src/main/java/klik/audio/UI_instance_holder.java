@@ -86,7 +86,7 @@ public class UI_instance_holder
     {
         if ( ui == null)
         {
-            init_ui(Shared_services.aborter,logger);
+            init_ui(Shared_services.aborter(),logger);
         }
         ui.play_playlist_internal(file);
     }

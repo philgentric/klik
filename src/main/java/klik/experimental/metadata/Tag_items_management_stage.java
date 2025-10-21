@@ -11,6 +11,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
+import klik.Shared_services;
 import klik.actor.Aborter;
 import klik.properties.IProperties;
 import klik.properties.Non_booleans_properties;
@@ -44,27 +45,8 @@ public class Tag_items_management_stage
         the_stage.setHeight(300);
         the_stage.setTitle("Manage stored tags");
 
-        IProperties pm = Non_booleans_properties.get_main_properties_manager(owner);
+        //IProperties pm = Shared_services.main_properties();
 
-/*
-        Set<String> l = pm.get_all_keys();
-        if ( l.isEmpty())
-        {
-            logger.log("FATAL: no keys found !?");
-            return;
-        }
-        for (String k : l)
-        {
-            logger.log("(experimental) tags for files, key: "+k);
-
-            if ( k.startsWith(STORED_TAG))
-            {
-                if ( ultra_dbg) logger.log("FOUND STORED_TAG = " + k + " => " + pm.get(k));
-                add_a(the_pane, k, pm, logger);
-            }
-        }
-        add_a(the_pane, "STORED_TAG_AAA", pm, logger);
-*/
         the_stage.show();
     }
 
