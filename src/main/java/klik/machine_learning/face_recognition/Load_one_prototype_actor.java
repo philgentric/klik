@@ -1,7 +1,7 @@
 package klik.machine_learning.face_recognition;
 
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 
 //**********************************************************
 public class Load_one_prototype_actor implements Actor

@@ -1,35 +1,27 @@
 //SOURCES ./My_action.java
-package klik.util.execute;
+package klik.util.execute.actor;
 
 import klik.System_info;
-import klik.util.log.File_logger;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.*;
 
 //**********************************************************
-public class Threads
+public class Executor
 //**********************************************************
 {
+    // if someone wants to try going back to an old JDK...
     public static final boolean use_virtual_threads = true;
-    private static LinkedBlockingQueue<Runnable> lbq;
     private static ExecutorService executor;
+
+    // used only for non-virtual threads
     private final static int pool_max = 500;
+    private static LinkedBlockingQueue<Runnable> lbq;
 
-
-    //**********************************************************
-    public static ExecutorService get_executor_service(Logger logger)
-    //**********************************************************
-    {
-        if (executor == null) init(logger);
-        return executor;
-    }
-
+    // do NOT use this, it is RESERVED for Actor_engines
+    // with the nice side effect of accountability i.e. can count threads
+    // and list jobs "with names"
     //**********************************************************
     public static void execute(Runnable r, Logger logger)
     //**********************************************************
@@ -54,7 +46,6 @@ public class Threads
         {
             logger.log("Using virtual threads");
             executor = Executors.newVirtualThreadPerTaskExecutor();
-            //logger.log("FATAL: cannot use virtual threads");
         }
         else
         {
@@ -65,7 +56,16 @@ public class Threads
         }
     }
 
+/*
 
+
+    //**********************************************************
+    public static ExecutorService get_executor_service(Logger logger)
+    //**********************************************************
+    {
+        if (executor == null) init(logger);
+        return executor;
+    }
     //**********************************************************
     public static <V> Future<V> submit(Callable<V> c, Logger logger)
     //**********************************************************
@@ -107,7 +107,7 @@ public class Threads
 
     public static void main(String args[])
     {
-        Logger logger = new File_logger("Threads test");
+        Logger logger = new File_logger("Executor test");
 
         class My_result
         {
@@ -135,7 +135,7 @@ public class Threads
             }
         };
         execute_all(callables, action, logger);
-
-
     }
+
+ */
 }

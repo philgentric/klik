@@ -2,7 +2,7 @@ package klik.util.animated_gifs;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.util.files_and_paths.Moving_files;

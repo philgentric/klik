@@ -7,8 +7,8 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.properties.boolean_features.Booleans;
 import klik.util.files_and_paths.*;
 import klik.util.ui.Jfx_batch_injector;

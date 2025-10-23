@@ -1,4 +1,4 @@
-package klik.actor;
+package klik.util.execute.actor;
 
 import klik.util.log.File_logger;
 import klik.util.log.Logger;
@@ -66,7 +66,7 @@ public class Test
         Actor b = new Actor1("actor_B");
         Random random = new Random();
 
-        Job_termination_reporter cr = new Job_termination_reporter() {
+        Job_termination_reporter jtr = new Job_termination_reporter() {
             @Override
             public void has_ended(String s, Job job) {
                 logger.log("has ended:"+s);
@@ -79,7 +79,7 @@ public class Test
             if ( random.nextBoolean()) ac = a;
             else ac = b;
 
-            Job j = Actor_engine.run(ac,m, cr,logger);
+            Job j = Actor_engine.run(ac,m, jtr,logger);
 
             logger.log("started job:"+j);
         }

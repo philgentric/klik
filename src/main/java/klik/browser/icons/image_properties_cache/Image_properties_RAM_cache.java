@@ -5,9 +5,9 @@ package klik.browser.icons.image_properties_cache;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.Job_termination_reporter;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
+import klik.util.execute.actor.Job_termination_reporter;
 import klik.path_lists.Path_list_provider;
 import klik.properties.*;
 import klik.util.log.Logger;

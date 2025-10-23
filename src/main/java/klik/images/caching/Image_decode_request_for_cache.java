@@ -1,7 +1,7 @@
 package klik.images.caching;
 
-import klik.actor.Aborter;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 import klik.images.Image_window;
 
 import java.nio.file.Path;

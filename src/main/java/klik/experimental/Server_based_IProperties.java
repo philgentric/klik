@@ -1,7 +1,7 @@
 package klik.experimental;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.IProperties;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_server;

@@ -6,7 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.look.my_i18n.My_I18n;

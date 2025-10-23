@@ -5,7 +5,7 @@
 package klik.util.image;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
@@ -15,7 +15,6 @@ import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.Check_remaining_RAM;
 import klik.util.execute.Execute_command;
-import klik.util.execute.Execute_via_script_in_tmp_file;
 //import klik.util.image.decoding.FITS;
 import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;

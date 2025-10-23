@@ -1,10 +1,10 @@
 package klik.util.files_and_paths.disk_scanner;
 
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.browser.icons.Error_type;
+import klik.util.execute.actor.Executor;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
-import klik.util.execute.Threads;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -197,7 +197,7 @@ public class Disk_scanner implements Runnable
                 if ( file_payload!= null)
                 {
                     file_count_stop_counter.incrementAndGet();
-                    if ((Threads.use_virtual_threads))
+                    if ((Executor.use_virtual_threads))
                     {
                         // with virtual threads we can afford to start one thread per file !
                         Actor_engine.execute(() -> file_payload.process_file(f,file_count_stop_counter), "Disk scanner, scan file: "+path,logger);

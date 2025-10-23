@@ -3,7 +3,7 @@ package klik.change.bookmarks;
 
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
 import klik.properties.Properties_with_base;

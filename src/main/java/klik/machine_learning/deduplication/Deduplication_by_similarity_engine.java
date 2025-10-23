@@ -7,8 +7,8 @@
 package klik.machine_learning.deduplication;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;

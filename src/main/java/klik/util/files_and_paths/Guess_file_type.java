@@ -1,7 +1,7 @@
 package klik.util.files_and_paths;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
 //import klik.path_lists.Path_list_provider_for_playlist;
 import klik.util.image.decoding.Exif_metadata_extractor;

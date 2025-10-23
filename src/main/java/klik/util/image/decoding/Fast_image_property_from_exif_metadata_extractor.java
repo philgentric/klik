@@ -5,7 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Rotation;
 import klik.properties.boolean_features.Feature;

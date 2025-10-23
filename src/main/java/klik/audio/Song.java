@@ -10,8 +10,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
@@ -213,7 +213,7 @@ public class Song
                 aborter,
                 logger);
         Feature_vector_source fvs = new Feature_vector_source_for_song_similarity(aborter);
-        Feature_vector_cache fvc = new Feature_vector_cache("audio_feature_vector_cache", fvs, logger);
+        Feature_vector_cache fvc = new Feature_vector_cache("audio_feature_vector_cache", fvs, aborter, logger);
         Supplier<Feature_vector_cache> fv_cache_supplier = () -> fvc;
         AtomicLong count_pairs_examined = new AtomicLong(0);
         List<Most_similar> similars = similarity_engine.find_similars_generic(
@@ -235,6 +235,8 @@ public class Song
         logger.log("similar song found : "+ similar);
 
         Platform.runLater(()-> playlist.change_song(similar.toAbsolutePath().toString(), start,false));
+
+        aborter.abort("end of similar search");
     }
 
 

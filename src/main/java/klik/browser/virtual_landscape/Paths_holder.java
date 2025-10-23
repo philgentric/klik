@@ -5,7 +5,7 @@
 package klik.browser.virtual_landscape;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;

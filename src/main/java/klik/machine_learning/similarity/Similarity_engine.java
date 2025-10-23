@@ -4,7 +4,7 @@ package klik.machine_learning.similarity;
 
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;

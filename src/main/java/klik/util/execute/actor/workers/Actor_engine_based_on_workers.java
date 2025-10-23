@@ -1,14 +1,12 @@
 //SOURCES ./Worker.java
-package klik.actor.workers;
+package klik.util.execute.actor.workers;
 
 import klik.System_info;
-import klik.actor.*;
+import klik.util.execute.actor.*;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class Actor_engine_based_on_workers implements Actor_engine_interface
@@ -22,23 +20,25 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
      */
 
     private static final boolean dbg = false;
+    private final Aborter cleanup_aborter;
     private final Logger logger;
     ConcurrentLinkedQueue<Worker> runners = new ConcurrentLinkedQueue<>();
     LinkedBlockingQueue<Job> input_queue_single = new LinkedBlockingQueue<>();
 
 
     //**********************************************************
-    public Actor_engine_based_on_workers(Logger logger_)
+    public Actor_engine_based_on_workers(String purpose, Aborter actor_engine_cleanup_aborter, Logger logger)
     //**********************************************************
     {
-        logger = logger_;
+        this.logger = logger;
+        this.cleanup_aborter = actor_engine_cleanup_aborter;
         int number_of_runners = System_info.how_many_cores() -1;
         if ( number_of_runners < 1) number_of_runners = 1;
         logger.log("Actor_engine_based_on_workers starting with "+number_of_runners+" workers");
 
         for (int i = 0; i < number_of_runners; i++)
         {
-            Worker r = new Worker("runner_"+i,input_queue_single, logger);
+            Worker r = new Worker("worker_"+i+" of "+purpose,input_queue_single, cleanup_aborter, logger);
             runners.add(r);
         }
         start();
@@ -81,20 +81,13 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
 
 
     //**********************************************************
-    private void cancel_job(Job job)
+    public void cancel_queued_job(Job job)
     //**********************************************************
     {
-        if ( job == null) return;
         if ( input_queue_single.remove(job))
         {
             if ( Actor_engine.cancel_dbg) logger.log("Actor-Message removed from queue (canceled before start): "+job.to_string());
         }
-        else
-        {
-            if ( Actor_engine.cancel_dbg) logger.log("Actor-Message NOT found, actor canceled after start: "+job.to_string());
-            job.cancel();
-        }
-        job.has_ended("Engine received cancel for "+job.to_string());
     }
 
 

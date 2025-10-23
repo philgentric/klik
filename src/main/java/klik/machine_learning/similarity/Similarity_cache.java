@@ -3,10 +3,10 @@ package klik.machine_learning.similarity;
 //SOURCES ./Similarity_cache_warmer_message.java
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.Job_termination_reporter;
-import klik.actor.Or_aborter;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
+import klik.util.execute.actor.Job_termination_reporter;
+import klik.util.execute.actor.Or_aborter;
 import klik.path_lists.Path_list_provider;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.feature_vector.Feature_vector_source;

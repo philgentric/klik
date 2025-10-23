@@ -1,7 +1,7 @@
 package klik.path_lists;
 //SOURCES ../Move_provider.java
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.util.log.Logger;
 

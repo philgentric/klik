@@ -1,16 +1,12 @@
-package klik.actor;
+package klik.util.execute.actor;
 
-// this enables to have a different method called per job
+// this enables to have a method called after a given job
 // instead of adding it in the actor code when the job is finished
-// which may involve ugly tests about the job nature etc...
+// which may involve having to pass additional stuff in the Message
 
 //**********************************************************
 public interface Job_termination_reporter
 //**********************************************************
 {
     void has_ended(String message, Job job);
-    default void has_failed(String message, Job job)
-    {
-        job.logger.log("thread job has failed "+message+" "+job.to_string());
-    }
 }

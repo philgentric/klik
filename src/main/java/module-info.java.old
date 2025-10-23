@@ -18,7 +18,7 @@ module klikmodule {
     exports klik;
     exports klik.machine_learning;
     exports klik.machine_learning.image_similarity;
-    exports klik.actor;
+    exports klik.util.execute.actor;
 
     opens klik to javafx.graphics, javafx.fxml;
 

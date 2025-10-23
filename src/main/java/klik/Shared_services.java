@@ -1,6 +1,6 @@
 package klik;
 
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
 import klik.properties.boolean_features.Booleans;

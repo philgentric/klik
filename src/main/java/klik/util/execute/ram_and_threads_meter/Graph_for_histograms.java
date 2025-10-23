@@ -1,4 +1,4 @@
-package klik.browser.ram_and_threads_meter;
+package klik.util.execute.ram_and_threads_meter;
 
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -11,7 +11,6 @@ import klik.util.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 //**********************************************************

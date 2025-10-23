@@ -1,7 +1,7 @@
 package klik.images;
 
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 import klik.change.Change_gang;
 import klik.path_lists.Indexer;
 import klik.util.ui.Jfx_batch_injector;

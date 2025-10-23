@@ -9,8 +9,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 

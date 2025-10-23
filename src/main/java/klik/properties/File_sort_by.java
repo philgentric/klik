@@ -14,7 +14,7 @@ import klik.machine_learning.similarity.Similarity_cache;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;

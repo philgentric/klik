@@ -16,11 +16,11 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
-import klik.actor.Actor;
-import klik.actor.Actor_engine;
-import klik.actor.Message;
-import klik.actor.workers.Actor_engine_based_on_workers;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Actor_engine;
+import klik.util.execute.actor.Message;
+import klik.util.execute.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.Drag_and_drop;
 import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.change.undo.Undo_core;
@@ -645,7 +645,8 @@ public class Playlist
                 return "Duration_finder_actor";
             }
         };
-        Actor_engine_based_on_workers local = new Actor_engine_based_on_workers(logger);
+        Aborter cleanup_aborter = new Aborter("actor engine cleanup",logger);
+        Actor_engine_based_on_workers local = new Actor_engine_based_on_workers("playlist size",cleanup_aborter, logger);
         AtomicLong seconds = new AtomicLong(0);
         CountDownLatch cdl = new CountDownLatch(the_playlist.size());
         for ( String path: the_playlist)
@@ -658,7 +659,7 @@ public class Playlist
         } catch (InterruptedException e) {
             logger.log(e.toString());
         }
-
+        cleanup_aborter.abort("kill actor engine threads");
         final String text = My_I18n.get_I18n_string("Songs",owner,logger);
         Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.get(),owner,logger));
         Platform.runLater(r);

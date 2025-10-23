@@ -4,7 +4,7 @@
 package klik.util.files_and_paths.modifications;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.change.Change_gang;
 import klik.util.execute.Scheduled_thread_pool;
 import klik.util.files_and_paths.old_and_new.Command;

@@ -12,7 +12,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;

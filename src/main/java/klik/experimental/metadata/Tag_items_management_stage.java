@@ -11,10 +11,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
-import klik.Shared_services;
-import klik.actor.Aborter;
-import klik.properties.IProperties;
-import klik.properties.Non_booleans_properties;
+import klik.util.execute.actor.Aborter;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;
 

@@ -12,7 +12,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.look.Look_and_feel_manager;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;

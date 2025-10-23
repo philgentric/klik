@@ -1,6 +1,12 @@
-package klik.actor;
+package klik.util.execute.actor;
 
 import klik.util.log.Logger;
+
+/*
+sometimes something should stop based on 2 (or more) conditions
+for example a request may be cancelable (via a button in the UI)
+and would stop to make sense when the visited folder is closed
+ */
 
 //**********************************************************
 public class Or_aborter extends Aborter
@@ -13,7 +19,7 @@ public class Or_aborter extends Aborter
     public Or_aborter(Aborter a, Aborter b, Logger logger)
     //**********************************************************
     {
-        super("Or_aborter", logger); // or pass appropriate name/reason
+        super("Or_aborter", logger);
         this.a = a;
         this.b = b;
     }

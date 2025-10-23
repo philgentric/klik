@@ -11,7 +11,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.*;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.*;
 import klik.change.Change_gang;
 import klik.change.Change_receiver;

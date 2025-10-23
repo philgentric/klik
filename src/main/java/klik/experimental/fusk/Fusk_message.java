@@ -1,7 +1,7 @@
 package klik.experimental.fusk;
 
-import klik.actor.Aborter;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 
 import java.io.File;
 

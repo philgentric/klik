@@ -2,7 +2,7 @@
 //SOURCES ./Fusk_actor_for_one_folder.java
 package klik.experimental.fusk;
 
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;

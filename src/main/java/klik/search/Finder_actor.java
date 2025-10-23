@@ -1,7 +1,7 @@
 package klik.search;
 
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 import klik.util.files_and_paths.Ding;
 import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Guess_file_type;

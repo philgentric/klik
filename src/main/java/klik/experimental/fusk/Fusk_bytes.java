@@ -2,7 +2,7 @@
 //SOURCES ./Pin_code_getter_stage.java
 package klik.experimental.fusk;
 
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;

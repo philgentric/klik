@@ -1,7 +1,7 @@
 package klik.change;
 
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 

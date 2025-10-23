@@ -1,7 +1,7 @@
 //SOURCES ./Simple_logger.java
 package klik.util.log;
 
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Actor_engine;
 import klik.properties.Non_booleans_properties;
 
 import java.io.FileWriter;

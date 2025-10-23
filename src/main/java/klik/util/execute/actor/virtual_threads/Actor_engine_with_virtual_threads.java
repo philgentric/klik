@@ -1,13 +1,8 @@
-package klik.actor.virtual_threads;
+package klik.util.execute.actor.virtual_threads;
 
-import klik.actor.*;
+import klik.util.execute.actor.*;
 import klik.util.log.Logger;
-import klik.util.execute.Threads;
-import klik.util.log.Stack_trace_getter;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
+import klik.util.execute.actor.Executor;
 
 //**********************************************************
 public class Actor_engine_with_virtual_threads implements Actor_engine_interface
@@ -36,24 +31,15 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
         Job job = new Job(actor,message,tr,logger);
         Actor_engine.jobs_in_flight.add(job);
         Runnable r = () -> {
-            int now = Actor_engine.threads_in_flight.incrementAndGet();
-            //logger.log("Actor_engine_with_virtual_threads: "+now+" threads in flight");
-            if ( now > Actor_engine.recent_max_threads) Actor_engine.recent_max_threads = now;
+            Actor_engine.threads_in_flight.incrementAndGet();
+            //if ( now > Actor_engine.recent_max_threads) Actor_engine.recent_max_threads = now;
             String msg = job.actor.run(job.message);
             job.has_ended(msg);
             Actor_engine.threads_in_flight.decrementAndGet();
             Actor_engine.jobs_in_flight.remove(job);
         };
-        ExecutorService executor_service = Threads.get_executor_service(logger);
-        try
-        {
-            executor_service.execute(r);
-        }
-        catch (RejectedExecutionException e)
-        {
-            job.has_failed(""+e);
-            logger.log(Stack_trace_getter.get_stack_trace("WARNING: thread not started"+e));
-        }
+
+        Executor.execute(r,logger);
         return job;
     }
 

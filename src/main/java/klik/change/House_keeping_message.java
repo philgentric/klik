@@ -1,8 +1,8 @@
 //SOURCES ./House_keeping_message_type.java
 package klik.change;
 
-import klik.actor.Aborter;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 
 //**********************************************************
 public class House_keeping_message implements Message

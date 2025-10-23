@@ -1,8 +1,8 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;

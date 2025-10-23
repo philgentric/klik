@@ -1,7 +1,7 @@
 package klik.machine_learning.song_similarity;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source;
 import klik.properties.Non_booleans_properties;

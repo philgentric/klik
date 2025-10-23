@@ -1,7 +1,7 @@
 //SOURCES ./Value_getter.java
 //SOURCES ./Real_to_pixel.java
 //SOURCES ./Graph_for_meters.java
-package klik.browser.ram_and_threads_meter;
+package klik.util.execute.ram_and_threads_meter;
 
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
@@ -9,7 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.execute.Scheduled_thread_pool;
@@ -58,7 +58,7 @@ public class RAM_and_threads_meters_stage
                     return  0.8*DISPLAY_PIXEL_HEIGHT*val/max_val;
                 }
             };
-            Graph_for_meters graph = new Graph_for_meters("Threads",the_scale_max, value_getter, real_to_pixel, x_offset,Color.RED, stage,logger);
+            Graph_for_meters graph = new Graph_for_meters("Executor",the_scale_max, value_getter, real_to_pixel, x_offset,Color.RED, stage,logger);
             hbox.getChildren().add(graph.vbox);
             width+= graph.get_width();
             Scheduled_thread_pool.execute(graph.runnable, HEARTH_BEAT, TimeUnit.MILLISECONDS);

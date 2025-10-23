@@ -1,11 +1,8 @@
 package klik.browser.icons;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.Message;
-
-import java.util.concurrent.LinkedBlockingQueue;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 
 //**********************************************************
 public class Icon_factory_request implements Message

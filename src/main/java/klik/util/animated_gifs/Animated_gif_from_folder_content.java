@@ -3,7 +3,7 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
 import klik.browser.comparators.Aspect_ratio_comparator;

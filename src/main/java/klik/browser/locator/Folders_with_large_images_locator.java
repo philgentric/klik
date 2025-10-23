@@ -2,14 +2,14 @@
 package klik.browser.locator;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.New_file_browser_context;
 import klik.util.files_and_paths.*;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Progress_window;
 import klik.util.log.Logger;
-import klik.util.execute.Threads;
+import klik.util.execute.actor.Executor;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -211,13 +211,13 @@ public class Folders_with_large_images_locator
                         //logger.log("count after dec="+folders.get()+" size="+contanimated_directories.size());
                     }
                 };
-                if ( Threads.use_virtual_threads)
+                if ( Executor.use_virtual_threads)
                 {
                     Actor_engine.execute(r,"large image finder: per folder thread",logger);
                 }
                 else
                 {
-                    // dont use a thread
+                    // dont use a thread if it is not virtual
                     r.run();
                 }
             }

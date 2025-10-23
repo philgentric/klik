@@ -1,21 +1,18 @@
-package klik.actor;
+package klik.util.execute.actor;
 
 
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// Aborter is a thread safe way to signal any piece of background running code
-// that it should abort
+// Aborter is a thread safe way to signal any piece of
+// background running code that it should stop
 // in Klik, a typical usage is when the user selects a different folder from browsing:
 // all background tasks that are relevant to that folder should be aborted
 // this includes icon fabrication, searches, disk scans for sizes etc
 // all these will check the aborter of THAT browser window instance,
 // and when leaving that browser window (or changing dir) the aborter will be triggered
-// Some tasks like backup tasks MUST NOT be aborted when the user changes dir
+// Some tasks like backup tasks SHOULD NOT be aborted when the user changes dir
 // or closes a browsing window so they must use a specific aborter
 
 //**********************************************************
@@ -56,6 +53,26 @@ public class Aborter
     }
 
     //**********************************************************
+    public String reason()
+    //**********************************************************
+    {
+        return reason;
+    }
+
+    /*
+    optionally, one can specify a Runnable that will be called
+    by calling  aborter.on_abort()
+
+    this is a trick to "carry" a runnable in the Aborter
+    the alternative being to add the runnable as an additional parameter...
+
+    if (aborter.should_abort()) {
+                    logger.log("path manager aborting (1) scan_list "+ path_list_provider.get_folder_path().toAbsolutePath());
+                    aborter.on_abort();
+                    return;
+                }
+     */
+    //**********************************************************
     public void add_on_abort(Runnable r)
     //**********************************************************
     {
@@ -66,13 +83,7 @@ public class Aborter
     public void on_abort()
     //**********************************************************
     {
-        on_abort.run();
+        if ( on_abort != null) on_abort.run();
     }
 
-    //**********************************************************
-    public String reason()
-    //**********************************************************
-    {
-        return reason;
-    }
 }

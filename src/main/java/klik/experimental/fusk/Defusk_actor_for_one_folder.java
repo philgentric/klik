@@ -1,9 +1,9 @@
 //SOURCES ./Fusk_message.java
 package klik.experimental.fusk;
 
-import klik.actor.*;
+import klik.util.execute.actor.*;
 import klik.util.log.Logger;
-import klik.util.execute.Threads;
+import klik.util.execute.actor.Executor;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -64,7 +64,7 @@ public class Defusk_actor_for_one_folder implements Actor
                 else
                 {
 
-                    if ( Threads.use_virtual_threads)
+                    if ( Executor.use_virtual_threads)
                     {
                         Runnable r = () -> Fusk_static_core.defusk_file(f.toPath(), destination_folder.toPath(), aborter,logger);
                         Actor_engine.execute(r,"Defusk a file",logger);

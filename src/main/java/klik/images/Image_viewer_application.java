@@ -3,7 +3,7 @@ package klik.images;
 import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.Shared_services;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.util.log.Exceptions_in_threads_catcher;

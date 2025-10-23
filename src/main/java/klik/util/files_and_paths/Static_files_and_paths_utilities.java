@@ -8,8 +8,8 @@ package klik.util.files_and_paths;
 
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.browser.icons.Error_type;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;

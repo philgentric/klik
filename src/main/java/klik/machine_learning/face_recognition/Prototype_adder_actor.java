@@ -2,8 +2,8 @@
 package klik.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 import klik.machine_learning.feature_vector.Feature_vector;
 
 import java.util.*;

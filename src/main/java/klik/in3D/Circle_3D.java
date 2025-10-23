@@ -13,7 +13,7 @@ import javafx.scene.shape.CullFace;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.path_lists.Path_list_provider;
 import klik.images.Image_window;

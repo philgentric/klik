@@ -1,10 +1,10 @@
-//SOURCES ../../../actor/virtual_threads/Concurency_limiter.java
+//SOURCES ../../../actor/virtual_threads/Concurrency_limiter.java
 //SOURCES ./Animated_gif_generation_message.java
 package klik.util.animated_gifs;
 
-import klik.actor.Actor;
-import klik.actor.Message;
-import klik.actor.virtual_threads.Concurency_limiter;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
+import klik.util.execute.actor.virtual_threads.Concurrency_limiter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -13,13 +13,13 @@ import klik.util.ui.Popups;
 public class Animated_gif_generation_actor implements Actor
 //**********************************************************
 {
-    private static Concurency_limiter cl;
+    private static Concurrency_limiter cl;
 
     //**********************************************************
     Animated_gif_generation_actor(Logger logger)
     //**********************************************************
     {
-        if ( cl == null) cl = new Concurency_limiter("Animated gif generator",1,logger);
+        if ( cl == null) cl = new Concurrency_limiter("Animated gif generator",1,logger);
     }
 
 

@@ -1,7 +1,7 @@
 //SOURCES ./Finder_frame.java
 package klik.search;
 
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
 import klik.util.log.Logger;

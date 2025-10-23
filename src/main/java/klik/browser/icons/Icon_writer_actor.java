@@ -1,14 +1,13 @@
 package klik.browser.icons;
 
 import javafx.stage.Window;
-import klik.actor.Actor;
-import klik.actor.Actor_engine;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Actor_engine;
+import klik.util.execute.actor.Message;
 import klik.util.image.Static_image_utilities;
 import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;
 
-import java.io.File;
 import java.nio.file.Path;
 
 

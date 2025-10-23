@@ -1,8 +1,8 @@
 package klik.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
-import klik.actor.Aborter;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 import klik.machine_learning.feature_vector.Feature_vector;
 
 public class Prototype_adder_message implements Message {

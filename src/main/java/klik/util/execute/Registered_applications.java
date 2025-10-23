@@ -3,7 +3,7 @@ package klik.util.execute;
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.properties.Properties_manager;
 import klik.util.log.Logger;

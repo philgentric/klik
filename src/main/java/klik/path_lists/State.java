@@ -1,6 +1,6 @@
 package klik.path_lists;
 
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;

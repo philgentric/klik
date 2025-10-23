@@ -7,7 +7,7 @@ package klik.images;
 
 import javafx.scene.control.ContextMenu;
 import javafx.stage.Window;
-import klik.actor.*;
+import klik.util.execute.actor.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.path_lists.Path_list_provider;
 import klik.browser.virtual_landscape.Virtual_landscape;

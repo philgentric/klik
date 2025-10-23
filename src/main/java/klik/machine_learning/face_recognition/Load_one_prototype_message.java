@@ -1,7 +1,7 @@
 package klik.machine_learning.face_recognition;
 
-import klik.actor.Aborter;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Message;
 
 import java.io.File;
 

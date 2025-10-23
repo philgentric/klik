@@ -2,8 +2,8 @@ package klik.machine_learning.feature_vector;
 
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;

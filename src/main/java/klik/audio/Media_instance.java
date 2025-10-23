@@ -8,7 +8,7 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 

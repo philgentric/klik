@@ -20,7 +20,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
 import klik.properties.boolean_features.Feature;

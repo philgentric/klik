@@ -8,10 +8,10 @@ package klik.machine_learning.feature_vector;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Job_termination_reporter;
-import klik.actor.Or_aborter;
-import klik.actor.workers.Actor_engine_based_on_workers;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Job_termination_reporter;
+import klik.util.execute.actor.Or_aborter;
+import klik.util.execute.actor.workers.Actor_engine_based_on_workers;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.path_lists.Path_list_provider;
@@ -58,7 +58,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     public Feature_vector_cache(
             String tag,
             Feature_vector_source fvs,
-            //Aborter aborter,
+            Aborter aborter,
             Logger logger_)
     //**********************************************************
     {
@@ -74,7 +74,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
 
         // reason to use workers is to limit the number of concurrent HTTP requests
         // to the python servers that are not good at queuing requests
-        local_actor_engine = new Actor_engine_based_on_workers(logger);
+        local_actor_engine = new Actor_engine_based_on_workers("feature vector cache warmer",aborter,logger);
 
     }
 
@@ -311,7 +311,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                     logger);
 
             Or_aborter or_aborter = new Or_aborter(browser_aborter,progress_window.aborter,logger);
-            feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, logger);
+            feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, or_aborter,logger);
             Paths_and_feature_vectors paths_and_feature_vectors = feature_vector_cache.read_from_disk_and_update(paths,in_flight, owner, or_aborter,logger);
             Browsing_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
             progress_window.close();

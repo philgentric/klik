@@ -1,7 +1,7 @@
 package klik.browser.virtual_landscape;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Similarity_cache;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;

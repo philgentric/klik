@@ -1,4 +1,4 @@
-package klik.browser.ram_and_threads_meter;
+package klik.util.execute.ram_and_threads_meter;
 
 public interface Real_to_pixel
 {

@@ -2,8 +2,8 @@ package klik.machine_learning.feature_vector;
 
 //SOURCES ../Feature_vector_source.java
 
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 
 //**********************************************************
 public class Feature_vector_creation_actor implements Actor

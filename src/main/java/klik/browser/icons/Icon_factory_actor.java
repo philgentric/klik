@@ -10,7 +10,7 @@ package klik.browser.icons;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
-import klik.actor.*;
+import klik.util.execute.actor.*;
 import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
 import klik.browser.icons.image_properties_cache.*;

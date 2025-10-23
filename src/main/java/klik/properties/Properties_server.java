@@ -1,8 +1,8 @@
 package klik.properties;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.Shared_services;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;

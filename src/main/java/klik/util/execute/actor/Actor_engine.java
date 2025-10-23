@@ -1,14 +1,12 @@
 //SOURCES ./Actor_engine_interface.java
 //SOURCES ./virtual_threads/Actor_engine_with_virtual_threads.java
 //SOURCES ./workers/Actor_engine_based_on_workers.java
-//SOURCES ../util/execute/Threads.java
-package klik.actor;
+//SOURCES ../util/execute/Executor.java
+package klik.util.execute.actor;
 
 import javafx.application.Platform;
-import klik.actor.virtual_threads.Actor_engine_with_virtual_threads;
-import klik.actor.workers.Actor_engine_based_on_workers;
+import klik.util.execute.actor.virtual_threads.Actor_engine_with_virtual_threads;
 import klik.util.log.Logger;
-import klik.util.execute.Threads;
 import klik.util.ui.Text_frame;
 
 import java.util.ArrayList;
@@ -17,33 +15,24 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/*
+there are 2 ways to execute something (on a thread)
+- run: passing an Actor (which defines the code) and a Message (which defines the parameters)
+- execute : passing a Runnable (code without parameters)
+both return a Job that can be used for cancellation
+ */
 //**********************************************************
 public class Actor_engine // is a singleton
 //**********************************************************
 {
     public static final boolean cancel_dbg = false;
     private static Actor_engine_interface instance;
+
+    // accounting:
     public static final AtomicInteger threads_in_flight = new AtomicInteger(0);
-    public static int recent_max_threads = 0;
     public static LinkedBlockingQueue<Job> jobs_in_flight = new LinkedBlockingQueue<>();
+    //public static int recent_max_threads = 0;
 
-
-    //**********************************************************
-    public static Actor_engine_interface create(Logger logger)
-    //**********************************************************
-    {
-        if ( instance != null) return instance;
-        if (Threads.use_virtual_threads)
-        {
-            instance = new Actor_engine_with_virtual_threads(logger);
-        }
-        else
-        {
-            instance = new Actor_engine_based_on_workers(logger);
-        }
-        return instance;
-
-    }
     //**********************************************************
     public static Actor_engine_interface get_instance()
     //**********************************************************
@@ -51,6 +40,29 @@ public class Actor_engine // is a singleton
         return instance;
     }
 
+
+    //**********************************************************
+    public static Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
+    //**********************************************************
+    {
+        if ( instance == null) instance = create(logger);
+        return instance.run(actor,message,tr,logger);
+    }
+
+    //**********************************************************
+    public static Job execute(Runnable r, String id, Logger logger)
+    //**********************************************************
+    {
+        if ( instance == null) instance = create(logger);
+        return instance.execute_internal(r, id,logger);
+    }
+    //**********************************************************
+    public static void cancel_jobs(ConcurrentLinkedQueue<Job> jobs)
+    //**********************************************************
+    {
+        if ( instance == null) return;
+        instance.cancel_jobs(jobs);
+    }
 
     //**********************************************************
     public static void list_jobs(Logger logger)
@@ -70,7 +82,24 @@ public class Actor_engine // is a singleton
     {
         return threads_in_flight.get();
     }
+
+
     //**********************************************************
+    private static Actor_engine_interface create(Logger logger)
+    //**********************************************************
+    {
+        if ( instance != null) return instance;
+        instance = new Actor_engine_with_virtual_threads(logger);
+        return instance;
+
+    }
+
+
+
+
+    /*
+
+//**********************************************************
     public static int recent_max_threads_in_flight(Logger logger)
     //**********************************************************
     {
@@ -78,23 +107,7 @@ public class Actor_engine // is a singleton
         return recent_max_threads;
     }
 
-    //**********************************************************
-    public static Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
-    //**********************************************************
-    {
-        if ( instance == null) instance = create(logger);
-        return instance.run(actor,message,tr,logger);
-    }
 
-    //**********************************************************
-    public static void cancel_jobs(ConcurrentLinkedQueue<Job> jobs)
-    //**********************************************************
-    {
-        if ( instance == null) return;
-        instance.cancel_jobs(jobs);
-    }
-
-    /*
     //**********************************************************
     public static void cancel_job(Job job)
     //**********************************************************
@@ -104,11 +117,4 @@ public class Actor_engine // is a singleton
     }
     */
 
-    //**********************************************************
-    public static Job execute(Runnable r, String id, Logger logger)
-    //**********************************************************
-    {
-        if ( instance == null) instance = create(logger);
-        return instance.execute_internal(r, id,logger);
-    }
 }

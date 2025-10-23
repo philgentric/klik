@@ -6,7 +6,7 @@ import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
 import javafx.scene.image.*;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.images.Image_context;
 import klik.look.Jar_utils;
 import klik.util.image.rescaling.Image_rescaling_filter;

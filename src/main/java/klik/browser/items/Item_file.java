@@ -3,7 +3,7 @@ package klik.browser.items;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.icons.Icon_factory_actor;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;

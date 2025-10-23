@@ -8,10 +8,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.util.log.Logger;
-import klik.util.log.Simple_logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 

@@ -1,6 +1,6 @@
 package klik.experimental.deduplicate;
 
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Name_cleaner;

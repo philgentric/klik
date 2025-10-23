@@ -6,8 +6,8 @@ import javafx.scene.media.EqualizerBand;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;

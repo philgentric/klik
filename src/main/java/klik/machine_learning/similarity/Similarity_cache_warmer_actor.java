@@ -1,9 +1,9 @@
 package klik.machine_learning.similarity;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.util.log.Logger;

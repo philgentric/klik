@@ -1,7 +1,7 @@
 package klik.browser;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.util.log.Logger;
 
 import java.io.File;

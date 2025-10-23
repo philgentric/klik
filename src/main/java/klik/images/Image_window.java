@@ -13,7 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.images.caching.Image_cache_cafeine;
 import klik.images.caching.Image_cache_interface;
 import klik.images.caching.Image_cache_linkedhashmap;

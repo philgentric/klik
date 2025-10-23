@@ -1,7 +1,7 @@
 package klik.path_lists;
 
 import javafx.stage.Window;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.change.Change_gang;
 import klik.util.files_and_paths.old_and_new.Command;

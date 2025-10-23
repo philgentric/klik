@@ -6,10 +6,11 @@ package klik.experimental.backup;
 
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
-import klik.actor.workers.Actor_engine_based_on_workers;
-import klik.properties.Non_booleans_properties;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
+import klik.util.execute.actor.Job;
+import klik.util.execute.actor.Job_termination_reporter;
+import klik.util.execute.actor.workers.Actor_engine_based_on_workers;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.Sizes;
 import klik.util.ui.Jfx_batch_injector;
@@ -77,13 +78,20 @@ public class Backup_engine
     {
         start = System.currentTimeMillis();
         logger.log("Backup starts");
+        Aborter actor_engine_cleanup_aborter = new Aborter("cleanup",logger);
         Sizes sizes= Static_files_and_paths_utilities.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
 
-        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers(logger);
+        Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers("backup engine",actor_engine_cleanup_aborter, logger);
+        Job_termination_reporter tr = new Job_termination_reporter() {
+            @Override
+            public void has_ended(String message, Job job) {
+                actor_engine_cleanup_aborter.abort("final cleanup");
+            }
+        };
         actor_engine_based_on_workers.run(
                 new Backup_actor_for_one_folder(stats,deep,deep,reports, actor_engine_based_on_workers,owner,dedicated_backup_aborter,logger),
                 new Directory_backup_job_request(source.toFile(), destination.toFile(), dedicated_backup_aborter,logger),
-                        null,logger);
+                        tr,logger);
 
         stats.source_byte_count = sizes.bytes();
         logger.log("monitoring starts");

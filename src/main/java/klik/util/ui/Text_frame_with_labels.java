@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
 import klik.Shared_services;
-import klik.actor.Aborter;
+import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;

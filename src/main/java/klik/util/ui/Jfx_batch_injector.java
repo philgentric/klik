@@ -1,8 +1,8 @@
 package klik.util.ui;
 
 import javafx.application.Platform;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Stack_trace_getter;
 import klik.util.log.Logger;
 

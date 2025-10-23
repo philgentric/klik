@@ -3,7 +3,7 @@
 package klik.util.cache_auto_clean;
 
 import klik.Window_provider;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Actor_engine;
 import klik.Shared_services;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;

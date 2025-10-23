@@ -1,7 +1,7 @@
 //SOURCES ./Value_getter.java
 //SOURCES ./Real_to_pixel.java
 //SOURCES ./Graph_for_meters.java
-package klik.browser.ram_and_threads_meter;
+package klik.util.execute.ram_and_threads_meter;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;

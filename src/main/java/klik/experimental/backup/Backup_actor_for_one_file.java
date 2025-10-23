@@ -5,12 +5,11 @@
 //SOURCES ./File_copier.java
 package klik.experimental.backup;
 
-import klik.actor.Aborter;
-import klik.actor.Actor;
-import klik.actor.Message;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor;
+import klik.util.execute.actor.Message;
 import klik.util.files_and_paths.File_with_a_few_bytes;
 import klik.util.files_and_paths.Moving_files;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -29,7 +28,7 @@ public class Backup_actor_for_one_file implements Actor
     long last;
 
     public static AtomicInteger ongoing = new AtomicInteger(0);
-    //static Concurency_limiter file_concurency_limiter;
+    //static Concurrency_limiter file_concurency_limiter;
 
 
     //**********************************************************
@@ -40,7 +39,7 @@ public class Backup_actor_for_one_file implements Actor
         this.stats = stats;
         //if ( file_concurency_limiter == null)
         {
-            //file_concurency_limiter = new Concurency_limiter("Backup_actor_for_one_file",40,logger);
+            //file_concurency_limiter = new Concurrency_limiter("Backup_actor_for_one_file",40,logger);
         }
 
     }
@@ -65,7 +64,7 @@ public class Backup_actor_for_one_file implements Actor
 
         if ( file_comparator==null) file_comparator = new File_comparator(fbjr.aborter,logger);
 /*
-        if (Threads.use_fibers)
+        if (Executor.use_fibers)
         {
             try {
                 file_concurency_limiter.acquire();

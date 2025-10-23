@@ -4,8 +4,8 @@ package klik.change;
 
 import javafx.stage.Window;
 import klik.Shared_services;
-import klik.actor.Aborter;
-import klik.actor.Actor_engine;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
