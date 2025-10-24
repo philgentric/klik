@@ -506,7 +506,7 @@ public class Image_window
     {
         if (ic == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("PANIC ic==null"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC ic==null"));
             return;
         }
 
@@ -627,12 +627,12 @@ public class Image_window
 
         if ( local_image_context == null)
         {
-            logger.log_stack_trace("FATAL: Image_context is null, should not happen");
+            logger.log_stack_trace("❌ FATAL: Image_context is null, should not happen");
             return;
         }
         if ( local_image_context.image == null)
         {
-            logger.log_stack_trace("FATAL: Image_context.Image is null, should not happen");
+            logger.log_stack_trace("❌ FATAL: Image_context.Image is null, should not happen");
             return;
         }
         // if pix-for-pix was used on a very large image, the window size is very large too..
@@ -703,7 +703,7 @@ public class Image_window
         if (new_path.toFile().exists())
         {
             logger.log("name change aborted: there is already a file with that name!");
-            Popups.popup_warning("Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false, stage,logger);
+            Popups.popup_warning("❗ Not done","You cannot use this name:"+new_path.getFileName()+", because there is already a file with that name in the folder",false, stage,logger);
             return Optional.empty();
         }
 

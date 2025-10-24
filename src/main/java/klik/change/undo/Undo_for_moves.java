@@ -177,8 +177,8 @@ public class Undo_for_moves implements Datetime_to_signature_source
     {
         Undo_item most_recent_undo_item = core.get_most_recent();
         if (most_recent_undo_item == null) {
-            logger.log(" nothing to undo");
-            Popups.popup_warning( "Nothing to undo", "The undo list is empty!", true, owner,logger);
+            logger.log("❗ nothing to undo");
+            Popups.popup_warning( "❗ Nothing to undo", "The undo list is empty!", true, owner,logger);
             return false;
         }
         return undo(most_recent_undo_item, owner, x, y);
@@ -196,8 +196,8 @@ public class Undo_for_moves implements Datetime_to_signature_source
             Old_and_new_Path r = e.reverse_for_restore();
             if ( !Files.exists(r.old_Path))
             {
-                logger.log("\n\n\nIGNORED: this undo item is now invalid, as the source file is not where mentioned in the record... it was probably moved since?\n\n\n");
-                Popups.popup_warning( "Invalid undo item", "The file was probably moved since?", true, owner,logger);
+                logger.log("\n\n\n❗ IGNORED: this undo item is now invalid, as the source file is not where mentioned in the record... it was probably moved since?\n\n\n");
+                Popups.popup_warning( "❗ Invalid undo item", "The file was probably moved since?", true, owner,logger);
             }
             else {
                 reverse_last_move.add(r);

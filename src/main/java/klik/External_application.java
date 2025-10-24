@@ -40,7 +40,7 @@ public enum External_application
         if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
             return "brew install "+get_brew_install_name();
         }
-        Popups.popup_warning("Warning", "Sorry, this is implemented only for Mac.",
+        Popups.popup_warning("❗Warning", "Sorry, this is implemented only for Mac.",
                 false, owner, logger);
         return null;
     }

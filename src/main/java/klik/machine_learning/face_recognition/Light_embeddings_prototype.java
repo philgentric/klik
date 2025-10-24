@@ -59,7 +59,7 @@ public class Light_embeddings_prototype implements Embeddings_prototype
     public boolean save(Path face_recognizer_path, Logger logger)
     //**********************************************************
     {
-        logger.log("FATAL: saving light weight prototypes NOT implemented");
+        logger.log("❌ FATAL: saving light weight prototypes NOT implemented");
         return false;
     }
 }

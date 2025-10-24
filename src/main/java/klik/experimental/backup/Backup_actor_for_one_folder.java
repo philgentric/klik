@@ -123,7 +123,7 @@ public class Backup_actor_for_one_folder implements Actor
                 // first time backup, no need to check for previous files
                 local_check_for_same_file_different_name = false;
             } else {
-                return my_abort(request,"FATAL ! could not create folder: " + request.destination_dir);
+                return my_abort(request,"❌ FATAL ! could not create folder: " + request.destination_dir);
             }
         }
         if (dbg) {
@@ -221,7 +221,7 @@ public class Backup_actor_for_one_folder implements Actor
         }
 
         request.finished = true;
-        return"Backup_actor_for_one_folder OK for:"+request.source_dir.getAbsolutePath();
+        return"✅ Backup_actor_for_one_folder OK for:"+request.source_dir.getAbsolutePath();
     }
 
     private String my_abort(Directory_backup_job_request request, String msg) {

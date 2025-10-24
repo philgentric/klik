@@ -49,8 +49,8 @@ public class Fusk_actor_for_one_folder implements Actor
             }
             else
             {
-                logger.log("FATAL ! could not create folder: " + destination_folder);
-                return "FATAL ! could not create folder: " + destination_folder;
+                logger.log("❌ FATAL ! could not create folder: " + destination_folder);
+                return "❌ FATAL ! could not create folder: " + destination_folder;
             }
         }
         for ( File f : files)

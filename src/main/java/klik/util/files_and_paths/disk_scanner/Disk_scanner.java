@@ -144,7 +144,7 @@ public class Disk_scanner implements Runnable
         logger = logger_;
         if ( aborter_ == null)
         {
-            logger.log_stack_trace(origin+ " FATAL: aborter must not be null");
+            logger.log_stack_trace(origin+ "❌ FATAL: aborter must not be null");
         }
         aborter = aborter_;
     }

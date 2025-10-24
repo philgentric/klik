@@ -131,7 +131,7 @@ public class Static_files_and_paths_utilities
         }
         Path trash_dir = Non_booleans_properties.get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("❗ Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -151,7 +151,7 @@ public class Static_files_and_paths_utilities
     {
         Path trash_dir = Non_booleans_properties.get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
+            Popups.popup_warning( My_I18n.get_I18n_string("❗ Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -319,7 +319,7 @@ public class Static_files_and_paths_utilities
     public static boolean user_cancel(String tag, double size, Window owner, Logger logger)
     //**********************************************************
     {
-        String s1 = "Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
+        String s1 = "❗ Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
         String s2 = size / 1000_000_000.0 + My_I18n.get_I18n_string("GB_deleted", owner,logger);
         if (size < 1_000_000_000) {
             s2 = size / 1000_000.0 + My_I18n.get_I18n_string("MB_deleted", owner,logger);
@@ -352,7 +352,7 @@ public class Static_files_and_paths_utilities
             Runnable r2 = () -> {
                 if ( show_popup)
                 {
-                    if (!Popups.popup_ask_for_confirmation(s1, finalS, owner,logger)) return;
+                    if (!Popups.popup_ask_for_confirmation("❗"+s1, finalS, owner,logger)) return;
                 }
                 for (Path trash : trashes) {
                     delete_for_ever_all_files_in_dir_in_a_thread(trash, true,owner,logger);
@@ -456,7 +456,7 @@ public class Static_files_and_paths_utilities
             {
                 sb.append(w).append("\n");
             }
-            logger.log("Disk_scanner.process_folder, warnings:\n"+sb);
+            logger.log("❗ Disk_scanner.process_folder, warnings:\n"+sb);
         }
 
         //long now = System.currentTimeMillis();
@@ -597,10 +597,10 @@ public class Static_files_and_paths_utilities
                     public void run() {
                         if ( s.contains("AccessDeniedException") && s.contains(Non_booleans_properties.TRASH_DIR))
                         {
-                            Popups.popup_warning("There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
+                            Popups.popup_warning("❌ There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
                         }
                         else {
-                            Popups.popup_warning( "Error", s, false, owner,logger);
+                            Popups.popup_warning( "❌ Error", s, false, owner,logger);
                         }
                     }
                 };
@@ -874,19 +874,19 @@ public class Static_files_and_paths_utilities
 
         if (Extensions.get_extension(new_name).isEmpty()) {
             if (!Extensions.get_extension(old_name).isEmpty()) {
-                logger.log("WARNING, should not remove extension");
+                logger.log("❗ WARNING, should not remove extension");
                 if (Guess_file_type.is_this_path_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
-                    logger.log("WARNING, extension restored");
+                    logger.log("❗ WARNING, extension restored");
                     new_name = Extensions.add(new_name ,Extensions.get_extension(old_name));
-                    Popups.popup_warning( "extension restored: ", old_name + "=>" + new_name, true, owner,logger);
+                    Popups.popup_warning( "❗ extension restored: ", old_name + "=>" + new_name, true, owner,logger);
                 } else {
-                    logger.log("WARNING, should not remove extension");
-                    Popups.popup_warning( "extension lost?", old_name + "had an extension... and you entered a name without extension? :" + new_name, false, owner,logger);
+                    logger.log("❗ WARNING, should not remove extension");
+                    Popups.popup_warning( "❗ extension lost?", old_name + "had an extension... and you entered a name without extension? :" + new_name, false, owner,logger);
                 }
 
             } else {
                 if (!Extensions.get_extension(new_name).equals(Extensions.get_extension(old_name))) {
-                    Popups.popup_warning( "extension check:", "you changed the file name extension", false, owner,logger);
+                    Popups.popup_warning( "❗ extension check:", "you changed the file name extension", false, owner,logger);
                 }
             }
         }
@@ -963,19 +963,19 @@ public class Static_files_and_paths_utilities
         Runnable r = () -> {
             boolean status = copy_dir(path, new_path, owner, logger);
             if (status) {
-                if (dbg) logger.log("Folder copy done: " + new_path);
+                if (dbg) logger.log("✅ Folder copy done: " + new_path);
             }
             else
             {
-                logger.log("Folder copy error!");
-                Jfx_batch_injector.inject(() -> Popups.popup_warning("copy of dir failed", "see the logs", false, owner,logger),logger);
+                logger.log("❌ Folder copy error!");
+                Jfx_batch_injector.inject(() -> Popups.popup_warning("❌ copy of folder failed", "see the logs", false, owner,logger),logger);
             }
         };
         try {
-            Actor_engine.execute(r,"Copt folder",logger);
-            if ( dbg) logger.log("copy_dir_in_a_thread LAUNCHED");
+            Actor_engine.execute(r,"Copy folder",logger);
+            if ( dbg) logger.log("✅ copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
-            logger.log("copy_dir_in_a_thread()" + ree);
+            logger.log("❌ copy_dir_in_a_thread()" + ree);
         }
 
     }
@@ -993,8 +993,8 @@ public class Static_files_and_paths_utilities
         }
         catch (IOException e)
         {
-            logger.log("Folder copy failed "+e);
-            Popups.popup_warning( My_I18n.get_I18n_string("Folder copy failed", owner,logger), "Folder copy failed: "+e, false, owner,logger);
+            logger.log("❌ Folder copy failed "+e);
+            Popups.popup_warning( My_I18n.get_I18n_string("❌ Folder copy failed", owner,logger), "Folder copy failed: "+e, false, owner,logger);
         }
 
         return false;
@@ -1006,7 +1006,7 @@ public class Static_files_and_paths_utilities
     {
 
         if (origin.toAbsolutePath().toString().equals(new_path.toAbsolutePath().toString())) {
-            logger.log("cannot copy: names a same !");
+            logger.log("❌cannot copy: names are same !");
             return false;
         }
         if ( !copy_directory(origin, new_path,logger))
@@ -1035,12 +1035,12 @@ public class Static_files_and_paths_utilities
         }
         catch (AccessDeniedException e2)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("ACCESS DENIED EXCEPTION" + e2));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ ACCESS DENIED EXCEPTION" + e2));
             return Error_type.DENIED;
         }
         catch (NoSuchFileException e2)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("NoSuchFileException" + e2));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ NoSuchFileException" + e2));
             // the DIR is gone !!
             return Error_type.NOT_FOUND;
         }

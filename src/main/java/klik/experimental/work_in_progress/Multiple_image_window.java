@@ -66,7 +66,7 @@ public class Multiple_image_window
                 path,
                 from_stage, aborter, logger_);
         if (option.isEmpty()) {
-            logger_.log(Stack_trace_getter.get_stack_trace("Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
+            logger_.log(Stack_trace_getter.get_stack_trace("❌ Multiple_image_stage PANIC: cannot load image " + path.toAbsolutePath()));
             return Optional.empty();
         }
         logger_.log("Multiple_image_stage OK: image loaded" + path.toAbsolutePath());

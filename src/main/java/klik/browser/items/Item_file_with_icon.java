@@ -242,14 +242,14 @@ public class Item_file_with_icon extends Item_file
         Optional<Comparator<Path>> image_comparator = Optional.empty();
         if ( x == null)
         {
-            logger.log("WARNING: Comparator is null");
+            logger.log("❗ WARNING: Comparator is null");
         }
         else
         {
             image_comparator = Optional.of(x);
         }
         Image_window.get_Image_window(path, path_list_provider,image_comparator, owner,new Aborter("Image_viewer",logger),logger);
-        if ( dbg) logger.log("\n\nImage_stage opening (same process) for path:" + path.toString());
+        if ( dbg) logger.log("\n\n✅ Image_stage opening (same process) for path:" + path.toString());
     }
 
     @Override // Item
@@ -351,7 +351,7 @@ public class Item_file_with_icon extends Item_file
         MenuItem menu_item = new MenuItem(txt);
         Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setOnAction(actionEvent -> {
-            if (dbg) logger.log("show similar");
+            if (dbg) logger.log("✅ show similar");
             Runnable r = () ->
             {
                 double x = owner.getX()+100;
@@ -390,7 +390,7 @@ public class Item_file_with_icon extends Item_file
         Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(event -> {
-            if (dbg) logger.log("Item_image: Renaming "+path);
+            if (dbg) logger.log("✅ Item_image: Renaming "+path);
 
             Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
             if ( new_path == null) return;
@@ -413,19 +413,19 @@ public class Item_file_with_icon extends Item_file
     {
         Menu_items.add_menu_item("Convert_To_Mp4",
     event -> {
-            if (dbg) logger.log("convert to mp4");
+            if (dbg) logger.log("✅ convert to mp4");
             AtomicBoolean abort_reported = new AtomicBoolean(false);
             Ffmpeg_utils.video_to_mp4_in_a_thread(owner,path,aborter, abort_reported, logger);
             },
             context_menu,owner,logger);
         Menu_items.add_menu_item("Generate_many_animated_GIFs",
                     event -> {
-                if (dbg) logger.log("Generating animated gifs !");
+                if (dbg) logger.log("✅ Generating animated gifs !");
                 Animated_gifs_from_video.generate_many_gifs(owner,path,5,5,logger);
             }, context_menu,owner,logger);
-        Menu_items.add_menu_item("Generate_Animated_GIF_interactively",
+        Menu_items.add_menu_item("✅ Generate_Animated_GIF_interactively",
                 event -> {
-                if (dbg) logger.log("Generating animated gifs !");
+                if (dbg) logger.log("✅ Generating animated gifs !");
                 Animated_gifs_from_video.interactive(path,owner,logger);
             },context_menu,owner,logger);
     }
@@ -453,7 +453,7 @@ public class Item_file_with_icon extends Item_file
         // this is NOT on the FX thread
         if ( image_view == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("the_image_view == null"));
+            logger.log(Stack_trace_getter.get_stack_trace("❗ the_image_view == null"));
             return;
         }
 
@@ -462,28 +462,28 @@ public class Item_file_with_icon extends Item_file
             // this happen if between the time the icon was request and now,
             // the item is not visible anymore typically because the user scrolled away
             if ( dbg)
-                logger.log("!visible_in_scene.get() : calling you_are_invisible");
+                logger.log("❗ visible_in_scene.get() : calling you_are_invisible");
             Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
         if ( image_and_rotation == null)
         {
             if ( dbg)
-                logger.log("image_and_rotation == null ");
+                logger.log("❗ image_and_rotation == null ");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( image_and_rotation.image() == null)
         {
             if ( dbg)
-                logger.log("image_and_rotation.image() == null : setting the image to null in the Image_view");
+                logger.log("❗ image_and_rotation.image() == null : setting the image to null in the Image_view");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
 
         if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
         {
-            logger.log(Stack_trace_getter.get_stack_trace("WARNING: empty image, not set "+get_item_path().toAbsolutePath()));
+            logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING: empty image, not set "+get_item_path().toAbsolutePath()));
             Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
@@ -506,10 +506,10 @@ public class Item_file_with_icon extends Item_file
         {
             if ( image_and_properties.properties() ==null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+get_item_path()));
+                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+get_item_path()));
                 return;
             }
-            logger.log("receive_icon_in_fx_thread," +
+            logger.log("✅ receive_icon_in_fx_thread," +
                     "\n   w icon=          "+image_and_properties.image().getWidth()+
                     "\n   h icon=          "+image_and_properties.image().getHeight()+
                     "\n   w image=         "+image_and_properties.properties().w()+
@@ -530,7 +530,7 @@ public class Item_file_with_icon extends Item_file
                     if (
                             (Guess_file_type.is_this_path_a_video(get_item_path())) || (Guess_file_type.is_this_path_a_pdf(get_item_path()))
                     ) {
-                        if (dbg) logger.log("PDF or video => rot=0");
+                        if (dbg) logger.log("✅ PDF or video => rot=0");
                         local_rot = 0;
                     } else {
                         local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(get_item_path(), true, aborter, logger).orElse(0.0);
@@ -538,7 +538,7 @@ public class Item_file_with_icon extends Item_file
                 }
                 else
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace("Bad"));
+                    logger.log(Stack_trace_getter.get_stack_trace("❌ Bad"));
                     you_are_invisible();
                     return;
                 }
@@ -549,7 +549,7 @@ public class Item_file_with_icon extends Item_file
         {
             if (aspect_ratio == null)
             {
-                logger.log("SHOULD NOT HAPPEN");
+                logger.log("❌ SHOULD NOT HAPPEN");
                 double local = image_and_properties.image().getWidth()/image_and_properties.image().getHeight();
                 if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
                 aspect_ratio = (Double) local;
@@ -569,14 +569,14 @@ public class Item_file_with_icon extends Item_file
         if (( image_and_properties.image().getHeight() >= icon_size) && (image_and_properties.image().getWidth() >= icon_size))
         {
             // this happens when the icon is PDF as we dont scale PDF icons
-            if (dbg) logger.log("icon larger than target HAPPENS1 for: "+get_item_path());
+            if (dbg) logger.log("✅ icon larger than target HAPPENS1 for: "+get_item_path());
             image_view.setFitWidth(icon_size);
             image_view.setFitHeight(icon_size);
             if ((local_rot == 90) || (local_rot == 270))
             {
                 // this actually NEVER HAPPENS now since a PDF icon is never rotated
                 //if (dbg)
-                    logger.log("HAPPENS2 for: "+get_item_path());
+                    logger.log("❌ HAPPENS2 for: "+get_item_path());
                 image_view.setFitWidth(image_and_properties.image().getHeight());
                 image_view.setFitHeight(image_and_properties.image().getWidth());
             }
@@ -589,7 +589,7 @@ public class Item_file_with_icon extends Item_file
                 if ( image_and_properties.image().getHeight() < image_and_properties.image().getWidth())
                 {
                     if (dbg)
-                        logger.log("HAPPENS3A for: "+get_item_path());
+                        logger.log("✅ HAPPENS3A for: "+get_item_path());
                     image_view.setFitWidth(icon_size);
                     image_view.setFitHeight(-1);
                 }
@@ -598,7 +598,7 @@ public class Item_file_with_icon extends Item_file
                     // this happens rarely as it is an image that is rotated AND wider than high after rotation
                     //(most of the rotated images are portrait shot by turning the camera
                     if (dbg)
-                        logger.log("HAPPENS3B for: "+get_item_path());
+                        logger.log("✅ HAPPENS3B for: "+get_item_path());
                     image_view.setFitWidth(-1);
                     image_view.setFitHeight(icon_size);
                 }
@@ -606,7 +606,7 @@ public class Item_file_with_icon extends Item_file
             else
             {
                 if (dbg)
-                    logger.log("HAPPENS4 for: "+get_item_path());
+                    logger.log("✅ HAPPENS4 for: "+get_item_path());
                 image_view.setFitWidth(image_and_properties.image().getWidth());
                 image_view.setFitHeight(image_and_properties.image().getHeight());
             }
@@ -616,7 +616,7 @@ public class Item_file_with_icon extends Item_file
         }
         else
         {
-            if ( dbg) logger.log("image_and_rotation.rotation() is null");
+            if ( dbg) logger.log("❗ image_and_rotation.rotation() is null");
         }
     }
 
@@ -636,7 +636,7 @@ public class Item_file_with_icon extends Item_file
         //logger.log("Item_image::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
-            logger.log("BAD WARNING: item_image: default_icon == null");
+            logger.log("❌ BAD WARNING: item_image: default_icon == null");
             return;
         }
 

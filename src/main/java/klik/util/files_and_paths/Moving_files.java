@@ -70,7 +70,7 @@ public class Moving_files
         }
 
         if (popup) {
-            Popups.popup_warning( "Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, owner,logger);
+            Popups.popup_warning( "❗ Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, owner,logger);
         }
         perform_safe_moves_in_a_thread(oan_list,  true, x,y,owner, aborter,logger);
     }
@@ -101,7 +101,7 @@ public class Moving_files
     //**********************************************************
     {
         if (the_list == null) {
-            logger.log("FATAL perform_safe_moves_in_a_thread() list is null");
+            logger.log("❌ FATAL perform_safe_moves_in_a_thread() list is null");
             return;
 
         }
@@ -237,8 +237,8 @@ public class Moving_files
             }
             boolean for_3seconds = true;
             if (not_done.size() >= 2) for_3seconds = false;
-            Popups.popup_warning( "Moves not done?", sb.toString(), for_3seconds, owner,logger);
-            logger.log(Stack_trace_getter.get_stack_trace("Moves not done? " + sb));
+            Popups.popup_warning( "❗ Moves not done?", sb.toString(), for_3seconds, owner,logger);
+            logger.log(Stack_trace_getter.get_stack_trace("❗ Moves not done? " + sb));
         }
 
         if ( progress_window != null) progress_window.close();
@@ -650,8 +650,8 @@ public class Moving_files
                 // hypothesis: Files.move(x) is implemented as first a copy (which succeeds!)
                 // and then when a delete of the source folder is attempted... DirectoryNotEmptyException
                 //
-                logger.log("Folder move failed " + oandn.old_Path + " DIRECTORY NOT EMPTY exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
-                Popups.popup_warning( "Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, owner,logger);
+                logger.log("❗ Folder move failed " + oandn.old_Path + " DIRECTORY NOT EMPTY exception\nThis may happen when moving a folder across filesystems: the origin is still there!");
+                Popups.popup_warning( "❗ Directory was COPIED", "..instead of moved because it was across 2 different filesystems", true, owner,logger);
                 return move_failed( oandn, x, owner,aborter,logger);
             }
 
@@ -664,8 +664,8 @@ public class Moving_files
             logger.log("IO EXCEPTION "+oandn.old_Path + " " + e);
             if ( !oandn.old_Path.toFile().canWrite())
             {
-                logger.log("File is not writeable: "+oandn.old_Path + " " + e);
-                Popups.popup_warning("File is not writeable:"+oandn.old_Path, "This file cannot be moved because its file-system properties do not allow it", false, owner,logger);
+                logger.log("❌ File is not writeable: "+oandn.old_Path + " " + e);
+                Popups.popup_warning("❌ File is not writeable:"+oandn.old_Path, "This file cannot be moved because its file-system properties do not allow it", false, owner,logger);
 
             }
             return move_failed( oandn, e, owner,aborter,logger);
@@ -718,16 +718,16 @@ public class Moving_files
                                 + My_I18n.get_I18n_string("Into", owner,logger)
                                 + oandn.new_Path.toAbsolutePath()
                                 + My_I18n.get_I18n_string("And_it_worked", owner,logger);
-                if (moving_files_dbg) Popups.popup_warning( "Move success (dbg is on)", local_string, false, owner,logger);
+                if (moving_files_dbg) Popups.popup_warning( "✅ Move success (dbg is on)", local_string, false, owner,logger);
                 logger.log(local_string + "<-\n" + e0);
                 return new Old_and_new_Path(oandn.old_Path, oandn.new_Path, Command.command_copy, Status.copy_done,false);
             }
             catch (FileAlreadyExistsException ex) {
-                logger.log("FATAL! we tried moving a file/dir and it failed, so we tried to copy instead and is ALSO failed!" + oandn.old_Path.toAbsolutePath() +
+                logger.log("❌ FATAL! we tried moving a file/dir and it failed, so we tried to copy instead and is ALSO failed!" + oandn.old_Path.toAbsolutePath() +
                         "<- into ->" + oandn.new_Path.toAbsolutePath() + "<-\n" + ex);
             }
             catch (IOException ex) {
-                logger.log("FATAL! we tried moving a file/dir and it failed, so we tried to copy instead and is ALSO failed!" + oandn.old_Path.toAbsolutePath() +
+                logger.log("❌ FATAL! we tried moving a file/dir and it failed, so we tried to copy instead and is ALSO failed!" + oandn.old_Path.toAbsolutePath() +
                         "<- into ->" + oandn.new_Path.toAbsolutePath() + "<-\n" + ex);
             }
 

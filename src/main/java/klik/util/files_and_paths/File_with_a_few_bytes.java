@@ -62,13 +62,13 @@ public class File_with_a_few_bytes
 		if ( mf1.size == 0)
 		{
 			warnings++;
-			if ( warnings< 100) logger.log("WARNING: empty file1 NOT COMPARED:"+mf1.file.getAbsolutePath());
+			if ( warnings< 100) logger.log("❗ WARNING: empty file1 NOT COMPARED:"+mf1.file.getAbsolutePath());
 			return false;
 		}
 		if ( mf2.size == 0)
 		{
 			warnings++;
-			if ( warnings< 100) logger.log("WARNING: empty file2 NOT COMPARED:"+mf2.file.getAbsolutePath());
+			if ( warnings< 100) logger.log("❗ WARNING: empty file2 NOT COMPARED:"+mf2.file.getAbsolutePath());
 			return false;
 		}
 

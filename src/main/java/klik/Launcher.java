@@ -365,7 +365,7 @@ public class Launcher extends Application implements UI_change
                 logger);
 
 
-        if (Popups.popup_ask_for_confirmation("Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best, but of course, things need to be restarted for changes to take effect",stage,logger))
+        if (Popups.popup_ask_for_confirmation("❗ Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best, but of course, things need to be restarted for changes to take effect",stage,logger))
         {
             logger.log("version before:"+get_version_string(logger));
             {
@@ -467,13 +467,13 @@ public class Launcher extends Application implements UI_change
                         logger.log("Launcher: NOT_STARTED RECEIVED from: "+app_name);
                         if ( app_name.equals("audio_player"))
                         {
-                            Platform.runLater(()->Popups.popup_warning("Warning",app_name+" could not be started.\n" +
+                            Platform.runLater(()->Popups.popup_warning("❗ Warning",app_name+" could not be started.\n" +
                                     "Since there is already another instance playing", false,owner, logger));
 
                         }
                         else
                         {
-                            logger.log("Launcher: NOT_STARTED received for "+app_name+", this should not happen");
+                            logger.log("❌ Launcher: NOT_STARTED received for "+app_name+", this should not happen");
                         }
                         return false; // and stop the server
                     }
@@ -528,7 +528,7 @@ public class Launcher extends Application implements UI_change
         }
         catch (IOException e)
         {
-            logger.log("WARNING: Launcher::write_UI_change_listening_port_to_file: cannot write to file "+p);
+            logger.log("❌ WARNING: Launcher::write_UI_change_listening_port_to_file: cannot write to file "+p);
         }
     }
 
@@ -548,7 +548,7 @@ public class Launcher extends Application implements UI_change
         }
         catch (IOException e)
         {
-            logger.log("WARNING: Launcher::port_to_reply_about_start: cannot write to file "+p);
+            logger.log("❌ WARNING: Launcher::port_to_reply_about_start: cannot write to file "+p);
         }
     }
 }

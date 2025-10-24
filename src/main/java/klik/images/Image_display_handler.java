@@ -271,7 +271,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         return;
                     }
                     if (image_context.path == null) {
-                        logger.log(Stack_trace_getter.get_stack_trace("Panic"));
+                        logger.log(Stack_trace_getter.get_stack_trace("❌ Panic"));
                         image_context = null;
                         return;
                     }

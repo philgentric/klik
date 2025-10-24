@@ -124,11 +124,11 @@ public class Browser extends Abstract_browser implements Feature_change_target
                 filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(path_list_provider.get_folder_path(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
-                    logger.log("WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
+                    logger.log("❗ WARNING: cannot monitor folder " + path_list_provider.get_folder_path());
                 }
                 else
                 {
-                    logger.log("Started monitoring folder " + path_list_provider.get_folder_path());
+                    logger.log("✅ Started monitoring folder " + path_list_provider.get_folder_path());
 
                 }
             };
@@ -138,7 +138,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         {
             if ( filesystem_item_modification_watcher != null)
             {
-                logger.log("Stopped monitoring folder " + path_list_provider.get_folder_path());
+                logger.log("✅ Stopped monitoring folder " + path_list_provider.get_folder_path());
                 filesystem_item_modification_watcher.cancel();
             }
         }

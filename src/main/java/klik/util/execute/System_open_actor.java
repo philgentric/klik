@@ -84,15 +84,15 @@ public class System_open_actor implements Actor
         }
         catch (Exception e)
         {
-            som.logger.log(Stack_trace_getter.get_stack_trace("open failed :" + e));
+            som.logger.log(Stack_trace_getter.get_stack_trace("❗ open failed :" + e));
 
             if (e.toString().contains("doesn't exist."))
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning( "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e,false,som.owner,som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Failed", "Your OS/GUI could not open this file, the error is:\n" + e,false,som.owner,som.logger), som.logger);
             }
             else
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning( "Failed?", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false,som.owner,som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Failed", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false,som.owner,som.logger), som.logger);
             }
         }
         return null;
@@ -109,11 +109,11 @@ public class System_open_actor implements Actor
 
         if ( app == null)
         {
-            som.logger.log("open special aborted, no registered operation for this extension ");
+            som.logger.log("❌ open special aborted, no registered operation for this extension ");
             return null;
         }
-        som.logger.log("special open for " + som.path + " with " + app);
-        Jfx_batch_injector.inject(() -> Popups.popup_warning( "Calling MacOS open for: ", "Please wait " + som.path,true,som.owner,som.logger), som.logger);
+        som.logger.log("❗ special open for " + som.path + " with " + app);
+        Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Calling MacOS open for: ", "Please wait " + som.path,true,som.owner,som.logger), som.logger);
 
         call_MACOS_open(som, app);
         //call_exec(som, app));

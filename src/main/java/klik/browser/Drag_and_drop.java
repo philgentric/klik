@@ -43,12 +43,12 @@ public class Drag_and_drop
         Object source = drag_event.getGestureSource();
         if (source == null)
         {
-            logger.log(("WARNING: accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: " + drag_event.getSource()));
+            logger.log(("❗ WARNING: accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: " + drag_event.getSource()));
         }
         else
         {
             if (source == excluded) {
-                logger.log("source is excluded: cannot drop onto itself");
+                logger.log("❗ source is excluded: cannot drop onto itself");
                 drag_event.consume();
                 return 0;
             }

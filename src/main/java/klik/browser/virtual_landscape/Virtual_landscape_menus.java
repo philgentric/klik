@@ -243,10 +243,10 @@ public class Virtual_landscape_menus
     {
         List<File> files = virtual_landscape.path_list_provider.only_files(Feature_cache.get(Feature.Show_hidden_files));
         if (files == null) {
-            logger.log("ERROR: cannot list files in " + virtual_landscape.path_list_provider.get_name());
+            logger.log("❌ ERROR: cannot list files in " + virtual_landscape.path_list_provider.get_name());
         }
         if (files.size() == 0) {
-            logger.log("WARNING: no file in " + virtual_landscape.path_list_provider.get_name());
+            logger.log("✅ no file in " + virtual_landscape.path_list_provider.get_name());
         }
         Map<String, Path> folders = new HashMap<>();
         List<Old_and_new_Path> moves = new ArrayList<>();
@@ -259,7 +259,7 @@ public class Virtual_landscape_menus
             }
             catch (IOException e)
             {
-                logger.log("" + e);
+                logger.log("❌ BAD " + e);
                 continue;
             }
 
@@ -279,7 +279,7 @@ public class Virtual_landscape_menus
                 try {
                     Files.createDirectory(folder);
                 } catch (IOException e) {
-                    logger.log("" + e);
+                    logger.log("❌ BAD " + e);
                     continue;
                 }
             }
@@ -375,10 +375,10 @@ public class Virtual_landscape_menus
         }
         else
         {
-            if ( dbg) logger.log("contact sheet generated "+ sb);
+            if ( dbg) logger.log("✅ contact sheet generated "+ sb);
             else
             {
-                logger.log("contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
+                logger.log("✅ contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
                 System_open_actor.open_with_system(Path.of(virtual_landscape.path_list_provider.get_folder_path().toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),owner,virtual_landscape.aborter,logger);
 
                 Platform.runLater(() ->virtual_landscape.set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
@@ -415,7 +415,7 @@ public class Virtual_landscape_menus
                 }
                 catch (IOException e)
                 {
-                    logger.log("new directory creation FAILED: " + e);
+                    logger.log("❗ new directory creation FAILED: " + e);
                     // n case the issue is the name, we just addd "_" at the end and retry
                     new_name += "_";
                 }
@@ -450,7 +450,7 @@ public class Virtual_landscape_menus
             }
             catch (NumberFormatException e)
             {
-                Popups.popup_warning("Integer only!","Please retry with an integer value!",false,owner,logger);
+                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
             }
         }
     }
@@ -479,7 +479,7 @@ public class Virtual_landscape_menus
             }
             catch (NumberFormatException e)
             {
-                Popups.popup_warning("Integer only!","Please retry with an integer value!",false,owner,logger);
+                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
             }
         }
     }
@@ -549,13 +549,13 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         clear_image_properties_RAM_cache();
-        logger.log("Image properties RAM cache cleared");
+        logger.log("✅ Image properties RAM cache cleared");
         clear_scroll_position_cache();
-        logger.log("Return-to scroll positions RAM cache cleared");
+        logger.log("✅ Return-to scroll positions RAM cache cleared");
         clear_image_comparators_caches();
-        logger.log("Image comparators RAM caches cleared");
+        logger.log("✅ Image comparators RAM caches cleared");
         clear_image_feature_vector_RAM_cache();
-        logger.log("Image feature vector RAM cache cleared");
+        logger.log("✅ Image feature vector RAM cache cleared");
 
     }
 
@@ -579,10 +579,14 @@ public class Virtual_landscape_menus
     }
 
 
-    public void remove_empty_folders(boolean recursively) {
+    //**********************************************************
+    public void remove_empty_folders(boolean recursively)
+    //**********************************************************
+    {
         virtual_landscape.paths_holder.remove_empty_folders(recursively);
     }
 
+    //**********************************************************
     public void clear_scroll_position_cache() {
         Browsing_caches.scroll_position_cache_clear();
     }
@@ -763,7 +767,7 @@ public class Virtual_landscape_menus
 
     //**********************************************************
     public Supplier<Feature_vector_cache> get_image_fv_cache = new Supplier<>()
-            //**********************************************************
+    //**********************************************************
     {
         public Feature_vector_cache get() {
 
@@ -828,7 +832,7 @@ public class Virtual_landscape_menus
                 event -> {
                     //logger.log("Deduplicate auto");
 
-                    if ( !Popups.popup_ask_for_confirmation( "EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",owner,logger)) return;
+                    if ( !Popups.popup_ask_for_confirmation( "❗ EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",owner,logger)) return;
                     (new Deduplication_engine(owner, (virtual_landscape.path_list_provider.get_folder_path()).toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger)).do_your_job(true);
                 },menu,owner,logger);
 
@@ -911,7 +915,7 @@ public class Virtual_landscape_menus
                 owner,
                 virtual_landscape.aborter,
                 logger);
-        dummy.button_for_a_directory(text, min_width, height, null);
+        dummy.button_for_a_directory(text, is_trash_button, min_width, height, null);
         return dummy.button;
     }
 
@@ -954,7 +958,7 @@ public class Virtual_landscape_menus
         MenuItem item = Menu_items.make_menu_item(key,
         event -> {
             Face_recognition_service i = Face_recognition_service.get_instance(owner,logger);
-            logger.log("NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_name());
+            logger.log("❌ NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_name());
 
         },owner,logger);
         add_question_mark_button(key, item);
@@ -1320,20 +1324,20 @@ public class Virtual_landscape_menus
             Undo_item item = signature_to_undo_item.get(signature);
             if ( item == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("item == null for signature="+signature));
+                logger.log(Stack_trace_getter.get_stack_trace("❌ item == null for signature="+signature));
                 return;
             }
             if ( !Undo_for_moves.check_validity(item, virtual_landscape.owner,logger))
             {
-                Popups.popup_warning("Invalid undo item ignored","The file was probably moved since?",true,owner,logger);
+                Popups.popup_warning("❗ Invalid undo item ignored","The file was probably moved since?",true,owner,logger);
                 Undo_for_moves.remove_invalid_undo_item(item, virtual_landscape.owner,logger);
                 return;
             }
-            logger.log("\n\n\n undo_item="+item.to_string());
+            logger.log("✅ undo_item="+item.to_string());
             double x = owner.getX()+100;
             double y = owner.getY()+100;
 
-            boolean ok = Popups.popup_ask_for_confirmation("Please confirm.",
+            boolean ok = Popups.popup_ask_for_confirmation("❗ Please confirm.",
                     "Undoing this will move the file(s) back to their original location.\n" +
                             item.to_string()+"\n"+
                             item.to_string(),
@@ -1480,7 +1484,7 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_animated_gif_duration_for_a_video(length,owner);
-                Popups.popup_warning( "Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,logger);
+                Popups.popup_warning( "❗ Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,logger);
             }
         });
         menu.getItems().add(item);
@@ -1789,7 +1793,7 @@ public class Virtual_landscape_menus
     void clean_up_names_fx()
     //**********************************************************
     {
-        if ( !Popups.popup_ask_for_confirmation( "EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",owner,logger)) return;
+        if ( !Popups.popup_ask_for_confirmation( "❗ EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",owner,logger)) return;
 
         Path dir = virtual_landscape.path_list_provider.get_folder_path();
         File[] files = dir.toFile().listFiles();

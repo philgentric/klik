@@ -16,7 +16,7 @@ public class Feature_vector_double implements Feature_vector
         {
             if (values == null)
             {
-                System.out.println("PANIC Feature_vector constructor called with null values");
+                System.out.println("❌ PANIC Feature_vector constructor called with null values");
             }
         }
         features = values;

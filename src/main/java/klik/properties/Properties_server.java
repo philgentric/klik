@@ -238,7 +238,7 @@ public class Properties_server
                 if (dbg) logger.log("Warning: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
             }
             catch (IOException e) {
-                logger.log("FATAL: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
+                logger.log("❌ FATAL: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
                 return;
             }
             if (dbg) logger.log("created file:"+ the_properties_path);
@@ -251,7 +251,7 @@ public class Properties_server
         if (!Files.isWritable(the_properties_path))
         {
             Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", owner,logger);
-            logger.log("ALERT: cannot write properties in:" + the_properties_path.toAbsolutePath());
+            logger.log("❌ FATAL: cannot write properties in:" + the_properties_path.toAbsolutePath());
             return;
         }
         else

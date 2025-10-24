@@ -101,7 +101,7 @@ public class TCP_server
         if ( is_started_ok.get())
         {
             if (dbg) logger.log(Stack_trace_getter.get_stack_trace("server started OK "));
-            else logger.log(("server started OK "));
+            else logger.log(("✅ server started OK "));
         }
         else
         {
@@ -161,7 +161,7 @@ public class TCP_server
         if ( is_started_on.get() >0)
         {
             if (dbg) logger.log(Stack_trace_getter.get_stack_trace("server started OK "));
-            else logger.log(("server started OK "));
+            else logger.log(("✅ server started OK "));
         }
         else
         {

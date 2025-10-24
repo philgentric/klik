@@ -15,25 +15,25 @@ public class Exceptions_in_threads_catcher
 
             if ( e.toString().contains("IndexOutOfBoundsException: Index -1 out of bounds for length"))
             {
-                logger.log("THREAD PANIC **no stack**:"+e);
+                logger.log("❌❌❌ THREAD PANIC **no stack**:"+e);
                 oops++;
                 if ( oops > 100)
                 {
-                    logger.log("THREAD PANIC exiting the application");
+                    logger.log("❌❌❌ THREAD PANIC exiting the application");
                     System.exit(-1);
                 }
                 return;
             }
 
             String trace = Stack_trace_getter.get_stack_trace_for_throwable(e);
-            logger.log("THREAD PANIC:"+trace);
+            logger.log("❌❌❌ THREAD PANIC:"+trace);
 			if ( thread == null)
 			{
 				logger.log(" Should not happen");
 			}
 			else
 			{
-				logger.log(Stack_trace_getter.get_stack_trace(thread.getName() + " occurred here"));
+				logger.log("PLEASE REPORT: "+Stack_trace_getter.get_stack_trace(thread.getName() + " occurred here"));
 			}
         });
 

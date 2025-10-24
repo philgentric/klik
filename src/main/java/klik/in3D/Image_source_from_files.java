@@ -28,7 +28,7 @@ public class Image_source_from_files implements Image_source
         File[] files_ = folder.toFile().listFiles();
         if ( files_ == null)
         {
-            System.out.println("FATAL");
+            System.out.println("❌ FATAL");
             return;
         }
         for (File f : files_)
@@ -73,7 +73,7 @@ public class Image_source_from_files implements Image_source
                     new Image(is, icon_size, icon_size, true, true),
                     path);
         } catch (Exception e) {
-            System.out.println("fatal " + e);
+            System.out.println("❌ fatal " + e);
             return null;
         }
     }

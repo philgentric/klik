@@ -93,7 +93,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         this.path_comparator_source = path_comparator_source;
         text = text_;
         if (path == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: path is null"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: path is null"));
             return;
         }
 
@@ -223,12 +223,12 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) logger.log("WARNING: dir is access denied: "+local_path);
+            if ( dbg) logger.log("❗ WARNING: dir is access denied: "+local_path);
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) logger.log("dir is empty: "+local_path);
+            if ( dbg) logger.log("❗ dir is empty: "+local_path);
             return null;
         }
         Arrays.sort(files);
@@ -253,7 +253,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         }
         if( make_animated_gif)
         {
-            logger.log("make_animated_gif");
+            logger.log("✅ make_animated_gif");
 
             if ( images_in_folder.isEmpty())
             {
@@ -269,13 +269,13 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                     aborter, logger);
             if ( returned == null)
             {
-                if (dbg) logger.log("make_animated_gif_from_all_images_in_folder fails");
+                if (dbg) logger.log("❗ make_animated_gif_from_all_images_in_folder fails");
                 // use the first image as icon, if any
                 if (!images_in_folder.isEmpty()) return images_in_folder.get(0).toPath();
             }
             else
             {
-                if (dbg) logger.log("make_animated_gif_from_all_images_in_folder OK");
+                if (dbg) logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
                 return returned;
             }
         }
@@ -320,7 +320,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 sb.append("                 ");
                 if (!get_item_path().toFile().canWrite())
                 {
-                    sb.append("Not Writable!                 ");
+                    sb.append("❗ Not Writable!                 ");
                 }
             } catch (IOException e) {
                 logger.log_exception("",e);
@@ -346,17 +346,17 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
         button.setOnAction(event -> {
 
-            logger.log("ON ACTION " + get_item_path().toAbsolutePath());
+            logger.log("✅ ON ACTION " + get_item_path().toAbsolutePath());
 
             if ( Guess_file_type.is_this_path_a_text(get_item_path()))
             {
-                logger.log("opening text: " + get_item_path().toAbsolutePath());
+                logger.log("✅ opening text: " + get_item_path().toAbsolutePath());
                 Text_frame.show(get_item_path(),logger);
                 return;
             }
             if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path()))
             {
-                logger.log("opening audio playlist: " + get_item_path().toAbsolutePath());
+                logger.log("✅ opening audio playlist: " + get_item_path().toAbsolutePath());
                 //UI_instance_holder.play_playlist(get_item_path().toFile(),logger);
                 Audio_player_access.play_play_list_in_separate_process(get_item_path().toFile(),logger);
                 return;
@@ -374,12 +374,12 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             {
                 if ( !Guess_file_type.does_this_file_contain_a_video_track(get_item_path(),owner,logger))
                 {
-                    logger.log("Item_button, opening audio file: " + get_item_path().toAbsolutePath());
+                    logger.log("✅ Item_button, opening audio file: " + get_item_path().toAbsolutePath());
                     Audio_player_access.play_song_in_separate_process(get_item_path().toFile(),logger);
                     return;
                 }
             }
-            logger.log("asking the system to open: " + get_item_path().toAbsolutePath());
+            logger.log("✅ asking the system to open: " + get_item_path().toAbsolutePath());
             System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
         });
 
@@ -487,7 +487,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             }
             else
             {
-                logger.log(path+" size found in cache "+bytes);
+                logger.log("✅ "+path+" size found in cache "+bytes);
             }
             count.decrementAndGet();
 

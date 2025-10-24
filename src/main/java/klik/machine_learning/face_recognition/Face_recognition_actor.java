@@ -315,7 +315,7 @@ public class Face_recognition_actor implements Actor
         Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector(face, service.owner, service.logger);
         if ( the_feature_vector_to_be_identified == null)
         {
-            service.logger.log(Stack_trace_getter.get_stack_trace("PANIC: embeddings failed ! are the servers started ?"));
+            service.logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC: embeddings failed ! are the servers started ?"));
             return new Eval_results("error",null,Eval_situation.nothing_found,false,"error",new ArrayList<>());
         }
         long fv_time = System.nanoTime()-start;
@@ -548,7 +548,7 @@ public class Face_recognition_actor implements Actor
         {
             // TODO: these error messages are not accurate
             if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(service.owner,service.logger);
-            else service.logger.log("fatal : cannot load image");
+            else service.logger.log("❌ fatal : cannot load face image");
             return new Face_recognition_results(null,null, path_of_face,null, Face_recognition_in_image_status.no_face_detected);
         }
 
@@ -603,7 +603,7 @@ public class Face_recognition_actor implements Actor
             }
             else
             {
-                service.logger.log("ADDING prototype as the final face check is OK , status is: "+Face_recognition_results.image_path());
+                service.logger.log("✅ ADDING prototype as the final face check is OK , status is: "+Face_recognition_results.image_path());
             }
         }
 
@@ -615,7 +615,7 @@ public class Face_recognition_actor implements Actor
         }
         else
         {
-            service.logger.log("STORING "+f.getAbsolutePath()+" as: "+name());
+            service.logger.log("✅ STORING "+f.getAbsolutePath()+" as: "+name());
         }
 
         service.training_stats.face_wrongly_recognized_recorded.incrementAndGet();

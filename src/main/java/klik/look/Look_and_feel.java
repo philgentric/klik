@@ -72,13 +72,13 @@ public abstract class Look_and_feel
         URL style_sheet_url = get_CSS_URL(owner);
         if (style_sheet_url == null)
         {
-            logger.log("style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url is null");
+            logger.log("❌ style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url is null");
             style_sheet_url_string = null;
         }
         else
         {
             style_sheet_url_string = style_sheet_url.toExternalForm();
-            logger.log("style:'" + name + "' loaded style sheet=" + style_sheet_url_string);
+            logger.log("✅ Style:'" + name + "' loaded style sheet=" + style_sheet_url_string);
         }
 
         Look_and_feel_manager.reset();
@@ -106,11 +106,11 @@ public abstract class Look_and_feel
         try {
             tmp_pane.applyCss();
         } catch (Exception e) {
-            logger.log("BAD WARNING cannot apply CSS style to pane");
+            logger.log("❌ BAD WARNING cannot apply CSS style to pane");
             return new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY);
         }
         if (tmp_pane.getBackground() == null) {
-            logger.log("BAD WARNING cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :" + laf);
+            logger.log("❌ BAD WARNING cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :" + laf);
         }
         background_fill = tmp_pane.getBackground().getFills().get(0);
         return background_fill;

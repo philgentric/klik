@@ -351,7 +351,7 @@ public class Menus_for_image_window
 
             if ( image_window.image_display_handler.get_image_context().isEmpty())
             {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL no context"));
+                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL no context"));
                 return;
             }
             image_window.image_display_handler.get_image_context().get().edit2(image_window.stage, image_window.stage, image_window.aborter);

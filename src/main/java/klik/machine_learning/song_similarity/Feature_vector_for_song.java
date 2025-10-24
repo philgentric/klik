@@ -73,7 +73,7 @@ public class Feature_vector_for_song implements Feature_vector
         }
         else
         {
-            logger.log("PANIC feature_vector_bitmap.compare called with non eature_vector_bitmap");
+            logger.log("❌ PANIC feature_vector_bitmap.compare called with non eature_vector_bitmap");
             return 0;
         }
     }

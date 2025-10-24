@@ -357,11 +357,11 @@ public class Image_context
         Keyword_extractor ke = new Keyword_extractor(logger, List.of());
         Set<String> keywords_set = ke.extract_keywords_from_file_and_dir_names(path);
         if (keywords_set == null) {
-            logger.log("FATAL null keywords ??? ");
+            logger.log("❌ FATAL null keywords ??? ");
             return;
         }
         if (keywords_set.isEmpty()) {
-            logger.log("FATAL no keywords ??? ");
+            logger.log("❌ FATAL no keywords ??? ");
             return;
         }
         List<String> keywords = new ArrayList<>();

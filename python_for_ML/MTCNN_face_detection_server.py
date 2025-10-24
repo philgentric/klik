@@ -24,7 +24,7 @@ class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
         if  config_name ==  "MTCNN":
             print("MTCNN")
         else :
-            print("FATAL: config  not supported "+config_name)
+            print("❌ FATAL: config  not supported "+config_name)
 
         self.config_name = config_name
         super().__init__(*args, **kwargs)

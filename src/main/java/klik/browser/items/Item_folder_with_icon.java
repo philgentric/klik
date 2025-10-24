@@ -265,7 +265,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     {
         if ( !try_deep)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
             return null;
         }
 
@@ -274,13 +274,13 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) logger.log("WARNING: dir is access denied: "+get_item_path());
+            if ( dbg) logger.log("❗ WARNING: dir is access denied: "+get_item_path());
             create_label_for_sizes("Access Denied?");
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) logger.log("dir is empty: "+get_item_path());
+            if ( dbg) logger.log("✅ dir is empty: "+get_item_path());
             create_label_for_sizes("Empty folder");
             return null;
         }
@@ -333,17 +333,17 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)
         {
-            if (dbg) logger.log("animated gif made");
+            if (dbg) logger.log("✅ animated gif made");
             return returned;
         }
         if (images_in_folder.isEmpty())
         {
-            if (dbg) logger.log("no images");
+            if (dbg) logger.log("✅ no images");
             return null;
         }
         else
         {
-            if (dbg) logger.log("picking first image");
+            if (dbg) logger.log("✅ picking first image");
             return images_in_folder.get(0).toPath();
         }
     }

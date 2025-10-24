@@ -130,10 +130,10 @@ public class My_colors
             }
             try {
                 Color c = Color.valueOf(lines.get(0));
-                logger.log("WARNING: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
+                logger.log("✅ WARNING: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
                 return c;
             } catch ( Exception e) {
-                logger.log("FATAL: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
+                logger.log("❌ FATAL: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 return null;
             }

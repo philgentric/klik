@@ -174,16 +174,16 @@ public class Non_booleans_properties
 
         // if we arrive here, the bounds are not valid, so we need to compute the bounds based on the current stage
 
-        System.out.println("WARNING: from file  bounds " + target  + " do not fit with any screen, changing the target");
+        System.out.println("❗ WARNING: from file bounds " + target  + " do not fit with any screen, changing the target");
 
         // use the first screen available (e.g. the main screen, the laptop screen, etc.)
         for ( Screen s : all_screens)
         {
-            System.out.println("forcing screen bounds to: " + s.getVisualBounds());
+            System.out.println("✅ forcing screen bounds to: " + s.getVisualBounds());
             return s.getVisualBounds();
         }
         // normally never happens?
-        System.out.println("SHOULD NOT HAPPEN: no screen found, using default rectangle");
+        System.out.println("❌ SHOULD NOT HAPPEN: no screen found, using default rectangle");
         return new Rectangle2D(0,0,800,600); // default rectangle
     }
 
@@ -523,7 +523,7 @@ public class Non_booleans_properties
             //logger.log("what is trash_dir for :" + for_this.toAbsolutePath());
             Path volume = get_MacOS_volume(for_this, logger);
             if (volume == null) {
-                logger.log("PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
+                logger.log("❌ PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
             }
             Path candidate =from_top_folder(volume.toString(), TRASH_DIR, true, owner, logger);
             if ( candidate != null) return candidate;
@@ -537,7 +537,7 @@ public class Non_booleans_properties
 
         Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
         if (trash_dir == null) {
-            logger.log("PANIC: trash dir unknown");
+            logger.log("❌ PANIC: trash dir unknown");
             return null;
         }
         if (dbg) logger.log("trash_dir file=" + trash_dir.toAbsolutePath());

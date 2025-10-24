@@ -223,12 +223,12 @@ public class Full_image_from_disk
         {
             if( image.getException().toString().contains("OutOfMemoryError"))
             {
-                logger.log("IMAGE decode Panic :"+image.getException());
+                logger.log("❌ IMAGE decode Panic :"+image.getException()+" "+original_image_file.toAbsolutePath());
                 Popups.popup_Exception(image.getException(),100,"Your java VM machine is running out of RAM, try to increase the max in build.gradle.works and restart",owner,logger);
             }
             else if( image.getException().toString().contains("No loader for image data"))
             {
-                logger.log("IMAGE decode failed :"+image.getException());
+                logger.log("❌ IMAGE decode failed :"+image.getException()+" "+original_image_file.toAbsolutePath());
                 // this occurs on damaged images like download not finished, or fusk wrong pin code
                 // Popups.popup_Exception(image.getException(),100,"If this image was fusked, maybe the pin code is wrong?",logger);
             }

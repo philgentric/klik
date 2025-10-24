@@ -100,7 +100,7 @@ public enum Image_rescaling_filter
                 return "Magic Kernel Sharp 2013 rescaler ";
             }
         }
-        return "FATAL ERROR";
+        return "❌ FATAL ERROR, wrong rescaler code ???";
     }
 
     public Image_rescaling_filter next()

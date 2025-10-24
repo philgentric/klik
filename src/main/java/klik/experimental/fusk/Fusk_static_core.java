@@ -94,7 +94,7 @@ public class Fusk_static_core
         {
             if (!Fusk_bytes.initialize(logger))
             {
-                logger.log("FATAL: fusk_file, Fusk_bytes not initialized " + in.toAbsolutePath());
+                logger.log("❌ FATAL: fusk_file, Fusk_bytes not initialized " + in.toAbsolutePath());
                 return false;
             }
         }
@@ -181,7 +181,7 @@ public class Fusk_static_core
             logger.log(f+"=>"+f2);
             if ( !test.equals(f2))
             {
-                logger.log("FATAL "+test+"!="+f2);
+                logger.log("❌ FATAL "+test+"!="+f2);
             }
         }
         {
@@ -192,7 +192,7 @@ public class Fusk_static_core
             logger.log(f+"=>"+f2);
             if ( !test.equals(f2))
             {
-                logger.log("FATAL "+test+"!="+f2);
+                logger.log("❌ FATAL "+test+"!="+f2);
             }
         }
         {
@@ -212,7 +212,7 @@ public class Fusk_static_core
                 if ( clear[i] != check[i])
                 {
                     ok = false;
-                    logger.log("fatal error!");
+                    logger.log("❌ fatal error!");
                     break;
                 }
             }
@@ -238,7 +238,7 @@ public class Fusk_static_core
                 if ( clear[i] != check[i])
                 {
                     ok = false;
-                    logger.log("fatal error! "+i);
+                    logger.log("❌ fatal error! "+i);
                     break;
                 }
             }
@@ -257,7 +257,7 @@ public class Fusk_static_core
             }
             else
             {
-                logger.log("OHO ? signature found ????"); // well, that coukd happen but proba is VERY low !-)
+                logger.log("OHO ? no signature found ????"); // well, that coukd happen but proba is VERY low !-)
             }
             byte[] fusk = Fusk_bytes.obfusk_and_add_signature(clear,aborter,logger);
 
@@ -267,7 +267,7 @@ public class Fusk_static_core
             }
             else
             {
-                logger.log("FATAL signature not found");
+                logger.log("❌ FATAL signature not found");
             }
         }
 
@@ -293,7 +293,7 @@ public class Fusk_static_core
                             break;
                         }
                     }
-                    if ( ok) logger.log("byte fusk OK "+k);
+                    if ( ok) logger.log("✅ byte fusk OK "+k);
                 }
                 long end = System.currentTimeMillis();
                 logger.log("elapsed = "+(end-start));

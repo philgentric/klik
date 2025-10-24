@@ -197,16 +197,16 @@ public class Media_instance
         if ( aborter.should_abort())
         {
             dispose_internal();
-            logger.log("player aborted after new MediaPlayer "+ aborter.reason());
+            logger.log("❗ player aborted after new MediaPlayer "+ aborter.reason());
             return Song_play_status.aborted;
         }
         the_media_player.setCycleCount(1);
-        the_media_player.setOnStalled(() -> logger.log("\n\nWARNING player is stalling !!"));
+        the_media_player.setOnStalled(() -> logger.log("\n\n❗ WARNING player is stalling !!"));
         the_media_player.setOnReady(() -> {
             if ( aborter.should_abort())
             {
                 dispose_internal();
-                logger.log("player aborted in setOnReady "+ aborter.reason());
+                logger.log("❗ player aborted in setOnReady "+ aborter.reason());
                 return;
             }
             media_callbacks.on_player_ready();
@@ -216,13 +216,13 @@ public class Media_instance
             if ( aborter.should_abort())
             {
                 dispose_internal();
-                logger.log("player aborted in setOnPlaying "+ aborter.reason());
+                logger.log("❗ player aborted in setOnPlaying "+ aborter.reason());
                 return;
             }
             if ( first_time) {
                 Integer current_time_s = get_current_time(song, owner);
                 //if ( dbg)
-                logger.log("seeking to " + current_time_s);
+                logger.log("✅ seeking to " + current_time_s);
                 Duration target = Duration.seconds(current_time_s);
                 the_media_player.seek(target);
             }

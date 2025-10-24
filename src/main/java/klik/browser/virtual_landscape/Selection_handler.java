@@ -96,22 +96,22 @@ public class Selection_handler
     {
         if ( Files.isDirectory(path))
         {
-            String s = "WARNING: directories in a multiple selection is disabled, ignoring: "+path;
+            String s = "✅ WARNING: directories in a multiple selection is disabled, ignoring: "+path;
             logger.log(s);
             Popups.simple_alert(s,virtual_landscape.owner,logger);
             return false;
         }
         if ( Files.isSymbolicLink(path))
         {
-            String s = "WARNING: symbolic link in multiple selection is disabled, ignoring: "+path;
+            String s = "✅ WARNING: symbolic link in multiple selection is disabled, ignoring: "+path;
             logger.log(s);
             Popups.simple_alert(s,virtual_landscape.owner,logger);
             return false;
         }
         selected_files.add(path.toFile());
         if (Drag_and_drop.drag_and_drop_dbg)  {
-            logger.log("1 file added to selection = " + path.getFileName());
-            logger.log("all selected files =");
+            logger.log("✅ 1 file added to selection = " + path.getFileName());
+            logger.log("✅ all selected files =");
             for (File p : selected_files) {
                 logger.log("        " + p.getName());
             }

@@ -120,7 +120,7 @@ public class My_taskbar_icon
     {
         PixelReader pr = img.getPixelReader();
         if (pr == null) {
-            logger.log("fromFXImage FATAL: getPixelReader() failed");
+            logger.log("❌ fromFXImage FATAL: getPixelReader() failed");
             return null;
         }
         int iw = (int) img.getWidth();

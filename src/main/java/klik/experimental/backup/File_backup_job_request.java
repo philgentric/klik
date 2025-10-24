@@ -35,7 +35,7 @@ public class File_backup_job_request implements Message
         this.deep_byte_check = deep_byte_check;
         if ( aborter_ == null)
         {
-            logger.log_stack_trace("FATAL: aborter must not be null");
+            logger.log_stack_trace("❌ FATAL: aborter must not be null");
         }
         this.aborter = aborter_;
     }

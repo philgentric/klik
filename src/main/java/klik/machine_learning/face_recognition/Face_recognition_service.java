@@ -203,14 +203,14 @@ public class Face_recognition_service
             Platform.runLater(()->
             {
                 boolean reply = Popups.popup_ask_for_confirmation(
-                        "Folder does not contain a file named '.folder_name_is_recognition_label'",
+                        "❗ Folder does not contain a file named '.folder_name_is_recognition_label'",
                         "Do you want to create this file?",
                         owner, logger);
                 if (reply) {
                     try {
                         Files.createFile(check.toPath());
                     } catch (IOException e) {
-                        logger.log("auto_internal FATAL cannot create file '.folder_name_is_recognition_label' in folder " + target);
+                        logger.log("❌ auto_internal FATAL cannot create file '.folder_name_is_recognition_label' in folder " + target);
                         return;
                     }
                 }

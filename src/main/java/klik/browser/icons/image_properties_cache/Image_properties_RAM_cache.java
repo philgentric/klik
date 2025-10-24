@@ -105,7 +105,7 @@ public class Image_properties_RAM_cache
             Image_properties x = cache.get(key_from_path(p));
             if ( x == null)
             {
-                logger.log("PANIC null Image_properties in cache after blocking call ");
+                logger.log("❌ PANIC null Image_properties in cache after blocking call ");
             }
             return x;
         }

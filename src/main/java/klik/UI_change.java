@@ -59,7 +59,7 @@ public interface UI_change
                         logger.log(app_name+": received THIS_IS_MY_UI_CHANGE_PORT "+port);
                         if ( propagate_to == null)
                         {
-                            logger.log(app_name+": BAD WARNING cannot add port to 'propagate_to'");
+                            logger.log("❌ "+app_name+": BAD WARNING cannot add port to 'propagate_to'");
                         }
                         else
                         {

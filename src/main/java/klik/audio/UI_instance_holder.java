@@ -100,7 +100,7 @@ public class UI_instance_holder
         {
             if (ui == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("FATAL: you must call Audio_player2.init() before trying to play"));
+                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: you must call Audio_player2.init() before trying to play"));
             }
 
             ui.change_song(finalSong, start, first_time);

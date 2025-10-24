@@ -14,6 +14,7 @@ public class Worker
     // a worker (aka runner) is owner of ONE thread
     // and uses it to run Jobs
     // extracted from the engine queue
+    private static final boolean dbg = false;
     public final LinkedBlockingQueue<Job> engine_input_queue;
     public final Logger logger;
     public final String name;
@@ -44,7 +45,7 @@ public class Worker
                     {
                         if (cleanup_aborter.should_abort())
                         {
-                            logger.log("Worker "+name+" stops");
+                            if ( dbg) logger.log("Worker "+name+" stops");
                             // accounting for the WORKER's own thread
                             Actor_engine.threads_in_flight.decrementAndGet();
                             Actor_engine.jobs_in_flight.remove(worker_job);
@@ -54,7 +55,7 @@ public class Worker
                     }
                     if (job.actor == null)
                     {
-                        logger.log("BAD BAD null actor in error_message :"+job.to_string());
+                        logger.log("❌ BAD BAD null actor in error_message :"+job.to_string());
                         continue;
                     }
                     String msg = job.actor.run(job.message);
@@ -113,7 +114,7 @@ public class Worker
     //**********************************************************
     {
         cleanup_aborter.abort("Worker "+name+" shall stop");
-        logger.log("Worker "+name+" stop requested");
+        if ( dbg) logger.log("✅ Worker "+name+" stop requested");
 
     }
 

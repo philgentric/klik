@@ -282,7 +282,7 @@ public abstract class Item implements Icon_destination
                         Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
                         if ( new_path == null)
                         {
-                            Popups.popup_warning("copy of dir failed","names are same ?", false,owner,logger);
+                            Popups.popup_warning("❗ copy of dir failed","names are same ?", false,owner,logger);
                             return;
                         }
                         Static_files_and_paths_utilities.copy_dir_in_a_thread(owner, get_item_path(), new_path, aborter, logger);

@@ -85,7 +85,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		Feature_vector_cache fv_cache = fv_cache_supplier.get();
 		if ( fv_cache == null)
 		{
-			logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv_cache is null"));
+			logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv_cache is null"));
 			return;
 		}
 

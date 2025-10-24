@@ -159,7 +159,7 @@ public class Undo_core implements Datetime_to_signature_source
     //**********************************************************
     {
         String s1 = My_I18n.get_I18n_string("Warning_delete_undo", owner,logger);
-        if (!Popups.popup_ask_for_confirmation( s1, "", owner,logger)) return;
+        if (!Popups.popup_ask_for_confirmation("❗"+ s1, "", owner,logger)) return;
 
         Set<String> set = properties_manager.get_all_keys();
         for ( String k : set)
@@ -375,7 +375,7 @@ public class Undo_core implements Datetime_to_signature_source
             else
             {
                 //if ( dbg)
-                    logger.log("OK UNDO removed "+key+" from properties");
+                    logger.log("✅  OK UNDO removed "+key+" from properties");
             }
         }
         {
@@ -387,7 +387,7 @@ public class Undo_core implements Datetime_to_signature_source
             }
             else
             {
-                if ( dbg) logger.log("OK removed "+key+" from properties");
+                if ( dbg) logger.log("✅  OK removed "+key+" from properties");
             }
         }
         int j = 0;
@@ -402,7 +402,7 @@ public class Undo_core implements Datetime_to_signature_source
                 }
                 else
                 {
-                    if ( dbg) logger.log("OK removed "+key_for_old_path+" from properties");
+                    if ( dbg) logger.log("✅ OK removed "+key_for_old_path+" from properties");
                 }
 
             }
@@ -415,7 +415,7 @@ public class Undo_core implements Datetime_to_signature_source
                 }
                 else
                 {
-                    if ( dbg) logger.log("OK removed "+key_for_new_path+" from properties");
+                    if ( dbg) logger.log("✅ OK removed "+key_for_new_path+" from properties");
                 }
             }
             j++;

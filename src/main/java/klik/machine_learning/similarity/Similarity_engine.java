@@ -89,7 +89,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         Feature_vector_cache fv_cache = fv_cache_supplier.get();
         if ( fv_cache == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv_cache is null"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv_cache is null"));
             return new ArrayList<>();
         }
 
@@ -106,7 +106,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         if ( fv0 ==null)
         {
             hourglass.close();
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv cannot be acquired"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv cannot be acquired"));
             return new ArrayList<>();
         }
 
@@ -168,7 +168,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         Feature_vector_cache fv_cache = fv_cache_supplier.get();
         if ( fv_cache == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: fv_cache is null"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv_cache is null"));
             if ( hourglass != null) hourglass.close();
             return new ArrayList<>();
         }

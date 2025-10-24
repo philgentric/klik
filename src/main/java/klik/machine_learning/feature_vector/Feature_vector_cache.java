@@ -118,7 +118,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         {
             feature_vector_creation_actor.run(imp); // blocking call
             Feature_vector x = path_to_feature_vector_cache.get(key_from_path(p));
-            if ( x == null) logger.log("PANIC null Feature_vector in cache after blocking call ");
+            if ( x == null) logger.log("❌ PANIC null Feature_vector in cache after blocking call ");
             return x;
         }
         local_actor_engine.run(feature_vector_creation_actor,imp,tr,logger);
@@ -184,7 +184,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                 }
                 if ( fv == null)
                 {
-                    logger.log("Fatal, unknown feature vector type in cache file");
+                    logger.log("❌ Fatal, unknown feature vector type in cache file");
                     return;
                 }
                 path_to_feature_vector_cache.put(path_string, fv);
@@ -246,14 +246,14 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                 Feature_vector fv = e.getValue();
                 if ( fv == null)
                 {
-                    logger.log("PANIC null feature vector for key="+e.getKey());
+                    logger.log("❌ PANIC null feature vector for key="+e.getKey());
                     continue;
                 }
                 if ( feature_vectors_are_double)
                 {
                     Feature_vector_double fvd = (Feature_vector_double) fv;
                     if (fvd.features == null) {
-                        logger.log("PANIC null features for key=" + e.getKey());
+                        logger.log("❌ PANIC null features for key=" + e.getKey());
                         continue;
                     }
                     saved++;
@@ -267,7 +267,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                 {
                     Feature_vector_for_song fvb = (Feature_vector_for_song) fv;
                     if (fvb.original_string == null) {
-                        logger.log("PANIC null original_string for key=" + e.getKey());
+                        logger.log("❌ PANIC null original_string for key=" + e.getKey());
                         continue;
                     }
                     saved++;

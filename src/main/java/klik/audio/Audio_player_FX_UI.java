@@ -101,7 +101,7 @@ public class Audio_player_FX_UI implements Media_callbacks
 
         pause_string = My_I18n.get_I18n_string(PAUSE, stage,logger);
         play_string = My_I18n.get_I18n_string(PLAY, stage,logger);
-        logger.log("play_string = " + play_string);
+        //logger.log("play_string = " + play_string);
 
         Rectangle2D r = Non_booleans_properties.get_window_bounds(AUDIO_PLAYER,stage);
         stage.setX(r.getMinX());
@@ -299,12 +299,12 @@ public class Audio_player_FX_UI implements Media_callbacks
             Object source = drag_event.getGestureSource();
             if (source == null)
             {
-                logger.log(("WARNING: accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: " + drag_event.getSource()));
+                logger.log(("❗ WARNING: accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: " + drag_event.getSource()));
             }
             else
             {
                 if (source == landing_zone) {
-                    logger.log("source is excluded: cannot drop onto itself");
+                    logger.log("❗ source is excluded: cannot drop onto itself");
                     drag_event.consume();
                     return;
                 }
@@ -1047,7 +1047,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         {
             previous.setDisable(true);
             next.setDisable(true);
-            logger.log("WARNING: playlist is empty !?");
+            logger.log("❗ WARNING: playlist is empty !?");
             return;
         }
         previous.setDisable(false);

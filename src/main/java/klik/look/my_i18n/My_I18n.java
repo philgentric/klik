@@ -45,10 +45,10 @@ public class My_I18n
         String returned = instance.get_I18n_string_internal(key,logger);
         if ( returned == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<- not found"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING My_I18n ->"+key+"<- not found"));
             return key;
         }
-        if ( dbg) logger.log("OK My_I18n ->"+key+"<- was found for "+instance.language.name()+" : ->"+returned+"<-");
+        if ( dbg) logger.log("✅ OK My_I18n ->"+key+"<- was found for "+instance.language.name()+" : ->"+returned+"<-");
         return returned;
     }
 
@@ -64,7 +64,7 @@ public class My_I18n
         }
         catch (MissingResourceException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING My_I18n ->"+key+"<- not found"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING My_I18n ->"+key+"<- not found"));
             if ( ultra_dbg) {
                 logger.log("the resource bundle contains these keys:");
                 Enumeration<String> es = the_resource_bundle.getKeys();
@@ -80,7 +80,7 @@ public class My_I18n
     private My_I18n(Language language, Locale locale, Logger logger)
     //**********************************************************
     {
-        {
+        if ( dbg) {
             // Print all resources in the 'klik' directory
             String dirs[] = {"klik/","resources/klik/"};
             for (String dir : dirs) {
@@ -105,16 +105,16 @@ public class My_I18n
         }
         catch(Exception e)
         {
-            logger.log("WARNING: method1 failed to load language resource : "+e+"\n...will try another way ");
+            logger.log("❗ WARNING: method1 failed to load language resource : "+e+"\n    ...will try another way ");
 
-            // this method work with jbang
+            // this method works with jbang
             try {
                 String name = "languages/MessagesBundle" + "_" + locale.getLanguage() + "_" + locale.getCountry()+".properties";
-                logger.log("trying get_jar_InputStream_by_name with name : "+name);
+                if ( dbg) logger.log("✅ trying get_jar_InputStream_by_name with name : "+name);
 
                 InputStream is = Jar_utils.get_jar_InputStream_by_name(name);
                 the_resource_bundle = new PropertyResourceBundle(is);
-                logger.log("method2 succeeded loading language resource  : "+name);
+                if ( dbg) logger.log("✅ method2 succeeded loading language resource  : "+name);
            }
             catch (Exception e2)
             {
@@ -123,12 +123,12 @@ public class My_I18n
         }
         if ( the_resource_bundle == null)
         {
-            logger.log("BAD WARNING failed to load language resource: "+locale);
+            logger.log("❌ BAD WARNING failed to load language resource: "+locale);
             return;
         }
         if ( dbg)
         {
-            logger.log(" OK, language resource found for "+locale);
+            logger.log("✅ OK, language resource found for "+locale);
             Enumeration<String> x = the_resource_bundle.getKeys();
             while ( x.hasMoreElements())
             {

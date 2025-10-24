@@ -39,7 +39,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         this.the_playlist_file_path = the_playlist_file_path;
         if ( the_playlist_file_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL ERROR: the_playlist_file_path is null!"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL ERROR: the_playlist_file_path is null!"));
             return;
         }
         reload();
@@ -310,7 +310,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     {
         if ( the_playlist_file_path == null)
         {
-            logger.log("FATAL ERROR: the_playlist_file_path is null!");
+            logger.log("❌ FATAL ERROR: the_playlist_file_path is null!");
             return;
         }
         try {

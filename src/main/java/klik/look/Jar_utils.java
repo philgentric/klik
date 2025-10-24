@@ -164,13 +164,13 @@ public class Jar_utils
         Look_and_feel local_instance = Look_and_feel_manager.get_instance(owner,logger);
         if (local_instance == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get look and feel instance"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING: cannot get look and feel instance"));
             return null;
         }
         String path = local_instance.get_broken_icon_path();
         if (path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("BAD WARNING: cannot get broken icon path"));
+            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING: cannot get broken icon path"));
             return null;
         }
         broken_icon = load_jfx_image_from_jar(path, icon_size,owner,logger);

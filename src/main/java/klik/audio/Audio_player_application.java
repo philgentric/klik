@@ -22,6 +22,7 @@ import java.nio.file.Path;
 public class Audio_player_application extends Application
 //**********************************************************
 {
+    private static final boolean dbg = false;
     private final static String name = "Audio_player_application";
     private Stage stage;
     Logger logger;
@@ -73,12 +74,12 @@ public class Audio_player_application extends Application
                 if (lines.size() > 0) {
                     String s = lines.get(0);
                     int port = Integer.parseInt(s);
-                    logger.log("Audio_player_application: extracted reply_port= " + port);
+                    if ( dbg) logger.log("✅ Audio_player_application: extracted reply_port= " + port);
                     return port;
                 }
             }
         } catch (IOException | NumberFormatException e) {
-            logger.log("WARNING: could not read reply_port "+p);
+            logger.log("❌ WARNING: could not read reply_port "+p);
         }
         return null;
     }
@@ -112,13 +113,13 @@ public class Audio_player_application extends Application
             Path path = context.extract_path();
             if (path == null)
             {
-                logger.log("Audio_player_application, NO audio file found");
+                logger.log("✅ Audio_player_application, NO audio file found in context");
             }
             else
             {
                 long start = System.currentTimeMillis();
                 UI_instance_holder.play_this(path.toAbsolutePath().toString(), start,true,logger);
-                logger.log("Audio_player_application, opening audio file = " + path.toAbsolutePath());
+                logger.log("✅ Audio_player_application, opening audio file = " + path.toAbsolutePath());
             }
         }
     }

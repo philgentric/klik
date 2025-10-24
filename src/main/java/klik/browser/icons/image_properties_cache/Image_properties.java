@@ -40,7 +40,7 @@ public record Image_properties(double w, double h, Rotation rotation)
     {
         if ( rotation() == null)
         {
-            System.out.println(Stack_trace_getter.get_stack_trace("PANIC: rotation should never be null"));
+            System.out.println(Stack_trace_getter.get_stack_trace("❌ PANIC: rotation should never be null"));
             return 1.0;
         }
         switch (rotation())

@@ -34,7 +34,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
         this.cleanup_aborter = actor_engine_cleanup_aborter;
         int number_of_runners = System_info.how_many_cores() -1;
         if ( number_of_runners < 1) number_of_runners = 1;
-        logger.log("Actor_engine_based_on_workers starting with "+number_of_runners+" workers");
+        if ( dbg) logger.log("✅ Actor_engine_based_on_workers starting with "+number_of_runners+" workers");
 
         for (int i = 0; i < number_of_runners; i++)
         {
@@ -69,7 +69,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     //**********************************************************
     {
         input_queue_single.add(am);
-        if ( dbg) logger.log(am.to_string()+" scheduled for execution");
+        if ( dbg) logger.log("✅ "+am.to_string()+" scheduled for execution");
     }
 
     //**********************************************************
@@ -86,7 +86,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     {
         if ( input_queue_single.remove(job))
         {
-            if ( Actor_engine.cancel_dbg) logger.log("Actor-Message removed from queue (canceled before start): "+job.to_string());
+            if ( Actor_engine.cancel_dbg) logger.log("✅ Actor-Message removed from queue (canceled before start): "+job.to_string());
         }
     }
 

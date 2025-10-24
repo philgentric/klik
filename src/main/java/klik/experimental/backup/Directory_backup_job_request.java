@@ -24,7 +24,7 @@ public class Directory_backup_job_request implements Message
         this.destination_dir = destination_dir;
         if ( aborter_ == null)
         {
-            logger.log_stack_trace("FATAL: aborter must not be null");
+            logger.log_stack_trace("❌ FATAL: aborter must not be null");
         }
         aborter = aborter_;
     }

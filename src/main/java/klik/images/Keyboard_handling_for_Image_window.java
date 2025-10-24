@@ -104,7 +104,7 @@ public class Keyboard_handling_for_Image_window
                 image_window.image_display_handler.change_image_relative(1, image_window.ultim_mode);
             }
             else {
-                Popups.popup_warning("Ahah!","Using Shift-D for sure-deleting a file requires to enable it in the preferences", false,owner,logger);
+                Popups.popup_warning("❗ Ahah ❗","Using Shift-D for sure-deleting a file requires to enable it in the preferences", false,owner,logger);
             }
             return;
         }

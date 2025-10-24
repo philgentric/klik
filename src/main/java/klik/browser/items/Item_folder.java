@@ -116,17 +116,17 @@ public class Item_folder extends Item implements Icon_destination
             }
             else
             {
-                logger.log("Warning PATH is null in item folder for ->"+text+"<-");
+                logger.log("❗ Warning PATH is null in item folder for ->"+text+"<-");
             }
             return;
         }
         if (Files.isDirectory(local))
         {
-            button_for_a_directory(text, button_width, height, color);
+            button_for_a_directory(text, is_trash, button_width, height, color);
         }
         else
         {
-            logger.log("SHOULD NOT HAPPEN Item_folder path is not a directory!");
+            logger.log("❌ SHOULD NOT HAPPEN Item_folder path is not a directory!");
         }
         Look_and_feel_manager.set_button_look(button,false,owner,logger);
         button.setManaged(true); // means the parent tells the button its layout
@@ -199,7 +199,7 @@ public class Item_folder extends Item implements Icon_destination
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+        logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
     }
 
 
@@ -213,7 +213,7 @@ public class Item_folder extends Item implements Icon_destination
     @Override // Icon_destination
     public Path get_path_for_display_icon_destination()
     {
-        logger.log("Item_button get_path_for_display_icon_destination DEEP !???");
+        logger.log("✅ Item_button get_path_for_display_icon_destination DEEP !???");
         return get_path_for_display(true);
     }
 
@@ -230,8 +230,6 @@ public class Item_folder extends Item implements Icon_destination
         if ( !get_item_path().toFile().isDirectory()) return get_item_path();
 
         if ( !try_deep) return null;
-
-        logger.log("YOPOPOPOOOOO");
 
         // for a folder we have 2 ways to provide an icon
         // 1) an image is taken from the folder and used as icon
@@ -261,12 +259,12 @@ public class Item_folder extends Item implements Icon_destination
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) logger.log("WARNING: dir is access denied: "+local_path);
+            if ( dbg) logger.log("❗ WARNING: dir is access denied: "+local_path);
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) logger.log("dir is empty: "+local_path);
+            if ( dbg) logger.log("✅ dir is empty: "+local_path);
             return null;
         }
         Arrays.sort(files);
@@ -290,7 +288,7 @@ public class Item_folder extends Item implements Icon_destination
         }
         if( make_animated_gif)
         {
-            logger.log("make_animated_gif!?");
+            logger.log("✅ make_animated_gif");
 
             if ( Objects.requireNonNull(images_in_folder).isEmpty())
             {
@@ -306,12 +304,12 @@ public class Item_folder extends Item implements Icon_destination
                     aborter, logger);
             if ( returned == null)
             {
-                logger.log("make_animated_gif_from_all_images_in_folder fails");
+                logger.log("❌ make_animated_gif_from_all_images_in_folder fails");
                 if (!images_in_folder.isEmpty()) return images_in_folder.get(0).toPath();
             }
             else
             {
-                logger.log("make_animated_gif_from_all_images_in_folder OK");
+                logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
 
                 return returned;
             }
@@ -342,7 +340,7 @@ public class Item_folder extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void button_for_a_directory(String text, double width, double height, Color color)
+    public void button_for_a_directory(String text, boolean is_trash, double width, double height, Color color)
     //**********************************************************
     {
         String extended_text = text;
@@ -362,12 +360,11 @@ public class Item_folder extends Item implements Icon_destination
         if (get_item_path() == null)
         {
             // protect crash when going up: root has no parent
-            if ( !text.isEmpty()) logger.log("WARNING no action for folder ->"+text+"<-");
+            if ( !text.isEmpty()) logger.log("✅ WARNING no action for folder ->"+text+"<-");
 
-            // TODO: this work ONLY if the user-selected language is English
-            if ( text.equals("Trash")) {
+            if ( is_trash) {
                 button.setOnAction(event -> {
-                    Popups.popup_warning("WARNING","NO trash on this media: probably it is read only",true,owner,logger);
+                    Popups.popup_warning("❗ WARNING","NO trash on this media: probably it is read only",true,owner,logger);
                 });
             }
             return;
@@ -379,7 +376,7 @@ public class Item_folder extends Item implements Icon_destination
             if (get_item_path() == null)
             {
                 // protect crash when going up: root has no parent
-                logger.log("WARNING no action for folder:"+text);
+                logger.log("❗ WARNING no action for folder:"+text);
                 return;
             }
 
