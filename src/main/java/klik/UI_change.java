@@ -68,7 +68,7 @@ public interface UI_change
                     }
                     else
                     {
-                        logger.log(app_name+": UI_change_server received unknown message: "+msg);
+                        logger.log("❌ "+app_name+": UI_change_server received UNKNOWN message: "+msg);
                     }
 
                 }

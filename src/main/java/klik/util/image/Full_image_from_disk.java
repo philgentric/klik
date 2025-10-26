@@ -33,7 +33,7 @@ import java.util.Optional;
 public class Full_image_from_disk
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
 
     static boolean user_warned_about_slow_disk = false;
 

@@ -46,7 +46,8 @@ public class Audio_player_FX_UI implements Media_callbacks
 {
     private static final boolean dbg =  true;
     private static final boolean ultra_dbg =  false;
-    private static final boolean scroll_dbg =  false;
+    static final boolean keyword_dbg = false;
+
 
     public static final int WIDTH = 500;
     public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
@@ -83,7 +84,6 @@ public class Audio_player_FX_UI implements Media_callbacks
 
     String pause_string;
     String play_string;
-    static final boolean keyword_dbg = true;
 
     // STATE:
 

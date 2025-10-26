@@ -25,7 +25,9 @@ public class Shared_services
     {
         return aborter;
     }
+    //**********************************************************
     public static IProperties main_properties()
+    //**********************************************************
     {
         return main_properties;
     }

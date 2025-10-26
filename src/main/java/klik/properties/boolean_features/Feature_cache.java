@@ -35,6 +35,7 @@ public class Feature_cache
             Feature.Show_ffmpeg_install_warning);
 
     static {
+        //System.out.println("Feature_cache init");
         for (Feature f : Feature.values())
         {
             if ( default_to_true.contains(f))

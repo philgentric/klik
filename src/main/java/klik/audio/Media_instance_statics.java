@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Media_instance_statics
 //**********************************************************
 {
-    private static final boolean dbg = true;
     private static ConcurrentLinkedQueue<Aborter> aborters = new ConcurrentLinkedQueue<>();
     private static Media_instance instance;
 

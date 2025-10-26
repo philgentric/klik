@@ -1,6 +1,9 @@
 package klik.in3D;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.*;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.PickResult;
@@ -12,16 +15,18 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.util.execute.actor.Aborter;
 import klik.path_lists.Path_list_provider_for_file_system;
-import klik.path_lists.Path_list_provider;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.List;
 
 //*******************************************************
 public class Circle_3D
@@ -36,7 +41,7 @@ public class Circle_3D
     double cameraPathAngle = 0;   // Position around circle (keyboard)
 
     double circle_radius = 5000; // Radius of circular corridor
-    int num_segments;// = 360/3; // Number of wall segments
+    int num_segments; // Number of wall segments i.e. pictures displayed
 
     double mouseOldX, mousePosX, mouseDeltaX;
 
@@ -47,7 +52,10 @@ public class Circle_3D
 
     final PhongMaterial greyMaterial = new PhongMaterial(Color.LIGHTGRAY);
 
-    private final Image_source image_source;
+    private final Image_source item_source;
+    private final Logger logger;
+    private final Stage stage;
+    private final Path  the_path;
     double inner_box_size;
     double outer_box_size;
 
@@ -59,21 +67,28 @@ public class Circle_3D
     private final int icon_size;
 
     //*******************************************************
-    public Circle_3D(int icon_size, Image_source image_source)
+    public Circle_3D(int icon_size, Path path, Stage stage, Logger logger)
     //*******************************************************
     {
+        this.the_path = path;
         this.icon_size = icon_size;
-        this.image_source = image_source;
+        this.stage = stage;
+        this.logger = logger;
+        //image_source = new Dummy_text_image_source(icon_size,30000);
+
+        this.item_source = new Image_source_from_files( path,icon_size,stage,logger);
+
     }
 
     //*******************************************************
-    public Scene get_scene(Window owner, Logger logger)
+    public Scene get_scene()
     //*******************************************************
     {
-        int number_of_images = image_source.how_many_images();
+        int number_of_items = item_source.how_many_items();
 
         // Calculate segments needed (2 walls per segment + max 3 blanks)
-        int wallsNeeded = number_of_images + 1; // Allow up to 3 blank walls
+        int wallsNeeded = number_of_items + 3;
+        if (wallsNeeded < 30) wallsNeeded = 30;
         int segmentsNeeded = (wallsNeeded) / 2; // Round up, 2 walls per segment
 
         // Use calculated segments instead of fixed NUM_SEGMENTS
@@ -89,7 +104,7 @@ public class Circle_3D
         double calculatedRadius = desiredBoxWidth / angleStepRad;
         circle_radius = calculatedRadius;
 
-        System.out.println("Using " + num_segments + " segments with radius " + circle_radius);
+        logger.log("Using " + num_segments + " segments with radius " + circle_radius);
 
         double boxDepth = 10;
 
@@ -109,10 +124,10 @@ public class Circle_3D
                   outerRadius);
 
 
-        create_floor(owner,logger);
+        create_floor(stage,logger);
 
         double dome_radius = circle_radius * 20;
-        Group ceilingGroup = create_sky_ceiling(dome_radius,owner,logger);
+        Group ceilingGroup = create_sky_ceiling(dome_radius,stage,logger);
 
         AmbientLight ambientLight = new AmbientLight(Color.LIGHTGRAY);
 
@@ -135,13 +150,27 @@ public class Circle_3D
         // Camera setup
         camera.setNearClip(1.0);
         camera.setFarClip(dome_radius*1.5);
-        System.out.println("camera FarClip = " + camera.getFarClip());
+        logger.log("camera FarClip = " + camera.getFarClip());
         camera.setFieldOfView(60);
 
         subScene.setCamera(camera);
         resetCamera();
 
         Scene scene = new Scene(stackPane, 800, 600);
+
+        if ( the_path.getParent() != null)
+        {
+            Button up = new Button("Up");
+            Look_and_feel_manager.set_button_look(up, true, stage, logger);
+            up.setOnAction(event -> {
+                Circle_3D new_instance = new Circle_3D(icon_size, the_path.getParent(), stage, logger);
+                stage.setScene(new_instance.get_scene());
+            });
+            stackPane.getChildren().add(up);
+            StackPane.setAlignment(up, Pos.TOP_LEFT);
+            StackPane.setMargin(up, new Insets(10));         // 10‑pixel margin from the edges
+        }
+
         setupClickHandling(scene,logger);
 
         scene.setOnMousePressed(me -> mouseOldX = me.getSceneX());
@@ -286,7 +315,7 @@ public class Circle_3D
                 if( update_one_box(image_index++, baa, camX, camZ, max_distance, outer_boxes_group)) count++;
             }
         }
-        //System.out.println(count+ " boxes to be updated");
+        //logger.log(count+ " boxes to be updated");
 
         // Apply all material changes at once
         for (int i = 0; i < boxes_to_update.size(); i++)
@@ -336,7 +365,7 @@ public class Circle_3D
         boxes_to_update.add(baa);
 
         // load image
-        Image_and_path iap = image_source.get(image_index);
+        Image_and_path iap = item_source.get(image_index);
         if ( iap != null)
         {
             box.setUserData(iap.path());
@@ -369,7 +398,7 @@ public class Circle_3D
     //*******************************************************
     {
         scene.setOnMouseClicked(event -> {
-            if ( dbg) System.out.println(event);
+            if ( dbg) logger.log(event.toString());
             if (event.getClickCount() < 2) return; // Only handle double-clicks
             if (event.getClickCount() == 3)
             {
@@ -384,15 +413,23 @@ public class Circle_3D
                 Path p = (Path) clickedBox.getUserData();
                 if ( p == null)
                 {
-                    if ( dbg) System.out.println("No user data!");
+                    if ( dbg) logger.log("No user data!");
                     return;
                 }
 
-                System.out.println("Clicked on: " + p);
+                logger.log("Clicked on: " + p);
 
-                Path_list_provider plp = new Path_list_provider_for_file_system(p.getParent());
-                Path_list_provider_for_file_system comp = new Path_list_provider_for_file_system(p.getParent());
-                Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent()), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
+                if (Files.isDirectory(p))
+                {
+                    logger.log("is folder: "+p);
+                    Circle_3D new_instance = new Circle_3D(icon_size,p,stage,logger);
+                    stage.setScene(new_instance.get_scene());
+                }
+                else 
+                {
+                    logger.log("is not folder : "+p);
+                    Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent()), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
+                }
 
                 /*
                 // display the image in the full window
@@ -401,7 +438,7 @@ public class Circle_3D
                     image = new Image(is);
                 } catch (IOException e)
                 {
-                    System.out.println("Error loading image: " + e.getMessage());
+                    logger.log("Error loading image: " + e.getMessage());
                     return;
                 }
                 if ( image == null) return;
@@ -514,7 +551,7 @@ public class Circle_3D
 
 
 
-        System.out.println("Created " + tilesCreated + " floor tiles");
+        logger.log("Created " + tilesCreated + " floor tiles");
     }
 
     //*******************************************************
@@ -558,7 +595,7 @@ public class Circle_3D
             }
         }
 
-        System.out.println("Created " + tilesCreated + " ceiling tiles");
+        logger.log("Created " + tilesCreated + " ceiling tiles");
         return ceilingGroup;
     }
 
@@ -581,24 +618,24 @@ public class Circle_3D
             else if ( now-start_shift_down> 3000)
             {
                 stepAngle *= 40000;
-                if ( dbg) System.out.println("40000 stepAngle="+stepAngle);
+                if ( dbg) logger.log("40000 stepAngle="+stepAngle);
 
             }
             else if ( now-start_shift_down> 1000)
             {
                 stepAngle *= 1000;
-                if ( dbg) System.out.println("1000 stepAngle="+stepAngle);
+                if ( dbg) logger.log("1000 stepAngle="+stepAngle);
             }
             else
             {
                 stepAngle *= 100;
-                if ( dbg) System.out.println("100 stepAngle="+stepAngle);
+                if ( dbg) logger.log("100 stepAngle="+stepAngle);
             }
         }
         else
         {
             start_shift_down = -1;
-            if ( dbg) System.out.println("zero stepAngle="+stepAngle);
+            if ( dbg) logger.log("zero stepAngle="+stepAngle);
         }
         if ( se.isControlDown()) stepAngle /= 10;
         if ( mouseDeltaX < 0)
@@ -625,28 +662,28 @@ public class Circle_3D
     {
         long now = System.currentTimeMillis();
         double stepAngle =  360.0 / (num_segments * 10.0);
-        if (now - last_time[0] < 100)
+        if (now - last_time[0] < 70)
         {
-            stepAngle *= 5;
+            stepAngle *= 3;
             count[0]++;
             if (count[0] > 30) // 3 seconds
             {
-                stepAngle *= 10000;
-                if ( dbg)System.out.println("10000 stepAngle="+stepAngle);
+                stepAngle *= 1000;
+                if ( dbg)logger.log("1000 stepAngle="+stepAngle);
             }
             else if (count[0] > 10) // 1 seconds
             {
-                stepAngle *= 1000;
-                if ( dbg) System.out.println("1000 stepAngle="+stepAngle);
+                stepAngle *= 100;
+                if ( dbg) logger.log("100 stepAngle="+stepAngle);
             }
             else if (count[0] > 5)
             {
-                stepAngle *= 100;
-                if ( dbg) System.out.println("100 stepAngle="+stepAngle);
+                stepAngle *= 10;
+                if ( dbg) logger.log("10 stepAngle="+stepAngle);
             }
             else
             {
-                if ( dbg) System.out.println("stepAngle="+stepAngle);
+                if ( dbg) logger.log("stepAngle="+stepAngle);
             }
 
         }
@@ -703,7 +740,7 @@ public class Circle_3D
             }};
         } else {
             // Fallback to dark blue if no texture
-            System.out.println("falling back to solid color for dome");
+            logger.log("falling back to solid color for dome");
             domeMaterial = new PhongMaterial(Color.MIDNIGHTBLUE);
         }
 
@@ -714,7 +751,7 @@ public class Circle_3D
 
         ceilingGroup.getChildren().add(dome);
 
-        System.out.println("Created dome ceiling with radius: " + dome_radius);
+        logger.log("Created dome ceiling with radius: " + dome_radius);
         return ceilingGroup;
     }
 

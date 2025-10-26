@@ -17,7 +17,6 @@ import klik.util.log.Logger;
 public class Media_instance
 //**********************************************************
 {
-    private static final boolean dbg = true;
     private final Logger logger;
     private MediaPlayer the_media_player;
     private final Aborter aborter;

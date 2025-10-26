@@ -23,14 +23,6 @@ public class Dummy_text_image_source implements Image_source
         this.max = max;
     }
 
-    @Override
-    public Image_and_path get_next()
-    {
-        Image_and_path returned = new Image_and_path(create_image_with_text("("+(i++)+")", 512, 512), null);
-
-        if ( i >=max) i =0;
-        return returned;
-    }
 
     @Override
     public Image_and_path get(int i)
@@ -38,7 +30,7 @@ public class Dummy_text_image_source implements Image_source
         return new Image_and_path(create_image_with_text("-"+i+"-", size, size), null);    }
 
     @Override
-    public int how_many_images()
+    public int how_many_items()
     {
         return max;//Integer.MAX_VALUE;
     }

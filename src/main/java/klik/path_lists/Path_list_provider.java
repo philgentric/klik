@@ -25,6 +25,7 @@ public interface Path_list_provider
     void reload();
     List<File> only_files(boolean consider_also_hidden_files); // only files, no folders
     List<Path> only_file_paths(boolean consider_also_hidden_files);
+
     List<Path> only_image_paths(boolean considerAlsoHiddenFiles);
     List<Path> only_song_paths(boolean considerAlsoHiddenFiles);
 

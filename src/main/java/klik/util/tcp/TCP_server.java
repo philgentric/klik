@@ -211,9 +211,7 @@ public class TCP_server
         {
             if (aborter.should_abort())
             {
-                logger.log("\n\n\n TCP timeout and aborting!\n\n\n");
-
-                if ( dbg) logger.log("server closing down on abort");
+                if ( dbg) logger.log("TCP server closing down on abort");
                 try {
                     welcome_socket.close();
                 } catch (IOException ex) {

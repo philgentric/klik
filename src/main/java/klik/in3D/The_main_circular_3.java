@@ -3,6 +3,8 @@ package klik.in3D;
 import javafx.application.Application;
 import javafx.scene.*;
 import javafx.stage.Stage;
+import klik.Shared_services;
+import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
 import klik.util.log.Simple_logger;
 
@@ -24,14 +26,15 @@ public class The_main_circular_3 extends Application
     public void start(Stage primaryStage)
     //*******************************************************
     {
+        Shared_services.init("main circular 3D");
         Logger logger = new Simple_logger();
         int icon_size = 512;
+        Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 
-        Image_source image_source = new Image_source_from_files( Path.of("."),icon_size);
-        //image_source = new Dummy_text_image_source(icon_size,30000);
 
-        Circle_3D circle_3D = new Circle_3D(icon_size,image_source);
-        Scene scene = circle_3D.get_scene(primaryStage,logger);
+        Path p = Path.of(System.getProperty("user.home"));
+        Circle_3D circle_3D = new Circle_3D(icon_size,p,primaryStage,logger);
+        Scene scene = circle_3D.get_scene();
         primaryStage.setTitle("3D Circular Corridor Walk v2");
         primaryStage.setScene(scene);
         primaryStage.show();
