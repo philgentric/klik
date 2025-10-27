@@ -54,7 +54,9 @@ public class Perf implements AutoCloseable
         for (String tag : tags)
         {
             double ave = durations.get(tag).doubleValue()/count.get(tag).doubleValue();
-            logger.log(tag+":\n   max= "+format(max.get(tag).doubleValue())+"\n   ave= "+format(ave));
+            double v = max.get(tag).doubleValue();
+            if ( v > 1_000_000_000) tag = "❌ "+ tag;
+            logger.log(tag+":\n   max= "+format(v)+"\n   ave= "+format(ave));
         }
         logger.log("=========================");
     }

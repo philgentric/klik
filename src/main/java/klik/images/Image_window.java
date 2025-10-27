@@ -42,6 +42,7 @@ import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.image.rescaling.Image_rescaling_filter;
+import klik.util.perf.Perf;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
@@ -95,9 +96,11 @@ public class Image_window
     public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        Image_window returned = on_same_screen(path, path_list_provider,image_comparator,owner,aborter,logger_);
+        try ( Perf p = new Perf("get_Image_window")) {
+            Image_window returned = on_same_screen(path, path_list_provider, image_comparator, owner, aborter, logger_);
 
-        return returned;
+            return returned;
+        }
     }
 
     //**********************************************************
@@ -133,198 +136,164 @@ public class Image_window
             Logger logger_)
     //**********************************************************
     {
-        this.aborter = aborter;
-        this.path_list_provider = path_list_provider;
-        this.title_optional_addendum = title_optional_addendum;
-        path_comparator_source = () -> image_comparator.orElse(null);
-        logger = logger_;
-        dir = first_image_path.getParent();
-        stage = new Stage();
-        if (owner != null)
+        try (Perf p = new Perf("Image_window creation"))
         {
-            stage.initOwner(owner);
-        }
-        the_image_Pane = new StackPane();
-        Look_and_feel_manager.set_region_look(the_image_Pane,owner,logger);
+            this.aborter = aborter;
+            this.path_list_provider = path_list_provider;
+            this.title_optional_addendum = title_optional_addendum;
+            path_comparator_source = () -> image_comparator.orElse(null);
+            logger = logger_;
+            dir = first_image_path.getParent();
+            stage = new Stage();
+            if (owner != null) {
+                stage.initOwner(owner);
+            }
+            the_image_Pane = new StackPane();
+            Look_and_feel_manager.set_region_look(the_image_Pane, owner, logger);
 
-        path_list_provider.get_Change().add_change_listener(()->rescan());
+            path_list_provider.get_Change().add_change_listener(() -> rescan("Image_window constructor"));
 
-        {
-            long remaining_RAM = Check_remaining_RAM.get_remaining_memory(logger);
-            int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
-            int cache_slots = (int) (remaining_RAM/average_estimated_cache_slot_size);
-            int forward_size = cache_slots/2;
-            if ( forward_size > 10) forward_size = 10;
-            //logger.log("cache_slots="+cache_slots);
-            if (use_linkedhashmap_for_cache)
             {
-                image_cache = new Image_cache_linkedhashmap(forward_size,aborter,logger);
+                long remaining_RAM = Check_remaining_RAM.get_remaining_memory(logger);
+                int average_estimated_cache_slot_size = 50_000_000; // 50 MB per image, i.e. assume ~3000x~4000 pix on 4 byte
+                int cache_slots = (int) (remaining_RAM / average_estimated_cache_slot_size);
+                int forward_size = cache_slots / 2;
+                if (forward_size > 10) forward_size = 10;
+                //logger.log("cache_slots="+cache_slots);
+                if (use_linkedhashmap_for_cache) {
+                    image_cache = new Image_cache_linkedhashmap(forward_size, aborter, logger);
+                } else {
+                    image_cache = new Image_cache_cafeine(forward_size, aborter, logger);
+                }
+
             }
-            else
+
+
+            if (owner == null) {
+                if (!Feature_cache.get(Feature.Hide_beginners_text_on_images)) {
+                    String text = My_I18n.get_I18n_string("Image_window_info", owner, logger);
+                    text = text.replaceAll(",", "\n");
+                    the_info_label = new Label(text);
+                    the_info_label.setMaxWidth(400);
+                    the_info_label.setWrapText(true);
+                    StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
+                }
+            }
+
+            Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+            if (tmp == null) {
+                tmp = Image_properties_RAM_cache.get(new Path_list_provider_for_file_system(first_image_path.getParent()), owner, aborter, logger);
+                Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
+            }
+            image_properties_cache = tmp;
+
+
+            fv_cache_supplier = () ->
             {
-                image_cache = new Image_cache_cafeine(forward_size,aborter,logger);
-            }
+                if (fv_cache == null) {
+                    Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
+                    List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+                    Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
+                            Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, stage, x, y, aborter, logger);
+                    fv_cache = images_and_feature_vectors.fv_cache();
+                }
+                return fv_cache;
+            };
 
-        }
-
-
-        if ( owner == null) {
-            if (!Feature_cache.get(Feature.Hide_beginners_text_on_images)) {
-                String text = My_I18n.get_I18n_string("Image_window_info", owner, logger);
-                text = text.replaceAll(",", "\n");
-                the_info_label = new Label(text);
-                the_info_label.setMaxWidth(400);
-                the_info_label.setWrapText(true);
-                StackPane.setAlignment(the_info_label, Pos.BOTTOM_LEFT);
-/*        info_button = new Button("Info");
-        Look_and_feel_manager.set_button_look(info_button,true,logger);
-        info_button.setOnAction(event -> {
-            the_image_Pane.getChildren().add(the_info_label);
-        });
-        StackPane.setAlignment(info_button, Pos.BOTTOM_LEFT);
-*/
-            }
-        }
-
-        Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
-        if ( tmp == null)
-        {
-            tmp =Image_properties_RAM_cache.get(new Path_list_provider_for_file_system(first_image_path.getParent()),owner,aborter,logger);
-            Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),tmp);
-        }
-        image_properties_cache = tmp;
-
-
-        fv_cache_supplier = () ->
-        {
-            if ( fv_cache == null)
+            String extension = Extensions.get_extension(first_image_path.getFileName().toString());
+            set_background(the_image_Pane, extension, owner);
+            the_Scene = new Scene(the_image_Pane);
+            //Look_and_feel_manager.set_scene_look(the_Scene,owner,logger);
+            Color background = Look_and_feel_manager.get_instance(owner, logger).get_background_color();
+            the_Scene.setFill(background);
+            stage.setScene(the_Scene);
+            stage.setX(x);
+            stage.setY(y);
+            stage.setWidth(w);
+            stage.setHeight(h);
+            stage.show();
             {
-                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
-                List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
-                Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
-                        Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, stage, x,  y,  aborter,  logger);
-                fv_cache= images_and_feature_vectors.fv_cache();
+                Image_window local = this;
+                stage.addEventHandler(KeyEvent.KEY_PRESSED,
+                        keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
             }
-            return fv_cache;
-        };
 
-        String extension = Extensions.get_extension(first_image_path.getFileName().toString());
-        set_background(the_image_Pane,extension, owner);
-        the_Scene = new Scene(the_image_Pane);
-        //Look_and_feel_manager.set_scene_look(the_Scene,owner,logger);
-        Color background = Look_and_feel_manager.get_instance(owner,logger).get_background_color();
-        the_Scene.setFill(background);
-        stage.setScene(the_Scene);
-        stage.setX(x);
-        stage.setY(y);
-        stage.setWidth(w);
-        stage.setHeight(h);
-        stage.show();
-        {
-            Image_window local = this;
-            stage.addEventHandler(KeyEvent.KEY_PRESSED,
-                    keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
-        }
-
-        Comparator<Path> local_comp = null;
-        if ( image_comparator.isPresent())
-        {
-            local_comp = image_comparator.get();
-        }
-        else
-        {
-            // this is going to take possibly a long time !!!
-            long start = System.currentTimeMillis();
-            local_comp = File_sort_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent()), path_comparator_source, image_properties_cache, stage,x + 100, y + 100, aborter, logger);
-            long now = System.currentTimeMillis();
-            logger.log("get_true_comparator took " + (now - start) + " ms");
-        }
-        Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp,aborter, owner, logger);
-        if ( option.isEmpty())
-        {
-            image_display_handler = null;
-            mouse_handling_for_image_window = null;
-            set_nothing_to_display(first_image_path);
-            return;
-        }
-        image_display_handler = option.get();
-        image_display_handler.set_fv_cache(fv_cache_supplier);
-        image_display_handler.set_image_properties_cache(image_properties_cache);
-
-
-
-
-        mouse_handling_for_image_window = new Mouse_handling_for_Image_window(this, logger);
-
-        image_display_handler.change_image_relative(0,false);
-
-
-        ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            if ( dbg) logger.log("ChangeListener: image window position and/or size changed: "+ stage.getWidth()+","+ stage.getHeight());
-            if ( save_window_bounds) Non_booleans_properties.save_window_bounds(stage,IMAGE_WINDOW,logger);
-        };
-        stage.xProperty().addListener(change_listener);
-        stage.yProperty().addListener(change_listener);
-        stage.widthProperty().addListener(change_listener);
-        stage.heightProperty().addListener(change_listener);
-
-
-
-        // this event handler is NOT called when close() is called
-        // from the keyboard handler but only upon an "OS" window close
-        stage.setOnCloseRequest(we -> my_close());
-
-        the_Scene.setOnScroll(event -> {
-            double dy = -event.getDeltaY();
-            if (dy == 0) return;
-            //logger.log("SCROLL dy=" + dy);
-            int yy = (int) (dy / 10.0);
-            if (yy == 0)
-            {
-                if (dy < 0) yy = -1;
-                else yy = 1;
+            Comparator<Path> local_comp = null;
+            if (image_comparator.isPresent()) {
+                local_comp = image_comparator.get();
+            } else {
+                // this is going to take possibly a long time !!!
+                long start = System.currentTimeMillis();
+                local_comp = File_sort_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent()), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);
+                long now = System.currentTimeMillis();
+                logger.log("get_image_comparator took " + (now - start) + " ms");
             }
-            //logger.log("SCROLL after round up=" + yy);
-            image_display_handler.change_image_relative(yy, false);
-
-        });
-
-
-
-        // event handler if window is hidden (or closed, I hope?): stop animation
-        stage.setOnHiding(event -> {
-            if (slide_show != null)
-            {
-                stop_slide_show();
+            Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp, aborter, owner, logger);
+            if (option.isEmpty()) {
+                image_display_handler = null;
+                mouse_handling_for_image_window = null;
+                set_nothing_to_display(first_image_path);
+                return;
             }
-            //image_context_owner.get_image_context().finder_shutdown();
+            image_display_handler = option.get();
+            image_display_handler.set_fv_cache(fv_cache_supplier);
+            image_display_handler.set_image_properties_cache(image_properties_cache);
 
-        });
+
+            mouse_handling_for_image_window = new Mouse_handling_for_Image_window(this, logger);
+
+            image_display_handler.change_image_relative(0, false);
 
 
+            ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
+                if (dbg)
+                    logger.log("ChangeListener: image window position and/or size changed: " + stage.getWidth() + "," + stage.getHeight());
+                if (save_window_bounds) Non_booleans_properties.save_window_bounds(stage, IMAGE_WINDOW, logger);
+            };
+            stage.xProperty().addListener(change_listener);
+            stage.yProperty().addListener(change_listener);
+            stage.widthProperty().addListener(change_listener);
+            stage.heightProperty().addListener(change_listener);
 
-        /*
-        EventHandler<MouseEvent> mouse_clicked_event_handler = mouseEvent -> {
-            if (mouseEvent.getButton() == MouseButton.SECONDARY)
-            {
-                image_display_handler.handle_mouse_clicked_secondary(
-                        image_properties_cache,
-                        fv_cache_supplier,
-                        stage,
-                        mouseEvent,
-                        logger);
-            }
-        };
-        stage.addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_clicked_event_handler);
-        */
 
-        mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
-        Virtual_landscape.show_progress_window_on_redraw = false;
+            // this event handler is NOT called when close() is called
+            // from the keyboard handler but only upon an "OS" window close
+            stage.setOnCloseRequest(we -> my_close());
+
+            the_Scene.setOnScroll(event -> {
+                double dy = -event.getDeltaY();
+                if (dy == 0) return;
+                //logger.log("SCROLL dy=" + dy);
+                int yy = (int) (dy / 10.0);
+                if (yy == 0) {
+                    if (dy < 0) yy = -1;
+                    else yy = 1;
+                }
+                //logger.log("SCROLL after round up=" + yy);
+                image_display_handler.change_image_relative(yy, false);
+
+            });
+
+
+            // event handler if window is hidden (or closed, I hope?): stop animation
+            stage.setOnHiding(event -> {
+                if (slide_show != null) {
+                    stop_slide_show();
+                }
+                //image_context_owner.get_image_context().finder_shutdown();
+
+            });
+
+            mouse_handling_for_image_window.create_event_handlers(this, the_image_Pane);
+            Virtual_landscape.show_progress_window_on_redraw = false;
+        }
     }
 
-    private void rescan()
+    //**********************************************************
+    private void rescan(String reason)
+    //**********************************************************
     {
-        image_display_handler.rescan();
+        image_display_handler.rescan(reason);
     }
 
 
@@ -623,74 +592,68 @@ public class Image_window
     void set_image_internal(Image_context local_image_context)
     //**********************************************************
     {
-        //logger.log(Stack_trace_getter.get_stack_trace("set_image: "+local_image_context.path));
-
-        if ( local_image_context == null)
+        try(Perf p = new Perf("set_image_internal"))
         {
-            logger.log_stack_trace("❌ FATAL: Image_context is null, should not happen");
-            return;
-        }
-        if ( local_image_context.image == null)
-        {
-            logger.log_stack_trace("❌ FATAL: Image_context.Image is null, should not happen");
-            return;
-        }
-        // if pix-for-pix was used on a very large image, the window size is very large too..
-        // let us check and correct that
-        Jfx_batch_injector.inject(() -> {
+            //logger.log(Stack_trace_getter.get_stack_trace("set_image: "+local_image_context.path));
 
-            local_image_context.the_image_view.setPreserveRatio(true);
-            //local_image_context.the_image_view.setSmooth(true);
-            double rot = local_image_context.get_rotation(aborter);
-
-            // there is a bug with imageView rotate
-            // see: https://stackoverflow.com/questions/53109791/fitting-rotated-imageview-into-application-window-scene
-            // but the proposed solution does not work well
-            // the trick that works however is to rotate a Pane containing the imageview !!!
-            the_image_Pane.setRotate(rot);
-
-            boolean normal = true;
-            if (Feature_cache.get(Feature.Dont_zoom_small_images))
-            {
-                Image image = local_image_context.image;
-                double pane_height = the_image_Pane.getHeight();
-                double pane_width = the_image_Pane.getWidth();
-                if (( image.getHeight() < pane_height ) && (image.getWidth() < pane_width))
-                {
-                    if ( dbg) logger.log("preventing resize since "+image.getHeight() +" < "+pane_height+" and "+image.getWidth() +" < "+ pane_width);
-
-                    local_image_context.the_image_view.fitWidthProperty().unbind();
-                    local_image_context.the_image_view.fitHeightProperty().unbind();
-                    local_image_context.the_image_view.setFitWidth(local_image_context.image.getWidth());
-                    local_image_context.the_image_view.setFitHeight(local_image_context.image.getHeight());
-                    normal = false;
-                }
-                else
-                {
-                    if ( dbg) logger.log("NOT preventing resize");
-                }
+            if (local_image_context == null) {
+                logger.log_stack_trace("❌ FATAL: Image_context is null, should not happen");
+                return;
             }
-            if ( normal)
-            {
-
-                if ((rot == 90) || (rot == 270))
-                {
-                    local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
-                    local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
-                }
-                else
-                {
-                    local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
-                    local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
-                }
+            if (local_image_context.image == null) {
+                logger.log_stack_trace("❌ FATAL: Image_context.Image is null, should not happen");
+                return;
             }
-            set_background(the_image_Pane,Extensions.get_extension(local_image_context.get_image_name()), stage);
+            // if pix-for-pix was used on a very large image, the window size is very large too..
+            // let us check and correct that
+            Jfx_batch_injector.inject(() -> {
 
-            the_image_Pane.getChildren().clear();
-            the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
-            if ( the_info_label!=null) the_image_Pane.getChildren().add(the_info_label);
-            set_stage_title(local_image_context);
-        },logger);
+                local_image_context.the_image_view.setPreserveRatio(true);
+                //local_image_context.the_image_view.setSmooth(true);
+                double rot = local_image_context.get_rotation(aborter);
+
+                // there is a bug with imageView rotate
+                // see: https://stackoverflow.com/questions/53109791/fitting-rotated-imageview-into-application-window-scene
+                // but the proposed solution does not work well
+                // the trick that works however is to rotate a Pane containing the imageview !!!
+                the_image_Pane.setRotate(rot);
+
+                boolean normal = true;
+                if (Feature_cache.get(Feature.Dont_zoom_small_images)) {
+                    Image image = local_image_context.image;
+                    double pane_height = the_image_Pane.getHeight();
+                    double pane_width = the_image_Pane.getWidth();
+                    if ((image.getHeight() < pane_height) && (image.getWidth() < pane_width)) {
+                        if (dbg)
+                            logger.log("preventing resize since " + image.getHeight() + " < " + pane_height + " and " + image.getWidth() + " < " + pane_width);
+
+                        local_image_context.the_image_view.fitWidthProperty().unbind();
+                        local_image_context.the_image_view.fitHeightProperty().unbind();
+                        local_image_context.the_image_view.setFitWidth(local_image_context.image.getWidth());
+                        local_image_context.the_image_view.setFitHeight(local_image_context.image.getHeight());
+                        normal = false;
+                    } else {
+                        if (dbg) logger.log("NOT preventing resize");
+                    }
+                }
+                if (normal) {
+
+                    if ((rot == 90) || (rot == 270)) {
+                        local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
+                        local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
+                    } else {
+                        local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
+                        local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
+                    }
+                }
+                set_background(the_image_Pane, Extensions.get_extension(local_image_context.get_image_name()), stage);
+
+                the_image_Pane.getChildren().clear();
+                the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
+                if (the_info_label != null) the_image_Pane.getChildren().add(the_info_label);
+                set_stage_title(local_image_context);
+            }, logger);
+        }
     }
 
     //**********************************************************

@@ -17,11 +17,15 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Shared_services;
+import klik.properties.File_sort_by;
 import klik.util.execute.actor.Aborter;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
+import klik.util.ui.Hourglass;
+import klik.util.ui.Progress_window;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,7 +71,7 @@ public class Circle_3D
     private final int icon_size;
 
     //*******************************************************
-    public Circle_3D(int icon_size, Path path, Stage stage, Logger logger)
+    public Circle_3D(Path path, int icon_size, Stage stage, Logger logger)
     //*******************************************************
     {
         this.the_path = path;
@@ -78,10 +82,15 @@ public class Circle_3D
 
         this.item_source = new Image_source_from_files( path,icon_size,stage,logger);
 
+        String s = Shared_services.main_properties().get(File_sort_by.SORT_FILES_BY);
+        if ( !s.equals(File_sort_by.NAME.name()))
+        {
+            Shared_services.main_properties().set(File_sort_by.SORT_FILES_BY,File_sort_by.NAME.name());
+        }
     }
 
     //*******************************************************
-    public Scene get_scene()
+    public Scene get_scene(Hourglass hourglass)
     //*******************************************************
     {
         int number_of_items = item_source.how_many_items();
@@ -163,8 +172,9 @@ public class Circle_3D
             Button up = new Button("Up");
             Look_and_feel_manager.set_button_look(up, true, stage, logger);
             up.setOnAction(event -> {
-                Circle_3D new_instance = new Circle_3D(icon_size, the_path.getParent(), stage, logger);
-                stage.setScene(new_instance.get_scene());
+                Hourglass hourglass2 =  get_hourglass(stage,logger);
+                Circle_3D new_instance = new Circle_3D(the_path.getParent(), icon_size, stage, logger);
+                stage.setScene(new_instance.get_scene(hourglass2));
             });
             stackPane.getChildren().add(up);
             StackPane.setAlignment(up, Pos.TOP_LEFT);
@@ -190,6 +200,7 @@ public class Circle_3D
         // Initial update of box orientations
         update_boxes();
 
+        hourglass.close();
         return scene;
     }
 
@@ -298,24 +309,21 @@ public class Circle_3D
             }
         }
 
-        int count = 0;
 
         // Update each box to face directly toward the camera
-        int image_index = 0;
+        int item_index = 0;
         for (int i = 0; i < num_segments; i++)
         {
-            {
-                double max_distance = CORRIDOR_WIDTH*10;
-                Box_and_angle baa = inner_boxes.get(i);
-                if (update_one_box(image_index++, baa, camX, camZ, max_distance, inner_boxes_group)) count++;
-            }
-            {
-                double max_distance = CORRIDOR_WIDTH*20;
-                Box_and_angle baa = outer_boxes.get(i);
-                if( update_one_box(image_index++, baa, camX, camZ, max_distance, outer_boxes_group)) count++;
-            }
+            double max_distance = CORRIDOR_WIDTH*20;
+            Box_and_angle baa = outer_boxes.get(i);
+            update_one_box(item_index++, baa, camX, camZ, max_distance, outer_boxes_group);
         }
-        //logger.log(count+ " boxes to be updated");
+        for (int i = 0; i < num_segments; i++)
+        {
+            double max_distance = CORRIDOR_WIDTH * 10;
+            Box_and_angle baa = inner_boxes.get(i);
+            update_one_box(item_index++, baa, camX, camZ, max_distance, inner_boxes_group);
+        }
 
         // Apply all material changes at once
         for (int i = 0; i < boxes_to_update.size(); i++)
@@ -422,8 +430,10 @@ public class Circle_3D
                 if (Files.isDirectory(p))
                 {
                     logger.log("is folder: "+p);
-                    Circle_3D new_instance = new Circle_3D(icon_size,p,stage,logger);
-                    stage.setScene(new_instance.get_scene());
+                    Hourglass hourglass = get_hourglass(stage,logger);
+
+                    Circle_3D new_instance = new Circle_3D(p,icon_size,stage,logger);
+                    stage.setScene(new_instance.get_scene(hourglass));
                 }
                 else 
                 {
@@ -461,6 +471,18 @@ public class Circle_3D
 
             }
         });
+    }
+
+    public static Hourglass get_hourglass(Stage stage, Logger logger) {
+        Hourglass hourglass = Progress_window.show(
+                true,
+                "Wait, loading in 3D",
+                20000,
+                100,
+                100,
+                stage,
+                logger);
+        return hourglass;
     }
 
     //*******************************************************
@@ -607,7 +629,7 @@ public class Circle_3D
     {
         mouseDeltaX = se.getDeltaY();
         if (mouseDeltaX == 0) return;
-        double stepAngle = 360.0 / (num_segments * 10.0); // 1/10th of a segment
+        double stepAngle = 360.0 / (num_segments * 50.0); // 1/10th of a segment
         if ( se.isShiftDown())
         {
             long now  = System.currentTimeMillis();
@@ -660,35 +682,45 @@ public class Circle_3D
     private void on_key_pressed(KeyEvent event)
     //*******************************************************
     {
+        //logger.log("on_key_pressed="+event);
+
         long now = System.currentTimeMillis();
         double stepAngle =  360.0 / (num_segments * 10.0);
-        if (now - last_time[0] < 70)
+        //logger.log("stepAngle="+stepAngle);
+
+        if (now - last_time[0] < 100)
         {
             stepAngle *= 3;
             count[0]++;
+            //logger.log("stepAngle, count="+count[0]);
             if (count[0] > 30) // 3 seconds
             {
                 stepAngle *= 1000;
-                if ( dbg)logger.log("1000 stepAngle="+stepAngle);
+                if ( dbg)
+                    logger.log("1000 stepAngle="+stepAngle);
             }
             else if (count[0] > 10) // 1 seconds
             {
                 stepAngle *= 100;
-                if ( dbg) logger.log("100 stepAngle="+stepAngle);
+                if ( dbg)
+                    logger.log("100 stepAngle="+stepAngle);
             }
             else if (count[0] > 5)
             {
                 stepAngle *= 10;
-                if ( dbg) logger.log("10 stepAngle="+stepAngle);
+                if ( dbg)
+                    logger.log("10 stepAngle="+stepAngle);
             }
             else
             {
-                if ( dbg) logger.log("stepAngle="+stepAngle);
+                if ( dbg)
+                    logger.log("stepAngle="+stepAngle);
             }
 
         }
         else
         {
+            if ( dbg) logger.log("stepAngle, count="+0);
             count[0] = 0;
         }
 
@@ -709,6 +741,7 @@ public class Circle_3D
                 cameraLookAngleY += stepAngle;
                 break;
             default:
+                event.consume();
                 return;
         }
 
@@ -716,6 +749,7 @@ public class Circle_3D
         cameraPathAngle = cameraPathAngle % 360;
         updateCamera();
         update_boxes();
+        event.consume();
     }
 
     //*******************************************************

@@ -5,6 +5,7 @@
 
 package klik.images;
 
+import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.stage.Window;
 import klik.util.execute.actor.*;
@@ -224,14 +225,15 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     public void change_image_relative(int delta, boolean ultimate)
     //**********************************************************
     {
-        if ( block.get())
-        {
-            if ( dbg) logger.log("change_image_relative BLOCKED");
-            return;
-        }
-        block.set(true);
         try(Perf perf = new Perf("A. change_image_relative"))
         {
+            if ( block.get())
+            {
+                if ( dbg) logger.log("change_image_relative BLOCKED");
+                return;
+            }
+            block.set(true);
+
             Virtual_landscape.show_progress_window_on_redraw = false;
             if (image_context == null)
             {
@@ -254,10 +256,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             Change_image_message change_image_message = new Change_image_message(delta, image_context, image_window, ultimate, returned_new_image_context, aborter, logger);
             // Job_termination_reporter will recover the NEW image_context
 
-            Index_reporter index_reporter = index -> {
-                image_window.set_progress(image_window.get_folder_path(), index);
-                if (dbg) logger.log("reporting index for: " + image_context.path + " index=" + index);
-            };
+
 
             Job_termination_reporter tr = (message, job) ->
             {
@@ -275,22 +274,63 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         image_context = null;
                         return;
                     }
-                    image_context.the_image_view.setOnContextMenuRequested(event ->
-                            {
-                                logger.log("context menu for image");
-                                ContextMenu contextMenu = Menus_for_image_window.make_context_menu(
-                                        image_window,
-                                        image_properties_cache,
-                                        fv_cache_supplier,
-                                        logger);
-                                contextMenu.show(image_window.stage, event.getScreenX(), event.getScreenY());
+                    last_steps_in_a_thread();
 
-                            }
-                    );
-                    index_reporter.report_index((double) image_indexer.get_index(image_context.path) / (double) image_indexer.get_max());
                 }
             };
             Actor_engine.run(Change_image_actor.get_instance(), change_image_message, tr, logger);
+        }
+    }
+
+    //**********************************************************
+    private void last_steps_in_a_thread()
+    //**********************************************************
+    {
+        Actor_engine.execute(()->last_steps_javafX(),"last_steps_in_a_thread",logger);
+    }
+    //**********************************************************
+    private void last_steps_javafX()
+    //**********************************************************
+    {
+        Platform.runLater(()->last_steps());
+    }
+
+    //**********************************************************
+    private void last_steps()
+    //**********************************************************
+    {
+        try( Perf perf3 = new Perf("C. set_context_menu"))
+        {
+            image_context.the_image_view.setOnContextMenuRequested(event ->
+                    {
+                        //logger.log("context menu for image");
+                        ContextMenu contextMenu = Menus_for_image_window.make_context_menu(
+                                image_window,
+                                image_properties_cache,
+                                fv_cache_supplier,
+                                logger);
+                        contextMenu.show(image_window.stage, event.getScreenX(), event.getScreenY());
+
+                    }
+            );
+        }
+        try( Perf perf4 = new Perf("D. set_progress"))
+        {
+
+            if (image_indexer == null) {
+                logger.log("❌ image_indexer not available yet ");
+            } else {
+                /*
+                Index_reporter index_reporter = index -> {
+                    image_window.set_progress(image_window.get_folder_path(), index);
+                    if (dbg) logger.log("reporting index for: " + image_context.path + " index=" + index);
+                };
+                index_reporter.report_index((double) image_indexer.get_index(image_context.path) / (double) image_indexer.get_max());
+                */
+                double index = (double) image_indexer.get_index(image_context.path) / (double) image_indexer.get_max();
+                image_window.set_progress(image_window.get_folder_path(), index);
+
+            }
         }
     }
 
@@ -319,10 +359,10 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         image_properties_cache = imagePropertiesCache;
     }
 
-    public void rescan() {
+    public void rescan(String reason) {
         if ( image_indexer != null)
         {
-            image_indexer.rescan();
+            image_indexer.rescan(reason);
         }
     }
 

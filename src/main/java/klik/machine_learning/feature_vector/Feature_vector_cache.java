@@ -20,6 +20,7 @@ import klik.properties.Non_booleans_properties;
 import klik.properties.Cache_folder;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.perf.Perf;
 import klik.util.ui.Progress_window;
 
 import java.io.*;
@@ -297,6 +298,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             Logger logger)
     //**********************************************************
     {
+        try( Perf p = new Perf("preload_all_feature_vector_in_cache"))
+        {
         Feature_vector_cache feature_vector_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
         if ( feature_vector_cache == null)
@@ -318,6 +321,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             return paths_and_feature_vectors;
         }
         return feature_vector_cache.update(paths, in_flight,owner, browser_aborter,logger);
+        }
     }
 
     //**********************************************************

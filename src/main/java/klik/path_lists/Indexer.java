@@ -82,7 +82,7 @@ public class Indexer
         if ( current_index == null)
         {
             if ( dbg) logger.log("unknown path:" + previous_path);
-            state.rescan();
+            state.rescan("get_new_path_relative failed");
             current_index = state.index_from_path(previous_path);
             if ( current_index == null)
             {
@@ -133,7 +133,7 @@ public class Indexer
             else
             {
                 if ( dbg) logger.log("file does not exist anymore :"+returned+" ... rescan !");
-                state.rescan();
+                state.rescan("A file does not exists anymore");
             }
             target = increment(target);
         }
@@ -201,13 +201,13 @@ public class Indexer
         Integer i1 = state.index_from_path(ref);
         if ( i1 == null)
         {
-            state.rescan();
+            state.rescan("distance_larger_than error 1");
             return true;
         }
         Integer i2 = state.index_from_path(other);
         if ( i2 == null)
         {
-            state.rescan();
+            state.rescan("distance_larger_than error 2");
             return true;
         }
 
@@ -236,14 +236,14 @@ public class Indexer
     public void signal_deleted_file(Path to_be_deleted)
     //**********************************************************
     {
-        state.rescan();
+        state.rescan("signal_deleted_file");
     }
 
     //**********************************************************
     public void signal_file_copied()
     //**********************************************************
     {
-        state.rescan();
+        state.rescan("signal_file_copied");
     }
 
     //**********************************************************
@@ -255,8 +255,8 @@ public class Indexer
         return i;
     }
 
-    public void rescan() {
-        state.rescan();
+    public void rescan(String reason) {
+        state.rescan(reason);
     }
 
     public int get_max() {
