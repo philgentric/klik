@@ -22,11 +22,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Context_type;
+import klik.New_context;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job;
 import klik.audio.Audio_info_frame;
-import klik.New_file_browser_context;
 import klik.audio.Ffmpeg_metadata_editor;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.icons.Icon_destination;
@@ -262,13 +263,27 @@ public abstract class Item implements Icon_destination
 
             if (!is_trash() && (is_parent_of() == null))
             {
-                Menu_items.add_menu_item(
-                "Browse_in_new_window",
-            event -> {
-                    if (dbg) logger.log("Browse in new window!");
-                    New_file_browser_context.additional_no_past(get_item_path().getParent(),owner,logger);
-                },context_menu,owner,logger);
+                {
+                    Path target  = get_item_path().getParent();
+                    if ( this instanceof Item_folder)
+                    {
+                        target  = get_item_path();
+                    }
+                    Path finalTarget = target;
+                    Menu_items.add_menu_item(
+                            "Browse_in_new_window",
+                            event -> {
+                                if (dbg) logger.log("Browse in new window!");
+                                New_context.additional_no_past(Context_type.File_system_2D,new Path_list_provider_for_file_system(finalTarget), owner, logger);
+                            }, context_menu, owner, logger);
 
+                    Menu_items.add_menu_item(
+                            "Browse_in_new_3D_window",
+                            event -> {
+                                if (dbg) logger.log("Browse in new window!");
+                                New_context.additional_no_past(Context_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget), owner, logger);
+                            }, context_menu, owner, logger);
+                }
                 create_open_with_system_menu_item(get_item_path(),context_menu);
                 /*if (Feature_cache.get(Feature.Enable_tags))
                 {

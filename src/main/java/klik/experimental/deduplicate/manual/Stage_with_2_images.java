@@ -33,7 +33,7 @@ import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel_manager;
-import klik.properties.File_sort_by;
+import klik.properties.Sort_files_by;
 import klik.util.log.Logger;
 
 import java.io.File;
@@ -78,9 +78,9 @@ public class Stage_with_2_images
 		aborter = private_aborter_;
 
 		// there was an obscure bug with random order?
-		if ( File_sort_by.get_sort_files_by(path_list_provider.get_folder_path(),owner) == File_sort_by.RANDOM_ASPECT_RATIO)
+		if ( Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),owner) == Sort_files_by.RANDOM_ASPECT_RATIO)
 		{
-			File_sort_by.set_sort_files_by(path_list_provider.get_folder_path(),File_sort_by.NAME,owner,logger);
+			Sort_files_by.set_sort_files_by(path_list_provider.get_folder_path(), Sort_files_by.NAME,owner,logger);
 		}
 
 		logger.log("Stage_with_2_images !");

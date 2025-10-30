@@ -9,7 +9,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
-import klik.New_file_browser_context;
+import klik.Context_type;
+import klik.New_context;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.*;
@@ -394,9 +395,10 @@ public class Item_folder extends Item implements Icon_destination
             }
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
-            New_file_browser_context.replace_different_folder(
+            New_context.replace_different_folder(
                     shutdown_target,
-                    get_item_path(),
+                    Context_type.File_system_2D,
+                    new Path_list_provider_for_file_system(get_item_path()),
                     owner,
                     logger);
 

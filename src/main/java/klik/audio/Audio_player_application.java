@@ -36,7 +36,7 @@ public class Audio_player_application extends Application
     //**********************************************************
     {
         this.stage = stage_;
-        Shared_services.init(name);
+        Shared_services.init(name, stage_);
         logger = Shared_services.logger();
         Start_context context = Start_context.get_context_and_args(this);
 

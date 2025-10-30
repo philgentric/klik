@@ -51,14 +51,13 @@ package klik.browser.classic;
 
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
-import klik.New_file_browser_context;
+import klik.Context_type;
+import klik.New_context;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.*;
-import klik.browser.virtual_landscape.Browser_type;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.path_lists.Path_list_provider;
 import klik.change.Change_gang;
-import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature_cache;
@@ -77,17 +76,18 @@ public class Browser extends Abstract_browser implements Feature_change_target
 {
     public final Path_list_provider path_list_provider;
     //**********************************************************
-    public Browser(New_file_browser_context context, Logger logger_)
+    public Browser(New_context context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
-        path_list_provider = new Path_list_provider_for_file_system(context.target_path);
-        init_abstract_browser(Browser_type.File_browser, context.shutdown_target,context.rectangle,this,"klik");
+        path_list_provider = context.path_list_provider;
+        init_abstract_browser(Context_type.File_system_2D, context.shutdown_target,context.rectangle,this,"klik");
 
         //if ( dbg)
             logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
 
     }
+
 
 
     //**********************************************************

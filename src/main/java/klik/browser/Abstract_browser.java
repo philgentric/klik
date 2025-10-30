@@ -50,7 +50,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     protected final Logger logger;
     protected Aborter aborter;
     protected boolean ignore_escape_as_the_stage_is_full_screen = false;
-    Browser_type browser_type;
+    Context_type context_type;
 
     protected abstract String get_name();
     protected abstract Path_list_provider get_Path_list_provider();
@@ -74,14 +74,14 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
     //**********************************************************
     public void init_abstract_browser(
-            Browser_type browser_type,
+            Context_type context_type,
             Shutdown_target shutdown_target,
             Rectangle2D rectangle,
             Change_receiver change_receiver,
             String badge)
     //**********************************************************
     {
-        this.browser_type = browser_type;
+        this.context_type = context_type;
         int count = number_of_windows.incrementAndGet();
         if ( dbg) logger.log("Browser constructor browsers_created(1)=" + count);
         if (shutdown_target != null)
@@ -151,7 +151,6 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         logger.log("set_icon_for_main_window after\n\n");
 
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
-        //History_engine.get_instance(logger).add(get_name());
         History_engine.get(get_owner()).add(get_name());
 
 
@@ -169,7 +168,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         logger.log("Browser init");
         monitor();
-        virtual_landscape = new Virtual_landscape(browser_type,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,this,aborter, logger);
+        virtual_landscape = new Virtual_landscape(context_type,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {

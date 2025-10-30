@@ -1,5 +1,6 @@
 package klik;
 
+import javafx.stage.Stage;
 import klik.util.execute.actor.Aborter;
 import klik.properties.File_based_IProperties;
 import klik.properties.IProperties;
@@ -32,7 +33,7 @@ public class Shared_services
         return main_properties;
     }
     //**********************************************************
-    public static void init(String name)
+    public static void init(String name, Stage owner)
     //**********************************************************
     {
         if (main_properties != null)
@@ -44,7 +45,7 @@ public class Shared_services
         Logger tmp_logger = new Simple_logger();
         aborter = new Aborter("Shared_services", tmp_logger);
         // this properties file holds both the Non-booleans AND the Booleans
-        main_properties = new File_based_IProperties(name+" main properties", "klik", null, aborter, tmp_logger);
+        main_properties = new File_based_IProperties(name+" main properties", "klik", owner, aborter, tmp_logger);
         logger = get_logger(name);
     }
 

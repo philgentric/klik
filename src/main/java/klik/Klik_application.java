@@ -63,7 +63,7 @@
 //SOURCES ./System_info.java
 //SOURCES actor/Aborter.java
 //SOURCES browser/classic/Browser.java
-//SOURCES New_file_browser_context.java
+//SOURCES New_context.java
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
@@ -80,7 +80,7 @@
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/virtual_landscape/Virtual_landscape.java
-//SOURCES properties/File_sort_by.java
+//SOURCES properties/Sort_files_by.java
 //SOURCES properties/Properties_manager.java
 //SOURCES properties/Cache_folder.java
 //SOURCES browser/virtual_landscape/Vertical_slider.java
@@ -105,13 +105,20 @@ package klik;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import klik.change.history.History_engine;
+import klik.change.history.History_item;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.Non_booleans_properties;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 //**********************************************************
@@ -142,7 +149,7 @@ public class Klik_application extends Application
     //**********************************************************
     {
         application = this;
-        Shared_services.init(name);
+        Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
         //Perf.monitor(logger);
 
@@ -175,8 +182,28 @@ public class Klik_application extends Application
         {
             logger.log("Starting browser on path ->" + path+"<-");
         }
-        Window_provider window_provider = New_file_browser_context.additional_no_past(path,primary_stage_,logger);
-        new Monitor(window_provider, logger).start();
+        else
+        {
+            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), primary_stage))
+            {
+                List<History_item> l = History_engine.get(primary_stage).get_all_history_items();
+                if (!l.isEmpty())
+                {
+                    History_item h = History_engine.get(primary_stage).get_all_history_items().get(0);
+                    if (h != null)
+                    {
+                        path = Path.of(h.value);
+                        logger.log("reloading last folder from history:" + path);
+                    }
+                }
+            }
+            else
+            {
+                path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
+            }
+        }
+        New_context.additional_no_past(Context_type.File_system_2D,new Path_list_provider_for_file_system(path),primary_stage_,logger);
+        new Monitor(()->primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player

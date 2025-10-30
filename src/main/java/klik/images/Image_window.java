@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.properties.Sort_files_by;
 import klik.util.execute.actor.Aborter;
 import klik.images.caching.Image_cache_cafeine;
 import klik.images.caching.Image_cache_interface;
@@ -30,7 +31,6 @@ import klik.machine_learning.feature_vector.Feature_vector_source;
 import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
-import klik.properties.File_sort_by;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.Check_remaining_RAM;
 import klik.util.files_and_paths.*;
@@ -224,7 +224,7 @@ public class Image_window
             } else {
                 // this is going to take possibly a long time !!!
                 long start = System.currentTimeMillis();
-                local_comp = File_sort_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent()), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);
+                local_comp = Sort_files_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent()), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);
                 long now = System.currentTimeMillis();
                 logger.log("get_image_comparator took " + (now - start) + " ms");
             }

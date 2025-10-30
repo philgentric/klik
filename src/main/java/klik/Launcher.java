@@ -99,7 +99,7 @@ public class Launcher extends Application implements UI_change
     //**********************************************************
     {
         stage = stage_;
-        Shared_services.init(name);
+        Shared_services.init(name, stage_);
         logger = Shared_services.logger();
         aborter = Shared_services.aborter();
 

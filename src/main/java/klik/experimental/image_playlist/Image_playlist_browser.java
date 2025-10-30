@@ -4,8 +4,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
+import klik.Context_type;
 import klik.browser.Abstract_browser;
-import klik.browser.virtual_landscape.Browser_type;
 import klik.path_lists.Path_list_provider;
 import klik.browser.virtual_landscape.Shutdown_target;
 import klik.look.Look_and_feel;
@@ -35,7 +35,7 @@ public class Image_playlist_browser extends Abstract_browser
         path_list_provider = new Path_list_provider_for_playlist(target_path, logger);
 
 
-        init_abstract_browser(Browser_type.Image_playlist,shutdown_target, rectangle,this,"playlist");
+        init_abstract_browser(Context_type.Image_playlist_2D,shutdown_target, rectangle,this,"playlist");
 
         logger.log("\n\n\n\n\n\n\n\n\n\n\nNEW IMAGE PLAY LIST "+path_list_provider.get_name());
 

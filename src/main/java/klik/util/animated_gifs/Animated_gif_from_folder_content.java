@@ -80,7 +80,7 @@ public class Animated_gif_from_folder_content
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Comparator<? super Path> local_comp = File_sort_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, owner, x,y,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = Sort_files_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, owner, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( dbg) if ( local_comp instanceof Aspect_ratio_comparator) logger.log("comparator = Aspect_ratio_comparator");
 

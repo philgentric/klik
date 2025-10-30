@@ -80,7 +80,7 @@
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/virtual_landscape/Virtual_landscape.java
-//SOURCES properties/File_sort_by.java
+//SOURCES properties/Sort_files_by.java
 //SOURCES properties/Properties_manager.java
 //SOURCES properties/Cache_folder.java
 //SOURCES browser/virtual_landscape/Vertical_slider.java
@@ -180,8 +180,8 @@ public class Image_playlist_app extends Application
             if (!Files.exists(path)) Files.createFile(path);
         }
         logger.log("Starting playlist browser on path ->" + path+"<-");
-        Window_provider window_provider = New_image_playlist_context.additional_no_past(path,primary_stage_,logger);
-        new Monitor(window_provider, logger).start();
+        New_context.additional_no_past(Context_type.Image_playlist_2D,new Path_list_provider_for_playlist(path,logger),primary_stage_,logger);
+        new Monitor(()->primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player

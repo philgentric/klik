@@ -80,7 +80,7 @@
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/virtual_landscape/Virtual_landscape.java
-//SOURCES properties/File_sort_by.java
+//SOURCES properties/Sort_files_by.java
 //SOURCES properties/Properties_manager.java
 //SOURCES properties/Cache_folder.java
 //SOURCES browser/virtual_landscape/Vertical_slider.java

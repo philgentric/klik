@@ -80,7 +80,7 @@
 //SOURCES actor/Actor.java
 //SOURCES util/execute/Scheduled_thread_pool.java
 //SOURCES browser/virtual_landscape/Virtual_landscape.java
-//SOURCES properties/File_sort_by.java
+//SOURCES properties/Sort_files_by.java
 //SOURCES properties/Properties_manager.java
 //SOURCES properties/Cache_folder.java
 //SOURCES browser/virtual_landscape/Vertical_slider.java
@@ -106,6 +106,7 @@ package klik.audio;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import klik.*;
+import klik.path_lists.Path_list_provider_for_playlist;
 import klik.properties.Non_booleans_properties;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.files_and_paths.Guess_file_type;
@@ -180,8 +181,8 @@ public class Song_playlist_app extends Application
             if (!Files.exists(path)) Files.createFile(path);
         }
         logger.log("Starting playlist browser on path ->" + path+"<-");
-        Window_provider window_provider = New_song_playlist_context.additional_no_past(path,primary_stage_,logger);
-        new Monitor(window_provider, logger).start();
+        New_context.additional_no_past(Context_type.Song_playlist_1D,new Path_list_provider_for_playlist(path,logger),primary_stage_,logger);
+        new Monitor(()-> primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player

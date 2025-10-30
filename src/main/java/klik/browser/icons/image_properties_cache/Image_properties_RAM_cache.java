@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Image_properties_RAM_cache
 //**********************************************************
 {
-    public final static boolean dbg = true;
+    public final static boolean dbg = false;
     protected final Logger logger;
     private final Aborter aborter;
     protected final String cache_name;

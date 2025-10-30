@@ -1,13 +1,17 @@
 package klik.in3D;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.PickResult;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -17,12 +21,21 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Context_type;
+import klik.New_context;
 import klik.Shared_services;
-import klik.properties.File_sort_by;
+import klik.Window_provider;
+import klik.browser.virtual_landscape.Shutdown_target;
+import klik.browser.virtual_landscape.Virtual_landscape;
+import klik.change.history.History_engine;
+import klik.properties.Sort_files_by;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.actor.Aborter;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
 import klik.util.ui.Hourglass;
 import klik.util.ui.Progress_window;
@@ -33,28 +46,28 @@ import java.util.*;
 import java.util.List;
 
 //*******************************************************
-public class Circle_3D
+public class Circle_3D implements Window_provider, Shutdown_target
 //*******************************************************
 {
     public static final boolean dbg = false;
-    final double CORRIDOR_WIDTH = 800;
-    final double CORRIDOR_HEIGHT = 300;
+    final double CORRIDOR_HEIGHT = 2048;
+    final double CORRIDOR_WIDTH = 2*CORRIDOR_HEIGHT;
 
-    final PerspectiveCamera camera = new PerspectiveCamera(true);
-    double cameraLookAngleY = 0; // Left/right look (mouse)
-    double cameraPathAngle = 0;   // Position around circle (keyboard)
+    final PerspectiveCamera perspective_camera = new PerspectiveCamera(true);
+    double camera_look_angle_Y = 0; // Left/right look (mouse)
+    double camera_path_angle = 0;   // Position around circle i.e. in the corridor
 
     double circle_radius = 5000; // Radius of circular corridor
     int num_segments; // Number of wall segments i.e. pictures displayed
 
-    double mouseOldX, mousePosX, mouseDeltaX;
+    double mouse_old_X, mouse_pos_X, mouse_delta_X;
 
-    private boolean camera_facing = false;
+    private boolean boxes_are_facing_camera = false;
     // Keep track of all boxes to update their orientation
     private List<Box_and_angle> inner_boxes = new ArrayList<>();
     private List<Box_and_angle> outer_boxes = new ArrayList<>();
 
-    final PhongMaterial greyMaterial = new PhongMaterial(Color.LIGHTGRAY);
+    final PhongMaterial grey_material = new PhongMaterial(Color.LIGHTGRAY);
 
     private final Image_source item_source;
     private final Logger logger;
@@ -63,34 +76,50 @@ public class Circle_3D
     double inner_box_size;
     double outer_box_size;
 
-    Group floorGroup;
+    Group floor_group;
     Group position_indicator_group;
     Group inner_boxes_group = new Group();
     Group outer_boxes_group = new Group();
     private List<Box> allFloorTiles = new ArrayList<>();
-    private final int icon_size;
+    private final int large_icon_size;
+    private final int small_icon_size;
+    Map<Image_and_path,PhongMaterial> material_cache_small = new HashMap<>();
+    Map<Image_and_path,PhongMaterial> material_cache_large = new HashMap<>();
+
 
     //*******************************************************
-    public Circle_3D(Path path, int icon_size, Stage stage, Logger logger)
+    public Circle_3D(New_context context, Logger logger)
     //*******************************************************
     {
-        this.the_path = path;
-        this.icon_size = icon_size;
-        this.stage = stage;
+        this.the_path = context.path_list_provider.get_folder_path();
+        History_engine.get(get_owner()).add(the_path.toAbsolutePath().toString());
+
+        this.large_icon_size = (int) CORRIDOR_HEIGHT;
+        this.small_icon_size = 64;
+        this.stage = (Stage)context.originator;
         this.logger = logger;
         //image_source = new Dummy_text_image_source(icon_size,30000);
 
-        this.item_source = new Image_source_from_files( path,icon_size,stage,logger);
+        this.item_source = new Image_source_from_files( the_path,small_icon_size,large_icon_size,stage,logger);
 
-        String s = Shared_services.main_properties().get(File_sort_by.SORT_FILES_BY);
-        if ( !s.equals(File_sort_by.NAME.name()))
+        String s = Shared_services.main_properties().get(Sort_files_by.SORT_FILES_BY);
+        if ( !s.equals(Sort_files_by.NAME.name()))
         {
-            Shared_services.main_properties().set(File_sort_by.SORT_FILES_BY,File_sort_by.NAME.name());
+            Shared_services.main_properties().set(Sort_files_by.SORT_FILES_BY, Sort_files_by.NAME.name());
         }
+        Hourglass hourglass = Circle_3D.get_hourglass(stage,logger);
+
+        Scene scene = get_scene();
+        stage.setScene(scene);
+
+        stage.show();
+        stage.setTitle(context.path_list_provider.get_folder_path().toAbsolutePath().toString());
+        hourglass.close();
+
     }
 
     //*******************************************************
-    public Scene get_scene(Hourglass hourglass)
+    public Scene get_scene()
     //*******************************************************
     {
         int number_of_items = item_source.how_many_items();
@@ -105,7 +134,7 @@ public class Circle_3D
 
 
         // Calculate circle radius based on desired box width
-        double desiredBoxWidth = icon_size; // Adjust this for preferred image size
+        double desiredBoxWidth = CORRIDOR_HEIGHT; // Adjust this for preferred image size
         double angleStep = 360.0 / num_segments;
         double angleStepRad = Math.toRadians(angleStep);
 
@@ -140,7 +169,7 @@ public class Circle_3D
 
         AmbientLight ambientLight = new AmbientLight(Color.LIGHTGRAY);
 
-        Group corridor = new Group(floorGroup, ceilingGroup, inner_boxes_group, outer_boxes_group, ambientLight);
+        Group corridor = new Group(floor_group, ceilingGroup, inner_boxes_group, outer_boxes_group, ambientLight);
 
         SubScene subScene = new SubScene(corridor, 800, 600, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.DARKGRAY);
@@ -157,50 +186,55 @@ public class Circle_3D
         StackPane.setMargin(position_indicator_group, new javafx.geometry.Insets(20, 0, 0, 0));
 
         // Camera setup
-        camera.setNearClip(1.0);
-        camera.setFarClip(dome_radius*1.5);
-        logger.log("camera FarClip = " + camera.getFarClip());
-        camera.setFieldOfView(60);
+        perspective_camera.setNearClip(1.0);
+        perspective_camera.setFarClip(dome_radius*1.5);
+        logger.log("camera FarClip = " + perspective_camera.getFarClip());
+        perspective_camera.setFieldOfView(60);
 
-        subScene.setCamera(camera);
+        subScene.setCamera(perspective_camera);
         resetCamera();
 
         Scene scene = new Scene(stackPane, 800, 600);
 
+        HBox buttons_box = new HBox();
+        buttons_box.setPickOnBounds(false); // otherwise double click on Boxes does not work
+        stackPane.getChildren().add(buttons_box);
+        StackPane.setAlignment(buttons_box, Pos.TOP_LEFT);
+        StackPane.setMargin(buttons_box, new Insets(10));         // 10‑pixel margin from the edges
         if ( the_path.getParent() != null)
         {
             Button up = new Button("Up");
             Look_and_feel_manager.set_button_look(up, true, stage, logger);
             up.setOnAction(event -> {
-                Hourglass hourglass2 =  get_hourglass(stage,logger);
-                Circle_3D new_instance = new Circle_3D(the_path.getParent(), icon_size, stage, logger);
-                stage.setScene(new_instance.get_scene(hourglass2));
+                New_context.replace_different_folder(this, Context_type.File_system_3D,new Path_list_provider_for_file_system(the_path.getParent()),stage,logger);
             });
-            stackPane.getChildren().add(up);
-            StackPane.setAlignment(up, Pos.TOP_LEFT);
-            StackPane.setMargin(up, new Insets(10));         // 10‑pixel margin from the edges
+            buttons_box.getChildren().add(up);
+        }
+
+        {
+            Button undo_and_bookmark_and_history = Virtual_landscape.make_button_undo_and_bookmark_and_history(Context_type.File_system_3D,20, stage, logger);
+            buttons_box.getChildren().add(undo_and_bookmark_and_history);
         }
 
         setupClickHandling(scene,logger);
 
-        scene.setOnMousePressed(me -> mouseOldX = me.getSceneX());
+        scene.setOnMousePressed(me -> mouse_old_X = me.getSceneX());
         scene.setOnMouseDragged(me -> {
-            mousePosX = me.getSceneX();
-            mouseDeltaX = mousePosX - mouseOldX;
-            cameraLookAngleY -= mouseDeltaX * 0.3;
-            updateCamera();
-            update_boxes();
-            mouseOldX = mousePosX;
+            mouse_pos_X = me.getSceneX();
+            mouse_delta_X = mouse_pos_X - mouse_old_X;
+            camera_look_angle_Y -= mouse_delta_X * 0.3;
+            update_camera_and_boxes();
+            mouse_old_X = mouse_pos_X;
         });
 
         scene.setOnScroll(e -> on_scroll(e));
 
-        scene.setOnKeyPressed(e ->on_key_pressed(e));
+        //scene.setOnKeyPressed(e ->on_key_pressed(e));
+        scene.addEventFilter(KeyEvent.KEY_PRESSED,e->on_key_pressed(e));
 
         // Initial update of box orientations
         update_boxes();
 
-        hourglass.close();
         return scene;
     }
 
@@ -219,7 +253,7 @@ public class Circle_3D
 
             Box innerBox = new Box(boxDepth, inner_box_size, inner_box_size);
             innerBox.setCullFace(CullFace.BACK);
-            innerBox.setMaterial(greyMaterial);
+            innerBox.setMaterial(grey_material);
             innerBox.setTranslateX(innerRadius * Math.cos(angle));
             innerBox.setTranslateY(0);
             innerBox.setTranslateZ(innerRadius * Math.sin(angle));
@@ -228,7 +262,7 @@ public class Circle_3D
 
             Box outerBox = new Box(boxDepth, outer_box_size, outer_box_size);
             outerBox.setCullFace(CullFace.BACK);
-            outerBox.setMaterial(greyMaterial);
+            outerBox.setMaterial(grey_material);
             outerBox.setTranslateX(outerRadius * Math.cos(angle));
             outerBox.setTranslateY(0);
             outerBox.setTranslateZ(outerRadius * Math.sin(angle));
@@ -242,13 +276,13 @@ public class Circle_3D
     private void updateCamera()
     //*******************************************************
     {
-        double angleRad = Math.toRadians(cameraPathAngle);
+        double angleRad = Math.toRadians(camera_path_angle);
         double camX = circle_radius * Math.cos(angleRad);
         double camZ = circle_radius * Math.sin(angleRad);
 
-        camera.getTransforms().setAll(
+        perspective_camera.getTransforms().setAll(
                 new javafx.scene.transform.Translate(camX, 0, camZ),
-                new Rotate( cameraLookAngleY, Rotate.Y_AXIS)
+                new Rotate(camera_look_angle_Y, Rotate.Y_AXIS)
                                      );
 
         if (position_indicator_group != null) {
@@ -260,10 +294,9 @@ public class Circle_3D
     private void resetCamera()
     //*******************************************************
     {
-        cameraLookAngleY = 0; // No default offset
-        cameraPathAngle = 0;
-        updateCamera();
-        update_boxes();
+        camera_look_angle_Y = 0; // No default offset
+        camera_path_angle = 0;
+        update_camera_and_boxes();
     }
 
 
@@ -286,7 +319,7 @@ public class Circle_3D
         materials_to_apply.clear();
 
         // Get camera position
-        double cameraAngleRad = Math.toRadians(cameraPathAngle);
+        double cameraAngleRad = Math.toRadians(camera_path_angle);
         double camX = circle_radius * Math.cos(cameraAngleRad);
         double camZ = circle_radius * Math.sin(cameraAngleRad);
 
@@ -300,11 +333,11 @@ public class Circle_3D
 
             if (distance > maxFloorDistance) {
                 if (tile.getParent() != null) {
-                    floorGroup.getChildren().remove(tile);
+                    floor_group.getChildren().remove(tile);
                 }
             } else {
                 if (tile.getParent() == null) {
-                    floorGroup.getChildren().add(tile);
+                    floor_group.getChildren().add(tile);
                 }
             }
         }
@@ -331,7 +364,7 @@ public class Circle_3D
             Box box = boxes_to_update.get(i).box();
             box.setMaterial(materials_to_apply.get(i));
             double angle = boxes_to_update.get(i).angle();
-            if( camera_facing)
+            if(boxes_are_facing_camera)
             {
                 double innerBoxX = box.getTranslateX();
                 double innerBoxZ = box.getTranslateZ();
@@ -349,8 +382,12 @@ public class Circle_3D
     }
 
     //*******************************************************
-    private boolean update_one_box(int image_index, Box_and_angle baa, double camX, double camZ, double max_distance,
-                                   Group parent_group)
+    private boolean update_one_box(
+            int image_index,
+            Box_and_angle baa,
+            double camX, double camZ,
+            double max_distance,
+            Group parent_group)
     //*******************************************************
     {
         Box box = baa.box();
@@ -365,6 +402,7 @@ public class Circle_3D
             //box.setMaterial(null);//greyMaterial);
             return false;
         }
+
         if ( !parent_group.getChildren().contains(box))
         {
             parent_group.getChildren().add(box);
@@ -374,31 +412,67 @@ public class Circle_3D
 
         // load image
         Image_and_path iap = item_source.get(image_index);
-        if ( iap != null)
+        if ( iap == null)
         {
-            box.setUserData(iap.path());
-            materials_to_apply.add(get_phong(iap));
+            materials_to_apply.add(grey_material);
         }
         else
         {
-            materials_to_apply.add(greyMaterial);
+            if ( distance_to_camera < 2*CORRIDOR_WIDTH)
+            {
+                //logger.log(iap.path +" IS CLOSE => large image");
+                materials_to_apply.add(get_phong_large(iap));
+            }
+            else
+            {
+                //logger.log(iap.path +" IS far => large image");
+                materials_to_apply.add(get_phong_small(iap));
+            }
+            box.setUserData(iap.path);
+            if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
+            {
+                Tooltip.install(box, new Tooltip(iap.path.getFileName().toString()));
+            }
         }
+
 
         return true;
     }
 
-    Map<Image_and_path,PhongMaterial> material_cache = new HashMap<>();
     //*******************************************************
-    private PhongMaterial get_phong(Image_and_path iap)
+    private PhongMaterial get_phong_small(Image_and_path iap)
     //*******************************************************
     {
-        if ( material_cache.containsKey(iap))
+        if ( material_cache_small.containsKey(iap))
         {
-            return material_cache.get(iap);
+            return material_cache_small.get(iap);
         }
-        material_cache.put(iap, new PhongMaterial(){{setDiffuseMap(iap.image());}});
-        return material_cache.get(iap);
+        material_cache_small.put(iap, new PhongMaterial(){
+            {
+            Image local_image = iap.small_image;
+            setDiffuseMap(local_image);}
+        });
+        return material_cache_small.get(iap);
     }
+
+    //*******************************************************
+    private PhongMaterial get_phong_large(Image_and_path iap)
+    //*******************************************************
+    {
+        if ( material_cache_large.containsKey(iap))
+        {
+            return material_cache_large.get(iap);
+        }
+        material_cache_large.put(iap, new PhongMaterial(){
+            {
+                Image local_image = iap.get_large_image(large_icon_size);
+                setDiffuseMap(local_image);
+            }
+        });
+        return material_cache_large.get(iap);
+    }
+
+
 
 
     //*******************************************************
@@ -406,22 +480,28 @@ public class Circle_3D
     //*******************************************************
     {
         scene.setOnMouseClicked(event -> {
-            if ( dbg) logger.log(event.toString());
+            //if ( dbg)
+
+                logger.log(event.toString());
             if (event.getClickCount() < 2) return; // Only handle double-clicks
             if (event.getClickCount() == 3)
             {
-                toggle_camera_facing();
+                toggle_boxes_are_facing_camera();
                 return;
             }
-             PickResult pickResult = event.getPickResult();
+            logger.log(" double click !");
+            PickResult pickResult = event.getPickResult();
             Node clickedNode = pickResult.getIntersectedNode();
 
-            if (clickedNode instanceof Box) {
+            if (clickedNode instanceof Box)
+            {
+                logger.log(" clicked item is a Box");
                 Box clickedBox = (Box) clickedNode;
                 Path p = (Path) clickedBox.getUserData();
                 if ( p == null)
                 {
-                    if ( dbg) logger.log("No user data!");
+                    //if ( dbg)
+                        logger.log("No user data!");
                     return;
                 }
 
@@ -430,45 +510,17 @@ public class Circle_3D
                 if (Files.isDirectory(p))
                 {
                     logger.log("is folder: "+p);
-                    Hourglass hourglass = get_hourglass(stage,logger);
-
-                    Circle_3D new_instance = new Circle_3D(p,icon_size,stage,logger);
-                    stage.setScene(new_instance.get_scene(hourglass));
+                    New_context.replace_different_folder(this, Context_type.File_system_3D,new Path_list_provider_for_file_system(p),stage,logger);
                 }
                 else 
                 {
                     logger.log("is not folder : "+p);
                     Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent()), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
                 }
-
-                /*
-                // display the image in the full window
-                Image image = null;
-                try (InputStream is = new FileInputStream(p.toFile())) {
-                    image = new Image(is);
-                } catch (IOException e)
-                {
-                    logger.log("Error loading image: " + e.getMessage());
-                    return;
-                }
-                if ( image == null) return;
-                ImageView imageView = new ImageView(image);
-                imageView.setPreserveRatio(true);
-                imageView.fitHeightProperty().unbind();
-                imageView.fitWidthProperty().unbind();
-                imageView.setFitWidth(image.getWidth());
-                imageView.setFitHeight(image.getHeight());
-                StackPane pane = new StackPane(imageView);
-                imageView.fitWidthProperty().bind(pane.widthProperty());
-                imageView.fitHeightProperty().bind(pane.heightProperty());
-                Scene scene1 = new Scene(pane, 800, 600);
-                Stage imageStage = new Stage();
-                imageStage.setTitle("Image: " + p.getFileName());
-                imageStage.setScene(scene1);
-                imageStage.show();
-
-                */
-
+            }
+            else
+            {
+                logger.log("clicked item is not a Box but a "+clickedNode.getClass().getCanonicalName());
             }
         });
     }
@@ -486,10 +538,10 @@ public class Circle_3D
     }
 
     //*******************************************************
-    private void toggle_camera_facing()
+    private void toggle_boxes_are_facing_camera()
     //*******************************************************
     {
-        camera_facing = !camera_facing;
+        boxes_are_facing_camera = !boxes_are_facing_camera;
         //updateCamera();
         update_boxes();
     }
@@ -499,11 +551,11 @@ public class Circle_3D
     private void create_floor(Window owner, Logger logger)
     //*******************************************************
     {
-        floorGroup = new Group();
+        floor_group = new Group();
         allFloorTiles.clear();
         PhongMaterial redMaterial = new PhongMaterial(Color.RED);
 
-        Image floor_image = Look_and_feel_manager.get_floor_icon(icon_size,owner,logger);
+        Image floor_image = Look_and_feel_manager.get_floor_icon(small_icon_size,owner,logger);
 
         PhongMaterial floorMaterial = null;
         if ( floor_image != null)
@@ -569,7 +621,7 @@ public class Circle_3D
         redMarker.setTranslateX(cameraStartX);
         redMarker.setTranslateY(CORRIDOR_HEIGHT / 2 - tileThickness / 2 + 1); // Slightly above floor
         redMarker.setTranslateZ(cameraStartZ);
-        floorGroup.getChildren().add(redMarker);
+        floor_group.getChildren().add(redMarker);
 
 
 
@@ -627,9 +679,9 @@ public class Circle_3D
     private void on_scroll(ScrollEvent se)
     //*******************************************************
     {
-        mouseDeltaX = se.getDeltaY();
-        if (mouseDeltaX == 0) return;
-        double stepAngle = 360.0 / (num_segments * 50.0); // 1/10th of a segment
+        mouse_delta_X = se.getDeltaY();
+        if (mouse_delta_X == 0) return;
+        double stepAngle = 360.0 / (num_segments * 50.0);
         if ( se.isShiftDown())
         {
             long now  = System.currentTimeMillis();
@@ -660,19 +712,27 @@ public class Circle_3D
             if ( dbg) logger.log("zero stepAngle="+stepAngle);
         }
         if ( se.isControlDown()) stepAngle /= 10;
-        if ( mouseDeltaX < 0)
+        if ( mouse_delta_X < 0)
         {
-            cameraPathAngle += stepAngle;
-            cameraLookAngleY -= stepAngle;
+            camera_path_angle += stepAngle;
+            camera_look_angle_Y -= stepAngle;
         }
         else
         {
-            cameraPathAngle -= stepAngle;
-            cameraLookAngleY += stepAngle;
+            camera_path_angle -= stepAngle;
+            camera_look_angle_Y += stepAngle;
         }
+        update_camera_and_boxes();
+
+        mouse_old_X = mouse_pos_X;
+    }
+
+    //*******************************************************
+    private void update_camera_and_boxes()
+    //*******************************************************
+    {
         updateCamera();
         update_boxes();
-        mouseOldX = mousePosX;
     }
 
 
@@ -683,6 +743,22 @@ public class Circle_3D
     //*******************************************************
     {
         //logger.log("on_key_pressed="+event);
+
+        if (event.getCode() == KeyCode.ESCAPE)
+        {
+            logger.log("✅ 3D Window RECEIVED ESCAPE");
+            event.consume();
+
+            if (Feature_cache.get(Feature.Use_escape_to_close_windows))
+            {
+                shutdown();
+            }
+            else
+            {
+                logger.log("✅ ESCAPE ignored by user preference");
+            }
+            return;
+        }
 
         long now = System.currentTimeMillis();
         double stepAngle =  360.0 / (num_segments * 10.0);
@@ -727,29 +803,71 @@ public class Circle_3D
         last_time[0] = now;
 
 
+        double delta_camera_path_angle;
+        double delta_camera_look_angle_Y;
         switch (event.getCode())
         {
             case UP:
             case RIGHT:
-                cameraPathAngle += stepAngle;
-                cameraLookAngleY -= stepAngle;
+                delta_camera_path_angle = stepAngle;
+                delta_camera_look_angle_Y = -stepAngle;
                 break;
 
             case DOWN:
             case LEFT:
-                cameraPathAngle -= stepAngle;
-                cameraLookAngleY += stepAngle;
+                delta_camera_path_angle = -stepAngle;
+                delta_camera_look_angle_Y = stepAngle;
                 break;
             default:
-                event.consume();
                 return;
         }
+        event.consume();
 
         // Keep angle in 0-360 range
-        cameraPathAngle = cameraPathAngle % 360;
-        updateCamera();
-        update_boxes();
-        event.consume();
+
+        double small_andle = 360.0 / (num_segments * 50.0);
+        int iterations = (int)(delta_camera_path_angle/small_andle)*3;
+        logger.log("iterations ="+ iterations);
+        if ( iterations <0) iterations = -iterations;
+        if ( iterations == 0) iterations = 1;
+        if ( iterations > 100) iterations = 100;
+
+
+        double camera_path_small_angle;
+        if (delta_camera_path_angle>0)
+        {
+            camera_path_small_angle = small_andle;
+        }
+        else
+        {
+            camera_path_small_angle = -small_andle;
+        }
+        double camera_look_small_angle_Y;
+        if (delta_camera_look_angle_Y>0)
+        {
+            camera_look_small_angle_Y = small_andle;
+        }
+        else
+        {
+            camera_look_small_angle_Y = -small_andle;
+        }
+
+        int finalIterations = iterations;
+        Actor_engine.execute(()-> {
+            for (int i = 0; i < finalIterations; i++)
+            {
+                camera_path_angle += camera_path_small_angle;
+                camera_look_angle_Y += camera_look_small_angle_Y;
+                camera_path_angle = camera_path_angle % 360;
+                camera_look_angle_Y = camera_look_angle_Y % 360;
+                Platform.runLater(() -> update_camera_and_boxes());
+                try {
+                    Thread.sleep(20/(i+1));
+                } catch (InterruptedException e) {
+                    logger.log(""+e);
+                }
+            }
+        },"smoother",logger);
     }
 
     //*******************************************************
@@ -763,7 +881,7 @@ public class Circle_3D
         dome.setCullFace(CullFace.FRONT); // Render inside only
 
         // Load night sky texture
-        Image nightSkyImage = Look_and_feel_manager.get_sky_icon(icon_size,owner,logger);
+        Image nightSkyImage = Look_and_feel_manager.get_sky_icon(small_icon_size,owner,logger);
 
         PhongMaterial domeMaterial;
         if (nightSkyImage != null) {
@@ -819,7 +937,7 @@ public class Circle_3D
         javafx.scene.shape.Circle dot = (javafx.scene.shape.Circle) indicator.getUserData();
 
         // Convert camera angle to radians (0° = top of circle)
-        double angleRad = Math.toRadians(cameraPathAngle - 90); // -90 to start at top
+        double angleRad = Math.toRadians(camera_path_angle - 90); // -90 to start at top
 
         // Position dot on circle circumference
         double radius = 45; // Slightly less than outer circle radius
@@ -828,5 +946,18 @@ public class Circle_3D
 
         dot.setTranslateX(dotX);
         dot.setTranslateY(dotY);
+    }
+
+    //*******************************************************
+    @Override
+    public Window get_owner()
+    //*******************************************************
+    {
+        return stage;
+    }
+
+    @Override
+    public void shutdown() {
+        stage.close();
     }
 }

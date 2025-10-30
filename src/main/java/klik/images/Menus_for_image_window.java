@@ -3,7 +3,9 @@ package klik.images;
 
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
-import klik.New_file_browser_context;
+import klik.Context_type;
+import klik.New_context;
+import klik.path_lists.Path_list_provider_for_file_system;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.animated_gifs.Gif_repair;
@@ -238,21 +240,35 @@ public class Menus_for_image_window
         }, image_window.stage, image_window.logger);
     }
 
-
     //**********************************************************
     private static MenuItem get_browse_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Browse",
+        return get_browse_menu_item_ejective("Browse_folder",image_window,Context_type.File_system_2D);
+    }
+
+    //**********************************************************
+    private static MenuItem get_browse_3D_menu_item(Image_window image_window)
+    //**********************************************************
+    {
+        return get_browse_menu_item_ejective("Browse_folder_3D", image_window,Context_type.File_system_3D);
+    }
+    //**********************************************************
+    private static MenuItem get_browse_menu_item_ejective(String button_text_key,Image_window image_window, Context_type context_type)
+    //**********************************************************
+    {
+        return Menu_items.make_menu_item(button_text_key,
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.logger.log("browse this!");
-             New_file_browser_context.additional_no_past(
-                      image_window.image_display_handler.get_image_context().get().path.getParent(),
+             New_context.additional_no_past(
+                     context_type,
+                      new Path_list_provider_for_file_system(image_window.image_display_handler.get_image_context().get().path.getParent()),
                      image_window.stage,
                      image_window.logger);
         }, image_window.stage, image_window.logger);
     }
+
+
 
     //**********************************************************
     private static MenuItem get_open_menu_item(Image_window image_window)
@@ -545,6 +561,7 @@ public class Menus_for_image_window
         }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));
+        context_menu.getItems().add(get_browse_3D_menu_item(image_window));
         context_menu.getItems().add(get_rename_menu_item(image_window));
         context_menu.getItems().add(get_delete_menu_item(image_window));
         context_menu.getItems().add(get_copy_menu_item(image_window));

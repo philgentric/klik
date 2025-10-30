@@ -423,9 +423,9 @@ public class Item_file_with_icon extends Item_file
                 if (dbg) logger.log("✅ Generating animated gifs !");
                 Animated_gifs_from_video.generate_many_gifs(owner,path,5,5,logger);
             }, context_menu,owner,logger);
-        Menu_items.add_menu_item("✅ Generate_Animated_GIF_interactively",
+        Menu_items.add_menu_item("Generate_Animated_GIF_interactively",
                 event -> {
-                if (dbg) logger.log("✅ Generating animated gifs !");
+                if (dbg) logger.log("✅ Generating animated gifs interactively!");
                 Animated_gifs_from_video.interactive(path,owner,logger);
             },context_menu,owner,logger);
     }
