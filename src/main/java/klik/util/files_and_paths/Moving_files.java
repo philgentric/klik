@@ -23,7 +23,7 @@ import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.image.icon_cache.Icon_caching;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 import klik.util.ui.Popups;
 
 import java.io.*;

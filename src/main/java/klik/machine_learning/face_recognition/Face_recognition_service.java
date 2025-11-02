@@ -41,7 +41,7 @@ import klik.util.files_and_paths.Extensions;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Popups;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;

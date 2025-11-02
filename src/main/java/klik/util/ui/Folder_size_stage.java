@@ -3,7 +3,6 @@ package klik.util.ui;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
@@ -19,6 +18,7 @@ import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Sizes;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
+import klik.util.ui.progress.Progress;
 
 import java.nio.file.Path;
 
@@ -62,11 +62,9 @@ public class Folder_size_stage
         Look_and_feel_manager.set_region_look(vbox,owner,logger);
 
         vbox.setAlignment(javafx.geometry.Pos.CENTER);
-        ImageView iv;
-        iv = new ImageView(Look_and_feel_manager.get_running_film_icon(owner,logger));
-        iv.setFitHeight(icon_height);
-        iv.setPreserveRatio(true);
-        vbox.getChildren().add(iv);
+
+        Progress progress = Progress.start(vbox,owner,logger);
+
         TextArea textarea2 = new TextArea();
         vbox.getChildren().add(textarea2);
         textarea2.setMinHeight(icon_height);
@@ -102,8 +100,7 @@ public class Folder_size_stage
             Jfx_batch_injector.inject(() -> {
                 String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger);
 
-                iv.setImage(Look_and_feel_manager.get_the_end_icon(owner,logger));
-
+                progress.remove();
                 if (sizes.bytes() < 0)
                 {
                     textarea2.setText(path+ "\nAn error occurred, probably Access Denied, check the logs");

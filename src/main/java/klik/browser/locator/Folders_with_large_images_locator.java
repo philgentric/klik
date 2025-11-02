@@ -9,7 +9,7 @@ import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.files_and_paths.*;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 import klik.util.log.Logger;
 import klik.util.execute.actor.Executor;
 

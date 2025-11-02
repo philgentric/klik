@@ -19,6 +19,8 @@ import klik.properties.boolean_features.Booleans;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.*;
+import klik.util.ui.progress.Hourglass;
+import klik.util.ui.progress.Progress_window;
 
 import java.nio.file.Path;
 import java.util.*;

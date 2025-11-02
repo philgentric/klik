@@ -1,7 +1,6 @@
 package klik.in3D;
 
 import javafx.application.Application;
-import javafx.scene.*;
 import javafx.stage.Stage;
 import klik.Context_type;
 import klik.New_context;
@@ -11,7 +10,6 @@ import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
 import klik.util.log.Simple_logger;
 import klik.util.perf.Perf;
-import klik.util.ui.Hourglass;
 
 import java.nio.file.Path;
 

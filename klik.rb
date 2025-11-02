@@ -1,0 +1,40 @@
+class Klik < Formula
+  desc "A picture-oriented file browser (JavaFX application)"
+  homepage "https://github.com/philgentric/klik"
+  url "https://github.com/philgentric/klik.git",
+      branch: "main"
+  version "1.0.0"
+  license "MIT"
+
+  depends_on "openjdk@25"
+  depends_on "gradle" => :build
+
+  def install
+    # Build from source
+    system "gradle", "clean", "build", "-x", "test", "--no-daemon"
+
+    # Install the compiled JAR
+    libexec.install Dir["build/libs/*.jar"].first => "xyzt.jar"
+
+    # Copy the entire git repository to libexec for git pull support
+    libexec.install Dir["*"]
+    libexec.install Dir[".git"]
+
+    # Create wrapper script
+    (bin/"klik").write <<~EOS
+      #!/bin/bash
+      exec "#{Formula["openjdk@25"].opt_bin}/java" -jar "#{libexec}/klik.jar" "$@"
+    EOS
+
+    # Create update script
+    (bin/"klik-update").write <<~EOS
+      #!/bin/bash
+      cd "#{libexec}" && git pull && gradle clean build -x test --no-daemon
+    EOS
+    chmod 0755, bin/"klik-update"
+  end
+
+  test do
+    assert_match "klik", shell_output("#{bin}/klik --version 2>&1", 1)
+  end
+end

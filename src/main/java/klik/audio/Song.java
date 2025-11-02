@@ -123,7 +123,7 @@ public class Song
 
 
         Menu_items.add_menu_item(
-            "Browse",
+            "Browse_in_new_window",
             (ActionEvent e) ->
             UI_instance_holder.start_new_process_to_browse(Path.of(full_path).getParent(), logger),
             context_menu,

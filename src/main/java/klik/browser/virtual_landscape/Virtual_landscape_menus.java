@@ -66,6 +66,8 @@ import klik.util.info_stage.Line_for_info_stage;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.*;
+import klik.util.ui.progress.Hourglass;
+import klik.util.ui.progress.Progress_window;
 
 import java.io.File;
 import java.io.IOException;

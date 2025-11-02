@@ -21,7 +21,7 @@ import klik.properties.Cache_folder;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.perf.Perf;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 
 import java.io.*;
 import java.nio.file.Path;

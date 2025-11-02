@@ -5,7 +5,6 @@ import javafx.stage.Window;
 import klik.look.Jar_utils;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans_properties;
-import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 import klik.util.log.Logger;
@@ -14,7 +13,9 @@ import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
+//**********************************************************
 public class About_klik_stage
+//**********************************************************
 {
 
     //**********************************************************

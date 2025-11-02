@@ -164,15 +164,14 @@ public class Finder_actor implements Actor
                     {
                         if( Guess_file_type.should_ignore(path))
                         {
-                            //if ( dbg)
-                                logger.log("ignoring hidden file:"+path.toAbsolutePath());
+                            if ( dbg) logger.log("ignoring hidden file:"+path.toAbsolutePath());
                             do_this_file = false;
                         }
 
                     }
                     if (!fm.search_config.search_files())
                     {
-                        logger.log("ignoring files");
+                        if ( dbg) logger.log("ignoring files");
 
                         // we are not interested in files
                         do_this_file = false;

@@ -8,7 +8,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -19,6 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Context_type;
 import klik.New_context;
+import klik.util.ui.progress.Progress;
 import klik.util.execute.actor.Aborter;
 import klik.audio.Audio_player_access;
 import klik.browser.Drag_and_drop;
@@ -26,7 +26,6 @@ import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
-import klik.look.Look_and_feel_style;
 import klik.look.my_i18n.My_I18n;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.ui.Jfx_batch_injector;
@@ -35,7 +34,6 @@ import klik.util.files_and_paths.Guess_file_type;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 import klik.util.ui.Menu_items;
-import klik.util.ui.Progress_spinner;
 import klik.util.ui.Text_frame;
 
 import java.nio.file.Files;
@@ -50,8 +48,7 @@ public class Results_frame
 	VBox the_result_vbox = new VBox();
 	HashMap<String, List<Path>> search_results;
 	Stage stage = new Stage();
-	ImageView iv;
-    Progress_spinner spinner;
+    Progress progress;
 	VBox vbox;
 	//final Browser browser;
 	final Aborter aborter;
@@ -76,18 +73,8 @@ public class Results_frame
 
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
 
-        if ( Look_and_feel_manager.get_instance(stage,logger).get_look_and_feel_style() == Look_and_feel_style.material)
-        {
-            spinner = new Progress_spinner();
-            vbox.getChildren().add(spinner.start());
-        }
-        else
-        {
-            iv = new ImageView(Look_and_feel_manager.get_running_film_icon(stage, logger));
-            iv.setFitHeight(100);
-            iv.setPreserveRatio(true);
-            vbox.getChildren().add(iv);
-        }
+        progress = Progress.start(vbox,stage,logger);
+
 
 		ScrollPane scroll_pane = new ScrollPane(the_result_vbox);
 		vbox.getChildren().add(scroll_pane);
@@ -243,8 +230,7 @@ public class Results_frame
 			stage.setTitle(My_I18n.get_I18n_string("Search_Results_Ended", stage,logger));
 			//stage.getScene().getRoot().setCursor(Cursor.DEFAULT);
 
-			if ( iv != null) iv.setImage(Look_and_feel_manager.get_the_end_icon(stage,logger));
-            if ( spinner != null) spinner.stop();
+            progress.stop();
 			List<Node> all_results = new ArrayList<>(the_result_vbox.getChildren());
 			all_results.sort((o1, o2) -> {
 				Button b1 = (Button) o1;
@@ -256,15 +242,7 @@ public class Results_frame
 			the_result_vbox.getChildren().clear();
 			the_result_vbox.getChildren().addAll(all_results);
 
-			if ( iv != null)
-            {
-                iv.setImage(null);
-                vbox.getChildren().remove(iv);
-            }
-            if ( spinner != null)
-            {
-                vbox.getChildren().remove(spinner.node());
-            }
+            progress.remove();
 
 		},logger);
 

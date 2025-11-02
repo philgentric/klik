@@ -18,9 +18,9 @@ import klik.util.files_and_paths.disk_scanner.File_payload;
 import klik.look.Font_size;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
-import klik.util.ui.Hourglass;
+import klik.util.ui.progress.Hourglass;
 import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 
 import java.io.File;
 import java.io.IOException;

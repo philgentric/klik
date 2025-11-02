@@ -37,8 +37,8 @@ import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
-import klik.util.ui.Hourglass;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Hourglass;
+import klik.util.ui.progress.Progress_window;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

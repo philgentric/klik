@@ -29,7 +29,7 @@ import klik.util.log.Logger;
 import klik.util.ui.Folder_chooser;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.ui.Popups;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 
 import java.io.File;
 import java.nio.file.Path;

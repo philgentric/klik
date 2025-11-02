@@ -1,4 +1,4 @@
-package klik.util.ui;
+package klik.util.ui.progress;
 
 public interface Hourglass {
     void close();

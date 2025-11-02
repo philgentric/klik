@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -16,6 +15,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Shared_services;
+import klik.util.ui.progress.Progress;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor;
 import klik.util.execute.actor.Actor_engine;
@@ -821,10 +821,8 @@ public class Playlist
         String search_text = search_field.getText().toLowerCase();
         if (search_text.trim().isEmpty()) return;
         String[] keys = search_text.split("\\s");
-        ImageView iv = new ImageView(Look_and_feel_manager.get_running_film_icon(search_stage,logger));
-        iv.setFitHeight(100);
-        iv.setPreserveRatio(true);
-        vbox.getChildren().add(iv);
+
+        Progress progress = Progress.start(vbox,owner,logger);
 
         Map<String,List<String>> matched_keywords_in_full_path = new HashMap<>();
         Map<String,List<String>> matched_keywords_in_name = new HashMap<>();
@@ -913,7 +911,7 @@ public class Playlist
 
         }
 
-        iv.setImage(Look_and_feel_manager.get_the_end_icon(search_stage,logger));
+        progress.stop();
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -922,10 +920,7 @@ public class Playlist
                 } catch (InterruptedException e) {
                     logger.log(""+e);
                 }
-                Platform.runLater(() -> {
-                    iv.setImage(null);
-                    vbox.getChildren().remove(iv);
-                });
+                Platform.runLater(progress::remove);
             }
         };
         Actor_engine.execute(r,"set end of search icon",logger);

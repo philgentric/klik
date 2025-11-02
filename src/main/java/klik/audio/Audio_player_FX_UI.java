@@ -33,7 +33,7 @@ import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 
 import java.io.File;
 import java.io.IOException;

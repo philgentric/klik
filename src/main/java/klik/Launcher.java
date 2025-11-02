@@ -31,9 +31,9 @@ import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
-import klik.util.ui.Hourglass;
+import klik.util.ui.progress.Hourglass;
 import klik.util.ui.Popups;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Progress_window;
 
 import java.io.*;
 import java.nio.file.Path;

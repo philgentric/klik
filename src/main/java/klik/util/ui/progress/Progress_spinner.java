@@ -1,4 +1,4 @@
-package klik.util.ui;
+package klik.util.ui.progress;
 
 
 import javafx.animation.Animation;
@@ -23,7 +23,7 @@ public class Progress_spinner
 //**********************************************************
 {
     RotateTransition rotate_transition;
-    Node node;
+    StackPane stack_pane;
 
     //**********************************************************
     public Pane start()
@@ -42,7 +42,7 @@ public class Progress_spinner
         arc.setStartAngle(0);     // will rotate, start angle is arbitrary
         arc.setLength(270);       // 3/4 circle
 
-        StackPane stack_pane = new StackPane(arc);
+        stack_pane = new StackPane(arc);
         stack_pane.setPadding(new Insets(20));
         stack_pane.setPrefSize(size, size);
 
@@ -68,7 +68,6 @@ public class Progress_spinner
         rotate_transition.play();
         //System.out.println("play transition");
 
-        node = stack_pane;
         return stack_pane;
     }
 
@@ -79,11 +78,11 @@ public class Progress_spinner
     //**********************************************************
     {
         rotate_transition.pause();
-        System.out.println("pause transition");
+        //System.out.println("pause transition");
     }
 
-    public Node node()
+    public StackPane stack_pane()
     {
-        return node;
+        return stack_pane;
     }
 }

@@ -7,8 +7,8 @@ import klik.util.execute.actor.Actor_engine;
 import klik.util.info_stage.Info_stage;
 import klik.util.info_stage.Line_for_info_stage;
 import klik.util.log.Logger;
-import klik.util.ui.Hourglass;
-import klik.util.ui.Progress_window;
+import klik.util.ui.progress.Hourglass;
+import klik.util.ui.progress.Progress_window;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

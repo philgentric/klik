@@ -1,4 +1,4 @@
-package klik.util.ui;
+package klik.util.ui.progress;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -13,12 +13,14 @@ import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
+import klik.util.ui.Jfx_batch_injector;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
+@Deprecated
 public class Running_film_with_abort_button_old implements Hourglass
 //**********************************************************
 {
