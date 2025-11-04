@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.path_lists;
 //SOURCES ../Move_provider.java
 import javafx.stage.Window;

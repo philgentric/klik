@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.change.undo;
 
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;

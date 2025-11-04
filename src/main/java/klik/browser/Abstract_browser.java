@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.browser;
 //SOURCES ./virtual_landscape/Shutdown_target.java
 //SOURCES ./virtual_landscape/Full_screen_handler.java

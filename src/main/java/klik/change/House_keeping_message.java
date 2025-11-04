@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./House_keeping_message_type.java
 package klik.change;
 

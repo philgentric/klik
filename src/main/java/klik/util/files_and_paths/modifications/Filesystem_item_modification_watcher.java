@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Filesystem_modification_reporter.java
 //SOURCES ./Filesystem_item_signature.java
 

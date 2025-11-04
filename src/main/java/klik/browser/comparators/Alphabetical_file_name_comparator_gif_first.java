@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.browser.comparators;
 
 import klik.browser.Clearable_RAM_cache;

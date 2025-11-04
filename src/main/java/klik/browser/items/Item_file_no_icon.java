@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../util/ui/Text_frame_with_labels.java
 //SOURCES ../../util/ui/Text_frame.java
 

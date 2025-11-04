@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.in3D;
 
 import javafx.application.Platform;
@@ -827,7 +830,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
 
         double small_andle = 360.0 / (num_segments * 50.0);
         int iterations = (int)(delta_camera_path_angle/small_andle)*3;
-        logger.log("iterations ="+ iterations);
+        //logger.log("iterations ="+ iterations);
         if ( iterations <0) iterations = -iterations;
         if ( iterations == 0) iterations = 1;
         if ( iterations > 100) iterations = 100;

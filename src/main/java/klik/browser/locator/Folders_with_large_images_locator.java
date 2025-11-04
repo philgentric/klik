@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Monitor.java
 package klik.browser.locator;
 

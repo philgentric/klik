@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik;
 
 import javafx.scene.control.Button;
@@ -15,6 +18,7 @@ public enum External_application
     Ytdlp,
     ImageMagick,
     FFmpeg,
+    Vips,
     GraphicsMagick,
     MediaInfo;
 
@@ -58,6 +62,8 @@ public enum External_application
                 return "Install_Imagemagick";
             case FFmpeg:
                 return "Install_Ffmpeg";
+            case Vips:
+                return "Install_Vips";
             case GraphicsMagick:
                 return "Install_Graphicsmagick";
             case MediaInfo:
@@ -78,6 +84,8 @@ public enum External_application
                 return "imagemagick";
             case FFmpeg:
                 return "ffmpeg";
+            case Vips:
+                return "vips";
             case GraphicsMagick:
                 return "graphicsmagick";
             case MediaInfo:

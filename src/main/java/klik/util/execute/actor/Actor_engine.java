@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Actor_engine_interface.java
 //SOURCES ./virtual_threads/Actor_engine_with_virtual_threads.java
 //SOURCES ./workers/Actor_engine_based_on_workers.java

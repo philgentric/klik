@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.change.history;
 //SOURCES ../../properties/IProperties.java
 //SOURCES ../../properties/File_based_IProperties.java

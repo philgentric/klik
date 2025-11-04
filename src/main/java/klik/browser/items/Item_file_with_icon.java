@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../images/decoding/Fast_rotation_from_exif_metadata_extractor.java
 //SOURCES ../../experimental/work_in_progress/Multiple_image_window.java
 //SOURCES ../../image_ml/image_similarity/Similarity_engine.java
@@ -415,18 +418,18 @@ public class Item_file_with_icon extends Item_file
     event -> {
             if (dbg) logger.log("✅ convert to mp4");
             AtomicBoolean abort_reported = new AtomicBoolean(false);
-            Ffmpeg_utils.video_to_mp4_in_a_thread(owner,path,aborter, abort_reported, logger);
+            Ffmpeg_utils.video_to_mp4_in_a_thread(path,aborter, abort_reported, owner,logger);
             },
             context_menu,owner,logger);
         Menu_items.add_menu_item("Generate_many_animated_GIFs",
                     event -> {
                 if (dbg) logger.log("✅ Generating animated gifs !");
-                Animated_gifs_from_video.generate_many_gifs(owner,path,5,5,logger);
+                Animated_gifs_from_video.generate_many_gifs(path,5,5,owner,logger);
             }, context_menu,owner,logger);
         Menu_items.add_menu_item("Generate_Animated_GIF_interactively",
                 event -> {
                 if (dbg) logger.log("✅ Generating animated gifs interactively!");
-                Animated_gifs_from_video.interactive(path,owner,logger);
+                Animated_gifs_from_video.interactive(path,logger);
             },context_menu,owner,logger);
     }
 

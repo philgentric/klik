@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.search;
 
 import javafx.event.ActionEvent;
@@ -157,9 +160,9 @@ public class Results_frame
 		Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
 
 
-        Menu_items.add_menu_item("Browse",
+        Menu_items.add_menu_item("Browse_in_new_window",
                 e -> {
-			logger.log("Browse");
+			//logger.log("Browse_in_new_window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
 			New_context.additional_no_past(Context_type.File_system_2D,new Path_list_provider_for_file_system(local),owner,logger);

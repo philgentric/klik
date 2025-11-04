@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.in3D;
 
 import javafx.scene.SnapshotParameters;
@@ -98,7 +101,7 @@ public class Image_and_path
     {
         if (Files.isDirectory(path))
         {
-            logger.log(path.toAbsolutePath() +" is folder");
+            //logger.log(path.toAbsolutePath() +" is folder");
             String relative_path = "icons/wood/folder.png";
             Image folder_icon = Jar_utils.load_jfx_image_from_jar(relative_path, icon_size, owner,logger);
 
@@ -107,7 +110,7 @@ public class Image_and_path
         }
         if (!Guess_file_type.is_this_path_an_image(path))
         {
-            logger.log("WARNING, displaying non-image files not implemented "+path.toAbsolutePath());
+            logger.log("WARNING, displaying non-image files not implemented in 3D "+path.toAbsolutePath());
             return Jar_utils.get_broken_icon(icon_size,owner,logger);
         }
         //logger.log(path.toAbsolutePath() +" is image");

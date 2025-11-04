@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Landscape_height_listener.java
 //SOURCES ./Scroll_to_listener.java
 //SOURCES ../icons/image_properties_cache/Image_properties.java

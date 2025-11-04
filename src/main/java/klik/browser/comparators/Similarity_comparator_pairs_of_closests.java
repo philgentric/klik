@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.browser.comparators;
 
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;

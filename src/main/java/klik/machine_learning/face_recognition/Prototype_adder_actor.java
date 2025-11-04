@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Heavy_embeddings_prototype.java
 package klik.machine_learning.face_recognition;
 

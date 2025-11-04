@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.experimental.image_playlist;
 
 import javafx.geometry.Rectangle2D;

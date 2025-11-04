@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../browser/icons/animated_gifs/Gif_repair.java
 package klik.images;
 

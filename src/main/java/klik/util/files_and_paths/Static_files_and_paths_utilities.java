@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Sizes.java
 //SOURCES ./disk_scanner/File_payload.java
 //SOURCES ./disk_scanner/Dir_payload.java

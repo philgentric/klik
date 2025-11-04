@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.machine_learning.feature_vector;
 
 //SOURCES ./Feature_vector_creation_actor.java

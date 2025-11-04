@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./File_comparator.java
 //SOURCES ./File_backup_job_request.java
 //SOURCES ./Dir_results.java

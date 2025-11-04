@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./manual/Stage_with_2_images.java
 //SOURCES ./console/Deduplication_console_window.java
 //SOURCES ./manual/Againor.java

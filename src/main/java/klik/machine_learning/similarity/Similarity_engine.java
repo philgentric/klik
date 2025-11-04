@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.machine_learning.similarity;
 
 //SOURCES ./Vector_window.java

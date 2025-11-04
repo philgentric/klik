@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Defusk_actor_for_one_folder.java
 //SOURCES ./Fusk_actor_for_one_folder.java
 package klik.experimental.fusk;

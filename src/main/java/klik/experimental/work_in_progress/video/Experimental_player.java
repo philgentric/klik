@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.experimental.work_in_progress.video;
 
 //import com.google.common.net.UrlEscapers;

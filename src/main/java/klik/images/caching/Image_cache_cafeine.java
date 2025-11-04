@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Image_decoding_actor_for_cache.java
 //SOURCES ./Image_decode_request_for_cache.java
 package klik.images.caching;

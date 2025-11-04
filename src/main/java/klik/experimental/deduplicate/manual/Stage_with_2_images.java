@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../My_File_and_status.java
 //SOURCES ../../../util/files_and_paths/File_pair.java
 //SOURCES ../../../audio/UI_instance_holder.java

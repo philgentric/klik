@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./System_open_message.java
 //SOURCES ./Registered_applications.java
 package klik.util.execute;

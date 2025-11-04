@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../../actor/virtual_threads/Concurrency_limiter.java
 //SOURCES ./Animated_gif_generation_message.java
 package klik.util.animated_gifs;

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../audio/Audio_player_FX_UI.java
 package klik.properties.boolean_features;
 

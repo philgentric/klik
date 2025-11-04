@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Disk_usage_monitor.java
 //SOURCES ./Cache_auto_clean.java
 package klik.util.cache_auto_clean;

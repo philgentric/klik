@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../actor/Actor_engine.java
 //SOURCES ../../actor/Aborter.java
 //SOURCES ../../util/ui/Progress_window.java

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES animated_gifs/Ffmpeg_utils.java
 //SOURCES ../Image_and_properties.java
 //SOURCES ../items/Iconifiable_item_type.java

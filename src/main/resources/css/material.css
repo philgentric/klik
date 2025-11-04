@@ -17,7 +17,8 @@
 -fx-background-radius: 24px;
 -fx-border-radius: 24px;
 -fx-alignment: CENTER_LEFT;
--fx-padding: 0 24 0 24;
+-fx-padding: 0 2 0 2;
+//-fx-padding: 0 24 0 24;
 -fx-effect: dropshadow(gaussian, #B0BEC5, 4, 0.1, 0, 1);
 -fx-border-color: #E0E0E0;
 -fx-border-width: 1px;

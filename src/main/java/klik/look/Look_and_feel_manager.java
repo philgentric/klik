@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../browser/Drag_and_drop.java
 //SOURCES ./styles/*.java
 package klik.look;

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../About_klik_stage.java
 //SOURCES ../Icon_size.java
 //SOURCES ../../image_ml/face_recognition/Face_recognition_service.java

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../comparators/Alphabetical_file_name_comparator.java
 //SOURCES ../comparators/Alphabetical_file_name_comparator_gif_first.java
 //SOURCES ../comparators/

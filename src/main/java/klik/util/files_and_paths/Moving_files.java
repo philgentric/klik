@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../experimental/metadata/Metadata_handler.java
 //SOURCES ../../change/Redo_same_move_engine.java
 

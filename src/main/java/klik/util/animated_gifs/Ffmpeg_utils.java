@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../../actor/Job_termination_reporter.java
 //SOURCES ../../../util/ui/Progress_window.java
 //SOURCES ../../../util/ui/Jfx_batch_injector.java
@@ -123,23 +126,23 @@ public class Ffmpeg_utils
 
     //**********************************************************
     public static void video_to_mp4_in_a_thread(
-            Window owner,
             Path video_path,
             Aborter aborter,
             AtomicBoolean aborted_reported,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
-        Runnable r = () -> video_to_mp4(owner, video_path, aborter, aborted_reported,logger);
+        Runnable r = () -> video_to_mp4(video_path, aborter, aborted_reported,owner, logger);
         Actor_engine.execute(r,"make mp4 from video",logger);
     }
 
     //**********************************************************
     public static void video_to_mp4(
-            Window owner,
             Path video_path,
             Aborter aborter,
             AtomicBoolean aborted_reported,
+            Window owner,
             Logger logger)
     //**********************************************************
     {

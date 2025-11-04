@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.util.execute.ram_and_threads_meter;
 
 import javafx.scene.layout.HBox;

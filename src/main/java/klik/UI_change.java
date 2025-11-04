@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik;
 
 //SOURCES ./util/tcp/TCP_util.java

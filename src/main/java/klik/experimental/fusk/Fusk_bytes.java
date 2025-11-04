@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Pin_code_client.java
 //SOURCES ./Pin_code_getter_stage.java
 package klik.experimental.fusk;

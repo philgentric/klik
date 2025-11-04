@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.util.execute.actor;
 
 import klik.util.execute.actor.workers.Actor_engine_based_on_workers;

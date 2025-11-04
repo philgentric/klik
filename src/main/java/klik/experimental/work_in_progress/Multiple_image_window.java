@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../image_indexer/Indexer.java
 package klik.experimental.work_in_progress;
 

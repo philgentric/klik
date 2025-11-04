@@ -1,6 +1,7 @@
 
 # Klik: a file system explorer/manager with a strong focus on images
 
+
 [En Français](LISEZ_MOI.md)
 (klik is available in French, English, Chinese, Spanish, German, Breton, Italian, Japanese, Korean, Portuguese)
 
@@ -153,6 +154,10 @@ Trash button: the file will be moved into the trash folder
 
 Up button: the file will be moved into the parent folder
 
+
+### License
+
+Klik license is MIT 
 
 ## Customizable look-and-feel
 

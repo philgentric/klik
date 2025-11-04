@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./caching/Image_cache_interface.java
 //SOURCES ./caching/Image_cache_cafeine.java
 //SOURCES ./caching/Image_cache_linkedhashmap.java

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.experimental.fusk;
 
 import klik.util.execute.actor.Aborter;

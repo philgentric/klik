@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../util/execute/System_open_actor.java
 //SOURCES ../icons/*.java
 //SOURCES ../../util/files_and_paths/Folder_size_stage.java

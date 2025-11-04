@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Value_getter.java
 //SOURCES ./Real_to_pixel.java
 //SOURCES ./Graph_for_meters.java

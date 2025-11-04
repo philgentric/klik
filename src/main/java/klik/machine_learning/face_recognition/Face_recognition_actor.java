@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Eval_result_for_one_prototype.java
 //SOURCES ../Feature_vector.java
 //SOURCES ../Feature_vector_source.java

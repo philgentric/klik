@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 package klik.util.image.rescaling;
 
 import app.photofox.vipsffm.VImage;
@@ -11,6 +14,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import klik.util.log.Logger;
+import klik.util.ui.Popups;
 
 import java.lang.foreign.Arena;
 
@@ -115,10 +119,18 @@ public class Vips_utils
             }
         }
         int format = VipsBandFormat.FORMAT_UCHAR.getRawValue();
-        VImage returned = VImage.newFromMemory(arena,memory_segment,w,h,3, format);
+        try {
 
-        //System.out.println("VImage acquired from FX Image");
-        return returned;
+            VImage returned = VImage.newFromMemory(arena, memory_segment, w, h, 3, format);
+
+            //System.out.println("VImage acquired from FX Image");
+            return returned;
+        }
+        catch (UnsatisfiedLinkError e)
+        {
+            Popups.popup_warning("VIPS not installed","Rescaling with not default filter(s) requires VIPS",true,null,logger);
+            return null;
+        }
     }
 
 

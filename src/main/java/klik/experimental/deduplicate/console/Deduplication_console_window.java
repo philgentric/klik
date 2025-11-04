@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../../util/files_and_paths/File_with_a_few_bytes.java
 package klik.experimental.deduplicate.console;
 

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Backup_stats.java
 //SOURCES ./Backup_console_window.java
 //SOURCES ./Backup_actor_for_one_folder.java

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Escape_keyboard_handler.java
 
 package klik.browser;
@@ -33,9 +36,7 @@ public class My_Stage
     //**********************************************************
     {
         the_Stage.close();
-
-        logger.log("the_Stage closing");
-
+        //logger.log("the_Stage closing");
     }
 
     //**********************************************************

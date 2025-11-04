@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ../../images/decoding/Fast_aspect_ratio_from_exif_metadata_extractor.java
 //SOURCES ../../images/decoding/Fast_width_from_exif_metadata_extractor.java
 //SOURCES ../../experimental/fusk/Fusk_static_core.java
@@ -52,7 +55,7 @@ public class Icons_from_disk
             Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
-        logger.log("read_original_image_from_disk_and_return_icon");
+        //logger.log("read_original_image_from_disk_and_return_icon");
 
         if (Check_remaining_RAM.RAM_running_low(logger)) {
             logger.log("read_original_image_from_disk_and_return_icon NOT DONE because running low on memory ! ");
@@ -201,7 +204,7 @@ public class Icons_from_disk
     private static Optional<Image> use_javafx_Image(InputStream input_stream, double icon_size, Logger logger)
     //**********************************************************
     {
-        logger.log("use_javafx_Image");
+        //logger.log("use_javafx_Image");
         Image image = new Image(input_stream, icon_size, icon_size, true, true);
         if ( image.isError())
         {

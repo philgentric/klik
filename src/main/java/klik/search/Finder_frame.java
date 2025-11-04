@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Search_receiver.java
 //SOURCES ./Keyword_slot.java
 //SOURCES ./Search_session.java

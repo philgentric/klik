@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Philippe Gentric
+// SPDX-License-Identifier: MIT
+
 //SOURCES ./Embeddings_prototype.java
 //SOURCES ./Recognition_stats.java
 //SOURCES ./Training_stats.java
